@@ -1,0 +1,26 @@
+.search-input {
+  width: 200px;
+  padding-left: 14px;
+  padding-right: 14px;
+  margin-right: 20px;
+  border: 1px solid #e9ecef;
+  border-radius: 30px;
+  background: #f8f9fa;
+}
+
+.personal-input {
+  border: none;
+  padding-left: 0;
+}
+
+.personal-input:focus {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  border-radius: 0;
+  border-bottom: 1px solid var(--primary);
+}
+
+.custom {
+  height: 100% !important;
+}

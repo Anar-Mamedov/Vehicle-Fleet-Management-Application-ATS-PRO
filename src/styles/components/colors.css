@@ -1,0 +1,51 @@
+.text-secondary {
+  color: var(--secondary);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.text-info {
+  color: var(--info);
+}
+
+.text-danger {
+  color: var(--error);
+}
+
+.text-white {
+  color: var(--white);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.bg-secondary {
+  background-color: var(--secondary);
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.bg-info {
+  background-color: var(--info);
+}
+
+.bg-dark {
+  background-color: var(--third);
+}
+
+.bg-light {
+  background-color: var(--gray-300);
+}
+
+.bg-success {
+  background-color: var(--success);
+}
+
+.bg-error {
+  background-color: var(--error);
+}

@@ -1,0 +1,55 @@
+@import url(./variables.css);
+
+@import url(./components/grid.css);
+@import url(./components/colors.css);
+@import url(./components/images.css);
+@import url(./components/buttons.css);
+@import url(./components/form.css);
+@import url(./components/table.css);
+
+
+@import url(./layout/login.css);
+@import url(./layout/root.css);
+
+@import url(./components/antd.css);
+
+@font-face {
+  font-family: Roboto;
+  src: url("/fonts/Roboto/Roboto-Regular.ttf");
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-family: Roboto;
+  font-size: 14px;
+}
+
+img,
+a,
+input,
+label,
+select,
+textarea {
+  display: inline-block;
+}
+
+button,
+input,
+a {
+  cursor: pointer;
+}
+
+textarea {
+  resize: unset !important;
+  height: 80px !important;
+}
+
+ul {
+  list-style-type: none;
+}

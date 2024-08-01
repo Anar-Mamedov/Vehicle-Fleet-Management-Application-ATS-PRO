@@ -1,0 +1,7 @@
+.recharts-surface text tspan {
+    fill: #fff;
+}
+
+.recharts-layer.recharts-active-shape text {
+    fill: #fff;
+}

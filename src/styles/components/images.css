@@ -1,0 +1,12 @@
+.login-logo-img {
+  width: 200px;
+}
+
+.login-bg-image {
+    background: linear-gradient(rgba(255, 255, 255, 0.4),
+            rgba(255, 255, 255, 0.4)),
+        center/cover url("/images/ats_login_image.jpg") no-repeat;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}

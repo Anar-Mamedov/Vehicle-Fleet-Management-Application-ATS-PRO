@@ -1,0 +1,273 @@
+.sidebar-logo {
+  width: 50%;
+}
+
+.header-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.footer {
+  background-color: var(--white);
+  padding: 20px;
+  text-align: center;
+}
+
+.main-content {
+  height: 100vh;
+  background-color: var(--white-300);
+  position: relative;
+  overflow: hidden;
+}
+
+.main {
+  padding: 64px 40px;
+  overflow: auto;
+  height: 100%;
+}
+
+.content {
+  background-color: var(--white);
+  border-radius: 8px;
+  margin: 10px 0;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+
+.loading-spin {
+  background-color: var(--gray-200);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader {
+  width: 60px;
+  aspect-ratio: 1;
+  display: grid;
+  color: var(--secondary);
+  background: radial-gradient(
+    farthest-side,
+    currentColor calc(100% - 6px),
+    #0000 calc(100% - 5px) 0
+  );
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    #0000 calc(100% - 13px),
+    #000 calc(100% - 12px)
+  );
+  border-radius: 50%;
+  animation: l21 1s infinite linear;
+}
+
+.loader::before,
+.loader::after {
+  content: "";
+  grid-area: 1/1;
+  background: linear-gradient(currentColor 0 0) center,
+    linear-gradient(currentColor 0 0) center;
+  background-size: 100% 10px, 10px 100%;
+  background-repeat: no-repeat;
+}
+
+.loader::after {
+  transform: rotate(45deg);
+}
+.loader {
+  width: 50px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  animation: l21 1s infinite linear;
+}
+@keyframes l21 {
+  100% {
+    transform: rotate(0.5turn);
+  }
+}
+.border {
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
+}
+
+.sub-title {
+  color: var(--secondary);
+  border-bottom: 1px solid var(--gray-300);
+  padding: 10px 0;
+  font-weight: 400;
+}
+
+.filter-icon {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--white);
+  margin-right: 4px;
+}
+
+.car-image {
+  width: 100%;
+  height: 250px;
+}
+
+.dashboardh2 {
+  color: #fff;
+}
+
+.error-message {
+  font-size: 12px;
+  color: var(--error);
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.login .ant-spin-spinning {
+  position: static;
+}
+
+.detail-tuketim p {
+  margin: 8px 0;
+}
+
+.car-body {
+  width: 100%;
+  height: 90%;
+}
+
+.part:hover {
+  fill: var(--light-blue);
+}
+
+.sistem .ant-list {
+  max-height: 70% !important;
+  overflow: auto;
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+}
+
+.region .ant-list {
+  max-height: 50vh !important;
+  overflow: auto;
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+}
+
+.sistem .ant-layout-content {
+  padding: 0 !important;
+  position: relative;
+}
+
+.br-8 {
+  border-radius: 8px;
+}
+
+.ant-layout-sider {
+  overflow: auto;
+}
+
+.ant-layout-sider::-webkit-scrollbar {
+  background-color: transparent;
+}
+
+.sistem .ant-layout-sider {
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border-radius: 8px;
+  background: #fff; 
+  flex: 0 0 250 !important;
+}
+
+.sistem {
+  height: 90%;
+}
+
+.sistem .ant-layout {
+  height: 100% !important;
+}
+
+.sistem .title {
+  margin-bottom: 16px;
+  text-align: center;
+  background-color: #fff;
+  padding: 20px 0;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.model-buttons {
+  position: absolute; 
+  bottom: 0;
+  left: 50%; 
+  transform: translateX(-50%);
+}
+
+.region .model-buttons {
+  position: absolute; 
+  bottom: 120px;
+  left: 50%; 
+  transform: translateX(-50%);
+}
+
+.ant-upload-list-item-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+.ant-upload-wrapper {
+  width: 100% !important;
+}
+
+.ant-upload-list.ant-upload-list-picture-card {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+.ant-upload.ant-upload-select {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+a .btn {
+  color: var(--info) !important;
+  border: 1px solid var(--info);
+}
+
+.active-row,
+.active-row button {
+  color: var(--success);
+}
+
+@keyframes showAndMoveWarning {
+  from {
+    opacity: 0;
+    /* transform: scale(1); */
+  }
+  to {
+    opacity: 1;
+    /* transform: scale(1.4); */
+  }
+}
+
+.warning-icon.show {
+  animation: showAndMoveWarning 1s forwards infinite;
+}
+
+.warning-icon.hide {
+  display: none;
+}
+
+.input-error {
+  border: 1px solid red !important;
+  border-radius: 6px;
+}

@@ -1,0 +1,124 @@
+// GENERATE BY ./scripts/generate.ts
+// DON NOT EDIT IT MANUALLY
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return _default;
+    }
+});
+var _react = /*#__PURE__*/ _interop_require_wildcard(require("react"));
+var _RedditSquareFilled = /*#__PURE__*/ _interop_require_default(require("@ant-design/icons-svg/lib/asn/RedditSquareFilled"));
+var _AntdIcon = /*#__PURE__*/ _interop_require_default(require("../components/AntdIcon"));
+function _define_property(obj, key, value) {
+    if (key in obj) {
+        Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: true,
+            configurable: true,
+            writable: true
+        });
+    } else {
+        obj[key] = value;
+    }
+    return obj;
+}
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+function _getRequireWildcardCache(nodeInterop) {
+    if (typeof WeakMap !== "function") return null;
+    var cacheBabelInterop = new WeakMap();
+    var cacheNodeInterop = new WeakMap();
+    return (_getRequireWildcardCache = function(nodeInterop) {
+        return nodeInterop ? cacheNodeInterop : cacheBabelInterop;
+    })(nodeInterop);
+}
+function _interop_require_wildcard(obj, nodeInterop) {
+    if (!nodeInterop && obj && obj.__esModule) {
+        return obj;
+    }
+    if (obj === null || typeof obj !== "object" && typeof obj !== "function") {
+        return {
+            default: obj
+        };
+    }
+    var cache = _getRequireWildcardCache(nodeInterop);
+    if (cache && cache.has(obj)) {
+        return cache.get(obj);
+    }
+    var newObj = {
+        __proto__: null
+    };
+    var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
+    for(var key in obj){
+        if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
+            var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+            if (desc && (desc.get || desc.set)) {
+                Object.defineProperty(newObj, key, desc);
+            } else {
+                newObj[key] = obj[key];
+            }
+        }
+    }
+    newObj.default = obj;
+    if (cache) {
+        cache.set(obj, newObj);
+    }
+    return newObj;
+}
+function _object_spread(target) {
+    for(var i = 1; i < arguments.length; i++){
+        var source = arguments[i] != null ? arguments[i] : {};
+        var ownKeys = Object.keys(source);
+        if (typeof Object.getOwnPropertySymbols === "function") {
+            ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function(sym) {
+                return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+            }));
+        }
+        ownKeys.forEach(function(key) {
+            _define_property(target, key, source[key]);
+        });
+    }
+    return target;
+}
+function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+    if (Object.getOwnPropertySymbols) {
+        var symbols = Object.getOwnPropertySymbols(object);
+        if (enumerableOnly) {
+            symbols = symbols.filter(function(sym) {
+                return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+            });
+        }
+        keys.push.apply(keys, symbols);
+    }
+    return keys;
+}
+function _object_spread_props(target, source) {
+    source = source != null ? source : {};
+    if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+        ownKeys(Object(source)).forEach(function(key) {
+            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+    }
+    return target;
+}
+var RedditSquareFilled = function(props, ref) {
+    return /*#__PURE__*/ _react.createElement(_AntdIcon.default, _object_spread_props(_object_spread({}, props), {
+        ref: ref,
+        icon: _RedditSquareFilled.default
+    }));
+};
+/**![reddit-square](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIGZpbGw9IiNjYWNhY2EiIHZpZXdCb3g9IjY0IDY0IDg5NiA4OTYiIGZvY3VzYWJsZT0iZmFsc2UiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTI5NiA0NDBhMzUuOTggMzUuOTggMCAwMC0xMy40IDY5LjRjMTEuNS0xOC4xIDI3LjEtMzQuNSA0NS45LTQ4LjhBMzUuOSAzNS45IDAgMDAyOTYgNDQwem0yODkuNyAxODQuOWMtMTQuOSAxMS43LTQ0LjMgMjQuMy03My43IDI0LjNzLTU4LjktMTIuNi03My43LTI0LjNjLTkuMy03LjMtMjIuNy01LjctMzAgMy42LTcuMyA5LjMtNS43IDIyLjcgMy42IDMwIDI1LjcgMjAuNCA2NSAzMy41IDEwMC4xIDMzLjUgMzUuMSAwIDc0LjQtMTMuMSAxMDAuMi0zMy41IDkuMy03LjMgMTAuOS0yMC44IDMuNi0zMGEyMS40NiAyMS40NiAwIDAwLTMwLjEtMy42ek04ODAgMTEySDE0NGMtMTcuNyAwLTMyIDE0LjMtMzIgMzJ2NzM2YzAgMTcuNyAxNC4zIDMyIDMyIDMyaDczNmMxNy43IDAgMzItMTQuMyAzMi0zMlYxNDRjMC0xNy43LTE0LjMtMzItMzItMzJ6TTc1NyA1NDEuOWM0LjYgMTMuNSA3IDI3LjYgNyA0Mi4xIDAgOTkuNC0xMTIuOCAxODAtMjUyIDE4MHMtMjUyLTgwLjYtMjUyLTE4MGMwLTE0LjUgMi40LTI4LjYgNy00Mi4xQTcyLjAxIDcyLjAxIDAgMDEyOTYgNDA0YzI3LjEgMCA1MC42IDE0LjkgNjIuOSAzNyAzNi4yLTE5LjggODAuMi0zMi44IDEyOC4xLTM2LjFsNTguNC0xMzEuMWM0LjMtOS44IDE1LjItMTQuOCAyNS41LTExLjhsOTEuNiAyNi41YTU0LjAzIDU0LjAzIDAgMDExMDEuNiAyNS42YzAgMjkuOC0yNC4yIDU0LTU0IDU0LTIzLjUgMC00My41LTE1LjEtNTAuOS0zNi4xTDU3NyAzMDguM2wtNDMgOTYuNWM0OS4xIDMgOTQuMiAxNi4xIDEzMS4yIDM2LjMgMTIuMy0yMi4xIDM1LjgtMzcgNjIuOS0zNyAzOS44IDAgNzIgMzIuMiA3MiA3Mi0uMSAyOS4zLTE3LjggNTQuNi00My4xIDY1Ljh6TTU4NCA1NDhhMzYgMzYgMCAxMDcyIDAgMzYgMzYgMCAxMC03MiAwem0xNDQtMTA4YTM1LjkgMzUuOSAwIDAwLTMyLjUgMjAuNmMxOC44IDE0LjMgMzQuNCAzMC43IDQ1LjkgNDguOEEzNS45OCAzNS45OCAwIDAwNzI4IDQ0MHpNMzY4IDU0OGEzNiAzNiAwIDEwNzIgMCAzNiAzNiAwIDEwLTcyIDB6IiAvPjwvc3ZnPg==) */ var RefIcon = /*#__PURE__*/ _react.forwardRef(RedditSquareFilled);
+if (process.env.NODE_ENV !== 'production') {
+    RefIcon.displayName = 'RedditSquareFilled';
+}
+var _default = RefIcon;

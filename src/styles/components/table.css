@@ -1,0 +1,57 @@
+.count {
+  position: absolute;
+  bottom: 36px;
+  left: 30px;
+  color: var(--info);
+}
+
+.editable-cell {
+  position: relative;
+  color: var(--error);
+}
+
+.editable-cell-value-wrap {
+  padding: 0px 12px;
+  cursor: pointer;
+  min-height: 32px;
+}
+
+.editable-row:hover .editable-cell-value-wrap {
+  padding: 4px 11px;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+}
+
+.error-text {
+  color: var(--error) !important;
+  font-weight: 600 !important;
+}
+
+.success-text {
+  color: var(--success) !important;
+  font-weight: 600 !important;
+}
+
+.context-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.context-menu button {
+  border: none;
+  text-align: left;
+}
+
+.context-menu button:hover {
+  background-color: var(--gray-200) !important;
+  color: var(--secondary) !important;
+}
+
+.km-update:disabled {
+  background-color: #5b548b6c !important;
+  color: var(--white) !important;
+}
+.undraggable-checkbox {
+  pointer-events: none;
+}
