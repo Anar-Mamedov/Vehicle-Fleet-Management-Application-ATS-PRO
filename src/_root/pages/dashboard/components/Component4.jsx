@@ -177,7 +177,7 @@ function Component4(props) {
               <Text
                 style={{
                   fontWeight: "500",
-                  fontSize: "35px",
+                  fontSize: "30px",
                   color: "white",
                   whiteSpace: "nowrap",
                   overflow: "hidden",

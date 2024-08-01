@@ -177,7 +177,7 @@ function Component1(props) {
               <Text
                 style={{
                   fontWeight: "500",
-                  fontSize: "35px",
+                  fontSize: "30px",
                   color: "white",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
@@ -186,7 +186,7 @@ function Component1(props) {
               >
                 {data}
               </Text>
-              <Text style={{ color: "white", fontSize: "15px", fontWeight: "400" }}>Aktif Araç Sayısı Anar</Text>
+              <Text style={{ color: "white", fontSize: "15px", fontWeight: "400" }}>Aktif Araç Sayısı</Text>
             </div>
             <StyledClockCircleOutlined />
           </div>
