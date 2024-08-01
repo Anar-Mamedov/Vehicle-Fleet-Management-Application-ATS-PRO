@@ -1,0 +1,58 @@
+name: Deploy to FTP Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: |
+          npm run build
+          echo "Build completed, listing files in current directory:"
+          ls -al
+          echo "Listing files in the 'dist' directory if it exists:"
+          ls -al dist || echo "'dist' directory not found"
+
+      - name: Check build directory
+        run: ls -al dist
+
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Deploy to FTP Server
+        env:
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+        run: |
+          echo "Starting FTP deployment..."
+          lftp -u $FTP_USERNAME,$FTP_PASSWORD $FTP_HOST <<EOF
+          set ssl:verify-certificate no
+          cd /
+          # Deleting matching files in the dist directory on the server
+          for file in \$(find dist -type f -o -type d); do
+            file_name=\$(basename "\$file")
+            if [ -e "/\$file_name" ]; then
+              echo "Deleting /\$file_name on server"
+              rm -rf "/\$file_name"
+            fi
+          done
+          mirror -R --verbose dist /
+          bye
+          EOF
