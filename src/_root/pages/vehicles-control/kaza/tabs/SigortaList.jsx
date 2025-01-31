@@ -62,6 +62,12 @@ const SigortaList = ({ setSigorta, open, key }) => {
   ];
 
   const fetchData = async (diff, targetPage) => {
+    if (!aracId) {
+      message.warning("Lütfen önce plaka seçiniz");
+      setData([]);
+      return;
+    }
+
     setLoading(true);
     try {
       let currentSetPointId = 0;
@@ -76,7 +82,7 @@ const SigortaList = ({ setSigorta, open, key }) => {
         currentSetPointId = 0;
       }
 
-      const response = await GetActiveInsuranceListService(aracId || 0, search, diff, currentSetPointId);
+      const response = await GetActiveInsuranceListService(aracId, search, diff, currentSetPointId);
       const total = response?.data.recordCount;
       setTotalCount(total);
       setCurrentPage(targetPage);
@@ -113,6 +119,11 @@ const SigortaList = ({ setSigorta, open, key }) => {
 
   useEffect(() => {
     if (open) {
+      if (!aracId) {
+        message.warning("Lütfen önce plaka seçiniz");
+        setData([]);
+        return;
+      }
       fetchData(0, 1);
     } else {
       setSelectedRowKeys([]);
@@ -145,11 +156,7 @@ const SigortaList = ({ setSigorta, open, key }) => {
           dataSource={data}
           pagination={{
             ...tableParams.pagination,
-            showTotal: (total) => (
-              <p className="text-info">
-                [{total} {t("kayit")}]
-              </p>
-            ),
+            showTotal: (total, range) => `Toplam ${total}`,
             showSizeChanger: false,
             showQuickJumper: true,
             locale: {
