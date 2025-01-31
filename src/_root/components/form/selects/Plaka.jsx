@@ -22,6 +22,7 @@ const Plaka = ({ name, codeName, required }) => {
 
   const handleChange = (e) => {
     GetFuelCardContentByIdService(e).then((res) => setData(res.data));
+    setValue("aracId", e);
   };
 
   const handleClick = async () => {
