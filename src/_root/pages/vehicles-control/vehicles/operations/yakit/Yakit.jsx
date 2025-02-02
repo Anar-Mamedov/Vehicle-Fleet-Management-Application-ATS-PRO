@@ -19,6 +19,10 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
   const [loading, setLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [status, setStatus] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalDataCount, setTotalDataCount] = useState(0);
+  const [search, setSearch] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState(null);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -28,36 +32,65 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [id, setId] = useState(0);
   const [aracId, setAracId] = useState(0);
-  const [search, setSearch] = useState("");
   const [openRowHeader, setOpenRowHeader] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [keys, setKeys] = useState([]);
   const [rows, setRows] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const res = await GetFuelListByVehicleIdService(search, tableParams.pagination.current, ids);
+  const fetchData = async (diff, targetPage) => {
+    setLoading(true);
+    try {
+      let currentSetPointId = 0;
+
+      if (diff > 0) {
+        // Moving forward
+        currentSetPointId = dataSource[dataSource.length - 1]?.siraNo || 0;
+      } else if (diff < 0) {
+        // Moving backward
+        currentSetPointId = dataSource[0]?.siraNo || 0;
+      } else {
+        currentSetPointId = 0;
+      }
+
+      const response = await GetFuelListByVehicleIdService(diff, currentSetPointId, search, ids);
+
+      if (response?.data) {
+        setDataSource(response.data.fuel_list || []);
+        setTotalDataCount(response.data.total_count || 0);
+        setCurrentPage(targetPage);
+        setTotal({
+          avg_consumption: response.data.avg_consumption,
+          avg_cost: response.data.avg_cost,
+          total_cost: response.data.total_cost,
+          total_quantity: response.data.total_quantity,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
       setLoading(false);
       setIsInitialLoading(false);
-      setDataSource(res?.data.fuel_list || []);
-      setTotal({
-        avg_consumption: res?.data.avg_consumption,
-        avg_cost: res?.data.avg_cost,
-        total_cost: res?.data.total_cost,
-        total_quantity: res?.data.total_quantity,
-      });
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: res?.data.total_count || 0,
-        },
-      });
-    };
+    }
+  };
 
-    fetchData();
-  }, [search, tableParams.pagination.current, status, ids]);
+  useEffect(() => {
+    fetchData(0, 1);
+  }, [ids, status]);
+
+  // Handle search with debounce
+  useEffect(() => {
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    const timeout = setTimeout(() => {
+      fetchData(0, 1);
+    }, 1000);
+
+    setSearchTimeout(timeout);
+
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   const handleDelete = (data) => {
     DeleteFuelCardService(data.siraNo).then((res) => {
@@ -293,14 +326,9 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
   );
 
   const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
-
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setDataSource([]);
+    if (pagination?.current && typeof pagination.current === "number") {
+      const diff = pagination.current - currentPage;
+      fetchData(diff, pagination.current);
     }
   };
 
@@ -398,15 +426,11 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
             columns={newColumns}
             dataSource={dataSource}
             pagination={{
-              ...tableParams.pagination,
-              showTotal: (total) => (
-                <p className="text-info">
-                  [{total} {t("kayit")}]
-                </p>
-              ),
-              locale: {
-                items_per_page: `/ ${t("sayfa")}`,
-              },
+              current: currentPage,
+              total: totalDataCount,
+              pageSize: 10,
+              showSizeChanger: false,
+              showTotal: (total, range) => `Toplam ${total}`,
             }}
             scroll={{
               x: 1500,

@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
-import { Modal, Button, Table, Popconfirm, Input, Popover, Spin } from "antd";
+import { Modal, Button, Table, Popconfirm, Input, Popover, Spin, message } from "antd";
 import { DeleteOutlined, MenuOutlined, LoadingOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../context/plakaSlice";
 import DragAndDropContext from "../../../../../components/drag-drop-table/DragAndDropContext";
@@ -18,39 +18,65 @@ const Ceza = ({ visible, onClose, ids, selectedRowsData }) => {
   const [loading, setLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [status, setStatus] = useState(false);
-  const [tableParams, setTableParams] = useState({
-    pagination: {
-      current: 1,
-      pageSize: 10,
-    },
-  });
-  const [updateModalOpen, setUpdateModalOpen] = useState(false);
-  const [id, setId] = useState(0);
-  const [aracId, setAracId] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalDataCount, setTotalDataCount] = useState(0);
   const [search, setSearch] = useState("");
   const [openRowHeader, setOpenRowHeader] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [keys, setKeys] = useState([]);
   const [rows, setRows] = useState([]);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [id, setId] = useState(0);
+  const [aracId, setAracId] = useState(0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setIsInitialLoading(true);
-      const res = await GetVehicleFinesListByVehicleIdService(search, tableParams.pagination.current, ids);
+  const fetchData = async (diff, targetPage) => {
+    setLoading(true);
+    try {
+      let currentSetPointId = 0;
+
+      if (diff > 0) {
+        // Moving forward
+        currentSetPointId = dataSource[dataSource.length - 1]?.siraNo || 0;
+      } else if (diff < 0) {
+        // Moving backward
+        currentSetPointId = dataSource[0]?.siraNo || 0;
+      } else {
+        currentSetPointId = 0;
+      }
+
+      const response = await GetVehicleFinesListByVehicleIdService(diff, currentSetPointId, search, ids);
+
+      setTotalDataCount(response.data.recordCount);
+      setCurrentPage(targetPage);
+
+      if (response.data.list.length > 0) {
+        setDataSource(response.data.list);
+      } else {
+        message.warning(t("kayitBulunamadi"));
+        setDataSource([]);
+      }
+    } catch (error) {
+      console.error("Error in API request:", error);
+      message.error(t("hataOlustu"));
+    } finally {
       setLoading(false);
       setIsInitialLoading(false);
-      setDataSource(res?.data.list);
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: res?.data.recordCount,
-        },
-      });
-    };
-    fetchData();
-  }, [search, tableParams.pagination.current, status, ids]);
+    }
+  };
+
+  useEffect(() => {
+    if (visible) {
+      fetchData(0, 1);
+    }
+  }, [visible, search, status]);
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    if (pagination?.current && typeof pagination.current === "number") {
+      const diff = pagination.current - currentPage;
+      fetchData(diff, pagination.current);
+    }
+  };
 
   const baseColumns = [
     {
@@ -153,18 +179,6 @@ const Ceza = ({ visible, onClose, ids, selectedRowsData }) => {
     }))
   );
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
-
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setDataSource([]);
-    }
-  };
-
   const footer = [
     <Button key="back" className="btn cancel-btn" onClick={onClose}>
       {t("kapat")}
@@ -226,7 +240,7 @@ const Ceza = ({ visible, onClose, ids, selectedRowsData }) => {
     if (storedSelectedKeys.length) {
       setSelectedRowKeys(storedSelectedKeys);
     }
-  }, [tableParams.pagination.current]);
+  }, [currentPage]);
 
   // Custom loading icon
   const customIcon = <LoadingOutlined style={{ fontSize: 36 }} className="text-primary" spin />;
@@ -259,12 +273,10 @@ const Ceza = ({ visible, onClose, ids, selectedRowsData }) => {
             columns={newColumns}
             dataSource={dataSource}
             pagination={{
-              ...tableParams.pagination,
-              showTotal: (total) => (
-                <p className="text-info">
-                  [{total} {t("kayit")}]
-                </p>
-              ),
+              current: currentPage,
+              pageSize: pageSize,
+              total: totalDataCount,
+              showTotal: (total, range) => `Toplam ${total}`,
               locale: {
                 items_per_page: `/ ${t("sayfa")}`,
               },

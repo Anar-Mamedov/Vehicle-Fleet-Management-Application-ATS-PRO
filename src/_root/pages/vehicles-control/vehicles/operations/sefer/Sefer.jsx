@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
-import { Modal, Button, Table, Popconfirm, Input, Popover, Spin } from "antd";
+import { Modal, Button, Table, Popconfirm, Input, Popover, Spin, message } from "antd";
 import { DeleteOutlined, MenuOutlined, LoadingOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../context/plakaSlice";
 import DragAndDropContext from "../../../../../components/drag-drop-table/DragAndDropContext";
@@ -24,6 +24,7 @@ const Sefer = ({ visible, onClose, ids, selectedRowsData }) => {
       pageSize: 10,
     },
   });
+  const [totalDataCount, setTotalDataCount] = useState(0);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [id, setId] = useState(0);
   const [aracId, setAracId] = useState(0);
@@ -32,25 +33,45 @@ const Sefer = ({ visible, onClose, ids, selectedRowsData }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [keys, setKeys] = useState([]);
   const [rows, setRows] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setIsInitialLoading(true);
-      const res = await GetExpeditionsListByVehicleIdService(search, tableParams.pagination.current, ids);
+  const fetchData = async (diff = 0, targetPage = 1) => {
+    setLoading(true);
+    setIsInitialLoading(true);
+    try {
+      let currentSetPointId = 0;
+
+      if (diff > 0) {
+        // Moving forward
+        currentSetPointId = dataSource[dataSource.length - 1]?.siraNo || 0;
+      } else if (diff < 0) {
+        // Moving backward
+        currentSetPointId = dataSource[0]?.siraNo || 0;
+      }
+
+      const res = await GetExpeditionsListByVehicleIdService(diff, currentSetPointId, search, ids);
       setLoading(false);
       setIsInitialLoading(false);
-      setDataSource(res?.data.list);
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: res?.data.recordCount,
-        },
-      });
-    };
-    fetchData();
-  }, [search, tableParams.pagination.current, status, ids]);
+
+      if (res?.data.list.length > 0) {
+        setDataSource(res.data.list);
+        setTotalDataCount(res.data.recordCount);
+        setCurrentPage(targetPage);
+      } else {
+        message.warning(t("kayitBulunamadi"));
+        setDataSource([]);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      message.error(t("hataOlustu"));
+      setLoading(false);
+      setIsInitialLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(0, 1);
+  }, [search, status, ids]);
 
   const baseColumns = [
     {
@@ -170,14 +191,9 @@ const Sefer = ({ visible, onClose, ids, selectedRowsData }) => {
   );
 
   const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
-
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setDataSource([]);
+    if (pagination?.current && typeof pagination.current === "number") {
+      const diff = pagination.current - currentPage;
+      fetchData(diff, pagination.current);
     }
   };
 
@@ -275,15 +291,11 @@ const Sefer = ({ visible, onClose, ids, selectedRowsData }) => {
             columns={newColumns}
             dataSource={dataSource}
             pagination={{
-              ...tableParams.pagination,
-              showTotal: (total) => (
-                <p className="text-info">
-                  [{total} {t("kayit")}]
-                </p>
-              ),
-              locale: {
-                items_per_page: `/ ${t("sayfa")}`,
-              },
+              current: currentPage,
+              total: totalDataCount,
+              pageSize: tableParams.pagination.pageSize,
+              showTotal: (total, range) => `Toplam ${total}`,
+              showSizeChanger: false,
             }}
             scroll={{
               x: 1500,

@@ -570,11 +570,57 @@ const MainTable = ({ ids, selectedRowsData }) => {
 
   // ana tablo api isteği için kullanılan useEffect
 
-  useEffect(() => {
-    fetchEquipmentData(body, currentPage, pageSize);
-  }, [body, currentPage, pageSize, ids]);
+  const fetchEquipmentData = async (diff, targetPage) => {
+    setLoading(true);
+    try {
+      let currentSetPointId = 0;
 
-  // ana tablo api isteği için kullanılan useEffect son
+      if (diff > 0) {
+        // Moving forward
+        currentSetPointId = data[data.length - 1]?.siraNo || 0;
+      } else if (diff < 0) {
+        // Moving backward
+        currentSetPointId = data[0]?.siraNo || 0;
+      } else {
+        currentSetPointId = 0;
+      }
+
+      const response = await AxiosInstance.post(`PeriodicMaintenance/GetPeriodicMaintenanceByVehicleIds?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, ids);
+
+      setTotalDataCount(response.data.recordCount);
+      setCurrentPage(targetPage);
+
+      const formattedData = response.data.list.map((item) => ({
+        ...item,
+        key: item.siraNo,
+      }));
+
+      if (formattedData.length > 0) {
+        setData(formattedData);
+      } else {
+        message.warning(t("kayitBulunamadi"));
+        setData([]);
+      }
+    } catch (error) {
+      console.error("Error in API request:", error);
+      message.error(t("hataOlustu"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // sayfalama için kullanılan useEffect
+  const handleTableChange = (pagination, filters, sorter, extra) => {
+    if (pagination?.current && typeof pagination.current === "number") {
+      const diff = pagination.current - currentPage;
+      fetchEquipmentData(diff, pagination.current);
+    }
+  };
+
+  // ana tablo api isteği için kullanılan useEffect
+  useEffect(() => {
+    fetchEquipmentData(0, 1);
+  }, [body]);
 
   // arama işlemi için kullanılan useEffect
   useEffect(() => {
@@ -598,47 +644,6 @@ const MainTable = ({ ids, selectedRowsData }) => {
 
   // arama işlemi için kullanılan useEffect son
 
-  const fetchEquipmentData = async (body, page, size) => {
-    // body'nin undefined olması durumunda varsayılan değerler atanıyor
-    const { keyword = "", filters = {} } = body || {};
-    // page'in undefined olması durumunda varsayılan değer olarak 1 atanıyor
-    const currentPage = page || 1;
-
-    try {
-      setLoading(true);
-      // API isteğinde keyword ve currentPage kullanılıyor
-      const response = await AxiosInstance.post(`PeriodicMaintenance/GetPeriodicMaintenanceByVehicleIds?page=${currentPage}&parameter=${keyword}`, ids);
-      if (response.data) {
-        // Toplam sayfa sayısını ayarla
-        setTotalPages(response.data.page);
-        setTotalDataCount(response.data.recordCount);
-
-        // Gelen veriyi formatla ve state'e ata
-        const formattedData = response.data.list.map((item) => ({
-          ...item,
-          key: item.siraNo,
-          // Diğer alanlarınız...
-        }));
-        setData(formattedData);
-        setLoading(false);
-      } else {
-        console.error("API response is not in expected format");
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error("Error in API request:", error);
-      setLoading(false);
-      if (navigator.onLine) {
-        // İnternet bağlantısı var
-        message.error("Hata Mesajı: " + error.message);
-      } else {
-        // İnternet bağlantısı yok
-        message.error("Internet Bağlantısı Mevcut Değil.");
-      }
-    }
-  };
-
-  // filtreleme işlemi için kullanılan useEffect
   const handleBodyChange = useCallback((type, newBody) => {
     setBody((state) => ({
       ...state,
@@ -646,16 +651,6 @@ const MainTable = ({ ids, selectedRowsData }) => {
     }));
     setCurrentPage(1); // Filtreleme yapıldığında sayfa numarasını 1'e ayarla
   }, []);
-  // filtreleme işlemi için kullanılan useEffect son
-
-  // sayfalama için kullanılan useEffect
-  const handleTableChange = (pagination, filters, sorter, extra) => {
-    if (pagination) {
-      setCurrentPage(pagination.current);
-      setPageSize(pagination.pageSize); // pageSize güncellemesi
-    }
-  };
-  // sayfalama için kullanılan useEffect son
 
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -703,11 +698,11 @@ const MainTable = ({ ids, selectedRowsData }) => {
     setSelectedRows([]);
 
     // Verileri yeniden çekmek için `fetchEquipmentData` fonksiyonunu çağır
-    fetchEquipmentData(body, currentPage);
+    fetchEquipmentData(0, 1);
     // Burada `body` ve `currentPage`'i güncellediğimiz için, bu değerlerin en güncel hallerini kullanarak veri çekme işlemi yapılır.
     // Ancak, `fetchEquipmentData` içinde `body` ve `currentPage`'e bağlı olarak veri çekiliyorsa, bu değerlerin güncellenmesi yeterli olacaktır.
     // Bu nedenle, doğrudan `fetchEquipmentData` fonksiyonunu çağırmak yerine, bu değerlerin güncellenmesini bekleyebiliriz.
-  }, [body, currentPage]); // Bağımlılıkları kaldırdık, çünkü fonksiyon içindeki değerler zaten en güncel halleriyle kullanılıyor.
+  }, [body]);
 
   // filtrelenmiş sütunları local storage'dan alıp state'e atıyoruz
   const [columns, setColumns] = useState(() => {
@@ -977,7 +972,7 @@ const MainTable = ({ ids, selectedRowsData }) => {
             total: totalDataCount, // Toplam kayıt sayısı (sayfa başına kayıt sayısı ile çarpılır)
             pageSize: pageSize,
             defaultPageSize: 10,
-            showSizeChanger: true,
+            showSizeChanger: false,
             pageSizeOptions: ["10", "20", "50", "100"],
             position: ["bottomRight"],
             onChange: handleTableChange,

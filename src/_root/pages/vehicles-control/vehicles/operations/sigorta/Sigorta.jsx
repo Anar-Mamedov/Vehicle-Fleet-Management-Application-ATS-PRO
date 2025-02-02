@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
-import { Modal, Button, Table, Checkbox, Popconfirm, Input, Popover, Spin } from "antd";
+import { Modal, Button, Table, Checkbox, Popconfirm, Input, Popover, Spin, message } from "antd";
 import { DeleteOutlined, MenuOutlined, LoadingOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../context/plakaSlice";
 import DragAndDropContext from "../../../../../components/drag-drop-table/DragAndDropContext";
@@ -18,12 +18,7 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
   const [loading, setLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [status, setStatus] = useState(false);
-  const [tableParams, setTableParams] = useState({
-    pagination: {
-      current: 1,
-      pageSize: 10,
-    },
-  });
+  const [currentPage, setCurrentPage] = useState(1);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [id, setId] = useState(0);
   const [aracId, setAracId] = useState(0);
@@ -32,25 +27,34 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [keys, setKeys] = useState([]);
   const [rows, setRows] = useState([]);
+  const [totalDataCount, setTotalDataCount] = useState(0);
+  const [body, setBody] = useState({});
+  const [value, setValue] = useState({});
+  const [data, setData] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setIsInitialLoading(true);
-      const res = await GetInsuranceListByVehicleIdService(search, tableParams.pagination.current, ids);
-      setLoading(false);
-      setIsInitialLoading(false);
-      setDataSource(res?.data.list);
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: res?.data.recordCount,
-        },
-      });
+      try {
+        let currentSetPointId = 0;
+        const diff = 0; // Initial load with diff 0
+        const res = await GetInsuranceListByVehicleIdService(diff, currentSetPointId, search, ids);
+        setLoading(false);
+        setIsInitialLoading(false);
+        setDataSource(res?.data.list);
+        setTotalDataCount(res?.data.recordCount);
+        setData(res?.data.list);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+        setIsInitialLoading(false);
+      }
     };
     fetchData();
-  }, [search, tableParams.pagination.current, status, ids]);
+  }, [search, status, ids]);
 
   const baseColumns = [
     {
@@ -181,15 +185,37 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
     }))
   );
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
+  const handleTableChange = async (pagination, filters, sorter) => {
+    if (pagination?.current && typeof pagination.current === "number") {
+      setLoading(true);
+      try {
+        const diff = pagination.current - currentPage;
+        let currentSetPointId = 0;
 
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setDataSource([]);
+        if (diff > 0) {
+          // Moving forward
+          currentSetPointId = dataSource[dataSource.length - 1]?.siraNo || 0;
+        } else if (diff < 0) {
+          // Moving backward
+          currentSetPointId = dataSource[0]?.siraNo || 0;
+        }
+
+        const res = await GetInsuranceListByVehicleIdService(diff, currentSetPointId, search, ids);
+
+        if (res?.data.list.length > 0) {
+          setDataSource(res.data.list);
+          setTotalDataCount(res.data.recordCount);
+          setCurrentPage(pagination.current);
+        } else {
+          message.warning(t("kayitBulunamadi"));
+          setDataSource([]);
+        }
+      } catch (error) {
+        console.error("Error in pagination:", error);
+        message.error(t("hataOlustu"));
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -254,7 +280,26 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
     if (storedSelectedKeys.length) {
       setSelectedRowKeys(storedSelectedKeys);
     }
-  }, [tableParams.pagination.current]);
+  }, [currentPage]);
+
+  const handleBodyChange = useCallback((type, newBody) => {
+    setBody((state) => ({
+      ...state,
+      [type]: newBody,
+    }));
+  }, []);
+
+  const onSelectChange = (newSelectedRowKeys) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+    if (newSelectedRowKeys.length > 0) {
+      setValue("selectedLokasyonId", newSelectedRowKeys[0]);
+    } else {
+      setValue("selectedLokasyonId", null);
+    }
+    // Seçilen satırların verisini bul
+    const newSelectedRows = dataSource.filter((row) => newSelectedRowKeys.includes(row.siraNo));
+    setSelectedRows(newSelectedRows); // Seçilen satırların verilerini state'e ata
+  };
 
   // Custom loading icon
   const customIcon = <LoadingOutlined style={{ fontSize: 36 }} className="text-primary" spin />;
@@ -287,12 +332,11 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
             columns={newColumns}
             dataSource={dataSource}
             pagination={{
-              ...tableParams.pagination,
-              showTotal: (total) => (
-                <p className="text-info">
-                  [{total} {t("kayit")}]
-                </p>
-              ),
+              current: currentPage,
+              total: totalDataCount,
+              pageSize: 10,
+              showSizeChanger: false,
+              showTotal: (total, range) => `Toplam ${total}`,
               locale: {
                 items_per_page: `/ ${t("sayfa")}`,
               },
@@ -305,7 +349,7 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
             onChange={handleTableChange}
             rowSelection={{
               selectedRowKeys: selectedRowKeys,
-              onChange: (selectedKeys) => setSelectedRowKeys(selectedKeys),
+              onChange: onSelectChange,
               onSelect: handleRowSelection,
             }}
             components={{

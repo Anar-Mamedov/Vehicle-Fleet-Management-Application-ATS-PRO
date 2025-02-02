@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
-import { Modal, Button, Table, Popconfirm, Input, Popover, Spin } from "antd";
+import { Modal, Button, Table, Popconfirm, Input, Popover, Spin, message } from "antd";
 import { DeleteOutlined, MenuOutlined, LoadingOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../context/plakaSlice";
 import DragAndDropContext from "../../../../../components/drag-drop-table/DragAndDropContext";
@@ -18,12 +18,9 @@ const Harcama = ({ visible, onClose, ids, selectedRowsData }) => {
   const [loading, setLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [status, setStatus] = useState(false);
-  const [tableParams, setTableParams] = useState({
-    pagination: {
-      current: 1,
-      pageSize: 10,
-    },
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalDataCount, setTotalDataCount] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [id, setId] = useState(0);
   const [aracId, setAracId] = useState(0);
@@ -33,23 +30,56 @@ const Harcama = ({ visible, onClose, ids, selectedRowsData }) => {
   const [keys, setKeys] = useState([]);
   const [rows, setRows] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const res = await GetExpensesListByVehicleIdService(search, tableParams.pagination.current, ids);
+  const fetchData = async (diff, targetPage) => {
+    setLoading(true);
+    try {
+      let currentSetPointId = 0;
+
+      if (diff > 0) {
+        // Moving forward
+        currentSetPointId = dataSource[dataSource.length - 1]?.siraNo || 0;
+      } else if (diff < 0) {
+        // Moving backward
+        currentSetPointId = dataSource[0]?.siraNo || 0;
+      } else {
+        currentSetPointId = 0;
+      }
+
+      const response = await GetExpensesListByVehicleIdService(diff, currentSetPointId, search, ids);
+
+      setTotalDataCount(response.data.recordCount);
+      setCurrentPage(targetPage);
+
+      const formattedData = response.data.list.map((item) => ({
+        ...item,
+        key: item.siraNo,
+      }));
+
+      if (formattedData.length > 0) {
+        setDataSource(formattedData);
+      } else {
+        message.warning(t("kayitBulunamadi"));
+        setDataSource([]);
+      }
+    } catch (error) {
+      console.error("Error in API request:", error);
+      message.error(t("hataOlustu"));
+    } finally {
       setLoading(false);
       setIsInitialLoading(false);
-      setDataSource(res?.data.list);
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: res?.data.recordCount,
-        },
-      });
-    };
-    fetchData();
-  }, [search, tableParams.pagination.current, status, ids]);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(0, 1);
+  }, [search, status, ids]);
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    if (pagination?.current && typeof pagination.current === "number") {
+      const diff = pagination.current - currentPage;
+      fetchData(diff, pagination.current);
+    }
+  };
 
   const baseColumns = [
     {
@@ -126,18 +156,6 @@ const Harcama = ({ visible, onClose, ids, selectedRowsData }) => {
     }))
   );
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
-
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setDataSource([]);
-    }
-  };
-
   const footer = [
     <Button key="back" className="btn cancel-btn" onClick={onClose}>
       {t("kapat")}
@@ -199,7 +217,7 @@ const Harcama = ({ visible, onClose, ids, selectedRowsData }) => {
     if (storedSelectedKeys.length) {
       setSelectedRowKeys(storedSelectedKeys);
     }
-  }, [tableParams.pagination.current]);
+  }, [currentPage]);
 
   // Custom loading icon
   const customIcon = <LoadingOutlined style={{ fontSize: 36 }} className="text-primary" spin />;
@@ -232,15 +250,15 @@ const Harcama = ({ visible, onClose, ids, selectedRowsData }) => {
             columns={newColumns}
             dataSource={dataSource}
             pagination={{
-              ...tableParams.pagination,
-              showTotal: (total) => (
-                <p className="text-info">
-                  [{total} {t("kayit")}]
-                </p>
-              ),
-              locale: {
-                items_per_page: `/ ${t("sayfa")}`,
-              },
+              current: currentPage,
+              total: totalDataCount,
+              pageSize: pageSize,
+              defaultPageSize: 10,
+              pageSizeOptions: ["10", "20", "50", "100"],
+              position: ["bottomRight"],
+              onChange: handleTableChange,
+              showTotal: (total) => `${t("toplam")} ${total}`,
+              showQuickJumper: true,
             }}
             scroll={{
               x: 1500,
@@ -259,7 +277,7 @@ const Harcama = ({ visible, onClose, ids, selectedRowsData }) => {
               },
             }}
             locale={{
-              emptyText: "Veri Bulunamadı",
+              emptyText: t("veriBulunamadi"),
             }}
           />
         </Spin>
