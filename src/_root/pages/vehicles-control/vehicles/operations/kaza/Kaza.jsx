@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
-import { Modal, Button, Table, Popconfirm, Input, Popover, Spin } from "antd";
+import { Modal, Button, Table, Popconfirm, Input, Popover, Spin, message } from "antd";
 import { DeleteOutlined, MenuOutlined, LoadingOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../context/plakaSlice";
 import DragAndDropContext from "../../../../../components/drag-drop-table/DragAndDropContext";
@@ -18,6 +18,9 @@ const Kaza = ({ visible, onClose, ids, selectedRowsData }) => {
   const [loading, setLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [status, setStatus] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalDataCount, setTotalDataCount] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -37,17 +40,37 @@ const Kaza = ({ visible, onClose, ids, selectedRowsData }) => {
     const fetchData = async () => {
       setLoading(true);
       setIsInitialLoading(true);
-      const res = await GetAccidentsListByVehicleIdService(search, tableParams.pagination.current, ids);
-      setLoading(false);
-      setIsInitialLoading(false);
-      setDataSource(res?.data.list);
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: res?.data.recordCount,
-        },
-      });
+      try {
+        let currentSetPointId = 0;
+
+        if (tableParams.pagination.current > currentPage) {
+          // Moving forward
+          currentSetPointId = dataSource[dataSource.length - 1]?.siraNo || 0;
+        } else if (tableParams.pagination.current < currentPage) {
+          // Moving backward
+          currentSetPointId = dataSource[0]?.siraNo || 0;
+        }
+
+        const diff = tableParams.pagination.current - currentPage;
+
+        const res = await GetAccidentsListByVehicleIdService(diff, currentSetPointId, search, ids);
+        setLoading(false);
+        setIsInitialLoading(false);
+
+        if (res?.data.list.length > 0) {
+          setDataSource(res.data.list);
+          setTotalDataCount(res.data.recordCount);
+          setCurrentPage(tableParams.pagination.current);
+        } else {
+          message.warning(t("kayitBulunamadi"));
+          setDataSource([]);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error(t("hataOlustu"));
+        setLoading(false);
+        setIsInitialLoading(false);
+      }
     };
     fetchData();
   }, [search, tableParams.pagination.current, status, ids]);
@@ -220,10 +243,6 @@ const Kaza = ({ visible, onClose, ids, selectedRowsData }) => {
       filters,
       ...sorter,
     });
-
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setDataSource([]);
-    }
   };
 
   const footer = [
@@ -320,15 +339,14 @@ const Kaza = ({ visible, onClose, ids, selectedRowsData }) => {
             columns={newColumns}
             dataSource={dataSource}
             pagination={{
-              ...tableParams.pagination,
-              showTotal: (total) => (
-                <p className="text-info">
-                  [{total} {t("kayit")}]
-                </p>
-              ),
-              locale: {
-                items_per_page: `/ ${t("sayfa")}`,
-              },
+              current: currentPage,
+              total: totalDataCount,
+              pageSize: pageSize,
+
+              pageSizeOptions: ["10", "20", "50", "100"],
+              showTotal: (total, range) => `Toplam ${total}`,
+              showQuickJumper: true,
+              onChange: handleTableChange,
             }}
             scroll={{
               x: 1500,

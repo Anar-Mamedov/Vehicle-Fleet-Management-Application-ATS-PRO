@@ -1,8 +1,8 @@
 import http from "../../http";
 
 // yakit
-export const GetFuelListByVehicleIdService = async (search, page, data) => {
-  return await http.post(`/Fuel/GetFuelListByVehicleId?page=${page}&parameter=${search}`, data);
+export const GetFuelListByVehicleIdService = async (diff, currentSetPointId, search, data) => {
+  return await http.post(`/Fuel/GetFuelListByVehicleId?diff=${diff}&setPointId=${currentSetPointId}&parameter=${search}`, data);
 };
 
 export const DeleteFuelCardService = async (id) => {
@@ -54,8 +54,8 @@ export const GetFuelListService = async (search, page, data) => {
 };
 
 // harcama
-export const GetExpensesListByVehicleIdService = async (search, page, data) => {
-  return await http.post(`/Expenses/GetExpensesListByVehicleId?page=${page}&parameter=${search}`, data);
+export const GetExpensesListByVehicleIdService = async (diff, currentSetPointId, search, data) => {
+  return await http.post(`/Expenses/GetExpensesListByVehicleId?diff=${diff}&setPointId=${currentSetPointId}&parameter=${search}`, data);
 };
 
 export const AddExpenseItemService = async (data) => {
@@ -75,8 +75,8 @@ export const GetExpensesListService = async (search, page, data) => {
 };
 
 // sefer
-export const GetExpeditionsListByVehicleIdService = async (search, page, data) => {
-  return await http.post(`/Expeditions/GetExpeditionsListByVehicleIds?page=${page}&parameter=${search}`, data);
+export const GetExpeditionsListByVehicleIdService = async (diff, currentSetPointId, search, data) => {
+  return await http.post(`/Expeditions/GetExpeditionsListByVehicleIds?diff=${diff}&setPointId=${currentSetPointId}&parameter=${search}`, data);
 };
 
 export const AddExpeditionItemService = async (data) => {
@@ -96,8 +96,8 @@ export const GetExpeditionsListService = async (search, page, data) => {
 };
 
 // kazalar
-export const GetAccidentsListByVehicleIdService = async (search, page, data) => {
-  return await http.post(`/Accident/GetAccidentsListByVehicleId?page=${page}&parameter=${search}`, data);
+export const GetAccidentsListByVehicleIdService = async (diff, currentSetPointId, search, data) => {
+  return await http.post(`/Accident/GetAccidentsListByVehicleId?diff=${diff}&setPointId=${currentSetPointId}&parameter=${search}`, data);
 };
 
 export const AddAccidentItemService = async (data) => {
@@ -122,8 +122,8 @@ export const GetActiveInsuranceListService = async (id, search, diff, currentSet
 
 // sigorta
 
-export const GetInsuranceListByVehicleIdService = async (search, page, data) => {
-  return await http.post(`/Insurance/GetInsuranceListByVehicleId?page=${page}&parameter=${search}`, data);
+export const GetInsuranceListByVehicleIdService = async (diff, currentSetPointId, search, data) => {
+  return await http.post(`/Insurance/GetInsuranceListByVehicleId?diff=${diff}&setPointId=${currentSetPointId}&parameter=${search}`, data);
 };
 
 export const AddInsuranceItemService = async (data) => {
@@ -143,8 +143,8 @@ export const GetInsuranceListService = async (search, page, data) => {
 };
 
 // ceza
-export const GetVehicleFinesListByVehicleIdService = async (search, page, data) => {
-  return await http.post(`/VehicleFines/GetVehicleFinesListByVehicleId?page=${page}&parameter=${search}`, data);
+export const GetVehicleFinesListByVehicleIdService = async (diff, currentSetPointId, search, data) => {
+  return await http.post(`/VehicleFines/GetVehicleFinesListByVehicleId?diff=${diff}&setPointId=${currentSetPointId}&parameter=${search}`, data);
 };
 
 export const AddVehicleFineItemService = async (data) => {
