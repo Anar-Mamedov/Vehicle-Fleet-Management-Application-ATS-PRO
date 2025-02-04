@@ -103,6 +103,21 @@ const Sidebar = () => {
       ],
     },
     {
+      key: "ds897g6",
+      icon: <FaGears />,
+      label: t("lastikYonetimi"),
+      children: [
+        {
+          key: "45",
+          label: <Link to={"/lastik-tanimlari"}>{t("lastik")}</Link>,
+        },
+        {
+          key: "3653",
+          label: <Link to={"/axle"}>{t("aksTanimlari")}</Link>,
+        },
+      ],
+    },
+    {
       key: "31",
       icon: <LuWarehouse />,
       label: t("malzemeDepo"),
@@ -168,6 +183,7 @@ const Sidebar = () => {
         },
       ],
     },
+
     {
       key: "2v34789",
       icon: <FaGears />,
@@ -221,10 +237,7 @@ const Sidebar = () => {
           key: "44",
           label: <Link to={"/guzergah-tanimlari"}>{t("guzergah")}</Link>,
         },
-        {
-          key: "45",
-          label: <Link to={"/lastik-tanimlari"}>{t("lastik")}</Link>,
-        },
+
         {
           key: "46",
           label: <Link to={"/ceza-tanimlari"}>{t("ceza")}</Link>,
