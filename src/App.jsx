@@ -32,7 +32,11 @@ import MarkaList from "./_root/pages/sistem-tanimlari/marka-model/MarkaList";
 import Sehirler from "./_root/pages/sistem-tanimlari/sehirler/Sehirler";
 import Guzergah from "./_root/pages/sistem-tanimlari/guzergah/Guzergah";
 import IsKartlari from "./_root/pages/sistem-tanimlari/is-kartlari/IsKartlari";
+
+// Lastik Yonetimi
 import LastikTanim from "./_root/pages/sistem-tanimlari/lastik-tanim/LastikTanim";
+import Axle from "./_root/pages/LastikYonetimi/Axle/Axle.jsx";
+
 import CezaTanim from "./_root/pages/sistem-tanimlari/ceza-tanim/CezaTanim";
 import ServisTanim from "./_root/pages/sistem-tanimlari/servis-tanim/ServisTanim";
 import FirmaTanim from "./_root/pages/sistem-tanimlari/firma-tanim/FirmaTanim";
@@ -41,6 +45,7 @@ import LokasyonTanimlari from "./_root/pages/sistem-tanimlari/LokasyonTanimlari/
 import YakitHaraketleri from "./_root/pages/yakit-yonetim/YakitHareketleri/YakitIslemleri.jsx";
 import Ekspertizler from "./_root/pages/vehicles-control/Ekspertizler/Ekspertizler.jsx";
 
+// Bakım ve Onarım
 import PeriyordikBakimlar from "./_root/pages/BakimVeOnarim/PeriyodikBakimlar/PeriyodikBakimlar.jsx";
 
 import Raporlar from "./_root/pages/raporlar/RaporYonetimi.jsx";
@@ -125,7 +130,11 @@ const App = () => {
         <Route path="/sehir-tanimlari" element={<Sehirler />} />
         <Route path="/guzergah-tanimlari" element={<Guzergah />} />
         <Route path="/is-kartlari" element={<IsKartlari />} />
+
+        {/* Lastik Yonetimi */}
         <Route path="/lastik-tanimlari" element={<LastikTanim />} />
+        <Route path="/axle" element={<Axle />} />
+
         <Route path="/ceza-tanimlari" element={<CezaTanim />} />
         <Route path="/servis-tanimlari" element={<ServisTanim />} />
         <Route path="/firma-tanimlari" element={<FirmaTanim />} />
@@ -135,6 +144,7 @@ const App = () => {
         <Route path="/performance-analysis" element={<PerformansAnalizi />} />
         <Route path="/cost-analysis" element={<MaliyetAnalizi />} />
 
+        {/* Bakım ve Onarım */}
         <Route path="/Periodic-Maintenance" element={<PeriyordikBakimlar />} />
 
         <Route path="/surucu-tanimlari" element={<Suruculer />} />
