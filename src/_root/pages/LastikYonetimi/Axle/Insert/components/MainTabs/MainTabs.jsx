@@ -209,7 +209,7 @@ export default function MainTabs({ modalOpen }) {
         >
           <Text style={{ fontSize: "14px" }}>{t("aksSayisi")}</Text>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "250px", minWidth: "250px", gap: "10px", width: "100%" }}>
-            <Controller name="aksSayisi" control={control} render={({ field }) => <InputNumber {...field} min={2} style={{ flex: 1 }} />} />
+            <Controller name="aksSayisi" control={control} render={({ field }) => <InputNumber {...field} min={2} max={6} style={{ flex: 1 }} />} />
           </div>
         </div>
         <div

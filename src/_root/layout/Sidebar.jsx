@@ -111,10 +111,10 @@ const Sidebar = () => {
           key: "45",
           label: <Link to={"/lastik-tanimlari"}>{t("lastik")}</Link>,
         },
-        /*  {
+        {
           key: "3653",
           label: <Link to={"/axle"}>{t("aksTanimlari")}</Link>,
-        }, */
+        },
       ],
     },
     {
