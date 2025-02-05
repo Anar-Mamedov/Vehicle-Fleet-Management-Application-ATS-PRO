@@ -6,7 +6,6 @@ import RootLayout from "./_root/RootLayout";
 import Dashboard from "./_root/pages/dashboard/Dashboard";
 // arac yonetimi
 import Vehicles from "./_root/pages/vehicles-control/vehicles/Vehicles";
-import DetailUpdate from "./_root/pages/vehicles-control/vehicle-detail/DetailUpdate";
 import Yakit from "./_root/pages/vehicles-control/yakit/Yakit";
 import Sefer from "./_root/pages/vehicles-control/sefer/Sefer";
 import Sigorta from "./_root/pages/vehicles-control/sigorta/Sigorta";
@@ -99,7 +98,6 @@ const App = () => {
         <Route index element={<Dashboard />} />
         {/* arac yonetimi */}
         <Route path="/araclar" element={<Vehicles />} />
-        <Route path="/detay/:id" element={<DetailUpdate />} />
         <Route path="/hizli-km-guncelleme" element={<KmUpdate />} />
         <Route path="/yakit-islemleri" element={<Yakit />} />
         <Route path="/kod-yonetimi" element={<KodYonetimi />} />

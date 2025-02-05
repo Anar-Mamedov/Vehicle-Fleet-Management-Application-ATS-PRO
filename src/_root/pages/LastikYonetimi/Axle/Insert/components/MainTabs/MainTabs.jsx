@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row, Col, Checkbox, InputNumber, Radio } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { Controller, useFormContext } from "react-hook-form";
+import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
 import styled from "styled-components";
 import dayjs from "dayjs";
 import { t } from "i18next";
@@ -176,21 +177,55 @@ export default function MainTabs({ modalOpen }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "row", gap: "10px", width: "100%" }}>
-      <div style={{ width: "370px" }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "370px", gap: "10px" }}>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "370px", gap: "10px", rowGap: "0px" }}>
-          <Text style={{ fontSize: "14px" }}>{t("aksTanimi")}</Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
+            {t("aksTanimi")}
+            <div style={{ color: "red" }}>*</div>
+          </Text>
           <div
             style={{
               display: "flex",
+              flexDirection: "column",
               flexWrap: "wrap",
-              alignItems: "center",
+              alignItems: "flex-start",
               maxWidth: "250px",
               minWidth: "250px",
-              gap: "10px",
               width: "100%",
             }}
           >
-            <Controller name="aksTanimi" control={control} render={({ field }) => <Input {...field} style={{ flex: 1 }} />} />
+            <Controller
+              name="aksTanimi"
+              control={control}
+              rules={{ required: t("alanBosBirakilamaz") }}
+              render={({ field }) => <Input {...field} status={errors["aksTanimi"] ? "error" : ""} style={{ flex: 1 }} />}
+            />
+            {errors["aksTanimi"] && <div style={{ color: "red", marginTop: "5px" }}>{errors["aksTanimi"].message}</div>}
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexFlow: "column wrap",
+            alignItems: "center",
+            width: "100%",
+            maxWidth: "400px",
+            justifyContent: "space-between",
+            gap: "8px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ fontSize: "14px", display: "flex" }}>{t("tip")}</Text>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "250px",
+              flexDirection: "column",
+            }}
+          >
+            <KodIDSelectbox name1="tip" isRequired={false} kodID="13005" />
           </div>
         </div>
 
@@ -204,7 +239,6 @@ export default function MainTabs({ modalOpen }) {
             maxWidth: "370px",
             gap: "10px",
             rowGap: "0px",
-            marginTop: "10px",
           }}
         >
           <Text style={{ fontSize: "14px" }}>{t("aksSayisi")}</Text>
@@ -222,7 +256,6 @@ export default function MainTabs({ modalOpen }) {
             maxWidth: "370px",
             gap: "10px",
             rowGap: "0px",
-            marginTop: "10px",
           }}
         >
           <Text style={{ fontSize: "14px" }}>{t("onAxle")}</Text>
@@ -244,7 +277,6 @@ export default function MainTabs({ modalOpen }) {
                 maxWidth: "370px",
                 gap: "10px",
                 rowGap: "0px",
-                marginTop: "10px",
               }}
             >
               <Text style={{ fontSize: "14px" }}>{idx + 1}</Text>
@@ -263,7 +295,6 @@ export default function MainTabs({ modalOpen }) {
             maxWidth: "370px",
             gap: "10px",
             rowGap: "0px",
-            marginTop: "10px",
           }}
         >
           <Text style={{ fontSize: "14px" }}>{t("arkaAxle")}</Text>
