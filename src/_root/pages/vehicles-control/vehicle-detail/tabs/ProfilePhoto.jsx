@@ -39,12 +39,12 @@ const ImageCarousel = ({ imageUrls, loadingImages }) => {
   }, []);
 
   useEffect(() => {
-    // Eğer parent halen imageUrls’ı fetch ediyorsa (loadingImages=true), Child hiçbir işlem yapmasın
+    // Eğer parent halen imageUrls'ı fetch ediyorsa (loadingImages=true), Child hiçbir işlem yapmasın
     if (loadingImages) return;
 
     // Parent fetch bitti, imageUrls dolu mu boş mu diye bakalım
     if (!imageUrls || imageUrls.length === 0) {
-      // Hiç resim yoksa images’i boş array yaparız
+      // Hiç resim yoksa images'i boş array yaparız
       setImages([]);
       return;
     }
@@ -54,7 +54,7 @@ const ImageCarousel = ({ imageUrls, loadingImages }) => {
       setLocalLoading(true);
       try {
         const requests = imageUrls.map((img) => {
-          // Parent’tan gelen ‘img’ içinde tbResimId, rsmUzanti vb. alanları olduğunu varsayıyoruz
+          // Parent'tan gelen 'img' içinde tbResimId, rsmUzanti vb. alanları olduğunu varsayıyoruz
           const data = {
             photoId: img.tbResimId,
             extension: img.rsmUzanti,
@@ -66,7 +66,7 @@ const ImageCarousel = ({ imageUrls, loadingImages }) => {
         const responses = await Promise.all(requests);
 
         const fetchedImages = responses.map((response) => {
-          // response.data’daki blob/base64 veriyi handle ediyoruz
+          // response.data'daki blob/base64 veriyi handle ediyoruz
           return {
             uid: response.data.photoId,
             url: URL.createObjectURL(response.data),
@@ -77,7 +77,7 @@ const ImageCarousel = ({ imageUrls, loadingImages }) => {
         setImages(fetchedImages);
       } catch (error) {
         console.error("Error fetching images:", error);
-        // Hata durumunda da images’i boş tutalım
+        // Hata durumunda da images'i boş tutalım
         setImages([]);
       } finally {
         setLocalLoading(false);
@@ -92,7 +92,7 @@ const ImageCarousel = ({ imageUrls, loadingImages }) => {
     };
   }, [imageUrls, loadingImages]);
 
-  // 1) Eğer parent henüz imageUrls’ı çekmediyse (loadingImages=true), Spin döndür
+  // 1) Eğer parent henüz imageUrls'ı çekmediyse (loadingImages=true), Spin döndür
   if (loadingImages) {
     return (
       <div style={{ textAlign: "center", padding: "40px 0" }}>
@@ -101,7 +101,7 @@ const ImageCarousel = ({ imageUrls, loadingImages }) => {
     );
   }
 
-  // 2) Parent’tan imageUrls geldi ama Child kendi fetch’ini yapıyor olabilir (localLoading=true) → yine Spin göster
+  // 2) Parent'tan imageUrls geldi ama Child kendi fetch'ini yapıyor olabilir (localLoading=true) → yine Spin göster
   if (localLoading) {
     return (
       <div style={{ textAlign: "center", padding: "40px 0" }}>
@@ -116,9 +116,9 @@ const ImageCarousel = ({ imageUrls, loadingImages }) => {
       {images.length > 0 ? (
         <Image.PreviewGroup items={images.map((image) => image.url)}>
           <Carousel arrows autoplay>
-            {images.map((image) => (
-              <CarouselSlide key={image.uid}>
-                <Image src={image.url} alt={image.name} style={{ width: "100%", height: "100%" }} />
+            {images.map((image, index) => (
+              <CarouselSlide key={`image-${index}-${image.url || image.path}`}>
+                <Image src={image.url || image.path} alt={`Vehicle ${index + 1}`} style={{ width: "100%", height: "100%" }} />
               </CarouselSlide>
             ))}
           </Carousel>

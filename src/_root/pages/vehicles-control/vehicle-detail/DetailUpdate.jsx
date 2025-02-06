@@ -1,27 +1,21 @@
 import { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import { FormProvider, useForm } from "react-hook-form";
 import { t } from "i18next";
 import dayjs from "dayjs";
-import { HomeOutlined, LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined } from "@ant-design/icons";
 import { IoLocationSharp } from "react-icons/io5";
 import { PiClockCounterClockwiseBold } from "react-icons/pi";
 import { FaCircle } from "react-icons/fa";
-import { Button, message, Modal, Spin, Tabs, Typography, Tag, Alert } from "antd";
+import { Button, message, Modal, Spin, Tabs, Typography, Alert } from "antd";
+import PropTypes from "prop-types";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetVehicleByIdService, UpdateVehicleService } from "../../../../api/services/vehicles/vehicles/services";
 import { GetDocumentsByRefGroupService, GetPhotosByRefGroupService } from "../../../../api/services/upload/services";
-import { uploadFile, uploadPhoto } from "../../../../utils/upload";
-import BreadcrumbComp from "../../../components/breadcrumb/Breadcrumb";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
-import PhotoUpload from "../../../components/upload/PhotoUpload";
-import FileUpload from "../../../components/upload/FileUpload";
 import TextInput from "../../../components/form/inputs/TextInput";
 import CodeControl from "../../../components/form/selects/CodeControl";
-// import Location from "../../../components/form/tree/Location";
 import Marka from "../../../components/form/selects/Marka";
 import Model from "../../../components/form/selects/Model";
-import Driver from "../../../components/form/selects/Driver";
 import MaterialType from "../../../components/form/selects/MaterialType";
 import KmLog from "../../../components/table/KmLog";
 import GeneralInfo from "./tabs/GeneralInfo";
@@ -32,15 +26,10 @@ import AddSurucu from "./detail-info/modals/surucu/AddModalForInput";
 import AddLokasyon from "./detail-info/modals/lokasyon/AddModalForInput";
 import ResimUpload from "./Resim/ResimUpload";
 import DosyaUpload from "./Dosya/DosyaUpload";
-import { use } from "react";
 
-const { Text, Link } = Typography;
+const { Text } = Typography;
 
-const breadcrumb = [{ href: "/", title: <HomeOutlined /> }, { href: "/araclar", title: t("araclar") }, { title: t("aracDetayKarti") }];
-
-const DetailUpdate = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
+const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
   const { setPlaka, setAracId, setPrintData } = useContext(PlakaContext);
   const [profile, setProfile] = useState([]);
   const [urls, setUrls] = useState([]);
@@ -199,118 +188,115 @@ const DetailUpdate = () => {
   const { setValue, handleSubmit, watch } = methods;
 
   useEffect(() => {
-    setLoading(true);
-    GetVehicleByIdService(id).then((res) => {
-      setLoading(false);
-      setPrintData(res.data);
-      setDataSource(res.data);
-      setData({
-        ...data,
-        aktif: res?.data.aktif,
-        lokasyon: res.data.lokasyon,
-        guncelKm: res?.data.guncelKm,
+    if (isOpen && selectedId) {
+      setLoading(true);
+      GetVehicleByIdService(selectedId).then((res) => {
+        setLoading(false);
+        setPrintData(res.data);
+        setDataSource(res.data);
+        setData({
+          ...data,
+          aktif: res?.data.aktif,
+          lokasyon: res.data.lokasyon,
+          guncelKm: res?.data.guncelKm,
+        });
+        setValue("plaka", res?.data.plaka);
+        setPlaka(res?.data.plaka);
+        setAracId(res?.data.aracId);
+        setGuncelKmTarih(res?.data.sonKmGuncellemeTarih);
+        setValue("guncelKm", res?.data.guncelKm);
+        setValue("aracTipId", res?.data.aracTipId ? res?.data.aracTipId : null);
+        setValue("aracTip", res?.data.aracTip);
+        setValue("bagliAracId", res?.data.bagliAracId);
+        setValue("bagliArac", res?.data.bagliAracPlaka);
+        setValue("hgsNo", res?.data.hgsNo);
+        setValue("mulkiyetID", res?.data.aracMulkiyetKodId ? res?.data.aracMulkiyetKodId : null);
+        setValue("mulkiyet", res?.data.aracMulkiyet ? res?.data.aracMulkiyet : null);
+        setValue("AracCinsiKodId", res?.data.aracCinsi);
+        setValue("aracCinsi", res?.data.aracCinsi);
+        setValue("markaId", res?.data.markaId ? res?.data.markaId : null);
+        setValue("marka", res?.data.marka);
+        setValue("model", res?.data.model);
+        setValue("modelId", res?.data.modelId ? res?.data.modelId : null);
+        setValue("surucuId", res?.data.surucuId ? res?.data.surucuId : null);
+        setValue("surucu", res?.data.surucu);
+        setValue("kullanimAmaciKodId", res?.data.kullanimAmaciKodId);
+        setValue("kullanimAmaci", res?.data.kullanimAmaci);
+        setValue("yedekAnahtarId", res?.data.yedekAnahtarId);
+        setValue("yedekAnahtar", res?.data.yedekAnahtar);
+        setValue("anahtarKodu", res?.data.anahtarKodu);
+        setValue("lokasyonId", res?.data.lokasyonId ? res?.data.lokasyonId : null);
+        setValue("lokasyon", res?.data.lokasyon);
+        setValue("yakitTipId", res?.data.yakitTipId ? res?.data.yakitTipId : null);
+        setValue("yakitTip", res?.data.yakitTip);
+        setValue("aracRenkId", res?.data.aracRenkId ? res?.data.aracRenkId : null);
+        setValue("renk", res?.data.renk);
+        setValue("yil", res?.data.yil);
+        setValue("aciklama", res?.data.aciklama);
+        setValue("aracGrubuId", res?.data.aracGrubuId ? res?.data.aracGrubuId : null);
+        setValue("grup", res?.data.grup);
+        setValue("departmanId", res?.data.departmanId ? res?.data.departmanId : null);
+        setValue("departman", res?.data.departman);
+        setValue("havuzGrup", res?.data.havuzGrup);
+        setValue("durumKodId", res?.data.durumKodId ? res?.data.durumKodId : null);
+        setValue("durum", res?.data.durum);
+        setValue("tts", res?.data.tts);
+        setValue("muayeneTarih", res?.data.muayeneTarih ? dayjs(res?.data.muayeneTarih) : null);
+        setValue("sozlesmeTarih", res?.data.sozlesmeTarih ? dayjs(res?.data.sozlesmeTarih) : null);
+        setValue("vergiTarih", res?.data.vergiTarih ? dayjs(res?.data.vergiTarih) : null);
+        setValue("egzosTarih", res?.data.egzosTarih ? dayjs(res?.data.egzosTarih) : null);
+        setValue("onGorulen", res?.data.onGorulen.toFixed(Number(res?.data.ortalamaFormat)));
+        setValue("onGorulenMin", res?.data.onGorulenMin.toFixed(Number(res?.data.ortalamaFormat)));
+        setValue("gerceklesen", res?.data.gerceklesen.toFixed(Number(res?.data.ortalamaFormat)));
+        setValue("ozelAlan1", res?.data.ozelAlan1);
+        setValue("ozelAlan2", res?.data.ozelAlan2);
+        setValue("ozelAlan3", res?.data.ozelAlan3);
+        setValue("ozelAlan4", res?.data.ozelAlan4);
+        setValue("ozelAlan5", res?.data.ozelAlan5);
+        setValue("ozelAlan6", res?.data.ozelAlan6);
+        setValue("ozelAlan7", res?.data.ozelAlan7);
+        setValue("ozelAlan8", res?.data.ozelAlan8);
+        setValue("ozelAlanKodId9", res?.data.ozelAlanKodId9);
+        setValue("ozelAlanKodId10", res?.data.ozelAlanKodId10);
+        setValue("ozelAlan9", res?.data.ozelAlan9);
+        setValue("ozelAlan10", res?.data.ozelAlan10);
+        setValue("ozelAlan11", res?.data.ozelAlan11);
+        setValue("ozelAlan12", res?.data.ozelAlan12);
+        setValue("uyari", res?.data.yakitUyari);
+        setUrls([...urls, res.data.defPhotoInfo]);
       });
-      setValue("plaka", res?.data.plaka);
-      setPlaka(res?.data.plaka);
-      setAracId(res?.data.aracId);
-      setGuncelKmTarih(res?.data.sonKmGuncellemeTarih);
-      setValue("guncelKm", res?.data.guncelKm);
-      setValue("aracTipId", res?.data.aracTipId ? res?.data.aracTipId : null);
-      setValue("aracTip", res?.data.aracTip);
-      setValue("bagliAracId", res?.data.bagliAracId);
-      setValue("bagliArac", res?.data.bagliAracPlaka);
-      setValue("hgsNo", res?.data.hgsNo);
-      setValue("mulkiyetID", res?.data.aracMulkiyetKodId ? res?.data.aracMulkiyetKodId : null);
-      setValue("mulkiyet", res?.data.aracMulkiyet ? res?.data.aracMulkiyet : null);
-      setValue("AracCinsiKodId", res?.data.aracCinsi);
-      setValue("aracCinsi", res?.data.aracCinsi);
-      setValue("markaId", res?.data.markaId ? res?.data.markaId : null);
-      setValue("marka", res?.data.marka);
-      setValue("model", res?.data.model);
-      setValue("modelId", res?.data.modelId ? res?.data.modelId : null);
-      setValue("surucuId", res?.data.surucuId ? res?.data.surucuId : null);
-      setValue("surucu", res?.data.surucu);
-      setValue("kullanimAmaciKodId", res?.data.kullanimAmaciKodId);
-      setValue("kullanimAmaci", res?.data.kullanimAmaci);
-      setValue("yedekAnahtarId", res?.data.yedekAnahtarId);
-      setValue("yedekAnahtar", res?.data.yedekAnahtar);
-      setValue("anahtarKodu", res?.data.anahtarKodu);
-      setValue("lokasyonId", res?.data.lokasyonId ? res?.data.lokasyonId : null);
-      setValue("lokasyon", res?.data.lokasyon);
-      setValue("yakitTipId", res?.data.yakitTipId ? res?.data.yakitTipId : null);
-      setValue("yakitTip", res?.data.yakitTip);
-      setValue("aracRenkId", res?.data.aracRenkId ? res?.data.aracRenkId : null);
-      setValue("renk", res?.data.renk);
-      setValue("yil", res?.data.yil);
-      setValue("aciklama", res?.data.aciklama);
-      setValue("aracGrubuId", res?.data.aracGrubuId ? res?.data.aracGrubuId : null);
-      setValue("grup", res?.data.grup);
-      setValue("departmanId", res?.data.departmanId ? res?.data.departmanId : null);
-      setValue("departman", res?.data.departman);
-      setValue("havuzGrup", res?.data.havuzGrup);
-      setValue("durumKodId", res?.data.durumKodId ? res?.data.durumKodId : null);
-      setValue("durum", res?.data.durum);
-      setValue("tts", res?.data.tts);
-      setValue("muayeneTarih", res?.data.muayeneTarih ? dayjs(res?.data.muayeneTarih) : null);
-      setValue("sozlesmeTarih", res?.data.sozlesmeTarih ? dayjs(res?.data.sozlesmeTarih) : null);
-      setValue("vergiTarih", res?.data.vergiTarih ? dayjs(res?.data.vergiTarih) : null);
-      setValue("egzosTarih", res?.data.egzosTarih ? dayjs(res?.data.egzosTarih) : null);
-      setValue("onGorulen", res?.data.onGorulen.toFixed(Number(res?.data.ortalamaFormat)));
-      setValue("onGorulenMin", res?.data.onGorulenMin.toFixed(Number(res?.data.ortalamaFormat)));
-      setValue("gerceklesen", res?.data.gerceklesen.toFixed(Number(res?.data.ortalamaFormat)));
-      setValue("ozelAlan1", res?.data.ozelAlan1);
-      setValue("ozelAlan2", res?.data.ozelAlan2);
-      setValue("ozelAlan3", res?.data.ozelAlan3);
-      setValue("ozelAlan4", res?.data.ozelAlan4);
-      setValue("ozelAlan5", res?.data.ozelAlan5);
-      setValue("ozelAlan6", res?.data.ozelAlan6);
-      setValue("ozelAlan7", res?.data.ozelAlan7);
-      setValue("ozelAlan8", res?.data.ozelAlan8);
-      setValue("ozelAlanKodId9", res?.data.ozelAlanKodId9);
-      setValue("ozelAlanKodId10", res?.data.ozelAlanKodId10);
-      setValue("ozelAlan9", res?.data.ozelAlan9);
-      setValue("ozelAlan10", res?.data.ozelAlan10);
-      setValue("ozelAlan11", res?.data.ozelAlan11);
-      setValue("ozelAlan12", res?.data.ozelAlan12);
-      setValue("uyari", res?.data.yakitUyari);
-      setUrls([...urls, res.data.defPhotoInfo]);
-    });
 
-    // Burada imageUrls’ları çektiğiniz yer
-    setLoadingImages(true);
-    GetPhotosByRefGroupService(id, "Arac")
-      .then((res) => {
-        // Eğer res.data hiç resim dönmezse dahi, “boş array” döndüğünü varsayalım
-        // Artık imageUrls null değil; ister boş array ister dolu array olsun
-        setImageUrls(res.data);
-      })
-      .catch((err) => {
-        console.error("Photo fetch error", err);
-        // Hata olsa bile imageUrls state’ini boş array’e çekeriz
-        setImageUrls([]);
-      })
-      .finally(() => {
-        // İster başarılı ister hatalı olsun, loadingImages false
-        setLoadingImages(false);
-      });
-    GetDocumentsByRefGroupService(id, "Arac").then((res) => setFilesUrl(res.data));
-  }, [id, status, dataStatus]);
+      setLoadingImages(true);
+      GetPhotosByRefGroupService(selectedId, "Arac")
+        .then((res) => {
+          setImageUrls(res.data);
+        })
+        .catch((err) => {
+          console.error("Photo fetch error", err);
+          setImageUrls([]);
+        })
+        .finally(() => {
+          setLoadingImages(false);
+        });
+      GetDocumentsByRefGroupService(selectedId, "Arac").then((res) => setFilesUrl(res.data));
+    }
+  }, [isOpen, selectedId]);
 
   useEffect(() => {
     if (photoUploaded > 0) {
-      GetPhotosByRefGroupService(id, "Arac").then((res) => setImageUrls(res.data));
+      GetPhotosByRefGroupService(selectedId, "Arac").then((res) => setImageUrls(res.data));
     }
   }, [photoUploaded]);
 
   useEffect(() => {
     if (dosyaUploaded > 0) {
-      GetDocumentsByRefGroupService(id, "Arac").then((res) => setFilesUrl(res.data));
+      GetDocumentsByRefGroupService(selectedId, "Arac").then((res) => setFilesUrl(res.data));
     }
   }, [dosyaUploaded]);
 
   const onSubmit = handleSubmit((values) => {
     const data = {
-      aracId: id,
+      aracId: selectedId,
       plaka: values.plaka,
       anahtarKodu: values.anahtarKodu,
       aciklama: values.aciklama,
@@ -363,12 +349,10 @@ const DetailUpdate = () => {
         setStatus(true);
         setLoading(false);
         message.success("Güncelleme başarılı!");
+        onSuccess?.();
+        handleCancel();
       }
     });
-
-    setProfile([]);
-    setUrls([]);
-    setActiveKey("1");
   });
 
   const personalProps = {
@@ -391,14 +375,12 @@ const DetailUpdate = () => {
     {
       key: "3",
       label: `[${imageUrls.length}] ${t("resimler")}`,
-      /*  children: <PhotoUpload imageUrls={imageUrls} loadingImages={loadingImages} setImages={setImages} />, */
-      children: <ResimUpload selectedRowID={id} setPhotoUploaded={setPhotoUploaded} />,
+      children: <ResimUpload selectedRowID={selectedId} setPhotoUploaded={setPhotoUploaded} />,
     },
     {
       key: "4",
       label: `[${filesUrl.length}] ${t("ekliBelgeler")}`,
-      /* children: <FileUpload filesUrl={filesUrl} loadingFiles={loadingFiles} setFiles={setFiles} uploadFinished={uploadFinished} setUploadFinished={setUploadFinished} />, */
-      children: <DosyaUpload selectedRowID={id} setDosyaUploaded={setDosyaUploaded} />,
+      children: <DosyaUpload selectedRowID={selectedId} setDosyaUploaded={setDosyaUploaded} />,
     },
   ];
 
@@ -434,7 +416,13 @@ const DetailUpdate = () => {
     </Button>,
   ];
 
-  const handleCancel = () => navigate("/araclar");
+  const handleCancel = () => {
+    onClose();
+    setProfile([]);
+    setUrls([]);
+    setActiveKey("1");
+    methods.reset(defaultValues);
+  };
 
   useEffect(() => {
     if (dataSource.arsiv) {
@@ -508,7 +496,7 @@ const DetailUpdate = () => {
   }, [dataSource]);
 
   return (
-    <>
+    <Modal title={t("aracDetayKarti")} open={isOpen} onCancel={handleCancel} footer={null} width="90%" style={{ top: 20 }} maskClosable={false} destroyOnClose>
       {loading && (
         <div className="loading-spin">
           <div className="loader">
@@ -526,10 +514,6 @@ const DetailUpdate = () => {
         </div>
       )}
 
-      {/* <div className="content">
-        <BreadcrumbComp items={breadcrumb} />
-      </div> */}
-
       <FormProvider {...methods}>
         <div className="content">
           <div className="grid">
@@ -538,21 +522,21 @@ const DetailUpdate = () => {
                 <ProfilePhoto setImages={setProfile} urls={urls} imageUrls={imageUrls} loadingImages={loadingImages} />
               </div>
               <div className="flex gap-1 justify-between mt-10">
-                <p className="flex gap-1 align-center">
+                <div className="flex gap-1 align-center">
                   <span>{durumIcon}</span>
-                </p>
-                <p className="flex gap-1 align-center">
+                </div>
+                <div className="flex gap-1 align-center">
                   <span>
                     <IoLocationSharp style={{ color: "red" }} />
                   </span>
                   <span>{data.lokasyon}</span>
-                </p>
-                <p className="flex gap-1 align-center">
+                </div>
+                <div className="flex gap-1 align-center">
                   <span>
                     <PiClockCounterClockwiseBold style={{ color: "grey" }} />
                   </span>
                   <span>{data.guncelKm}</span>
-                </p>
+                </div>
               </div>
             </div>
             <div className="col-span-9">
@@ -606,7 +590,6 @@ const DetailUpdate = () => {
                     <label htmlFor="lokasyonId">
                       {t("lokasyon")} <span className="text-danger">*</span>
                     </label>
-                    {/* <Location required={true} /> */}
                     <SurucuInput name="lokasyon" readonly={true} required={true} onPlusClick={handleLokasyonPlusClick} />
                     <AddLokasyon
                       isModalOpen={isLokasyonModalOpen}
@@ -638,7 +621,6 @@ const DetailUpdate = () => {
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label htmlFor="surucuId">{t("surucu")}</label>
-                    {/* <Driver /> */}
                     <SurucuInput name="surucu" readonly={true} required={false} onPlusClick={handlePlusClick} />
                     <AddSurucu
                       isModalOpen={isModalOpen}
@@ -649,7 +631,6 @@ const DetailUpdate = () => {
                       guncelKm={guncelKm}
                       onSurucuTeslimUpdated={handleSurucuTeslimUpdated}
                     />
-                    {/* <Text>Anar</Text> */}
                   </div>
                 </div>
                 <div className="col-span-4">
@@ -672,7 +653,7 @@ const DetailUpdate = () => {
         </div>
 
         <div className="content relative">
-          <DetailInfo id={id} />
+          <DetailInfo id={String(selectedId)} />
           <Tabs activeKey={activeKey} onChange={setActiveKey} items={items} />
         </div>
       </FormProvider>
@@ -685,10 +666,17 @@ const DetailUpdate = () => {
         footer={footer}
         width={1200}
       >
-        <KmLog data={dataSource} setDataStatus={setDataStatus} />
+        <KmLog data={dataSource?.kmGecmisi || []} setDataStatus={setDataStatus} />
       </Modal>
-    </>
+    </Modal>
   );
+};
+
+DetailUpdate.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  selectedId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  onSuccess: PropTypes.func,
 };
 
 export default DetailUpdate;

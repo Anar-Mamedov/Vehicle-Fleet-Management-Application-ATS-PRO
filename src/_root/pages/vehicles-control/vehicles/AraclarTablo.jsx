@@ -25,12 +25,12 @@ import ContextMenu from "./components/ContextMenu/ContextMenu";
 import AddModal from "./add/AddModal";
 import OperationsInfo from "./operations/OperationsInfo";
 import Filters from "./filter/Filters";
-// import UpdateModal from "./update/UpdateModal";
 import dayjs from "dayjs";
 import DurumSelect from "./components/Durum/DurumSelectbox";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
+import DetailUpdate from "../vehicle-detail/DetailUpdate";
 
 const { Text } = Typography;
 
@@ -160,6 +160,10 @@ const Yakit = ({ ayarlarData }) => {
     filters: {},
   });
 
+  // Add new state for DetailUpdate modal
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+
   // API Data Fetching with diff and setPointId
   const fetchData = async (diff, targetPage) => {
     setLoading(true);
@@ -285,8 +289,16 @@ const Yakit = ({ ayarlarData }) => {
       width: 120,
       ellipsis: true,
       visible: true,
-      // render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
-      render: (text, record) => <Link to={`/detay/${record.aracId}`}>{text}</Link>,
+      render: (text, record) => (
+        <a
+          onClick={() => {
+            setSelectedVehicleId(record.aracId);
+            setIsDetailModalOpen(true);
+          }}
+        >
+          {text}
+        </a>
+      ),
       sorter: (a, b) => {
         if (a.plaka === null) return -1;
         if (b.plaka === null) return 1;
@@ -750,7 +762,7 @@ const Yakit = ({ ayarlarData }) => {
       date.setHours(hoursInt, minutesInt, 0);
 
       // Kullanıcının lokal ayarlarına uygun olarak saat ve dakikayı formatla
-      // `hour12` seçeneğini belirtmeyerek Intl.DateTimeFormat'ın kullanıcının yerel ayarlarına göre otomatik seçim yapmasına izin ver
+      // `hour12` seçeneğini belirtmeyerek Intl.DateTimeFormat'ın kullanıcının sistem ayarlarına göre otomatik seçim yapmasına izin ver
       const formatter = new Intl.DateTimeFormat(navigator.language, {
         hour: "numeric",
         minute: "2-digit",
@@ -1062,9 +1074,25 @@ const Yakit = ({ ayarlarData }) => {
               scroll={{ y: "calc(100vh - 335px)" }}
             />
           </Spin>
-          {/* <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} /> */}
         </div>
       </FormProvider>
+
+      {/* Only render DetailUpdate when we have a selectedVehicleId */}
+      {selectedVehicleId && (
+        <DetailUpdate
+          isOpen={isDetailModalOpen}
+          onClose={() => {
+            setIsDetailModalOpen(false);
+            setSelectedVehicleId(null); // Clear the selected ID when closing
+          }}
+          selectedId={selectedVehicleId}
+          onSuccess={() => {
+            refreshTableData();
+            setIsDetailModalOpen(false);
+            setSelectedVehicleId(null); // Clear the selected ID after success
+          }}
+        />
+      )}
     </>
   );
 };

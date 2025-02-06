@@ -37,6 +37,9 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       aksSayisi: 2,
       onAxle: 1,
       arkaAxle: 1,
+      aksTanimi: null,
+      tip: null,
+      tipID: null,
     },
   });
 
@@ -55,58 +58,19 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   //* export
   const onSubmit = (data) => {
     const Body = {
-      aracId: Number(data.PlakaID),
-      bakimId: Number(data.servisKoduID),
-      kazaId: Number(data.hasarNoID),
-      durumBilgisi: 1,
-      islemiYapan: Number(data.islemiYapan),
-      servisNedeniKodId: Number(data.servisNedeniID),
-
-      islemiYapanId: Number(data.islemiYapan1ID),
-      surucuId: Number(data.SurucuID),
-      // lokasyonId: data.,
-      km: Number(data.aracKM),
-      indirim: Number(data.eksiUcreti),
-      // toplam: data.,
-      kdv: Number(data.kdvUcreti),
-      diger: Number(data.digerUcreti),
-      malzeme: Number(data.malzemeUcreti),
-      iscilik: Number(data.iscilikUcreti),
-      talepNo: data.talepNo,
-      onayId: Number(data.onayID),
-      tarih: formatDateWithDayjs(data.duzenlenmeTarihi) || null,
-      baslamaTarih: formatDateWithDayjs(data.baslamaTarihi) || null,
-      bitisTarih: formatDateWithDayjs(data.bitisTarihi) || null,
-      faturaTarih: formatDateWithDayjs(data.faturaTarihi) || null,
-      saat: formatTimeWithDayjs(data.duzenlenmeSaati) || null,
-      baslamaSaat: formatTimeWithDayjs(data.baslamaSaati) || null,
-      bitisSaat: formatTimeWithDayjs(data.bitisSaati) || null,
-      faturaNo: data.faturaNo,
-      aciklama: data.aciklama,
-      sikayetler: data.sikayetler,
-      sigortaVar: data.sigortaBilgileri,
-      surucuOder: data.surucuOder,
-      garantili: data.garantiKapsami,
-      sigortaId: Number(data.sigortaID),
-      ozelAlan1: data.ozelAlan1,
-      ozelAlan2: data.ozelAlan2,
-      ozelAlan3: data.ozelAlan3,
-      ozelAlan4: data.ozelAlan4,
-      ozelAlan5: data.ozelAlan5,
-      ozelAlan6: data.ozelAlan6,
-      ozelAlan7: data.ozelAlan7,
-      ozelAlan8: data.ozelAlan8,
-      ozelAlanKodId9: Number(data.ozelAlan9ID),
-      ozelAlanKodId10: Number(data.ozelAlan10ID),
-      ozelAlan11: Number(data.ozelAlan11),
-      ozelAlan12: Number(data.ozelAlan12),
+      aksTanimi: data.aksTanimi,
+      aksTipId: Number(data.tipID),
+      aksSayisi: data.aksSayisi,
+      onAksTekerSayisi: data.onAxle,
+      arkaAksTekerSayisi: data.arkaAxle,
+      ortaAksTekerlerListesi: Array.from({ length: data.aksSayisi - 2 }, (_, index) => data[index + 1]),
     };
 
     // AxiosInstance.post("/api/endpoint", { Body }).then((response) => {
     // handle response
     // });
 
-    AxiosInstance.post("VehicleServices/AddServiceItem", Body)
+    AxiosInstance.post("Axel/AddAxelItem", Body)
       .then((response) => {
         // Handle successful response here, e.g.:
         console.log("Data sent successfully:", response);
