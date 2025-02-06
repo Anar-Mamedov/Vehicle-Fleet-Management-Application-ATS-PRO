@@ -154,8 +154,8 @@ export default function KodIDSelectbox({ name1, kodID, isRequired }) {
               </Spin>
             )}
             options={options.map((item) => ({
-              value: item.TB_KOD_ID, // Use the ID as the value
-              label: item.KOD_TANIM, // Display the name in the dropdown
+              value: item.siraNo, // Use the ID as the value
+              label: item.codeText, // Display the name in the dropdown
             }))}
             onChange={(value) => {
               // Seçilen değerin ID'sini NedeniID alanına set et

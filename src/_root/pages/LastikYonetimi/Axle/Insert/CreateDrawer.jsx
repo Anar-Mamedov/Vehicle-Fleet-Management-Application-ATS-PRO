@@ -59,18 +59,18 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   const onSubmit = (data) => {
     const Body = {
       aksTanimi: data.aksTanimi,
-      aksTipId: data.tipID,
+      aksTipId: Number(data.tipID),
       aksSayisi: data.aksSayisi,
-      onAks: data.onAxle,
-      arkaAks: data.arkaAxle,
-      ortaAks: Array.from({ length: data.aksSayisi }, (_, index) => data[index + 1]),
+      onAksTekerSayisi: data.onAxle,
+      arkaAksTekerSayisi: data.arkaAxle,
+      ortaAksTekerlerListesi: Array.from({ length: data.aksSayisi - 2 }, (_, index) => data[index + 1]),
     };
 
     // AxiosInstance.post("/api/endpoint", { Body }).then((response) => {
     // handle response
     // });
 
-    AxiosInstance.post("Axel/AddAxel", Body)
+    AxiosInstance.post("Axel/AddAxelItem", Body)
       .then((response) => {
         // Handle successful response here, e.g.:
         console.log("Data sent successfully:", response);

@@ -225,7 +225,7 @@ export default function MainTabs({ modalOpen }) {
               flexDirection: "column",
             }}
           >
-            <KodIDSelectbox name1="tip" isRequired={false} kodID="13005" />
+            <KodIDSelectbox name1="tip" isRequired={false} kodID="892" />
           </div>
         </div>
 
@@ -281,7 +281,7 @@ export default function MainTabs({ modalOpen }) {
             >
               <Text style={{ fontSize: "14px" }}>{idx + 1}</Text>
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "250px", minWidth: "250px", gap: "10px", width: "100%" }}>
-                <Controller name={`${idx + 1}`} control={control} render={({ field }) => <InputNumber {...field} defaultValue={1} min={1} max={2} style={{ flex: 1 }} />} />
+                <Controller name={`${idx + 1}`} control={control} defaultValue={1} render={({ field }) => <InputNumber {...field} min={1} max={2} style={{ flex: 1 }} />} />
               </div>
             </div>
           ))}
