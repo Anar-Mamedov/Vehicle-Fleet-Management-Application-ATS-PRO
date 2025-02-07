@@ -351,6 +351,20 @@ const Ceza = () => {
         return a.aksSayisi - b.aksSayisi;
       },
     },
+    {
+      title: t("aciklama"),
+      dataIndex: "aciklama",
+      key: "aciklama",
+      width: 120,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.aciklama === null) return -1;
+        if (b.aciklama === null) return 1;
+        return a.aciklama.localeCompare(b.aciklama);
+      },
+    },
 
     // Diğer kolonlarınız...
   ];
