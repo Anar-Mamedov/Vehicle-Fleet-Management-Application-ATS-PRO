@@ -25,6 +25,10 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       tip: null,
       tipID: null,
       aciklama: null,
+      onAxleIslevTipi: null,
+      arkaAxleIslevTipi: null,
+      ortaAksTekerlerListesi: [],
+      ortaAksTipIdListesi: [],
     },
   });
 
@@ -48,9 +52,14 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("aksSayisi", item.aksSayisi);
           setValue("onAxle", item.onAksTekerSayisi);
           setValue("arkaAxle", item.arkaAksTekerSayisi);
-          if (item.ortaAksTekerlerListesi) {
+          setValue("onAxleIslevTipi", item.onAksTipId === 0 ? null : item.onAksTipId);
+          setValue("arkaAxleIslevTipi", item.arkaAksTipId === 0 ? null : item.arkaAksTipId);
+          if (item.ortaAksTekerlerListesi && item.ortaAksTipIdListesi) {
             item.ortaAksTekerlerListesi.forEach((value, index) => {
               setValue(`${index + 1}`, value); // index+1 matches your dynamic field naming pattern
+            });
+            item.ortaAksTipIdListesi.forEach((value, index) => {
+              setValue(`${index + 1}IslevTipi`, value); // index+1 matches your dynamic field naming pattern
             });
           }
           setValue("aciklama", item.aciklama);
@@ -87,6 +96,9 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       onAksTekerSayisi: data.onAxle,
       arkaAksTekerSayisi: data.arkaAxle,
       ortaAksTekerlerListesi: Array.from({ length: data.aksSayisi - 2 }, (_, index) => data[index + 1]),
+      ortaAksTipIdListesi: Array.from({ length: data.aksSayisi - 2 }, (_, index) => data[`${index + 1}IslevTipi`]),
+      onAksTipId: Number(data.onAxleIslevTipi),
+      arkaAksTipId: Number(data.arkaAxleIslevTipi),
       aciklama: data.aciklama,
     };
 
