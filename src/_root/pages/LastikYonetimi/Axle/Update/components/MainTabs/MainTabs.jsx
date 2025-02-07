@@ -3,6 +3,7 @@ import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row,
 import { PlusOutlined } from "@ant-design/icons";
 import { Controller, useFormContext } from "react-hook-form";
 import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
+import AxleIslevi from "../../../../../../components/axleIslevi";
 import styled from "styled-components";
 import dayjs from "dayjs";
 import { t } from "i18next";
@@ -260,8 +261,9 @@ export default function MainTabs({ modalOpen }) {
           }}
         >
           <Text style={{ fontSize: "14px" }}>{t("onAxle")}</Text>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "250px", minWidth: "250px", gap: "10px", width: "100%" }}>
-            <Controller name="onAxle" control={control} render={({ field }) => <InputNumber {...field} min={1} max={2} style={{ flex: 1 }} />} />
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", maxWidth: "250px", minWidth: "250px", gap: "10px", width: "100%" }}>
+            <Controller name="onAxle" control={control} render={({ field }) => <InputNumber {...field} min={1} max={2} style={{ width: "100px" }} />} />
+            <AxleIslevi name1="onAxleIslevTipi" />
           </div>
         </div>
 
@@ -283,8 +285,9 @@ export default function MainTabs({ modalOpen }) {
               <Text style={{ fontSize: "14px" }}>
                 {t("aks")} {idx + 1}
               </Text>
-              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "250px", minWidth: "250px", gap: "10px", width: "100%" }}>
-                <Controller name={`${idx + 1}`} control={control} defaultValue={1} render={({ field }) => <InputNumber {...field} min={1} max={2} style={{ flex: 1 }} />} />
+              <div style={{ display: "flex", flexDirection: "row", alignItems: "center", maxWidth: "250px", minWidth: "250px", gap: "10px", width: "100%" }}>
+                <Controller name={`${idx + 1}`} control={control} defaultValue={1} render={({ field }) => <InputNumber {...field} min={1} max={2} style={{ width: "100px" }} />} />
+                <AxleIslevi name1={`${idx + 1}IslevTipi`} />
               </div>
             </div>
           ))}
@@ -301,8 +304,9 @@ export default function MainTabs({ modalOpen }) {
           }}
         >
           <Text style={{ fontSize: "14px" }}>{t("arkaAxle")}</Text>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "250px", minWidth: "250px", gap: "10px", width: "100%" }}>
-            <Controller name="arkaAxle" control={control} render={({ field }) => <InputNumber {...field} min={1} max={2} style={{ flex: 1 }} />} />
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", maxWidth: "250px", minWidth: "250px", gap: "10px", width: "100%" }}>
+            <Controller name="arkaAxle" control={control} render={({ field }) => <InputNumber {...field} min={1} max={2} style={{ width: "100px" }} />} />
+            <AxleIslevi name1="arkaAxleIslevTipi" />
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", gap: "10px", width: "100%" }}>

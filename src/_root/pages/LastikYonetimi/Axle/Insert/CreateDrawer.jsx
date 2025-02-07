@@ -41,6 +41,10 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       tip: null,
       tipID: null,
       aciklama: null,
+      onAxleIslevTipi: null,
+      arkaAxleIslevTipi: null,
+      ortaAksTekerlerListesi: [],
+      ortaAksTipIdListesi: [],
     },
   });
 
@@ -65,6 +69,9 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       onAksTekerSayisi: data.onAxle,
       arkaAksTekerSayisi: data.arkaAxle,
       ortaAksTekerlerListesi: Array.from({ length: data.aksSayisi - 2 }, (_, index) => data[index + 1]),
+      ortaAksTipIdListesi: Array.from({ length: data.aksSayisi - 2 }, (_, index) => data[`${index + 1}IslevTipi`]),
+      onAksTipId: Number(data.onAxleIslevTipi),
+      arkaAksTipId: Number(data.arkaAxleIslevTipi),
       aciklama: data.aciklama,
     };
 
