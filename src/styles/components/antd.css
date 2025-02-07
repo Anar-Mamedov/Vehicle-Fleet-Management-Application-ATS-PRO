@@ -231,9 +231,9 @@
   background-color: var(--info);
 }
 
-.ant-input-number .ant-input-number-handler-wrap {
+/* .ant-input-number .ant-input-number-handler-wrap {
   display: none;
-}
+} */
 
 .ant-divider-horizontal {
   margin: 8px 0;

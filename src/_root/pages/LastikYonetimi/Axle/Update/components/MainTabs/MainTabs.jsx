@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row, Col, Checkbox, InputNumber, Radio } from "antd";
+import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row, Col, Checkbox, InputNumber, Radio, Divider } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { Controller, useFormContext } from "react-hook-form";
 import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
@@ -246,6 +246,7 @@ export default function MainTabs({ modalOpen }) {
             <Controller name="aksSayisi" control={control} render={({ field }) => <InputNumber {...field} min={2} max={6} style={{ flex: 1 }} />} />
           </div>
         </div>
+        <Divider />
         <div
           style={{
             display: "flex",
@@ -279,7 +280,9 @@ export default function MainTabs({ modalOpen }) {
                 rowGap: "0px",
               }}
             >
-              <Text style={{ fontSize: "14px" }}>{idx + 1}</Text>
+              <Text style={{ fontSize: "14px" }}>
+                {t("aks")} {idx + 1}
+              </Text>
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "250px", minWidth: "250px", gap: "10px", width: "100%" }}>
                 <Controller name={`${idx + 1}`} control={control} defaultValue={1} render={({ field }) => <InputNumber {...field} min={1} max={2} style={{ flex: 1 }} />} />
               </div>
@@ -300,6 +303,22 @@ export default function MainTabs({ modalOpen }) {
           <Text style={{ fontSize: "14px" }}>{t("arkaAxle")}</Text>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "250px", minWidth: "250px", gap: "10px", width: "100%" }}>
             <Controller name="arkaAxle" control={control} render={({ field }) => <InputNumber {...field} min={1} max={2} style={{ flex: 1 }} />} />
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", gap: "10px", width: "100%" }}>
+          <Text style={{ fontSize: "14px" }}>{t("aciklama")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+              maxWidth: "250px",
+              minWidth: "250px",
+              width: "100%",
+            }}
+          >
+            <Controller name="aciklama" control={control} render={({ field }) => <TextArea {...field} style={{ flex: 1 }} />} />
           </div>
         </div>
       </div>
