@@ -40,6 +40,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       aksTanimi: null,
       tip: null,
       tipID: null,
+      aciklama: null,
     },
   });
 
@@ -64,6 +65,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       onAksTekerSayisi: data.onAxle,
       arkaAksTekerSayisi: data.arkaAxle,
       ortaAksTekerlerListesi: Array.from({ length: data.aksSayisi - 2 }, (_, index) => data[index + 1]),
+      aciklama: data.aciklama,
     };
 
     // AxiosInstance.post("/api/endpoint", { Body }).then((response) => {
@@ -121,7 +123,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
         <Modal
           width="880px"
           centered
-          title={`Aks Ekle`}
+          title={`Yeni Aks Yapılandırma`}
           destroyOnClose
           open={open}
           onCancel={onClose}

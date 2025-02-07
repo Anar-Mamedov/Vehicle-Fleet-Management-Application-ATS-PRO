@@ -24,6 +24,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       aksTanimi: null,
       tip: null,
       tipID: null,
+      aciklama: null,
     },
   });
 
@@ -52,6 +53,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
               setValue(`${index + 1}`, value); // index+1 matches your dynamic field naming pattern
             });
           }
+          setValue("aciklama", item.aciklama);
           // ... Diğer setValue çağrıları
 
           setLoading(false); // Yükleme tamamlandığında
@@ -85,6 +87,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       onAksTekerSayisi: data.onAxle,
       arkaAksTekerSayisi: data.arkaAxle,
       ortaAksTekerlerListesi: Array.from({ length: data.aksSayisi - 2 }, (_, index) => data[index + 1]),
+      aciklama: data.aciklama,
     };
 
     // API'ye POST isteği gönder
@@ -100,7 +103,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
         } else if (response.data.statusCode === 401) {
           message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
         } else {
-          message.error("Ekleme Başarısız.");
+          message.error("İşlem Başarısız.");
         }
       })
       .catch((error) => {
@@ -137,7 +140,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
         <Modal
           width="880px"
           centered
-          title={`Aks Güncelleme`}
+          title={`Aks Yapılandırma`}
           open={drawerVisible}
           onCancel={onClose}
           footer={
