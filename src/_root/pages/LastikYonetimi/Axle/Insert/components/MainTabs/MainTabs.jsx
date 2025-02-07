@@ -3,7 +3,7 @@ import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row,
 import { PlusOutlined } from "@ant-design/icons";
 import { Controller, useFormContext } from "react-hook-form";
 import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
-import AxleIslevi from "../../../../../../components/axleIslevi";
+import AxleIslevi from "../../../../../../components/AxleIslevi";
 import styled from "styled-components";
 import dayjs from "dayjs";
 import { t } from "i18next";
