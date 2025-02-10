@@ -1,4 +1,5 @@
 import tr_TR from "antd/es/locale/tr_TR";
+import "@ant-design/v5-patch-for-react-19";
 import { PlusOutlined } from "@ant-design/icons";
 import {
   Drawer,

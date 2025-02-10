@@ -183,7 +183,8 @@ function MainDashboard() {
         widgetEl.appendChild(headerEl);
         widgetEl.appendChild(bodyEl);
 
-        grid.addWidget(widgetEl);
+        // Convert the element to a widget first
+        grid.makeWidget(widgetEl);
 
         const root = createRoot(bodyEl);
         switch (item.id) {

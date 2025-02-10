@@ -7,7 +7,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import DraggableRow from "./DraggableRow";
 import * as XLSX from "xlsx";
-import { SiMicrosoftexcel } from "react-icons/si";
+import { FaFileExcel } from "react-icons/fa";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 
@@ -609,7 +609,7 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
           <Button style={{ padding: "0px", width: "32px", height: "32px" }} onClick={() => setManageColumnsVisible(true)}>
             <MenuOutlined />
           </Button>
-          <Button style={{ display: "flex", alignItems: "center" }} onClick={handleExportXLSX} icon={<SiMicrosoftexcel />}>
+          <Button style={{ display: "flex", alignItems: "center" }} onClick={handleExportXLSX} icon={<FaFileExcel />}>
             İndir
           </Button>
         </div>
