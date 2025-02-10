@@ -8,6 +8,11 @@ export default defineConfig({
     host: true,
     port: 5174,
   },
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+  },
 });
 
 // import { defineConfig } from "vite";
