@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "@ant-design/v5-patch-for-react-19";
 import { Link, useNavigate } from "react-router-dom";
 import { t } from "i18next";
 import { Button, Input, message, Spin, Form, Typography, Checkbox } from "antd";
@@ -9,6 +10,7 @@ import SuccessAlert from "../components/alerts/SuccessAlert";
 import ErrorAlert from "../components/alerts/ErrorAlert";
 import LanguageSelectbox from "../_root/components/lang/LanguageSelectbox.jsx";
 import { useForm } from "antd/lib/form/Form";
+import { MdVpnKey } from "react-icons/md";
 import styled from "styled-components";
 
 const { Text } = Typography;
@@ -190,19 +192,20 @@ const AuthLayout = () => {
                 }}
               />
             </Form.Item>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+              <Form.Item name="remember" valuePropName="checked" label={null} wrapperCol={{ offset: 0 }} style={{ marginBottom: "0px" }}>
+                <Checkbox>{t("beniHatirla")}</Checkbox>
+              </Form.Item>
+              <Button style={{ marginTop: "0px", borderRadius: "10px", height: "35px" }} danger onClick={handleChangeCompanyKey}>
+                <MdVpnKey style={{ fontSize: "17px" }} />
+              </Button>
+            </div>
 
-            <Form.Item name="remember" valuePropName="checked" label={null}>
-              <Checkbox>{t("beniHatirla")}</Checkbox>
-            </Form.Item>
-
-            <Form.Item label={null}>
+            <Form.Item label={null} wrapperCol={{ offset: 0 }}>
               <Button loading={isLoading} style={{ width: "100%", borderRadius: "20px", backgroundColor: "#3C6ABC", color: "white", height: "40px" }} type="" htmlType="submit">
                 {t("login")}
               </Button>
             </Form.Item>
-            <Button style={{ marginTop: "0px", width: "100%", borderRadius: "20px", height: "40px" }} danger onClick={handleChangeCompanyKey}>
-              {t("anahtarDegistir")}
-            </Button>
           </Form>
         </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "34px" }}>
