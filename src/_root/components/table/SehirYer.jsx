@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "@ant-design/v5-patch-for-react-19";
 import { Layout, Menu, List, Button, Modal } from "antd";
 import { t } from "i18next";
 import { DeleteRegionService, GetGuzergahYerByTownIdService, GetSehirListService } from "../../../api/services/guzergah_services";

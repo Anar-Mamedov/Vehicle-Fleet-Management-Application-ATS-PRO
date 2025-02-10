@@ -35,6 +35,7 @@ import IsKartlari from "./_root/pages/sistem-tanimlari/is-kartlari/IsKartlari";
 // Lastik Yonetimi
 import LastikTanim from "./_root/pages/sistem-tanimlari/lastik-tanim/LastikTanim";
 import Axle from "./_root/pages/LastikYonetimi/Axle/Axle.jsx";
+import LastikIslemleri from "./_root/pages/LastikYonetimi/LastikIslemleri/LastikIslemleri";
 
 import CezaTanim from "./_root/pages/sistem-tanimlari/ceza-tanim/CezaTanim";
 import ServisTanim from "./_root/pages/sistem-tanimlari/servis-tanim/ServisTanim";
@@ -132,6 +133,7 @@ const App = () => {
         {/* Lastik Yonetimi */}
         <Route path="/lastik-tanimlari" element={<LastikTanim />} />
         <Route path="/axle" element={<Axle />} />
+        <Route path="/lastik-islemleri" element={<LastikIslemleri />} />
 
         <Route path="/ceza-tanimlari" element={<CezaTanim />} />
         <Route path="/servis-tanimlari" element={<ServisTanim />} />
