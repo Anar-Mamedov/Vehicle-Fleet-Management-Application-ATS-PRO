@@ -19,8 +19,12 @@ function AxleIslevi({ name1 }) {
   ];
 
   return (
-    <div style={{ flex: 1 }}>
-      <Controller name={name1} control={control} render={({ field }) => <Select {...field} placeholder={t("secimYapiniz")} allowClear options={options} style={{ flex: 1 }} />} />
+    <div style={{ width: "100%" }}>
+      <Controller
+        name={name1}
+        control={control}
+        render={({ field }) => <Select {...field} placeholder={t("secimYapiniz")} allowClear options={options} style={{ width: "100%" }} />}
+      />
     </div>
   );
 }
