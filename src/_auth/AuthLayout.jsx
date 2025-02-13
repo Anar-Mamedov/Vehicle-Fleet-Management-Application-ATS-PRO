@@ -196,7 +196,7 @@ const AuthLayout = () => {
               <Form.Item name="remember" valuePropName="checked" label={null} wrapperCol={{ offset: 0 }} style={{ marginBottom: "0px" }}>
                 <Checkbox>{t("beniHatirla")}</Checkbox>
               </Form.Item>
-              <Button style={{ marginTop: "0px", borderRadius: "10px", height: "35px" }} danger onClick={handleChangeCompanyKey}>
+              <Button style={{ marginTop: "0px", borderRadius: "10px", height: "35px", borderColor: "#F7941E", color: "#F7941E" }} onClick={handleChangeCompanyKey}>
                 <MdVpnKey style={{ fontSize: "17px" }} />
               </Button>
             </div>
