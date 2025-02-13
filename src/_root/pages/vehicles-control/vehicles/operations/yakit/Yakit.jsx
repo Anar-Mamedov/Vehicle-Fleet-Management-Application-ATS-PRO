@@ -36,17 +36,25 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [keys, setKeys] = useState([]);
   const [rows, setRows] = useState([]);
+  const [error, setError] = useState(null);
 
   const fetchData = async (diff, targetPage) => {
+    if (!ids || ids.length === 0) {
+      setError("No vehicles selected");
+      setLoading(false);
+      setIsInitialLoading(false);
+      return;
+    }
+
     setLoading(true);
+    setError(null);
+
     try {
       let currentSetPointId = 0;
 
       if (diff > 0) {
-        // Moving forward
         currentSetPointId = dataSource[dataSource.length - 1]?.siraNo || 0;
       } else if (diff < 0) {
-        // Moving backward
         currentSetPointId = dataSource[0]?.siraNo || 0;
       } else {
         currentSetPointId = 0;
@@ -64,9 +72,12 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
           total_cost: response.data.total_cost,
           total_quantity: response.data.total_quantity,
         });
+      } else {
+        setError("No data received from server");
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      setError(error.message || "An error occurred while fetching data");
     } finally {
       setLoading(false);
       setIsInitialLoading(false);
@@ -74,8 +85,10 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
   };
 
   useEffect(() => {
-    fetchData(0, 1);
-  }, [ids, status]);
+    if (visible && ids && ids.length > 0) {
+      fetchData(0, 1);
+    }
+  }, [visible, ids, status]);
 
   // Handle search with debounce
   useEffect(() => {
@@ -398,9 +411,11 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
   // Custom loading icon
   const customIcon = <LoadingOutlined style={{ fontSize: 36 }} className="text-primary" spin />;
 
+  if (!visible) return null;
+
   return (
     <Modal
-      title={`${t("yakitBilgileri")} - ${t("plaka")}: [${selectedRowsData?.map((item) => item.plaka).join(", ")}]`}
+      title={`${t("yakitBilgileri")} - ${t("plaka")}: [${(selectedRowsData || []).map((item) => item.plaka).join(", ")}]`}
       open={visible}
       onCancel={onClose}
       maskClosable={false}
@@ -420,39 +435,47 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
       <UpdateModal updateModal={updateModalOpen} setUpdateModal={setUpdateModalOpen} id={id} aracId={aracId} setStatus={setStatus} status={status} />
 
       <DragAndDropContext items={columns} setItems={setColumns}>
-        <Spin spinning={loading || isInitialLoading} indicator={customIcon}>
-          <Table
-            rowKey={(record) => record.siraNo}
-            columns={newColumns}
-            dataSource={dataSource}
-            pagination={{
-              current: currentPage,
-              total: totalDataCount,
-              pageSize: 10,
-              showSizeChanger: false,
-              showTotal: (total, range) => `Toplam ${total}`,
-            }}
-            scroll={{
-              x: 1500,
-            }}
-            loading={loading}
-            size="small"
-            onChange={handleTableChange}
-            rowSelection={{
-              selectedRowKeys: selectedRowKeys,
-              onChange: (selectedKeys) => setSelectedRowKeys(selectedKeys),
-              onSelect: handleRowSelection,
-            }}
-            components={{
-              header: {
-                cell: SortableHeaderCell,
-              },
-            }}
-            locale={{
-              emptyText: "Veri Bulunamadı",
-            }}
-          />
-        </Spin>
+        {isInitialLoading ? (
+          <div style={{ textAlign: "center", padding: "50px" }}>
+            <Spin size="large" />
+          </div>
+        ) : error ? (
+          <div style={{ textAlign: "center", padding: "20px", color: "red" }}>{error}</div>
+        ) : (
+          <Spin spinning={loading || isInitialLoading} indicator={customIcon}>
+            <Table
+              rowKey={(record) => record.siraNo}
+              columns={newColumns}
+              dataSource={dataSource}
+              pagination={{
+                current: currentPage,
+                total: totalDataCount,
+                pageSize: 10,
+                showSizeChanger: false,
+                showTotal: (total, range) => `Toplam ${total}`,
+              }}
+              scroll={{
+                x: 1500,
+              }}
+              loading={loading}
+              size="small"
+              onChange={handleTableChange}
+              rowSelection={{
+                selectedRowKeys: selectedRowKeys,
+                onChange: (selectedKeys) => setSelectedRowKeys(selectedKeys),
+                onSelect: handleRowSelection,
+              }}
+              components={{
+                header: {
+                  cell: SortableHeaderCell,
+                },
+              }}
+              locale={{
+                emptyText: "Veri Bulunamadı",
+              }}
+            />
+          </Spin>
+        )}
       </DragAndDropContext>
 
       <div className="grid gap-1 mt-10 text-center">
