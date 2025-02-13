@@ -351,7 +351,13 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
     </Button>,
   ];
 
-  const plakaData = plaka.map((item) => item.plaka).join(", ");
+  // Add null check for plaka
+  const plakaData = Array.isArray(plaka)
+    ? plaka
+        .map((item) => item?.plaka)
+        .filter(Boolean)
+        .join(", ")
+    : "";
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
