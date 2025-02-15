@@ -178,7 +178,7 @@ export default function MainTabs({ modalOpen }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "row", gap: "10px", width: "100%" }}>
-      <div style={{ display: "flex", flexDirection: "column", width: "370px", gap: "10px" }}>
+      <div style={{ display: "none", flexDirection: "column", width: "370px", gap: "10px" }}>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "370px", gap: "10px", rowGap: "0px" }}>
           <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
             {t("aksTanimi")}

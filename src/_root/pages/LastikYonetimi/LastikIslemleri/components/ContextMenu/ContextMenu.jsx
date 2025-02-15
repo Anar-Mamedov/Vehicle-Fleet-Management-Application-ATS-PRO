@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Popover, Typography } from "antd";
 import { MoreOutlined, DownOutlined } from "@ant-design/icons";
 import Sil from "./components/Sil";
+import AxleTanimlamaHizliIslem from "./components/AxleTanimlamaHizliIslem/AxleTanimlamaHizliIslem";
 
 const { Text, Link } = Typography;
 
@@ -16,7 +17,18 @@ export default function ContextMenu({ selectedRows, refreshTableData }) {
     setVisible(false);
   };
 
-  const content = <div>{selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}</div>;
+  const hasAssignedAxle = selectedRows.some((row) => row.aksId > 0);
+
+  const content = (
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      {selectedRows.length >= 1 && (
+        <>
+          <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />
+          {!hasAssignedAxle && <AxleTanimlamaHizliIslem selectedRows={selectedRows} refreshTableData={refreshTableData} />}
+        </>
+      )}
+    </div>
+  );
   return (
     <Popover placement="bottom" content={content} trigger="click" open={visible} onOpenChange={handleVisibleChange}>
       <Button
