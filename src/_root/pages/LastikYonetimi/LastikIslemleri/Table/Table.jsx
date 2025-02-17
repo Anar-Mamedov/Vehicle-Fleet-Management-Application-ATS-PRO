@@ -366,6 +366,20 @@ const Ceza = () => {
     },
 
     {
+      title: t("tanimliAks"),
+      dataIndex: "aksTanim",
+      key: "aksTanim",
+      width: 250,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.aksTanim === null) return -1;
+        if (b.aksTanim === null) return 1;
+        return a.aksTanim.localeCompare(b.aksTanim);
+      },
+    },
+
+    {
       title: t("lokasyon"),
       dataIndex: "lokasyon",
       key: "lokasyon",
@@ -788,7 +802,7 @@ const Ceza = () => {
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-              <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+              {/*  <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} /> */}
             </div>
           </div>
           {/* Table */}
