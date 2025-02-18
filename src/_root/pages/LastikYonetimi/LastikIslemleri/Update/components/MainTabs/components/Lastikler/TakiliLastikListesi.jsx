@@ -11,13 +11,29 @@ const { Text, Link } = Typography;
 const { TextArea } = Input;
 
 export default function TakiliLastikListesi() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div style={{ width: "100%" }}>
       <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "10px" }}>
         <Text style={{ fontSize: "14px" }}>{t("installedTires")}</Text>
-        <Button type="link">{t("add")}</Button>
+        <Button type="link" onClick={handleOpenModal}>
+          {t("add")}
+        </Button>
       </div>
       <div style={{ padding: "20px" }}></div>
+
+      <Modal title={t("lastikTak")} open={isModalOpen} onCancel={handleCloseModal} footer={null} width={800}>
+        <LastikTak />
+      </Modal>
     </div>
   );
 }

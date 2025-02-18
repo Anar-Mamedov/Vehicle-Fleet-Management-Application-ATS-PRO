@@ -25,7 +25,7 @@ export default function LastikTak({ wheelInfo }) {
           <Space>
             <Text>{getPositionText()}</Text>
             <Text>|</Text>
-            <Text>{wheelInfo.wheelPosition}</Text>
+            <Text>{wheelInfo?.wheelPosition}</Text>
           </Space>
         </div>
       </div>
