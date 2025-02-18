@@ -5,6 +5,8 @@ import { Controller, useFormContext } from "react-hook-form";
 import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
 import AxleIslevi from "../../../../../../components/AxleIslevi";
 import LastikTak from "./components/LastikTak";
+import AxleTanimlamaHizliIslem from "../MainTabs/components/AxleTanimlamaHizliIslem/AxleTanimlamaHizliIslem";
+import TakiliLastikListesi from "./components/Lastikler/TakiliLastikListesi";
 import styled from "styled-components";
 import dayjs from "dayjs";
 import { t } from "i18next";
@@ -55,7 +57,7 @@ const StyledDivMedia = styled.div`
   }
 `;
 
-export default function MainTabs({ modalOpen, selectedRow }) {
+export default function MainTabs({ onRefresh1, selectedRow }) {
   const {
     control,
     watch,
@@ -65,6 +67,7 @@ export default function MainTabs({ modalOpen, selectedRow }) {
 
   const [isLastikTakModalOpen, setIsLastikTakModalOpen] = useState(false);
   const [selectedWheel, setSelectedWheel] = useState(null);
+  const [isAxleModalOpen, setIsAxleModalOpen] = useState(false);
 
   const aksSayisiValue = watch("aksSayisi");
   const aksSayisiNumber = parseInt(aksSayisiValue, 10);
@@ -197,6 +200,62 @@ export default function MainTabs({ modalOpen, selectedRow }) {
 
   // If aksId is 0, show a message component
   if (selectedRow?.aksId === 0) {
+    const renderExampleAxle = (color) => (
+      <div
+        style={{
+          width: "120px",
+          height: "120px",
+          border: `1px solid ${color === "green" ? "#E3F3E6" : "#F5F5F5"}`,
+          borderRadius: "8px",
+          padding: "15px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          backgroundColor: color === "green" ? "#E3F3E6" : "#F5F5F5",
+        }}
+      >
+        {/* Üst tekerlekler */}
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div
+            style={{
+              width: "20px",
+              height: "32px",
+              backgroundColor: color === "green" ? "#2BC770" : "#E0E0E0",
+              borderRadius: "4px",
+            }}
+          />
+          <div
+            style={{
+              width: "20px",
+              height: "32px",
+              backgroundColor: color === "green" ? "#2BC770" : "#E0E0E0",
+              borderRadius: "4px",
+            }}
+          />
+        </div>
+
+        {/* Alt tekerlekler */}
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div
+            style={{
+              width: "20px",
+              height: "32px",
+              backgroundColor: color === "green" ? "#2BC770" : "#E0E0E0",
+              borderRadius: "4px",
+            }}
+          />
+          <div
+            style={{
+              width: "20px",
+              height: "32px",
+              backgroundColor: color === "green" ? "#2BC770" : "#E0E0E0",
+              borderRadius: "4px",
+            }}
+          />
+        </div>
+      </div>
+    );
+
     return (
       <div
         style={{
@@ -204,13 +263,49 @@ export default function MainTabs({ modalOpen, selectedRow }) {
           justifyContent: "center",
           alignItems: "center",
           width: "100%",
-          height: "200px",
           flexDirection: "column",
-          gap: "16px",
+          gap: "32px",
+          padding: "40px 20px",
         }}
       >
-        <Text style={{ fontSize: "16px", color: "#666" }}>{t("aksSemasiBulunamadi")}</Text>
-        <Button type="primary">{t("yeniAksSemasıOlustur")}</Button>
+        {/* Aks şemaları */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "16px",
+            marginBottom: "16px",
+          }}
+        >
+          {renderExampleAxle("green")}
+          {renderExampleAxle("grey")}
+          {renderExampleAxle("green")}
+          {renderExampleAxle("grey")}
+          {renderExampleAxle("green")}
+          {renderExampleAxle("grey")}
+        </div>
+
+        <Text style={{ fontSize: "16px", color: "#666" }}>{t("Set up this vehicle's axle configuration to begin managing tires.")}</Text>
+
+        <AxleTanimlamaHizliIslem
+          selectedRows={selectedRow}
+          onRefresh1={onRefresh1}
+          refreshTableData={() => {
+            // Burada gerekirse sayfayı yenilemek için bir callback eklenebilir
+          }}
+          buttonStyle={{
+            backgroundColor: "#0078C2",
+            height: "40px",
+            borderRadius: "6px",
+            padding: "0 24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+            fontSize: "14px",
+          }}
+          buttonText={t("Set up axle configuration")}
+        />
       </div>
     );
   }
@@ -480,67 +575,134 @@ export default function MainTabs({ modalOpen, selectedRow }) {
             </div>
           </div>
         </div>
-        <div style={{ width: "280px", display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative" }}>
-          <div style={{ display: "flex", position: "absolute", left: "140px", top: "0px", flexDirection: "column", alignItems: "center", height: "100%" }}>
-            <div style={{ width: "7px", minHeight: "30px", backgroundColor: "rgba(255, 255, 255, 1)" }}></div>
-            <div style={{ width: "7px", height: "100%", backgroundColor: "rgba(215, 215, 215, 1)" }}></div>
-            <div style={{ width: "7px", minHeight: "30px", backgroundColor: "rgba(255, 255, 255, 1)" }}></div>
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            border: "1px solid #d2d2d2",
+            width: "50%",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "10px" }}>
+            <Text style={{ fontSize: "14px" }}>{t("axleConfiguration")}</Text>
+            <AxleTanimlamaHizliIslem
+              selectedRows={selectedRow}
+              onRefresh1={onRefresh1}
+              refreshTableData={() => {
+                // Burada gerekirse sayfayı yenilemek için bir callback eklenebilir
+              }}
+              buttonStyle={{
+                height: "32px",
+                borderRadius: "6px",
+                padding: "0 24px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#1677FF",
+                fontSize: "14px",
+              }}
+              buttonText={t("duzenle")}
+            />
           </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0px 10px", marginBottom: "120px" }}>
-            {/* Left side wheels */}
-            {Array.from({ length: 1 }).map((_, idx) => (
-              <React.Fragment key={`left-wheels-${idx}`}>{renderWheels("on", idx, "left")}</React.Fragment>
-            ))}
+          <div style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center", gap: "20px" }}>
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+              <Text style={{ fontSize: "14px", fontWeight: "600", textAlign: "center" }}>{watch("aksTanimi")}</Text>
+              <Text style={{ fontSize: "11px", fontWeight: "400", textAlign: "center", color: "#00000079" }}>{watch("aciklama")}</Text>
+            </div>
+            <div style={{ minWidth: "280px", width: "280px", display: "flex", flexDirection: "column", justifyContent: "space-between", position: "relative" }}>
+              <div
+                style={{
+                  display: "flex",
+                  position: "absolute",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  top: "0px",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  height: "100%",
+                }}
+              >
+                <div style={{ width: "7px", minHeight: "30px", backgroundColor: "rgba(255, 255, 255, 1)" }}></div>
+                <div style={{ width: "7px", height: "100%", backgroundColor: "rgba(215, 215, 215, 1)" }}></div>
+                <div style={{ width: "7px", minHeight: "30px", backgroundColor: "rgba(255, 255, 255, 1)" }}></div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0px 10px", marginBottom: "120px" }}>
+                {/* Left side wheels */}
+                {Array.from({ length: 1 }).map((_, idx) => (
+                  <React.Fragment key={`left-wheels-${idx}`}>{renderWheels("on", idx, "left")}</React.Fragment>
+                ))}
 
-            <div style={{ width: "100%", height: "7px", backgroundColor: "rgba(215, 215, 215, 1)" }}></div>
+                <div style={{ width: "100%", height: "7px", backgroundColor: "rgba(215, 215, 215, 1)" }}></div>
 
-            {/* Right side wheels */}
-            {Array.from({ length: 1 }).map((_, idx) => (
-              <React.Fragment key={`right-wheels-${idx}`}>{renderWheels("on", idx, "right")}</React.Fragment>
-            ))}
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-            {/* Dynamic rows based on aksSayisi */}
-            {dynamicCount > 0 &&
-              Array.from({ length: dynamicCount }).map((_, rowIndex) => (
-                <div
-                  key={`row-${rowIndex}`}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "0px 10px",
-                  }}
-                >
+                {/* Right side wheels */}
+                {Array.from({ length: 1 }).map((_, idx) => (
+                  <React.Fragment key={`right-wheels-${idx}`}>{renderWheels("on", idx, "right")}</React.Fragment>
+                ))}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                {/* Dynamic rows based on aksSayisi */}
+                {dynamicCount > 0 &&
+                  Array.from({ length: dynamicCount }).map((_, rowIndex) => (
+                    <div
+                      key={`row-${rowIndex}`}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: "0px 10px",
+                      }}
+                    >
+                      {/* Left side wheels */}
+                      {Array.from({ length: 1 }).map((_, idx) => (
+                        <React.Fragment key={`left-wheels-middle-${idx}`}>{renderWheels("middle", rowIndex, "left")}</React.Fragment>
+                      ))}
+
+                      <div style={{ width: "100%", height: "7px", backgroundColor: "rgba(215, 215, 215, 1)" }}></div>
+
+                      {/* Right side wheels */}
+                      {Array.from({ length: 1 }).map((_, idx) => (
+                        <React.Fragment key={`right-wheels-middle-${idx}`}>{renderWheels("middle", rowIndex, "right")}</React.Fragment>
+                      ))}
+                    </div>
+                  ))}
+
+                {/* Arka axle için */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0px 10px" }}>
                   {/* Left side wheels */}
                   {Array.from({ length: 1 }).map((_, idx) => (
-                    <React.Fragment key={`left-wheels-middle-${idx}`}>{renderWheels("middle", rowIndex, "left")}</React.Fragment>
+                    <React.Fragment key={`left-wheels-rear-${idx}`}>{renderWheels("arka", idx, "left")}</React.Fragment>
                   ))}
 
                   <div style={{ width: "100%", height: "7px", backgroundColor: "rgba(215, 215, 215, 1)" }}></div>
 
                   {/* Right side wheels */}
                   {Array.from({ length: 1 }).map((_, idx) => (
-                    <React.Fragment key={`right-wheels-middle-${idx}`}>{renderWheels("middle", rowIndex, "right")}</React.Fragment>
+                    <React.Fragment key={`right-wheels-rear-${idx}`}>{renderWheels("arka", idx, "right")}</React.Fragment>
                   ))}
                 </div>
-              ))}
-
-            {/* Arka axle için */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0px 10px" }}>
-              {/* Left side wheels */}
-              {Array.from({ length: 1 }).map((_, idx) => (
-                <React.Fragment key={`left-wheels-rear-${idx}`}>{renderWheels("arka", idx, "left")}</React.Fragment>
-              ))}
-
-              <div style={{ width: "100%", height: "7px", backgroundColor: "rgba(215, 215, 215, 1)" }}></div>
-
-              {/* Right side wheels */}
-              {Array.from({ length: 1 }).map((_, idx) => (
-                <React.Fragment key={`right-wheels-rear-${idx}`}>{renderWheels("arka", idx, "right")}</React.Fragment>
-              ))}
+              </div>
             </div>
           </div>
+        </div>
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            border: "1px solid #d2d2d2",
+            width: "50%",
+          }}
+        >
+          <TakiliLastikListesi />
         </div>
       </div>
 
