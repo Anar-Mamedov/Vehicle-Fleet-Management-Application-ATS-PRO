@@ -10,7 +10,13 @@ import { t } from "i18next";
 const { Text, Link } = Typography;
 const { TextArea } = Input;
 
-export default function TakiliLastikListesi() {
+export default function TakiliLastikListesi({ axleList, positionList }) {
+  const {
+    control,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useFormContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
@@ -32,7 +38,7 @@ export default function TakiliLastikListesi() {
       <div style={{ padding: "20px" }}></div>
 
       <Modal title={t("lastikTak")} open={isModalOpen} onCancel={handleCloseModal} footer={null} width={800}>
-        <LastikTak />
+        <LastikTak axleList={axleList} positionList={positionList} />
       </Modal>
     </div>
   );

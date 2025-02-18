@@ -68,12 +68,52 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
   const [isLastikTakModalOpen, setIsLastikTakModalOpen] = useState(false);
   const [selectedWheel, setSelectedWheel] = useState(null);
   const [isAxleModalOpen, setIsAxleModalOpen] = useState(false);
+  const [axleList, setAxleList] = useState([]);
+  const [positionList, setPositionList] = useState([]);
 
   const aksSayisiValue = watch("aksSayisi");
   const aksSayisiNumber = parseInt(aksSayisiValue, 10);
   const dynamicCount = !isNaN(aksSayisiNumber) && aksSayisiNumber > 2 ? aksSayisiNumber - 2 : 0;
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY");
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm");
+
+  // Add useEffect to update axleList and positionList based on axle configuration
+  useEffect(() => {
+    const newAxleList = [];
+    const newPositionList = [];
+
+    // Ön aks için tekerlek pozisyonlarını ekle
+    const onAxleWheelCount = watch("onAxle") || 1;
+    newAxleList.push("onAks");
+    if (onAxleWheelCount === 1) {
+      newPositionList.push(["LO", "RO"]); // 2 tekerli
+    } else {
+      newPositionList.push(["LO", "LI", "RI", "RO"]); // 4 tekerli
+    }
+
+    // Orta akslar için tekerlek pozisyonlarını ekle
+    for (let i = 0; i < dynamicCount; i++) {
+      const middleAxleWheelCount = watch(`${i + 1}`) || 1;
+      newAxleList.push(`ortaAks${i + 1}`);
+      if (middleAxleWheelCount === 1) {
+        newPositionList.push(["LO", "RO"]); // 2 tekerli
+      } else {
+        newPositionList.push(["LO", "LI", "RI", "RO"]); // 4 tekerli
+      }
+    }
+
+    // Arka aks için tekerlek pozisyonlarını ekle
+    const arkaAxleWheelCount = watch("arkaAxle") || 1;
+    newAxleList.push("arkaAks");
+    if (arkaAxleWheelCount === 1) {
+      newPositionList.push(["LO", "RO"]); // 2 tekerli
+    } else {
+      newPositionList.push(["LO", "LI", "RI", "RO"]); // 4 tekerli
+    }
+
+    setAxleList(newAxleList);
+    setPositionList(newPositionList);
+  }, [aksSayisiValue, dynamicCount, watch("onAxle"), watch("arkaAxle"), ...Array.from({ length: dynamicCount }, (_, i) => watch(`${i + 1}`))]);
 
   const handleWheelClick = (position, axleIndex, side, isInnerWheel = false) => {
     let wheelPosition;
@@ -702,12 +742,12 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
             width: "50%",
           }}
         >
-          <TakiliLastikListesi />
+          <TakiliLastikListesi axleList={axleList} positionList={positionList} />
         </div>
       </div>
 
       <Modal title={t("lastikTak")} open={isLastikTakModalOpen} onCancel={() => setIsLastikTakModalOpen(false)} footer={null} width={800}>
-        <LastikTak wheelInfo={selectedWheel} />
+        <LastikTak wheelInfo={selectedWheel} axleList={axleList} positionList={positionList} />
       </Modal>
     </>
   );
