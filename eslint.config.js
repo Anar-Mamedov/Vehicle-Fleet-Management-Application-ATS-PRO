@@ -14,5 +14,9 @@ export default [
         version: "detect", // Add react version detection here
       },
     },
+    rules: {
+      "no-unused-vars": ["warn", { varsIgnorePattern: "^React$" }], // Nihad qardaşın ayarı
+      "react/prop-types": "warn", // Nihad qardaşın ayarı
+    },
   },
 ];
