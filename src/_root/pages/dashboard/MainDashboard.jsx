@@ -52,7 +52,7 @@ const widgetTitles = {
   widget19: "Katedilen Mesafeler",
   widget20: "Aylık Maliyetler",
   widget21: "Aylık KM",
-  widget22: "Servis Islemleri Durumlari",
+  widget22: "Servis İşlemleri Durumları",
 };
 
 const defaultItems = [
