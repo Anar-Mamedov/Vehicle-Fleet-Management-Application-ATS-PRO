@@ -141,18 +141,10 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
   };
 
   const onClose = () => {
-    Modal.confirm({
-      title: "İptal etmek istediğinden emin misin?",
-      content: "Kaydedilmemiş değişiklikler kaybolacaktır.",
-      okText: "Evet",
-      cancelText: "Hayır",
-      onOk: () => {
-        setOpen(false);
-        onRefresh();
-        reset();
-        onDrawerClose();
-      },
-    });
+    setOpen(false);
+    onRefresh();
+    reset();
+    onDrawerClose();
   };
 
   return (

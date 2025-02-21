@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row, Col, Checkbox, InputNumber, Radio, Divider, Modal } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, LockOutlined } from "@ant-design/icons";
 import { Controller, useFormContext } from "react-hook-form";
 import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
 import AxleIslevi from "../../../../../../components/AxleIslevi";
@@ -65,11 +65,12 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
     formState: { errors },
   } = useFormContext();
 
-  const [isLastikTakModalOpen, setIsLastikTakModalOpen] = useState(false);
   const [selectedWheel, setSelectedWheel] = useState(null);
-  const [isAxleModalOpen, setIsAxleModalOpen] = useState(false);
+  const [shouldOpenModal, setShouldOpenModal] = useState(false);
   const [axleList, setAxleList] = useState([]);
   const [positionList, setPositionList] = useState([]);
+  const [fetchInstalledTiresRef, setFetchInstalledTiresRef] = useState(null);
+  const [tirePositionMapping, setTirePositionMapping] = useState({});
 
   const aksSayisiValue = watch("aksSayisi");
   const aksSayisiNumber = parseInt(aksSayisiValue, 10);
@@ -160,7 +161,7 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
       wheelPosition,
       isInnerWheel,
     });
-    setIsLastikTakModalOpen(true);
+    setShouldOpenModal(true);
   };
 
   const renderWheel = (position, axleIndex, side, isInnerWheel = false) => {
@@ -179,7 +180,41 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
       return null;
     }
 
-    return (
+    // Determine axle position text
+    const axlePosition = position === "on" ? "onAks" : position === "middle" ? `ortaAks${axleIndex + 1}` : "arkaAks";
+
+    // Determine wheel position
+    let wheelPosition;
+    if (side === "left") {
+      wheelPosition = wheelCount === 1 ? "LO" : isInnerWheel ? "LI" : "LO";
+    } else {
+      wheelPosition = wheelCount === 1 ? "RO" : isInnerWheel ? "RI" : "RO";
+    }
+
+    // Check if this position exists in tirePositionMapping
+    const hasPosition = tirePositionMapping[axlePosition]?.includes(wheelPosition);
+
+    return hasPosition ? (
+      <div
+        key={`${side}-wheel-${isInnerWheel ? "inner" : "outer"}-${axleIndex}`}
+        style={{
+          minWidth: "42px",
+          height: "67px",
+          backgroundColor: "#ffffff",
+          borderRadius: "10px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          cursor: "pointer",
+          border: "4px solid #e0e1e1",
+          marginLeft: isInnerWheel ? "5px" : "0",
+          marginRight: isInnerWheel ? "5px" : "0",
+        }}
+        // onClick={() => handleWheelClick(position, axleIndex, side, isInnerWheel)}
+      >
+        <Text style={{ fontSize: "12px", fontWeight: "bold" }}>{wheelPosition}</Text>
+      </div>
+    ) : (
       <div
         key={`${side}-wheel-${isInnerWheel ? "inner" : "outer"}-${axleIndex}`}
         style={{
@@ -418,7 +453,7 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
       date.setHours(hoursInt, minutesInt, 0);
 
       // Kullanıcının lokal ayarlarına uygun olarak saat ve dakikayı formatla
-      // `hour12` seçeneğini belirtmeyerek Intl.DateTimeFormat'ın kullanıcının yerel ayarlarına göre otomatik seçim yapmasına izin ver
+      // `hour12` seçeneğini belirtmeyerek Intl.DateTimeFormat'ın kullanıcının sistem ayarlarına göre otomatik seçim yapmasına izin ver
       const formatter = new Intl.DateTimeFormat(navigator.language, {
         hour: "numeric",
         minute: "2-digit",
@@ -458,6 +493,11 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
   }, []);
 
   // tarih formatlamasını kullanıcının yerel tarih formatına göre ayarlayın sonu
+
+  // Add this function to update the ref
+  const handleFetchInstalledTiresRef = useCallback((fetchFunction) => {
+    setFetchInstalledTiresRef(() => fetchFunction);
+  }, []);
 
   return (
     <>
@@ -630,24 +670,30 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
         >
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "10px" }}>
             <Text style={{ fontSize: "14px" }}>{t("axleConfiguration")}</Text>
-            <AxleTanimlamaHizliIslem
-              selectedRows={selectedRow}
-              onRefresh1={onRefresh1}
-              refreshTableData={() => {
-                // Burada gerekirse sayfayı yenilemek için bir callback eklenebilir
-              }}
-              buttonStyle={{
-                height: "32px",
-                borderRadius: "6px",
-                padding: "0 24px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#1677FF",
-                fontSize: "14px",
-              }}
-              buttonText={t("duzenle")}
-            />
+            {Object.keys(tirePositionMapping).length === 0 ? (
+              <AxleTanimlamaHizliIslem
+                selectedRows={selectedRow}
+                onRefresh1={onRefresh1}
+                refreshTableData={() => {
+                  // Burada gerekirse sayfayı yenilemek için bir callback eklenebilir
+                }}
+                buttonStyle={{
+                  height: "32px",
+                  borderRadius: "6px",
+                  padding: "0 24px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#1677FF",
+                  fontSize: "14px",
+                }}
+                buttonText={t("duzenle")}
+              />
+            ) : (
+              <Button type="link" style={{ color: "#b2afaf", fontSize: "14px" }} icon={<LockOutlined />} disabled={true}>
+                {t("duzenle")}
+              </Button>
+            )}
           </div>
           <div style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center", gap: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
@@ -742,13 +788,26 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
             width: "50%",
           }}
         >
-          <TakiliLastikListesi axleList={axleList} positionList={positionList} />
+          <TakiliLastikListesi
+            aracId={selectedRow?.aracId}
+            axleList={axleList}
+            positionList={positionList}
+            onInit={handleFetchInstalledTiresRef}
+            setTirePositionMapping={setTirePositionMapping}
+          />
         </div>
       </div>
 
-      <Modal title={t("lastikTak")} open={isLastikTakModalOpen} onCancel={() => setIsLastikTakModalOpen(false)} footer={null} width={800}>
-        <LastikTak wheelInfo={selectedWheel} axleList={axleList} positionList={positionList} />
-      </Modal>
+      <LastikTak
+        aracId={selectedRow?.aracId}
+        wheelInfo={selectedWheel}
+        axleList={axleList}
+        positionList={positionList}
+        shouldOpenModal={shouldOpenModal}
+        onModalClose={() => setShouldOpenModal(false)}
+        showAddButton={false}
+        refreshList={fetchInstalledTiresRef}
+      />
     </>
   );
 }

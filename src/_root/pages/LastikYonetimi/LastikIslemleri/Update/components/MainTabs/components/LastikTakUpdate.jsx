@@ -17,8 +17,39 @@ const getDecimalSeparator = () => {
 const { Text } = Typography;
 const { TextArea } = Input;
 
-export default function LastikTak({ aracId, wheelInfo, axleList, positionList, shouldOpenModal, onModalClose, showAddButton = true, refreshList }) {
+export default function LastikTak({ aracId, wheelInfo, axleList, positionList, shouldOpenModal, onModalClose, showAddButton = true, refreshList, tireData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchTireData = async (siraNo) => {
+    try {
+      const response = await AxiosInstance.get(`TyreOperation/GetTyreOperationById?id=${siraNo}`);
+      if (response && response.data) {
+        const data = response.data;
+        setValue("lastik", data.lastikTanim);
+        setValue("lastikID", data.lastikSiraNo);
+        setValue("selectedAxle", data.aksPozisyon);
+        setValue("selectedPosition", data.pozisyonNo);
+        setValue("lastikTip", data.tip);
+        setValue("lastikEbat", data.ebat);
+        setValue("lastikTipID", data.tipKodId);
+        setValue("lastikEbatID", data.ebatKodId);
+        setValue("seriNo", data.seriNo);
+        setValue("lastikOmru", data.tahminiOmurKm);
+        setValue("marka", data.lastikMarka);
+        setValue("markaID", data.lastikMarkaId);
+        setValue("model", data.lastikModel);
+        setValue("modelID", data.lastikModelId);
+        setValue("disDerinligi", data.disDerinligi);
+        setValue("basinc", data.basinc);
+        setValue("montajKm", data.takildigiKm);
+        setValue("montajTarihi", data.takilmaTarih ? dayjs(data.takilmaTarih).format("YYYY-MM-DD") : null);
+        setValue("lastikAciklama", data.aciklama);
+      }
+    } catch (error) {
+      console.error("Error fetching tire data:", error);
+      message.error(t("lastikVerileriAlinamadi"));
+    }
+  };
 
   const methods = useForm({
     defaultValues: {
@@ -30,7 +61,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
       lastikEbat: null,
       lastikTipID: null,
       lastikEbatID: null,
-      siraNo: "",
+      seriNo: "",
       lastikOmru: 0,
       marka: null,
       markaID: null,
@@ -53,29 +84,15 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     watch,
   } = methods;
 
-  const fetchNewSerialNumber = async () => {
-    try {
-      const response = await AxiosInstance.get("Numbering/GetModuleCodeByCode?code=LASTIK_SERI_NO");
-      if (response.data) {
-        setValue("siraNo", response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching serial number:", error);
-      message.error(t("seriNoGetirilemedi"));
-    }
-  };
-
   // Listen for external modal trigger
   useEffect(() => {
     if (shouldOpenModal) {
       setIsModalOpen(true);
-      fetchNewSerialNumber();
     }
   }, [shouldOpenModal]);
 
   const handleOpenModal = async () => {
     setIsModalOpen(true);
-    fetchNewSerialNumber();
   };
 
   const handleCloseModal = () => {
@@ -93,6 +110,12 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     }
   }, [wheelInfo, setValue]);
 
+  useEffect(() => {
+    if (tireData?.siraNo) {
+      fetchTireData(tireData.siraNo);
+    }
+  }, [tireData]);
+
   const formatDateWithDayjs = (dateString) => {
     const formattedDate = dayjs(dateString);
     return formattedDate.isValid() ? formattedDate.format("YYYY-MM-DD") : "";
@@ -104,7 +127,8 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
   };
 
   const createRequestBody = (data) => ({
-    seriNo: data.siraNo,
+    siraNo: tireData?.siraNo,
+    seriNo: data.seriNo,
     aracId: aracId,
     lastikSiraNo: data.lastikID,
     aksPozisyon: data.selectedAxle,
@@ -123,7 +147,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
 
   const handleApiCall = async (data) => {
     try {
-      const response = await AxiosInstance.post("TyreOperation/AddTyreOperation", createRequestBody(data));
+      const response = await AxiosInstance.post("TyreOperation/UpdateTyreOperation", createRequestBody(data));
 
       if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202) {
         message.success("Güncelleme Başarılı.");
@@ -133,8 +157,6 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
         return true;
       } else if (response.data.statusCode === 401) {
         message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
-      } else if (response.data.statusCode === 409) {
-        message.error("Bu konuma zaten lastik takılmıştır!");
       } else {
         message.error("İşlem Başarısız.");
       }
@@ -150,29 +172,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     }
   };
 
-  const checkSiraNoUniqueness = async (siraNo) => {
-    try {
-      const response = await AxiosInstance.post("TableCodeItem/IsCodeItemExist", {
-        tableName: "Lastik",
-        code: siraNo,
-      });
-
-      if (response.data.status === true) {
-        message.error("Sıra numarası benzersiz değildir!");
-        return false;
-      }
-      return true;
-    } catch (error) {
-      console.error("Error checking siraNo uniqueness:", error);
-      message.error("Sıra numarası kontrolü sırasında hata oluştu!");
-      return false;
-    }
-  };
-
   const onSubmit = async (data) => {
-    const isUnique = await checkSiraNoUniqueness(watch("siraNo"));
-    if (!isUnique) return;
-
     const success = await handleApiCall(data);
     if (success) {
       methods.reset();
@@ -181,15 +181,31 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
   };
 
   const handleSaveAndNew = async (data) => {
-    const isUnique = await checkSiraNoUniqueness(watch("siraNo"));
-    if (!isUnique) return;
-
     const success = await handleApiCall(data);
     if (success) {
       methods.reset();
-      fetchNewSerialNumber();
     }
   };
+
+  const validateSeriNo = async (value) => {
+    if (!value) return true;
+    try {
+      const response = await AxiosInstance.post("TableCodeItem/IsCodeItemExist", {
+        tableName: "Lastik",
+        code: value,
+      });
+
+      if (response.data.status === true) {
+        return t("seriNumarasiBenzersizDegildir");
+      }
+      return true;
+    } catch (error) {
+      console.error("Error checking seriNo uniqueness:", error);
+      return t("seriNumarasiKontroluSirasindaHataOlustu");
+    }
+  };
+
+  const [isValidatingSeriNo, setIsValidatingSeriNo] = useState(false);
 
   return (
     <>
@@ -199,7 +215,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
         </Button>
       )}
 
-      <Modal title={t("lastikMontaji")} open={isModalOpen} onCancel={handleCloseModal} footer={null} width={800}>
+      <Modal title={t("lastikGuncelle")} open={isModalOpen} onCancel={handleCloseModal} footer={null} width={800}>
         <FormProvider {...methods}>
           <form>
             <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -235,7 +251,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                             </>
                           )}
                         />
-                        <StoksuzLastikTablo
+                        {/* <StoksuzLastikTablo
                           onSubmit={(selectedData) => {
                             // Set the lastik input value
                             setValue("lastik", selectedData.tanim);
@@ -270,7 +286,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                             setValue("disDerinligi", 0);
                             setValue("basinc", 0);
                           }}
-                        />
+                        /> */}
                       </div>
                     </div>
                   </div>
@@ -282,7 +298,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                     </Text>
                     <div style={{ width: "250px" }}>
                       <Controller
-                        name="siraNo"
+                        name="seriNo"
                         control={control}
                         rules={{
                           required: {
@@ -297,6 +313,15 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                               status={error ? "error" : ""}
                               style={{
                                 width: "100%",
+                              }}
+                              onBlur={async (e) => {
+                                field.onBlur(e);
+                                const result = await validateSeriNo(e.target.value);
+                                if (result !== true) {
+                                  methods.setError("seriNo", { message: result });
+                                } else {
+                                  methods.clearErrors("seriNo");
+                                }
                               }}
                             />
                             {error && <div style={{ color: "red" }}>{error.message}</div>}
@@ -473,9 +498,9 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
               </div>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
-                <Button onClick={methods.handleSubmit(handleSaveAndNew)}>{t("kaydetVeYeniEkle")}</Button>
+                {/* <Button onClick={methods.handleSubmit(handleSaveAndNew)}>{t("kaydetVeYeniEkle")}</Button> */}
                 <Button type="primary" onClick={methods.handleSubmit(onSubmit)}>
-                  {t("kaydet")}
+                  {t("guncelle")}
                 </Button>
               </div>
             </div>
