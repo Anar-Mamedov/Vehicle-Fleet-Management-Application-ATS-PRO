@@ -172,7 +172,6 @@ const Yakit = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Search handling
@@ -208,7 +207,6 @@ const Yakit = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
