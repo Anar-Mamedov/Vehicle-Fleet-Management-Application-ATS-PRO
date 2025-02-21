@@ -624,7 +624,7 @@ function MainDashboard() {
         Aylık KM
       </Checkbox>
       <Checkbox name="widget22" onChange={handleCheckboxChange} checked={checkedWidgets.widget22}>
-        Servis Islemleri Durumlari
+        Servis İşlemleri Durumları
       </Checkbox>
       <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
         <Button danger onClick={handleReset}>
