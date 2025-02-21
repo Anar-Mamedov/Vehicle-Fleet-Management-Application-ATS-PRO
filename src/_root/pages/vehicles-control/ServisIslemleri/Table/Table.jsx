@@ -143,7 +143,7 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const Ceza = () => {
+const Ceza = ({ statusId1 }) => {
   const formMethods = useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
@@ -228,7 +228,7 @@ const Ceza = () => {
       // Determine what to send for customfilters
 
       const response = await AxiosInstance.post(
-        `VehicleServices/GetVehicleServices?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
+        `VehicleServices/GetVehicleServices?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&statusId=${statusId1 !== undefined && statusId1 !== null ? statusId1 : 0}`,
         body.filters?.customfilter || {}
       );
 
@@ -257,7 +257,6 @@ const Ceza = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -265,7 +264,6 @@ const Ceza = () => {
       fetchData(0, 1);
       prevBodyRef.current = body;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [body]);
 
   const prevBodyRef = useRef(body);
@@ -303,7 +301,6 @@ const Ceza = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)

@@ -32,6 +32,7 @@ import CustomDashboards from "./components/CustomDashboards.jsx";
 import PersonelKPITablosu from "./components/PersonelKPITablosu.jsx";
 import IsEmriTipleri from "./components/IsEmriTipleri.jsx";
 import IsTalebiTipleri from "./components/IsTalebiTipleri.jsx";
+import ServisIslemleriDurumlari from "./components/ServisIslemleriDurumlari.jsx";
 import { createRoot } from "react-dom/client";
 
 import "./custom-gridstack.css"; // Add this line to import your custom CSS
@@ -51,6 +52,7 @@ const widgetTitles = {
   widget19: "Katedilen Mesafeler",
   widget20: "Aylık Maliyetler",
   widget21: "Aylık KM",
+  widget22: "Servis Islemleri Durumlari",
 };
 
 const defaultItems = [
@@ -66,6 +68,7 @@ const defaultItems = [
   { id: "widget11", x: 5, y: 8, width: 7, height: 3, minW: 3, minH: 2 },
   { id: "widget20", x: 0, y: 11, width: 6, height: 3, minW: 3, minH: 2 },
   { id: "widget21", x: 6, y: 11, width: 6, height: 3, minW: 3, minH: 2 },
+  { id: "widget22", x: 0, y: 14, width: 5, height: 3, minW: 3, minH: 2 },
 ];
 
 function MainDashboard() {
@@ -84,6 +87,7 @@ function MainDashboard() {
     widget19: false,
     widget20: false,
     widget21: false,
+    widget22: false,
   });
 
   const methods = useForm({
@@ -353,6 +357,19 @@ function MainDashboard() {
               </FormProvider>
             );
             break;
+          case "widget22":
+            root.render(
+              <FormProvider {...methods}>
+                <I18nextProvider i18n={i18n}>
+                  <ConfigProvider locale={trTR}>
+                    <BrowserRouter>
+                      <ServisIslemleriDurumlari />
+                    </BrowserRouter>
+                  </ConfigProvider>
+                </I18nextProvider>
+              </FormProvider>
+            );
+            break;
           default:
             break;
         }
@@ -373,6 +390,7 @@ function MainDashboard() {
         widget19: false,
         widget20: false,
         widget21: false,
+        widget22: false,
       };
       newGridItems.forEach((item) => {
         if (Object.prototype.hasOwnProperty.call(newChecked, item.id)) {
@@ -404,6 +422,7 @@ function MainDashboard() {
         widget19: false,
         widget20: false,
         widget21: false,
+        widget22: false,
       };
       itemsToLoad.forEach((item) => {
         if (Object.prototype.hasOwnProperty.call(checked, item.id)) {
@@ -604,6 +623,9 @@ function MainDashboard() {
       <Checkbox name="widget21" onChange={handleCheckboxChange} checked={checkedWidgets.widget21}>
         Aylık KM
       </Checkbox>
+      <Checkbox name="widget22" onChange={handleCheckboxChange} checked={checkedWidgets.widget22}>
+        Servis Islemleri Durumlari
+      </Checkbox>
       <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
         <Button danger onClick={handleReset}>
           Widgetları Sıfırla
@@ -763,6 +785,12 @@ function MainDashboard() {
                 <div className="grid-stack-item-content">
                   <div className="widget-header">{widgetTitles.widget21}</div>
                   <AylikKM />
+                </div>
+              </div>
+              <div className="grid-stack-item border-dark" id="widget22">
+                <div className="grid-stack-item-content">
+                  <div className="widget-header">{widgetTitles.widget22}</div>
+                  <ServisIslemleriDurumlari />
                 </div>
               </div>
             </div>
