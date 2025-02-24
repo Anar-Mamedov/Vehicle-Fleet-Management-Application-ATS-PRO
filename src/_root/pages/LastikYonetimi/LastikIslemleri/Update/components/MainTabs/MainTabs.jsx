@@ -78,6 +78,11 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY");
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm");
 
+  // Create a memoized array of watch values for middle axles based on actual dynamicCount
+  const middleAxleValues = React.useMemo(() => {
+    return Array.from({ length: dynamicCount }, (_, i) => watch(`${i + 1}`));
+  }, [watch, dynamicCount]);
+
   // Add useEffect to update axleList and positionList based on axle configuration
   useEffect(() => {
     const newAxleList = [];
@@ -94,7 +99,7 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
 
     // Orta akslar için tekerlek pozisyonlarını ekle
     for (let i = 0; i < dynamicCount; i++) {
-      const middleAxleWheelCount = watch(`${i + 1}`) || 1;
+      const middleAxleWheelCount = middleAxleValues[i] || 1;
       newAxleList.push(`ortaAks${i + 1}`);
       if (middleAxleWheelCount === 1) {
         newPositionList.push(["LO", "RO"]); // 2 tekerli
@@ -114,7 +119,7 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
 
     setAxleList(newAxleList);
     setPositionList(newPositionList);
-  }, [aksSayisiValue, dynamicCount, watch("onAxle"), watch("arkaAxle"), ...Array.from({ length: dynamicCount }, (_, i) => watch(`${i + 1}`))]);
+  }, [aksSayisiValue, dynamicCount, watch("onAxle"), watch("arkaAxle"), middleAxleValues]);
 
   const handleWheelClick = (position, axleIndex, side, isInnerWheel = false) => {
     let wheelPosition;
@@ -568,7 +573,7 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
           >
             <Text style={{ fontSize: "14px" }}>{t("aksSayisi")}</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "250px", minWidth: "250px", gap: "10px", width: "100%" }}>
-              <Controller name="aksSayisi" control={control} render={({ field }) => <InputNumber {...field} min={2} max={6} style={{ flex: 1 }} />} />
+              <Controller name="aksSayisi" control={control} render={({ field }) => <InputNumber {...field} min={2} style={{ flex: 1 }} />} />
             </div>
           </div>
           <Divider />

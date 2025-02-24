@@ -242,7 +242,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
       <Button onClick={onClear} danger>
         -
       </Button>
-      <Modal width={1200} centered title="Malzeme Talep Listesi" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
+      <Modal width={1200} centered title="Lastik Listesi" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
         <Input
           style={{ width: "300px", marginBottom: "15px" }}
           type="text"

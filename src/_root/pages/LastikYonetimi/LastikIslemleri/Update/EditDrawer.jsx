@@ -3,7 +3,7 @@ import "@ant-design/v5-patch-for-react-19";
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Drawer, Space, ConfigProvider, Modal, message, Spin } from "antd";
 import React, { useEffect, useState, useTransition } from "react";
-import MainTabs from "./components/MainTabs/MainTabs.jsx";
+import Tablar from "./Tablar.jsx";
 import { useForm, Controller, useFormContext, FormProvider } from "react-hook-form";
 import dayjs from "dayjs";
 import AxiosInstance from "../../../../../api/http.jsx";
@@ -153,7 +153,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
         <Modal
           width="1200px"
           centered
-          title={`Aks Yapılandırma`}
+          title={`Aks Yapılandırma ${selectedRow?.plaka}`}
           open={drawerVisible}
           onCancel={onClose}
           footer={
@@ -191,7 +191,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           ) : (
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               <div style={{ padding: "5px" }}>
-                <MainTabs selectedRow={selectedRow} onRefresh1={onRefresh1} />
+                <Tablar selectedRow={selectedRow} onRefresh1={onRefresh1} />
               </div>
             </form>
           )}

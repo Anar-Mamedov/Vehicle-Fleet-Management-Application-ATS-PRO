@@ -70,12 +70,14 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     if (shouldOpenModal) {
       setIsModalOpen(true);
       fetchNewSerialNumber();
+      setValue("montajTarihi", dayjs().format("YYYY-MM-DD"));
     }
   }, [shouldOpenModal]);
 
   const handleOpenModal = async () => {
     setIsModalOpen(true);
     fetchNewSerialNumber();
+    setValue("montajTarihi", dayjs().format("YYYY-MM-DD"));
   };
 
   const handleCloseModal = () => {
@@ -194,7 +196,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
   return (
     <>
       {showAddButton && (
-        <Button type="link" onClick={handleOpenModal}>
+        <Button style={{ paddingLeft: "5px" }} type="link" onClick={handleOpenModal}>
           {t("add")}
         </Button>
       )}

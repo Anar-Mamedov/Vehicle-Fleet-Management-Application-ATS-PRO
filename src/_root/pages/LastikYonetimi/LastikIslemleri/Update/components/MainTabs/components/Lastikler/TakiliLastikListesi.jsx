@@ -8,6 +8,7 @@ import styled from "styled-components";
 import { RightOutlined, LockOutlined } from "@ant-design/icons";
 import LastikTakUpdate from "../../components/LastikTakUpdate";
 import ContextMenu from "./ContextMenu/ContextMenu";
+import LastikYeriDegistir from "../../components/LastikYeriDegistir";
 
 const { Text, Title } = Typography;
 const { Panel } = Collapse;
@@ -251,13 +252,28 @@ export default function TakiliLastikListesi({ aracId, axleList, positionList, on
     <div style={{ width: "100%" }}>
       <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "10px" }}>
         <Text style={{ fontSize: "14px" }}>{t("installedTires")}</Text>
-        {Object.values(groupedTires).flat().length >= positionList.reduce((sum, positions) => sum + positions.length, 0) ? (
-          <Button type="text" icon={<LockOutlined />} style={{ color: "#b2afaf" }} disabled>
-            {t("ekle")}
-          </Button>
-        ) : (
-          <LastikTak aracId={aracId} axleList={axleList} positionList={positionList} refreshList={fetchInstalledTires} />
-        )}
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+          {Object.values(groupedTires).flat().length > 0 && (
+            <>
+              <LastikYeriDegistir
+                aracId={aracId}
+                axleList={axleList}
+                positionList={positionList}
+                refreshList={fetchInstalledTires}
+                installedTires={installedTires}
+                groupedTires={groupedTires}
+              />
+              <Text style={{ fontSize: "14px" }}>|</Text>
+            </>
+          )}
+          {Object.values(groupedTires).flat().length >= positionList.reduce((sum, positions) => sum + positions.length, 0) ? (
+            <Button type="text" icon={<LockOutlined />} style={{ color: "#b2afaf", paddingLeft: "5px" }} disabled>
+              {t("ekle")}
+            </Button>
+          ) : (
+            <LastikTak aracId={aracId} axleList={axleList} positionList={positionList} refreshList={fetchInstalledTires} />
+          )}
+        </div>
       </div>
       <div
         style={{
