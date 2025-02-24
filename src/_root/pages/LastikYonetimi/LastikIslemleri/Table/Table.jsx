@@ -363,7 +363,7 @@ const Ceza = () => {
     },
 
     {
-      title: t("tanimliAks"),
+      title: t("aksYapisi"),
       dataIndex: "aksTanim",
       key: "aksTanim",
       width: 250,

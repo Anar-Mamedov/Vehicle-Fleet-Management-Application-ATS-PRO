@@ -153,7 +153,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
         <Modal
           width="1200px"
           centered
-          title={`Aks Yapılandırma ${selectedRow?.plaka}`}
+          title={`Aks Yapılandırma [${selectedRow?.plaka}] ${selectedRow?.marka}`}
           open={drawerVisible}
           onCancel={onClose}
           footer={

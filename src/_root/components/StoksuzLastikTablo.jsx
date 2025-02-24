@@ -169,7 +169,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
   ];
 
   // API Data Fetching with pagination
-  const fetchData = async (diff, targetPage) => {
+  const fetchData = async (diff, targetPage, searchParam = "") => {
     setLoading(true);
     try {
       let currentSetPointId = 0;
@@ -180,7 +180,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
         currentSetPointId = data[0]?.siraNo || 0;
       }
 
-      const response = await AxiosInstance.get(`Tyre/GetTyreList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
+      const response = await AxiosInstance.get(`Tyre/GetTyreList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchParam}`);
 
       const total = response.data?.recordCount || 0;
       setTotalCount(total);
@@ -204,7 +204,9 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
   const handleModalToggle = () => {
     setIsModalVisible((prev) => !prev);
     if (!isModalVisible) {
-      fetchData(0, 1);
+      setSearchTerm("");
+      setData([]);
+      fetchData(0, 1, "");
       setSelectedRowKeys([]);
     }
   };
@@ -227,13 +229,13 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
 
   // Search handling
   const handleSearch = () => {
-    fetchData(0, 1);
+    fetchData(0, 1, searchTerm);
   };
 
   // Table pagination handling
   const handleTableChange = (page) => {
     const diff = page - currentPage;
-    fetchData(diff, page);
+    fetchData(diff, page, searchTerm);
   };
 
   return (
