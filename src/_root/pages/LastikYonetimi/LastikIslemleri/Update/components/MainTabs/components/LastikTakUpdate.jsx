@@ -138,8 +138,8 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     tipKodId: Number(data.lastikTipID),
     lastikModelId: Number(data.modelID),
     lastikMarkaId: Number(data.markaID),
-    disDerinligi: data.disDerinligi,
-    basinc: data.basinc,
+    /* disDerinligi: data.disDerinligi,
+    basinc: data.basinc, */
     aciklama: data.lastikAciklama,
     takildigiKm: data.montajKm,
     takilmaTarih: data.montajTarihi,
@@ -381,7 +381,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
+                  {/*   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
                     <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "180px" }}>
                       <Text>{t("disDerinligi")}</Text>
                       <div style={{ width: "80px" }}>
@@ -423,7 +423,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                         />
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
                     <Text>
@@ -431,7 +431,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                       <span style={{ color: "red" }}>*</span>
                     </Text>
                     <div style={{ width: "250px" }}>
-                      <AxleListSelect axleList={axleList} />
+                      <AxleListSelect axleList={axleList} disabled={false} />
                     </div>
                   </div>
 
@@ -441,7 +441,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                       <span style={{ color: "red" }}>*</span>
                     </Text>
                     <div style={{ width: "250px" }}>
-                      <PositionListSelect positionList={positionList} />
+                      <PositionListSelect positionList={positionList} disabled={false} />
                     </div>
                   </div>
 

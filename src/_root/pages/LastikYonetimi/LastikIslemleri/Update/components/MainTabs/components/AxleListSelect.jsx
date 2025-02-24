@@ -9,11 +9,9 @@ import { t } from "i18next";
 const { Text, Link } = Typography;
 const { TextArea } = Input;
 
-export default function AxleListSelect({ axleList }) {
+export default function AxleListSelect({ axleList, disabled }) {
   const {
     control,
-    watch,
-    setValue,
     formState: { errors },
   } = useFormContext();
 
@@ -22,13 +20,14 @@ export default function AxleListSelect({ axleList }) {
       <Controller
         name="selectedAxle"
         control={control}
-        rules={{ required: true, message: t("alanBoşBırakılamaz") }}
+        rules={{ required: true, message: t("alanBosBirakilamaz") }}
         render={({ field }) => (
           <Select
             {...field}
+            disabled={disabled}
             status={errors.selectedAxle ? "error" : ""}
             style={{ width: "100%" }}
-            placeholder={t("Aks Seçiniz")}
+            placeholder={t("aksSeciniz")}
             options={axleList?.map((axle) => ({
               value: axle,
               label: t(axle),

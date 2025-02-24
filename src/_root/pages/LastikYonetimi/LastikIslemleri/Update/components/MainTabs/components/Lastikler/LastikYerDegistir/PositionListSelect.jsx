@@ -1,23 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row, Col, Checkbox, InputNumber, Radio, Divider, Modal } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import React from "react";
+import { Typography, Select } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
-import styled from "styled-components";
-import dayjs from "dayjs";
 import { t } from "i18next";
 
-const { Text, Link } = Typography;
-const { TextArea } = Input;
+const { Text } = Typography;
 
-export default function PositionListSelect({ positionList, disabled }) {
+export default function PositionListSelect({ positionList, name = "selectedPosition", onPositionChange }) {
   const {
     control,
     watch,
-    setValue,
     formState: { errors },
   } = useFormContext();
 
-  const selectedAxle = watch("selectedAxle");
+  const axleFieldName = name.replace("selectedPosition", "selectedAxle");
+  const selectedAxle = watch(axleFieldName);
 
   const getPositionsByAxle = () => {
     if (!selectedAxle || !positionList) return [];
@@ -30,7 +26,6 @@ export default function PositionListSelect({ positionList, disabled }) {
       return positionList[positionList.length - 1];
     }
 
-    // ortaAks1, ortaAks2, etc. cases
     const axleNumber = parseInt(selectedAxle.replace("ortaAks", ""));
     if (!isNaN(axleNumber)) {
       return positionList[axleNumber] || [];
@@ -42,14 +37,20 @@ export default function PositionListSelect({ positionList, disabled }) {
   return (
     <div>
       <Controller
-        name="selectedPosition"
+        name={name}
         control={control}
         rules={{ required: true, message: t("alanBosBirakilamaz") }}
         render={({ field }) => (
           <Select
             {...field}
-            disabled={disabled || !selectedAxle}
-            status={errors.selectedPosition ? "error" : ""}
+            onChange={(value) => {
+              field.onChange(value);
+              if (onPositionChange) {
+                onPositionChange(value);
+              }
+            }}
+            disabled={!selectedAxle}
+            status={errors[name] ? "error" : ""}
             style={{ width: "100%" }}
             placeholder={t("pozisyonSeciniz")}
             options={getPositionsByAxle()?.map((position) => ({
@@ -59,7 +60,7 @@ export default function PositionListSelect({ positionList, disabled }) {
           />
         )}
       />
-      {errors.selectedPosition && <Text style={{ color: "red" }}>{errors.selectedPosition.message}</Text>}
+      {errors[name] && <Text style={{ color: "red" }}>{errors[name].message}</Text>}
     </div>
   );
 }
