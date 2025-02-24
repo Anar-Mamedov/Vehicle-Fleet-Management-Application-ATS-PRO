@@ -97,15 +97,15 @@ const StyledCollapse = styled(Collapse)`
     background: transparent !important;
 
     .ant-collapse-header-text {
-      color: #666;
+      color: #000000;
       font-size: 14px;
-      font-weight: 400;
-      opacity: 0.85;
+      font-weight: 700;
+      opacity: 1;
     }
 
     .ant-collapse-expand-icon {
-      color: #666;
-      opacity: 0.85;
+      color: #000000;
+      opacity: 1;
     }
   }
 
@@ -308,7 +308,7 @@ export default function LastikYeriDegistir({ aracId, axleList, positionList, sho
                 expandIcon={({ isActive }) => <RightOutlined rotate={isActive ? 90 : 0} style={{ fontSize: "12px" }} />}
                 items={Object.entries(groupedTires).map(([axlePosition, tires]) => ({
                   key: axlePosition,
-                  label: t(axlePosition),
+                  label: t(axlePosition) + " (" + tires.length + ")",
                   children: (
                     <div>
                       {tires.map((tire) => (

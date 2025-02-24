@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Typography, Spin, Collapse, Button } from "antd";
+import { Typography, Spin, Collapse, Button, Input, message, InputNumber } from "antd";
 import LastikTak from "../../components/LastikTak";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 import { t } from "i18next";
 import AxiosInstance from "../../../../../../../../../api/http";
 import styled from "styled-components";
@@ -9,6 +9,11 @@ import { RightOutlined, LockOutlined } from "@ant-design/icons";
 import LastikTakUpdate from "../../components/LastikTakUpdate";
 import ContextMenu from "./ContextMenu/ContextMenu";
 import LastikYeriDegistir from "../../components/LastikYeriDegistir";
+
+const getDecimalSeparator = () => {
+  const lang = localStorage.getItem("i18nextLng") || "en";
+  return ["tr", "az", "ru"].includes(lang) ? "," : ".";
+};
 
 const { Text, Title } = Typography;
 const { Panel } = Collapse;
@@ -102,7 +107,7 @@ const MeasurementTitle = styled(Text)`
 
 const MeasurementValue = styled.div`
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 4px;
 `;
 
@@ -143,15 +148,15 @@ const StyledCollapse = styled(Collapse)`
     background: transparent !important;
 
     .ant-collapse-header-text {
-      color: #666;
+      color: #000000;
       font-size: 14px;
-      font-weight: 400;
-      opacity: 0.85;
+      font-weight: 700;
+      opacity: 1;
     }
 
     .ant-collapse-expand-icon {
-      color: #666;
-      opacity: 0.85;
+      color: #000000;
+      opacity: 1;
     }
   }
 
@@ -162,6 +167,13 @@ const StyledCollapse = styled(Collapse)`
 
   .ant-collapse-content-box {
     padding: 8px 0 !important;
+  }
+`;
+
+const StyledInput = styled(InputNumber)`
+  width: 120px;
+  .ant-input {
+    text-align: right;
   }
 `;
 
@@ -189,6 +201,12 @@ export default function TakiliLastikListesi({ aracId, axleList, positionList, on
       if (response?.data) {
         const tiresArray = Array.isArray(response.data) ? response.data : [response.data];
         setInstalledTires(tiresArray);
+
+        // Set form values for each tire
+        tiresArray.forEach((tire) => {
+          setValue(`disDerinligi_${tire.siraNo}`, tire.disDerinligi);
+          setValue(`basinc_${tire.siraNo}`, tire.basinc);
+        });
 
         // Create grouped tires
         const grouped = tiresArray.reduce((acc, tire) => {
@@ -248,6 +266,23 @@ export default function TakiliLastikListesi({ aracId, axleList, positionList, on
     setIsUpdateModalOpen(true);
   };
 
+  const handleMeasurementUpdate = async (tire, updatedField, value) => {
+    try {
+      const payload = {
+        id: tire.siraNo,
+        disDerinligi: watch(`disDerinligi_${tire.siraNo}`),
+        basinc: watch(`basinc_${tire.siraNo}`),
+      };
+
+      await AxiosInstance.put(`TyreOperation/UpdateTyreMeasurement`, payload);
+      message.success(t("measurementUpdateSuccess"));
+      fetchInstalledTires();
+    } catch (error) {
+      console.error(`Error updating measurements:`, error);
+      message.error(t("measurementUpdateError"));
+    }
+  };
+
   return (
     <div style={{ width: "100%" }}>
       <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "10px" }}>
@@ -290,7 +325,7 @@ export default function TakiliLastikListesi({ aracId, axleList, positionList, on
             expandIcon={({ isActive }) => <RightOutlined rotate={isActive ? 90 : 0} style={{ fontSize: "12px" }} />}
             items={Object.entries(groupedTires).map(([axlePosition, tires]) => ({
               key: axlePosition,
-              label: getAxlePositionName(axlePosition),
+              label: `${getAxlePositionName(axlePosition)} (${tires.length})`,
               children: tires.map((tire) => (
                 <TireCard key={tire.siraNo}>
                   <TireHeader>
@@ -311,15 +346,50 @@ export default function TakiliLastikListesi({ aracId, axleList, positionList, on
                     <MeasurementGroup>
                       <MeasurementTitle>{t("disDerinligi")}</MeasurementTitle>
                       <MeasurementValue>
-                        <Value>{tire.disDerinligi || ""}</Value>
-                        <Unit>mm</Unit>
+                        <Controller
+                          name={`disDerinligi_${tire.siraNo}`}
+                          control={control}
+                          render={({ field }) => (
+                            <StyledInput
+                              {...field}
+                              min={0}
+                              suffix="mm"
+                              precision={2}
+                              step={0.01}
+                              decimalSeparator={getDecimalSeparator()}
+                              onBlur={() => {
+                                field.onBlur();
+                                handleMeasurementUpdate(tire, "disDerinligi");
+                              }}
+                              onChange={(value) => {
+                                field.onChange(value);
+                              }}
+                            />
+                          )}
+                        />
                       </MeasurementValue>
                     </MeasurementGroup>
                     <MeasurementGroup>
                       <MeasurementTitle>{t("basinc")}</MeasurementTitle>
                       <MeasurementValue>
-                        <Value>{tire.basinc || ""}</Value>
-                        <Unit>PSI</Unit>
+                        <Controller
+                          name={`basinc_${tire.siraNo}`}
+                          control={control}
+                          render={({ field }) => (
+                            <StyledInput
+                              {...field}
+                              min={0}
+                              suffix="psi"
+                              onBlur={() => {
+                                field.onBlur();
+                                handleMeasurementUpdate(tire, "basinc");
+                              }}
+                              onChange={(value) => {
+                                field.onChange(value);
+                              }}
+                            />
+                          )}
+                        />
                       </MeasurementValue>
                     </MeasurementGroup>
                   </MeasurementSection>

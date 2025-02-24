@@ -57,6 +57,10 @@ const StyledDivMedia = styled.div`
   }
 `;
 
+const TireImage = styled.img`
+  height: 80px;
+`;
+
 export default function MainTabs({ onRefresh1, selectedRow }) {
   const {
     control,
@@ -205,19 +209,20 @@ export default function MainTabs({ onRefresh1, selectedRow }) {
         style={{
           minWidth: "42px",
           height: "67px",
-          backgroundColor: "#ffffff",
+          // backgroundColor: "#ffffff",
           borderRadius: "10px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           cursor: "pointer",
-          border: "4px solid #e0e1e1",
+          // border: "4px solid #e0e1e1",
           marginLeft: isInnerWheel ? "5px" : "0",
           marginRight: isInnerWheel ? "5px" : "0",
         }}
         // onClick={() => handleWheelClick(position, axleIndex, side, isInnerWheel)}
       >
-        <Text style={{ fontSize: "12px", fontWeight: "bold" }}>{wheelPosition}</Text>
+        {/* <Text style={{ fontSize: "12px", fontWeight: "bold" }}>{wheelPosition}</Text> */}
+        <TireImage src="/images/lastik2.png" alt="Tire" />
       </div>
     ) : (
       <div
