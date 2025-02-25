@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, Divider, Modal, Button } from "antd";
@@ -108,16 +109,20 @@ const Sidebar = () => {
       label: t("lastikYonetimi"),
       children: [
         {
+          key: "365df3",
+          label: <Link to={"/lastik-islemleri"}>{t("lastikIslemleri")}</Link>,
+        },
+        {
+          key: "4jk3l56",
+          label: <Link to={"/lastik-envanteri"}>{t("lastikEnvanteri")}</Link>,
+        },
+        {
           key: "45",
-          label: <Link to={"/lastik-tanimlari"}>{t("lastik")}</Link>,
+          label: <Link to={"/lastik-tanimlari"}>{t("lastikTanimlari")}</Link>,
         },
         {
           key: "3653",
           label: <Link to={"/axle"}>{t("aksTanimlari")}</Link>,
-        },
-        {
-          key: "365df3",
-          label: <Link to={"/lastik-islemleri"}>{t("lastikIslemleri")}</Link>,
         },
       ],
     },
