@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { getItemWithExpiration } from "./utils/expireToken";
 import AuthLayout from "./_auth/AuthLayout";
@@ -36,6 +36,7 @@ import IsKartlari from "./_root/pages/sistem-tanimlari/is-kartlari/IsKartlari";
 import LastikTanim from "./_root/pages/sistem-tanimlari/lastik-tanim/LastikTanim";
 import Axle from "./_root/pages/LastikYonetimi/Axle/Axle.jsx";
 import LastikIslemleri from "./_root/pages/LastikYonetimi/LastikIslemleri/LastikIslemleri";
+import LastikEnvanteri from "./_root/pages/LastikYonetimi/LastikEnvanteri/LastikEnvanteri";
 
 import CezaTanim from "./_root/pages/sistem-tanimlari/ceza-tanim/CezaTanim";
 import ServisTanim from "./_root/pages/sistem-tanimlari/servis-tanim/ServisTanim";
@@ -134,6 +135,7 @@ const App = () => {
         <Route path="/lastik-tanimlari" element={<LastikTanim />} />
         <Route path="/axle" element={<Axle />} />
         <Route path="/lastik-islemleri" element={<LastikIslemleri />} />
+        <Route path="/lastik-envanteri" element={<LastikEnvanteri />} />
 
         <Route path="/ceza-tanimlari" element={<CezaTanim />} />
         <Route path="/servis-tanimlari" element={<ServisTanim />} />

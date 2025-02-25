@@ -306,60 +306,31 @@ const Ceza = () => {
   // Columns definition (adjust as needed)
   const initialColumns = [
     {
-      title: t("plaka"),
-      dataIndex: "plaka",
-      key: "plaka",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
-      sorter: (a, b) => {
-        if (a.plaka === null) return -1;
-        if (b.plaka === null) return 1;
-        return a.plaka.localeCompare(b.plaka);
-      },
-    },
-    {
-      title: t("aksYapisi"),
-      dataIndex: "aksTanim",
-      key: "aksTanim",
-      width: 250,
-      ellipsis: true,
-      visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
-      sorter: (a, b) => {
-        if (a.aksTanim === null) return -1;
-        if (b.aksTanim === null) return 1;
-        return a.aksTanim.localeCompare(b.aksTanim);
-      },
-    },
-
-    {
-      title: t("lastikSayisi"),
-      dataIndex: "lastikSayisi",
-      key: "lastikSayisi",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.lastikSayisi === null) return -1;
-        if (b.lastikSayisi === null) return 1;
-        return Number(a.lastikSayisi) - Number(b.lastikSayisi);
-      },
-    },
-
-    {
       title: t("aracTip"),
       dataIndex: "aracTip",
       key: "aracTip",
       width: 120,
       ellipsis: true,
       visible: true,
-
+      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
       sorter: (a, b) => {
         if (a.aracTip === null) return -1;
         if (b.aracTip === null) return 1;
         return a.aracTip.localeCompare(b.aracTip);
+      },
+    },
+
+    {
+      title: t("plaka"),
+      dataIndex: "plaka",
+      key: "plaka",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.plaka === null) return -1;
+        if (b.plaka === null) return 1;
+        return a.plaka.localeCompare(b.plaka);
       },
     },
 
@@ -392,6 +363,20 @@ const Ceza = () => {
     },
 
     {
+      title: t("aksYapisi"),
+      dataIndex: "aksTanim",
+      key: "aksTanim",
+      width: 250,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.aksTanim === null) return -1;
+        if (b.aksTanim === null) return 1;
+        return a.aksTanim.localeCompare(b.aksTanim);
+      },
+    },
+
+    {
       title: t("lokasyon"),
       dataIndex: "lokasyon",
       key: "lokasyon",
@@ -403,6 +388,28 @@ const Ceza = () => {
         if (b.lokasyon === null) return 1;
         return a.lokasyon.localeCompare(b.lokasyon);
       },
+    },
+
+    {
+      title: t("aktif"),
+      dataIndex: "aktif",
+      key: "aktif",
+      width: 100,
+      ellipsis: true,
+      visible: true,
+      render: (text) => (text ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />),
+      sorter: (a, b) => (a.aktif === b.aktif ? 0 : a.aktif ? -1 : 1),
+    },
+
+    {
+      title: t("arsiv"),
+      dataIndex: "arsiv",
+      key: "arsiv",
+      width: 100,
+      ellipsis: true,
+      visible: true,
+      render: (text) => (text ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />),
+      sorter: (a, b) => (a.arsiv === b.arsiv ? 0 : a.arsiv ? -1 : 1),
     },
 
     {
@@ -431,17 +438,6 @@ const Ceza = () => {
         if (b.departman === null) return 1;
         return a.departman.localeCompare(b.departman);
       },
-    },
-
-    {
-      title: t("aktif"),
-      dataIndex: "aktif",
-      key: "aktif",
-      width: 100,
-      ellipsis: true,
-      visible: true,
-      render: (text) => (text ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />),
-      sorter: (a, b) => (a.aktif === b.aktif ? 0 : a.aktif ? -1 : 1),
     },
   ];
 
