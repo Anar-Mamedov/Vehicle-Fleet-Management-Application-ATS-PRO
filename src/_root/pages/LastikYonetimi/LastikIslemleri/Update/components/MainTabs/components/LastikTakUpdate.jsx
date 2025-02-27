@@ -143,6 +143,8 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     aciklama: data.lastikAciklama,
     takildigiKm: data.montajKm,
     takilmaTarih: data.montajTarihi,
+    durumId: 1,
+    islemTipId: 2,
   });
 
   const handleApiCall = async (data) => {
@@ -466,23 +468,36 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "start", justifyContent: "space-between", width: "350px" }}>
-                    <Text>{t("montajTarihi")}</Text>
+                    <Text>
+                      {t("montajTarihi")}
+                      <span style={{ color: "red" }}>*</span>
+                    </Text>
                     <div style={{ width: "250px" }}>
                       <Controller
                         name="montajTarihi"
                         control={control}
-                        render={({ field }) => (
-                          <DatePicker
-                            {...field}
-                            style={{ width: "100%" }}
-                            format="DD.MM.YYYY"
-                            placeholder={t("montajTarihi")}
-                            allowClear={true}
-                            value={field.value ? dayjs(field.value) : null}
-                            onChange={(date) => {
-                              field.onChange(date ? date.format("YYYY-MM-DD") : null);
-                            }}
-                          />
+                        rules={{
+                          required: {
+                            value: true,
+                            message: t("alanBosBirakilamaz"),
+                          },
+                        }}
+                        render={({ field, fieldState: { error } }) => (
+                          <>
+                            <DatePicker
+                              {...field}
+                              style={{ width: "100%" }}
+                              format="DD.MM.YYYY"
+                              placeholder={t("montajTarihi")}
+                              allowClear={true}
+                              status={error ? "error" : ""}
+                              value={field.value ? dayjs(field.value) : null}
+                              onChange={(date) => {
+                                field.onChange(date ? date.format("YYYY-MM-DD") : null);
+                              }}
+                            />
+                            {error && <div style={{ color: "red" }}>{error.message}</div>}
+                          </>
                         )}
                       />
                     </div>

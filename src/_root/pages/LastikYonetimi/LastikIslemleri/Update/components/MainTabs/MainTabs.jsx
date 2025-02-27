@@ -256,7 +256,10 @@ export default function MainTabs({ onRefresh1, selectedRow, selectedAracDetay })
       >
         <ContextMenu
           tire={tireData}
+          axleList={axleList}
+          positionList={positionList}
           refreshList={fetchInstalledTiresRef}
+          selectedAracDetay={selectedAracDetay}
           onClose={() => setContextMenuVisible((prev) => ({ ...prev, [`${axlePosition}-${wheelPosition}`]: false }))}
           anchorEl={
             <div
