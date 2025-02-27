@@ -286,21 +286,6 @@ const Yakit = () => {
     },
 
     {
-      title: t("firma"),
-      dataIndex: "firma",
-      key: "firma",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.firma === null) return -1;
-        if (b.firma === null) return 1;
-        return a.firma - b.firma;
-      },
-    },
-
-    {
       title: t("aciklama"),
       dataIndex: "aciklama",
       key: "aciklama",
@@ -316,12 +301,27 @@ const Yakit = () => {
     },
 
     {
+      title: t("firma"),
+      dataIndex: "firma",
+      key: "firma",
+      width: 120,
+      ellipsis: true,
+      visible: false, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.firma === null) return -1;
+        if (b.firma === null) return 1;
+        return a.firma - b.firma;
+      },
+    },
+
+    {
       title: t("lastikOmru"),
       dataIndex: "lastikOmru",
       key: "lastikOmru",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.lastikOmru === null) return -1;
@@ -336,7 +336,7 @@ const Yakit = () => {
       key: "basinc",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.basinc === null) return -1;
@@ -351,7 +351,7 @@ const Yakit = () => {
       key: "disDerinlik",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.disDerinlik === null) return -1;
@@ -366,7 +366,7 @@ const Yakit = () => {
       key: "fiyat",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.fiyat === null) return -1;

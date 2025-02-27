@@ -279,12 +279,14 @@ export default function TakiliLastikListesi({ aracId, axleList, positionList, on
   const handleMeasurementUpdate = async (tire, updatedField, value) => {
     try {
       const payload = {
-        id: tire.siraNo,
-        disDerinligi: watch(`disDerinligi_${tire.siraNo}`),
+        siraNo: tire.siraNo,
+        disDerinlik: watch(`disDerinligi_${tire.siraNo}`),
         basinc: watch(`basinc_${tire.siraNo}`),
+        islemTipId: 3,
+        aracId: aracId,
       };
 
-      await AxiosInstance.put(`TyreOperation/UpdateTyreMeasurement`, payload);
+      await AxiosInstance.post(`TyreOperation/UpdateExternalDepthAndPressure`, payload);
       message.success(t("measurementUpdateSuccess"));
       fetchInstalledTires();
     } catch (error) {
@@ -343,7 +345,7 @@ export default function TakiliLastikListesi({ aracId, axleList, positionList, on
                     <TireTitle>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                         <TireName onClick={() => handleTireClick(tire)}>{tire.lastikTanim || ""}</TireName>
-                        <ContextMenu tire={tire} refreshList={fetchInstalledTires} />
+                        <ContextMenu tire={tire} refreshList={fetchInstalledTires} selectedAracDetay={selectedAracDetay} />
                       </div>
 
                       <TireSerial>

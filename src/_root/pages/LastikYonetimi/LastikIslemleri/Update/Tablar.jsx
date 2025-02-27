@@ -19,7 +19,7 @@ function Tablar({ selectedRow, onRefresh1, selectedAracDetay }) {
       </Radio.Group>
       <Divider style={{ marginBottom: 10 }} />
       {tabKey === "1" && <MainTabs selectedRow={selectedRow} onRefresh1={onRefresh1} selectedAracDetay={selectedAracDetay} />}
-      {tabKey === "2" && <LastikTarihcesi />}
+      {tabKey === "2" && <LastikTarihcesi vehicleId={selectedRow?.aracId} />}
     </>
   );
 }

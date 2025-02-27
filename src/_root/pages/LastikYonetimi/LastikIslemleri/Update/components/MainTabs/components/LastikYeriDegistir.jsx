@@ -251,6 +251,8 @@ export default function LastikYeriDegistir({ aracId, axleList, positionList, sho
           lastikId: tire.siraNo,
           yeniAksPozisyon: getValues(`selectedAxle_${tire.siraNo}`),
           yeniPozisyonNo: getValues(`selectedPosition_${tire.siraNo}`),
+          islemTipId: 2,
+          aracId: aracId,
         }));
 
       if (changedTires.length === 0) {
@@ -258,9 +260,9 @@ export default function LastikYeriDegistir({ aracId, axleList, positionList, sho
         return;
       }
 
-      const response = await AxiosInstance.post("TyreOperation/SwapTyrePositions", changedTires);
+      const response = await AxiosInstance.post("TyreOperation/UpdateTyresPositions", changedTires);
 
-      if (response.data.statusCode === 200) {
+      if (response.data.statusCode === 202) {
         message.success(t("lastikYeriDegistirmeBasarili"));
         if (refreshList) {
           await refreshList();

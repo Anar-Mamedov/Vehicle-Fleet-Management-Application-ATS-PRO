@@ -143,7 +143,7 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const Ceza = () => {
+const LastikEnvanteri = () => {
   const formMethods = useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
@@ -227,18 +227,16 @@ const Ceza = () => {
 
       // Determine what to send for customfilters
 
-      const response = await AxiosInstance.post(
-        `TyreOperation/GetTyreOperations?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
-        body.filters?.customfilter || {}
-      );
+      const response = await AxiosInstance.get(`TyreInventory/GetTyreInventoryList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
 
-      const total = response.data.vehicleCount;
+      // Handle the new response format with page, recordCount, and list properties
+      const total = response.data.recordCount;
       setTotalCount(total);
       setCurrentPage(targetPage);
 
-      const newData = response.data.vehicleList.map((item) => ({
+      const newData = response.data.list.map((item) => ({
         ...item,
-        key: item.aracId, // Assign key directly from aracId
+        key: item.siraNo, // Using siraNo as the key since it appears to be unique
       }));
 
       if (newData.length > 0) {
@@ -306,17 +304,17 @@ const Ceza = () => {
   // Columns definition (adjust as needed)
   const initialColumns = [
     {
-      title: t("aracTip"),
-      dataIndex: "aracTip",
-      key: "aracTip",
+      title: t("seriNo"),
+      dataIndex: "seriNo",
+      key: "seriNo",
       width: 120,
       ellipsis: true,
       visible: true,
       render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
       sorter: (a, b) => {
-        if (a.aracTip === null) return -1;
-        if (b.aracTip === null) return 1;
-        return a.aracTip.localeCompare(b.aracTip);
+        if (a.seriNo === null) return -1;
+        if (b.seriNo === null) return 1;
+        return a.seriNo.localeCompare(b.seriNo);
       },
     },
 
@@ -335,109 +333,124 @@ const Ceza = () => {
     },
 
     {
-      title: t("marka"),
-      dataIndex: "marka",
-      key: "marka",
+      title: t("lastikMarka"),
+      dataIndex: "lastikMarka",
+      key: "lastikMarka",
       width: 120,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
-        if (a.marka === null) return -1;
-        if (b.marka === null) return 1;
-        return a.marka.localeCompare(b.marka);
+        if (a.lastikMarka === null) return -1;
+        if (b.lastikMarka === null) return 1;
+        return a.lastikMarka.localeCompare(b.lastikMarka);
       },
     },
 
     {
-      title: t("model"),
-      dataIndex: "model",
-      key: "model",
-      width: 250,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.model === null) return -1;
-        if (b.model === null) return 1;
-        return a.model.localeCompare(b.model);
-      },
-    },
-
-    {
-      title: t("aksYapisi"),
-      dataIndex: "aksTanim",
-      key: "aksTanim",
-      width: 250,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.aksTanim === null) return -1;
-        if (b.aksTanim === null) return 1;
-        return a.aksTanim.localeCompare(b.aksTanim);
-      },
-    },
-
-    {
-      title: t("lokasyon"),
-      dataIndex: "lokasyon",
-      key: "lokasyon",
+      title: t("lastikModel"),
+      dataIndex: "lastikModel",
+      key: "lastikModel",
       width: 120,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
-        if (a.lokasyon === null) return -1;
-        if (b.lokasyon === null) return 1;
-        return a.lokasyon.localeCompare(b.lokasyon);
+        if (a.lastikModel === null) return -1;
+        if (b.lastikModel === null) return 1;
+        return a.lastikModel.localeCompare(b.lastikModel);
       },
     },
 
     {
-      title: t("aktif"),
-      dataIndex: "aktif",
-      key: "aktif",
-      width: 100,
-      ellipsis: true,
-      visible: true,
-      render: (text) => (text ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />),
-      sorter: (a, b) => (a.aktif === b.aktif ? 0 : a.aktif ? -1 : 1),
-    },
-
-    {
-      title: t("arsiv"),
-      dataIndex: "arsiv",
-      key: "arsiv",
-      width: 100,
-      ellipsis: true,
-      visible: true,
-      render: (text) => (text ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />),
-      sorter: (a, b) => (a.arsiv === b.arsiv ? 0 : a.arsiv ? -1 : 1),
-    },
-
-    {
-      title: t("grup"),
-      dataIndex: "grup",
-      key: "grup",
+      title: t("ebat"),
+      dataIndex: "ebat",
+      key: "ebat",
       width: 120,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
-        if (a.grup === null) return -1;
-        if (b.grup === null) return 1;
-        return a.grup.localeCompare(b.grup);
+        if (a.ebat === null) return -1;
+        if (b.ebat === null) return 1;
+        return a.ebat.localeCompare(b.ebat);
       },
     },
 
     {
-      title: t("departman"),
-      dataIndex: "departman",
-      key: "departman",
+      title: t("tip"),
+      dataIndex: "tip",
+      key: "tip",
       width: 120,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
-        if (a.departman === null) return -1;
-        if (b.departman === null) return 1;
-        return a.departman.localeCompare(b.departman);
+        if (a.tip === null) return -1;
+        if (b.tip === null) return 1;
+        return a.tip.localeCompare(b.tip);
       },
+    },
+
+    {
+      title: t("aksPozisyon"),
+      dataIndex: "aksPozisyon",
+      key: "aksPozisyon",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      render: (text) => (text ? t(text) : ""),
+      sorter: (a, b) => {
+        if (a.aksPozisyon === null) return -1;
+        if (b.aksPozisyon === null) return 1;
+        return a.aksPozisyon.localeCompare(b.aksPozisyon);
+      },
+    },
+
+    {
+      title: t("pozisyonNo"),
+      dataIndex: "pozisyonNo",
+      key: "pozisyonNo",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      render: (text) => (text ? t(text) : ""),
+      sorter: (a, b) => {
+        if (a.pozisyonNo === null) return -1;
+        if (b.pozisyonNo === null) return 1;
+        return a.pozisyonNo.localeCompare(b.pozisyonNo);
+      },
+    },
+
+    {
+      title: t("takildigiKm"),
+      dataIndex: "takildigiKm",
+      key: "takildigiKm",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => a.takildigiKm - b.takildigiKm,
+    },
+
+    {
+      title: t("takilmaTarih"),
+      dataIndex: "takilmaTarih",
+      key: "takilmaTarih",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      render: (text) => (text ? formatDate(text) : ""),
+      sorter: (a, b) => {
+        if (!a.takilmaTarih) return -1;
+        if (!b.takilmaTarih) return 1;
+        return new Date(a.takilmaTarih) - new Date(b.takilmaTarih);
+      },
+    },
+
+    {
+      title: t("tahminiOmurKm"),
+      dataIndex: "tahminiOmurKm",
+      key: "tahminiOmurKm",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => a.tahminiOmurKm - b.tahminiOmurKm,
     },
   ];
 
@@ -514,9 +527,9 @@ const Ceza = () => {
 
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
-    const savedOrder = localStorage.getItem("columnOrderLastikIslemleri");
-    const savedVisibility = localStorage.getItem("columnVisibilityLastikIslemleri");
-    const savedWidths = localStorage.getItem("columnWidthsLastikIslemleri");
+    const savedOrder = localStorage.getItem("columnOrderLastikEnvanteri");
+    const savedVisibility = localStorage.getItem("columnVisibilityLastikEnvanteri");
+    const savedWidths = localStorage.getItem("columnWidthsLastikEnvanteri");
 
     let order = savedOrder ? JSON.parse(savedOrder) : [];
     let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
@@ -534,9 +547,9 @@ const Ceza = () => {
       }
     });
 
-    localStorage.setItem("columnOrderLastikIslemleri", JSON.stringify(order));
-    localStorage.setItem("columnVisibilityLastikIslemleri", JSON.stringify(visibility));
-    localStorage.setItem("columnWidthsLastikIslemleri", JSON.stringify(widths));
+    localStorage.setItem("columnOrderLastikEnvanteri", JSON.stringify(order));
+    localStorage.setItem("columnVisibilityLastikEnvanteri", JSON.stringify(visibility));
+    localStorage.setItem("columnWidthsLastikEnvanteri", JSON.stringify(widths));
 
     return order.map((key) => {
       const column = initialColumns.find((col) => col.key === key);
@@ -546,9 +559,9 @@ const Ceza = () => {
 
   // Save columns to localStorage
   useEffect(() => {
-    localStorage.setItem("columnOrderLastikIslemleri", JSON.stringify(columns.map((col) => col.key)));
+    localStorage.setItem("columnOrderLastikEnvanteri", JSON.stringify(columns.map((col) => col.key)));
     localStorage.setItem(
-      "columnVisibilityLastikIslemleri",
+      "columnVisibilityLastikEnvanteri",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -560,7 +573,7 @@ const Ceza = () => {
       )
     );
     localStorage.setItem(
-      "columnWidthsLastikIslemleri",
+      "columnWidthsLastikEnvanteri",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -625,9 +638,9 @@ const Ceza = () => {
 
   // Reset columns
   const resetColumns = () => {
-    localStorage.removeItem("columnOrderLastikIslemleri");
-    localStorage.removeItem("columnVisibilityLastikIslemleri");
-    localStorage.removeItem("columnWidthsLastikIslemleri");
+    localStorage.removeItem("columnOrderLastikEnvanteri");
+    localStorage.removeItem("columnVisibilityLastikEnvanteri");
+    localStorage.removeItem("columnWidthsLastikEnvanteri");
     window.location.reload();
   };
 
@@ -785,7 +798,7 @@ const Ceza = () => {
               <Input
                 style={{ width: "250px" }}
                 type="text"
-                placeholder="Arama yap..."
+                placeholder={t("aramaYap")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onPressEnter={handleSearch}
@@ -793,12 +806,12 @@ const Ceza = () => {
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
 
-              <Filters onChange={handleBodyChange} />
+              {/* <Filters onChange={handleBodyChange} /> */}
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
-              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+              {/* <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} /> */}
               {/*  <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} /> */}
             </div>
           </div>
@@ -822,7 +835,7 @@ const Ceza = () => {
                   current: currentPage,
                   total: totalCount,
                   pageSize: 10,
-                  showTotal: (total, range) => `Toplam ${total}`,
+                  showTotal: (total, range) => `${t("toplam")} ${total}`,
                   showSizeChanger: false,
                   showQuickJumper: true,
                   onChange: handleTableChange,
@@ -830,7 +843,7 @@ const Ceza = () => {
                 scroll={{ y: "calc(100vh - 335px)" }}
               />
             </Spin>
-            <EditDrawer selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} />
+            {/* <EditDrawer selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} /> */}
           </div>
         </FormProvider>
       </ConfigProvider>
@@ -838,4 +851,4 @@ const Ceza = () => {
   );
 };
 
-export default Ceza;
+export default LastikEnvanteri;

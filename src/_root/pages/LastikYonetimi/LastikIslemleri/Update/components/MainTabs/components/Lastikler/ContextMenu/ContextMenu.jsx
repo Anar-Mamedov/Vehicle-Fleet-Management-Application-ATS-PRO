@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { Button, Popover, Typography } from "antd";
 import { MoreOutlined } from "@ant-design/icons";
 import Sil from "./components/Sil";
-import AxleTanimlamaHizliIslem from "./components/AxleTanimlamaHizliIslem/AxleTanimlamaHizliIslem";
+import LastiginTarihcesi from "./components/LastiginTarihcesi";
+import LastigiCikart from "./components/AxleTanimlamaHizliIslem/LastigiCikart";
+import { t } from "i18next";
 
 const { Text } = Typography;
 
-export default function ContextMenu({ tire, refreshList }) {
+export default function ContextMenu({ tire, refreshList, selectedAracDetay }) {
   const [visible, setVisible] = useState(false);
 
   const handleVisibleChange = (visible) => {
@@ -22,7 +24,9 @@ export default function ContextMenu({ tire, refreshList }) {
   const content = (
     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
       {/* <Sil selectedRows={[tire]} refreshTableData={refreshList} hidePopover={hidePopover} /> */}
-      {!hasAssignedAxle && <AxleTanimlamaHizliIslem selectedRows={[tire]} refreshTableData={refreshList} hidePopover={hidePopover} />}
+      <LastigiCikart titleLabel={t("lastikHurdayaGonder")} durumId={2} islemTipId={4} selectedRows={tire} refreshTableData={refreshList} selectedAracDetay={selectedAracDetay} />
+      <LastigiCikart titleLabel={t("lastikDepoyaGonder")} durumId={3} islemTipId={5} selectedRows={tire} refreshTableData={refreshList} selectedAracDetay={selectedAracDetay} />
+      <LastiginTarihcesi vehicleId={tire.siraNo} />
     </div>
   );
 

@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { HolderOutlined, SearchOutlined, MenuOutlined, CheckOutlined, CloseOutlined, HistoryOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Resizable } from "react-resizable";
-import AxiosInstance from "../../../../../../../api/http.jsx";
+import AxiosInstance from "../../../../../../../../../../../api/http.jsx";
 import styled from "styled-components";
 import { t } from "i18next";
 import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
-import "../../../Table/ResizeStyle.css";
+import "../../../../../../../Table/ResizeStyle.css";
 
 const localeMap = {
   tr: trTR,
@@ -123,8 +123,9 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
   );
 };
 
-function LastikTarihcesi({ vehicleId }) {
+function LastiginTarihcesi({ vehicleId }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isTableModalVisible, setIsTableModalVisible] = useState(false);
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -314,7 +315,7 @@ function LastikTarihcesi({ vehicleId }) {
       }
 
       const response = await AxiosInstance.get(
-        `TyreMovements/GetTyreMovementsByRefId?vehicleId=${vehicleId || ""}&setPointId=${currentSetPointId}&diff=${diff}&parameter=${searchTerm}`
+        `TyreMovements/GetTyreMovementsByRefId?tyreId=${vehicleId || ""}&setPointId=${currentSetPointId}&diff=${diff}&parameter=${searchTerm}`
       );
 
       // Update based on the new API response structure
@@ -342,13 +343,6 @@ function LastikTarihcesi({ vehicleId }) {
     }
   };
 
-  // Initial data fetch
-  useEffect(() => {
-    if (vehicleId) {
-      fetchData(0, 1);
-    }
-  }, [vehicleId]);
-
   // Handle search
   const handleSearch = () => {
     fetchData(0, 1);
@@ -373,9 +367,9 @@ function LastikTarihcesi({ vehicleId }) {
 
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
-    const savedOrder = localStorage.getItem("columnOrderLastikTarihcesi");
-    const savedVisibility = localStorage.getItem("columnVisibilityLastikTarihcesi");
-    const savedWidths = localStorage.getItem("columnWidthsLastikTarihcesi");
+    const savedOrder = localStorage.getItem("columnOrderLastiginTarihcesi");
+    const savedVisibility = localStorage.getItem("columnVisibilityLastiginTarihcesi");
+    const savedWidths = localStorage.getItem("columnWidthsLastiginTarihcesi");
 
     let order = savedOrder ? JSON.parse(savedOrder) : [];
     let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
@@ -393,9 +387,9 @@ function LastikTarihcesi({ vehicleId }) {
       }
     });
 
-    localStorage.setItem("columnOrderLastikTarihcesi", JSON.stringify(order));
-    localStorage.setItem("columnVisibilityLastikTarihcesi", JSON.stringify(visibility));
-    localStorage.setItem("columnWidthsLastikTarihcesi", JSON.stringify(widths));
+    localStorage.setItem("columnOrderLastiginTarihcesi", JSON.stringify(order));
+    localStorage.setItem("columnVisibilityLastiginTarihcesi", JSON.stringify(visibility));
+    localStorage.setItem("columnWidthsLastiginTarihcesi", JSON.stringify(widths));
 
     return order.map((key) => {
       const column = initialColumns.find((col) => col.key === key);
@@ -405,9 +399,9 @@ function LastikTarihcesi({ vehicleId }) {
 
   // Save columns to localStorage
   useEffect(() => {
-    localStorage.setItem("columnOrderLastikTarihcesi", JSON.stringify(columns.map((col) => col.key)));
+    localStorage.setItem("columnOrderLastiginTarihcesi", JSON.stringify(columns.map((col) => col.key)));
     localStorage.setItem(
-      "columnVisibilityLastikTarihcesi",
+      "columnVisibilityLastiginTarihcesi",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -419,7 +413,7 @@ function LastikTarihcesi({ vehicleId }) {
       )
     );
     localStorage.setItem(
-      "columnWidthsLastikTarihcesi",
+      "columnWidthsLastiginTarihcesi",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -484,9 +478,9 @@ function LastikTarihcesi({ vehicleId }) {
 
   // Reset columns
   const resetColumns = () => {
-    localStorage.removeItem("columnOrderLastikTarihcesi");
-    localStorage.removeItem("columnVisibilityLastikTarihcesi");
-    localStorage.removeItem("columnWidthsLastikTarihcesi");
+    localStorage.removeItem("columnOrderLastiginTarihcesi");
+    localStorage.removeItem("columnVisibilityLastiginTarihcesi");
+    localStorage.removeItem("columnWidthsLastiginTarihcesi");
     window.location.reload();
   };
 
@@ -499,6 +493,22 @@ function LastikTarihcesi({ vehicleId }) {
     setLocaleDateFormat(dateFormatMap[currentLang] || "MM/DD/YYYY");
     setLocaleTimeFormat(timeFormatMap[currentLang] || "HH:mm");
   }, [currentLang]);
+
+  // Handler for opening the modal and fetching data
+  const handleOpenModal = () => {
+    setIsTableModalVisible(true);
+    setSearchTerm(""); // Reset search term when opening modal
+    setCurrentPage(1); // Reset to first page
+    if (vehicleId) {
+      fetchData(0, 1);
+    }
+  };
+
+  // Handler for closing the modal and resetting search
+  const handleCloseModal = () => {
+    setIsTableModalVisible(false);
+    setSearchTerm("");
+  };
 
   return (
     <>
@@ -587,76 +597,95 @@ function LastikTarihcesi({ vehicleId }) {
           </div>
         </Modal>
 
-        {/* Toolbar */}
-        <div
-          style={{
-            backgroundColor: "white",
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            marginBottom: "15px",
-            gap: "10px",
-            padding: "15px",
-            borderRadius: "8px",
-            filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
-          }}
-        >
+        {/* New Modal for displaying the table */}
+        <Modal title={t("lastikTarihcesi")} centered width={1000} open={isTableModalVisible} onOk={handleCloseModal} onCancel={handleCloseModal} footer={null}>
+          {/* Toolbar */}
           <div
             style={{
+              backgroundColor: "white",
               display: "flex",
-              gap: "10px",
-              alignItems: "center",
-              width: "100%",
-              maxWidth: "935px",
               flexWrap: "wrap",
+              justifyContent: "space-between",
+              marginBottom: "15px",
+              gap: "10px",
+              padding: "15px",
+              borderRadius: "8px",
+              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
             }}
           >
-            <StyledButton onClick={() => setIsModalVisible(true)}>
-              <MenuOutlined />
-            </StyledButton>
-            <Input
-              style={{ width: "250px" }}
-              type="text"
-              placeholder={t("aramaYap")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onPressEnter={handleSearch}
-              suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
-            />
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                alignItems: "center",
+                width: "100%",
+                maxWidth: "935px",
+                flexWrap: "wrap",
+              }}
+            >
+              <StyledButton onClick={() => setIsModalVisible(true)}>
+                <MenuOutlined />
+              </StyledButton>
+              <Input
+                style={{ width: "250px" }}
+                type="text"
+                placeholder={t("aramaYap")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onPressEnter={handleSearch}
+                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Table */}
+          {/* Table */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "10px",
+              borderRadius: "8px",
+              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
+            }}
+          >
+            <Spin spinning={loading}>
+              <StyledTable
+                components={components}
+                rowSelection={rowSelection}
+                columns={filteredColumns}
+                dataSource={data}
+                pagination={{
+                  current: currentPage,
+                  total: totalCount,
+                  pageSize: pageSize,
+                  showTotal: (total, range) => `${t("toplam")} ${total}`,
+                  showSizeChanger: false,
+                  showQuickJumper: true,
+                  onChange: handleTableChange,
+                }}
+                scroll={{ y: 400 }}
+              />
+            </Spin>
+          </div>
+        </Modal>
+
+        {/* Main Button to open the table modal */}
         <div
+          onClick={handleOpenModal}
           style={{
-            backgroundColor: "white",
-            padding: "10px",
-            borderRadius: "8px",
-            filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            flexDirection: "row",
+            gap: "5px",
+            cursor: "pointer",
           }}
         >
-          <Spin spinning={loading}>
-            <StyledTable
-              components={components}
-              rowSelection={rowSelection}
-              columns={filteredColumns}
-              dataSource={data}
-              pagination={{
-                current: currentPage,
-                total: totalCount,
-                pageSize: pageSize,
-                showTotal: (total, range) => `${t("toplam")} ${total}`,
-                showSizeChanger: false,
-                showQuickJumper: true,
-                onChange: handleTableChange,
-              }}
-              scroll={{ y: 400 }}
-            />
-          </Spin>
+          <HistoryOutlined />
+          {t("lastikTarihcesiniGoster")}
         </div>
       </ConfigProvider>
     </>
   );
 }
 
-export default LastikTarihcesi;
+export default LastiginTarihcesi;
