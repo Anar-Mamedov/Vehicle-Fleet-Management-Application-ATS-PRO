@@ -51,6 +51,14 @@ const TireCard = styled.div`
   margin-bottom: 10px;
   border-radius: 8px;
   border: 1px solid #e8e8e8;
+  transition: all 0.3s ease;
+
+  &.selected {
+    border: 2px solid #2bc770;
+    box-shadow: 0 0 8px rgba(43, 199, 112, 0.3);
+    background-color: rgba(43, 199, 112, 0.05);
+    transform: translateY(-2px);
+  }
 `;
 
 const TireHeader = styled.div`
@@ -177,7 +185,17 @@ const StyledInput = styled(InputNumber)`
   }
 `;
 
-export default function TakiliLastikListesi({ aracId, axleList, positionList, onInit, setTirePositionMapping, selectedAracDetay, setGroupedTiresApiResponse }) {
+export default function TakiliLastikListesi({
+  aracId,
+  axleList,
+  positionList,
+  onInit,
+  setTirePositionMapping,
+  selectedAracDetay,
+  setGroupedTiresApiResponse,
+  selectedTirePosition,
+  setSelectedTirePosition,
+}) {
   const {
     control,
     watch,
@@ -287,13 +305,49 @@ export default function TakiliLastikListesi({ aracId, axleList, positionList, on
       };
 
       await AxiosInstance.post(`TyreOperation/UpdateExternalDepthAndPressure`, payload);
-      message.success(t("measurementUpdateSuccess"));
+      message.success(t("islemBasarili"));
       fetchInstalledTires();
     } catch (error) {
       console.error(`Error updating measurements:`, error);
-      message.error(t("measurementUpdateError"));
+      message.error(t("islemBasarisiz"));
     }
   };
+
+  // Function to check if a tire is selected
+  const isTireSelected = (tire) => {
+    if (!selectedTirePosition) return false;
+    return tire.aksPozisyon === selectedTirePosition.axlePosition && tire.pozisyonNo === selectedTirePosition.wheelPosition;
+  };
+
+  // Auto-expand the axle group when a tire is selected
+  useEffect(() => {
+    if (selectedTirePosition && selectedTirePosition.axlePosition) {
+      if (!activeKeys.includes(selectedTirePosition.axlePosition)) {
+        setActiveKeys((prev) => [...prev, selectedTirePosition.axlePosition]);
+      }
+
+      // Scroll to the selected tire after a short delay to ensure the DOM has updated
+      setTimeout(() => {
+        const selectedElement = document.querySelector(".selected");
+        if (selectedElement) {
+          // Get the container element
+          const container = document.querySelector(".tire-list-container");
+          if (container) {
+            // Calculate the position to scroll to
+            const containerRect = container.getBoundingClientRect();
+            const selectedRect = selectedElement.getBoundingClientRect();
+
+            // Check if the selected element is outside the visible area
+            if (selectedRect.top < containerRect.top || selectedRect.bottom > containerRect.bottom) {
+              selectedElement.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          } else {
+            selectedElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+      }, 300);
+    }
+  }, [selectedTirePosition, activeKeys]);
 
   return (
     <div style={{ width: "100%" }}>
@@ -329,6 +383,7 @@ export default function TakiliLastikListesi({ aracId, axleList, positionList, on
           overflowY: "auto",
           overflowX: "hidden",
         }}
+        className="tire-list-container"
       >
         <Spin spinning={loading}>
           <StyledCollapse
@@ -339,12 +394,28 @@ export default function TakiliLastikListesi({ aracId, axleList, positionList, on
               key: axlePosition,
               label: `${getAxlePositionName(axlePosition)} (${tires.length})`,
               children: tires.map((tire) => (
-                <TireCard key={tire.siraNo}>
+                <TireCard key={tire.siraNo} className={`tire-element ${isTireSelected(tire) ? "selected" : ""}`}>
                   <TireHeader>
                     <TireImage src="/images/lastik.png" alt="Tire" />
                     <TireTitle>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <TireName onClick={() => handleTireClick(tire)}>{tire.lastikTanim || ""}</TireName>
+                        <TireName
+                          onClick={() => {
+                            handleTireClick(tire);
+                            // When clicking on a tire in the list, also update the selected position
+                            if (tire.aksPozisyon && tire.pozisyonNo) {
+                              if (typeof setSelectedTirePosition === "function") {
+                                // If the parent component provided a setter function
+                                setSelectedTirePosition({
+                                  axlePosition: tire.aksPozisyon,
+                                  wheelPosition: tire.pozisyonNo,
+                                });
+                              }
+                            }
+                          }}
+                        >
+                          {tire.lastikTanim || ""}
+                        </TireName>
                         <ContextMenu tire={tire} refreshList={fetchInstalledTires} selectedAracDetay={selectedAracDetay} />
                       </div>
 
