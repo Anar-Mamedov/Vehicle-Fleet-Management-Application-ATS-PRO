@@ -23,7 +23,7 @@ export default function ContextMenu({ selectedRows, refreshTableData }) {
     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
       {selectedRows.length >= 1 && (
         <>
-          <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />
+          {/* <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} /> */}
           {!hasAssignedAxle && <AxleTanimlamaHizliIslem selectedRows={selectedRows} refreshTableData={refreshTableData} />}
         </>
       )}
