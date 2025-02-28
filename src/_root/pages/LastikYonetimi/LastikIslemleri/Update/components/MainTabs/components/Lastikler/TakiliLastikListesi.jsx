@@ -453,16 +453,16 @@ export default function TakiliLastikListesi({
 
   // Calculate tire lifespan usage percentage
   const calculateTireUsagePercentage = (tire) => {
-    if (!tire || !selectedAracDetay || !tire.tahminiOmurKm) return 0;
+    if (!tire || !selectedAracDetay || !tire.tahminiOmurKm) return 100;
 
     // Calculate used lifespan: (current km - installation km) + previous usage
     const usedLifespan = selectedAracDetay.guncelKm - tire.takildigiKm + (tire.kullanimSuresi || 0);
 
-    // Calculate percentage
-    const percentage = (usedLifespan / tire.tahminiOmurKm) * 100;
+    // Calculate remaining percentage (100% - used percentage)
+    const remainingPercentage = 100 - (usedLifespan / tire.tahminiOmurKm) * 100;
 
     // Ensure percentage is between 0 and 100
-    return Math.min(Math.max(0, percentage), 100);
+    return Math.min(Math.max(0, remainingPercentage), 100);
   };
 
   // Calculate remaining lifespan in kilometers
@@ -479,17 +479,17 @@ export default function TakiliLastikListesi({
     return Math.max(0, remainingLifespan);
   };
 
-  // Determine the status of the tire based on usage percentage
+  // Determine the status of the tire based on remaining percentage
   const getTireStatus = (percentage) => {
-    if (percentage < 60) return "success";
-    if (percentage < 85) return "warning";
+    if (percentage > 40) return "success";
+    if (percentage > 15) return "warning";
     return "exception";
   };
 
   // Get status text based on percentage
   const getTireStatusText = (percentage) => {
-    if (percentage < 60) return t("iyi");
-    if (percentage < 85) return t("orta");
+    if (percentage > 40) return t("iyi");
+    if (percentage > 15) return t("orta");
     return t("kritik");
   };
 
@@ -643,9 +643,9 @@ export default function TakiliLastikListesi({
                         </LifespanTitle>
                         <LifespanHeaderRight>
                           <LifespanValue status={getTireStatus(calculateTireUsagePercentage(tire))}>
-                            {calculateTireUsagePercentage(tire) < 60 ? (
+                            {calculateTireUsagePercentage(tire) > 40 ? (
                               <CheckCircleFilled style={{ fontSize: "12px" }} />
-                            ) : calculateTireUsagePercentage(tire) < 85 ? (
+                            ) : calculateTireUsagePercentage(tire) > 15 ? (
                               <WarningFilled style={{ fontSize: "12px" }} />
                             ) : (
                               <CloseCircleFilled style={{ fontSize: "12px" }} />
