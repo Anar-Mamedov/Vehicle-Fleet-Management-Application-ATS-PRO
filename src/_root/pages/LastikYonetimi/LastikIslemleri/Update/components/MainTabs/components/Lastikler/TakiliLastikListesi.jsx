@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Typography, Spin, Collapse, Button, Input, message, InputNumber, Progress, Tooltip } from "antd";
+import { Typography, Spin, Collapse, Button, Input, message, InputNumber, Tooltip } from "antd";
 import LastikTak from "../../components/LastikTak";
 import { useFormContext, Controller } from "react-hook-form";
 import { t } from "i18next";
 import AxiosInstance from "../../../../../../../../../api/http";
 import styled from "styled-components";
-import { RightOutlined, LockOutlined } from "@ant-design/icons";
+import { RightOutlined, LockOutlined, DashboardOutlined, CheckCircleFilled, WarningFilled, CloseCircleFilled } from "@ant-design/icons";
 import LastikTakUpdate from "../../components/LastikTakUpdate";
 import ContextMenu from "./ContextMenu/ContextMenu";
 import LastikYeriDegistir from "../../components/LastikYeriDegistir";
@@ -100,12 +100,14 @@ const TireSerial = styled(Text)`
 const MeasurementSection = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   gap: 8px;
   margin-top: 8px;
 `;
 
-const MeasurementGroup = styled.div``;
+const MeasurementGroup = styled.div`
+  flex: 1;
+`;
 
 const MeasurementTitle = styled(Text)`
   display: block;
@@ -189,38 +191,56 @@ const StyledInput = styled(InputNumber)`
 
 const LifespanSection = styled.div`
   width: 100%;
-  padding: 8px;
-  background-color: #fafafa;
-  border-radius: 6px;
-  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.03);
+  padding: 6px 12px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  // min-height: 48px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+
+  &:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
 `;
 
 const LifespanHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
-  flex-wrap: wrap;
-  gap: 4px;
+  // margin-bottom: 4px;
+  position: relative;
+  z-index: 2;
 `;
 
 const LifespanHeaderRight = styled.div`
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
 `;
 
-const LifespanTitle = styled(Text)`
+const LifespanTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 11px;
   color: #666;
   font-weight: 500;
 `;
 
-const LifespanValue = styled(Text)`
-  font-size: 11px;
-  color: #333;
-  font-weight: 500;
+const LifespanValue = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${(props) => (props.status === "success" ? "#52c41a" : props.status === "warning" ? "#faad14" : "#f5222d")};
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 const LifespanInfo = styled.div`
@@ -237,27 +257,62 @@ const RemainingLifespan = styled(Text)`
 `;
 
 const StatusBadge = styled.span`
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 1px 6px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 10px;
   font-weight: 500;
-  margin-left: 4px;
   color: white;
   background-color: ${(props) => (props.status === "success" ? "#52c41a" : props.status === "warning" ? "#faad14" : "#f5222d")};
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 `;
 
-const StyledProgress = styled(Progress)`
-  .ant-progress-inner {
-    background-color: #f0f2f5;
-  }
+const ProgressBackground = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: ${(props) => props.percent}%;
+  height: 100%;
+  background: ${(props) =>
+    props.status === "success"
+      ? "linear-gradient(90deg, rgba(82, 196, 26, 0.08), rgba(82, 196, 26, 0.15))"
+      : props.status === "warning"
+        ? "linear-gradient(90deg, rgba(250, 173, 20, 0.08), rgba(250, 173, 20, 0.15))"
+        : "linear-gradient(90deg, rgba(245, 34, 45, 0.08), rgba(245, 34, 45, 0.15))"};
+  transition: width 0.5s ease;
+  z-index: 1;
+  border-radius: 0 5px 5px 0;
+`;
 
-  .ant-progress-bg {
-    transition: all 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
-  }
+const TooltipContent = styled.div`
+  padding: 4px 0;
+`;
 
-  line-height: 1;
-  margin-bottom: 0;
+const TooltipRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  border-bottom: ${(props) => (props.noBorder ? "none" : "1px dashed rgba(255, 255, 255, 0.2)")};
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const TooltipLabel = styled.span`
+  margin-right: 12px;
+  opacity: 0.8;
+`;
+
+const TooltipValue = styled.span`
+  font-weight: 500;
+`;
+
+const TooltipHighlight = styled.span`
+  color: ${(props) => (props.status === "success" ? "#52c41a" : props.status === "warning" ? "#faad14" : "#f5222d")};
+  font-weight: 600;
 `;
 
 export default function TakiliLastikListesi({
@@ -580,10 +635,23 @@ export default function TakiliLastikListesi({
                     </MeasurementGroup>
                     {/* Tire Lifespan Progress Bar */}
                     <LifespanSection>
+                      <ProgressBackground percent={calculateTireUsagePercentage(tire)} status={getTireStatus(calculateTireUsagePercentage(tire))} />
                       <LifespanHeader>
-                        <LifespanTitle>{t("lastikOmru")}</LifespanTitle>
+                        <LifespanTitle>
+                          <DashboardOutlined style={{ fontSize: "12px" }} />
+                          {t("lastikOmru")}
+                        </LifespanTitle>
                         <LifespanHeaderRight>
-                          <LifespanValue>{Math.round(calculateTireUsagePercentage(tire))}%</LifespanValue>
+                          <LifespanValue status={getTireStatus(calculateTireUsagePercentage(tire))}>
+                            {calculateTireUsagePercentage(tire) < 60 ? (
+                              <CheckCircleFilled style={{ fontSize: "12px" }} />
+                            ) : calculateTireUsagePercentage(tire) < 85 ? (
+                              <WarningFilled style={{ fontSize: "12px" }} />
+                            ) : (
+                              <CloseCircleFilled style={{ fontSize: "12px" }} />
+                            )}
+                            {Math.round(calculateTireUsagePercentage(tire))}%
+                          </LifespanValue>
                           {tire.tahminiOmurKm && (
                             <StatusBadge status={getTireStatus(calculateTireUsagePercentage(tire))}>{getTireStatusText(calculateTireUsagePercentage(tire))}</StatusBadge>
                           )}
@@ -591,26 +659,25 @@ export default function TakiliLastikListesi({
                       </LifespanHeader>
                       <Tooltip
                         title={
-                          <div>
-                            <div>
-                              {t("kullanilan")}: {formatKm(selectedAracDetay?.guncelKm - tire.takildigiKm + (tire.kullanimSuresi || 0))} km
-                            </div>
-                            <div>
-                              {t("toplam")}: {formatKm(tire.tahminiOmurKm)} km
-                            </div>
-                            <div>
-                              {t("kalan")}: {formatKm(calculateRemainingLifespan(tire))} km
-                            </div>
-                          </div>
+                          <TooltipContent>
+                            <TooltipRow>
+                              <TooltipLabel>{t("kullanilan")}:</TooltipLabel>
+                              <TooltipValue>{formatKm(selectedAracDetay?.guncelKm - tire.takildigiKm + (tire.kullanimSuresi || 0))} km</TooltipValue>
+                            </TooltipRow>
+                            <TooltipRow>
+                              <TooltipLabel>{t("toplam")}:</TooltipLabel>
+                              <TooltipValue>{formatKm(tire.tahminiOmurKm)} km</TooltipValue>
+                            </TooltipRow>
+                            <TooltipRow noBorder>
+                              <TooltipLabel>{t("kalan")}:</TooltipLabel>
+                              <TooltipHighlight status={getTireStatus(calculateTireUsagePercentage(tire))}>{formatKm(calculateRemainingLifespan(tire))} km</TooltipHighlight>
+                            </TooltipRow>
+                          </TooltipContent>
                         }
+                        placement="top"
+                        color="#333"
                       >
-                        <StyledProgress
-                          percent={calculateTireUsagePercentage(tire)}
-                          status={getTireStatus(calculateTireUsagePercentage(tire))}
-                          showInfo={false}
-                          strokeWidth={6}
-                          size="small"
-                        />
+                        <div style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0, zIndex: 3 }} />
                       </Tooltip>
                     </LifespanSection>
                     <MeasurementGroup>
