@@ -1,3 +1,4 @@
+import React from "react";
 import { t } from "i18next";
 import PropTypes from "prop-types";
 import Location from "../../../../components/form/tree/Location";
@@ -101,7 +102,7 @@ const GeneralInfo = ({ isValid }) => {
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label>{t("akaryakitIstasyonu")}</label>
+                <label>{t("yakit-EnejiIstasyonu")}</label>
                 <CheckboxInput name="tipAkaryakitIst" />
               </div>
             </div>
