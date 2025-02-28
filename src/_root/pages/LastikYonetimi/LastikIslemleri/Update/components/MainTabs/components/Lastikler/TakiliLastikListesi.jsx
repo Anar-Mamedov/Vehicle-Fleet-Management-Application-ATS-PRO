@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Typography, Spin, Collapse, Button, Input, message, InputNumber } from "antd";
+import { Typography, Spin, Collapse, Button, Input, message, InputNumber, Progress } from "antd";
 import LastikTak from "../../components/LastikTak";
 import { useFormContext, Controller } from "react-hook-form";
 import { t } from "i18next";
@@ -101,6 +101,7 @@ const MeasurementSection = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 40px;
+  margin-top: 16px;
 `;
 
 const MeasurementGroup = styled.div``;
@@ -185,6 +186,82 @@ const StyledInput = styled(InputNumber)`
   }
 `;
 
+const LifespanSection = styled.div`
+  margin: 16px 0;
+  width: 100%;
+  padding: 12px;
+  background-color: #fafafa;
+  border-radius: 8px;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+`;
+
+const LifespanHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+`;
+
+const LifespanHeaderRight = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+const LifespanTitle = styled(Text)`
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+`;
+
+const LifespanValue = styled(Text)`
+  font-size: 12px;
+  color: #333;
+  font-weight: 500;
+`;
+
+const LifespanInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 11px;
+`;
+
+const RemainingLifespan = styled(Text)`
+  font-size: 11px;
+  color: ${(props) => (props.status === "success" ? "#52c41a" : props.status === "warning" ? "#faad14" : "#f5222d")};
+  font-weight: 500;
+`;
+
+const StatusBadge = styled.span`
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 8px;
+  color: white;
+  background-color: ${(props) => (props.status === "success" ? "#52c41a" : props.status === "warning" ? "#faad14" : "#f5222d")};
+`;
+
+const StyledProgress = styled(Progress)`
+  .ant-progress-inner {
+    background-color: #f0f2f5;
+  }
+
+  .ant-progress-bg {
+    transition: all 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
+  }
+`;
+
 export default function TakiliLastikListesi({
   aracId,
   axleList,
@@ -209,6 +286,8 @@ export default function TakiliLastikListesi({
   const [activeKeys, setActiveKeys] = useState([]);
   const [selectedTire, setSelectedTire] = useState(null);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+
+  // console.log((selectedAracDetay.guncelKm - installedTires.takildigiKm) + installedTires.kullanimSuresi);
 
   const fetchInstalledTires = useCallback(async () => {
     if (!aracId) return;
@@ -319,6 +398,54 @@ export default function TakiliLastikListesi({
     return tire.aksPozisyon === selectedTirePosition.axlePosition && tire.pozisyonNo === selectedTirePosition.wheelPosition;
   };
 
+  // Calculate tire lifespan usage percentage
+  const calculateTireUsagePercentage = (tire) => {
+    if (!tire || !selectedAracDetay || !tire.tahminiOmurKm) return 0;
+
+    // Calculate used lifespan: (current km - installation km) + previous usage
+    const usedLifespan = selectedAracDetay.guncelKm - tire.takildigiKm + (tire.kullanimSuresi || 0);
+
+    // Calculate percentage
+    const percentage = (usedLifespan / tire.tahminiOmurKm) * 100;
+
+    // Ensure percentage is between 0 and 100
+    return Math.min(Math.max(0, percentage), 100);
+  };
+
+  // Calculate remaining lifespan in kilometers
+  const calculateRemainingLifespan = (tire) => {
+    if (!tire || !selectedAracDetay || !tire.tahminiOmurKm) return 0;
+
+    // Calculate used lifespan: (current km - installation km) + previous usage
+    const usedLifespan = selectedAracDetay.guncelKm - tire.takildigiKm + (tire.kullanimSuresi || 0);
+
+    // Calculate remaining lifespan
+    const remainingLifespan = tire.tahminiOmurKm - usedLifespan;
+
+    // Ensure remaining lifespan is not negative
+    return Math.max(0, remainingLifespan);
+  };
+
+  // Determine the status of the tire based on usage percentage
+  const getTireStatus = (percentage) => {
+    if (percentage < 60) return "success";
+    if (percentage < 85) return "warning";
+    return "exception";
+  };
+
+  // Get status text based on percentage
+  const getTireStatusText = (percentage) => {
+    if (percentage < 60) return t("iyi");
+    if (percentage < 85) return t("orta");
+    return t("kritik");
+  };
+
+  // Format kilometer values for display
+  const formatKm = (km) => {
+    if (km === undefined || km === null) return "0";
+    return km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
   // Auto-expand the axle group when a tire is selected
   useEffect(() => {
     if (selectedTirePosition && selectedTirePosition.axlePosition) {
@@ -425,6 +552,39 @@ export default function TakiliLastikListesi({
                       </TireSerial>
                     </TireTitle>
                   </TireHeader>
+
+                  {/* Tire Lifespan Progress Bar */}
+                  <LifespanSection>
+                    <LifespanHeader>
+                      <LifespanTitle>{t("lastikOmru")}</LifespanTitle>
+                      <LifespanHeaderRight>
+                        <LifespanValue>
+                          {formatKm(selectedAracDetay?.guncelKm - tire.takildigiKm + (tire.kullanimSuresi || 0))} / {formatKm(tire.tahminiOmurKm)} km
+                        </LifespanValue>
+                        {tire.tahminiOmurKm && (
+                          <StatusBadge status={getTireStatus(calculateTireUsagePercentage(tire))}>{getTireStatusText(calculateTireUsagePercentage(tire))}</StatusBadge>
+                        )}
+                      </LifespanHeaderRight>
+                    </LifespanHeader>
+                    <StyledProgress
+                      percent={calculateTireUsagePercentage(tire)}
+                      status={getTireStatus(calculateTireUsagePercentage(tire))}
+                      showInfo={false}
+                      strokeWidth={8}
+                      size="small"
+                    />
+                    {tire.tahminiOmurKm && (
+                      <LifespanInfo>
+                        <Text type="secondary">
+                          {t("kullanilan")}: {Math.round(calculateTireUsagePercentage(tire))}%
+                        </Text>
+                        <RemainingLifespan status={getTireStatus(calculateTireUsagePercentage(tire))}>
+                          {t("kalan")}: {formatKm(calculateRemainingLifespan(tire))} km
+                        </RemainingLifespan>
+                      </LifespanInfo>
+                    )}
+                  </LifespanSection>
+
                   <MeasurementSection>
                     <MeasurementGroup>
                       <MeasurementTitle>{t("disDerinligi")}</MeasurementTitle>

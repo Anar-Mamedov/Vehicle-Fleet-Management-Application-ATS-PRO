@@ -1,3 +1,4 @@
+import React from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import Plaka from "../../../../components/form/selects/Plaka";
@@ -81,7 +82,7 @@ const GeneralInfo = () => {
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label>{t("hasarIndirimi")}</label>
+                <label>{t("hasarsizlikIndirimi")} (%)</label>
                 <NumberInput name="hasarIndirimi" />
               </div>
             </div>

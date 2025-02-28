@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import { KMLogListDeleteService, KMLogListGetByIdService, KMLogListUpdateService, KMLogListValidateService } from "../../../api/service";
@@ -20,6 +20,13 @@ const KmLog = ({ data, setDataStatus }) => {
   });
 
   useEffect(() => {
+    // If data is an array, use it directly
+    if (Array.isArray(data)) {
+      setDataSource(data);
+      return;
+    }
+
+    // If data has aracId, fetch data from API
     if (data && data.aracId) {
       KMLogListGetByIdService(data?.aracId, tableParams?.pagination.current).then((res) => {
         setDataSource(res?.data.km_list);

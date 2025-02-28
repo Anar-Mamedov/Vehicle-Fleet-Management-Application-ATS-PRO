@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { t } from "i18next";
 import dayjs from "dayjs";
@@ -666,7 +666,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
         footer={footer}
         width={1200}
       >
-        <KmLog data={dataSource?.kmGecmisi || []} setDataStatus={setDataStatus} />
+        <KmLog data={{ aracId: selectedId }} setDataStatus={setDataStatus} />
       </Modal>
     </Modal>
   );

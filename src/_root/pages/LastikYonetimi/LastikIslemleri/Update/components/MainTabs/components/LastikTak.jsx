@@ -249,9 +249,9 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
 
                             // Set other related form fields
                             setValue("lastikOmru", selectedData.lastikOmru);
-                            setValue("markaID", selectedData.markaKodId);
+                            setValue("markaID", selectedData.markaId);
                             setValue("marka", selectedData.marka);
-                            setValue("modelID", selectedData.modelKodId);
+                            setValue("modelID", selectedData.modelId);
                             setValue("model", selectedData.model);
                             setValue("lastikEbatID", selectedData.ebatKodId);
                             setValue("lastikEbat", selectedData.ebat);

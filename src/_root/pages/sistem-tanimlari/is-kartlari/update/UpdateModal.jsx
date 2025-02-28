@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -17,7 +17,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
   const { handleSubmit, reset, control, setValue } = methods;
 
   useEffect(() => {
-    if(selectedRow){
+    if (selectedRow) {
       GetIsKartiByIdService(selectedRow?.key).then((res) => {
         setValue("bakimDepartman", res.data.bakimDepartman);
         setValue("bakimDepartmanKodId", res.data.bakimDepartmanKodId);
@@ -61,7 +61,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       key="back"
       className="btn btn-min cancel-btn"
       onClick={() => {
-        setUpdateModal(false);
+        onDrawerClose();
         reset(defaultValues);
       }}
     >
@@ -122,7 +122,10 @@ UpdateModal.propTypes = {
   setUpdateModal: PropTypes.func,
   setStatus: PropTypes.func,
   id: PropTypes.number,
-  status: PropTypes.bool,
+  selectedRow: PropTypes.object,
+  onDrawerClose: PropTypes.func,
+  drawerVisible: PropTypes.bool,
+  onRefresh: PropTypes.func,
 };
 
 export default UpdateModal;
