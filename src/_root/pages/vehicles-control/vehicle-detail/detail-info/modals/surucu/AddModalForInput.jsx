@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -14,7 +14,7 @@ import Textarea from "../../../../../../components/form/inputs/Textarea";
 import DateInput from "../../../../../../components/form/date/DateInput";
 import TimeInput from "../../../../../../components/form/date/TimeInput";
 import Driver from "../../../../../../components/form/selects/Driver";
-import Tutanak from "./Tutanak";
+// import Tutanak from "./Tutanak";
 
 const AddModal = ({ setStatus, isModalOpen, setIsModalOpen, surucu, surucuId, onSurucuTeslimUpdated, guncelKm }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -136,9 +136,7 @@ const AddModal = ({ setStatus, isModalOpen, setIsModalOpen, surucu, surucuId, on
     //   {t("kaydet")}
     // </Button>,
     <div key="" style={{ display: "flex", justifyContent: "space-between" }}>
-      <div key="">
-        <Tutanak data={data} />
-      </div>
+      <div key="">{/* <Tutanak data={data} /> */}</div>
       <div style={{ display: "flex", gap: "10px" }}>
         <Button
           key="submit"
