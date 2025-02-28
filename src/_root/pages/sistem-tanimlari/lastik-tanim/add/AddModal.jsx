@@ -24,8 +24,8 @@ const AddModal = ({ setStatus, onRefresh }) => {
     const body = {
       tanim: values.tanim,
       aciklama: values.aciklama,
-      markaKodId: values.markaKodId || -1,
-      modelKodId: values.modelKodId || -1,
+      markaId: values.markaId || -1,
+      modelId: values.modelId || -1,
       tipKodId: values.tipKodId || -1,
       ebatKodId: values.ebatKodId || -1,
       lastikOmru: values.lastikOmru || 0,
@@ -82,13 +82,13 @@ const AddModal = ({ setStatus, onRefresh }) => {
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
                   <label>{t("marka")}</label>
-                  <Controller name="markaKodId" control={control} render={({ field }) => <LastikMarka field={field} />} />
+                  <Controller name="markaId" control={control} render={({ field }) => <LastikMarka field={field} />} />
                 </div>
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
                   <label>{t("model")}</label>
-                  <Controller name="modelKodId" control={control} render={({ field }) => <LastikModel field={field} />} />
+                  <Controller name="modelId" control={control} render={({ field }) => <LastikModel field={field} />} />
                 </div>
               </div>
               <div className="col-span-4">

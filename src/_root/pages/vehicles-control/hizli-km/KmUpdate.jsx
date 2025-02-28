@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { t } from "i18next";
 import { HomeOutlined, LoadingOutlined } from "@ant-design/icons";
@@ -55,7 +55,7 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
         dataIndex === "tarih" && record[dataIndex]
           ? dayjs(record[dataIndex], "DD.MM.YYYY")
           : dataIndex === "saat" && record[dataIndex]
-            ? dayjs(record[dataIndex], "HH:mm:ss")
+            ? dayjs(record[dataIndex], "HH:mm")
             : record[dataIndex],
     });
   };
@@ -74,7 +74,7 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
               : ""
             : dataIndex === "saat" && values[dataIndex]
               ? dayjs(values[dataIndex]).isValid()
-                ? dayjs(values[dataIndex]).format("HH:mm:ss")
+                ? dayjs(values[dataIndex]).format("HH:mm")
                 : ""
               : values[dataIndex],
       });
@@ -172,7 +172,14 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
       case "saat":
         childNode = editing ? (
           <Form.Item style={{ margin: 0 }} name={dataIndex}>
-            <TimePicker open={openTimePicker} format="HH:mm:ss" onOpenChange={(status) => setOpenTimePicker(status)} onChange={handleTimePickerChange} />
+            <TimePicker
+              open={openTimePicker}
+              format="HH:mm"
+              changeOnScroll
+              needConfirm={false}
+              onOpenChange={(status) => setOpenTimePicker(status)}
+              onChange={handleTimePickerChange}
+            />
           </Form.Item>
         ) : (
           <div className="editable-cell-value-wrap" style={{ paddingRight: 24 }} onClick={toggleEdit}>
@@ -273,7 +280,7 @@ const KmUpdate = () => {
   });
   const [date, setDate] = useState({
     tarih: dayjs(new Date()).format("DD.MM.YYYY"),
-    saat: dayjs(new Date()).format("HH:mm:ss"),
+    saat: dayjs(new Date()).format("HH:mm"),
   });
   const [filter, setFilter] = useState(null);
 
@@ -545,7 +552,7 @@ const KmUpdate = () => {
         placeholder={t("saat")}
         onChange={(t) => {
           if (t) {
-            setDate({ ...date, saat: dayjs(t).format("HH:mm:ss") });
+            setDate({ ...date, saat: dayjs(t).format("HH:mm") });
           }
         }}
         className="w-full"

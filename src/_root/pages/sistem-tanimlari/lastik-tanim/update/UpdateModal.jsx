@@ -21,7 +21,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
   const { handleSubmit, reset, control, setValue } = methods;
 
   useEffect(() => {
-    if(selectedRow){
+    if (selectedRow) {
       GetLastikByIdService(selectedRow?.key).then((res) => {
         setValue("aciklama", res.data.aciklama);
         setValue("basinc", res.data.basinc);
@@ -33,9 +33,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("fiyat", res.data.fiyat);
         setValue("lastikOmru", res.data.lastikOmru);
         setValue("marka", res.data.marka);
-        setValue("markaKodId", res.data.markaKodId);
+        setValue("markaId", res.data.markaId);
         setValue("model", res.data.model);
-        setValue("modelKodId", res.data.modelKodId);
+        setValue("modelId", res.data.modelId);
         setValue("tanim", res.data.tanim);
         setValue("tip", res.data.tip);
         setValue("tipKodId", res.data.tipKodId);
@@ -49,8 +49,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       siraNo: lastikId,
       tanim: values.tanim,
       aciklama: values.aciklama,
-      markaKodId: values.markaKodId || -1,
-      modelKodId: values.modelKodId || -1,
+      markaId: values.markaId || -1,
+      modelId: values.modelId || -1,
       tipKodId: values.tipKodId || -1,
       ebatKodId: values.ebatKodId || -1,
       lastikOmru: values.lastikOmru || 0,
@@ -103,13 +103,13 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("marka")}</label>
-                <Controller name="markaKodId" control={control} render={({ field }) => <LastikMarka field={field} />} />
+                <Controller name="markaId" control={control} render={({ field }) => <LastikMarka field={field} />} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("model")}</label>
-                <Controller name="modelKodId" control={control} render={({ field }) => <LastikModel field={field} />} />
+                <Controller name="modelId" control={control} render={({ field }) => <LastikModel field={field} />} />
               </div>
             </div>
             <div className="col-span-4">
