@@ -109,6 +109,7 @@ export default function MainTabs({ onRefresh1, selectedRow, selectedAracDetay })
   const [tirePositionMapping, setTirePositionMapping] = useState({});
   const [groupedTiresApiResponse, setGroupedTiresApiResponse] = useState({});
   const [contextMenuVisible, setContextMenuVisible] = useState({});
+  const [selectedTirePosition, setSelectedTirePosition] = useState(null);
 
   const aksSayisiValue = watch("aksSayisi");
   const aksSayisiNumber = parseInt(aksSayisiValue, 10);
@@ -204,6 +205,13 @@ export default function MainTabs({ onRefresh1, selectedRow, selectedAracDetay })
       wheelPosition,
       isInnerWheel,
     });
+
+    // Set the selected tire position for highlighting in the list
+    setSelectedTirePosition({
+      axlePosition,
+      wheelPosition,
+    });
+
     setShouldOpenModal(true);
   };
 
@@ -253,6 +261,7 @@ export default function MainTabs({ onRefresh1, selectedRow, selectedAracDetay })
           marginRight: isInnerWheel ? "5px" : "0",
           position: "relative",
         }}
+        className="tire-element"
       >
         <ContextMenu
           tire={tireData}
@@ -267,6 +276,11 @@ export default function MainTabs({ onRefresh1, selectedRow, selectedAracDetay })
                 e.stopPropagation();
                 const wheelId = `${axlePosition}-${wheelPosition}`;
                 setContextMenuVisible((prev) => ({ [wheelId]: true }));
+                // Set the selected tire position when clicking on a tire
+                setSelectedTirePosition({
+                  axlePosition,
+                  wheelPosition,
+                });
                 /* console.log("Tıklanan Lastik Verisi:", tireData); */
               }}
             >
@@ -559,6 +573,24 @@ export default function MainTabs({ onRefresh1, selectedRow, selectedAracDetay })
   const handleFetchInstalledTiresRef = useCallback((fetchFunction) => {
     setFetchInstalledTiresRef(() => fetchFunction);
   }, []);
+
+  // Add useEffect to handle document click to clear selection
+  useEffect(() => {
+    const handleDocumentClick = (e) => {
+      // Check if the click is outside of any tire element
+      const isTireClick = e.target.closest(".tire-element") || e.target.closest(".selected") || e.target.closest(".ant-popover");
+
+      if (!isTireClick && selectedTirePosition) {
+        setSelectedTirePosition(null);
+      }
+    };
+
+    document.addEventListener("click", handleDocumentClick);
+
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, [selectedTirePosition]);
 
   return (
     <>
@@ -857,6 +889,8 @@ export default function MainTabs({ onRefresh1, selectedRow, selectedAracDetay })
             positionList={positionList}
             onInit={handleFetchInstalledTiresRef}
             setTirePositionMapping={setTirePositionMapping}
+            selectedTirePosition={selectedTirePosition}
+            setSelectedTirePosition={setSelectedTirePosition}
           />
         </div>
       </div>
@@ -868,7 +902,11 @@ export default function MainTabs({ onRefresh1, selectedRow, selectedAracDetay })
         axleList={axleList}
         positionList={positionList}
         shouldOpenModal={shouldOpenModal}
-        onModalClose={() => setShouldOpenModal(false)}
+        onModalClose={() => {
+          setShouldOpenModal(false);
+          // Don't reset the selected tire position when closing the modal
+          // to keep the highlight visible
+        }}
         showAddButton={false}
         refreshList={fetchInstalledTiresRef}
       />
