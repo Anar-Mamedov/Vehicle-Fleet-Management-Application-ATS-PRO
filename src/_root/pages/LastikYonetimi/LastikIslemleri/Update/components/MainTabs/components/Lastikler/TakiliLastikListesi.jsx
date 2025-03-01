@@ -601,7 +601,11 @@ export default function TakiliLastikListesi({
 
                       <TireSerial>
                         {tire.seriNo || ""}
-                        {tire.pozisyonNo && <span style={{ marginLeft: "5px" }}>({getPositionName(tire.pozisyonNo)})</span>}
+                        {tire.pozisyonNo && (
+                          <span style={{ marginLeft: "5px" }}>
+                            ({getAxlePositionName(tire.aksPozisyon)} - {getPositionName(tire.pozisyonNo)})
+                          </span>
+                        )}
                       </TireSerial>
                     </TireTitle>
                   </TireHeader>
