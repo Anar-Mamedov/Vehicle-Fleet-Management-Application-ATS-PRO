@@ -4,6 +4,8 @@ import AxleListSelect from "./AxleListSelect";
 import PositionListSelect from "./PositionListSelect";
 import KodIDSelectbox from "../../../../../../../components/KodIDSelectbox";
 import StoksuzLastikTablo from "../../../../../../../components/StoksuzLastikTablo";
+import LastikMarka from "../../../../../../../components/LastikMarka";
+import LastikModel from "../../../../../../../components/LastikModel";
 import AxiosInstance from "../../../../../../../../api/http";
 import { t } from "i18next";
 import { Controller, useFormContext, FormProvider, useForm } from "react-hook-form";
@@ -35,10 +37,17 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
         setValue("lastikEbatID", data.ebatKodId);
         setValue("seriNo", data.seriNo);
         setValue("lastikOmru", data.tahminiOmurKm);
+
+        // First set marka and markaID
         setValue("marka", data.lastikMarka);
         setValue("markaID", data.lastikMarkaId);
-        setValue("model", data.lastikModel);
-        setValue("modelID", data.lastikModelId);
+
+        // Then set model and modelID after a small delay to ensure marka is set first
+        setTimeout(() => {
+          setValue("model", data.lastikModel);
+          setValue("modelID", data.lastikModelId);
+        }, 100);
+
         setValue("disDerinligi", data.disDerinligi);
         setValue("basinc", data.basinc);
         setValue("montajKm", data.takildigiKm);
@@ -263,8 +272,13 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                             setValue("lastikOmru", selectedData.lastikOmru);
                             setValue("markaID", selectedData.markaId);
                             setValue("marka", selectedData.marka);
-                            setValue("modelID", selectedData.modelId);
-                            setValue("model", selectedData.model);
+                            
+                            // Set model and modelID after a small delay to ensure marka is set first
+                            setTimeout(() => {
+                              setValue("modelID", selectedData.modelId);
+                              setValue("model", selectedData.model);
+                            }, 100);
+                            
                             setValue("lastikEbatID", selectedData.ebatKodId);
                             setValue("lastikEbat", selectedData.ebat);
                             setValue("lastikTipID", selectedData.tipKodId);
@@ -356,14 +370,14 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
                     <Text>{t("marka")}</Text>
                     <div style={{ width: "250px" }}>
-                      <KodIDSelectbox name1="marka" isRequired={false} kodID="700" />
+                      <LastikMarka name1="marka" isRequired={false} />
                     </div>
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
                     <Text>{t("model")}</Text>
                     <div style={{ width: "250px" }}>
-                      <KodIDSelectbox name1="model" isRequired={false} kodID="701" />
+                      <LastikModel name1="model" isRequired={false} watchName="marka" />
                     </div>
                   </div>
 

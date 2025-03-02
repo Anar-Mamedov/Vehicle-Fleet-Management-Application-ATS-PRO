@@ -1,11 +1,11 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { Button, Divider, Input, InputNumber, Modal } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import { AddIsLastikService } from "../../../../../api/services/lastiktanim_services";
-import LastikMarka from "../../../../components/form/LastikMarka";
-import LastikModel from "../../../../components/form/LastikModel";
+import LastikMarka from "../../../../components/LastikMarka";
+import LastikModel from "../../../../components/LastikModel";
 import Ebat from "../../../../components/form/Ebat";
 import LastikTipi from "../../../../components/form/LastikTipi";
 import FirmaUnvani from "../../../../components/form/FirmaUnvani";
@@ -14,18 +14,51 @@ import TextArea from "antd/es/input/TextArea";
 const AddModal = ({ setStatus, onRefresh }) => {
   const [openModal, setopenModal] = useState(false);
 
-  const defaultValues = {};
+  const defaultValues = {
+    tanim: null,
+    aciklama: null,
+    marka: null,
+    markaID: null,
+    markaLabel: null,
+    model: null,
+    modelID: null,
+    modelLabel: null,
+    tipKodId: null,
+    ebatKodId: null,
+    lastikOmru: null,
+    basinc: null,
+    disDerinlik: null,
+    fiyat: null,
+    firmaId: null,
+  };
+
   const methods = useForm({
     defaultValues: defaultValues,
   });
-  const { handleSubmit, reset, control } = methods;
+  const {
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    control,
+    formState: { errors },
+  } = methods;
+
+  useEffect(() => {
+    const markaLabel = watch("markaLabel");
+    const modelLabel = watch("modelLabel");
+
+    if (!watch("tanim") && markaLabel && modelLabel) {
+      setValue("tanim", `${markaLabel} ${modelLabel}`);
+    }
+  }, [watch, setValue, watch("markaLabel"), watch("modelLabel")]);
 
   const onSubmit = handleSubmit((values) => {
     const body = {
       tanim: values.tanim,
       aciklama: values.aciklama,
-      markaId: values.markaId || -1,
-      modelId: values.modelId || -1,
+      markaId: values.markaID || -1,
+      modelId: values.modelID || -1,
       tipKodId: values.tipKodId || -1,
       ebatKodId: values.ebatKodId || -1,
       lastikOmru: values.lastikOmru || 0,
@@ -45,28 +78,31 @@ const AddModal = ({ setStatus, onRefresh }) => {
     onRefresh();
   });
 
+  const handleOpenModal = () => {
+    reset(defaultValues); // Reset form to null values when opening modal
+    setopenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setopenModal(false);
+    reset(defaultValues);
+  };
+
   const footer = [
     <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit}>
       {t("kaydet")}
     </Button>,
-    <Button
-      key="back"
-      className="btn btn-min cancel-btn"
-      onClick={() => {
-        setopenModal(false);
-        reset(defaultValues);
-      }}
-    >
+    <Button key="back" className="btn btn-min cancel-btn" onClick={handleCloseModal}>
       {t("iptal")}
     </Button>,
   ];
 
   return (
     <>
-      <Button className="btn primary-btn" onClick={() => setopenModal(true)}>
+      <Button className="btn primary-btn" onClick={handleOpenModal}>
         <PlusOutlined /> {t("ekle")}
       </Button>
-      <Modal title={t("yeniLastikGirisi")} open={openModal} onCancel={() => setopenModal(false)} maskClosable={false} footer={footer} width={1200}>
+      <Modal title={t("yeniLastikGirisi")} open={openModal} onCancel={handleCloseModal} maskClosable={false} footer={footer} width={1200}>
         <FormProvider {...methods}>
           <form>
             <div className="grid gap-1">
@@ -75,26 +111,54 @@ const AddModal = ({ setStatus, onRefresh }) => {
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
-                  <label>{t("lastikTanimi")}</label>
-                  <Controller name="tanim" control={control} render={({ field }) => <Input {...field} onChange={(e) => field.onChange(e.target.value)} />} />
+                  <label>
+                    {t("lastikTanimi")} <span style={{ color: "red" }}>*</span>
+                  </label>
+                  <Controller
+                    name="tanim"
+                    control={control}
+                    rules={{ required: t("alanBosBirakilamaz") }}
+                    render={({ field, fieldState: { error } }) => (
+                      <>
+                        <Input {...field} onChange={(e) => field.onChange(e.target.value)} status={error ? "error" : ""} />
+                        {error && <div style={{ color: "red", marginTop: "5px" }}>{error.message}</div>}
+                      </>
+                    )}
+                  />
                 </div>
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
-                  <label>{t("marka")}</label>
-                  <Controller name="markaId" control={control} render={({ field }) => <LastikMarka field={field} />} />
+                  <label>
+                    {t("marka")} <span style={{ color: "red" }}>*</span>
+                  </label>
+                  <LastikMarka name1="marka" isRequired={true} />
                 </div>
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
-                  <label>{t("model")}</label>
-                  <Controller name="modelId" control={control} render={({ field }) => <LastikModel field={field} />} />
+                  <label>
+                    {t("model")} <span style={{ color: "red" }}>*</span>
+                  </label>
+                  <LastikModel name1="model" isRequired={true} watchName="marka" />
                 </div>
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
-                  <label>{t("ebat")}</label>
-                  <Controller name="ebatKodId" control={control} render={({ field }) => <Ebat field={field} />} />
+                  <label>
+                    {t("ebat")} <span style={{ color: "red" }}>*</span>
+                  </label>
+                  <Controller
+                    name="ebatKodId"
+                    control={control}
+                    rules={{ required: t("alanBosBirakilamaz") }}
+                    render={({ field, fieldState: { error } }) => (
+                      <>
+                        <Ebat field={field} />
+                        {error && <div style={{ color: "red", marginTop: "5px" }}>{error.message}</div>}
+                      </>
+                    )}
+                  />
                 </div>
               </div>
               <div className="col-span-4">
