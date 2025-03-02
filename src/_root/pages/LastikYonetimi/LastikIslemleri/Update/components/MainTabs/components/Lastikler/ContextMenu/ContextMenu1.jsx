@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from "react";
-import { Button, Popover, Typography } from "antd";
+import { Button, Popover, Typography, Divider } from "antd";
 import { MoreOutlined } from "@ant-design/icons";
 import Sil from "./components/Sil";
 import LastigiCikart from "./components/AxleTanimlamaHizliIslem/LastigiCikart";
@@ -55,9 +55,10 @@ function ContextMenu1({ tire, refreshList, onClose, anchorEl, selectedAracDetay,
   const renderContent = useCallback(
     () => (
       <ContentContainer>
-        <MenuButton onClick={handleLastikTakUpdateOpen}>{t("lastikGuncelle")}</MenuButton>
-        <LastigiCikart titleLabel={t("lastikHurdayaGonder")} durumId={2} islemTipId={4} selectedRows={tire} refreshTableData={refreshList} selectedAracDetay={selectedAracDetay} />
-        <LastigiCikart titleLabel={t("lastikDepoyaGonder")} durumId={3} islemTipId={5} selectedRows={tire} refreshTableData={refreshList} selectedAracDetay={selectedAracDetay} />
+        <LastigiCikart titleLabel={t("cikart(StogaGonder)")} durumId={3} islemTipId={5} selectedRows={tire} refreshTableData={refreshList} selectedAracDetay={selectedAracDetay} />
+        <LastigiCikart titleLabel={t("hurdayaGonder")} durumId={2} islemTipId={4} selectedRows={tire} refreshTableData={refreshList} selectedAracDetay={selectedAracDetay} />
+        <Divider />
+        <MenuButton onClick={handleLastikTakUpdateOpen}>{t("lastikStokKarti")}</MenuButton>
         <LastiginTarihcesi vehicleId={tire.siraNo} />
         {/* Diğer menü öğeleri buraya eklenebilir */}
       </ContentContainer>

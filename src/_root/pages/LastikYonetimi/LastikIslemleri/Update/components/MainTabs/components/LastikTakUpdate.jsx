@@ -226,7 +226,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
         </Button>
       )}
 
-      <Modal title={t("lastikGuncelle")} open={isModalOpen} onCancel={handleCloseModal} footer={null} width={800}>
+      <Modal title={t("lastikStokKarti")} open={isModalOpen} onCancel={handleCloseModal} footer={null} width={800}>
         <FormProvider {...methods}>
           <form>
             <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>

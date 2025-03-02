@@ -596,7 +596,7 @@ export default function TakiliLastikListesi({
                         >
                           {tire.lastikTanim || ""}
                         </TireName>
-                        <ContextMenu tire={tire} refreshList={fetchInstalledTires} selectedAracDetay={selectedAracDetay} />
+                        <ContextMenu tire={tire} refreshList={fetchInstalledTires} selectedAracDetay={selectedAracDetay} axleList={axleList} positionList={positionList} />
                       </div>
 
                       <TireSerial>
