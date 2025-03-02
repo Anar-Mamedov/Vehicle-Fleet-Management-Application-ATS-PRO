@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import { Button, Divider, Input, InputNumber, Modal } from "antd";
 import { GetLastikByIdService, UpdateLastikService } from "../../../../../api/services/lastiktanim_services";
-import LastikMarka from "../../../../components/form/LastikMarka";
-import LastikModel from "../../../../components/form/LastikModel";
+import LastikMarka from "../../../../components/LastikMarka";
+import LastikModel from "../../../../components/LastikModel";
 import Ebat from "../../../../components/form/Ebat";
 import LastikTipi from "../../../../components/form/LastikTipi";
 import FirmaUnvani from "../../../../components/form/FirmaUnvani";
@@ -33,9 +33,11 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("fiyat", res.data.fiyat);
         setValue("lastikOmru", res.data.lastikOmru);
         setValue("marka", res.data.marka);
-        setValue("markaId", res.data.markaId);
-        setValue("model", res.data.model);
-        setValue("modelId", res.data.modelId);
+        setValue("markaID", res.data.markaId);
+        setTimeout(() => {
+          setValue("model", res.data.model);
+          setValue("modelID", res.data.modelId);
+        }, 100);
         setValue("tanim", res.data.tanim);
         setValue("tip", res.data.tip);
         setValue("tipKodId", res.data.tipKodId);
@@ -49,8 +51,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       siraNo: lastikId,
       tanim: values.tanim,
       aciklama: values.aciklama,
-      markaId: values.markaId || -1,
-      modelId: values.modelId || -1,
+      markaId: values.markaID || -1,
+      modelId: values.modelID || -1,
       tipKodId: values.tipKodId || -1,
       ebatKodId: values.ebatKodId || -1,
       lastikOmru: values.lastikOmru || 0,
@@ -103,13 +105,13 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("marka")}</label>
-                <Controller name="markaId" control={control} render={({ field }) => <LastikMarka field={field} />} />
+                <LastikMarka name1="marka" isRequired={false} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("model")}</label>
-                <Controller name="modelId" control={control} render={({ field }) => <LastikModel field={field} />} />
+                <LastikModel name1="model" isRequired={false} watchName="marka" />
               </div>
             </div>
             <div className="col-span-4">

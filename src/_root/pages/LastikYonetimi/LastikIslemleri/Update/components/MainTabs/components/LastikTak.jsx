@@ -5,6 +5,8 @@ import PositionListSelect from "./PositionListSelect";
 import KodIDSelectbox from "../../../../../../../components/KodIDSelectbox";
 import StoksuzLastikTablo from "../../../../../../../components/StoksuzLastikTablo";
 import AxiosInstance from "../../../../../../../../api/http";
+import LastikMarka from "../../../../../../../components/LastikMarka";
+import LastikModel from "../../../../../../../components/LastikModel";
 import { t } from "i18next";
 import { Controller, useFormContext, FormProvider, useForm } from "react-hook-form";
 import dayjs from "dayjs";
@@ -249,10 +251,19 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
 
                             // Set other related form fields
                             setValue("lastikOmru", selectedData.lastikOmru);
+
+                            // First set the brand (marka) values
                             setValue("markaID", selectedData.markaId);
                             setValue("marka", selectedData.marka);
-                            setValue("modelID", selectedData.modelId);
-                            setValue("model", selectedData.model);
+
+                            // Use setTimeout to ensure model values are set after marka values
+                            setTimeout(() => {
+                              // Then set the model values
+                              setValue("modelID", selectedData.modelId);
+                              setValue("model", selectedData.model);
+                            }, 100);
+
+                            // Set other tire properties
                             setValue("lastikEbatID", selectedData.ebatKodId);
                             setValue("lastikEbat", selectedData.ebat);
                             setValue("lastikTipID", selectedData.tipKodId);
@@ -335,14 +346,14 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
                     <Text>{t("marka")}</Text>
                     <div style={{ width: "250px" }}>
-                      <KodIDSelectbox name1="marka" isRequired={false} kodID="700" />
+                      <LastikMarka name1="marka" isRequired={false} />
                     </div>
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
                     <Text>{t("model")}</Text>
                     <div style={{ width: "250px" }}>
-                      <KodIDSelectbox name1="model" isRequired={false} kodID="701" />
+                      <LastikModel name1="model" isRequired={false} watchName="marka" />
                     </div>
                   </div>
 
