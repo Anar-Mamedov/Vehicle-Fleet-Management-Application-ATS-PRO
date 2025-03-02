@@ -681,7 +681,7 @@ function LastiginTarihcesi({ vehicleId }) {
           }}
         >
           <HistoryOutlined />
-          {t("lastikTarihcesiniGoster")}
+          {t("lastikTarihcesi")}
         </div>
       </ConfigProvider>
     </>
