@@ -80,7 +80,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       key="back"
       className="btn btn-min cancel-btn"
       onClick={() => {
-        setUpdateModal(false);
+        onDrawerClose();
         reset(defaultValues);
       }}
     >
@@ -179,11 +179,10 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
 };
 
 UpdateModal.propTypes = {
-  updateModal: PropTypes.bool,
-  setUpdateModal: PropTypes.func,
-  setStatus: PropTypes.func,
-  id: PropTypes.number,
-  status: PropTypes.bool,
+  selectedRow: PropTypes.object,
+  onDrawerClose: PropTypes.func,
+  drawerVisible: PropTypes.bool,
+  onRefresh: PropTypes.func,
 };
 
 export default UpdateModal;
