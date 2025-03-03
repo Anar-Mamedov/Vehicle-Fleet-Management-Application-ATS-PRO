@@ -294,7 +294,7 @@ const TooltipRow = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 3px 0;
-  border-bottom: ${(props) => (props.noBorder ? "none" : "1px dashed rgba(255, 255, 255, 0.2)")};
+  border-bottom: ${(props) => (props.$noBorder ? "none" : "1px dashed rgba(255, 255, 255, 0.2)")};
 
   &:last-child {
     border-bottom: none;
@@ -499,6 +499,24 @@ export default function TakiliLastikListesi({
     return km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
+  // Function to determine the order of tire positions (LO, LI, RO, RI)
+  const getTirePositionOrder = (pozisyonNo) => {
+    const positionOrder = {
+      LO: 1,
+      LI: 2,
+      RI: 3,
+      RO: 4,
+    };
+    return positionOrder[pozisyonNo] || 999; // Default high value for unknown positions
+  };
+
+  // Function to sort tires by their position
+  const sortTiresByPosition = (tires) => {
+    return [...tires].sort((a, b) => {
+      return getTirePositionOrder(a.pozisyonNo) - getTirePositionOrder(b.pozisyonNo);
+    });
+  };
+
   // Auto-expand the axle group when a tire is selected
   useEffect(() => {
     if (selectedTirePosition && selectedTirePosition.axlePosition) {
@@ -570,147 +588,300 @@ export default function TakiliLastikListesi({
             activeKey={activeKeys}
             onChange={setActiveKeys}
             expandIcon={({ isActive }) => <RightOutlined rotate={isActive ? 90 : 0} style={{ fontSize: "12px" }} />}
-            items={Object.entries(groupedTires).map(([axlePosition, tires]) => ({
-              key: axlePosition,
-              label: `${getAxlePositionName(axlePosition)} (${tires.length})`,
-              children: tires.map((tire) => (
-                <TireCard key={tire.siraNo} className={`tire-element ${isTireSelected(tire) ? "selected" : ""}`}>
-                  <TireHeader>
-                    <TireImage src="/images/lastik.png" alt="Tire" />
-                    <TireTitle>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <TireName
-                          onClick={() => {
-                            handleTireClick(tire);
-                            // When clicking on a tire in the list, also update the selected position
-                            if (tire.aksPozisyon && tire.pozisyonNo) {
-                              if (typeof setSelectedTirePosition === "function") {
-                                // If the parent component provided a setter function
-                                setSelectedTirePosition({
-                                  axlePosition: tire.aksPozisyon,
-                                  wheelPosition: tire.pozisyonNo,
-                                });
-                              }
-                            }
-                          }}
-                        >
-                          {tire.lastikTanim || ""}
-                        </TireName>
-                        <ContextMenu tire={tire} refreshList={fetchInstalledTires} selectedAracDetay={selectedAracDetay} axleList={axleList} positionList={positionList} />
-                      </div>
-
-                      <TireSerial>
-                        {tire.seriNo || ""}
-                        {tire.pozisyonNo && (
-                          <span style={{ marginLeft: "5px" }}>
-                            ({getAxlePositionName(tire.aksPozisyon)} - {getPositionName(tire.pozisyonNo)})
-                          </span>
-                        )}
-                      </TireSerial>
-                    </TireTitle>
-                  </TireHeader>
-
-                  <MeasurementSection>
-                    <MeasurementGroup>
-                      <MeasurementTitle>{t("disDerinligi")}</MeasurementTitle>
-                      <MeasurementValue>
-                        <Controller
-                          name={`disDerinligi_${tire.siraNo}`}
-                          control={control}
-                          render={({ field }) => (
-                            <StyledInput
-                              {...field}
-                              min={0}
-                              suffix="mm"
-                              precision={2}
-                              step={0.01}
-                              decimalSeparator={getDecimalSeparator()}
-                              onBlur={() => {
-                                field.onBlur();
-                                handleMeasurementUpdate(tire, "disDerinligi");
+            items={(() => {
+              // First, get axles from axleList that have tires
+              const axlesFromList = axleList
+                .filter((axle) => groupedTires[axle])
+                .map((axlePosition) => ({
+                  key: axlePosition,
+                  label: `${getAxlePositionName(axlePosition)} (${groupedTires[axlePosition]?.length || 0})`,
+                  children: sortTiresByPosition(groupedTires[axlePosition] || []).map((tire) => (
+                    <TireCard key={tire.siraNo} className={`tire-element ${isTireSelected(tire) ? "selected" : ""}`}>
+                      <TireHeader>
+                        <TireImage src="/images/lastik.png" alt="Tire" />
+                        <TireTitle>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <TireName
+                              onClick={() => {
+                                handleTireClick(tire);
+                                // When clicking on a tire in the list, also update the selected position
+                                if (tire.aksPozisyon && tire.pozisyonNo) {
+                                  if (typeof setSelectedTirePosition === "function") {
+                                    // If the parent component provided a setter function
+                                    setSelectedTirePosition({
+                                      axlePosition: tire.aksPozisyon,
+                                      wheelPosition: tire.pozisyonNo,
+                                    });
+                                  }
+                                }
                               }}
-                              onChange={(value) => {
-                                field.onChange(value);
-                              }}
-                            />
-                          )}
-                        />
-                      </MeasurementValue>
-                    </MeasurementGroup>
-                    {/* Tire Lifespan Progress Bar */}
-                    <LifespanSection>
-                      <ProgressBackground percent={calculateTireUsagePercentage(tire)} status={getTireStatus(calculateTireUsagePercentage(tire))} />
-                      <LifespanHeader>
-                        <LifespanTitle>
-                          <DashboardOutlined style={{ fontSize: "12px" }} />
-                          {t("lastikOmru")}
-                        </LifespanTitle>
-                        <LifespanHeaderRight>
-                          <LifespanValue status={getTireStatus(calculateTireUsagePercentage(tire))}>
-                            {calculateTireUsagePercentage(tire) > 40 ? (
-                              <CheckCircleFilled style={{ fontSize: "12px" }} />
-                            ) : calculateTireUsagePercentage(tire) > 15 ? (
-                              <WarningFilled style={{ fontSize: "12px" }} />
-                            ) : (
-                              <CloseCircleFilled style={{ fontSize: "12px" }} />
+                            >
+                              {tire.lastikTanim || ""}
+                            </TireName>
+                            <ContextMenu tire={tire} refreshList={fetchInstalledTires} selectedAracDetay={selectedAracDetay} axleList={axleList} positionList={positionList} />
+                          </div>
+
+                          <TireSerial>
+                            {tire.seriNo || ""}
+                            {tire.pozisyonNo && (
+                              <span style={{ marginLeft: "5px" }}>
+                                ({getAxlePositionName(tire.aksPozisyon)} - {getPositionName(tire.pozisyonNo)})
+                              </span>
                             )}
-                            {Math.round(calculateTireUsagePercentage(tire))}%
-                          </LifespanValue>
-                          {tire.tahminiOmurKm && (
-                            <StatusBadge status={getTireStatus(calculateTireUsagePercentage(tire))}>{getTireStatusText(calculateTireUsagePercentage(tire))}</StatusBadge>
-                          )}
-                        </LifespanHeaderRight>
-                      </LifespanHeader>
-                      <Tooltip
-                        title={
-                          <TooltipContent>
-                            <TooltipRow>
-                              <TooltipLabel>{t("kullanilan")}:</TooltipLabel>
-                              <TooltipValue>{formatKm(selectedAracDetay?.guncelKm - tire.takildigiKm + (tire.kullanimSuresi || 0))} km</TooltipValue>
-                            </TooltipRow>
-                            <TooltipRow>
-                              <TooltipLabel>{t("toplam")}:</TooltipLabel>
-                              <TooltipValue>{formatKm(tire.tahminiOmurKm)} km</TooltipValue>
-                            </TooltipRow>
-                            <TooltipRow noBorder>
-                              <TooltipLabel>{t("kalan")}:</TooltipLabel>
-                              <TooltipHighlight status={getTireStatus(calculateTireUsagePercentage(tire))}>{formatKm(calculateRemainingLifespan(tire))} km</TooltipHighlight>
-                            </TooltipRow>
-                          </TooltipContent>
-                        }
-                        placement="top"
-                        color="#333"
-                      >
-                        <div style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0, zIndex: 3 }} />
-                      </Tooltip>
-                    </LifespanSection>
-                    <MeasurementGroup>
-                      <MeasurementTitle>{t("basinc")}</MeasurementTitle>
-                      <MeasurementValue>
-                        <Controller
-                          name={`basinc_${tire.siraNo}`}
-                          control={control}
-                          render={({ field }) => (
-                            <StyledInput
-                              {...field}
-                              min={0}
-                              suffix="psi"
-                              onBlur={() => {
-                                field.onBlur();
-                                handleMeasurementUpdate(tire, "basinc");
-                              }}
-                              onChange={(value) => {
-                                field.onChange(value);
-                              }}
+                          </TireSerial>
+                        </TireTitle>
+                      </TireHeader>
+
+                      <MeasurementSection>
+                        <MeasurementGroup>
+                          <MeasurementTitle>{t("disDerinligi")}</MeasurementTitle>
+                          <MeasurementValue>
+                            <Controller
+                              name={`disDerinligi_${tire.siraNo}`}
+                              control={control}
+                              render={({ field }) => (
+                                <StyledInput
+                                  {...field}
+                                  min={0}
+                                  suffix="mm"
+                                  precision={2}
+                                  step={0.01}
+                                  decimalSeparator={getDecimalSeparator()}
+                                  onBlur={() => {
+                                    field.onBlur();
+                                    handleMeasurementUpdate(tire, "disDerinligi");
+                                  }}
+                                  onChange={(value) => {
+                                    field.onChange(value);
+                                  }}
+                                />
+                              )}
                             />
-                          )}
-                        />
-                      </MeasurementValue>
-                    </MeasurementGroup>
-                  </MeasurementSection>
-                </TireCard>
-              )),
-            }))}
+                          </MeasurementValue>
+                        </MeasurementGroup>
+                        {/* Tire Lifespan Progress Bar */}
+                        <LifespanSection>
+                          <ProgressBackground percent={calculateTireUsagePercentage(tire)} status={getTireStatus(calculateTireUsagePercentage(tire))} />
+                          <LifespanHeader>
+                            <LifespanTitle>
+                              <DashboardOutlined style={{ fontSize: "12px" }} />
+                              {t("lastikOmru")}
+                            </LifespanTitle>
+                            <LifespanHeaderRight>
+                              <LifespanValue status={getTireStatus(calculateTireUsagePercentage(tire))}>
+                                {calculateTireUsagePercentage(tire) > 40 ? (
+                                  <CheckCircleFilled style={{ fontSize: "12px" }} />
+                                ) : calculateTireUsagePercentage(tire) > 15 ? (
+                                  <WarningFilled style={{ fontSize: "12px" }} />
+                                ) : (
+                                  <CloseCircleFilled style={{ fontSize: "12px" }} />
+                                )}
+                                {Math.round(calculateTireUsagePercentage(tire))}%
+                              </LifespanValue>
+                              {tire.tahminiOmurKm && (
+                                <StatusBadge status={getTireStatus(calculateTireUsagePercentage(tire))}>{getTireStatusText(calculateTireUsagePercentage(tire))}</StatusBadge>
+                              )}
+                            </LifespanHeaderRight>
+                          </LifespanHeader>
+                          <Tooltip
+                            title={
+                              <TooltipContent>
+                                <TooltipRow>
+                                  <TooltipLabel>{t("kullanilan")}:</TooltipLabel>
+                                  <TooltipValue>{formatKm(selectedAracDetay?.guncelKm - tire.takildigiKm + (tire.kullanimSuresi || 0))} km</TooltipValue>
+                                </TooltipRow>
+                                <TooltipRow>
+                                  <TooltipLabel>{t("toplam")}:</TooltipLabel>
+                                  <TooltipValue>{formatKm(tire.tahminiOmurKm)} km</TooltipValue>
+                                </TooltipRow>
+                                <TooltipRow $noBorder>
+                                  <TooltipLabel>{t("kalan")}:</TooltipLabel>
+                                  <TooltipHighlight status={getTireStatus(calculateTireUsagePercentage(tire))}>{formatKm(calculateRemainingLifespan(tire))} km</TooltipHighlight>
+                                </TooltipRow>
+                              </TooltipContent>
+                            }
+                            placement="top"
+                            color="#333"
+                          >
+                            <div style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0, zIndex: 3 }} />
+                          </Tooltip>
+                        </LifespanSection>
+                        <MeasurementGroup>
+                          <MeasurementTitle>{t("basinc")}</MeasurementTitle>
+                          <MeasurementValue>
+                            <Controller
+                              name={`basinc_${tire.siraNo}`}
+                              control={control}
+                              render={({ field }) => (
+                                <StyledInput
+                                  {...field}
+                                  min={0}
+                                  suffix="psi"
+                                  onBlur={() => {
+                                    field.onBlur();
+                                    handleMeasurementUpdate(tire, "basinc");
+                                  }}
+                                  onChange={(value) => {
+                                    field.onChange(value);
+                                  }}
+                                />
+                              )}
+                            />
+                          </MeasurementValue>
+                        </MeasurementGroup>
+                      </MeasurementSection>
+                    </TireCard>
+                  )),
+                }));
+
+              // Then, get axles that are in the API response but not in axleList
+              const otherAxles = Object.entries(groupedTires)
+                .filter(([axlePosition]) => !axleList.includes(axlePosition))
+                .map(([axlePosition, tires]) => ({
+                  key: axlePosition,
+                  label: `${getAxlePositionName(axlePosition)} (${tires.length})`,
+                  children: sortTiresByPosition(tires || []).map((tire) => (
+                    <TireCard key={tire.siraNo} className={`tire-element ${isTireSelected(tire) ? "selected" : ""}`}>
+                      <TireHeader>
+                        <TireImage src="/images/lastik.png" alt="Tire" />
+                        <TireTitle>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <TireName
+                              onClick={() => {
+                                handleTireClick(tire);
+                                // When clicking on a tire in the list, also update the selected position
+                                if (tire.aksPozisyon && tire.pozisyonNo) {
+                                  if (typeof setSelectedTirePosition === "function") {
+                                    // If the parent component provided a setter function
+                                    setSelectedTirePosition({
+                                      axlePosition: tire.aksPozisyon,
+                                      wheelPosition: tire.pozisyonNo,
+                                    });
+                                  }
+                                }
+                              }}
+                            >
+                              {tire.lastikTanim || ""}
+                            </TireName>
+                            <ContextMenu tire={tire} refreshList={fetchInstalledTires} selectedAracDetay={selectedAracDetay} axleList={axleList} positionList={positionList} />
+                          </div>
+
+                          <TireSerial>
+                            {tire.seriNo || ""}
+                            {tire.pozisyonNo && (
+                              <span style={{ marginLeft: "5px" }}>
+                                ({getAxlePositionName(tire.aksPozisyon)} - {getPositionName(tire.pozisyonNo)})
+                              </span>
+                            )}
+                          </TireSerial>
+                        </TireTitle>
+                      </TireHeader>
+
+                      <MeasurementSection>
+                        <MeasurementGroup>
+                          <MeasurementTitle>{t("disDerinligi")}</MeasurementTitle>
+                          <MeasurementValue>
+                            <Controller
+                              name={`disDerinligi_${tire.siraNo}`}
+                              control={control}
+                              render={({ field }) => (
+                                <StyledInput
+                                  {...field}
+                                  min={0}
+                                  suffix="mm"
+                                  precision={2}
+                                  step={0.01}
+                                  decimalSeparator={getDecimalSeparator()}
+                                  onBlur={() => {
+                                    field.onBlur();
+                                    handleMeasurementUpdate(tire, "disDerinligi");
+                                  }}
+                                  onChange={(value) => {
+                                    field.onChange(value);
+                                  }}
+                                />
+                              )}
+                            />
+                          </MeasurementValue>
+                        </MeasurementGroup>
+                        {/* Tire Lifespan Progress Bar */}
+                        <LifespanSection>
+                          <ProgressBackground percent={calculateTireUsagePercentage(tire)} status={getTireStatus(calculateTireUsagePercentage(tire))} />
+                          <LifespanHeader>
+                            <LifespanTitle>
+                              <DashboardOutlined style={{ fontSize: "12px" }} />
+                              {t("lastikOmru")}
+                            </LifespanTitle>
+                            <LifespanHeaderRight>
+                              <LifespanValue status={getTireStatus(calculateTireUsagePercentage(tire))}>
+                                {calculateTireUsagePercentage(tire) > 40 ? (
+                                  <CheckCircleFilled style={{ fontSize: "12px" }} />
+                                ) : calculateTireUsagePercentage(tire) > 15 ? (
+                                  <WarningFilled style={{ fontSize: "12px" }} />
+                                ) : (
+                                  <CloseCircleFilled style={{ fontSize: "12px" }} />
+                                )}
+                                {Math.round(calculateTireUsagePercentage(tire))}%
+                              </LifespanValue>
+                              {tire.tahminiOmurKm && (
+                                <StatusBadge status={getTireStatus(calculateTireUsagePercentage(tire))}>{getTireStatusText(calculateTireUsagePercentage(tire))}</StatusBadge>
+                              )}
+                            </LifespanHeaderRight>
+                          </LifespanHeader>
+                          <Tooltip
+                            title={
+                              <TooltipContent>
+                                <TooltipRow>
+                                  <TooltipLabel>{t("kullanilan")}:</TooltipLabel>
+                                  <TooltipValue>{formatKm(selectedAracDetay?.guncelKm - tire.takildigiKm + (tire.kullanimSuresi || 0))} km</TooltipValue>
+                                </TooltipRow>
+                                <TooltipRow>
+                                  <TooltipLabel>{t("toplam")}:</TooltipLabel>
+                                  <TooltipValue>{formatKm(tire.tahminiOmurKm)} km</TooltipValue>
+                                </TooltipRow>
+                                <TooltipRow $noBorder>
+                                  <TooltipLabel>{t("kalan")}:</TooltipLabel>
+                                  <TooltipHighlight status={getTireStatus(calculateTireUsagePercentage(tire))}>{formatKm(calculateRemainingLifespan(tire))} km</TooltipHighlight>
+                                </TooltipRow>
+                              </TooltipContent>
+                            }
+                            placement="top"
+                            color="#333"
+                          >
+                            <div style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0, zIndex: 3 }} />
+                          </Tooltip>
+                        </LifespanSection>
+                        <MeasurementGroup>
+                          <MeasurementTitle>{t("basinc")}</MeasurementTitle>
+                          <MeasurementValue>
+                            <Controller
+                              name={`basinc_${tire.siraNo}`}
+                              control={control}
+                              render={({ field }) => (
+                                <StyledInput
+                                  {...field}
+                                  min={0}
+                                  suffix="psi"
+                                  onBlur={() => {
+                                    field.onBlur();
+                                    handleMeasurementUpdate(tire, "basinc");
+                                  }}
+                                  onChange={(value) => {
+                                    field.onChange(value);
+                                  }}
+                                />
+                              )}
+                            />
+                          </MeasurementValue>
+                        </MeasurementGroup>
+                      </MeasurementSection>
+                    </TireCard>
+                  )),
+                }));
+
+              // Combine both arrays
+              return [...axlesFromList, ...otherAxles];
+            })()}
           />
         </Spin>
       </div>

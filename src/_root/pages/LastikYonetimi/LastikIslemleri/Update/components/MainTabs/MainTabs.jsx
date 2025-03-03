@@ -889,6 +889,7 @@ export default function MainTabs({ onRefresh1, selectedRow, selectedAracDetay })
             positionList={positionList}
             onInit={handleFetchInstalledTiresRef}
             setTirePositionMapping={setTirePositionMapping}
+            tirePositionMapping={tirePositionMapping}
             selectedTirePosition={selectedTirePosition}
             setSelectedTirePosition={setSelectedTirePosition}
           />
