@@ -34,7 +34,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
 
   const onSubmit = handleSubmit((values) => {
     const body = {
-      isTanimId: id,
+      isTanimId: selectedRow?.key,
       tanim: values.tanim,
       isTipKodId: values.isTipKodId || -1,
       bakimDepartmanKodId: values.bakimDepartmanKodId || -1,
