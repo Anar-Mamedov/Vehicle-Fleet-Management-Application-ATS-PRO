@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Space, message, InputNumber, Input, DatePicker, Button, Modal } from "antd";
+import { Typography, Space, message, InputNumber, Input, DatePicker, Button, Modal, Checkbox } from "antd";
 import AxleListSelect from "./AxleListSelect";
 import PositionListSelect from "./PositionListSelect";
 import KodIDSelectbox from "../../../../../../../components/KodIDSelectbox";
@@ -43,6 +43,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
       montajKm: 0,
       montajTarihi: null,
       lastikAciklama: null,
+      tumBosAkslaraTak: false,
     },
     mode: "onChange",
   });
@@ -82,6 +83,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     fetchNewSerialNumber();
     setValue("montajTarihi", dayjs().format("YYYY-MM-DD"));
     setValue("montajKm", selectedAracDetay.guncelKm);
+    setValue("tumBosAkslaraTak", false);
   };
 
   const handleCloseModal = () => {
@@ -125,6 +127,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     aciklama: data.lastikAciklama,
     takildigiKm: data.montajKm,
     takilmaTarih: data.montajTarihi,
+    // tumBosAkslaraTak: data.tumBosAkslaraTak,
     durumId: 1,
     islemTipId: 1,
   });
@@ -198,6 +201,8 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
       fetchNewSerialNumber();
     }
   };
+
+  const tumBosAkslaraTak = watch("tumBosAkslaraTak");
 
   return (
     <>
@@ -502,11 +507,24 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                 </div>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
-                <Button onClick={methods.handleSubmit(handleSaveAndNew)}>{t("kaydetVeYeniEkle")}</Button>
-                <Button type="primary" onClick={methods.handleSubmit(onSubmit)}>
-                  {t("kaydet")}
-                </Button>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", marginTop: "20px", alignItems: "center" }}>
+                <Controller
+                  name="tumBosAkslaraTak"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox {...field} checked={field.value} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {t("tumBosAkslaraTak")}
+                    </Checkbox>
+                  )}
+                />
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+                  <Button onClick={methods.handleSubmit(handleSaveAndNew)} disabled={tumBosAkslaraTak}>
+                    {t("kaydetVeYeniEkle")}
+                  </Button>
+                  <Button type="primary" onClick={methods.handleSubmit(onSubmit)}>
+                    {t("kaydet")}
+                  </Button>
+                </div>
               </div>
             </div>
           </form>

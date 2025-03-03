@@ -43,7 +43,7 @@ export default function ContextMenu({ tire, refreshList, selectedAracDetay, axle
     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
       {/* <Sil selectedRows={[tire]} refreshTableData={refreshList} hidePopover={hidePopover} /> */}
       <LastigiCikart titleLabel={t("cikart(StogaGonder)")} durumId={3} islemTipId={5} selectedRows={tire} refreshTableData={refreshList} selectedAracDetay={selectedAracDetay} />
-      <LastigiCikart titleLabel={t("hurdayaGonder")} durumId={2} islemTipId={4} selectedRows={tire} refreshTableData={refreshList} selectedAracDetay={selectedAracDetay} />
+      <LastigiCikart titleLabel={t("hurdayaAyir")} durumId={2} islemTipId={4} selectedRows={tire} refreshTableData={refreshList} selectedAracDetay={selectedAracDetay} />
       <Divider />
       <MenuButton onClick={handleLastikTakUpdateOpen}>{t("lastikStokKarti")}</MenuButton>
       <LastiginTarihcesi vehicleId={tire.siraNo} />
