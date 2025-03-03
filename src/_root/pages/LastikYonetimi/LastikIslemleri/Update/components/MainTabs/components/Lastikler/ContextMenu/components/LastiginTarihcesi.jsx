@@ -268,20 +268,6 @@ function LastiginTarihcesi({ vehicleId }) {
         return new Date(a.tarih) - new Date(b.tarih);
       },
     },
-    {
-      title: t("saat"),
-      dataIndex: "saat",
-      key: "saat",
-      width: 100,
-      ellipsis: true,
-      visible: true,
-      render: (text) => formatTime(text),
-      sorter: (a, b) => {
-        if (!a.saat) return -1;
-        if (!b.saat) return 1;
-        return a.saat.localeCompare(b.saat);
-      },
-    },
 
     {
       title: t("aciklama"),

@@ -12,7 +12,7 @@ const { Option } = Select;
 
 const StyledSelect = styled(Select)`
   @media (min-width: 600px) {
-    width: 300px;
+    width: 100%;
   }
   @media (max-width: 600px) {
     width: 300px;
@@ -141,16 +141,19 @@ export default function KodIDSelectbox({ name1, kodID, isRequired }) {
                     margin: "8px 0",
                   }}
                 />
-                <Space
+                <div
                   style={{
                     padding: "0 8px 4px",
+                    width: "100%",
+                    display: "flex",
+                    gap: "10px",
                   }}
                 >
-                  <Input placeholder="" ref={inputRef} value={name} onChange={onNameChange} />
+                  <Input style={{ width: "100%" }} placeholder="" ref={inputRef} value={name} onChange={onNameChange} />
                   <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
                     Ekle
                   </Button>
-                </Space>
+                </div>
               </Spin>
             )}
             options={options.map((item) => ({

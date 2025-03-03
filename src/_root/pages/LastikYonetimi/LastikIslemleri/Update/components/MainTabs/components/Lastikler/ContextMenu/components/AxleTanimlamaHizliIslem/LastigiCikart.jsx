@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import AxiosInstance from "../../../../../../../../../../../../api/http";
-import { Button, Modal, DatePicker, Input, Form, message } from "antd";
+import { Button, Modal, DatePicker, Input, Form, message, Typography } from "antd";
 import { useForm, Controller } from "react-hook-form";
+import KodIDSelectbox from "../../../../../../../../../../../components/KodIDSelectbox";
 import { t } from "i18next";
 import dayjs from "dayjs";
 
+const { Text } = Typography;
 const { TextArea } = Input;
 
 export default function LastigiCikart({ titleLabel, selectedRows, refreshTableData, selectedAracDetay, durumId, islemTipId }) {
@@ -44,6 +46,8 @@ export default function LastigiCikart({ titleLabel, selectedRows, refreshTableDa
     defaultValues: {
       date: null,
       notes: "",
+      nedeniID: null,
+      nedeni: null,
     },
   });
 
@@ -53,6 +57,8 @@ export default function LastigiCikart({ titleLabel, selectedRows, refreshTableDa
     reset({
       date: dayjs(),
       notes: "",
+      nedeniID: null,
+      nedeni: null,
     });
   };
 
@@ -71,6 +77,7 @@ export default function LastigiCikart({ titleLabel, selectedRows, refreshTableDa
         islemTipId: islemTipId,
         durumId: durumId,
         km: km,
+        // nedenId: data.nedeniID,
       });
       if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202) {
         message.success(t("islemBasarili"));
@@ -135,7 +142,32 @@ export default function LastigiCikart({ titleLabel, selectedRows, refreshTableDa
             />
           </div>
 
-          <div style={{ marginTop: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "center",
+              width: "100%",
+              justifyContent: "space-between",
+              gap: "8px",
+              flexDirection: "row",
+            }}
+          >
+            <Text style={{ fontSize: "14px", display: "flex" }}>{t("nedeni")}:</Text>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                width: "100%",
+                maxWidth: "100%",
+                flexDirection: "column",
+              }}
+            >
+              <KodIDSelectbox name1="nedeni" isRequired={false} kodID="892" />
+            </div>
+          </div>
+
+          <div style={{ marginTop: 10 }}>
             <label>{t("aciklama")}:</label>
             <Controller
               name="notes"
