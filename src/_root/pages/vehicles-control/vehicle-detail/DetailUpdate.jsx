@@ -61,6 +61,9 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
   const [surucu, setSurucu] = useState("");
   const [surucuId, setSurucuId] = useState(null);
 
+  const [photoCount, setPhotoCount] = useState(0);
+  const [fileCount, setFileCount] = useState(0);
+
   const [durumIcon, setDurumIcon] = useState(null);
   const [durumNeden, setDurumNeden] = useState(null);
 
@@ -264,6 +267,8 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
         setValue("ozelAlan12", res?.data.ozelAlan12);
         setValue("uyari", res?.data.yakitUyari);
         setUrls([...urls, res.data.defPhotoInfo]);
+        setPhotoCount(res.data.resimSayisi);
+        setFileCount(res.data.dokumanSayisi);
       });
 
       setLoadingImages(true);
@@ -278,7 +283,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
         .finally(() => {
           setLoadingImages(false);
         });
-      GetDocumentsByRefGroupService(selectedId, "Arac").then((res) => setFilesUrl(res.data));
+      // GetDocumentsByRefGroupService(selectedId, "Arac").then((res) => setFilesUrl(res.data));
     }
   }, [isOpen, selectedId]);
 
@@ -288,11 +293,11 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
     }
   }, [photoUploaded]);
 
-  useEffect(() => {
+  /*   useEffect(() => {
     if (dosyaUploaded > 0) {
       GetDocumentsByRefGroupService(selectedId, "Arac").then((res) => setFilesUrl(res.data));
     }
-  }, [dosyaUploaded]);
+  }, [dosyaUploaded]); */
 
   const onSubmit = handleSubmit((values) => {
     const data = {
@@ -374,13 +379,13 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
     },
     {
       key: "3",
-      label: `[${imageUrls.length}] ${t("resimler")}`,
-      children: <ResimUpload selectedRowID={selectedId} setPhotoUploaded={setPhotoUploaded} />,
+      label: `[${photoCount}] ${t("resimler")}`,
+      children: <ResimUpload selectedRowID={selectedId} setPhotoUploaded={setPhotoUploaded} setPhotoCount={setPhotoCount} />,
     },
     {
       key: "4",
-      label: `[${filesUrl.length}] ${t("ekliBelgeler")}`,
-      children: <DosyaUpload selectedRowID={selectedId} setDosyaUploaded={setDosyaUploaded} />,
+      label: `[${fileCount}] ${t("ekliBelgeler")}`,
+      children: <DosyaUpload selectedRowID={selectedId} setDosyaUploaded={setDosyaUploaded} setFileCount={setFileCount} />,
     },
   ];
 
