@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Upload, Spin, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { Upload, Spin, message, Button, Popconfirm } from "antd";
+import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useFormContext } from "react-hook-form";
 import AxiosInstance from "../../../../../api/http";
 
-const DosyaUpload = ({ selectedRowID, setDosyaUploaded }) => {
+const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount }) => {
   const { watch } = useFormContext();
   const [dosyalar, setDosyalar] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Form'dan "kapali" değerini izliyoruz
   const kapali = watch("kapali");
@@ -62,7 +63,26 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded }) => {
     }
   };
 
-  // 4) Dosya yükleme fonksiyonu
+  // 4) Dosya silme fonksiyonu
+  const handleDeleteFile = async (file, event) => {
+    // Tıklama olayının yayılmasını engelle (indirme fonksiyonunun tetiklenmemesi için)
+    event.stopPropagation();
+
+    try {
+      setDeleting(true);
+      await AxiosInstance.get(`Document/DeleteDocumentById?id=${file.tbDosyaId}`);
+      message.success(`${file.dosyaAd} başarıyla silindi.`);
+      fetchDosyaIds(); // Silme işlemi tamamlanınca listeyi güncelle
+      setFileCount((prev) => prev - 1);
+    } catch (error) {
+      console.error("Dosya silme hatası:", error);
+      message.error("Dosya silinirken bir hata oluştu.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // 5) Dosya yükleme fonksiyonu
   const handleFileUpload = (file) => {
     const formData = new FormData();
     formData.append("documents", file);
@@ -74,7 +94,7 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded }) => {
       .then(() => {
         message.success(`${file.name} başarıyla yüklendi.`);
         fetchDosyaIds(); // Yükleme tamamlanınca listeyi güncelle
-        setDosyaUploaded((prev) => prev + 1);
+        setFileCount((prev) => prev + 1);
       })
       .catch((error) => {
         console.error("Dosya yükleme sırasında bir hata oluştu:", error);
@@ -84,7 +104,7 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded }) => {
     return false; // Ant Design Upload'ın kendi otomatik yükleme davranışını engelliyoruz
   };
 
-  // 5) Dragger props
+  // 6) Dragger props
   const draggerProps = {
     name: "file",
     multiple: true,
@@ -97,7 +117,7 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded }) => {
 
   return (
     <div style={{ marginBottom: "35px" }}>
-      {loading ? (
+      {loading || deleting ? (
         <div
           style={{
             width: "100%",
@@ -110,8 +130,8 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded }) => {
           <Spin />
         </div>
       ) : (
-        // 6) Her dosya için bir div oluşturuyoruz
-        <div style={{ marginBottom: 20, display: "flex", gap: "10px" }}>
+        // 7) Her dosya için bir div oluşturuyoruz
+        <div style={{ marginBottom: 20, display: "flex", flexWrap: "wrap", gap: "10px" }}>
           {dosyalar && dosyalar.length > 0 ? (
             dosyalar.map((file) => (
               <div
@@ -119,8 +139,9 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded }) => {
                 onClick={() => handleDownloadFile(file)}
                 style={{
                   cursor: "pointer",
-                  // (1) İçeriğe göre dinamik genişlik için:
-                  display: "inline-block",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                   width: "fit-content",
                   backgroundColor: "#f5f5f5",
                   margin: "8px 0",
@@ -128,7 +149,19 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded }) => {
                   borderRadius: "4px",
                 }}
               >
-                {file.dosyaAd}
+                <span style={{ marginRight: "10px" }}>{file.dosyaAd}</span>
+                {!kapali && (
+                  <Popconfirm
+                    title="Dosyayı sil"
+                    description="Bu dosyayı silmek istediğinizden emin misiniz?"
+                    onConfirm={(e) => handleDeleteFile(file, e)}
+                    okText="Evet"
+                    cancelText="Hayır"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Button type="text" danger icon={<DeleteOutlined />} size="small" onClick={(e) => e.stopPropagation()} />
+                  </Popconfirm>
+                )}
               </div>
             ))
           ) : (
@@ -137,7 +170,7 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded }) => {
         </div>
       )}
 
-      {/* 7) Dosya Yükleme Alanı */}
+      {/* 8) Dosya Yükleme Alanı */}
       <Upload.Dragger disabled={kapali} {...draggerProps}>
         <p className="ant-upload-drag-icon">
           <UploadOutlined />
