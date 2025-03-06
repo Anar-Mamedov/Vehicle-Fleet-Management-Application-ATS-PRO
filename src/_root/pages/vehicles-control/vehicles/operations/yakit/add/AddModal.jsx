@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
@@ -168,7 +168,7 @@ const AddModal = ({ setStatus }) => {
       yakitTipId: values.yakitTipId,
       sonAlinanKm: values.sonAlinanKm,
       farkKm: values.farkKm,
-      tuketim: values.tuketim,
+      // tuketim: values.tuketim,
       alinanKm: values.alinanKm,
       miktar: values.miktar ? values.miktar : 0.0,
       fullDepo: values.fullDepo,
