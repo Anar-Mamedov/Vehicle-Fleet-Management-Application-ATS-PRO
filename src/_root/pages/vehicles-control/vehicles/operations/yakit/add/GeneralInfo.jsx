@@ -1,11 +1,11 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import tr_TR from "antd/lib/locale/tr_TR";
 import { t } from "i18next";
 import { Button, Checkbox, ConfigProvider, DatePicker, Divider, Input, InputNumber, message, Modal, TimePicker } from "antd";
-import { ArrowUpOutlined, CheckOutlined } from "@ant-design/icons";
+import { ArrowUpOutlined, CheckOutlined, EditOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../../context/plakaSlice";
 import { SelectContext } from "../../../../../../../context/selectSlice";
 import {
@@ -21,6 +21,7 @@ import MaterialType from "../../../../../../components/form/selects/MaterialType
 import CheckboxInput from "../../../../../../components/form/checkbox/CheckboxInput";
 import YakitTank from "../../../../../../components/form/selects/YakitlTank";
 import TextInput from "../../../../../../components/form/inputs/TextInput";
+import UpdateModal from "../../../../../yakit-yonetim/yakit-tanim/UpdateModal";
 
 dayjs.locale("tr");
 
@@ -35,6 +36,8 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [content, setContent] = useState(null);
   const [logError, setLogError] = useState(false);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [selectedYakitTipId, setSelectedYakitTipId] = useState(null);
 
   // ------------------------------------------------------------------
   // 1) PLAKA GELDİĞİNDE YAKIT TİPİ, TARİH, SAAT, etc. HAZIRLA
@@ -62,6 +65,10 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
       setValue("litreFiyat", res?.data.price);
       setValue("kdv", res?.data.kdv);
     });
+
+    // Reset miktar and tutar when yakitTipId changes
+    setValue("miktar", null);
+    setValue("tutar", null);
   }, [watch("yakitTipId"), setValue]);
 
   // ------------------------------------------------------------------
@@ -274,6 +281,17 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
     setIsValid(true);
   };
 
+  // ------------------------------------------------------------------
+  // 7) LİTRE FİYATI DEĞİŞİNCE MİKTAR VE TUTAR DEĞERLERİNİ SIFIRLA
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    // Skip initial render
+    if (watch("litreFiyat") !== undefined) {
+      setValue("miktar", null);
+      setValue("tutar", null);
+    }
+  }, [watch("litreFiyat"), setValue]);
+
   useEffect(() => {
     if (logError) {
       if (watch("engelle")) {
@@ -468,7 +486,16 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
             <div className="col-span-12">
               <div className="flex flex-col gap-1">
                 <label>{t("yakitTip")}</label>
-                <MaterialType name="yakitTip" codeName="yakitTipId" type="YAKIT" />
+                <MaterialType
+                  name="yakitTip"
+                  codeName="yakitTipId"
+                  type="YAKIT"
+                  onChange={(value) => {
+                    // Reset miktar and tutar when yakitTipId changes
+                    setValue("miktar", null);
+                    setValue("tutar", null);
+                  }}
+                />
               </div>
             </div>
             <div className="col-span-6 flex flex-col">
@@ -544,7 +571,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                         style={response === "error" ? { borderColor: "#dc3545" } : response === "success" ? { borderColor: "#23b545" } : { color: "#000" }}
                         onPressEnter={(e) => {
                           validateLog(); // ENTER'a basıldığında kontrol etsin
-                          e.target.blur(); // focus’u çıkartarak klavyeyi kapatmak ya da benzeri amaçla
+                          e.target.blur(); // focus'u çıkartarak klavyeyi kapatmak ya da benzeri amaçla
                         }}
                         onBlur={validateLog} // Input dışına tıklandığında kontrol etsin
                         onChange={(value) => {
@@ -659,7 +686,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                   <label htmlFor="">{t("fullDepo")}</label>
                   <CheckboxInput name="fullDepo" />
                 </div>
-                <div className="col-span-8">
+                {/* <div className="col-span-8">
                   <div className="grid gap-1">
                     <div className="col-span-10">
                       <div className="flex flex-col gap-1">
@@ -675,7 +702,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                       </Button>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -685,26 +712,42 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                 <label>
                   {watch("birim") === "LITRE" && t("litre")} {t("fiyati")}
                 </label>
-                <Controller
-                  name="litreFiyat"
-                  control={control}
-                  render={({ field }) => (
-                    <InputNumber
-                      {...field}
-                      className="w-full"
-                      onChange={(val) => {
-                        field.onChange(val);
-                        const tutarVal = watch("tutar") ?? 0;
-                        if (!val || val === 0) {
-                          setValue("miktar", 0);
-                        } else {
-                          const miktarHesap = +tutarVal / +val;
-                          setValue("miktar", Math.round(miktarHesap));
-                        }
-                      }}
-                    />
-                  )}
-                />
+                <div className="flex items-center gap-1">
+                  <Controller
+                    name="litreFiyat"
+                    control={control}
+                    render={({ field }) => (
+                      <InputNumber
+                        {...field}
+                        className="w-full"
+                        disabled={true}
+                        onChange={(val) => {
+                          field.onChange(val);
+                          const tutarVal = watch("tutar") ?? 0;
+                          if (!val || val === 0) {
+                            setValue("miktar", 0);
+                          } else {
+                            const miktarHesap = +tutarVal / +val;
+                            setValue("miktar", Math.round(miktarHesap));
+                          }
+                        }}
+                      />
+                    )}
+                  />
+                  <Button
+                    type="primary"
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                      const yakitTipId = watch("yakitTipId");
+                      if (yakitTipId) {
+                        setSelectedYakitTipId(yakitTipId);
+                        setUpdateModalOpen(true);
+                      } else {
+                        message.warning("Lütfen önce yakıt tipi seçiniz!");
+                      }
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -753,6 +796,26 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
       <Modal open={openDetail} maskClosable={false} title={t("ortalamaYakitTuketimi")} footer={detailModalFooter} onCancel={() => setOpenDetail(false)}>
         {content /* Yukarıda "setContent(...)" ile atanan JSX içeriği */}
       </Modal>
+
+      {/* --------- YAKIT TANIM GÜNCELLEME MODAL --------- */}
+      {updateModalOpen && (
+        <UpdateModal
+          updateModal={updateModalOpen}
+          setUpdateModal={setUpdateModalOpen}
+          setStatus={(status) => {
+            if (status) {
+              // Refresh litreFiyat after update
+              if (watch("yakitTipId")) {
+                GetMaterialPriceService(watch("yakitTipId")).then((res) => {
+                  setValue("litreFiyat", res?.data.price);
+                  setValue("kdv", res?.data.kdv);
+                });
+              }
+            }
+          }}
+          id={selectedYakitTipId}
+        />
+      )}
 
       {/* --------- SON 3 YAKIT KAYDI GÖRSEL --------- */}
       {watch("plaka") && history.length >= 3 && (
