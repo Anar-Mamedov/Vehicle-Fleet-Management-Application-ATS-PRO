@@ -282,6 +282,18 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   };
 
   // ------------------------------------------------------------------
+  // 6) DEPO HACMİ KONTROLÜ
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    if (watch("depoYakitMiktar") + history[0]?.miktar > watch("yakitHacmi")) {
+      message.warning("Miktar depo hacminden büyükdür. Depo hacmini güncelleyin!");
+      setIsValid(true);
+    } else {
+      setIsValid(false);
+    }
+  }, [watch("depoYakitMiktar")]);
+
+  // ------------------------------------------------------------------
   // 7) LİTRE FİYATI DEĞİŞİNCE MİKTAR VE TUTAR DEĞERLERİNİ SIFIRLA
   // ------------------------------------------------------------------
   useEffect(() => {
@@ -306,28 +318,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   }, [watch("engelle"), logError]);
 
   // ------------------------------------------------------------------
-  // 6) DEPO HACMİ KONTROLÜ
-  // ------------------------------------------------------------------
-  useEffect(() => {
-    if (watch("depoYakitMiktar") + history[0]?.miktar > watch("yakitHacmi")) {
-      message.warning("Miktar depo hacminden büyükdür. Depo hacmini güncelleyin!");
-      setIsValid(true);
-    } else {
-      setIsValid(false);
-    }
-  }, [watch("depoYakitMiktar")]);
-
-  useEffect(() => {
-    if (logError) {
-      if (watch("engelle")) {
-        setResponse("success");
-        setIsValid(false);
-      }
-    }
-  }, [logError, watch("engelle")]);
-
-  // ------------------------------------------------------------------
-  // 7) ERROR MESAJI GÖSTER
+  // 8) ERROR MESAJI GÖSTER
   // ------------------------------------------------------------------
   useEffect(() => {
     if (errorMessage) {
@@ -337,7 +328,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   }, [errorMessage]);
 
   // ------------------------------------------------------------------
-  // 8) DEPO HACMİ GÜNCELLE
+  // 9) DEPO HACMİ GÜNCELLE
   // ------------------------------------------------------------------
   const updateDepoHacmi = () => {
     const body = {
@@ -353,7 +344,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   };
 
   // ------------------------------------------------------------------
-  // 9) FETCH DATA (sonAlinanKm + 3 yakıt kaydı)
+  // 10) FETCH DATA (sonAlinanKm + 3 yakıt kaydı)
   // ------------------------------------------------------------------
   const fetchData = () => {
     const body = {
@@ -375,7 +366,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   };
 
   // ------------------------------------------------------------------
-  // 10) MODAL FOOTER
+  // 11) MODAL FOOTER
   // ------------------------------------------------------------------
   const footer = [
     <Button key="submit" className="btn btn-min primary-btn" onClick={updateDepoHacmi}>
