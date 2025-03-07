@@ -201,7 +201,7 @@ const Sigorta = () => {
 
       const newData = response.data.vehicleList.map((item) => ({
         ...item,
-        key: item.aracEkspertizId, // Assign key directly from aracEkspertizId
+        key: item.aracId, // Assign key directly from aracEkspertizId
       }));
 
       if (newData.length > 0) {
@@ -220,7 +220,6 @@ const Sigorta = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -228,7 +227,6 @@ const Sigorta = () => {
       fetchData(0, 1);
       prevBodyRef.current = body;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [body]);
 
   const prevBodyRef = useRef(body);
@@ -266,7 +264,6 @@ const Sigorta = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
