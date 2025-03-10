@@ -73,6 +73,22 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   }, [watch("yakitTipId"), setValue]);
 
   // ------------------------------------------------------------------
+  // 2.1) ENSURE kdvDahilHaric IS ALWAYS SET CORRECTLY
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    // This effect ensures kdvDahilHaric is always set correctly
+    // It runs both on component mount and when yakitTipId changes
+    const yakitTipId = watch("yakitTipId");
+    if (yakitTipId) {
+      GetMaterialPriceService(yakitTipId).then((res) => {
+        if (res?.data && res?.data.kdvDahilHaric !== undefined) {
+          setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
+        }
+      });
+    }
+  }, []);
+
+  // ------------------------------------------------------------------
   // 3) FULL DEPO İSE VE MİKTAR ALANI BOŞ İSE -> OTO DEPO HACMİ YAP
   // ------------------------------------------------------------------
   useEffect(() => {
@@ -908,9 +924,11 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
 
       <Row
         gutter={24}
-        style={{
-          display: "none",
-        }}
+        style={
+          {
+            // display: "none",
+          }
+        }
       >
         <Col xs={24} md={8}>
           <div className="flex flex-col gap-1">
