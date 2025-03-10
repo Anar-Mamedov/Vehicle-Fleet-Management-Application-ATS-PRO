@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Button, Modal, Tabs } from "antd";
@@ -160,6 +160,7 @@ const AddModal = ({ setStatus }) => {
       ozelAlanKodId10: values.ozelAlanKodId10 || 0,
       ozelAlan11: values.ozelAlan11 || 0,
       ozelAlan12: values.ozelAlan12 || 0,
+      kdvDahilHaric: values.kdvDahilHaric || false,
     };
 
     AddMaterialService(body).then((res) => {
