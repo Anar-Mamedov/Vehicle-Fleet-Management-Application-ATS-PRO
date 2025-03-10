@@ -77,6 +77,7 @@ export default function LastigiCikart({ titleLabel, selectedRows, refreshTableDa
         islemTipId: islemTipId,
         durumId: durumId,
         km: km,
+        aracId: selectedAracDetay.aracId,
         // nedenId: data.nedeniID,
       });
       if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202) {

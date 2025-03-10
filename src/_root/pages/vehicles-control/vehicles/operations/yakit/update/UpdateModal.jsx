@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
@@ -124,6 +124,12 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, aracId }) => 
     tutar: null,
     tuketim: null,
     engelle: false,
+    kdv: null,
+    kdvOran: null,
+    kdvDahil: false,
+    kdvSizTutar: null,
+    kdvTutar: null,
+    birim: null,
   };
   const methods = useForm({
     defaultValues: defaultValues,
@@ -152,9 +158,13 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, aracId }) => 
         setValue("miktar", res?.data.miktar);
         setValue("tutar", res?.data.tutar);
         setValue("litreFiyat", res?.data.litreFiyat);
-        setValue("kdvOran", res?.data.kdv);
+        /*  setValue("kdvOran", res?.data.kdv);
         const kdvAmount = (watch("tutar") * (100 - res?.data.kdv)) / 100;
-        setValue("kdv", kdvAmount);
+        setValue("kdv", kdvAmount); */
+        setValue("kdvOran", res?.data.kdvOran);
+        setValue("kdvDahil", res?.data.kdvDahilHaric);
+        // setValue("kdvSizTutar", res?.data.kdvSizTutar);
+        setValue("kdv", res?.data.kdv);
         setValue("faturaNo", res?.data.faturaNo);
         setValue("guzergahId", res?.data.guzergahId);
         setValue("guzergah", res?.data.guzergah);
@@ -184,6 +194,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, aracId }) => 
         setValue("eskiKm", res?.data.kmLogEskiKm);
         setValue("engelle", res?.data.hasToInsertKmLog);
         setValue("yakitHacmi", res?.data.yakitHacmi);
+        setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
       });
 
       GetPhotosByRefGroupService(id, "YAKIT").then((res) => setImageUrls(res.data));
@@ -250,10 +261,13 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, aracId }) => 
       surucuId: values.surucuId,
       firmaId: values.firmaId,
       istasyonKodId: values.istasyonKodId,
-      tuketim: values.tuketim,
+      // tuketim: values.tuketim,
       alinanKm: values.alinanKm,
       miktar: values.miktar,
       kdv: values.kdv,
+      kdvOran: values.kdvOran,
+      kdvDahilHaric: values.kdvDahil,
+      kdvSizTutar: values.kdvSizTutar,
       fullDepo: values.fullDepo,
       ozelKullanim: values.ozelKullanim,
       stokKullanimi: values.stokKullanimi,

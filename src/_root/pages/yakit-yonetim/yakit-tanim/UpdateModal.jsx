@@ -155,6 +155,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id }) => {
         setValue("ozelAlanKodId10", res?.data.ozelAlanKodId10);
         setValue("ozelAlan11", res?.data.ozelAlan11);
         setValue("ozelAlan12", res?.data.ozelAlan12);
+        setValue("kdvDahilHaric", res.data.kdvDahilHaric);
       } catch (error) {
         console.error("Error updating driver:", error);
       }
@@ -215,6 +216,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id }) => {
       ozelAlanKodId10: values.ozelAlanKodId10 || -1,
       ozelAlan11: values.ozelAlan11 || 0,
       ozelAlan12: values.ozelAlan12 || 0,
+      kdvDahilHaric: values.kdvDahilHaric || false,
     };
 
     UpdateMaterialCardService(body).then((res) => {

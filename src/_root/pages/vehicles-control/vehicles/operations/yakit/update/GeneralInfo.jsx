@@ -3,7 +3,7 @@ import { useFormContext, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
-import { Button, Checkbox, Divider, InputNumber, message, Modal } from "antd";
+import { Button, Checkbox, Divider, Input, InputNumber, message, Modal, Popconfirm } from "antd";
 import { ArrowUpOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../../context/plakaSlice";
 import {
@@ -34,9 +34,12 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   const { history, setHistory, data } = useContext(PlakaContext);
   const [open, setOpen] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
+  const [openTutarModal, setOpenTutarModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [content, setContent] = useState(null);
   const [logError, setLogError] = useState(false);
+  const [originalLitreFiyat, setOriginalLitreFiyat] = useState(null);
+  const [showPopconfirm, setShowPopconfirm] = useState(false);
 
   const calculateTuketim = () => {
     const fullDepo = watch("fullDepo");
@@ -199,24 +202,67 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
     }
   }, [watch("depoYakitMiktar")]);
 
-  useEffect(() => {
+  /*   useEffect(() => {
     if (watch("yakitTipId")) {
       GetMaterialPriceService(watch("yakitTipId")).then((res) => {
-        setValue("litreFiyat", res?.data.price);
+        if (watch("litreFiyat") === null || watch("litreFiyat") === undefined) {
+          setValue("litreFiyat", res?.data.price);
+        }
         setValue("kdvOran", res?.data.kdv);
       });
     }
-  }, [watch("yakitTipId"), watch("tutar")]);
+  }, [watch("yakitTipId")]); */
 
   useEffect(() => {
-    const kdvAmount = (watch("tutar") * (100 - watch("kdvOran"))) / 100;
-    setValue("kdv", kdvAmount);
-  }, [watch("kdvOran"), watch("tutar")]);
+    const tutar = parseFloat(watch("tutar")) || 0;
+    const kdvOrani = parseFloat(watch("kdvOran")) || 0;
+    const kdvDahilMi = watch("kdvDahil");
+
+    let kdvTutari = 0;
+
+    if (kdvDahilMi) {
+      // KDV dahilse: Tutar = Mal bedeli + KDV
+      // KDV = (Tutar * KDV Oranı) / (100 + KDV Oranı)
+      kdvTutari = (tutar * kdvOrani) / (100 + kdvOrani);
+    } else {
+      // KDV hariçse: Tutar = Mal bedeli
+      // KDV = Tutar * (KDV Oranı / 100)
+      kdvTutari = (tutar * kdvOrani) / 100;
+    }
+
+    setValue("kdv", kdvTutari.toFixed(2));
+  }, [watch("kdvOran"), watch("tutar"), watch("kdvDahil")]);
+
+  // Calculate kdvSizTutar based on kdvDahil status
+  useEffect(() => {
+    const tutar = parseFloat(watch("tutar")) || 0;
+    const kdv = parseFloat(watch("kdv")) || 0;
+    const kdvDahilMi = watch("kdvDahil");
+
+    let kdvSizTutar = 0;
+
+    if (kdvDahilMi) {
+      // If KDV is included, subtract KDV from tutar
+      kdvSizTutar = tutar - kdv;
+    } else {
+      // If KDV is not included, tutar is already without KDV
+      kdvSizTutar = tutar;
+    }
+
+    setValue("kdvSizTutar", kdvSizTutar.toFixed(2));
+  }, [watch("tutar"), watch("kdv"), watch("kdvDahil")]);
 
   useEffect(() => {
     const tutar = watch("miktar") * watch("litreFiyat");
     setValue("tutar", tutar.toFixed(2));
   }, [watch("litreFiyat")]);
+
+  // Reset originalLitreFiyat when component unmounts
+  useEffect(() => {
+    return () => {
+      setOriginalLitreFiyat(null);
+    };
+  }, []);
 
   useEffect(() => {
     GetKmRangeBeforeDateService(data.aracId, dayjs(watch("tarih")).format("YYYY-MM-DD"), dayjs(watch("saat")).format("HH:mm:ss")).then((res) => setHistory(res.data));
@@ -560,7 +606,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                     )}
                   />
                 </div>
-                <div className="col-span-8">
+                {/* <div className="col-span-8">
                   <div className="grid gap-1">
                     <div className="col-span-10">
                       <div className="flex flex-col gap-1">
@@ -576,10 +622,10 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                       </Button>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
-            <div className="col-span-4">
+            <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label className="text-info">
                   {watch("birim") === "LITRE" && t("litr")} {t("fiyati")}
@@ -588,25 +634,61 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                   name="litreFiyat"
                   control={control}
                   render={({ field }) => (
-                    <InputNumber
-                      {...field}
-                      className="w-full"
-                      onChange={(e) => {
-                        field.onChange(e);
-                        if (e === null) {
-                          setValue("miktar", 0);
-                        } else {
-                          const miktar = watch("tutar") / +e;
-                          setValue("miktar", Math.round(miktar));
-                        }
+                    <Popconfirm
+                      title={t("uyari") || "Uyarı"}
+                      description={
+                        t("litreFiyat_degistirildiginde_miktar_ve_tutar_sifirlanacak") ||
+                        "Litre fiyatı değiştirildiğinde miktar ve tutar değerleri sıfırlanacaktır. Devam etmek istiyor musunuz?"
+                      }
+                      open={showPopconfirm}
+                      onConfirm={() => {
+                        // User confirmed, reset miktar and tutar
+                        setValue("miktar", 0);
+                        setValue("tutar", 0);
+                        setShowPopconfirm(false);
                         calculateTuketim();
                       }}
-                    />
+                      onCancel={() => {
+                        // User canceled, revert litreFiyat to original value
+                        field.onChange(originalLitreFiyat);
+                        setValue("litreFiyat", originalLitreFiyat);
+                        setShowPopconfirm(false);
+                      }}
+                      okText={t("evet")}
+                      cancelText={t("hayir")}
+                    >
+                      <InputNumber
+                        {...field}
+                        className="w-full"
+                        onChange={(e) => {
+                          // Store original value if this is the first change
+                          if (originalLitreFiyat === null) {
+                            setOriginalLitreFiyat(field.value);
+                          }
+
+                          // Check if miktar or tutar has values
+                          if ((watch("miktar") > 0 || watch("tutar") > 0) && e !== field.value) {
+                            field.onChange(e); // Update the field value temporarily
+                            setShowPopconfirm(true); // Show confirmation
+                          } else {
+                            // No confirmation needed, just update
+                            field.onChange(e);
+                            if (e === null) {
+                              setValue("miktar", 0);
+                            } else {
+                              const miktar = watch("tutar") / +e;
+                              setValue("miktar", Math.round(miktar));
+                            }
+                            calculateTuketim();
+                          }
+                        }}
+                      />
+                    </Popconfirm>
                   )}
                 />
               </div>
             </div>
-            <div className="col-span-4">
+            <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label className="text-info">
                   {t("tutar")} <span className="text-danger">*</span>
@@ -617,32 +699,37 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                   rules={{ required: "Bu alan boş bırakılamaz!" }}
                   render={({ field, fieldState }) => (
                     <>
-                      <InputNumber
-                        {...field}
-                        className="w-full"
-                        onChange={(e) => {
-                          field.onChange(e);
-                          if (watch("litreFiyat") === null) {
-                            setValue("miktar", 0);
-                          } else {
-                            const miktar = +e / watch("litreFiyat");
-                            setValue("miktar", Math.round(miktar));
-                          }
-                          calculateTuketim();
-                        }}
-                      />
-                      {fieldState.error && <span style={{ color: "red" }}>{fieldState.error.message}</span>}
+                      <div className="flex items-center gap-1">
+                        <InputNumber
+                          {...field}
+                          className="w-full"
+                          onChange={(e) => {
+                            field.onChange(e);
+                            if (watch("litreFiyat") === null) {
+                              setValue("miktar", 0);
+                            } else {
+                              const miktar = +e / watch("litreFiyat");
+                              setValue("miktar", Math.round(miktar));
+                            }
+                            calculateTuketim();
+                          }}
+                        />
+                        <Button type="primary" onClick={() => setOpenTutarModal(true)}>
+                          {t("detay")}
+                        </Button>
+                      </div>
+                      {fieldState.error && <div className="text-danger">{fieldState.error.message}</div>}
                     </>
                   )}
                 />
               </div>
             </div>
-            <div className="col-span-4">
+            {/* <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label className="text-info">{t("kdvTutar")}</label>
                 <TextInput name="kdv" readonly={true} />
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
         <div className="col-span-6">
@@ -730,6 +817,73 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
 
       <Modal open={openDetail} maskClosable={false} title={t("ortalamaYakitTuketimi")} footer={detailModalFooter} onCancel={() => setOpenDetail(false)}>
         {content}
+      </Modal>
+
+      {/* Tutar Modal */}
+      <Modal
+        title={t("tutar") + " " + t("detay")}
+        open={openTutarModal}
+        onCancel={() => setOpenTutarModal(false)}
+        footer={[
+          <Button key="back" onClick={() => setOpenTutarModal(false)}>
+            {t("kapat")}
+          </Button>,
+        ]}
+        width={600}
+      >
+        <div className="flex flex-col gap-1">
+          {/* KDV Section */}
+          <div className="flex flex-col gap-1">
+            <div className="grid grid-cols-12 gap-1">
+              <div className="col-span-6">
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="kdvOran">
+                    {t("kdvOrani")} <span className="text-danger">*</span>
+                  </label>
+                  <InputNumber
+                    style={{ width: "100%" }}
+                    name="kdvOran"
+                    placeholder={t("kdvOrani")}
+                    suffix="%"
+                    min={0}
+                    max={100}
+                    onChange={(value) => setValue("kdvOran", value)}
+                    value={watch("kdvOran")}
+                  />
+                </div>
+              </div>
+              <div className="col-span-6">
+                <div className="flex flex-col gap-1">
+                  <label>{t("kdvDahil")}</label>
+                  <Controller
+                    name="kdvDahil"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox {...field} checked={field.value} onChange={(e) => field.onChange(e.target.checked)}>
+                        {t("kdvDahil")}
+                      </Checkbox>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-12 gap-1">
+              <div className="col-span-6">
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="kdv">{t("kdvTutari")}</label>
+                  <Input style={{ width: "100%" }} name="kdv" placeholder={t("kdvTutari")} readOnly value={watch("kdv")} />
+                </div>
+              </div>
+              <div className="col-span-6">
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="kdvSizTutar">{t("kdvSizTutari")}</label>
+                  <Input style={{ width: "100%" }} name="kdvSizTutar" placeholder={t("kdvSizTutari")} readOnly value={watch("kdvSizTutar")} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </Modal>
     </>
   );

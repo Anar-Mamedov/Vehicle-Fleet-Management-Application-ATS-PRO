@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import tr_TR from "antd/lib/locale/tr_TR";
 import { t } from "i18next";
-import { Button, Checkbox, ConfigProvider, DatePicker, Divider, Input, InputNumber, message, Modal, TimePicker } from "antd";
+import { Button, Checkbox, ConfigProvider, DatePicker, Divider, Input, InputNumber, message, Modal, TimePicker, Row, Col } from "antd";
 import { ArrowUpOutlined, CheckOutlined, EditOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../../context/plakaSlice";
 import { SelectContext } from "../../../../../../../context/selectSlice";
@@ -63,7 +63,8 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
 
     GetMaterialPriceService(watch("yakitTipId")).then((res) => {
       setValue("litreFiyat", res?.data.price);
-      setValue("kdv", res?.data.kdv);
+      setValue("kdvOrani", res?.data.kdv);
+      setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
     });
 
     // Reset miktar and tutar when yakitTipId changes
@@ -79,7 +80,9 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
     const miktar = watch("miktar");
     const yakitHacmi = watch("yakitHacmi");
 
-    if (fullDepo && (!miktar || miktar === 0)) {
+    // Only set the value when fullDepo is checked and miktar is null or 0
+    // This prevents overriding user's manual clearing of the field
+    if (fullDepo && (!miktar || miktar === 0) && !document.activeElement?.name?.includes("miktar")) {
       setValue("miktar", yakitHacmi);
     }
   }, [watch("fullDepo"), watch("miktar"), watch("yakitHacmi"), setValue]);
@@ -799,7 +802,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
               if (watch("yakitTipId")) {
                 GetMaterialPriceService(watch("yakitTipId")).then((res) => {
                   setValue("litreFiyat", res?.data.price);
-                  setValue("kdv", res?.data.kdv);
+                  setValue("kdvOrani", res?.data.kdv);
                 });
               }
             }
@@ -870,6 +873,60 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
           </div>
         </div>
       )}
+
+      <div
+        className="grid gap-4 border p-10 mt-10"
+        style={{
+          display: "none",
+        }}
+      >
+        <div className="col-span-6">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="kdvOrani">
+              {t("kdvOrani")} <span className="text-danger">*</span>
+            </label>
+            <InputNumber
+              style={{ width: "100%" }}
+              name="kdvOrani"
+              placeholder={t("kdvOrani")}
+              suffix="%"
+              min={0}
+              max={100}
+              onChange={(value) => setValue("kdvOrani", value)}
+              value={watch("kdvOrani")}
+            />
+          </div>
+        </div>
+
+        <div className="col-span-6">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="kdvTutari">{t("kdvTutari")}</label>
+            <Input style={{ width: "100%" }} name="kdvTutari" placeholder={t("kdvTutari")} readOnly value={watch("kdvTutari")} />
+          </div>
+        </div>
+      </div>
+
+      <Row
+        gutter={24}
+        style={{
+          display: "none",
+        }}
+      >
+        <Col xs={24} md={8}>
+          <div className="flex flex-col gap-1">
+            <label>{t("kdvDahil")}</label>
+            <Controller
+              name="kdvDahilHaric"
+              control={control}
+              render={({ field }) => (
+                <Checkbox {...field} checked={field.value} onChange={(e) => field.onChange(e.target.checked)}>
+                  {t("kdvDahil")}
+                </Checkbox>
+              )}
+            />
+          </div>
+        </Col>
+      </Row>
     </>
   );
 };

@@ -7,7 +7,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { Button, message, Modal, Tabs } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../../context/plakaSlice";
-import { AddFuelService, GetFuelCardContentByIdService } from "../../../../../../../api/services/vehicles/operations_services";
+import { AddFuelService, GetFuelCardContentByIdService, GetMaterialPriceService } from "../../../../../../../api/services/vehicles/operations_services";
 import GeneralInfo from "./GeneralInfo";
 import PersonalFields from "../../../../../../components/form/personal-fields/PersonalFields";
 
@@ -116,6 +116,9 @@ const AddModal = ({ setStatus }) => {
     tutar: null,
     tuketim: null,
     engelle: false,
+    kdvOrani: 20,
+    kdvTutari: 0,
+    kdvDahilHaric: false,
   };
   const methods = useForm({
     defaultValues: defaultValues,
@@ -136,13 +139,47 @@ const AddModal = ({ setStatus }) => {
     setValue("birim", data.birim);
     setValue("depoYakitMiktar", data.depoYakitMiktar);
     setValue("guncelKmLog", data.guncelKmLog);
+    setValue("kdvDahilHaric", data.kdvDahilHaric);
 
     if (plaka.length === 1) {
       setValue("plaka", plaka[0].id);
     }
 
     if (watch("farkKm") < 0 && !watch("alinanKm")) setValue("farkKm", null);
+
+    const subscription = watch((value, { name }) => {
+      if (name === "tutar" || name === "kdvOrani" || name === "kdvDahilHaric") {
+        const tutar = parseFloat(value.tutar) || 0;
+        const kdvOrani = parseFloat(value.kdvOrani) || 0;
+        const kdvDahilMi = value.kdvDahilHaric;
+
+        let kdvTutari = 0;
+
+        if (kdvDahilMi) {
+          // KDV dahilse: Tutar = Mal bedeli + KDV
+          // KDV = (Tutar * KDV Oranı) / (100 + KDV Oranı)
+          kdvTutari = (tutar * kdvOrani) / (100 + kdvOrani);
+        } else {
+          // KDV hariçse: Tutar = Mal bedeli
+          // KDV = Tutar * (KDV Oranı / 100)
+          kdvTutari = (tutar * kdvOrani) / 100;
+        }
+
+        setValue("kdvTutari", kdvTutari.toFixed(2));
+      }
+    });
+    return () => subscription.unsubscribe();
   }, [data]);
+
+  useEffect(() => {
+    if (!watch("yakitTipId")) return;
+
+    GetMaterialPriceService(watch("yakitTipId")).then((res) => {
+      setValue("litreFiyat", res?.data.price);
+      setValue("kdvOrani", res?.data.kdv);
+      setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
+    });
+  }, [watch("yakitTipId"), setValue]);
 
   const onSubmit = handleSubmit((values) => {
     const kmLog = {
@@ -175,6 +212,10 @@ const AddModal = ({ setStatus }) => {
       stokKullanimi: values.stokKullanimi,
       litreFiyat: values.litreFiyat,
       tutar: values.tutar ? values.tutar : 0,
+      kdvOran: values.kdvOrani || 0,
+      kdv: values.kdvTutari || 0,
+      kdvSizTutar: values.kdvDahilHaric ? values.tutar - values.kdvTutari || 0 : values.tutar || 0,
+      kdvDahilHaric: values.kdvDahilHaric || false,
       birim: data.birim,
       ozelKullanim: false,
       kmLog: kmLog,
@@ -221,6 +262,8 @@ const AddModal = ({ setStatus }) => {
             surucu: data.surucuAdi,
             stokKullanimi: data.stokKullanimi,
             yakitHacmi: data.yakitHacmi,
+            kdvOrani: 20,
+            kdvTutari: 0,
           });
         } else {
           reset();
@@ -280,6 +323,8 @@ const AddModal = ({ setStatus }) => {
         yakitTip: data.yakitTip,
         surucu: data.surucuAdi,
         stokKullanimi: data.stokKullanimi,
+        kdvOrani: 20,
+        kdvTutari: 0,
       });
     } else {
       reset();
