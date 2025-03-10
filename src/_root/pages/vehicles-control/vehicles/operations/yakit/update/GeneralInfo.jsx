@@ -877,8 +877,8 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
               </div>
               <div className="col-span-6">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="kdvSizTutar">{t("kdvSizTutari")}</label>
-                  <Input style={{ width: "100%" }} name="kdvSizTutar" placeholder={t("kdvSizTutari")} readOnly value={watch("kdvSizTutar")} />
+                  <label htmlFor="kdvSizTutar">{t("kdvSizTutar")}</label>
+                  <Input style={{ width: "100%" }} name="kdvSizTutar" placeholder={t("kdvSizTutar")} readOnly value={watch("kdvSizTutar")} />
                 </div>
               </div>
             </div>
