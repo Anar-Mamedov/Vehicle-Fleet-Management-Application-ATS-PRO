@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
@@ -287,6 +287,13 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
       ellipsis: true,
       width: 100,
       render: (text, record) => <Checkbox checked={record.stokKullanimi} readOnly />,
+    },
+    {
+      title: t("kdvSizTutar"),
+      dataIndex: "kdvSizTutar",
+      key: 12,
+      ellipsis: true,
+      width: 100,
     },
     {
       title: t("surucu"),
