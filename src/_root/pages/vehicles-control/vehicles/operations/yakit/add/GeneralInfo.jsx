@@ -924,11 +924,9 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
 
       <Row
         gutter={24}
-        style={
-          {
-            // display: "none",
-          }
-        }
+        style={{
+          display: "none",
+        }}
       >
         <Col xs={24} md={8}>
           <div className="flex flex-col gap-1">
