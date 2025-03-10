@@ -289,9 +289,16 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
       render: (text, record) => <Checkbox checked={record.stokKullanimi} readOnly />,
     },
     {
+      title: t("kdvTutar"),
+      dataIndex: "kdv",
+      key: "kdv",
+      ellipsis: true,
+      width: 100,
+    },
+    {
       title: t("kdvSizTutar"),
       dataIndex: "kdvSizTutar",
-      key: 12,
+      key: "kdvSizTutar",
       ellipsis: true,
       width: 100,
     },

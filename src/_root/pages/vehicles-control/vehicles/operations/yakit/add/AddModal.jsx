@@ -141,6 +141,15 @@ const AddModal = ({ setStatus }) => {
     setValue("guncelKmLog", data.guncelKmLog);
     setValue("kdvDahilHaric", data.kdvDahilHaric);
 
+    // Ensure kdvDahilHaric is set correctly when modal opens
+    if (data.yakitTipId) {
+      GetMaterialPriceService(data.yakitTipId).then((res) => {
+        if (res?.data && res?.data.kdvDahilHaric !== undefined) {
+          setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
+        }
+      });
+    }
+
     if (plaka.length === 1) {
       setValue("plaka", plaka[0].id);
     }
@@ -182,6 +191,23 @@ const AddModal = ({ setStatus }) => {
   }, [watch("yakitTipId"), setValue]);
 
   const onSubmit = handleSubmit((values) => {
+    // Ensure kdvDahilHaric is set correctly before submission
+    if (values.yakitTipId) {
+      GetMaterialPriceService(values.yakitTipId).then((res) => {
+        if (res?.data && res?.data.kdvDahilHaric !== undefined) {
+          values.kdvDahilHaric = res?.data.kdvDahilHaric;
+        }
+
+        // Continue with form submission after ensuring kdvDahilHaric is set
+        submitForm(values);
+      });
+    } else {
+      // If no yakitTipId, just submit the form
+      submitForm(values);
+    }
+  });
+
+  const submitForm = (values) => {
     const kmLog = {
       kmAracId: data.aracId,
       plaka: data.plaka,
@@ -264,6 +290,7 @@ const AddModal = ({ setStatus }) => {
             yakitHacmi: data.yakitHacmi,
             kdvOrani: 20,
             kdvTutari: 0,
+            kdvDahilHaric: data.kdvDahilHaric,
           });
         } else {
           reset();
@@ -281,7 +308,7 @@ const AddModal = ({ setStatus }) => {
       }
     });
     setStatus(false);
-  });
+  };
 
   const personalProps = {
     form: "YAKIT",
@@ -325,7 +352,17 @@ const AddModal = ({ setStatus }) => {
         stokKullanimi: data.stokKullanimi,
         kdvOrani: 20,
         kdvTutari: 0,
+        kdvDahilHaric: data.kdvDahilHaric,
       });
+
+      // Ensure kdvDahilHaric is set correctly after reset
+      if (data.yakitTipId) {
+        GetMaterialPriceService(data.yakitTipId).then((res) => {
+          if (res?.data && res?.data.kdvDahilHaric !== undefined) {
+            setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
+          }
+        });
+      }
     } else {
       reset();
     }
