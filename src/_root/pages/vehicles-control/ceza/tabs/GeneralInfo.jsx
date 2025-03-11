@@ -40,6 +40,15 @@ const GeneralInfo = () => {
     setOpen(true);
   };
 
+  // Handle the selected plate data
+  const handlePlakaSubmit = (selectedRow) => {
+    if (selectedRow && selectedRow.lokasyon && selectedRow.lokasyonId) {
+      // Set the location values
+      setValue("lokasyon", selectedRow.lokasyon);
+      setValue("lokasyonId", selectedRow.lokasyonId);
+    }
+  };
+
   const footer = [
     <Button
       key="submit"
@@ -67,7 +76,7 @@ const GeneralInfo = () => {
                 <label>
                   {t("plaka")} <span className="text-danger">*</span>
                 </label>
-                <Plaka required={true} />
+                <Plaka required={true} onSubmit={handlePlakaSubmit} />
               </div>
             </div>
             <div className="col-span-6">

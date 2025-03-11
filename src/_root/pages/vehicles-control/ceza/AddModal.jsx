@@ -11,7 +11,7 @@ import GeneralInfo from "./tabs/GeneralInfo";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 
 const AddModal = ({ setStatus, onRefresh }) => {
-  const { data, plaka } = useContext(PlakaContext);
+  const { data, plaka, setPlaka } = useContext(PlakaContext);
   const [isOpen, setIsOpen] = useState(false);
   const [activeKey, setActiveKey] = useState("1");
   const [loading, setLoading] = useState(false);
@@ -102,12 +102,10 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const { handleSubmit, reset, setValue, watch } = methods;
 
   useEffect(() => {
-    if (plaka.length === 1) {
-      setValue("plaka", plaka[0].plaka);
-      setValue("lokasyon", plaka[0].lokasyon);
-      setValue("lokasyonId", plaka[0].lokasyonId);
+    if (isOpen) {
+      reset();
     }
-  }, [plaka]);
+  }, [isOpen, reset]);
 
   const onSubmit = handleSubmit((values) => {
     const body = {
@@ -151,6 +149,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
         setIsOpen(false);
         setLoading(false);
         setActiveKey("1");
+        setPlaka([]);
         if (plaka.length === 1) {
           reset();
         } else {
@@ -205,6 +204,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       className="btn btn-min cancel-btn"
       onClick={() => {
         setIsOpen(false);
+        setPlaka([]);
         resetForm(plaka, data, reset);
         setActiveKey("1");
       }}
@@ -215,10 +215,30 @@ const AddModal = ({ setStatus, onRefresh }) => {
 
   return (
     <>
-      <Button className="btn primary-btn" onClick={() => setIsOpen(true)}>
+      <Button
+        className="btn primary-btn"
+        onClick={() => {
+          reset();
+          setPlaka([]);
+          setIsOpen(true);
+        }}
+      >
         <PlusOutlined /> {t("ekle")}
       </Button>
-      <Modal title={t("yeniCezaGirisi")} open={isOpen} onCancel={() => setIsOpen(false)} maskClosable={false} footer={footer} width={1200}>
+      <Modal
+        title={t("yeniCezaGirisi")}
+        open={isOpen}
+        destroyOnClose={true}
+        onCancel={() => {
+          setIsOpen(false);
+          setPlaka([]);
+          resetForm(plaka, data, reset);
+          setActiveKey("1");
+        }}
+        maskClosable={false}
+        footer={footer}
+        width={1200}
+      >
         <FormProvider {...methods}>
           <form>
             <Tabs activeKey={activeKey} onChange={setActiveKey} items={items} />
