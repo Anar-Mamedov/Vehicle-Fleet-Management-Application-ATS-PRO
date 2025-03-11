@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
@@ -45,7 +45,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
     resmi: false,
     romok: false,
     ruhsatSahibi: "",
-    ruhsatSahibiKodId: 0,
+    // ruhsatSahibiKodId: 0,
     taksiMetre: false,
     tescilNo: "",
     tescilTarih: "",
@@ -98,7 +98,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
       setValue("resmi", res?.data.resmi);
       setValue("romok", res?.data.romok);
       setValue("ruhsatSahibi", res?.data.ruhsatSahibi);
-      setValue("ruhsatSahibiKodId", res?.data.ruhsatSahibiKodId);
+      // setValue("ruhsatSahibiKodId", res?.data.ruhsatSahibiKodId);
       setValue("taksiMetre", res?.data.taksiMetre);
       setValue("tescilNo", res?.data.tescilNo);
       setValue("tescilTarih", res?.data.tescilTarih && res?.data.tescilTarih !== "1970-01-01T00:00:00" ? dayjs(res?.data.tescilTarih) : null);
@@ -117,7 +117,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
     const body = {
       dtyAracId: +id,
       ilSehirId: values.ilSehirId || 0,
-      ruhsatSahibiKodId: values.ruhsatSahibiKodId || 0,
+      ruhsatSahibi: values.ruhsatSahibi,
       ilce: values.ilce,
       tescilNo: values.tescilNo,
       tescilTarih: values?.tescilTarih,
@@ -177,7 +177,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
               <div className="col-span-3">
                 <div className="flex flex-col gap-1">
                   <label>{t("ruhsatSahibi")}</label>
-                  <CodeControl name="ruhsatSahibi" codeName="ruhsatSahibiKodId" id={115} />
+                  <TextInput name="ruhsatSahibi" />
                 </div>
               </div>
               <div className="col-span-3">

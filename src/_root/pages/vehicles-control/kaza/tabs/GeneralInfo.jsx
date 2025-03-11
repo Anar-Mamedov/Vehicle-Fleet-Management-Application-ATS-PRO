@@ -1,3 +1,4 @@
+import React from "react";
 import { t } from "i18next";
 import { Divider } from "antd";
 import Plaka from "../../../../components/form/selects/Plaka";
@@ -10,8 +11,20 @@ import Textarea from "../../../../components/form/inputs/Textarea";
 import CheckboxInput from "../../../../components/form/checkbox/CheckboxInput";
 import CodeControl from "../../../../components/form/selects/CodeControl";
 import Location from "../../../../components/form/tree/Location";
+import { useFormContext } from "react-hook-form";
 
 const GeneralInfo = () => {
+  const { setValue, watch } = useFormContext();
+
+  // Handle the selected plate data
+  const handlePlakaSubmit = (selectedRow) => {
+    if (selectedRow && selectedRow.lokasyon && selectedRow.lokasyonId) {
+      // Set the location values
+      setValue("lokasyon", selectedRow.lokasyon);
+      setValue("lokasyonId", selectedRow.lokasyonId);
+    }
+  };
+
   return (
     <>
       <div className="grid gap-1">
@@ -22,7 +35,7 @@ const GeneralInfo = () => {
                 <label>
                   {t("plaka")} <span className="text-danger">*</span>
                 </label>
-                <Plaka required={true} />
+                <Plaka required={true} onSubmit={handlePlakaSubmit} />
               </div>
             </div>
             <div className="col-span-12">

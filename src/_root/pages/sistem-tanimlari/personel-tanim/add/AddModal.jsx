@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Button, Modal, Tabs } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
@@ -95,7 +95,9 @@ const AddModal = ({ setStatus, onRefresh }) => {
     },
   ]);
 
-  const defaultValues = {};
+  const defaultValues = {
+    aktif: true,
+  };
   const methods = useForm({
     defaultValues: defaultValues,
   });

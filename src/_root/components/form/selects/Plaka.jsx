@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Select } from "antd";
@@ -6,7 +6,7 @@ import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetFuelCardContentByIdService } from "../../../../api/services/vehicles/yakit/services";
 import { CodeControlByUrlService } from "../../../../api/services/code/services";
 
-const Plaka = ({ name, codeName, required }) => {
+const Plaka = ({ name, codeName, required, onSubmit }) => {
   const { plaka, setData } = useContext(PlakaContext);
   const { setValue, control, watch } = useFormContext();
   const [plateList, setPlateList] = useState([]);
@@ -21,7 +21,13 @@ const Plaka = ({ name, codeName, required }) => {
   }, [plaka, setData]);
 
   const handleChange = (e) => {
-    GetFuelCardContentByIdService(e).then((res) => setData(res.data));
+    GetFuelCardContentByIdService(e).then((res) => {
+      setData(res.data);
+      // If onSubmit is provided, call it with the response data
+      if (onSubmit && typeof onSubmit === "function") {
+        onSubmit(res.data);
+      }
+    });
     setValue("aracId", e);
   };
 
@@ -89,6 +95,10 @@ const Plaka = ({ name, codeName, required }) => {
                   if (!selectedOption) {
                     name ? setValue(name, "") : setValue("plaka", "");
                     setData([]);
+                    // If onSubmit is provided, call it with null to clear data
+                    if (onSubmit && typeof onSubmit === "function") {
+                      onSubmit(null);
+                    }
                   }
                 } else {
                   // Seçilen plakaya göre form value güncelle
@@ -98,8 +108,14 @@ const Plaka = ({ name, codeName, required }) => {
                   }
                   // Seçilen plaka ek veriye sahipse (lokasyonId vb.) kaydet
                   const selectedPlate = plateList.find((option) => option.id === value);
-                  if (selectedPlate && "lokasyonId" in selectedPlate) {
-                    setValue("lokasyonIdFromPlaka", selectedPlate.lokasyonId);
+                  if (selectedPlate) {
+                    if ("lokasyonId" in selectedPlate) {
+                      setValue("lokasyonIdFromPlaka", selectedPlate.lokasyonId);
+                    }
+                    // If onSubmit is provided, call it with the selected plate data
+                    if (onSubmit && typeof onSubmit === "function") {
+                      onSubmit(selectedPlate);
+                    }
                   }
                 }
               }}
@@ -118,6 +134,7 @@ Plaka.propTypes = {
   name: PropTypes.string,
   codeName: PropTypes.string,
   required: PropTypes.bool,
+  onSubmit: PropTypes.func,
 };
 
 export default Plaka;

@@ -1,3 +1,4 @@
+import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { InputNumber } from "antd";
@@ -15,7 +16,7 @@ const NumberInput = ({ name, checked, required }) => {
           <InputNumber
             {...field}
             className={fieldState.error ? "input-error w-full" : "w-full"}
-            readOnly={checked}
+            disabled={checked}
             onChange={(e) => {
               field.onChange(e);
               if (e === null) {

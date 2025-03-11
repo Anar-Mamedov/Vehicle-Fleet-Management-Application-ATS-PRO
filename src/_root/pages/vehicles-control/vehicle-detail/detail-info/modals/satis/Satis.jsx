@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -31,8 +31,9 @@ const Satis = ({ visible, onClose, id }) => {
       setValue("stFiyat", res.data.stFiyat);
       setValue("stSatisKm", res.data.stSatisKm);
       setValue("stFaturaTutar", res.data.stFaturaTutar);
-      setValue("stFirmaId", res.data.stFirmaId);
-      setValue("stFirma", res.data.stFirma);
+      /* setValue("stFirmaId", res.data.stFirmaId);
+      setValue("stFirma", res.data.stFirma); */
+      setValue("satisYeri", res.data.satisYeri);
       setValue("stNoterSatisTarih", res.data.stNoterSatisTarih ? dayjs(res.data.stNoterSatisTarih) : null);
       setValue("stTarih", res.data.stTarih ? dayjs(res.data.stTarih) : null);
       setValue("stFaturaTarih", res.data.stFaturaTarih ? dayjs(res.data.stFaturaTarih) : null);
@@ -54,7 +55,8 @@ const Satis = ({ visible, onClose, id }) => {
           stFiyat: values.stFiyat || 0,
           stFaturaTutar: values.stFaturaTutar || 0,
           stSatisKm: values.stSatisKm || 0,
-          stFirmaId: values.stFirmaId || -1,
+          /*  stFirmaId: values.stFirmaId || -1, */
+          satisYeri: values.satisYeri,
         }
       : {
           dtyAracId: id,
@@ -131,25 +133,26 @@ const Satis = ({ visible, onClose, id }) => {
           <div className="col-span-3">
             <div className="flex flex-col gap-1">
               <label>{t("satisYeri")}</label>
-              <Firma name="stFirma" codeName="stFirmaId" checked={!watch("stSatildi")} />
+              {/* <Firma name="stFirma" codeName="stFirmaId" checked={!watch("stSatildi")} /> */}
+              <TextInput name="satisYeri" checked={!watch("stSatildi")} />
             </div>
           </div>
           <div className="col-span-12">
             <div className="flex flex-col gap-1">
               <label>{t("adres")}</label>
-              <TextInput name="stAdres" />
+              <TextInput name="stAdres" checked={!watch("stSatildi")} />
             </div>
           </div>
           <div className="col-span-12">
             <div className="flex flex-col gap-1">
               <label>{t("sehirIlcePK")}</label>
-              <TextInput name="stSehirIlce" />
+              <TextInput name="stSehirIlce" checked={!watch("stSatildi")} />
             </div>
           </div>
           <div className="col-span-12">
             <div className="flex flex-col gap-1">
               <label>{t("aciklama")}</label>
-              <Textarea name="stAciklama" />
+              <Textarea name="stAciklama" checked={!watch("stSatildi")} />
             </div>
           </div>
         </div>

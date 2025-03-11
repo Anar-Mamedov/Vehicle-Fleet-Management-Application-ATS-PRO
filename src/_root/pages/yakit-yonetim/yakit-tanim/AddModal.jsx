@@ -95,7 +95,9 @@ const AddModal = ({ setStatus }) => {
     },
   ]);
 
-  const defaultValues = {};
+  const defaultValues = {
+    aktif: true,
+  };
   const methods = useForm({
     defaultValues: defaultValues,
   });

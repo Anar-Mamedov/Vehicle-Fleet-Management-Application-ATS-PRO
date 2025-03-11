@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { t } from "i18next";
 import { Checkbox, Divider, Input, InputNumber, Select } from "antd";
@@ -33,7 +34,7 @@ const GeneralInfo = ({ isValid }) => {
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label>{t("aktifDegil")}</label>
+                <label>{t("aktif")}</label>
                 <Controller
                   name="aktif"
                   control={control}

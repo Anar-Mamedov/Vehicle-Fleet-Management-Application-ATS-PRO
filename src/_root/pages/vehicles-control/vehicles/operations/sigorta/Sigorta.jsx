@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useCallback } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
@@ -225,7 +225,7 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
     </Button>,
   ];
 
-  const plakaData = plaka.map((item) => item.plaka).join(", ");
+  const plakaData = Array.isArray(plaka) ? plaka.map((item) => item.plaka).join(", ") : "";
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);

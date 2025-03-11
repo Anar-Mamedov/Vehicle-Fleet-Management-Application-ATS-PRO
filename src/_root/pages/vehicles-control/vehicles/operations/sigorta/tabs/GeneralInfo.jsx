@@ -1,3 +1,4 @@
+import React from "react";
 import { t } from "i18next";
 import Plaka from "../../../../../../components/form/selects/Plaka";
 import DateInput from "../../../../../../components/form/date/DateInput";
@@ -26,7 +27,7 @@ const GeneralInfo = () => {
                 </div>
                 <div className="col-span-3">
                   <div className="flex flex-col gap-1">
-                    <label>{t("aktifDegil")}</label>
+                    <label>{t("aktif")}</label>
                     <CheckboxInput name="aktif" />
                   </div>
                 </div>
