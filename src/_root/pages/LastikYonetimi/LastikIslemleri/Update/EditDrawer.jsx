@@ -6,6 +6,7 @@ import React, { useEffect, useState, useTransition } from "react";
 import Tablar from "./Tablar.jsx";
 import MainTabs from "./components/MainTabs/MainTabs.jsx";
 import { useForm, Controller, useFormContext, FormProvider } from "react-hook-form";
+import { t } from "i18next";
 import dayjs from "dayjs";
 import AxiosInstance from "../../../../../api/http.jsx";
 
@@ -157,7 +158,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
         <Modal
           width="1200px"
           centered
-          title={`Aks Yapılandırma [${selectedRow?.plaka}] - [${selectedRow?.marka}]`}
+          title={`${t("aksYapilandirma")} [${selectedRow?.plaka}] - [${selectedRow?.marka}]`}
           open={drawerVisible}
           onCancel={onClose}
           footer={

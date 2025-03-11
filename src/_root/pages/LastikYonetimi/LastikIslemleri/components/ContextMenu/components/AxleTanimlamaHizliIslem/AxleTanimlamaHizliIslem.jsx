@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import AxiosInstance from "../../../../../../../../api/http";
 import { Button, Modal } from "antd";
 import AxleList from "./components/AxleList";
+import { t } from "i18next";
 
 export default function AxleTanimlamaHizliIslem({ selectedRows, refreshTableData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,18 +45,18 @@ export default function AxleTanimlamaHizliIslem({ selectedRows, refreshTableData
   return (
     <div>
       <div onClick={showModal} style={{ cursor: "pointer" }}>
-        Aks Tanımla
+        {t("aksTanimlama")}
       </div>
       <Modal
-        title="Aks Tanımlama"
+        title={t("aksTanimlama")}
         open={isModalOpen}
         onCancel={handleCancel}
         footer={[
           <Button key="cancel" onClick={handleCancel}>
-            İptal
+            {t("iptal")}
           </Button>,
           <Button key="submit" type="primary" onClick={handleOk} disabled={!selectedAxleId}>
-            Kaydet
+            {t("kaydet")}
           </Button>,
         ]}
       >
