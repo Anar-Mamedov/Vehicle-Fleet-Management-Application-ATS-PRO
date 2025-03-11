@@ -25,6 +25,8 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
           message.success("İşlem Başarılı.");
         } else if (response.data.statusCode === 401) {
           message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
+        } else if (response.data.statusCode === 409) {
+          message.error(`Bu lokasyona tanımlı ${response.data.message} bulunduğu için silinemedi.`);
         } else {
           message.error("İşlem Başarısız.");
         }
