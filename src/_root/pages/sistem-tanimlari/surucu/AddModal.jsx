@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
@@ -99,7 +99,9 @@ const AddModal = ({ setStatus, onRefresh }) => {
     },
   ]);
 
-  const defaultValues = {};
+  const defaultValues = {
+    aktif: true,
+  };
   const methods = useForm({
     defaultValues: defaultValues,
   });

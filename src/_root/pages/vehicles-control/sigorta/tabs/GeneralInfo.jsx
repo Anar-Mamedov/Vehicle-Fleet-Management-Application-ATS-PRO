@@ -28,7 +28,7 @@ const GeneralInfo = () => {
                 </div>
                 <div className="col-span-3">
                   <div className="flex flex-col gap-1">
-                    <label>{t("aktifDegil")}</label>
+                    <label>{t("aktif")}</label>
                     <CheckboxInput name="aktif" />
                   </div>
                 </div>

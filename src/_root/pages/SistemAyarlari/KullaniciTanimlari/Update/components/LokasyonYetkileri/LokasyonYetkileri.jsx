@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Input, Table } from "antd";
+import { Input, Table, Button, Popconfirm, message } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { useFormContext } from "react-hook-form";
 import LokasyonTablo from "./components/LokasyonTablo";
 import AxiosInstance from "../../../../../../../api/http.jsx";
@@ -18,6 +19,26 @@ function LokasyonYetkileri() {
   const [searchText, setSearchText] = useState("");
   const [debouncedSearchText, setDebouncedSearchText] = useState("");
 
+  // Handle delete location
+  const handleDelete = async (record) => {
+    try {
+      const response = await AxiosInstance.post("UserLocation/DeleteUserLocationItem", {
+        LokasyonId: record.lokasyonId,
+        KullaniciId: currentUserId,
+      });
+
+      if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202 || response.data.statusCode === 204) {
+        message.success(t("islemBasarili"));
+        setRefreshKey((prevKey) => prevKey + 1); // Refresh the data
+      } else {
+        message.error(t("islemBasarisiz"));
+      }
+    } catch (error) {
+      console.error("Silme hatası:", error);
+      message.error(t("islemBasarisiz"));
+    }
+  };
+
   const columns = [
     {
       title: t("yetkiliOlunanLokasyon"),
@@ -29,6 +50,16 @@ function LokasyonYetkileri() {
       title: t("tumYol"),
       dataIndex: "tumLokasyon",
       key: "tumLokasyon",
+    },
+    {
+      title: t("islemler"),
+      key: "action",
+      width: 100,
+      render: (_, record) => (
+        <Popconfirm title={t("silmeOnay")} description={t("silmeOnayAciklama")} onConfirm={() => handleDelete(record)} okText={t("evet")} cancelText={t("hayir")}>
+          <Button type="text" danger icon={<DeleteOutlined />} title={t("sil")} />
+        </Popconfirm>
+      ),
     },
   ];
 

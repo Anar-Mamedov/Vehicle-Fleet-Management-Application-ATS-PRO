@@ -25,7 +25,7 @@ const GeneralInfo = ({ isValid }) => {
       </Col>
       <Col xs={24} md={8}>
         <div className="flex flex-col gap-1">
-          <label>{t("aktifDegil")}</label>
+          <label>{t("aktif")}</label>
           <CheckboxInput name="aktif" />
         </div>
       </Col>
