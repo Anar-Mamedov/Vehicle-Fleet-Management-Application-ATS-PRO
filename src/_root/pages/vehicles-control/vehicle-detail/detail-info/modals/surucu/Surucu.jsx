@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
@@ -11,7 +11,7 @@ import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
 import Content from "../../../../../../components/drag-drop-table/DraggableCheckbox";
 
-const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
+const Surucu = ({ visible, onClose, id, selectedRowsData, refreshVehicleData }) => {
   const [dataSource, setDataSource] = useState([]);
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -118,10 +118,19 @@ const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
           total: res?.data.recordCount,
         },
       }));
+
+      // Reset status after data is fetched to prepare for next update
+      if (status) {
+        // Call refreshVehicleData to update parent component with latest vehicle data
+        if (refreshVehicleData) {
+          refreshVehicleData();
+        }
+        setStatus(false);
+      }
     };
 
     fetchData();
-  }, [search, tableParams.pagination.current, status]);
+  }, [search, tableParams.pagination.current, status, refreshVehicleData, id]);
 
   const handleTableChange = (pagination, filters, sorter) => {
     setLoading(true);
@@ -232,6 +241,7 @@ Surucu.propTypes = {
   id: PropTypes.number,
   visible: PropTypes.bool,
   onClose: PropTypes.func,
+  refreshVehicleData: PropTypes.func,
 };
 
 export default Surucu;

@@ -190,6 +190,44 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
 
   const { setValue, handleSubmit, watch } = methods;
 
+  // Function to refresh vehicle data
+  const refreshVehicleData = () => {
+    if (selectedId) {
+      setLoading(true);
+      GetVehicleByIdService(selectedId)
+        .then((res) => {
+          // Only update driver and location information
+          setPrintData((prevData) => ({
+            ...prevData,
+            surucuId: res.data.surucuId,
+            surucu: res.data.surucu,
+            lokasyonId: res.data.lokasyonId,
+            lokasyon: res.data.lokasyon,
+            guncelKm: res.data.guncelKm,
+            sonKmGuncellemeTarih: res.data.sonKmGuncellemeTarih,
+          }));
+
+          // Update only specific fields in the data state
+          setData((prevData) => ({
+            ...prevData,
+            lokasyon: res.data.lokasyon,
+            guncelKm: res.data.guncelKm,
+          }));
+
+          // Update only specific form fields
+          setGuncelKmTarih(res.data.sonKmGuncellemeTarih);
+          setValue("guncelKm", res.data.guncelKm);
+          setValue("surucuId", res.data.surucuId || null);
+          setValue("surucu", res.data.surucu);
+          setValue("lokasyonId", res.data.lokasyonId || null);
+          setValue("lokasyon", res.data.lokasyon);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  };
+
   useEffect(() => {
     if (isOpen && selectedId) {
       setLoading(true);
@@ -658,7 +696,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
         </div>
 
         <div className="content relative">
-          <DetailInfo id={String(selectedId)} />
+          <DetailInfo id={String(selectedId)} refreshVehicleData={refreshVehicleData} />
           <Tabs activeKey={activeKey} onChange={setActiveKey} items={items} />
         </div>
       </FormProvider>

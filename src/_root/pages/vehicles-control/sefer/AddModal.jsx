@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
@@ -14,7 +14,7 @@ import GeneralInfo from "./tabs/GeneralInfo";
 
 const AddModal = ({ setStatus, onRefresh }) => {
   const isFirstRender = useRef(true);
-  const { data, plaka } = useContext(PlakaContext);
+  const { data, plaka, setPlaka } = useContext(PlakaContext);
   const [isOpen, setIsOpen] = useState(false);
   const [isValid, setIsValid] = useState("normal");
   const [activeKey, setActiveKey] = useState("1");
@@ -182,6 +182,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
         setIsOpen(false);
         setLoading(false);
         setActiveKey("1");
+        setPlaka([]);
         if (plaka.length === 1) {
           reset();
         } else {
@@ -236,6 +237,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       className="btn btn-min cancel-btn"
       onClick={() => {
         setIsOpen(false);
+        setPlaka([]);
         resetForm(plaka, data, reset);
         setActiveKey("1");
       }}
@@ -246,10 +248,30 @@ const AddModal = ({ setStatus, onRefresh }) => {
 
   return (
     <>
-      <Button className="btn primary-btn" onClick={() => setIsOpen(true)}>
+      <Button
+        className="btn primary-btn"
+        onClick={() => {
+          reset();
+          setPlaka([]);
+          setIsOpen(true);
+        }}
+      >
         <PlusOutlined /> {t("ekle")}
       </Button>
-      <Modal title={t("yeniSeferGirisi")} open={isOpen} onCancel={() => setIsOpen(false)} maskClosable={false} footer={footer} width={1200}>
+      <Modal
+        title={t("yeniSeferGirisi")}
+        open={isOpen}
+        destroyOnClose={true}
+        onCancel={() => {
+          setIsOpen(false);
+          setPlaka([]);
+          resetForm(plaka, data, reset);
+          setActiveKey("1");
+        }}
+        maskClosable={false}
+        footer={footer}
+        width={1200}
+      >
         <FormProvider {...methods}>
           <form onSubmit={onSubmit}>
             <Tabs activeKey={activeKey} onChange={setActiveKey} items={items} />

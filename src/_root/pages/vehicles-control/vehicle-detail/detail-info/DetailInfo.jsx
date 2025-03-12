@@ -28,8 +28,9 @@ import Kapasite from "./modals/kapasite/Kapasite";
 import Aksesuar from "./modals/aksesuar/Aksesuar";
 import Surucu from "./modals/surucu/Surucu";
 import Lokasyonlar from "./modals/lokasyon/Surucu";
+// import Lastik from "./modals/lastik/Lastik";
 
-const DetailInfo = ({ id }) => {
+const DetailInfo = ({ id, refreshVehicleData }) => {
   const [selectedItem, setSelectedItem] = useState(null);
 
   const items = [
@@ -112,7 +113,7 @@ const DetailInfo = ({ id }) => {
       case "2":
         return <Teknik visible={selectedItem === "2"} onClose={() => setSelectedItem(null)} id={id} />;
       case "3":
-        return <Surucu visible={selectedItem === "3"} onClose={() => setSelectedItem(null)} id={id} />;
+        return <Surucu visible={selectedItem === "3"} onClose={() => setSelectedItem(null)} id={id} refreshVehicleData={refreshVehicleData} />;
       case "4":
         return <Ekspertiz visible={selectedItem === "4"} onClose={() => setSelectedItem(null)} id={id} />;
       // case "5":
@@ -134,11 +135,13 @@ const DetailInfo = ({ id }) => {
       case "10":
         return <Kapasite visible={selectedItem === "10"} onClose={() => setSelectedItem(null)} id={id} />;
       case "11":
-        return <Lastik visible={selectedItem === "11"} onClose={() => setSelectedItem(null)} id={id} />;
+        // Lastik component is not defined, so we'll return null for now
+        // return <Lastik visible={selectedItem === "11"} onClose={() => setSelectedItem(null)} id={id} />;
+        return null;
       case "12":
         return <Satis visible={selectedItem === "12"} onClose={() => setSelectedItem(null)} id={id} />;
       case "13":
-        return <Lokasyonlar visible={selectedItem === "13"} onClose={() => setSelectedItem(null)} id={id} />;
+        return <Lokasyonlar visible={selectedItem === "13"} onClose={() => setSelectedItem(null)} id={id} refreshVehicleData={refreshVehicleData} />;
       // default:
       //     return null;
     }
@@ -161,6 +164,7 @@ const DetailInfo = ({ id }) => {
 
 DetailInfo.propTypes = {
   id: PropTypes.string,
+  refreshVehicleData: PropTypes.func,
 };
 
 export default DetailInfo;

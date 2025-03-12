@@ -431,16 +431,16 @@ const Ceza = ({ statusId1 }) => {
 
     {
       title: t("firma"),
-      dataIndex: "servisFirma",
-      key: "servisFirma",
+      dataIndex: "islemiYapanText",
+      key: "islemiYapanText",
       width: 190,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
 
       sorter: (a, b) => {
-        if (a.servisFirma === null) return -1;
-        if (b.servisFirma === null) return 1;
-        return a.servisFirma.localeCompare(b.servisFirma);
+        if (a.islemiYapanText === null) return -1;
+        if (b.islemiYapanText === null) return 1;
+        return a.islemiYapanText.localeCompare(b.islemiYapanText);
       },
     },
 

@@ -1,9 +1,9 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
-import { Button, Modal } from "antd";
+import { Button, Modal, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../../context/plakaSlice";
 import { AddDriverSubstitutionItemService } from "../../../../../../../api/services/vehicles/vehicles/services";
@@ -14,7 +14,7 @@ import Textarea from "../../../../../../components/form/inputs/Textarea";
 import DateInput from "../../../../../../components/form/date/DateInput";
 import TimeInput from "../../../../../../components/form/date/TimeInput";
 import Driver from "../../../../../../components/form/selects/Driver";
-import Tutanak from "./Tutanak";
+// import Tutanak from "./Tutanak";
 
 const AddModal = ({ setStatus }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -38,8 +38,27 @@ const AddModal = ({ setStatus }) => {
   useEffect(() => {
     if (isModalOpen && isFirstRender.current) {
       GetModuleCodeByCode("ARAC_TESTLIM").then((res) => setValue("tutanakNo", res.data));
+
+      // Set current date and time when modal is opened
+      setValue("teslimTarih", dayjs());
+      setValue("teslimSaat", dayjs());
+
+      // Set current driver information if available from printData
+      if (printData && printData.surucuId) {
+        setValue("surucuTeslimEdenId", printData.surucuId);
+        setValue("surucuTeslimEden", printData.surucu);
+      }
+
+      // Set current vehicle kilometer value if available
+      if (printData && printData.guncelKm !== undefined) {
+        setValue("km", printData.guncelKm);
+      }
+
+      isFirstRender.current = false;
+    } else if (!isModalOpen) {
+      isFirstRender.current = true;
     }
-  }, [isModalOpen, setValue]);
+  }, [isModalOpen, setValue, printData]);
 
   useEffect(() => {
     if (watch("tutanakNo")) {
@@ -70,13 +89,13 @@ const AddModal = ({ setStatus }) => {
     try {
       const res = await AddDriverSubstitutionItemService(body);
       if (res?.data.statusCode === 200) {
+        message.success(t("islemBasarili"));
         setIsModalOpen(false);
         setStatus(true);
         reset();
       }
     } finally {
       setIsLoading(false);
-      setStatus(false);
     }
   });
 
@@ -178,9 +197,9 @@ const AddModal = ({ setStatus }) => {
                   <Textarea name="aciklama" />
                 </div>
               </div>
-              <div className="col-span-12 mt-14">
-                <Tutanak data={data} />
-              </div>
+              {/*    <div className="col-span-12 mt-14">
+                  <Tutanak data={data} />
+                </div> */}
             </div>
           </form>
         </FormProvider>

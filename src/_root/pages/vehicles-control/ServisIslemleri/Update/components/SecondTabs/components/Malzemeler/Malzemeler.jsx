@@ -5,6 +5,7 @@ import { useFormContext } from "react-hook-form";
 import AxiosInstance from "../../../../../../../../../api/http";
 import CreateModal from "./Insert/CreateModal";
 import EditModal from "./Update/EditModal";
+import ContextMenu from "./components/ContextMenu/ContextMenu";
 
 export default function KontrolListesiTablo({ isActive }) {
   const [loading, setLoading] = useState(false);
@@ -21,6 +22,20 @@ export default function KontrolListesiTablo({ isActive }) {
     current: 1,
     pageSize: 10,
   });
+
+  // Define a global function to clear table selections
+  useEffect(() => {
+    // Make the clearTableSelections function available globally
+    window.clearTableSelections = () => {
+      setSelectedRowKeys([]);
+      setSelectedRowsData([]);
+    };
+
+    // Clean up the global function when component unmounts
+    return () => {
+      delete window.clearTableSelections;
+    };
+  }, []);
 
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için
 
@@ -202,7 +217,17 @@ export default function KontrolListesiTablo({ isActive }) {
           onChange={(e) => setSearchTerm(e.target.value)}
           prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
         />
-        <CreateModal onRefresh={refreshTable} secilenKayitID={secilenKayitID} plaka={plaka} aracID={aracID} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <ContextMenu
+            selectedRows={selectedRowsData}
+            refreshTableData={refreshTable}
+            clearSelections={() => {
+              setSelectedRowKeys([]);
+              setSelectedRowsData([]);
+            }}
+          />
+          <CreateModal onRefresh={refreshTable} secilenKayitID={secilenKayitID} plaka={plaka} aracID={aracID} />
+        </div>
       </div>
 
       <Table

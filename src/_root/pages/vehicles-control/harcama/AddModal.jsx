@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
@@ -11,7 +11,7 @@ import PersonalFields from "../../../components/form/personal-fields/PersonalFie
 import GeneralInfo from "./tabs/GeneralInfo";
 
 const AddModal = ({ setStatus, onRefresh }) => {
-  const { data, plaka } = useContext(PlakaContext);
+  const { data, plaka, setPlaka } = useContext(PlakaContext);
   const [isOpen, setIsOpen] = useState(false);
   const [activeKey, setActiveKey] = useState("1");
   const [loading, setLoading] = useState(false);
@@ -104,14 +104,10 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const currentDate = dayjs().format("YYYY-MM-DD");
 
   useEffect(() => {
-    setValue("plaka", data.plaka);
-    setValue("lokasyon", data.lokasyon);
-    setValue("lokasyonId", data.lokasyonId);
-    setValue("surucu", data.surucuAdi);
-    setValue("surucuId", data.surucuId);
-    setValue("tarih", dayjs(currentDate));
-    setValue("maliyet", true);
-  }, [plaka, data]);
+    if (isOpen) {
+      reset();
+    }
+  }, [isOpen, reset]);
 
   const onSubmit = handleSubmit((values) => {
     const body = {
@@ -144,6 +140,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
         setIsOpen(false);
         setLoading(false);
         setActiveKey("1");
+        setPlaka([]);
         if (plaka.length === 1) {
           reset();
         } else {
@@ -198,6 +195,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       className="btn btn-min cancel-btn"
       onClick={() => {
         setIsOpen(false);
+        setPlaka([]);
         resetForm(plaka, data, reset);
         setActiveKey("1");
       }}
@@ -208,10 +206,30 @@ const AddModal = ({ setStatus, onRefresh }) => {
 
   return (
     <>
-      <Button className="btn primary-btn" onClick={() => setIsOpen(true)}>
+      <Button
+        className="btn primary-btn"
+        onClick={() => {
+          reset();
+          setPlaka([]);
+          setIsOpen(true);
+        }}
+      >
         <PlusOutlined /> {t("ekle")}
       </Button>
-      <Modal title={t("yeniHarcamaGirisi")} open={isOpen} onCancel={() => setIsOpen(false)} maskClosable={false} footer={footer} width={1200}>
+      <Modal
+        title={t("yeniHarcamaGirisi")}
+        open={isOpen}
+        destroyOnClose={true}
+        onCancel={() => {
+          setIsOpen(false);
+          setPlaka([]);
+          resetForm(plaka, data, reset);
+          setActiveKey("1");
+        }}
+        maskClosable={false}
+        footer={footer}
+        width={1200}
+      >
         <FormProvider {...methods}>
           <form>
             <Tabs activeKey={activeKey} onChange={setActiveKey} items={items} />
