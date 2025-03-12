@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -13,7 +13,7 @@ import DateInput from "../../../../../../components/form/date/DateInput";
 import TimeInput from "../../../../../../components/form/date/TimeInput";
 import Driver from "../../../../../../components/form/selects/Driver";
 import Textarea from "../../../../../../components/form/inputs/Textarea";
-import Tutanak from "./Tutanak";
+// import Tutanak from "./Tutanak";
 
 const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, aracID }) => {
   const { printData } = useContext(PlakaContext);
@@ -21,8 +21,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, aracID }) => 
   const [surucuIsValid, setSurucuIsValid] = useState(false);
   const [data, setData] = useState(null);
   const [code, setCode] = useState("normal");
-
-  console.log(id);
 
   const defaultValues = {};
   const methods = useForm({
@@ -185,9 +183,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, aracID }) => 
                 <Textarea name="aciklama" />
               </div>
             </div>
-            <div className="col-span-12 mt-14">
+            {/* <div className="col-span-12 mt-14">
               <Tutanak data={data} />
-            </div>
+            </div> */}
           </div>
         </form>
       </FormProvider>

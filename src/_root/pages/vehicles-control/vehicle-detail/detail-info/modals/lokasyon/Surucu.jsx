@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
@@ -7,11 +7,13 @@ import { Button, Input, Modal, Popover, Spin, Table } from "antd";
 import DragAndDropContext from "../../../../../../components/drag-drop-table/DragAndDropContext";
 import SortableHeaderCell from "../../../../../../components/drag-drop-table/SortableHeaderCell";
 import { GetVehicleLocationService } from "../../../../../../../api/services/vehicles/vehicles/services";
+import { PlakaContext } from "../../../../../../../context/plakaSlice";
 import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
 import Content from "../../../../../../components/drag-drop-table/DraggableCheckbox";
 
-const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
+const Surucu = ({ visible, onClose, id, selectedRowsData, refreshVehicleData }) => {
+  const { printData } = useContext(PlakaContext);
   const [dataSource, setDataSource] = useState([]);
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -27,6 +29,7 @@ const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
   const [updateModal, setUpdateModal] = useState(false);
   const [accId, setAccId] = useState(0);
   const [plaka, setPlaka] = useState("");
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   useEffect(() => {
     if (selectedRowsData && selectedRowsData.length > 0) {
@@ -36,15 +39,21 @@ const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
     }
   }, [selectedRowsData]);
 
+  /*  useEffect(() => {
+    console.log("Current guncelKm from context:", printData?.guncelKm);
+    console.log("Current dataSource:", dataSource);
+  }, [printData, dataSource]); */
+
   const baseColumns = [
     {
       title: t("plaka"),
       dataIndex: "plaka",
-      key: 1,
+      key: "plaka_column",
       render: (text, record) => (
         <Button
           onClick={() => {
             setAccId(record.aracBolgeLogId);
+            setSelectedRecord(record);
             setUpdateModal(true);
           }}
         >
@@ -55,7 +64,7 @@ const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
     {
       title: t("tarih"),
       dataIndex: "tarih",
-      key: 2,
+      key: "tarih_column",
       render: (text) => {
         if (text === null || text === undefined) {
           return null;
@@ -66,36 +75,36 @@ const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
     {
       title: t("saat"),
       dataIndex: "saat",
-      key: 3,
+      key: "saat_column",
     },
     {
       title: t("eskiLokasyon"),
       dataIndex: "bulunduguLokasyon",
-      key: 4,
+      key: "eskiLokasyon_column",
     },
     {
       title: t("yeniLokasyon"),
       dataIndex: "transferEdilenLokasyon",
-      key: 5,
+      key: "yeniLokasyon_column",
     },
     {
       title: t("aracKm"),
       dataIndex: "aracKm",
-      key: 6,
+      key: "aracKm_column",
     },
     {
       title: t("aciklama"),
       dataIndex: "aciklama",
-      key: 7,
+      key: "aciklama_column",
     },
   ];
 
   const [columns, setColumns] = useState(() =>
     baseColumns.map((column, i) => ({
       ...column,
-      key: `${i}`,
+      key: column.key || `column_${i}`,
       onHeaderCell: () => ({
-        id: `${i}`,
+        id: column.key || `column_${i}`,
       }),
     }))
   );
@@ -111,7 +120,15 @@ const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
       const res = await GetVehicleLocationService(search, tableParams.pagination.current, body);
       setLoading(false);
       setIsInitialLoading(false);
-      setDataSource(res?.data.list);
+
+      // Add a unique key to each item in the dataSource
+      const dataWithKeys = res?.data.list.map((item, index) => ({
+        ...item,
+        key: item.aracBolgeLogId || `item-${index}`, // Use aracBolgeLogId as key or fallback to index-based key
+      }));
+
+      setDataSource(dataWithKeys);
+
       setTableParams((prevTableParams) => ({
         ...prevTableParams,
         pagination: {
@@ -119,10 +136,17 @@ const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
           total: res?.data.recordCount,
         },
       }));
+
+      // Reset status after data is fetched to prepare for next update
+      if (status) {
+        setTimeout(() => {
+          setStatus(false);
+        }, 100); // Small delay to ensure the state update is processed
+      }
     };
 
     fetchData();
-  }, [search, tableParams.pagination.current, status]);
+  }, [search, tableParams.pagination.current, status, id]);
 
   const handleTableChange = (pagination, filters, sorter) => {
     setLoading(true);
@@ -139,6 +163,7 @@ const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
 
   const newColumns = columns.map((col) => ({
     ...col,
+    key: col.key,
     hidden: !checkedList.includes(col.key),
   }));
 
@@ -156,16 +181,21 @@ const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
     setCheckedList(updatedColumns.map((col) => col.key));
   };
 
-  const content = <Content options={options} checkedList={checkedList} setCheckedList={setCheckedList} moveCheckbox={moveCheckbox} />;
+  const content = <Content key="draggable-content" options={options} checkedList={checkedList} setCheckedList={setCheckedList} moveCheckbox={moveCheckbox} />;
 
   const footer = [
-    <Button key="back" className="btn btn-min cancel-btn" onClick={onClose}>
+    <Button key="close-button" className="btn btn-min cancel-btn" onClick={onClose}>
       {t("kapat")}
     </Button>,
   ];
 
   // Custom loading icon
   const customIcon = <LoadingOutlined style={{ fontSize: 36 }} className="text-primary" spin />;
+
+  // Function to explicitly refresh the data
+  const refreshData = () => {
+    setStatus(true);
+  };
 
   return (
     <Modal
@@ -189,16 +219,33 @@ const Surucu = ({ visible, onClose, id, selectedRowsData }) => {
             </Button>
           </Popover>
           <Input placeholder={t("arama")} onChange={(e) => setSearch(e.target.value)} />
-          <AddModal setStatus={setStatus} />
+          <AddModal
+            setStatus={setStatus}
+            guncelKm={printData?.guncelKm}
+            lokasyon={dataSource[0]?.transferEdilenLokasyon}
+            lokasyonId={dataSource[0]?.transferEdilenLokasyonId}
+            refreshVehicleData={refreshVehicleData}
+          />
         </div>
       </div>
-      <UpdateModal updateModal={updateModal} setUpdateModal={setUpdateModal} setStatus={setStatus} status={status} id={accId} aracID={id} />
+      <UpdateModal
+        updateModal={updateModal}
+        setUpdateModal={setUpdateModal}
+        setStatus={setStatus}
+        status={status}
+        id={accId}
+        aracID={id}
+        record={selectedRecord}
+        refreshVehicleData={refreshVehicleData}
+        refreshData={refreshData}
+      />
       <div className="mt-20">
-        <DragAndDropContext items={columns} setItems={setColumns}>
+        <DragAndDropContext key="drag-drop-context" items={columns} setItems={setColumns}>
           <Spin spinning={loading || isInitialLoading} indicator={customIcon}>
             <Table
               columns={newColumns}
               dataSource={dataSource}
+              rowKey={(record) => record.key || record.aracBolgeLogId || Math.random().toString(36).substr(2, 9)}
               pagination={{
                 ...tableParams.pagination,
                 showTotal: (total) => (
@@ -233,6 +280,8 @@ Surucu.propTypes = {
   id: PropTypes.number,
   visible: PropTypes.bool,
   onClose: PropTypes.func,
+  selectedRowsData: PropTypes.array,
+  refreshVehicleData: PropTypes.func,
 };
 
 export default Surucu;
