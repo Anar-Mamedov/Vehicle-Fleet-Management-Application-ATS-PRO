@@ -170,7 +170,6 @@ const Yakit = () => {
       fetchData(0, 1);
       prevBodyRef.current = body;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [body]);
 
   const prevBodyRef = useRef(body);
@@ -218,7 +217,6 @@ const Yakit = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Search handling
@@ -254,7 +252,6 @@ const Yakit = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
@@ -376,7 +373,7 @@ const Yakit = () => {
       width: 120,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-      render: (text, record) => (
+      /* render: (text, record) => (
         <div className="">
           <span>
             {Number(text).toLocaleString(localStorage.getItem("i18nextLng"), {
@@ -385,7 +382,7 @@ const Yakit = () => {
             })}
           </span>
         </div>
-      ),
+      ), */
       sorter: (a, b) => {
         if (a.farkKm === null) return -1;
         if (b.farkKm === null) return 1;

@@ -29,6 +29,22 @@ import Textarea from "../../../../../../components/form/inputs/Textarea";
 
 dayjs.locale("tr");
 
+// Function to get decimal separator based on language
+const getDecimalSeparator = () => {
+  const lang = localStorage.getItem("i18nextLng") || "tr";
+
+  switch (lang) {
+    case "tr":
+    case "az":
+      return ",";
+    case "ru":
+    case "en":
+      return ".";
+    default:
+      return ","; // Default to comma for other languages
+  }
+};
+
 const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   const { control, watch, setValue } = useFormContext();
   const { history, setHistory, data } = useContext(PlakaContext);
@@ -558,8 +574,9 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                   render={({ field, fieldState }) => (
                     <>
                       <InputNumber
-                        className={fieldState.error ? "input-error w-full" : "w-full"}
                         {...field}
+                        className={fieldState.error ? "input-error w-full" : "w-full"}
+                        decimalSeparator={getDecimalSeparator()}
                         onPressEnter={(e) => {
                           if (watch("yakitHacmi") === 0 && !watch("fullDepo")) message.warning("Depo Hacmi sıfırdır. Depo hacmi giriniz!");
 
@@ -570,15 +587,11 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                             setIsValid(false);
                           }
                         }}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          if (watch("litreFiyat") === null) {
-                            setValue("tutar", 0);
-                          } else {
-                            const tutar = +e * watch("litreFiyat");
-                            setValue("tutar", tutar);
-                          }
-                          calculateTuketim();
+                        onChange={(val) => {
+                          field.onChange(val);
+                          const litreFiyat = watch("litreFiyat") ?? 0;
+                          const tutarHesap = +val * +litreFiyat;
+                          setValue("tutar", tutarHesap);
                         }}
                       />
                       {fieldState.error && <span style={{ color: "red" }}>{fieldState.error.message}</span>}
@@ -702,16 +715,17 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                       <div className="flex items-center gap-1">
                         <InputNumber
                           {...field}
+                          decimalSeparator={getDecimalSeparator()}
                           className="w-full"
-                          onChange={(e) => {
-                            field.onChange(e);
-                            if (watch("litreFiyat") === null) {
+                          onChange={(val) => {
+                            field.onChange(val);
+                            const litreFiyat = watch("litreFiyat") ?? 0;
+                            if (!litreFiyat || litreFiyat === 0) {
                               setValue("miktar", 0);
                             } else {
-                              const miktar = +e / watch("litreFiyat");
-                              setValue("miktar", Math.round(miktar));
+                              const miktarHesap = +val / litreFiyat;
+                              setValue("miktar", miktarHesap);
                             }
-                            calculateTuketim();
                           }}
                         />
                         <Button type="primary" onClick={() => setOpenTutarModal(true)}>
