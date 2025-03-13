@@ -25,6 +25,22 @@ import UpdateModal from "../../../../../yakit-yonetim/yakit-tanim/UpdateModal";
 
 dayjs.locale("tr");
 
+// Function to get decimal separator based on language
+const getDecimalSeparator = () => {
+  const lang = localStorage.getItem("i18nextLng") || "tr";
+
+  switch (lang) {
+    case "tr":
+    case "az":
+      return ",";
+    case "ru":
+    case "en":
+      return ".";
+    default:
+      return ","; // Default to comma for other languages
+  }
+};
+
 const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   const [, contextHolder] = message.useMessage();
   const { control, setValue, watch } = useFormContext();
@@ -664,6 +680,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                       <InputNumber
                         {...field}
                         className={fieldState.error ? "input-error w-full" : "w-full"}
+                        decimalSeparator={getDecimalSeparator()}
                         onPressEnter={(e) => {
                           if (watch("yakitHacmi") === 0 && !watch("fullDepo")) {
                             message.warning("Depo Hacmi sıfırdır. Depo hacmi giriniz!");
@@ -738,7 +755,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                             setValue("miktar", 0);
                           } else {
                             const miktarHesap = +tutarVal / +val;
-                            setValue("miktar", Math.round(miktarHesap));
+                            setValue("miktar", miktarHesap);
                           }
                         }}
                       />
@@ -776,6 +793,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                       <InputNumber
                         {...field}
                         className={fieldState.error ? "input-error w-full" : "w-full"}
+                        decimalSeparator={getDecimalSeparator()}
                         onChange={(val) => {
                           field.onChange(val);
                           const litreFiyat = watch("litreFiyat") ?? 0;
@@ -783,7 +801,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                             setValue("miktar", 0);
                           } else {
                             const miktarHesap = +val / litreFiyat;
-                            setValue("miktar", Math.round(miktarHesap));
+                            setValue("miktar", miktarHesap);
                           }
                         }}
                       />
