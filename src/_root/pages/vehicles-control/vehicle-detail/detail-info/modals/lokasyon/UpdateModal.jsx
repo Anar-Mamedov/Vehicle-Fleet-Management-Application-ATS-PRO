@@ -263,7 +263,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, aracID, recor
                   <label>
                     {t("tarih")} <span style={{ color: "red" }}>*</span>
                   </label>
-                  <DateInput name="teslimTarih" />
+                  <DateInput name="teslimTarih" checked={true} />
                 </div>
               </div>
               <div className="col-span-6">
@@ -271,7 +271,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, aracID, recor
                   <label>
                     {t("saat")} <span style={{ color: "red" }}>*</span>
                   </label>
-                  <TimeInput name="teslimSaat" />
+                  <TimeInput name="teslimSaat" readonly={true} />
                 </div>
               </div>
               <div className="col-span-12">
@@ -279,7 +279,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, aracID, recor
                   {/*  <label>{t("teslimEden")}</label>
                     <Driver name="surucuTeslimEden" codeName="surucuTeslimEdenId" disabled={true} /> */}
                   <label htmlFor="eskiLokasyonId">{t("eskiLokasyon")}</label>
-                  <TextInput name="eskiLokasyon" readonly={true} />
+                  <TextInput name="eskiLokasyon" readonly={true} checked={true} />
                 </div>
               </div>
               <div className="col-span-12">
@@ -287,7 +287,14 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, aracID, recor
                   <label className="text-info">{t("yeniLokasyon")}</label>
                   {/* <Driver name="surucuTeslimAlan" codeName="surucuTeslimAlanId" /> */}
 
-                  <ModalInput name="yeniLokasyon" readonly={true} required={true} onPlusClick={handleYeniLokasyonPlusClick} onMinusClick={handleYeniLokasyonMinusClick} />
+                  <ModalInput
+                    name="yeniLokasyon"
+                    readonly={true}
+                    required={true}
+                    onPlusClick={handleYeniLokasyonPlusClick}
+                    onMinusClick={handleYeniLokasyonMinusClick}
+                    disabled={true}
+                  />
                   <LokasyonTablo
                     onSubmit={(selectedData) => {
                       setValue("yeniLokasyon", selectedData.location);
@@ -301,7 +308,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, aracID, recor
               <div className="col-span-12">
                 <div className="flex flex-col gap-1">
                   <label>{t("aracKm")}</label>
-                  <NumberInput name="km" />
+                  <NumberInput name="km" checked={true} />
                 </div>
               </div>
               <div className="col-span-12">

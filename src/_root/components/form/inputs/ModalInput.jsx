@@ -1,9 +1,10 @@
+import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Input } from "antd";
 import { PlusOutlined, CloseCircleFilled } from "@ant-design/icons";
 
-const SurucuInput = ({ name, checked, readonly, onPlusClick, onMinusClick, required }) => {
+const SurucuInput = ({ name, checked, readonly, onPlusClick, onMinusClick, required, disabled }) => {
   const { control } = useFormContext();
 
   return (
@@ -17,7 +18,20 @@ const SurucuInput = ({ name, checked, readonly, onPlusClick, onMinusClick, requi
             {...field}
             status={error ? "error" : ""}
             readOnly={readonly}
-            suffix={field.value ? <CloseCircleFilled style={{ color: "#FF4D4F" }} onClick={onMinusClick} /> : <PlusOutlined style={{ color: "#1677ff" }} onClick={onPlusClick} />}
+            disabled={disabled}
+            suffix={
+              disabled ? (
+                field.value ? (
+                  <CloseCircleFilled style={{ color: "#d9d9d9" }} />
+                ) : (
+                  <PlusOutlined style={{ color: "#d9d9d9" }} />
+                )
+              ) : field.value ? (
+                <CloseCircleFilled style={{ color: "#FF4D4F" }} onClick={onMinusClick} />
+              ) : (
+                <PlusOutlined style={{ color: "#1677ff" }} onClick={onPlusClick} />
+              )
+            }
           />
           {error && <span style={{ color: "red" }}>{error.message}</span>}
         </div>

@@ -144,37 +144,37 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, aracID }) => 
             <div className="col-span-12">
               <div className="flex flex-col gap-1">
                 <label>{t("tutanakNo")}</label>
-                <TextInput name="tutanakNo" style={validateStyle} />
+                <TextInput name="tutanakNo" style={validateStyle} checked={true} />
               </div>
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("teslimTarih")}</label>
-                <DateInput name="teslimTarih" />
+                <DateInput name="teslimTarih" checked={true} />
               </div>
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("teslimSaat")}</label>
-                <TimeInput name="teslimSaat" />
+                <TimeInput name="teslimSaat" readonly={true} />
               </div>
             </div>
             <div className="col-span-12">
               <div className="flex flex-col gap-1">
                 <label>{t("teslimEden")}</label>
-                <Driver name="surucuTeslimEden" codeName="surucuTeslimEdenId" />
+                <Driver name="surucuTeslimEden" codeName="surucuTeslimEdenId" disabled={true} />
               </div>
             </div>
             <div className="col-span-12">
               <div className="flex flex-col gap-1">
                 <label className="text-info">{t("teslimAlan")}</label>
-                <Driver name="surucuTeslimAlan" codeName="surucuTeslimAlanId" />
+                <Driver name="surucuTeslimAlan" codeName="surucuTeslimAlanId" disabled={true} />
               </div>
             </div>
             <div className="col-span-12">
               <div className="flex flex-col gap-1">
                 <label>{t("aracKm")}</label>
-                <NumberInput name="km" />
+                <NumberInput name="km" checked={true} />
               </div>
             </div>
             <div className="col-span-12">

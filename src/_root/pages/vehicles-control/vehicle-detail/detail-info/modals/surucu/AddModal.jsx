@@ -16,7 +16,7 @@ import TimeInput from "../../../../../../components/form/date/TimeInput";
 import Driver from "../../../../../../components/form/selects/Driver";
 // import Tutanak from "./Tutanak";
 
-const AddModal = ({ setStatus }) => {
+const AddModal = ({ setStatus, selectedRowsData }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { plaka, aracId, printData } = useContext(PlakaContext);
   const isFirstRender = useRef(true);
@@ -49,9 +49,18 @@ const AddModal = ({ setStatus }) => {
         setValue("surucuTeslimEden", printData.surucu);
       }
 
+      if (selectedRowsData && selectedRowsData[0].surucuId) {
+        setValue("surucuTeslimEdenId", selectedRowsData[0].surucuId);
+        setValue("surucuTeslimEden", selectedRowsData[0].surucu);
+      }
+
       // Set current vehicle kilometer value if available
       if (printData && printData.guncelKm !== undefined) {
         setValue("km", printData.guncelKm);
+      }
+
+      if (selectedRowsData && selectedRowsData[0].guncelKm !== undefined) {
+        setValue("km", selectedRowsData[0].guncelKm);
       }
 
       isFirstRender.current = false;
