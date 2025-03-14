@@ -197,7 +197,7 @@ const Surucu = ({ visible, onClose, id, selectedRowsData, refreshVehicleData }) 
             </Button>
           </Popover>
           <Input placeholder={t("arama")} onChange={(e) => setSearch(e.target.value)} />
-          <AddModal setStatus={setStatus} />
+          <AddModal setStatus={setStatus} selectedRowsData={selectedRowsData} />
         </div>
       </div>
       <UpdateModal updateModal={updateModal} setUpdateModal={setUpdateModal} setStatus={setStatus} status={status} id={accId} aracID={id} />
@@ -207,6 +207,7 @@ const Surucu = ({ visible, onClose, id, selectedRowsData, refreshVehicleData }) 
             <Table
               columns={newColumns}
               dataSource={dataSource}
+              rowKey={(record) => record.siraNo || record.tutanakNo || Math.random().toString(36).substr(2, 9)}
               pagination={{
                 ...tableParams.pagination,
                 showTotal: (total) => (
