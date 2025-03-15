@@ -155,8 +155,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, aracId }) => 
         setValue("alinanKm", res?.data.alinanKm);
         setValue("farkKm", res?.data.farkKm);
         setValue("tuketim", res?.data.tuketim);
-        setValue("miktar", res?.data.miktar);
-        setValue("tutar", res?.data.tutar);
+        setValue("miktar", res?.data.miktar !== null ? Number(res?.data.miktar).toFixed(Number(res?.data.miktarFormat)) : null);
+        setValue("tutar", res?.data.tutar !== null ? Number(res?.data.tutar).toFixed(Number(res?.data.tutarFormat)) : null);
         setValue("litreFiyat", res?.data.litreFiyat);
         /*  setValue("kdvOran", res?.data.kdv);
         const kdvAmount = (watch("tutar") * (100 - res?.data.kdv)) / 100;

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
@@ -6,7 +6,7 @@ import { t } from "i18next";
 import { Button, message, Modal, Tabs } from "antd";
 import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../context/plakaSlice";
-import { AddFuelService, GetFuelCardContentByIdService } from "../../../../../api/services/vehicles/operations_services";
+import { AddFuelService, GetFuelCardContentByIdService, GetMaterialPriceService } from "../../../../../api/services/vehicles/operations_services";
 import GeneralInfo from "./GeneralInfo";
 import PersonalFields from "../../../../components/form/personal-fields/PersonalFields";
 
@@ -101,7 +101,6 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const defaultValues = {
     sonAlinanKm: null,
     plaka: "",
-    lokasyonIdFromPlaka: "",
     yakitTipId: null,
     yakitTanki: "",
     surucuId: null,
@@ -117,6 +116,9 @@ const AddModal = ({ setStatus, onRefresh }) => {
     tutar: null,
     tuketim: null,
     engelle: false,
+    kdvOrani: 20,
+    kdvTutari: 0,
+    kdvDahilHaric: false,
   };
   const methods = useForm({
     defaultValues: defaultValues,
@@ -137,15 +139,75 @@ const AddModal = ({ setStatus, onRefresh }) => {
     setValue("birim", data.birim);
     setValue("depoYakitMiktar", data.depoYakitMiktar);
     setValue("guncelKmLog", data.guncelKmLog);
+    setValue("kdvDahilHaric", data.kdvDahilHaric);
+
+    // Ensure kdvDahilHaric is set correctly when modal opens
+    if (data.yakitTipId) {
+      GetMaterialPriceService(data.yakitTipId).then((res) => {
+        if (res?.data && res?.data.kdvDahilHaric !== undefined) {
+          setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
+        }
+      });
+    }
 
     if (plaka.length === 1) {
       setValue("plaka", plaka[0].id);
     }
 
     if (watch("farkKm") < 0 && !watch("alinanKm")) setValue("farkKm", null);
+
+    const subscription = watch((value, { name }) => {
+      if (name === "tutar" || name === "kdvOrani" || name === "kdvDahilHaric") {
+        const tutar = parseFloat(value.tutar) || 0;
+        const kdvOrani = parseFloat(value.kdvOrani) || 0;
+        const kdvDahilMi = value.kdvDahilHaric;
+
+        let kdvTutari = 0;
+
+        if (kdvDahilMi) {
+          // KDV dahilse: Tutar = Mal bedeli + KDV
+          // KDV = (Tutar * KDV Oranı) / (100 + KDV Oranı)
+          kdvTutari = (tutar * kdvOrani) / (100 + kdvOrani);
+        } else {
+          // KDV hariçse: Tutar = Mal bedeli
+          // KDV = Tutar * (KDV Oranı / 100)
+          kdvTutari = (tutar * kdvOrani) / 100;
+        }
+
+        setValue("kdvTutari", kdvTutari.toFixed(2));
+      }
+    });
+    return () => subscription.unsubscribe();
   }, [data]);
 
+  useEffect(() => {
+    if (!watch("yakitTipId")) return;
+
+    GetMaterialPriceService(watch("yakitTipId")).then((res) => {
+      setValue("litreFiyat", res?.data.price);
+      setValue("kdvOrani", res?.data.kdv);
+      setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
+    });
+  }, [watch("yakitTipId"), setValue]);
+
   const onSubmit = handleSubmit((values) => {
+    // Ensure kdvDahilHaric is set correctly before submission
+    if (values.yakitTipId) {
+      GetMaterialPriceService(values.yakitTipId).then((res) => {
+        if (res?.data && res?.data.kdvDahilHaric !== undefined) {
+          values.kdvDahilHaric = res?.data.kdvDahilHaric;
+        }
+
+        // Continue with form submission after ensuring kdvDahilHaric is set
+        submitForm(values);
+      });
+    } else {
+      // If no yakitTipId, just submit the form
+      submitForm(values);
+    }
+  });
+
+  const submitForm = (values) => {
     const kmLog = {
       kmAracId: data.aracId,
       plaka: data.plaka,
@@ -163,26 +225,29 @@ const AddModal = ({ setStatus, onRefresh }) => {
     const body = {
       aracId: data.aracId,
       plaka: data.plaka,
-      LokasyonId: watch("lokasyonIdFromPlaka"),
-      tarih: dayjs(values.tarih).format("YYYY-MM-DD"),
-      saat: dayjs(values.saat).format("HH:mm:ss"),
-      surucuId: values.surucuId || -1,
-      yakitTipId: values.yakitTipId || -1,
+      tarih: dayjs(values.tarih).format("YYYY-MM-DD") || null,
+      saat: dayjs(values.saat).format("HH:mm:ss") || null,
+      surucuId: values.surucuId,
+      yakitTipId: values.yakitTipId,
       sonAlinanKm: values.sonAlinanKm,
       farkKm: values.farkKm,
-      tuketim: values.tuketim,
+      // tuketim: values.tuketim,
       alinanKm: values.alinanKm,
-      miktar: values.miktar || 0,
+      miktar: values.miktar ? values.miktar : 0.0,
       fullDepo: values.fullDepo,
       stokKullanimi: values.stokKullanimi,
       litreFiyat: values.litreFiyat,
-      tutar: values.tutar || 0,
+      tutar: values.tutar ? values.tutar : 0,
+      kdvOran: values.kdvOrani || 0,
+      kdv: values.kdvTutari || 0,
+      kdvSizTutar: values.kdvDahilHaric ? values.tutar - values.kdvTutari || 0 : values.tutar || 0,
+      kdvDahilHaric: values.kdvDahilHaric || false,
       birim: data.birim,
       ozelKullanim: false,
       kmLog: kmLog,
       depoYakitMiktar: values.depoYakitMiktar,
       yakitTanki: values.yakitTanki,
-      // lokasyonId: values.lokasyonId || -1,
+      lokasyonId: data.lokasyonId,
       ozelAlan1: values.ozelAlan1 || "",
       ozelAlan2: values.ozelAlan2 || "",
       ozelAlan3: values.ozelAlan3 || "",
@@ -263,7 +328,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
         setLoading(false);
       });
     // setStatus(false);
-  });
+  };
 
   const personalProps = {
     form: "YAKIT",
@@ -305,7 +370,18 @@ const AddModal = ({ setStatus, onRefresh }) => {
         yakitTip: data.yakitTip,
         surucu: data.surucuAdi,
         stokKullanimi: data.stokKullanimi,
+        kdvOrani: 20,
+        kdvTutari: 0,
+        kdvDahilHaric: data.kdvDahilHaric,
       });
+      // Ensure kdvDahilHaric is set correctly after reset
+      if (data.yakitTipId) {
+        GetMaterialPriceService(data.yakitTipId).then((res) => {
+          if (res?.data && res?.data.kdvDahilHaric !== undefined) {
+            setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
+          }
+        });
+      }
     } else {
       reset();
     }
