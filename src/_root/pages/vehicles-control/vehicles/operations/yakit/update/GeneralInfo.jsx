@@ -886,13 +886,35 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
               <div className="col-span-6">
                 <div className="flex flex-col gap-1">
                   <label htmlFor="kdv">{t("kdvTutari")}</label>
-                  <Input style={{ width: "100%" }} name="kdv" placeholder={t("kdvTutari")} readOnly value={watch("kdv")} />
+                  <InputNumber
+                    style={{ width: "100%" }}
+                    name="kdv"
+                    placeholder={t("kdvTutari")}
+                    readOnly
+                    value={watch("kdv")}
+                    decimalSeparator={localStorage.getItem("i18nextLng") === "tr" ? "," : "."}
+                    formatter={(value) => {
+                      if (value === null || value === undefined) return "";
+                      return `${value}`.replace(".", localStorage.getItem("i18nextLng") === "tr" ? "," : ".");
+                    }}
+                  />
                 </div>
               </div>
               <div className="col-span-6">
                 <div className="flex flex-col gap-1">
                   <label htmlFor="kdvSizTutar">{t("kdvSizTutar")}</label>
-                  <Input style={{ width: "100%" }} name="kdvSizTutar" placeholder={t("kdvSizTutar")} readOnly value={watch("kdvSizTutar")} />
+                  <InputNumber
+                    style={{ width: "100%" }}
+                    name="kdvSizTutar"
+                    placeholder={t("kdvSizTutar")}
+                    readOnly
+                    value={watch("kdvSizTutar")}
+                    decimalSeparator={localStorage.getItem("i18nextLng") === "tr" ? "," : "."}
+                    formatter={(value) => {
+                      if (value === null || value === undefined) return "";
+                      return `${value}`.replace(".", localStorage.getItem("i18nextLng") === "tr" ? "," : ".");
+                    }}
+                  />
                 </div>
               </div>
             </div>

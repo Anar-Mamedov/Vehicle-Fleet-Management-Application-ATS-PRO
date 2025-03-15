@@ -156,37 +156,76 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
     {
       title: t("alinanKm"),
       dataIndex: "sonAlinanKm",
-      key: 4,
+      key: "sonAlinanKm",
+      width: 120,
       ellipsis: true,
-      width: 100,
+      visible: true, // Varsayılan olarak açık
+      render: (text, record) => (
+        <div>
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+        </div>
+      ),
+      sorter: (a, b) => {
+        if (a.sonAlinanKm === null) return -1;
+        if (b.sonAlinanKm === null) return 1;
+        return a.sonAlinanKm - b.sonAlinanKm;
+      },
     },
 
     {
       title: t("miktar"),
       dataIndex: "miktar",
-      key: 6,
+      key: "miktar",
+      width: 120,
       ellipsis: true,
-      width: 100,
+      visible: true, // Varsayılan olarak açık
       render: (text, record) => (
         <div className="">
-          <span>{text} </span>
+          <span>
+            {Number(text).toLocaleString(localStorage.getItem("i18nextLng"), {
+              minimumFractionDigits: Number(record?.miktarFormat),
+              maximumFractionDigits: Number(record?.miktarFormat),
+            })}
+          </span>
           <span style={{ fontSize: "14px", color: "rgb(147 147 147)" }}>{record.birim === "LITRE" && "lt"}</span>
         </div>
       ),
+      sorter: (a, b) => {
+        if (a.miktar === null) return -1;
+        if (b.miktar === null) return 1;
+        return a.miktar - b.miktar;
+      },
     },
     {
       title: t("tutar"),
       dataIndex: "tutar",
-      key: 7,
+      key: "tutar",
+      width: 120,
       ellipsis: true,
-      width: 100,
+      visible: true, // Varsayılan olarak açık
+      render: (text, record) => (
+        <div className="">
+          <span>
+            {Number(text).toLocaleString(localStorage.getItem("i18nextLng"), {
+              minimumFractionDigits: Number(record?.tutarFormat),
+              maximumFractionDigits: Number(record?.tutarFormat),
+            })}
+          </span>
+        </div>
+      ),
+      sorter: (a, b) => {
+        if (a.tutar === null) return -1;
+        if (b.tutar === null) return 1;
+        return a.tutar - b.tutar;
+      },
     },
     {
       title: t("ortalamaTuketim"),
       dataIndex: "ortalamaTuketim",
       key: "ortalamaTuketim",
+      width: 120,
       ellipsis: true,
-      width: 100,
+      visible: true, // Varsayılan olarak açık
       render: (text, record) => {
         const { aracOnGorulenYakit, aracOnGorulenMinYakit, tuketim } = record;
 
@@ -196,7 +235,12 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
         }
 
         // Ondalıklı sayıyı 2 basamağa yuvarla ve 2 basamaklı hale getir
-        const formattedGerceklesen = tuketim.toFixed(2);
+        // const formattedGerceklesen = tuketim.toFixed(Number(record?.ortalamaFormat));
+
+        const formattedGerceklesen = Number(tuketim).toLocaleString(localStorage.getItem("i18nextLng"), {
+          minimumFractionDigits: Number(record?.ortalamaFormat),
+          maximumFractionDigits: Number(record?.ortalamaFormat),
+        });
 
         let icon = null;
         if (aracOnGorulenMinYakit !== null && aracOnGorulenMinYakit !== 0) {
@@ -221,6 +265,11 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
             </span>
           </Tooltip>
         );
+      },
+      sorter: (a, b) => {
+        if (a.tuketim === null || a.tuketim === undefined) return -1;
+        if (b.tuketim === null || b.tuketim === undefined) return 1;
+        return a.tuketim - b.tuketim;
       },
     },
 
@@ -255,7 +304,7 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
       width: 120,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-      render: (text, record) => (
+      /* render: (text, record) => (
         <div className="">
           <span>
             {Number(text).toLocaleString(localStorage.getItem("i18nextLng"), {
@@ -264,7 +313,7 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
             })}
           </span>
         </div>
-      ),
+      ), */
       sorter: (a, b) => {
         if (a.farkKm === null) return -1;
         if (b.farkKm === null) return 1;
