@@ -139,26 +139,29 @@ export default function KontrolListesiTablo({ isActive }) {
   //   }
   // }, [secilenKayitID, isActive]); // secilenKayitID değiştiğinde fetch fonksiyonunu güncelle
 
-  const fetch = useCallback(() => {
-    if (isActive) {
-      setLoading(true);
+  const fetch = useCallback(
+    (currentPage = pagination.current) => {
+      if (isActive) {
+        setLoading(true);
 
-      AxiosInstance.get(`MaterialMovements/GetMaterialMovementsServiceList?serviceId=${secilenKayitID}&page=${pagination.current}&parameter=${searchTerm}`)
-        .then((response) => {
-          const { list, recordCount } = response.data;
-          const fetchedData = list.map((item) => ({
-            ...item,
-            key: item.siraNo,
-          }));
-          setData(fetchedData);
-          setPagination((prev) => ({
-            ...prev,
-            total: recordCount,
-          }));
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [pagination.current, searchTerm, isActive, secilenKayitID]); // pagination.current, searchTerm veya plakaID değiştiğinde fetch fonksiyonunu güncelle
+        AxiosInstance.get(`MaterialMovements/GetMaterialMovementsServiceList?serviceId=${secilenKayitID}&page=${currentPage}&parameter=${searchTerm}`)
+          .then((response) => {
+            const { list, recordCount } = response.data;
+            const fetchedData = list.map((item) => ({
+              ...item,
+              key: item.siraNo,
+            }));
+            setData(fetchedData);
+            setPagination((prev) => ({
+              ...prev,
+              total: recordCount,
+            }));
+          })
+          .finally(() => setLoading(false));
+      }
+    },
+    [searchTerm, isActive, secilenKayitID]
+  ); // Remove pagination.current from dependencies
 
   useEffect(() => {
     if (secilenKayitID) {
@@ -183,6 +186,7 @@ export default function KontrolListesiTablo({ isActive }) {
 
   const handleTableChange = (newPagination) => {
     setPagination(newPagination);
+    fetch(newPagination.current); // Pass the new page number directly
   };
 
   useEffect(() => {
