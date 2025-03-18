@@ -167,7 +167,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         setValue("aciklama", res?.data.aciklama);
         setValue("faturaTarih", res?.data.faturaTarih ? dayjs(res?.data.faturaTarih) : null);
         setValue("tarih", res?.data.tarih ? dayjs(res?.data.tarih) : null);
-        setValue("saat", dayjs(res?.data.saat, "HH:mm:ss"));
+        if (res?.data.saat && dayjs(res?.data.saat, "HH:mm").isValid()) {
+          setValue("saat", dayjs(res?.data.saat, "HH:mm"));
+        }
         setValue("ozelAlan1", res?.data.ozelAlan1);
         setValue("ozelAlan2", res?.data.ozelAlan2);
         setValue("ozelAlan3", res?.data.ozelAlan3);

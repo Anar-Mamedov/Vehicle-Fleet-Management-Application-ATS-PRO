@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Spin, Typography } from "antd";
 import AxiosInstance from "../../../../../api/http.jsx";
 import { useFormContext } from "react-hook-form";
@@ -11,7 +11,7 @@ const { Text } = Typography;
 
 function BolgelereGoreToplamMiktarDagilimi() {
   const [data, setData] = useState([]);
-  const [visibleSeries, setVisibleSeries] = useState({});
+  const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { watch } = useFormContext();
 
@@ -41,24 +41,16 @@ function BolgelereGoreToplamMiktarDagilimi() {
     try {
       const response = await AxiosInstance.post(`/ModuleAnalysis/FuelAnalysis/GetFuelAnalysisInfoByType?type=7`, body);
 
-      // Transform the data to include color
-      const transformedData = response.data.map((item) => ({
-        ...item,
-      }));
+      // Transform and sort data by toplamMiktar
+      const transformedData = response.data
+        .map((item) => ({
+          name: item.lokasyon,
+          miktar: item.toplamMiktar,
+        }))
+        .sort((a, b) => b.miktar - a.miktar);
 
-      // Generate colors
-      const colors = generateColors(transformedData.length);
-
-      // Add colors to the data
-      const dataWithColors = transformedData.map((item, index) => ({
-        ...item,
-        color: colors[index],
-      }));
-
-      setData(dataWithColors);
-
-      // Set visibleSeries
-      setVisibleSeries(dataWithColors.reduce((acc, item) => ({ ...acc, [item.lokasyon]: true }), {}));
+      setData(transformedData);
+      setActiveIndex(0);
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
@@ -66,105 +58,41 @@ function BolgelereGoreToplamMiktarDagilimi() {
     }
   };
 
-  // Generate colors using chroma.js
-  const generateColors = (dataLength) => {
-    const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#bd2400", "#131842"];
-    return chroma.scale(colors).mode("lch").colors(dataLength);
-  };
-
   useEffect(() => {
     fetchData();
   }, [lokasyonId, plakaValues, aracTipiValues, departmanValues, baslangicTarihi, bitisTarihi]);
 
-  useEffect(() => {
-    setVisibleSeries(data.reduce((acc, item) => ({ ...acc, [item.lokasyon]: true }), {}));
-  }, [data]);
-
-  const handleLegendClick = (name) => {
-    setVisibleSeries((prev) => ({
-      ...prev,
-      [name]: !prev[name],
-    }));
+  const handleClick = (entry, index) => {
+    setActiveIndex(index);
   };
 
-  const CustomLegend = ({ payload }) => {
-    const handleToggleAll = () => {
-      const allVisible = Object.values(visibleSeries).every((value) => value);
-      const anyVisible = Object.values(visibleSeries).some((value) => value);
+  const getBarColor = (index) => {
+    return index === activeIndex ? "#82ca9d" : "#8884d8";
+  };
 
-      if (!anyVisible) {
-        const newVisibility = Object.keys(visibleSeries).reduce((acc, key) => {
-          acc[key] = true;
-          return acc;
-        }, {});
-        setVisibleSeries(newVisibility);
-      } else {
-        const newVisibility = Object.keys(visibleSeries).reduce((acc, key) => {
-          acc[key] = !allVisible;
-          return acc;
-        }, {});
-        setVisibleSeries(newVisibility);
-      }
-    };
-
-    return (
-      <ul
-        style={{
-          listStyle: "none",
-          padding: 0,
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "15px",
-          justifyContent: "center",
-          margin: 0,
-        }}
-      >
-        <li
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div
           style={{
-            cursor: "pointer",
-            color: Object.values(visibleSeries).every((value) => value) ? "black" : "gray",
+            backgroundColor: "white",
+            padding: "10px",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
           }}
-          onClick={handleToggleAll}
         >
-          Tümü
-        </li>
-        {payload.map((entry, index) => (
-          <li
-            key={`item-${index}`}
-            style={{
-              cursor: "pointer",
-              color: visibleSeries[entry.value] ? entry.color : "gray",
-            }}
-            onClick={() => handleLegendClick(entry.value)}
-          >
-            <span
-              style={{
-                display: "inline-block",
-                width: "10px",
-                height: "10px",
-                backgroundColor: visibleSeries[entry.value] ? entry.color : "gray",
-                marginRight: "5px",
-              }}
-            ></span>
-            {entry.value}
-          </li>
-        ))}
-      </ul>
-    );
+          <p style={{ margin: 0 }}>{`${label}: ${Number(payload[0].value).toLocaleString("tr-TR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}`}</p>
+        </div>
+      );
+    }
+    return null;
   };
 
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    return (
-      <text x={x} y={y} fill="white" textAnchor={x > cx ? "start" : "end"} dominantBaseline="central">
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
+  // Her bir bar için 40px genişlik ve minimum 1200px genişlik
+  const chartWidth = Math.max(1200, data.length * 40);
 
   return (
     <div
@@ -217,43 +145,51 @@ function BolgelereGoreToplamMiktarDagilimi() {
             display: "flex",
             flexDirection: "column",
             gap: "7px",
-            overflow: "auto",
-            height: "100vh",
+            height: "calc(100vh - 200px)",
             padding: "10px",
           }}
         >
-          <div style={{ width: "100%", height: "calc(100% - 5px)" }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data.filter((entry) => visibleSeries[entry.lokasyon])}
-                  dataKey="toplamMiktar"
-                  nameKey="lokasyon"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius="90%"
-                  fill="#8884d8"
-                  labelLine={false}
-                  label={renderCustomizedLabel}
+          <div
+            style={{
+              width: "100%",
+              height: "80%",
+              overflowX: "auto",
+              overflowY: "hidden",
+            }}
+          >
+            <div style={{ width: chartWidth, height: "100%" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={data}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                  barSize={30}
                 >
-                  {data
-                    .filter((entry) => visibleSeries[entry.lokasyon])
-                    .map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" hide />
+                  <YAxis />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="miktar" onClick={handleClick}>
+                    {data.map((entry, index) => (
+                      <Cell cursor="pointer" fill={getBarColor(index)} key={`cell-${index}`} />
                     ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value) =>
-                    Number(value).toLocaleString("tr-TR", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  }
-                />
-                <Legend content={<CustomLegend payload={data.map((entry) => ({ value: entry.lokasyon, color: entry.color }))} />} />
-              </PieChart>
-            </ResponsiveContainer>
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
+          {data[activeIndex] && (
+            <Text style={{ textAlign: "center", marginTop: "10px", fontSize: "16px", fontWeight: "500" }}>
+              {`${data[activeIndex].name}: ${Number(data[activeIndex].miktar).toLocaleString("tr-TR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`}
+            </Text>
+          )}
         </div>
       )}
     </div>

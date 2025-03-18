@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Button, Modal, Tabs } from "antd";
@@ -9,7 +9,7 @@ import { AddMaterialService } from "../../../../api/services/malzeme/services";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import GeneralInfo from "./tabs/GeneralInfo";
 
-const AddModal = ({ setStatus }) => {
+const AddModal = ({ setStatus, onRefresh }) => {
   const isFirstRender = useRef(true);
   const [isOpen, setIsModalOpen] = useState(false);
   const [isValid, setIsValid] = useState("normal");
@@ -194,7 +194,7 @@ const AddModal = ({ setStatus }) => {
 
     AddMaterialService(body).then((res) => {
       if (res?.data.statusCode === 200) {
-        setStatus(true);
+        onRefresh();
         setIsModalOpen(false);
         reset(defaultValues);
         setLoading(false);
@@ -202,7 +202,7 @@ const AddModal = ({ setStatus }) => {
         setActiveKey("1");
       }
     });
-    setStatus(false);
+    // setStatus(false);
   });
 
   const footer = [
