@@ -156,6 +156,7 @@ const Yakit = () => {
     visible: false,
     data: null,
   });
+  const [customFields, setCustomFields] = useState([]); // State to store custom field definitions
   const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
@@ -215,8 +216,24 @@ const Yakit = () => {
     }
   };
 
+  // Fetch custom field definitions from the backend
+  const fetchCustomFields = async () => {
+    try {
+      const response = await AxiosInstance.get("CustomField/GetCustomFields?form=MALZEME");
+      if (response.data) {
+        // API returns a single object with field names directly as properties
+        // Store it directly as is
+        setCustomFields(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching custom fields:", error);
+      message.error("Özel alanlar yüklenirken bir hata oluştu.");
+    }
+  };
+
   useEffect(() => {
     fetchData(0, 1);
+    fetchCustomFields(); // Fetch custom fields when component mounts
   }, []);
 
   // Search handling
@@ -579,6 +596,76 @@ const Yakit = () => {
     },
   ];
 
+  // Create combined columns with custom fields
+  const getCombinedColumns = useCallback(() => {
+    const combinedColumns = [...initialColumns];
+
+    // Add custom field columns if available
+    if (customFields) {
+      // Process custom fields 1-8 (string fields)
+      for (let i = 1; i <= 8; i++) {
+        const fieldName = customFields[`ozelAlan${i}`];
+
+        // Add column regardless of whether field name is empty or not
+        combinedColumns.push({
+          title: fieldName || "",
+          dataIndex: `ozelAlan${i}`,
+          key: `ozelAlan${i}`,
+          width: 120,
+          ellipsis: true,
+          visible: true,
+          sorter: (a, b) => {
+            if (a[`ozelAlan${i}`] === null) return -1;
+            if (b[`ozelAlan${i}`] === null) return 1;
+            return String(a[`ozelAlan${i}`]).localeCompare(String(b[`ozelAlan${i}`]));
+          },
+        });
+      }
+
+      // Process custom fields 9-10 (reference fields)
+      for (let i = 9; i <= 10; i++) {
+        const fieldName = customFields[`ozelAlan${i}`];
+
+        // Add column regardless of whether field name is empty or not
+        combinedColumns.push({
+          title: fieldName || "",
+          dataIndex: `ozelAlan${i}`,
+          key: `ozelAlan${i}`,
+          width: 120,
+          ellipsis: true,
+          visible: true,
+          sorter: (a, b) => {
+            if (a[`ozelAlan${i}`] === null) return -1;
+            if (b[`ozelAlan${i}`] === null) return 1;
+            return String(a[`ozelAlan${i}`]).localeCompare(String(b[`ozelAlan${i}`]));
+          },
+        });
+      }
+
+      // Process custom fields 11-12 (numeric fields)
+      for (let i = 11; i <= 12; i++) {
+        const fieldName = customFields[`ozelAlan${i}`];
+
+        // Add column regardless of whether field name is empty or not
+        combinedColumns.push({
+          title: fieldName || "",
+          dataIndex: `ozelAlan${i}`,
+          key: `ozelAlan${i}`,
+          width: 120,
+          ellipsis: true,
+          visible: true,
+          sorter: (a, b) => {
+            if (a[`ozelAlan${i}`] === null) return -1;
+            if (b[`ozelAlan${i}`] === null) return 1;
+            return Number(a[`ozelAlan${i}`]) - Number(b[`ozelAlan${i}`]);
+          },
+        });
+      }
+    }
+
+    return combinedColumns;
+  }, [customFields, t]);
+
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için
 
   // Intl.DateTimeFormat kullanarak tarih formatlama
@@ -660,7 +747,9 @@ const Yakit = () => {
     let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
     let widths = savedWidths ? JSON.parse(savedWidths) : {};
 
-    initialColumns.forEach((col) => {
+    const combinedCols = getCombinedColumns();
+
+    combinedCols.forEach((col) => {
       if (!order.includes(col.key)) {
         order.push(col.key);
       }
@@ -676,39 +765,81 @@ const Yakit = () => {
     localStorage.setItem("columnVisibilityMalzemeDepo", JSON.stringify(visibility));
     localStorage.setItem("columnWidthsMalzemeDepo", JSON.stringify(widths));
 
-    return order.map((key) => {
-      const column = initialColumns.find((col) => col.key === key);
-      return { ...column, visible: visibility[key], width: widths[key] };
-    });
+    return order
+      .map((key) => {
+        const column = combinedCols.find((col) => col.key === key);
+        return column ? { ...column, visible: visibility[key], width: widths[key] } : null;
+      })
+      .filter(Boolean);
   });
 
-  // Save columns to localStorage
+  // Update columns when custom fields change
   useEffect(() => {
-    localStorage.setItem("columnOrderMalzemeDepo", JSON.stringify(columns.map((col) => col.key)));
-    localStorage.setItem(
-      "columnVisibilityMalzemeDepo",
-      JSON.stringify(
-        columns.reduce(
-          (acc, col) => ({
-            ...acc,
-            [col.key]: col.visible,
-          }),
-          {}
+    const combinedCols = getCombinedColumns();
+    const savedOrder = localStorage.getItem("columnOrderMalzemeDepo");
+    const savedVisibility = localStorage.getItem("columnVisibilityMalzemeDepo");
+    const savedWidths = localStorage.getItem("columnWidthsMalzemeDepo");
+
+    let order = savedOrder ? JSON.parse(savedOrder) : [];
+    let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
+    let widths = savedWidths ? JSON.parse(savedWidths) : {};
+
+    // Add any new columns to the saved order
+    combinedCols.forEach((col) => {
+      if (!order.includes(col.key)) {
+        order.push(col.key);
+      }
+      if (visibility[col.key] === undefined) {
+        visibility[col.key] = col.visible;
+      }
+      if (widths[col.key] === undefined) {
+        widths[col.key] = col.width;
+      }
+    });
+
+    localStorage.setItem("columnOrderMalzemeDepo", JSON.stringify(order));
+    localStorage.setItem("columnVisibilityMalzemeDepo", JSON.stringify(visibility));
+    localStorage.setItem("columnWidthsMalzemeDepo", JSON.stringify(widths));
+
+    const updatedColumns = order
+      .map((key) => {
+        const column = combinedCols.find((col) => col.key === key);
+        return column ? { ...column, visible: visibility[key], width: widths[key] } : null;
+      })
+      .filter(Boolean);
+
+    setColumns(updatedColumns);
+  }, [customFields, getCombinedColumns]);
+
+  // Save columns to localStorage when they change
+  useEffect(() => {
+    if (columns.length > 0) {
+      localStorage.setItem("columnOrderMalzemeDepo", JSON.stringify(columns.map((col) => col.key)));
+      localStorage.setItem(
+        "columnVisibilityMalzemeDepo",
+        JSON.stringify(
+          columns.reduce(
+            (acc, col) => ({
+              ...acc,
+              [col.key]: col.visible,
+            }),
+            {}
+          )
         )
-      )
-    );
-    localStorage.setItem(
-      "columnWidthsMalzemeDepo",
-      JSON.stringify(
-        columns.reduce(
-          (acc, col) => ({
-            ...acc,
-            [col.key]: col.width,
-          }),
-          {}
+      );
+      localStorage.setItem(
+        "columnWidthsMalzemeDepo",
+        JSON.stringify(
+          columns.reduce(
+            (acc, col) => ({
+              ...acc,
+              [col.key]: col.width,
+            }),
+            {}
+          )
         )
-      )
-    );
+      );
+    }
   }, [columns]);
 
   // Handle column resize
@@ -828,9 +959,9 @@ const Yakit = () => {
                   <Text style={{ fontWeight: 600 }}>Sütunları Göster / Gizle</Text>
                 </div>
                 <div style={{ height: "400px", overflow: "auto" }}>
-                  {initialColumns.map((col) => (
+                  {columns.map((col) => (
                     <div style={{ display: "flex", gap: "10px" }} key={col.key}>
-                      <Checkbox checked={columns.find((column) => column.key === col.key)?.visible || false} onChange={(e) => toggleVisibility(col.key, e.target.checked)} />
+                      <Checkbox checked={col.visible || false} onChange={(e) => toggleVisibility(col.key, e.target.checked)} />
                       {col.title}
                     </div>
                   ))}
