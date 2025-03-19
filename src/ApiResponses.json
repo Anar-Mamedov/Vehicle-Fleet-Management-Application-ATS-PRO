@@ -1,1107 +1,486 @@
-[
-  {
-    "tbLokasyonId": 257,
-    "lokasyon": "HEDEF TELEKOM - BURSA",
-    "toplamMiktar": 43430.4
-  },
-  {
-    "tbLokasyonId": 258,
-    "lokasyon": "DEĞİŞİM - AVRUPA BÖLGE",
-    "toplamMiktar": 236394.27999999997
-  },
-  {
-    "tbLokasyonId": 272,
-    "lokasyon": "HEDEF GIDA - TRAKYA BÖLGE",
-    "toplamMiktar": 135954.99000000005
-  },
-  {
-    "tbLokasyonId": 275,
-    "lokasyon": "HEDEF GIDA - ERZURUM BÖLGE",
-    "toplamMiktar": 16597.630000000005
-  },
-  {
-    "tbLokasyonId": 307,
-    "lokasyon": "Tekirdağ",
-    "toplamMiktar": 113278.28000000003
-  },
-  {
-    "tbLokasyonId": 308,
-    "lokasyon": "Ordu",
-    "toplamMiktar": 3706.49
-  },
-  {
-    "tbLokasyonId": 322,
-    "lokasyon": "TARGET BİLİŞİM",
-    "toplamMiktar": 330.90000000000003
-  },
-  {
-    "tbLokasyonId": 325,
-    "lokasyon": "Afyonkarahisar",
-    "toplamMiktar": 746.87
-  },
-  {
-    "tbLokasyonId": 339,
-    "lokasyon": "İçel",
-    "toplamMiktar": 3880.5
-  },
-  {
-    "tbLokasyonId": 340,
-    "lokasyon": "Kastamonu",
-    "toplamMiktar": 923.3499999999999
-  },
-  {
-    "tbLokasyonId": 357,
-    "lokasyon": "DİYARBAKIR",
-    "toplamMiktar": 5286.630000000001
-  },
-  {
-    "tbLokasyonId": 358,
-    "lokasyon": "KIRŞEHİR",
-    "toplamMiktar": 812.6200000000001
-  },
-  {
-    "tbLokasyonId": 372,
-    "lokasyon": "KARAMAN",
-    "toplamMiktar": 165.72
-  },
-  {
-    "tbLokasyonId": 375,
-    "lokasyon": "KİLİS",
-    "toplamMiktar": 38.05
-  },
-  {
-    "tbLokasyonId": 376,
-    "lokasyon": "MARDİN",
-    "toplamMiktar": 686.11
-  },
-  {
-    "tbLokasyonId": 389,
-    "lokasyon": "16 ",
-    "toplamMiktar": 32348.590000000004
-  },
-  {
-    "tbLokasyonId": 390,
-    "lokasyon": "17 ",
-    "toplamMiktar": 2151.36
-  },
-  {
-    "tbLokasyonId": 407,
-    "lokasyon": "HEDEF ONLİNE",
-    "toplamMiktar": 197.13
-  },
-  {
-    "tbLokasyonId": 408,
-    "lokasyon": "STEPY",
-    "toplamMiktar": 9414.64
-  },
-  {
-    "tbLokasyonId": 422,
-    "lokasyon": "19 ",
-    "toplamMiktar": 1405.93
-  },
-  {
-    "tbLokasyonId": 425,
-    "lokasyon": "23 ",
-    "toplamMiktar": 480.03
-  },
-  {
-    "tbLokasyonId": 426,
-    "lokasyon": "24 ",
-    "toplamMiktar": 196.4
-  },
-  {
-    "tbLokasyonId": 439,
-    "lokasyon": "46 ",
-    "toplamMiktar": 1078.4400000000003
-  },
-  {
-    "tbLokasyonId": 440,
-    "lokasyon": "47 ",
-    "toplamMiktar": 358.72999999999996
-  },
-  {
-    "tbLokasyonId": 457,
-    "lokasyon": "67 ",
-    "toplamMiktar": 5320.85
-  },
-  {
-    "tbLokasyonId": 458,
-    "lokasyon": "68 ",
-    "toplamMiktar": 1475.6600000000003
-  },
-  {
-    "tbLokasyonId": 475,
-    "lokasyon": "1",
-    "toplamMiktar": 1620.1299999999999
-  },
-  {
-    "tbLokasyonId": 476,
-    "lokasyon": "29",
-    "toplamMiktar": 191.79999999999998
-  },
-  {
-    "tbLokasyonId": 251,
-    "lokasyon": "HEDEF KİMYA - MERKEZ",
-    "toplamMiktar": 7045.14
-  },
-  {
-    "tbLokasyonId": 253,
-    "lokasyon": "YELKEN TİCARET",
-    "toplamMiktar": 76002.83999999998
-  },
-  {
-    "tbLokasyonId": 260,
-    "lokasyon": "DEĞİŞİM - ANKARA BÖLGE",
-    "toplamMiktar": 190612.81999999995
-  },
-  {
-    "tbLokasyonId": 262,
-    "lokasyon": "DEĞİŞİM - TRAKYA BÖLGE",
-    "toplamMiktar": 77333.48
-  },
-  {
-    "tbLokasyonId": 296,
-    "lokasyon": "Çanakkale",
-    "toplamMiktar": 2455.54
-  },
-  {
-    "tbLokasyonId": 319,
-    "lokasyon": "Kayseri",
-    "toplamMiktar": 12979.25
-  },
-  {
-    "tbLokasyonId": 326,
-    "lokasyon": "Aksaray",
-    "toplamMiktar": 3923.209999999999
-  },
-  {
-    "tbLokasyonId": 328,
-    "lokasyon": "Antalya",
-    "toplamMiktar": 39945.028000000006
-  },
-  {
-    "tbLokasyonId": 330,
-    "lokasyon": "Batman",
-    "toplamMiktar": 277.61
-  },
-  {
-    "tbLokasyonId": 351,
-    "lokasyon": "Tokat",
-    "toplamMiktar": 1591.11
-  },
-  {
-    "tbLokasyonId": 353,
-    "lokasyon": "Yozgat",
-    "toplamMiktar": 1033.22
-  },
-  {
-    "tbLokasyonId": 355,
-    "lokasyon": "Kırklareli",
-    "toplamMiktar": 33334.765
-  },
-  {
-    "tbLokasyonId": 360,
-    "lokasyon": "Elazığ",
-    "toplamMiktar": 1469.41
-  },
-  {
-    "tbLokasyonId": 362,
-    "lokasyon": "Mersin",
-    "toplamMiktar": 6712.740000000002
-  },
-  {
-    "tbLokasyonId": 385,
-    "lokasyon": "ADAPAZARI",
-    "toplamMiktar": 54.83
-  },
-  {
-    "tbLokasyonId": 387,
-    "lokasyon": "09 ",
-    "toplamMiktar": 6729.869999999999
-  },
-  {
-    "tbLokasyonId": 394,
-    "lokasyon": "34 ",
-    "toplamMiktar": 1199086.059000002
-  },
-  {
-    "tbLokasyonId": 396,
-    "lokasyon": "39 ",
-    "toplamMiktar": 14238.82
-  },
-  {
-    "tbLokasyonId": 419,
-    "lokasyon": "12 ",
-    "toplamMiktar": 79.91
-  },
-  {
-    "tbLokasyonId": 421,
-    "lokasyon": "15 ",
-    "toplamMiktar": 1002.75
-  },
-  {
-    "tbLokasyonId": 428,
-    "lokasyon": "27 ",
-    "toplamMiktar": 9844.88
-  },
-  {
-    "tbLokasyonId": 430,
-    "lokasyon": "31 ",
-    "toplamMiktar": 754.9700000000001
-  },
-  {
-    "tbLokasyonId": 453,
-    "lokasyon": "63 ",
-    "toplamMiktar": 1779.4500000000003
-  },
-  {
-    "tbLokasyonId": 455,
-    "lokasyon": "65 ",
-    "toplamMiktar": 3329.93
-  },
-  {
-    "tbLokasyonId": 460,
-    "lokasyon": "70 ",
-    "toplamMiktar": 210.07
-  },
-  {
-    "tbLokasyonId": 462,
-    "lokasyon": "72 ",
-    "toplamMiktar": 538.8
-  },
-  {
-    "tbLokasyonId": 255,
-    "lokasyon": "DEĞİŞİM - SAMSUN BÖLGE",
-    "toplamMiktar": 74255.53
-  },
-  {
-    "tbLokasyonId": 256,
-    "lokasyon": "GLOBAL - MERKEZ",
-    "toplamMiktar": 280340.41
-  },
-  {
-    "tbLokasyonId": 259,
-    "lokasyon": "HOREKA - ANTALYA BÖLGE",
-    "toplamMiktar": 139906.77
-  },
-  {
-    "tbLokasyonId": 273,
-    "lokasyon": "HEDEF GRUP",
-    "toplamMiktar": 24335.61
-  },
-  {
-    "tbLokasyonId": 274,
-    "lokasyon": "HEDEF GIDA - ANTALYA BÖLGE",
-    "toplamMiktar": 156347.57000000004
-  },
-  {
-    "tbLokasyonId": 306,
-    "lokasyon": "Kirklareli",
-    "toplamMiktar": 96.86
-  },
-  {
-    "tbLokasyonId": 309,
-    "lokasyon": "Edirne",
-    "toplamMiktar": 54856.70000000001
-  },
-  {
-    "tbLokasyonId": 323,
-    "lokasyon": "TARGET PAZARLAMA",
-    "toplamMiktar": 1788.86
-  },
-  {
-    "tbLokasyonId": 324,
-    "lokasyon": "Adana",
-    "toplamMiktar": 34554.58
-  },
-  {
-    "tbLokasyonId": 341,
-    "lokasyon": "Kirikkale",
-    "toplamMiktar": 37.23
-  },
-  {
-    "tbLokasyonId": 356,
-    "lokasyon": "BALIKESİR",
-    "toplamMiktar": 5591.17
-  },
-  {
-    "tbLokasyonId": 359,
-    "lokasyon": "SİNOP",
-    "toplamMiktar": 198.85000000000002
-  },
-  {
-    "tbLokasyonId": 373,
-    "lokasyon": "KARS",
-    "toplamMiktar": 235.41
-  },
-  {
-    "tbLokasyonId": 374,
-    "lokasyon": "KIRIKKALE",
-    "toplamMiktar": 1485.29
-  },
-  {
-    "tbLokasyonId": 391,
-    "lokasyon": "18 ",
-    "toplamMiktar": 1263.46
-  },
-  {
-    "tbLokasyonId": 392,
-    "lokasyon": "22 ",
-    "toplamMiktar": 23574.529999999995
-  },
-  {
-    "tbLokasyonId": 406,
-    "lokasyon": "KOZAELİ",
-    "toplamMiktar": 36.2
-  },
-  {
-    "tbLokasyonId": 409,
-    "lokasyon": "AKTİF GRUP",
-    "toplamMiktar": 12758.53
-  },
-  {
-    "tbLokasyonId": 423,
-    "lokasyon": "20 ",
-    "toplamMiktar": 2532.81
-  },
-  {
-    "tbLokasyonId": 424,
-    "lokasyon": "21 ",
-    "toplamMiktar": 3209.35
-  },
-  {
-    "tbLokasyonId": 441,
-    "lokasyon": "48 ",
-    "toplamMiktar": 8143.638000000001
-  },
-  {
-    "tbLokasyonId": 442,
-    "lokasyon": "50 ",
-    "toplamMiktar": 682.69
-  },
-  {
-    "tbLokasyonId": 456,
-    "lokasyon": "66 ",
-    "toplamMiktar": 453.26
-  },
-  {
-    "tbLokasyonId": 459,
-    "lokasyon": "69 ",
-    "toplamMiktar": 31.669999999999998
-  },
-  {
-    "tbLokasyonId": 473,
-    "lokasyon": "49 ",
-    "toplamMiktar": 185.42000000000002
-  },
-  {
-    "tbLokasyonId": 474,
-    "lokasyon": "57 ",
-    "toplamMiktar": 535.06
-  },
-  {
-    "tbLokasyonId": 245,
-    "lokasyon": "AKTİF GIDA - MERKEZ",
-    "toplamMiktar": 17303.82
-  },
-  {
-    "tbLokasyonId": 252,
-    "lokasyon": "ORUÇOĞLU YAĞ - AFYON",
-    "toplamMiktar": 70628.80999999998
-  },
-  {
-    "tbLokasyonId": 263,
-    "lokasyon": "MİKA TUR - MERKEZ",
-    "toplamMiktar": 90849.32999999999
-  },
-  {
-    "tbLokasyonId": 270,
-    "lokasyon": "HEDEF GIDA - ANADOLU BÖLGE",
-    "toplamMiktar": 304546.39
-  },
-  {
-    "tbLokasyonId": 277,
-    "lokasyon": "HEDEF GIDA - AVRUPA BÖLGE",
-    "toplamMiktar": 398142.60200000013
-  },
-  {
-    "tbLokasyonId": 295,
-    "lokasyon": "İstanbul",
-    "toplamMiktar": 2830111.944000008
-  },
-  {
-    "tbLokasyonId": 302,
-    "lokasyon": "ANKARA",
-    "toplamMiktar": 299090.4199999999
-  },
-  {
-    "tbLokasyonId": 313,
-    "lokasyon": "Trabzon",
-    "toplamMiktar": 15007.050000000001
-  },
-  {
-    "tbLokasyonId": 320,
-    "lokasyon": "Malatya",
-    "toplamMiktar": 4345.04
-  },
-  {
-    "tbLokasyonId": 327,
-    "lokasyon": "Amasya",
-    "toplamMiktar": 797.9300000000001
-  },
-  {
-    "tbLokasyonId": 338,
-    "lokasyon": "Gaziantep",
-    "toplamMiktar": 16859.590000000004
-  },
-  {
-    "tbLokasyonId": 345,
-    "lokasyon": "Muğla",
-    "toplamMiktar": 10576.479999999998
-  },
-  {
-    "tbLokasyonId": 352,
-    "lokasyon": "Van",
-    "toplamMiktar": 8773.59
-  },
-  {
-    "tbLokasyonId": 363,
-    "lokasyon": "Şanlıurfa",
-    "toplamMiktar": 1429.7100000000003
-  },
-  {
-    "tbLokasyonId": 370,
-    "lokasyon": "HATAY",
-    "toplamMiktar": 4248.04
-  },
-  {
-    "tbLokasyonId": 377,
-    "lokasyon": "MUŞ",
-    "toplamMiktar": 448.15999999999997
-  },
-  {
-    "tbLokasyonId": 388,
-    "lokasyon": "14 ",
-    "toplamMiktar": 6992.530000000001
-  },
-  {
-    "tbLokasyonId": 395,
-    "lokasyon": "35 ",
-    "toplamMiktar": 62811.08
-  },
-  {
-    "tbLokasyonId": 413,
-    "lokasyon": "04 ",
-    "toplamMiktar": 497.84999999999997
-  },
-  {
-    "tbLokasyonId": 420,
-    "lokasyon": "13 ",
-    "toplamMiktar": 334.64
-  },
-  {
-    "tbLokasyonId": 427,
-    "lokasyon": "25 ",
-    "toplamMiktar": 3797.59
-  },
-  {
-    "tbLokasyonId": 438,
-    "lokasyon": "44 ",
-    "toplamMiktar": 2056.8199999999997
-  },
-  {
-    "tbLokasyonId": 445,
-    "lokasyon": "53 ",
-    "toplamMiktar": 711.26
-  },
-  {
-    "tbLokasyonId": 463,
-    "lokasyon": "74 ",
-    "toplamMiktar": 511.92999999999995
-  },
-  {
-    "tbLokasyonId": 470,
-    "lokasyon": "Ağri",
-    "toplamMiktar": 31.29
-  },
-  {
-    "tbLokasyonId": 477,
-    "lokasyon": "3",
-    "toplamMiktar": 21.46
-  },
-  {
-    "tbLokasyonId": 246,
-    "lokasyon": "DEĞİŞİM - ANADOLU BÖLGE",
-    "toplamMiktar": 179044.14999999997
-  },
-  {
-    "tbLokasyonId": 269,
-    "lokasyon": "YELKEN - ANADOLU BÖLGE",
-    "toplamMiktar": 67718.31
-  },
-  {
-    "tbLokasyonId": 271,
-    "lokasyon": "HEDEF GIDA - ADANA BÖLGE",
-    "toplamMiktar": 263727.00999999995
-  },
-  {
-    "tbLokasyonId": 276,
-    "lokasyon": "HEDEF GRUP - MERKEZ",
-    "toplamMiktar": 127103.73999999999
-  },
-  {
-    "tbLokasyonId": 278,
-    "lokasyon": "HEDEF BEYT OTEL",
-    "toplamMiktar": 581.52
-  },
-  {
-    "tbLokasyonId": 301,
-    "lokasyon": "İDEAL-İSTANBUL",
-    "toplamMiktar": 121.53999999999999
-  },
-  {
-    "tbLokasyonId": 303,
-    "lokasyon": "Bolu",
-    "toplamMiktar": 8455.93
-  },
-  {
-    "tbLokasyonId": 305,
-    "lokasyon": "Aydin",
-    "toplamMiktar": 171.25
-  },
-  {
-    "tbLokasyonId": 310,
-    "lokasyon": "Zonguldak",
-    "toplamMiktar": 3645.2299999999996
-  },
-  {
-    "tbLokasyonId": 312,
-    "lokasyon": "Çorum",
-    "toplamMiktar": 5045.409999999999
-  },
-  {
-    "tbLokasyonId": 335,
-    "lokasyon": "Düzce",
-    "toplamMiktar": 1029.3400000000001
-  },
-  {
-    "tbLokasyonId": 337,
-    "lokasyon": "Eskişehir",
-    "toplamMiktar": 8164.81
-  },
-  {
-    "tbLokasyonId": 344,
-    "lokasyon": "Manisa",
-    "toplamMiktar": 8745.900000000001
-  },
-  {
-    "tbLokasyonId": 346,
-    "lokasyon": "Osmaniye",
-    "toplamMiktar": 1966.3899999999999
-  },
-  {
-    "tbLokasyonId": 369,
-    "lokasyon": "ERZURUM",
-    "toplamMiktar": 8886.291000000001
-  },
-  {
-    "tbLokasyonId": 371,
-    "lokasyon": "K.MARAŞ",
-    "toplamMiktar": 403.78000000000003
-  },
-  {
-    "tbLokasyonId": 378,
-    "lokasyon": "NEVŞEHİR",
-    "toplamMiktar": 727.3799999999999
-  },
-  {
-    "tbLokasyonId": 380,
-    "lokasyon": "UŞAK",
-    "toplamMiktar": 410.65
-  },
-  {
-    "tbLokasyonId": 403,
-    "lokasyon": "RİZE",
-    "toplamMiktar": 351.1
-  },
-  {
-    "tbLokasyonId": 405,
-    "lokasyon": "AKSER PERSONEL SERVİS",
-    "toplamMiktar": 350.45
-  },
-  {
-    "tbLokasyonId": 410,
-    "lokasyon": "01 ",
-    "toplamMiktar": 20508.08
-  },
-  {
-    "tbLokasyonId": 412,
-    "lokasyon": "03 ",
-    "toplamMiktar": 2256.05
-  },
-  {
-    "tbLokasyonId": 435,
-    "lokasyon": "40 ",
-    "toplamMiktar": 366.64
-  },
-  {
-    "tbLokasyonId": 437,
-    "lokasyon": "43 ",
-    "toplamMiktar": 2156.49
-  },
-  {
-    "tbLokasyonId": 444,
-    "lokasyon": "52 ",
-    "toplamMiktar": 2255.7400000000002
-  },
-  {
-    "tbLokasyonId": 446,
-    "lokasyon": "54 ",
-    "toplamMiktar": 12194.519999999999
-  },
-  {
-    "tbLokasyonId": 471,
-    "lokasyon": "Bartin",
-    "toplamMiktar": 47.53
-  },
-  {
-    "tbLokasyonId": 478,
-    "lokasyon": "4",
-    "toplamMiktar": 29.07
-  },
-  {
-    "tbLokasyonId": 480,
-    "lokasyon": "6",
-    "toplamMiktar": 9693.91
-  },
-  {
-    "tbLokasyonId": 248,
-    "lokasyon": "EKO -  REYON",
-    "toplamMiktar": 29313.970000000005
-  },
-  {
-    "tbLokasyonId": 250,
-    "lokasyon": "ALKOR",
-    "toplamMiktar": 1389.96
-  },
-  {
-    "tbLokasyonId": 265,
-    "lokasyon": "DEĞİŞİM - MERKEZ",
-    "toplamMiktar": 36153.07
-  },
-  {
-    "tbLokasyonId": 267,
-    "lokasyon": "DORUK - ANADOLU BÖLGE",
-    "toplamMiktar": 33706.12999999999
-  },
-  {
-    "tbLokasyonId": 280,
-    "lokasyon": "HEDEF TURİZM",
-    "toplamMiktar": 189.32
-  },
-  {
-    "tbLokasyonId": 282,
-    "lokasyon": "DEĞİŞİM - TRABZON BÖLGE",
-    "toplamMiktar": 1227.43
-  },
-  {
-    "tbLokasyonId": 284,
-    "lokasyon": "GLOBAL - GELENEKSEL KANAL",
-    "toplamMiktar": 17834.449999999997
-  },
-  {
-    "tbLokasyonId": 297,
-    "lokasyon": "Karabük",
-    "toplamMiktar": 540.98
-  },
-  {
-    "tbLokasyonId": 299,
-    "lokasyon": "Kütahya",
-    "toplamMiktar": 2996.5499999999997
-  },
-  {
-    "tbLokasyonId": 314,
-    "lokasyon": "Giresun",
-    "toplamMiktar": 7490.380000000001
-  },
-  {
-    "tbLokasyonId": 316,
-    "lokasyon": "Diyarbakir",
-    "toplamMiktar": 40.38
-  },
-  {
-    "tbLokasyonId": 331,
-    "lokasyon": "Bayburt",
-    "toplamMiktar": 212.39000000000001
-  },
-  {
-    "tbLokasyonId": 348,
-    "lokasyon": "Samsun",
-    "toplamMiktar": 10505.82
-  },
-  {
-    "tbLokasyonId": 350,
-    "lokasyon": "Sivas",
-    "toplamMiktar": 3792.6099999999997
-  },
-  {
-    "tbLokasyonId": 365,
-    "lokasyon": "BARTIN",
-    "toplamMiktar": 221.92000000000002
-  },
-  {
-    "tbLokasyonId": 367,
-    "lokasyon": "BİTLİS",
-    "toplamMiktar": 770.63
-  },
-  {
-    "tbLokasyonId": 382,
-    "lokasyon": "AFYON",
-    "toplamMiktar": 2703.21
-  },
-  {
-    "tbLokasyonId": 384,
-    "lokasyon": "ANTAKYA",
-    "toplamMiktar": 82.38
-  },
-  {
-    "tbLokasyonId": 397,
-    "lokasyon": "41 ",
-    "toplamMiktar": 37539.17
-  },
-  {
-    "tbLokasyonId": 399,
-    "lokasyon": "59 ",
-    "toplamMiktar": 48202.979999999996
-  },
-  {
-    "tbLokasyonId": 401,
-    "lokasyon": "BODRUM",
-    "toplamMiktar": 27.23
-  },
-  {
-    "tbLokasyonId": 414,
-    "lokasyon": "05 ",
-    "toplamMiktar": 1627.2800000000002
-  },
-  {
-    "tbLokasyonId": 431,
-    "lokasyon": "32 ",
-    "toplamMiktar": 1007.8199999999999
-  },
-  {
-    "tbLokasyonId": 433,
-    "lokasyon": "37 ",
-    "toplamMiktar": 3170.4399999999996
-  },
-  {
-    "tbLokasyonId": 448,
-    "lokasyon": "56 ",
-    "toplamMiktar": 589.59
-  },
-  {
-    "tbLokasyonId": 450,
-    "lokasyon": "60 ",
-    "toplamMiktar": 813.2500000000001
-  },
-  {
-    "tbLokasyonId": 465,
-    "lokasyon": "78 ",
-    "toplamMiktar": 1503.2099999999998
-  },
-  {
-    "tbLokasyonId": 467,
-    "lokasyon": "DEĞİŞİM - BURSA BÖLGE",
-    "toplamMiktar": 1317.96
-  },
-  {
-    "tbLokasyonId": 482,
-    "lokasyon": "9",
-    "toplamMiktar": 738.99
-  },
-  {
-    "tbLokasyonId": 484,
-    "lokasyon": "76 ",
-    "toplamMiktar": 32.06
-  },
-  {
-    "tbLokasyonId": 247,
-    "lokasyon": "DORUK - AVRUPA BÖLGE",
-    "toplamMiktar": 62807.92000000001
-  },
-  {
-    "tbLokasyonId": 249,
-    "lokasyon": "HEDEF GIDA - ANKARA BÖLGE",
-    "toplamMiktar": 420535.5199999998
-  },
-  {
-    "tbLokasyonId": 264,
-    "lokasyon": "DEĞİŞİM - VAN BÖLGE",
-    "toplamMiktar": 67367.14600000001
-  },
-  {
-    "tbLokasyonId": 266,
-    "lokasyon": "DEĞİŞİM - ÇORUM BÖLGE",
-    "toplamMiktar": 19463.539999999997
-  },
-  {
-    "tbLokasyonId": 281,
-    "lokasyon": "DEĞİŞİM - ERZURUM BÖLGE",
-    "toplamMiktar": 56958.669999999984
-  },
-  {
-    "tbLokasyonId": 283,
-    "lokasyon": "KARAAL A.Ş",
-    "toplamMiktar": 6508.919999999999
-  },
-  {
-    "tbLokasyonId": 298,
-    "lokasyon": "Kocaeli",
-    "toplamMiktar": 63453.450000000004
-  },
-  {
-    "tbLokasyonId": 315,
-    "lokasyon": "Bursa",
-    "toplamMiktar": 43403.450000000004
-  },
-  {
-    "tbLokasyonId": 317,
-    "lokasyon": "Isparta",
-    "toplamMiktar": 2373.37
-  },
-  {
-    "tbLokasyonId": 332,
-    "lokasyon": "Burdur",
-    "toplamMiktar": 1259.0900000000001
-  },
-  {
-    "tbLokasyonId": 334,
-    "lokasyon": "Denizli",
-    "toplamMiktar": 3349.6900000000005
-  },
-  {
-    "tbLokasyonId": 347,
-    "lokasyon": "Sakarya",
-    "toplamMiktar": 10733.699999999999
-  },
-  {
-    "tbLokasyonId": 349,
-    "lokasyon": "Siirt",
-    "toplamMiktar": 595.96
-  },
-  {
-    "tbLokasyonId": 364,
-    "lokasyon": "ADIYAMAN",
-    "toplamMiktar": 296.95
-  },
-  {
-    "tbLokasyonId": 366,
-    "lokasyon": "BİLECİK",
-    "toplamMiktar": 525.27
-  },
-  {
-    "tbLokasyonId": 381,
-    "lokasyon": "KAHRAMANMARAŞ",
-    "toplamMiktar": 475.80000000000007
-  },
-  {
-    "tbLokasyonId": 383,
-    "lokasyon": "AĞRI ",
-    "toplamMiktar": 791.14
-  },
-  {
-    "tbLokasyonId": 398,
-    "lokasyon": "45 ",
-    "toplamMiktar": 5715.89
-  },
-  {
-    "tbLokasyonId": 400,
-    "lokasyon": "81 ",
-    "toplamMiktar": 2308.79
-  },
-  {
-    "tbLokasyonId": 415,
-    "lokasyon": "07 ",
-    "toplamMiktar": 22486.890000000003
-  },
-  {
-    "tbLokasyonId": 417,
-    "lokasyon": "10 ",
-    "toplamMiktar": 4487.52
-  },
-  {
-    "tbLokasyonId": 432,
-    "lokasyon": "33 ",
-    "toplamMiktar": 10276.710000000001
-  },
-  {
-    "tbLokasyonId": 434,
-    "lokasyon": "38 ",
-    "toplamMiktar": 5697.85
-  },
-  {
-    "tbLokasyonId": 449,
-    "lokasyon": "58 ",
-    "toplamMiktar": 2562.44
-  },
-  {
-    "tbLokasyonId": 451,
-    "lokasyon": "61 ",
-    "toplamMiktar": 10547.23
-  },
-  {
-    "tbLokasyonId": 464,
-    "lokasyon": "77 ",
-    "toplamMiktar": 1009.34
-  },
-  {
-    "tbLokasyonId": 466,
-    "lokasyon": "80 ",
-    "toplamMiktar": 1621.9900000000002
-  },
-  {
-    "tbLokasyonId": 481,
-    "lokasyon": "7",
-    "toplamMiktar": 1513.83
-  },
-  {
-    "tbLokasyonId": 483,
-    "lokasyon": "30 ",
-    "toplamMiktar": 85.53999999999999
-  },
-  {
-    "tbLokasyonId": 254,
-    "lokasyon": "HOREKA - AVRUPA BÖLGE",
-    "toplamMiktar": 21825.180000000004
-  },
-  {
-    "tbLokasyonId": 261,
-    "lokasyon": "İDEAL",
-    "toplamMiktar": 904120.0809999998
-  },
-  {
-    "tbLokasyonId": 268,
-    "lokasyon": "DORUK - BURSA BÖLGE",
-    "toplamMiktar": 28057.760000000002
-  },
-  {
-    "tbLokasyonId": 279,
-    "lokasyon": "AİLE",
-    "toplamMiktar": 15625.149999999998
-  },
-  {
-    "tbLokasyonId": 293,
-    "lokasyon": "HEDEF GRUBU",
-    "toplamMiktar": 48.18
-  },
-  {
-    "tbLokasyonId": 311,
-    "lokasyon": "Yalova",
-    "toplamMiktar": 1680.45
-  },
-  {
-    "tbLokasyonId": 318,
-    "lokasyon": "İzmir",
-    "toplamMiktar": 102121.51000000002
-  },
-  {
-    "tbLokasyonId": 329,
-    "lokasyon": "Balikesir",
-    "toplamMiktar": 62.42
-  },
-  {
-    "tbLokasyonId": 343,
-    "lokasyon": "Konya",
-    "toplamMiktar": 9609.25
-  },
-  {
-    "tbLokasyonId": 354,
-    "lokasyon": "Aydın",
-    "toplamMiktar": 23651.009999999995
-  },
-  {
-    "tbLokasyonId": 361,
-    "lokasyon": "Erzincan",
-    "toplamMiktar": 550.8799999999999
-  },
-  {
-    "tbLokasyonId": 368,
-    "lokasyon": "ÇANKIRI",
-    "toplamMiktar": 613.68
-  },
-  {
-    "tbLokasyonId": 379,
-    "lokasyon": "NİĞDE",
-    "toplamMiktar": 677.51
-  },
-  {
-    "tbLokasyonId": 386,
-    "lokasyon": "06 ",
-    "toplamMiktar": 168563.38
-  },
-  {
-    "tbLokasyonId": 393,
-    "lokasyon": "26 ",
-    "toplamMiktar": 6865.36
-  },
-  {
-    "tbLokasyonId": 404,
-    "lokasyon": "ANKRA",
-    "toplamMiktar": 39.36
-  },
-  {
-    "tbLokasyonId": 411,
-    "lokasyon": "02 ",
-    "toplamMiktar": 54.97
-  },
-  {
-    "tbLokasyonId": 418,
-    "lokasyon": "11 ",
-    "toplamMiktar": 841.6700000000002
-  },
-  {
-    "tbLokasyonId": 429,
-    "lokasyon": "28 ",
-    "toplamMiktar": 1670.27
-  },
-  {
-    "tbLokasyonId": 436,
-    "lokasyon": "42 ",
-    "toplamMiktar": 5572.950000000001
-  },
-  {
-    "tbLokasyonId": 443,
-    "lokasyon": "51 ",
-    "toplamMiktar": 482.72
-  },
-  {
-    "tbLokasyonId": 447,
-    "lokasyon": "55 ",
-    "toplamMiktar": 13386.88
-  },
-  {
-    "tbLokasyonId": 454,
-    "lokasyon": "64 ",
-    "toplamMiktar": 511.46
-  },
-  {
-    "tbLokasyonId": 461,
-    "lokasyon": "71 ",
-    "toplamMiktar": 536.32
-  },
-  {
-    "tbLokasyonId": 468,
-    "lokasyon": "HEDEF GRUP - SATIŞ",
-    "toplamMiktar": 38181.00000000001
-  },
-  {
-    "tbLokasyonId": 479,
-    "lokasyon": "5",
-    "toplamMiktar": 188.47
-  },
-  {
-    "tbLokasyonId": 486,
-    "lokasyon": "79 ",
-    "toplamMiktar": 22.58
-  }
-]
+{
+  "page": 204,
+  "recordCount": 2040,
+  "list": [
+    {
+      "siraNo": 10228,
+      "aracId": 30494,
+      "plaka": "34BSB611",
+      "policeNo": "0001-0210-59330877",
+      "aktif": true,
+      "varsayilan": false,
+      "baslangicTarih": "2024-03-19T00:00:00",
+      "bitisTarih": "2025-03-19T00:00:00",
+      "kayitTarih": "2025-03-19T00:00:00",
+      "kalanSure": 0,
+      "aracBedeli": 0,
+      "tutar": 6164.45,
+      "hasarIndirimi": 0,
+      "firmaId": 330,
+      "resimSayisi": 0,
+      "dokumanSayisi": 0,
+      "firma": "ALLİANZ SİGORTA A.Ş",
+      "yetkili": "",
+      "ruhsatBelgeSeriNo": "",
+      "adres": "",
+      "il": "",
+      "ilce": "",
+      "acentaKodId": 0,
+      "acenta": "",
+      "telefon": "",
+      "aciklama": "",
+      "sigorta": "TRAFİK SİGORTASI",
+      "sigortaKodId": 63,
+      "ozelAlan1": null,
+      "ozelAlan2": null,
+      "ozelAlan3": null,
+      "ozelAlan4": null,
+      "ozelAlan5": null,
+      "ozelAlan6": null,
+      "ozelAlan7": null,
+      "ozelAlan8": null,
+      "ozelAlan9": null,
+      "ozelAlanKodId9": 0,
+      "ozelAlan10": null,
+      "ozelAlanKodId10": 0,
+      "ozelAlan11": 0,
+      "ozelAlan12": 0,
+      "lokasyonId": 323,
+      "toplamGun": 0,
+      "lokasyon": "TARGET PAZARLAMA",
+      "aracTip": "ARAZİ TAŞITI-JEEP"
+    },
+    {
+      "siraNo": 10226,
+      "aracId": 31736,
+      "plaka": "34AIA987",
+      "policeNo": "0001-0210-59197444",
+      "aktif": true,
+      "varsayilan": false,
+      "baslangicTarih": "2024-02-16T00:00:00",
+      "bitisTarih": "2025-02-16T00:00:00",
+      "kayitTarih": "2025-02-16T00:00:00",
+      "kalanSure": -31,
+      "aracBedeli": 0,
+      "tutar": 9295.45,
+      "hasarIndirimi": 0,
+      "firmaId": 330,
+      "resimSayisi": 0,
+      "dokumanSayisi": 0,
+      "firma": "ALLİANZ SİGORTA A.Ş",
+      "yetkili": "",
+      "ruhsatBelgeSeriNo": "",
+      "adres": "",
+      "il": "",
+      "ilce": "",
+      "acentaKodId": 0,
+      "acenta": "",
+      "telefon": "",
+      "aciklama": "",
+      "sigorta": "TRAFİK SİGORTASI",
+      "sigortaKodId": 63,
+      "ozelAlan1": null,
+      "ozelAlan2": null,
+      "ozelAlan3": null,
+      "ozelAlan4": null,
+      "ozelAlan5": null,
+      "ozelAlan6": null,
+      "ozelAlan7": null,
+      "ozelAlan8": null,
+      "ozelAlan9": null,
+      "ozelAlanKodId9": 0,
+      "ozelAlan10": null,
+      "ozelAlanKodId10": 0,
+      "ozelAlan11": 0,
+      "ozelAlan12": 0,
+      "lokasyonId": 323,
+      "toplamGun": 0,
+      "lokasyon": "TARGET PAZARLAMA",
+      "aracTip": "OTOMOBİL"
+    },
+    {
+      "siraNo": 10225,
+      "aracId": 593,
+      "plaka": "34GR6212",
+      "policeNo": "0001-0210-59375916",
+      "aktif": true,
+      "varsayilan": false,
+      "baslangicTarih": "2024-03-20T00:00:00",
+      "bitisTarih": "2025-03-20T00:00:00",
+      "kayitTarih": "2025-03-20T00:00:00",
+      "kalanSure": 1,
+      "aracBedeli": 0,
+      "tutar": 25361.44,
+      "hasarIndirimi": 0,
+      "firmaId": 330,
+      "resimSayisi": 0,
+      "dokumanSayisi": 0,
+      "firma": "ALLİANZ SİGORTA A.Ş",
+      "yetkili": "",
+      "ruhsatBelgeSeriNo": "",
+      "adres": "",
+      "il": "",
+      "ilce": "",
+      "acentaKodId": 0,
+      "acenta": "",
+      "telefon": "",
+      "aciklama": "",
+      "sigorta": "TRAFİK SİGORTASI",
+      "sigortaKodId": 63,
+      "ozelAlan1": null,
+      "ozelAlan2": null,
+      "ozelAlan3": null,
+      "ozelAlan4": null,
+      "ozelAlan5": null,
+      "ozelAlan6": null,
+      "ozelAlan7": null,
+      "ozelAlan8": null,
+      "ozelAlan9": null,
+      "ozelAlanKodId9": 0,
+      "ozelAlan10": null,
+      "ozelAlanKodId10": 0,
+      "ozelAlan11": 0,
+      "ozelAlan12": 0,
+      "lokasyonId": 323,
+      "toplamGun": 0,
+      "lokasyon": "TARGET PAZARLAMA",
+      "aracTip": "KAMYON"
+    },
+    {
+      "siraNo": 9931,
+      "aracId": 30524,
+      "plaka": "34GKE709",
+      "policeNo": "T-365532070-0",
+      "aktif": true,
+      "varsayilan": false,
+      "baslangicTarih": "2024-03-17T00:00:00",
+      "bitisTarih": "2025-03-17T00:00:00",
+      "kayitTarih": "2025-03-17T00:00:00",
+      "kalanSure": -2,
+      "aracBedeli": 0,
+      "tutar": 5034.26,
+      "hasarIndirimi": 0,
+      "firmaId": 247,
+      "resimSayisi": 0,
+      "dokumanSayisi": 0,
+      "firma": "AK SİGORTA A.Ş.",
+      "yetkili": "",
+      "ruhsatBelgeSeriNo": "",
+      "adres": "MECLİS-İ MEBUSAN CAD. NO:67",
+      "il": "İSTANBUL",
+      "ilce": "FINDIKLI",
+      "acentaKodId": 0,
+      "acenta": "",
+      "telefon": "02123934300",
+      "aciklama": "",
+      "sigorta": "TRAFİK SİGORTASI",
+      "sigortaKodId": 63,
+      "ozelAlan1": null,
+      "ozelAlan2": null,
+      "ozelAlan3": null,
+      "ozelAlan4": null,
+      "ozelAlan5": null,
+      "ozelAlan6": null,
+      "ozelAlan7": null,
+      "ozelAlan8": null,
+      "ozelAlan9": null,
+      "ozelAlanKodId9": 0,
+      "ozelAlan10": null,
+      "ozelAlanKodId10": 0,
+      "ozelAlan11": 0,
+      "ozelAlan12": 0,
+      "lokasyonId": 408,
+      "toplamGun": 0,
+      "lokasyon": "DEĞİŞİM - STEPY BÖLGE",
+      "aracTip": "OTOMOBİL"
+    },
+    {
+      "siraNo": 9930,
+      "aracId": 31627,
+      "plaka": "34KFY738",
+      "policeNo": "",
+      "aktif": true,
+      "varsayilan": false,
+      "baslangicTarih": "2024-03-22T00:00:00",
+      "bitisTarih": "2025-03-22T00:00:00",
+      "kayitTarih": "2025-03-22T00:00:00",
+      "kalanSure": 3,
+      "aracBedeli": 0,
+      "tutar": 0,
+      "hasarIndirimi": 0,
+      "firmaId": 0,
+      "resimSayisi": 0,
+      "dokumanSayisi": 0,
+      "firma": "",
+      "yetkili": "",
+      "ruhsatBelgeSeriNo": "",
+      "adres": "",
+      "il": "",
+      "ilce": "",
+      "acentaKodId": 0,
+      "acenta": "",
+      "telefon": "",
+      "aciklama": "",
+      "sigorta": "TRAFİK SİGORTASI",
+      "sigortaKodId": 63,
+      "ozelAlan1": null,
+      "ozelAlan2": null,
+      "ozelAlan3": null,
+      "ozelAlan4": null,
+      "ozelAlan5": null,
+      "ozelAlan6": null,
+      "ozelAlan7": null,
+      "ozelAlan8": null,
+      "ozelAlan9": null,
+      "ozelAlanKodId9": 0,
+      "ozelAlan10": null,
+      "ozelAlanKodId10": 0,
+      "ozelAlan11": 0,
+      "ozelAlan12": 0,
+      "lokasyonId": 468,
+      "toplamGun": 0,
+      "lokasyon": "HEDEF GRUP - SATIŞ",
+      "aracTip": "KAMYONET"
+    },
+    {
+      "siraNo": 9929,
+      "aracId": 31626,
+      "plaka": "34KFV846",
+      "policeNo": "",
+      "aktif": true,
+      "varsayilan": false,
+      "baslangicTarih": "2024-03-20T00:00:00",
+      "bitisTarih": "2025-03-20T00:00:00",
+      "kayitTarih": "2025-03-20T00:00:00",
+      "kalanSure": 1,
+      "aracBedeli": 0,
+      "tutar": 0,
+      "hasarIndirimi": 0,
+      "firmaId": 0,
+      "resimSayisi": 0,
+      "dokumanSayisi": 0,
+      "firma": "",
+      "yetkili": "",
+      "ruhsatBelgeSeriNo": "",
+      "adres": "",
+      "il": "",
+      "ilce": "",
+      "acentaKodId": 0,
+      "acenta": "",
+      "telefon": "",
+      "aciklama": "",
+      "sigorta": "TRAFİK SİGORTASI",
+      "sigortaKodId": 63,
+      "ozelAlan1": null,
+      "ozelAlan2": null,
+      "ozelAlan3": null,
+      "ozelAlan4": null,
+      "ozelAlan5": null,
+      "ozelAlan6": null,
+      "ozelAlan7": null,
+      "ozelAlan8": null,
+      "ozelAlan9": null,
+      "ozelAlanKodId9": 0,
+      "ozelAlan10": null,
+      "ozelAlanKodId10": 0,
+      "ozelAlan11": 0,
+      "ozelAlan12": 0,
+      "lokasyonId": 468,
+      "toplamGun": 0,
+      "lokasyon": "HEDEF GRUP - SATIŞ",
+      "aracTip": "KAMYONET"
+    },
+    {
+      "siraNo": 9928,
+      "aracId": 31625,
+      "plaka": "34KFV826",
+      "policeNo": "",
+      "aktif": true,
+      "varsayilan": false,
+      "baslangicTarih": "2024-03-20T00:00:00",
+      "bitisTarih": "2025-03-20T00:00:00",
+      "kayitTarih": "2025-03-20T00:00:00",
+      "kalanSure": 1,
+      "aracBedeli": 0,
+      "tutar": 0,
+      "hasarIndirimi": 0,
+      "firmaId": 0,
+      "resimSayisi": 0,
+      "dokumanSayisi": 0,
+      "firma": "",
+      "yetkili": "",
+      "ruhsatBelgeSeriNo": "",
+      "adres": "",
+      "il": "",
+      "ilce": "",
+      "acentaKodId": 0,
+      "acenta": "",
+      "telefon": "",
+      "aciklama": "",
+      "sigorta": "TRAFİK SİGORTASI",
+      "sigortaKodId": 63,
+      "ozelAlan1": null,
+      "ozelAlan2": null,
+      "ozelAlan3": null,
+      "ozelAlan4": null,
+      "ozelAlan5": null,
+      "ozelAlan6": null,
+      "ozelAlan7": null,
+      "ozelAlan8": null,
+      "ozelAlan9": null,
+      "ozelAlanKodId9": 0,
+      "ozelAlan10": null,
+      "ozelAlanKodId10": 0,
+      "ozelAlan11": 0,
+      "ozelAlan12": 0,
+      "lokasyonId": 468,
+      "toplamGun": 0,
+      "lokasyon": "HEDEF GRUP - SATIŞ",
+      "aracTip": "KAMYONET"
+    },
+    {
+      "siraNo": 9927,
+      "aracId": 31628,
+      "plaka": "34KFY760",
+      "policeNo": "",
+      "aktif": true,
+      "varsayilan": false,
+      "baslangicTarih": "2024-03-20T00:00:00",
+      "bitisTarih": "2025-03-20T00:00:00",
+      "kayitTarih": "2025-03-20T00:00:00",
+      "kalanSure": 1,
+      "aracBedeli": 0,
+      "tutar": 0,
+      "hasarIndirimi": 0,
+      "firmaId": 0,
+      "resimSayisi": 0,
+      "dokumanSayisi": 0,
+      "firma": "",
+      "yetkili": "",
+      "ruhsatBelgeSeriNo": "",
+      "adres": "",
+      "il": "",
+      "ilce": "",
+      "acentaKodId": 0,
+      "acenta": "",
+      "telefon": "",
+      "aciklama": "",
+      "sigorta": "TRAFİK SİGORTASI",
+      "sigortaKodId": 63,
+      "ozelAlan1": null,
+      "ozelAlan2": null,
+      "ozelAlan3": null,
+      "ozelAlan4": null,
+      "ozelAlan5": null,
+      "ozelAlan6": null,
+      "ozelAlan7": null,
+      "ozelAlan8": null,
+      "ozelAlan9": null,
+      "ozelAlanKodId9": 0,
+      "ozelAlan10": null,
+      "ozelAlanKodId10": 0,
+      "ozelAlan11": 0,
+      "ozelAlan12": 0,
+      "lokasyonId": 468,
+      "toplamGun": 0,
+      "lokasyon": "HEDEF GRUP - SATIŞ",
+      "aracTip": "KAMYONET"
+    },
+    {
+      "siraNo": 9925,
+      "aracId": 30522,
+      "plaka": "34GIF927",
+      "policeNo": "T-363809238-0-0",
+      "aktif": true,
+      "varsayilan": false,
+      "baslangicTarih": "2024-02-27T00:00:00",
+      "bitisTarih": "2025-02-27T00:00:00",
+      "kayitTarih": "2025-02-27T00:00:00",
+      "kalanSure": -20,
+      "aracBedeli": 0,
+      "tutar": 4794.17,
+      "hasarIndirimi": 0,
+      "firmaId": 0,
+      "resimSayisi": 0,
+      "dokumanSayisi": 0,
+      "firma": "",
+      "yetkili": "",
+      "ruhsatBelgeSeriNo": "",
+      "adres": "",
+      "il": "",
+      "ilce": "",
+      "acentaKodId": 0,
+      "acenta": "",
+      "telefon": "",
+      "aciklama": "",
+      "sigorta": "TRAFİK SİGORTASI",
+      "sigortaKodId": 63,
+      "ozelAlan1": null,
+      "ozelAlan2": null,
+      "ozelAlan3": null,
+      "ozelAlan4": null,
+      "ozelAlan5": null,
+      "ozelAlan6": null,
+      "ozelAlan7": null,
+      "ozelAlan8": null,
+      "ozelAlan9": null,
+      "ozelAlanKodId9": 0,
+      "ozelAlan10": null,
+      "ozelAlanKodId10": 0,
+      "ozelAlan11": 0,
+      "ozelAlan12": 0,
+      "lokasyonId": 409,
+      "toplamGun": 0,
+      "lokasyon": "AKTİF GRUP",
+      "aracTip": "OTOMOBİL"
+    },
+    {
+      "siraNo": 9924,
+      "aracId": 30484,
+      "plaka": "34GDP438",
+      "policeNo": "T-358300613-0-0",
+      "aktif": true,
+      "varsayilan": false,
+      "baslangicTarih": "2023-12-23T00:00:00",
+      "bitisTarih": "2024-12-23T00:00:00",
+      "kayitTarih": "2024-12-23T00:00:00",
+      "kalanSure": -86,
+      "aracBedeli": 0,
+      "tutar": 10041.92,
+      "hasarIndirimi": 0,
+      "firmaId": 0,
+      "resimSayisi": 0,
+      "dokumanSayisi": 0,
+      "firma": "",
+      "yetkili": "",
+      "ruhsatBelgeSeriNo": "",
+      "adres": "",
+      "il": "",
+      "ilce": "",
+      "acentaKodId": 0,
+      "acenta": "",
+      "telefon": "",
+      "aciklama": "",
+      "sigorta": "TRAFİK SİGORTASI",
+      "sigortaKodId": 63,
+      "ozelAlan1": null,
+      "ozelAlan2": null,
+      "ozelAlan3": null,
+      "ozelAlan4": null,
+      "ozelAlan5": null,
+      "ozelAlan6": null,
+      "ozelAlan7": null,
+      "ozelAlan8": null,
+      "ozelAlan9": null,
+      "ozelAlanKodId9": 0,
+      "ozelAlan10": null,
+      "ozelAlanKodId10": 0,
+      "ozelAlan11": 0,
+      "ozelAlan12": 0,
+      "lokasyonId": 273,
+      "toplamGun": 0,
+      "lokasyon": "HEDEF GRUP",
+      "aracTip": "KAMYONET"
+    }
+  ]
+}

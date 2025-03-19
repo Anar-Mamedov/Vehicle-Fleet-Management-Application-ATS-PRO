@@ -127,10 +127,9 @@ const Sigorta = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0); // Toplam sayfa sayısı için state
-  const [label, setLabel] = useState("Yükleniyor..."); // Başlangıç değeri özel alanlar için
-  const [totalDataCount, setTotalDataCount] = useState(0); // Tüm veriyi tutan state
-  const [pageSize, setPageSize] = useState(10); // Başlangıçta sayfa başına 10 kayıt göster
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalDataCount, setTotalDataCount] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
   const [editDrawer1Visible, setEditDrawer1Visible] = useState(false);
   const [editDrawer1Data, setEditDrawer1Data] = useState(null);
 
@@ -462,26 +461,69 @@ const Sigorta = () => {
     filters: {},
   });
 
-  // ana tablo api isteği için kullanılan useEffect
+  // API Data Fetching with diff and setPointId
+  const fetchData = async (diff, targetPage) => {
+    setLoading(true);
+    try {
+      let currentSetPointId = 0;
 
+      if (diff !== 0) {
+        // Only calculate setPointId if not initial load
+        if (diff > 0) {
+          // Moving forward
+          currentSetPointId = data[data.length - 1]?.siraNo || 0;
+        } else if (diff < 0) {
+          // Moving backward
+          currentSetPointId = data[0]?.siraNo || 0;
+        }
+      }
+
+      const response = await AxiosInstance.get(`Insurance/GetInsuranceReminderItems?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
+
+      if (response.data) {
+        setTotalPages(response.data.page);
+        setTotalDataCount(response.data.recordCount);
+
+        const formattedData = response.data.list.map((item) => ({
+          ...item,
+          key: item.siraNo,
+        }));
+
+        if (formattedData.length > 0) {
+          setData(formattedData);
+          setCurrentPage(targetPage);
+        } else {
+          message.warning("No data found.");
+          setData([]);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      if (navigator.onLine) {
+        message.error("Hata Mesajı: " + error.message);
+      } else {
+        message.error("Internet Bağlantısı Mevcut Değil.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial data fetch
   useEffect(() => {
-    fetchEquipmentData(body, currentPage, pageSize);
-  }, [body, currentPage, pageSize]);
+    fetchData(0, 1); // Initial load with diff=0 and page=1
+  }, []);
 
-  // ana tablo api isteği için kullanılan useEffect son
-
-  // arama işlemi için kullanılan useEffect
+  // Search handling
   useEffect(() => {
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
 
-    // Arama terimi değiştiğinde ve boş olduğunda API isteğini tetikle
     const timeout = setTimeout(() => {
       if (searchTerm !== body.keyword) {
-        handleBodyChange("keyword", searchTerm);
-        setCurrentPage(1); // Arama yapıldığında veya arama sıfırlandığında sayfa numarasını 1'e ayarla
-        // setDrawer({ ...drawer, visible: false }); // Arama yapıldığında veya arama sıfırlandığında Drawer'ı kapat
+        setBody((prev) => ({ ...prev, keyword: searchTerm }));
+        fetchData(0, 1);
       }
     }, 2000);
 
@@ -490,66 +532,18 @@ const Sigorta = () => {
     return () => clearTimeout(timeout);
   }, [searchTerm]);
 
-  // arama işlemi için kullanılan useEffect son
+  // Handle table change for pagination
+  const handleTableChange = (pagination) => {
+    if (!pagination || typeof pagination.current !== "number") return;
 
-  const fetchEquipmentData = async (body, page, size) => {
-    // body'nin undefined olması durumunda varsayılan değerler atanıyor
-    const { keyword = "", filters = {} } = body || {};
-    // page'in undefined olması durumunda varsayılan değer olarak 1 atanıyor
-    const currentPage = page || 1;
+    const newPage = pagination.current;
+    const diff = newPage - currentPage;
 
-    try {
-      setLoading(true);
-      // API isteğinde keyword ve currentPage kullanılıyor
-      const response = await AxiosInstance.get(`Insurance/GetInsuranceReminderItems?page=${currentPage}&parameter=${keyword}`);
-      if (response.data) {
-        // Toplam sayfa sayısını ayarla
-        setTotalPages(response.data.page);
-        setTotalDataCount(response.data.recordCount);
-
-        // Gelen veriyi formatla ve state'e ata
-        const formattedData = response.data.list.map((item) => ({
-          ...item,
-          key: item.siraNo,
-          // Diğer alanlarınız...
-        }));
-        setData(formattedData);
-        setLoading(false);
-      } else {
-        console.error("API response is not in expected format");
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error("Error in API request:", error);
-      setLoading(false);
-      if (navigator.onLine) {
-        // İnternet bağlantısı var
-        message.error("Hata Mesajı: " + error.message);
-      } else {
-        // İnternet bağlantısı yok
-        message.error("Internet Bağlantısı Mevcut Değil.");
-      }
+    if (diff !== 0) {
+      // Only fetch if actually changing pages
+      fetchData(diff, newPage);
     }
   };
-
-  // filtreleme işlemi için kullanılan useEffect
-  const handleBodyChange = useCallback((type, newBody) => {
-    setBody((state) => ({
-      ...state,
-      [type]: newBody,
-    }));
-    setCurrentPage(1); // Filtreleme yapıldığında sayfa numarasını 1'e ayarla
-  }, []);
-  // filtreleme işlemi için kullanılan useEffect son
-
-  // sayfalama için kullanılan useEffect
-  const handleTableChange = (pagination, filters, sorter, extra) => {
-    if (pagination) {
-      setCurrentPage(pagination.current);
-      setPageSize(pagination.pageSize); // pageSize güncellemesi
-    }
-  };
-  // sayfalama için kullanılan useEffect son
 
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -597,11 +591,11 @@ const Sigorta = () => {
     setSelectedRows([]);
 
     // Verileri yeniden çekmek için `fetchEquipmentData` fonksiyonunu çağır
-    fetchEquipmentData(body, currentPage);
+    fetchData(0, 1);
     // Burada `body` ve `currentPage`'i güncellediğimiz için, bu değerlerin en güncel hallerini kullanarak veri çekme işlemi yapılır.
     // Ancak, `fetchEquipmentData` içinde `body` ve `currentPage`'e bağlı olarak veri çekiliyorsa, bu değerlerin güncellenmesi yeterli olacaktır.
     // Bu nedenle, doğrudan `fetchEquipmentData` fonksiyonunu çağırmak yerine, bu değerlerin güncellenmesini bekleyebiliriz.
-  }, [body, currentPage]); // Bağımlılıkları kaldırdık, çünkü fonksiyon içindeki değerler zaten en güncel halleriyle kullanılıyor.
+  }, []);
 
   // filtrelenmiş sütunları local storage'dan alıp state'e atıyoruz
   const [columns, setColumns] = useState(() => {
@@ -863,21 +857,17 @@ const Sigorta = () => {
           rowSelection={rowSelection}
           columns={filteredColumns}
           dataSource={data}
+          onChange={handleTableChange}
           pagination={{
             current: currentPage,
-            total: totalDataCount, // Toplam kayıt sayısı (sayfa başına kayıt sayısı ile çarpılır)
-            pageSize: pageSize,
-            defaultPageSize: 10,
-            showSizeChanger: true,
-            pageSizeOptions: ["10", "20", "50", "100"],
+            total: totalDataCount,
+            pageSize: 10,
+            showSizeChanger: false,
             position: ["bottomRight"],
-            onChange: handleTableChange,
-            showTotal: (total, range) => `Toplam ${total}`, // Burada 'total' parametresi doğru kayıt sayısını yansıtacaktır
+            showTotal: (total) => `Toplam ${total}`,
             showQuickJumper: true,
           }}
-          // onRow={onRowClick}
           scroll={{ y: "calc(100vh - 370px)" }}
-          onChange={handleTableChange}
           rowClassName={(record) => (record.IST_DURUM_ID === 0 ? "boldRow" : "")}
         />
       </Spin>
