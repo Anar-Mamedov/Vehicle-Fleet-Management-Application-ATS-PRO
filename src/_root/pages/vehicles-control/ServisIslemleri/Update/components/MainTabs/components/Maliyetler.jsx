@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Modal, InputNumber, Typography, Divider } from "antd";
 
@@ -12,6 +12,28 @@ function Maliyetler(props) {
     setValue,
     formState: { errors },
   } = useFormContext();
+
+  const [decimalSeparator, setDecimalSeparator] = useState(".");
+
+  useEffect(() => {
+    const userLang = localStorage.getItem("i18nextLng");
+    if (userLang === "tr" || userLang === "az") {
+      setDecimalSeparator(",");
+    } else {
+      setDecimalSeparator(".");
+    }
+  }, []);
+
+  // Add formatter and parser functions
+  const formatter = (value) => {
+    if (!value) return "";
+    return `${value}`.replace(".", decimalSeparator);
+  };
+
+  const parser = (value) => {
+    if (!value) return "";
+    return value.replace(decimalSeparator, ".");
+  };
 
   const iscilikUcreti = watch("iscilikUcreti") || 0;
   const malzemeUcreti = watch("malzemeUcreti") || 0;
@@ -29,38 +51,62 @@ function Maliyetler(props) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "200px", maxWidth: "200px" }}>
         <Text>İşçilik Ücreti:</Text>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "100px", minWidth: "100px", gap: "10px", width: "100%" }}>
-          <Controller name="iscilikUcreti" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} />} />
+          <Controller
+            name="iscilikUcreti"
+            control={control}
+            render={({ field }) => <InputNumber {...field} decimalSeparator={decimalSeparator} formatter={formatter} parser={parser} style={{ flex: 1 }} />}
+          />
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "200px", maxWidth: "200px" }}>
         <Text>Mlz. Ücreti:</Text>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "100px", minWidth: "100px", gap: "10px", width: "100%" }}>
-          <Controller name="malzemeUcreti" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} />} />
+          <Controller
+            name="malzemeUcreti"
+            control={control}
+            render={({ field }) => <InputNumber {...field} decimalSeparator={decimalSeparator} formatter={formatter} parser={parser} style={{ flex: 1 }} />}
+          />
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "200px", maxWidth: "200px" }}>
         <Text>Diğer:</Text>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "100px", minWidth: "100px", gap: "10px", width: "100%" }}>
-          <Controller name="digerUcreti" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} />} />
+          <Controller
+            name="digerUcreti"
+            control={control}
+            render={({ field }) => <InputNumber {...field} decimalSeparator={decimalSeparator} formatter={formatter} parser={parser} style={{ flex: 1 }} />}
+          />
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "200px", maxWidth: "200px" }}>
         <Text>KDV:</Text>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "100px", minWidth: "100px", gap: "10px", width: "100%" }}>
-          <Controller name="kdvUcreti" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} />} />
+          <Controller
+            name="kdvUcreti"
+            control={control}
+            render={({ field }) => <InputNumber {...field} decimalSeparator={decimalSeparator} formatter={formatter} parser={parser} style={{ flex: 1 }} />}
+          />
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "200px", maxWidth: "200px" }}>
         <Text>Yuvarlama:</Text>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "100px", minWidth: "100px", gap: "10px", width: "100%" }}>
-          <Controller name="eksiUcreti" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} />} />
+          <Controller
+            name="eksiUcreti"
+            control={control}
+            render={({ field }) => <InputNumber {...field} decimalSeparator={decimalSeparator} formatter={formatter} parser={parser} style={{ flex: 1 }} />}
+          />
         </div>
       </div>
       <Divider style={{ margin: "8px 0" }} />
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "200px", maxWidth: "200px" }}>
         <Text>Toplam:</Text>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "100px", minWidth: "100px", gap: "10px", width: "100%" }}>
-          <Controller name="toplamUcret" control={control} render={({ field }) => <InputNumber {...field} disabled style={{ flex: 1 }} />} />
+          <Controller
+            name="toplamUcret"
+            control={control}
+            render={({ field }) => <InputNumber {...field} decimalSeparator={decimalSeparator} formatter={formatter} parser={parser} disabled style={{ flex: 1 }} />}
+          />
         </div>
       </div>
     </div>
