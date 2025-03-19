@@ -217,10 +217,10 @@ const LastikEnvanteri = () => {
 
       if (diff > 0) {
         // Moving forward
-        currentSetPointId = data[data.length - 1]?.aracId || 0;
+        currentSetPointId = data[data.length - 1]?.siraNo || 0;
       } else if (diff < 0) {
         // Moving backward
-        currentSetPointId = data[0]?.aracId || 0;
+        currentSetPointId = data[0]?.siraNo || 0;
       } else {
         currentSetPointId = 0;
       }
