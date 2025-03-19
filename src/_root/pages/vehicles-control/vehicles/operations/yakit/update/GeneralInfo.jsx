@@ -806,7 +806,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                 <Firma />
               </div>
             </div>
-            <div className="col-span-4">
+            <div className="col-span-8">
               <div className="flex flex-col gap-1">
                 <label>{t("istasyon")}</label>
                 <CodeControl name="istasyon" codeName="istasyonKodId" id={203} />
