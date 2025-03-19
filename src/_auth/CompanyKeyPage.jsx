@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Space, Typography, Input, Button } from "antd";
+import { Space, Typography, Input, Button, Form } from "antd";
 import { t } from "i18next";
 import AxiosInstance from "../api/http";
 import { useNavigate } from "react-router-dom";
@@ -34,7 +34,13 @@ function CompanyKeyPage() {
     setCompanyKey(e.target.value);
     setInputStatus("");
     setErrorMessage("");
-    setDisableSave(false); // Kullanıcı inputu değiştirince buton tekrar aktifleşir
+    setDisableSave(false);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !disableSave) {
+      handleSave();
+    }
   };
 
   return (
@@ -61,7 +67,7 @@ function CompanyKeyPage() {
       >
         <Space direction="vertical" style={{ width: "100%", display: "flex", gap: "10px" }}>
           <Text>{t("lutfenFirmaAnahtariniziGirin")}</Text>
-          <Input style={{ width: "100%" }} status={inputStatus} value={companyKey} onChange={handleInputChange} />
+          <Input style={{ width: "100%" }} status={inputStatus} value={companyKey} onChange={handleInputChange} onKeyPress={handleKeyPress} autoComplete="on" name="companyKey" />
           {errorMessage && <Text type="danger">{errorMessage}</Text>}
           <Button style={{ width: "100%" }} type="primary" onClick={handleSave} disabled={disableSave}>
             {t("kaydet")}
