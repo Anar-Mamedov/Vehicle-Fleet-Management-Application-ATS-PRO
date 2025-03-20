@@ -34,7 +34,7 @@ export default function Filters({ onChange }) {
       {/*    setFilters((state) => ({ ...state, lokasyonlar: newFilters }))*/}
       {/*  }*/}
       {/*/>*/}
-      <ZamanAraligi />
+      {/* <ZamanAraligi /> */}
       <CustomFilter onSubmit={(newFilters) => setFilters((state) => ({ ...state, customfilter: newFilters }))} />
     </>
   );
