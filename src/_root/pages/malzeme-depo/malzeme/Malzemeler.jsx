@@ -139,7 +139,7 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const Yakit = () => {
+const Malzemeler = () => {
   const formMethods = useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
@@ -1091,4 +1091,4 @@ const Yakit = () => {
   );
 };
 
-export default Yakit;
+export default Malzemeler;
