@@ -97,10 +97,10 @@ const Sidebar = () => {
           key: "22",
           label: <Link to={"/sefer-islemleri"}>{t("randevuTakibi")}</Link>,
         },
-        {
+        /* {
           key: "24",
           label: <Link to={"/malzeme-tanimlari"}>{t("atolyeTanimlari")}</Link>,
-        },
+        }, */
       ],
     },
     {
@@ -161,7 +161,7 @@ const Sidebar = () => {
         },
       ],
     },
-    {
+    /* {
       key: "13",
       icon: <BsFuelPump />,
       label: t("yakitYonetimi"),
@@ -191,7 +191,7 @@ const Sidebar = () => {
           label: <Link to={"/"}>{t("yakitTanklari")}</Link>,
         },
       ],
-    },
+    }, */
 
     {
       key: "2v34789",
@@ -222,6 +222,10 @@ const Sidebar = () => {
       icon: <MdOutlineSystemUpdateAlt />,
       label: t("sistemTanimlari"),
       children: [
+        {
+          key: "14",
+          label: <Link to={"/yakit-tanimlari"}>{t("tanimlar")}</Link>,
+        },
         {
           key: "401",
           label: <Link to={"/lokasyon-tanimlari"}>{t("lokasyonlar")}</Link>,
