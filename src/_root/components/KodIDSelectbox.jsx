@@ -29,7 +29,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function KodIDSelectbox({ name1, kodID, isRequired }) {
+export default function KodIDSelectbox({ name1, kodID, isRequired, onChange }) {
   const {
     control,
     watch,
@@ -160,10 +160,15 @@ export default function KodIDSelectbox({ name1, kodID, isRequired }) {
               value: item.siraNo, // Use the ID as the value
               label: item.codeText, // Display the name in the dropdown
             }))}
-            onChange={(value) => {
-              // Seçilen değerin ID'sini NedeniID alanına set et
+            onChange={(value, option) => {
+              // Set the form values
               setValue(`${name1}ID`, value);
               field.onChange(value);
+
+              // Call the parent's onChange if provided
+              if (onChange) {
+                onChange(option?.label, value);
+              }
             }}
           />
         )}

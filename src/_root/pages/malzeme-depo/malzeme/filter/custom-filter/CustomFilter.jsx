@@ -1,21 +1,15 @@
 import { CloseOutlined, FilterOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Drawer, Row, Typography, Select, Space, Input, DatePicker } from "antd";
-import React, { useEffect, useState } from "react";
+import { Button, Col, Drawer, Row, Typography, Select, Space, Input } from "antd";
+import React, { useState } from "react";
 import styled from "styled-components";
 import "./style.css";
-import { Controller, useFormContext } from "react-hook-form";
-import dayjs from "dayjs";
-import "dayjs/locale/tr"; // For Turkish locale
-import weekOfYear from "dayjs/plugin/weekOfYear";
-import advancedFormat from "dayjs/plugin/advancedFormat";
+import { useFormContext } from "react-hook-form";
 import StatusSelect from "./components/StatusSelect";
+import KodIDSelectbox from "../../../../../../_root/components/KodIDSelectbox";
+import FirmaSelectBox from "../../../../../../_root/components/FirmaSelectBox";
+import DepoSelectBox from "../../../../../../_root/components/DepoSelectBox";
 
-dayjs.extend(weekOfYear);
-dayjs.extend(advancedFormat);
-
-dayjs.locale("tr"); // use Turkish locale
-
-const { Text, Link } = Typography;
+const { Text } = Typography;
 
 const StyledCloseOutlined = styled(CloseOutlined)`
   svg {
@@ -49,49 +43,37 @@ export default function CustomFilter({ onSubmit }) {
   const [inputValues, setInputValues] = useState({});
   const [filters, setFilters] = useState({});
   const [filterValues, setFilterValues] = useState({});
-  const [isInitialMount, setIsInitialMount] = useState(true);
-
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-
-  const startDateSelected = watch("startDate");
-  const endDateSelected = watch("endDate");
-
-  useEffect(() => {
-    if (isInitialMount) {
-      setIsInitialMount(false);
-      return;
-    }
-
-    if (startDateSelected === null) {
-      setStartDate(null);
-    } else {
-      setStartDate(dayjs(startDateSelected));
-    }
-    if (endDateSelected === null) {
-      setEndDate(null);
-    } else {
-      setEndDate(dayjs(endDateSelected));
-    }
-  }, [startDateSelected, endDateSelected, isInitialMount]);
-
-  useEffect(() => {
-    if (isInitialMount) return;
-
-    // Always submit after initial mount when dates change (including null)
-    handleSubmit();
-  }, [startDate, endDate]);
-
-  // Create a state variable to store selected values for each row
   const [selectedValues, setSelectedValues] = useState({});
 
-  // Tarih seçimi yapıldığında veya filtreler eklenip kaldırıldığında düğmenin stilini değiştirmek için bir durum
-  const isFilterApplied = newObjectsAdded || filtersExist || startDate || endDate;
+  // Define all available options
+  const allFilterOptions = [
+    {
+      value: "malzemeTipKodId",
+      label: "Malzeme Tipi",
+    },
+    {
+      value: "firmaId",
+      label: "Firma",
+    },
+    {
+      value: "depoId",
+      label: "Depo",
+    },
+  ];
+
+  // Function to get available options (excluding already selected ones)
+  const getAvailableOptions = () => {
+    const selectedFilters = Object.values(selectedValues);
+    return allFilterOptions.filter((option) => !selectedFilters.includes(option.value));
+  };
+
+  // Filtreler eklenip kaldırıldığında düğmenin stilini değiştirmek için bir durum
+  const isFilterApplied = newObjectsAdded || filtersExist;
 
   const handleSelectChange = (value, rowId) => {
     setSelectedValues((prevSelectedValues) => ({
       ...prevSelectedValues,
-      [rowId]: value,
+      [rowId]: value.value, // Store only the value in state
     }));
   };
 
@@ -104,13 +86,19 @@ export default function CustomFilter({ onSubmit }) {
   };
 
   const handleSubmit = () => {
-    // Combine selected values, input values for each row, and date range
+    // Combine selected values, input values for each row
     const filterData = rows.reduce((acc, row) => {
       const selectedValue = selectedValues[row.id] || "";
       const inputValue = inputValues[`input-${row.id}`] || "";
-      if (selectedValue && inputValue) {
+      const inputIdValue = inputValues[`input-${row.id}ID`] || ""; // Get the ID value from KodIDSelectbox
+
+      if (selectedValue && (inputValue || inputIdValue)) {
         if (selectedValue === "durum") {
           acc[selectedValue] = Number(inputValue); // Convert status to number
+        } else if (selectedValue === "malzemeTipKodId") {
+          acc[selectedValue] = Number(inputIdValue); // Use the ID value for malzemeTipKodId
+        } else if (selectedValue === "firmaId" || selectedValue === "depoId") {
+          acc[selectedValue] = Number(inputValue); // Use the numeric value for firmaId and depoId
         } else {
           acc[selectedValue] = inputValue;
         }
@@ -118,16 +106,7 @@ export default function CustomFilter({ onSubmit }) {
       return acc;
     }, {});
 
-    // Add date range to the filterData object if dates are selected
-    if (startDate) {
-      filterData.baslangicTarih = startDate.format("YYYY-MM-DD");
-    }
-    if (endDate) {
-      filterData.bitisTarih = endDate.format("YYYY-MM-DD");
-    }
-
-    console.log(filterData);
-    // You can now submit or process the filterData object as needed.
+    console.log("Filter Data:", filterData);
     onSubmit(filterData);
     setOpen(false);
   };
@@ -145,9 +124,12 @@ export default function CustomFilter({ onSubmit }) {
   };
 
   const handleInputChange = (e, rowId) => {
+    // If e is an event (from regular Input), use e.target.value
+    // If e is a direct value (from KodIDSelectbox), use e directly
+    const value = e?.target?.value ?? e;
     setInputValues((prevInputValues) => ({
       ...prevInputValues,
-      [`input-${rowId}`]: e.target.value,
+      [`input-${rowId}`]: value,
     }));
   };
 
@@ -184,6 +166,15 @@ export default function CustomFilter({ onSubmit }) {
     console.log("search:", value);
   };
 
+  const handleKodIDSelectChange = (value, id, rowId) => {
+    // Update both the display value and the ID value
+    setInputValues((prevInputValues) => ({
+      ...prevInputValues,
+      [`input-${rowId}`]: value,
+      [`input-${rowId}ID`]: id,
+    }));
+  };
+
   return (
     <>
       <Button
@@ -216,24 +207,6 @@ export default function CustomFilter({ onSubmit }) {
         onClose={onClose}
         open={open}
       >
-        <div
-          style={{
-            marginBottom: "20px",
-            border: "1px solid #80808048",
-            padding: "15px 10px",
-            borderRadius: "8px",
-          }}
-        >
-          <div style={{ marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>Tarih Aralığı</Text>
-          </div>
-
-          <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-            <DatePicker style={{ width: "100%" }} placeholder="Başlangıç Tarihi" value={startDate} onChange={setStartDate} locale={dayjs.locale("tr")} />
-            <Text style={{ fontSize: "14px" }}>-</Text>
-            <DatePicker style={{ width: "100%" }} placeholder="Bitiş Tarihi" value={endDate} onChange={setEndDate} locale={dayjs.locale("tr")} />
-          </div>
-        </div>
         {rows.map((row) => (
           <Row
             key={row.id}
@@ -266,44 +239,35 @@ export default function CustomFilter({ onSubmit }) {
                   placeholder={`Seçim Yap`}
                   optionFilterProp="children"
                   onChange={(value) => handleSelectChange(value, row.id)}
-                  value={selectedValues[row.id] || undefined}
+                  value={
+                    selectedValues[row.id]
+                      ? {
+                          value: selectedValues[row.id],
+                          label: allFilterOptions.find((opt) => opt.value === selectedValues[row.id])?.label,
+                        }
+                      : undefined
+                  }
+                  labelInValue
                   onSearch={onSearch}
                   filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
-                  options={[
-                    {
-                      value: "servisTipi",
-                      label: "Servis Tipi",
-                    },
-                    {
-                      value: "servisNedeni",
-                      label: "Servis Nedeni",
-                    },
-                    {
-                      value: "firma",
-                      label: "Firma",
-                    },
-                    {
-                      value: "lokasyon",
-                      label: "Lokasyon",
-                    },
-                    {
-                      value: "aracTipi",
-                      label: "Arac Tipi",
-                    },
-                    {
-                      value: "durum",
-                      label: "Durum",
-                    },
-                  ]}
-                />
-                <Input
-                  placeholder="Arama Yap"
-                  name={`input-${row.id}`}
-                  value={inputValues[`input-${row.id}`] || ""}
-                  onChange={(e) => handleInputChange(e, row.id)}
-                  style={{ display: selectedValues[row.id] === "durum" ? "none" : "block" }}
+                  options={getAvailableOptions()}
                 />
                 {selectedValues[row.id] === "durum" && <StatusSelect value={inputValues[`input-${row.id}`]} onChange={(value) => handleStatusChange(value, row.id)} />}
+                {selectedValues[row.id] === "malzemeTipKodId" && (
+                  <KodIDSelectbox name1={`input-${row.id}`} kodID={301} isRequired={false} onChange={(value, id) => handleKodIDSelectChange(value, id, row.id)} />
+                )}
+                {selectedValues[row.id] === "firmaId" && (
+                  <FirmaSelectBox name1={`input-${row.id}`} isRequired={false} onChange={(label, value) => handleKodIDSelectChange(label, value, row.id)} />
+                )}
+                {selectedValues[row.id] === "depoId" && (
+                  <DepoSelectBox name1={`input-${row.id}`} isRequired={false} onChange={(value, label) => handleKodIDSelectChange(value, label, row.id)} />
+                )}
+                {selectedValues[row.id] !== "durum" &&
+                  selectedValues[row.id] !== "malzemeTipKodId" &&
+                  selectedValues[row.id] !== "firmaId" &&
+                  selectedValues[row.id] !== "depoId" && (
+                    <Input placeholder="Arama Yap" name={`input-${row.id}`} value={inputValues[`input-${row.id}`] || ""} onChange={(e) => handleInputChange(e, row.id)} />
+                  )}
               </Col>
             </Col>
           </Row>
