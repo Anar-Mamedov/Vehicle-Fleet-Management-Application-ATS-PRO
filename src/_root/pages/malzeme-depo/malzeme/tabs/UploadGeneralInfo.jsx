@@ -12,7 +12,7 @@ const GeneralInfo = ({ isValid }) => {
   const { control } = useFormContext();
 
   return (
-    <>
+    <div>
       <div className="grid gap-1">
         <div className="col-span-6 p-10">
           <div className="grid gap-1">
@@ -133,7 +133,7 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("depo")}</label>
-                <Controller name="depoId" control={control} render={({ field }) => <Depo field={field} />} />
+                <Controller name="depoId" control={control} render={({ field }) => <Depo type="MALZEME" field={field} />} />
               </div>
             </div>
             <div className="col-span-6">
@@ -195,12 +195,12 @@ const GeneralInfo = ({ isValid }) => {
         <div className="col-span-6 p-10">
           <h3 className="sub-title">{t("tedarikciBilgileri")}</h3>
           <div className="grid gap-1">
-            <div className="col-span-6">
+            {/* <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("firmaKodu")}</label>
                 <Controller name="firmaId" control={control} render={({ field }) => <Firma field={field} />} />
               </div>
-            </div>
+            </div> */}
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("firmaUnvani")}</label>
@@ -271,7 +271,7 @@ const GeneralInfo = ({ isValid }) => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
