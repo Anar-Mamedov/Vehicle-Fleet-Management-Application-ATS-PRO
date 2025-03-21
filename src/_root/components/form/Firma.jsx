@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Select } from "antd";
@@ -20,10 +20,10 @@ const Firma = ({ field }) => {
       showSearch
       allowClear
       optionFilterProp="children"
-      filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
-      filterSort={(optionA, optionB) => (optionA?.label.toLowerCase() ?? "").localeCompare(optionB?.label.toLowerCase() ?? "")}
+      filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes((input ?? "").toLowerCase())}
+      filterSort={(optionA, optionB) => (optionA?.label ?? "").toLowerCase().localeCompare((optionB?.label ?? "").toLowerCase())}
       options={data.map((item) => ({
-        label: item.kod,
+        label: item.unvan,
         value: item.firmaId,
       }))}
       value={watch("firma")}
@@ -36,7 +36,7 @@ const Firma = ({ field }) => {
         } else {
           const selectedOption = data.find((option) => option.firmaId === e);
           if (selectedOption) {
-            setValue("tedarikciKod", selectedOption.kod);
+            setValue("tedarikciKod", selectedOption.firmaId.toString());
             setValue("unvan", selectedOption.unvan);
           }
         }
