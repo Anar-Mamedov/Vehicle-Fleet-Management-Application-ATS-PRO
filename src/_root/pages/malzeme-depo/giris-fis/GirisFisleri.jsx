@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import { Table, Popover, Button, Input, Spin } from "antd";

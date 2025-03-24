@@ -20,7 +20,8 @@ import YakitTransferler from "./_root/pages/yakit-yonetim/transferler/YakitTrans
 import YakitGirisFisleri from "./_root/pages/yakit-yonetim/giris-fis/YakitGirisFisleri";
 // malzeme depo
 import Malzemeler from "./_root/pages/malzeme-depo/malzeme/Malzemeler";
-import GirisFisleri from "./_root/pages/malzeme-depo/giris-fis/GirisFisleri";
+import GirisFisleri1 from "./_root/pages/malzeme-depo/giris-fis/GirisFisleri";
+import GirisFisleri from "./_root/pages/malzeme-depo/GirisFisleri/GirisFisleri.jsx";
 import CikisFisleri from "./_root/pages/malzeme-depo/cikis-fis/CikisFisleri";
 import Transferler from "./_root/pages/malzeme-depo/transferler/Transferler";
 import Hareketler from "./_root/pages/malzeme-depo/hareketler/Hareketler";
@@ -119,6 +120,7 @@ const App = () => {
         {/* malzeme depo */}
         <Route path="/malzeme-tanimlari" element={<Malzemeler />} />
         <Route path="/giris-fisleri" element={<GirisFisleri />} />
+        <Route path="/giris-fisleri1" element={<GirisFisleri1 />} />
         <Route path="/cikis-fisleri" element={<CikisFisleri />} />
         <Route path="/transferler" element={<Transferler />} />
 
