@@ -28,7 +28,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function DepoSelectBox({ name1, isRequired, onChange }) {
+export default function DepoSelectBox({ name1, kodID, isRequired, onChange }) {
   const {
     control,
     watch,
@@ -42,7 +42,7 @@ export default function DepoSelectBox({ name1, isRequired, onChange }) {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await AxiosInstance.get(`WareHouse/GetWareHouseListByTip?tip=MALZEME`);
+      const response = await AxiosInstance.get(`WareHouse/GetWareHouseListByTip?tip=${kodID}`);
       if (response && response.data) {
         setOptions(response.data);
       }

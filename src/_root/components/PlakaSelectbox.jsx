@@ -87,7 +87,7 @@ export default function PlakaSelectbox({ name1, isRequired, onChange }) {
               label: item.plaka,
             }))}
             onChange={(value, option) => {
-              const numericValue = Number(value);
+              const numericValue = value ? Number(value) : null;
               setValue(name1, numericValue);
               setValue(`${name1}ID`, numericValue);
               field.onChange(numericValue);

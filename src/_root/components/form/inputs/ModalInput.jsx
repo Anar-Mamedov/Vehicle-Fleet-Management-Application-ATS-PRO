@@ -13,7 +13,7 @@ const SurucuInput = ({ name, checked, readonly, onPlusClick, onMinusClick, requi
       control={control}
       rules={{ required: required ? "Bu alan boş bırakılamaz!" : false }}
       render={({ field, fieldState: { error } }) => (
-        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "5px", width: "100%" }}>
           <Input
             {...field}
             status={error ? "error" : ""}

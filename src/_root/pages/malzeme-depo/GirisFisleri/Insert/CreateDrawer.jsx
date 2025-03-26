@@ -3,6 +3,7 @@ import "@ant-design/v5-patch-for-react-19";
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Space, ConfigProvider, Modal, message } from "antd";
 import React, { useEffect, useState } from "react";
+import { t } from "i18next";
 import MainTabs from "./components/MainTabs/MainTabs";
 import { useForm, FormProvider } from "react-hook-form";
 import dayjs from "dayjs";
@@ -14,9 +15,35 @@ import SecondTabs from "./components/SecondTabs/SecondTabs.jsx";
 export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   const [open, setOpen] = useState(false);
   const [periyodikBakim, setPeriyodikBakim] = useState("");
+
+  const getFisNo = async () => {
+    try {
+      const response = await AxiosInstance.get("Numbering/GetModuleCodeByCode", {
+        params: {
+          code: "STOK_FIS_ALIS",
+        },
+      });
+      if (response.data) {
+        setValue("fisNo", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching fisNo:", error);
+      message.error("Fiş numarası alınamadı!");
+    }
+  };
+
   const showModal = () => {
     setOpen(true);
   };
+
+  useEffect(() => {
+    if (open) {
+      getFisNo();
+      setValue("tarih", dayjs());
+      setValue("saat", dayjs());
+    }
+  }, [open]);
+
   const onClose = () => {
     Modal.confirm({
       title: "İptal etmek istediğinden emin misin?",
@@ -38,67 +65,19 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   //* export
   const methods = useForm({
     defaultValues: {
-      PlakaID: "",
-      Plaka: null,
-      duzenlenmeTarihi: null,
-      duzenlenmeSaati: null,
-      servisKodu: "",
-      servisKoduID: "",
-      servisTanimi: "",
-      servisTipi: "",
-      Surucu: null,
-      SurucuID: "",
-      servisNedeni: null,
-      servisNedeniID: "",
-      faturaTarihi: null,
-      faturaNo: "",
-      hasarNo: "",
-      hasarNoID: "",
-      talepNo: "",
-      onay: null,
-      onayID: "",
-      onayLabel: "",
-      baslamaTarihi: null,
-      baslamaSaati: null,
-      bitisTarihi: null,
-      bitisSaati: null,
-      aracKM: "",
-      islemiYapan: "1",
-      islemiYapan1: "",
-      islemiYapan1ID: "",
-      iscilikUcreti: "",
-      malzemeUcreti: "",
-      digerUcreti: "",
-      kdvUcreti: "",
-      eksiUcreti: "",
-      sigortaBilgileri: false,
-      sigorta: "",
-      sigortaID: "",
-      policeNo: "",
-      firma: "",
-
-      ozelAlan1: "",
-      ozelAlan2: "",
-      ozelAlan3: "",
-      ozelAlan4: "",
-      ozelAlan5: "",
-      ozelAlan6: "",
-      ozelAlan7: "",
-      ozelAlan8: "",
-      ozelAlan9: null,
-      ozelAlan9ID: "",
-      ozelAlan10: null,
-      ozelAlan10ID: "",
-      ozelAlan11: "",
-      ozelAlan12: "",
-
-      durumBilgisi: 1,
-      garantiKapsami: false,
-
-      surucuOder: false,
-
-      aciklama: "",
-      sikayetler: "",
+      fisNo: null,
+      firma: null,
+      firmaID: null,
+      plaka: null,
+      plakaID: null,
+      tarih: null,
+      saat: null,
+      islemTipi: null,
+      islemTipiID: null,
+      girisDeposu: null,
+      girisDeposuID: null,
+      lokasyon: null,
+      lokasyonID: null,
     },
   });
 
@@ -224,18 +203,18 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
           }}
         >
           <PlusOutlined />
-          Ekle
+          {t("ekle")}
         </Button>
         <Modal
           width="1300px"
           centered
-          title={`Yeni Servis Girişi ${periyodikBakim}`}
+          title={t("yeniGirisFisi")}
           destroyOnClose
           open={open}
           onCancel={onClose}
           footer={
             <Space>
-              <Button onClick={onClose}>İptal</Button>
+              <Button onClick={onClose}>{t("iptal")}</Button>
               <Button
                 type="submit"
                 onClick={methods.handleSubmit(onSubmit)}
@@ -245,7 +224,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
                   color: "#ffffff",
                 }}
               >
-                Kaydet
+                {t("kaydet")}
               </Button>
             </Space>
           }
