@@ -139,7 +139,7 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const Malzemeler = () => {
+const Malzemeler = ({ isSelectionMode = false, onRowSelect }) => {
   const formMethods = useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
@@ -247,12 +247,12 @@ const Malzemeler = () => {
     fetchData(diff, page);
   };
 
-  const onSelectChange = (newSelectedRowKeys) => {
+  const onSelectChange = (newSelectedRowKeys, newSelectedRows) => {
     setSelectedRowKeys(newSelectedRowKeys);
-
-    // Find selected rows data
-    const newSelectedRows = data.filter((row) => newSelectedRowKeys.includes(row.key));
     setSelectedRows(newSelectedRows);
+    if (isSelectionMode && onRowSelect) {
+      onRowSelect(newSelectedRows);
+    }
   };
 
   const rowSelection = {
@@ -719,7 +719,7 @@ const Malzemeler = () => {
       date.setHours(hoursInt, minutesInt, 0);
 
       // Kullanıcının lokal ayarlarına uygun olarak saat ve dakikayı formatla
-      // `hour12` seçeneğini belirtmeyerek Intl.DateTimeFormat'ın kullanıcının yerel ayarlarına göre otomatik seçim yapmasına izin ver
+      // `hour12` seçeneğini belirtmeyerek Intl.DateTimeFormat'ın kullanıcının sistem ayarlarına göre otomatik seçim yapmasına izin ver
       const formatter = new Intl.DateTimeFormat(navigator.language, {
         hour: "numeric",
         minute: "2-digit",
@@ -924,143 +924,144 @@ const Malzemeler = () => {
     <div>
       <ConfigProvider locale={currentLocale}>
         <FormProvider {...formMethods}>
-          {/* Modal for managing columns */}
-          <Modal title="Sütunları Yönet" centered width={800} open={isModalVisible} onOk={() => setIsModalVisible(false)} onCancel={() => setIsModalVisible(false)}>
-            <Text style={{ marginBottom: "15px" }}>Aşağıdaki Ekranlardan Sütunları Göster / Gizle ve Sıralamalarını Ayarlayabilirsiniz.</Text>
-            <div
-              style={{
-                display: "flex",
-                width: "100%",
-                justifyContent: "center",
-                marginTop: "10px",
-              }}
-            >
-              <Button onClick={resetColumns} style={{ marginBottom: "15px" }}>
-                Sütunları Sıfırla
-              </Button>
-            </div>
+          {!isSelectionMode && (
+            <>
+              <Modal title="Sütunları Yönet" centered width={800} open={isModalVisible} onOk={() => setIsModalVisible(false)} onCancel={() => setIsModalVisible(false)}>
+                <Text style={{ marginBottom: "15px" }}>Aşağıdaki Ekranlardan Sütunları Göster / Gizle ve Sıralamalarını Ayarlayabilirsiniz.</Text>
+                <div
+                  style={{
+                    display: "flex",
+                    width: "100%",
+                    justifyContent: "center",
+                    marginTop: "10px",
+                  }}
+                >
+                  <Button onClick={resetColumns} style={{ marginBottom: "15px" }}>
+                    Sütunları Sıfırla
+                  </Button>
+                </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <div
+                    style={{
+                      width: "46%",
+                      border: "1px solid #8080806e",
+                      borderRadius: "8px",
+                      padding: "10px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        marginBottom: "20px",
+                        borderBottom: "1px solid #80808051",
+                        padding: "8px 8px 12px 8px",
+                      }}
+                    >
+                      <Text style={{ fontWeight: 600 }}>Sütunları Göster / Gizle</Text>
+                    </div>
+                    <div style={{ height: "400px", overflow: "auto" }}>
+                      {columns.map((col) => (
+                        <div style={{ display: "flex", gap: "10px" }} key={col.key}>
+                          <Checkbox checked={col.visible || false} onChange={(e) => toggleVisibility(col.key, e.target.checked)} />
+                          {col.title}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <DndContext
+                    onDragEnd={handleDragEnd}
+                    sensors={useSensors(
+                      useSensor(PointerSensor),
+                      useSensor(KeyboardSensor, {
+                        coordinateGetter: sortableKeyboardCoordinates,
+                      })
+                    )}
+                  >
+                    <div
+                      style={{
+                        width: "46%",
+                        border: "1px solid #8080806e",
+                        borderRadius: "8px",
+                        padding: "10px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          marginBottom: "20px",
+                          borderBottom: "1px solid #80808051",
+                          padding: "8px 8px 12px 8px",
+                        }}
+                      >
+                        <Text style={{ fontWeight: 600 }}>Sütunların Sıralamasını Ayarla</Text>
+                      </div>
+                      <div style={{ height: "400px", overflow: "auto" }}>
+                        <SortableContext items={columns.filter((col) => col.visible).map((col) => col.key)} strategy={verticalListSortingStrategy}>
+                          {columns
+                            .filter((col) => col.visible)
+                            .map((col, index) => (
+                              <DraggableRow key={col.key} id={col.key} index={index} text={col.title} />
+                            ))}
+                        </SortableContext>
+                      </div>
+                    </div>
+                  </DndContext>
+                </div>
+              </Modal>
+
               <div
                 style={{
-                  width: "46%",
-                  border: "1px solid #8080806e",
-                  borderRadius: "8px",
-                  padding: "10px",
+                  backgroundColor: "white",
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "space-between",
+                  marginBottom: "15px",
+                  gap: "10px",
+                  padding: "15px",
+                  borderRadius: "8px 8px 8px 8px",
+                  filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
                 }}
               >
                 <div
                   style={{
-                    marginBottom: "20px",
-                    borderBottom: "1px solid #80808051",
-                    padding: "8px 8px 12px 8px",
+                    display: "flex",
+                    gap: "10px",
+                    alignItems: "center",
+                    width: "100%",
+                    maxWidth: "935px",
+                    flexWrap: "wrap",
                   }}
                 >
-                  <Text style={{ fontWeight: 600 }}>Sütunları Göster / Gizle</Text>
+                  <StyledButton onClick={() => setIsModalVisible(true)}>
+                    <MenuOutlined />
+                  </StyledButton>
+                  <Input
+                    style={{ width: "250px" }}
+                    type="text"
+                    placeholder="Arama yap..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onPressEnter={handleSearch}
+                    // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
+                    suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+                  />
+                  <Filters onChange={handleBodyChange} />
+                  {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
+                  {/* Other toolbar components */}
                 </div>
-                <div style={{ height: "400px", overflow: "auto" }}>
-                  {columns.map((col) => (
-                    <div style={{ display: "flex", gap: "10px" }} key={col.key}>
-                      <Checkbox checked={col.visible || false} onChange={(e) => toggleVisibility(col.key, e.target.checked)} />
-                      {col.title}
-                    </div>
-                  ))}
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+                  <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
                 </div>
               </div>
+            </>
+          )}
 
-              <DndContext
-                onDragEnd={handleDragEnd}
-                sensors={useSensors(
-                  useSensor(PointerSensor),
-                  useSensor(KeyboardSensor, {
-                    coordinateGetter: sortableKeyboardCoordinates,
-                  })
-                )}
-              >
-                <div
-                  style={{
-                    width: "46%",
-                    border: "1px solid #8080806e",
-                    borderRadius: "8px",
-                    padding: "10px",
-                  }}
-                >
-                  <div
-                    style={{
-                      marginBottom: "20px",
-                      borderBottom: "1px solid #80808051",
-                      padding: "8px 8px 12px 8px",
-                    }}
-                  >
-                    <Text style={{ fontWeight: 600 }}>Sütunların Sıralamasını Ayarla</Text>
-                  </div>
-                  <div style={{ height: "400px", overflow: "auto" }}>
-                    <SortableContext items={columns.filter((col) => col.visible).map((col) => col.key)} strategy={verticalListSortingStrategy}>
-                      {columns
-                        .filter((col) => col.visible)
-                        .map((col, index) => (
-                          <DraggableRow key={col.key} id={col.key} index={index} text={col.title} />
-                        ))}
-                    </SortableContext>
-                  </div>
-                </div>
-              </DndContext>
-            </div>
-          </Modal>
-
-          {/* Toolbar */}
-          <div
-            style={{
-              backgroundColor: "white",
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "space-between",
-              marginBottom: "15px",
-              gap: "10px",
-              padding: "15px",
-              borderRadius: "8px 8px 8px 8px",
-              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                gap: "10px",
-                alignItems: "center",
-                width: "100%",
-                maxWidth: "935px",
-                flexWrap: "wrap",
-              }}
-            >
-              <StyledButton onClick={() => setIsModalVisible(true)}>
-                <MenuOutlined />
-              </StyledButton>
-              <Input
-                style={{ width: "250px" }}
-                type="text"
-                placeholder="Arama yap..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onPressEnter={handleSearch}
-                // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
-                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
-              />
-              <Filters onChange={handleBodyChange} />
-              {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
-              {/* Other toolbar components */}
-            </div>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-              <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
-            </div>
-          </div>
-
-          {/* Table */}
           <div
             style={{
               backgroundColor: "white",
               padding: "10px",
-              height: "calc(100vh - 200px)",
+              height: isSelectionMode ? "calc(100vh - 250px)" : "calc(100vh - 200px)",
               borderRadius: "8px 8px 8px 8px",
               filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
             }}
@@ -1080,10 +1081,12 @@ const Malzemeler = () => {
                   onChange: handleTableChange,
                   showTotal: (total) => `Toplam ${total}`,
                 }}
-                scroll={{ y: "calc(100vh - 335px)" }}
+                scroll={{ y: isSelectionMode ? "calc(100vh - 385px)" : "calc(100vh - 335px)" }}
               />
             </Spin>
-            <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} />
+            {!isSelectionMode && (
+              <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} />
+            )}
           </div>
         </FormProvider>
       </ConfigProvider>

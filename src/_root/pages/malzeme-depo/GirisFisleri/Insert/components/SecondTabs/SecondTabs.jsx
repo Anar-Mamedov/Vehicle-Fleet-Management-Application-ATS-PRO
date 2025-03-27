@@ -41,9 +41,9 @@ const StyledTabs = styled(Tabs)`
 
 //styled components end
 
-export default function SecondTabs({ refreshKey, fieldRequirements }) {
+export default function SecondTabs({ refreshKey, fieldRequirements, modalOpen }) {
   const { watch } = useFormContext();
-  const [activeTabKey, setActiveTabKey] = useState("3"); // Default to the first tab
+  const [activeTabKey, setActiveTabKey] = useState("4"); // Default to the FisIcerigi tab
 
   // Modify the onChange handler to update the active tab state
   const onChange = (key) => {
@@ -61,7 +61,7 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
     {
       key: "4",
       label: t("fisIcerigi"),
-      children: <FisIcerigi />,
+      children: <FisIcerigi modalOpen={modalOpen} />,
     },
 
     {

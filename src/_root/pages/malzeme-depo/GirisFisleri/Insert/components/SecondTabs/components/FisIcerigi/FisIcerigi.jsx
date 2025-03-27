@@ -1,6 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Table, Button, Form as AntForm, Input, InputNumber, Popconfirm } from "antd";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { Table, Button, Form as AntForm, Input, InputNumber, Popconfirm, Modal } from "antd";
+import { useFieldArray, useFormContext, Controller } from "react-hook-form";
+import { PlusOutlined } from "@ant-design/icons";
+import Malzemeler from "../../../../../../malzeme/Malzemeler";
+import PlakaSelectBox from "../../../../../../../../components/PlakaSelectBox";
+import ModalInput from "../../../../../../../../components/form/inputs/ModalInput";
+import LokasyonTablo from "../../../../../../../../components/form/LokasyonTable";
+import KodIDSelectbox from "../../../../../../../../components/KodIDSelectbox";
 
 const EditableContext = React.createContext(null);
 
@@ -18,22 +24,22 @@ const EditableRow = ({ index, ...props }) => {
 const EditableCell = ({ title, editable, children, dataIndex, record, handleSave, inputType, ...restProps }) => {
   const [editing, setEditing] = useState(false);
   const inputRef = useRef(null);
-  const form = useContext(EditableContext);
+  const formInstance = useContext(EditableContext);
 
   useEffect(() => {
-    if (editing) {
+    if (editing && inputRef.current) {
       inputRef.current?.focus();
     }
   }, [editing]);
 
   const toggleEdit = () => {
     setEditing(!editing);
-    form.setFieldsValue({ [dataIndex]: record[dataIndex] });
+    formInstance.setFieldsValue({ [dataIndex]: record[dataIndex] });
   };
 
   const save = async () => {
     try {
-      const values = await form.validateFields();
+      const values = await formInstance.validateFields();
       toggleEdit();
       handleSave({ ...record, ...values });
     } catch (errInfo) {
@@ -67,26 +73,189 @@ const EditableCell = ({ title, editable, children, dataIndex, record, handleSave
   return <td {...restProps}>{childNode}</td>;
 };
 
-function FisIcerigi() {
-  const { control } = useFormContext();
+const MalzemeSecModal = ({ visible, onCancel, onOk }) => {
+  const [selectedRows, setSelectedRows] = useState([]);
 
-  const { fields, append, remove } = useFieldArray({
+  const handleMalzemeSelect = (rows) => {
+    setSelectedRows(rows);
+  };
+
+  return (
+    <Modal title="Malzeme Seç" open={visible} onCancel={onCancel} onOk={() => onOk(selectedRows)} width={1200} style={{ top: 20 }}>
+      <Malzemeler onRowSelect={handleMalzemeSelect} isSelectionMode={true} />
+    </Modal>
+  );
+};
+
+function FisIcerigi({ modalOpen }) {
+  const { control, setValue, watch, getValues } = useFormContext();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
+  const [currentEditingRow, setCurrentEditingRow] = useState(null);
+  const [previousModalState, setPreviousModalState] = useState(false);
+
+  const { fields, append, remove, replace } = useFieldArray({
     control,
     name: "fisIcerigi",
+    shouldUnregister: true,
   });
 
-  const [dataSource, setDataSource] = useState(fields);
+  const [dataSource, setDataSource] = useState([]);
 
+  // Safely update dataSource when fields change
   useEffect(() => {
-    setDataSource(fields);
+    try {
+      setDataSource(fields || []);
+    } catch (error) {
+      console.error("Error updating dataSource:", error);
+      setDataSource([]);
+    }
   }, [fields]);
 
+  // Safely handle modal state changes
+  useEffect(() => {
+    if (modalOpen !== previousModalState) {
+      setPreviousModalState(modalOpen);
+
+      if (modalOpen) {
+        // Modal just opened, safely reset the table
+        try {
+          setDataSource([]);
+          replace([]);
+        } catch (error) {
+          console.error("Error resetting dataSource:", error);
+        }
+      }
+    }
+  }, [modalOpen, previousModalState, replace]);
+
+  const lokasyon = watch("lokasyon");
+  const lokasyonID = watch("lokasyonID");
+  const plaka = watch("plaka");
+  const plakaID = watch("plakaID");
+
+  // Safely update fields with watched values
+  useEffect(() => {
+    try {
+      if (dataSource.length > 0) {
+        const updatedData = dataSource.map((item) => ({
+          ...item,
+          malzemeLokasyon: item.malzemeLokasyon || lokasyon || "",
+          malzemeLokasyonID: item.malzemeLokasyonID || lokasyonID || null,
+          malzemePlaka: item.malzemePlaka || plaka || "",
+          malzemePlakaId: item.malzemePlakaId || plakaID || null,
+        }));
+
+        setDataSource(updatedData);
+
+        // Update form values with try/catch to avoid errors
+        updatedData.forEach((item, index) => {
+          try {
+            setValue(`fisIcerigi.${index}.malzemeLokasyon`, item.malzemeLokasyon);
+            setValue(`fisIcerigi.${index}.malzemeLokasyonID`, item.malzemeLokasyonID);
+            setValue(`fisIcerigi.${index}.malzemePlaka`, item.malzemePlaka);
+            setValue(`fisIcerigi.${index}.malzemePlakaId`, item.malzemePlakaId);
+          } catch (error) {
+            console.error(`Error updating form values for index ${index}:`, error);
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error in useEffect:", error);
+    }
+  }, [lokasyon, lokasyonID, plaka, plakaID, setValue]);
+
+  // Safe handleSave with error handling
   const handleSave = (row) => {
-    const newData = [...dataSource];
-    const index = newData.findIndex((item) => row.id === item.id);
-    const item = newData[index];
-    newData.splice(index, 1, { ...item, ...row });
-    setDataSource(newData);
+    try {
+      const newData = [...dataSource];
+      const index = newData.findIndex((item) => row.id === item.id);
+      if (index < 0) return;
+
+      const item = newData[index];
+
+      // Calculate totals
+      const miktar = Number(row.miktar) || 0;
+      const fiyat = Number(row.fiyat) || 0;
+      const araToplam = miktar * fiyat;
+      const indirimOrani = Number(row.indirimOrani) || 0;
+      const indirimTutari = (araToplam * indirimOrani) / 100;
+      const kdvOrani = Number(row.kdvOrani) || 0;
+      const kdvTutar = ((araToplam - indirimTutari) * kdvOrani) / 100;
+      const toplam = araToplam - indirimTutari + kdvTutar;
+
+      const updatedRow = {
+        ...item,
+        ...row,
+        birim: item.birim,
+        birimKodId: item.birimKodId,
+        malzemePlaka: item.malzemePlaka,
+        malzemePlakaId: item.malzemePlakaId,
+        araToplam,
+        indirimTutari,
+        kdvTutar,
+        toplam,
+      };
+
+      newData.splice(index, 1, updatedRow);
+      setDataSource(newData);
+
+      // Update form value safely
+      setTimeout(() => {
+        try {
+          setValue(`fisIcerigi.${index}`, updatedRow);
+        } catch (error) {
+          console.error(`Error updating form value for index ${index}:`, error);
+        }
+      }, 0);
+    } catch (error) {
+      console.error("Error in handleSave:", error);
+    }
+  };
+
+  // Safe handleMalzemeSelect with error handling
+  const handleMalzemeSelect = (selectedRows) => {
+    try {
+      selectedRows.forEach((row) => {
+        const miktar = 0;
+        const fiyat = row.fiyat || 0;
+        const araToplam = miktar * fiyat;
+        const indirimOrani = 0;
+        const indirimTutari = 0;
+        const kdvOrani = row.kdvOran || 0;
+        const kdvTutar = 0;
+        const toplam = 0;
+
+        const newRow = {
+          malzemeId: row.malzemeId,
+          birimKodId: row.birimKodId,
+          malzemeKodu: row.malzemeKod,
+          malzemeTanimi: row.tanim,
+          malzemeTipi: row.malzemeTipKodText,
+          miktar,
+          birim: row.birim,
+          fiyat,
+          araToplam,
+          indirimOrani,
+          indirimTutari,
+          kdvOrani,
+          kdvDH: Boolean(row.kdvDahilHaric),
+          kdvTutar,
+          toplam,
+          malzemePlaka: row.malzemePlaka || plaka || "",
+          malzemePlakaId: row.malzemePlakaId || plakaID || null,
+          malzemeLokasyon: row.lokasyon || lokasyon || "",
+          malzemeLokasyonID: row.lokasyonId || lokasyonID || null,
+          aciklama: "",
+        };
+
+        append(newRow);
+      });
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error("Error in handleMalzemeSelect:", error);
+      setIsModalVisible(false);
+    }
   };
 
   const components = {
@@ -102,7 +271,7 @@ function FisIcerigi() {
       dataIndex: "malzemeKodu",
       key: "malzemeKodu",
       width: 150,
-      editable: true,
+      editable: false,
       inputType: "text",
     },
     {
@@ -110,7 +279,7 @@ function FisIcerigi() {
       dataIndex: "malzemeTanimi",
       key: "malzemeTanimi",
       width: 200,
-      editable: true,
+      editable: false,
       inputType: "text",
     },
     {
@@ -118,7 +287,7 @@ function FisIcerigi() {
       dataIndex: "malzemeTipi",
       key: "malzemeTipi",
       width: 150,
-      editable: true,
+      editable: false,
       inputType: "text",
     },
     {
@@ -133,9 +302,34 @@ function FisIcerigi() {
       title: "Birim",
       dataIndex: "birim",
       key: "birim",
-      width: 100,
-      editable: true,
-      inputType: "text",
+      width: 150,
+      editable: false,
+      render: (_, record, index) => (
+        <Controller
+          name={`fisIcerigi.${index}.birim`}
+          control={control}
+          render={({ field }) => (
+            <KodIDSelectbox
+              {...field}
+              name1={`fisIcerigi.${index}.birim`}
+              kodID={300}
+              isRequired={false}
+              onChange={(label, value) => {
+                const newData = [...dataSource];
+                const item = newData[index];
+                newData.splice(index, 1, {
+                  ...item,
+                  birim: label,
+                  birimKodId: value,
+                });
+                setDataSource(newData);
+                setValue(`fisIcerigi.${index}.birim`, label);
+                setValue(`fisIcerigi.${index}.birimKodId`, value);
+              }}
+            />
+          )}
+        />
+      ),
     },
     {
       title: "Fiyat",
@@ -150,7 +344,7 @@ function FisIcerigi() {
       dataIndex: "araToplam",
       key: "araToplam",
       width: 120,
-      editable: true,
+      editable: false,
       inputType: "number",
     },
     {
@@ -174,7 +368,7 @@ function FisIcerigi() {
       dataIndex: "kdvOrani",
       key: "kdvOrani",
       width: 120,
-      editable: true,
+      editable: false,
       inputType: "number",
     },
     {
@@ -182,15 +376,17 @@ function FisIcerigi() {
       dataIndex: "kdvDH",
       key: "kdvDH",
       width: 100,
-      editable: true,
+      editable: false,
+      ellipsis: true,
       inputType: "text",
+      render: (text) => (String(text) === "true" ? "Dahil" : "Haric"),
     },
     {
       title: "KDV Tutarı",
       dataIndex: "kdvTutar",
       key: "kdvTutar",
       width: 120,
-      editable: true,
+      editable: false,
       inputType: "number",
     },
     {
@@ -198,24 +394,77 @@ function FisIcerigi() {
       dataIndex: "toplam",
       key: "toplam",
       width: 120,
-      editable: true,
+      editable: false,
       inputType: "number",
     },
     {
       title: "Plaka",
-      dataIndex: "plaka",
-      key: "plaka",
-      width: 120,
-      editable: true,
-      inputType: "text",
+      dataIndex: "malzemePlaka",
+      key: "malzemePlaka",
+      width: 200,
+      editable: false,
+      render: (_, record, index) => (
+        <Controller
+          name={`fisIcerigi.${index}.malzemePlaka`}
+          control={control}
+          render={({ field }) => (
+            <PlakaSelectBox
+              {...field}
+              name1={`fisIcerigi.${index}.malzemePlaka`}
+              isRequired={false}
+              onChange={(value, option) => {
+                const newData = [...dataSource];
+                const item = newData[index];
+                newData.splice(index, 1, {
+                  ...item,
+                  malzemePlaka: option?.label || "",
+                  malzemePlakaId: value,
+                });
+                setDataSource(newData);
+                setValue(`fisIcerigi.${index}.malzemePlaka`, option?.label || "");
+                setValue(`fisIcerigi.${index}.malzemePlakaId`, value);
+              }}
+            />
+          )}
+        />
+      ),
     },
     {
       title: "Lokasyon",
-      dataIndex: "lokasyon",
-      key: "lokasyon",
-      width: 150,
-      editable: true,
-      inputType: "text",
+      dataIndex: "malzemeLokasyon",
+      key: "malzemeLokasyon",
+      width: 200,
+      ellipsis: true,
+      visible: true,
+      render: (_, record, index) => (
+        <Controller
+          name={`fisIcerigi.${index}.malzemeLokasyon`}
+          control={control}
+          render={({ field }) => (
+            <ModalInput
+              {...field}
+              readonly={true}
+              required={false}
+              onPlusClick={() => {
+                setCurrentEditingRow(index);
+                setIsLokasyonModalOpen(true);
+              }}
+              onMinusClick={() => {
+                const newData = [...dataSource];
+                const item = newData[index];
+                newData.splice(index, 1, {
+                  ...item,
+                  malzemeLokasyon: "",
+                  malzemeLokasyonID: null,
+                });
+                setDataSource(newData);
+                field.onChange("");
+                setValue(`fisIcerigi.${index}.malzemeLokasyonID`, null);
+              }}
+            />
+          )}
+        />
+      ),
     },
     {
       title: "Açıklama",
@@ -259,6 +508,11 @@ function FisIcerigi() {
 
   return (
     <div>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
+          Ekle
+        </Button>
+      </div>
       <Table
         components={components}
         rowClassName={() => "editable-row"}
@@ -266,36 +520,34 @@ function FisIcerigi() {
         dataSource={dataSource}
         columns={columns}
         pagination={false}
-        rowKey="id"
-        scroll={{ x: "max-content" }}
+        rowKey={(record) => record.id || Math.random().toString(36).substr(2, 9)} // Ensure stable keys
+        scroll={{ y: "calc(100vh - 600px)" }}
       />
-      <Button
-        type="dashed"
-        onClick={() =>
-          append({
-            malzemeKodu: "",
-            malzemeTanimi: "",
-            malzemeTipi: "",
-            miktar: 0,
-            birim: "",
-            fiyat: 0,
-            araToplam: 0,
-            indirimOrani: 0,
-            indirimTutari: 0,
-            kdvOrani: 0,
-            kdvDH: "",
-            kdvTutar: 0,
-            toplam: 0,
-            plaka: "",
-            lokasyon: "",
-            aciklama: "",
-          })
-        }
-        style={{ marginTop: 16 }}
-        block
-      >
-        Yeni Satır Ekle
-      </Button>
+      <MalzemeSecModal visible={isModalVisible} onCancel={() => setIsModalVisible(false)} onOk={handleMalzemeSelect} />
+      <LokasyonTablo
+        onSubmit={(selectedData) => {
+          if (currentEditingRow !== null) {
+            try {
+              const newData = [...dataSource];
+              const item = newData[currentEditingRow];
+              newData.splice(currentEditingRow, 1, {
+                ...item,
+                malzemeLokasyon: selectedData.location,
+                malzemeLokasyonID: selectedData.key,
+              });
+              setDataSource(newData);
+              setValue(`fisIcerigi.${currentEditingRow}.malzemeLokasyon`, selectedData.location);
+              setValue(`fisIcerigi.${currentEditingRow}.malzemeLokasyonID`, selectedData.key);
+              setCurrentEditingRow(null);
+            } catch (error) {
+              console.error("Error updating lokasyon:", error);
+              setCurrentEditingRow(null);
+            }
+          }
+        }}
+        isModalVisible={isLokasyonModalOpen}
+        setIsModalVisible={setIsLokasyonModalOpen}
+      />
     </div>
   );
 }

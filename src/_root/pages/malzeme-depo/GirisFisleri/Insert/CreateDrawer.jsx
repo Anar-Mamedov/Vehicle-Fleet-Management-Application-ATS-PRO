@@ -41,6 +41,11 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       getFisNo();
       setValue("tarih", dayjs());
       setValue("saat", dayjs());
+
+      // Reset the fisIcerigi with a timeout to avoid focus errors
+      setTimeout(() => {
+        setValue("fisIcerigi", []);
+      }, 0);
     }
   }, [open]);
 
@@ -51,8 +56,28 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       okText: "Evet",
       cancelText: "Hayır",
       onOk: () => {
+        // First close the modal to avoid focus errors
         setOpen(false);
-        methods.reset();
+
+        // Then reset the form with a slight delay
+        setTimeout(() => {
+          methods.reset({
+            fisNo: null,
+            firma: null,
+            firmaID: null,
+            plaka: null,
+            plakaID: null,
+            tarih: null,
+            saat: null,
+            islemTipi: null,
+            islemTipiID: null,
+            girisDeposu: null,
+            girisDeposuID: null,
+            lokasyon: null,
+            lokasyonID: null,
+            fisIcerigi: [],
+          });
+        }, 100);
       },
       onCancel: () => {
         // Do nothing, continue from where the user left off
@@ -78,6 +103,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       girisDeposuID: null,
       lokasyon: null,
       lokasyonID: null,
+      fisIcerigi: [],
     },
   });
 
@@ -96,67 +122,79 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   //* export
   const onSubmit = (data) => {
     const Body = {
-      aracId: Number(data.PlakaID),
-      bakimId: Number(data.servisKoduID),
-      kazaId: Number(data.hasarNoID),
-      durumBilgisi: 1,
-      islemiYapan: Number(data.islemiYapan),
-      servisNedeniKodId: Number(data.servisNedeniID),
-
-      islemiYapanId: Number(data.islemiYapan1ID),
-      surucuId: Number(data.SurucuID),
-      // lokasyonId: data.,
-      km: Number(data.aracKM),
-      indirim: Number(data.eksiUcreti),
-      // toplam: data.,
-      kdv: Number(data.kdvUcreti),
-      diger: Number(data.digerUcreti),
-      malzeme: Number(data.malzemeUcreti),
-      iscilik: Number(data.iscilikUcreti),
-      talepNo: data.talepNo,
-      onayId: Number(data.onayID),
-      tarih: formatDateWithDayjs(data.duzenlenmeTarihi) || null,
-      baslamaTarih: formatDateWithDayjs(data.baslamaTarihi) || null,
-      bitisTarih: formatDateWithDayjs(data.bitisTarihi) || null,
-      faturaTarih: formatDateWithDayjs(data.faturaTarihi) || null,
-      saat: formatTimeWithDayjs(data.duzenlenmeSaati) || null,
-      baslamaSaat: formatTimeWithDayjs(data.baslamaSaati) || null,
-      bitisSaat: formatTimeWithDayjs(data.bitisSaati) || null,
-      faturaNo: data.faturaNo,
-      aciklama: data.aciklama,
-      sikayetler: data.sikayetler,
-      sigortaVar: data.sigortaBilgileri,
-      surucuOder: data.surucuOder,
-      garantili: data.garantiKapsami,
-      sigortaId: Number(data.sigortaID),
-      ozelAlan1: data.ozelAlan1,
-      ozelAlan2: data.ozelAlan2,
-      ozelAlan3: data.ozelAlan3,
-      ozelAlan4: data.ozelAlan4,
-      ozelAlan5: data.ozelAlan5,
-      ozelAlan6: data.ozelAlan6,
-      ozelAlan7: data.ozelAlan7,
-      ozelAlan8: data.ozelAlan8,
-      ozelAlanKodId9: Number(data.ozelAlan9ID),
-      ozelAlanKodId10: Number(data.ozelAlan10ID),
-      ozelAlan11: Number(data.ozelAlan11),
-      ozelAlan12: Number(data.ozelAlan12),
+      fisNo: data.fisNo,
+      // firma: data.firma,
+      firmaID: Number(data.firmaID),
+      // plaka: data.plaka,
+      plakaID: Number(data.plakaID),
+      tarih: formatDateWithDayjs(data.tarih),
+      saat: formatTimeWithDayjs(data.saat),
+      // islemTipi: data.islemTipi,
+      islemTipiID: Number(data.islemTipiID),
+      // girisDeposu: data.girisDeposu,
+      girisDeposuID: Number(data.girisDeposuID),
+      // lokasyon: data.lokasyon,
+      lokasyonID: Number(data.lokasyonID),
+      gc: 1,
+      fisTip: "MALZEME",
+      materialMovements:
+        data.fisIcerigi?.map((item) => ({
+          // malzemeKodu: item.malzemeKodu,
+          // malzemeTanimi: item.malzemeTanimi,
+          // malzemeTipi: item.malzemeTipi,
+          malzemeId: Number(item.malzemeId),
+          // birim: item.birim,
+          birimKodId: Number(item.birimKodId),
+          miktar: Number(item.miktar),
+          fiyat: Number(item.fiyat),
+          araToplam: Number(item.araToplam),
+          indirimOrani: Number(item.indirimOrani),
+          indirimTutari: Number(item.indirimTutari),
+          kdvOrani: Number(item.kdvOrani),
+          kdvDH: item.kdvDH,
+          kdvTutar: Number(item.kdvTutar),
+          toplam: Number(item.toplam),
+          // plaka: item.malzemePlaka,
+          mlzAracId: Number(item.malzemePlakaId),
+          // lokasyon: item.malzemeLokasyon,
+          lokasyonId: Number(item.malzemeLokasyonID),
+          aciklama: item.aciklama,
+          gc: 1,
+          fisTip: "MALZEME",
+        })) || [],
     };
 
-    // AxiosInstance.post("/api/endpoint", { Body }).then((response) => {
-    // handle response
-    // });
-
-    AxiosInstance.post("VehicleServices/AddServiceItem", Body)
+    AxiosInstance.post("MaterialReceipt/AddMaterialReceipt1", Body)
       .then((response) => {
         // Handle successful response here, e.g.:
         console.log("Data sent successfully:", response);
 
         if (response.data.statusCode === 200 || response.data.statusCode === 201) {
           message.success("Ekleme Başarılı.");
+
+          // First close the modal to avoid focus errors
           setOpen(false);
           onRefresh();
-          reset();
+
+          // Then reset the form with a slight delay
+          setTimeout(() => {
+            methods.reset({
+              fisNo: null,
+              firma: null,
+              firmaID: null,
+              plaka: null,
+              plakaID: null,
+              tarih: null,
+              saat: null,
+              islemTipi: null,
+              islemTipiID: null,
+              girisDeposu: null,
+              girisDeposuID: null,
+              lokasyon: null,
+              lokasyonID: null,
+              fisIcerigi: [],
+            });
+          }, 100);
         } else if (response.data.statusCode === 401) {
           message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
         } else {
@@ -232,7 +270,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
           <form onSubmit={methods.handleSubmit(onSubmit)}>
             <div>
               <MainTabs modalOpen={open} />
-              <SecondTabs />
+              <SecondTabs modalOpen={open} />
               {/*<Footer />*/}
             </div>
           </form>

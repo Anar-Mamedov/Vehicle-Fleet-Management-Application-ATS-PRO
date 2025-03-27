@@ -327,6 +327,8 @@ export default function MainTabs({ modalOpen }) {
             <FirmaSelectBox name1="firma" isRequired={true} />
           </div>
         </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
         <div
           style={{
             display: "flex",
@@ -351,8 +353,6 @@ export default function MainTabs({ modalOpen }) {
             <PlakaSelectBox name1="plaka" isRequired={false} />
           </div>
         </div>
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
         <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
           <div
             style={{
@@ -437,6 +437,8 @@ export default function MainTabs({ modalOpen }) {
             </div>
           </div>
         </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
         <div
           style={{
             display: "flex",
@@ -461,8 +463,6 @@ export default function MainTabs({ modalOpen }) {
             <KodIDSelectbox name1="islemTipi" kodID={302} isRequired={false} />
           </div>
         </div>
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
         <div
           style={{
             display: "flex",
@@ -490,6 +490,8 @@ export default function MainTabs({ modalOpen }) {
             <DepoSelectBox name1="girisDeposu" kodID={"YAKIT"} isRequired={true} />
           </div>
         </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
         <div
           style={{
             display: "flex",
