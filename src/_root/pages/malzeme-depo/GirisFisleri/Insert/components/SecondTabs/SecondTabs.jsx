@@ -18,6 +18,10 @@ const StyledTabs = styled(Tabs)`
     background-color: rgba(230, 230, 230, 0.3);
   }
 
+  .ant-tabs-nav {
+    z-index: 20 !important;
+  }
+
   .ant-tabs-tab-active {
     background-color: #2bc77135;
   }

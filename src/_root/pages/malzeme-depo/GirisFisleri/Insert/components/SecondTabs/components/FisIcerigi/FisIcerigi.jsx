@@ -29,12 +29,23 @@ const EditableCell = ({ title, editable, children, dataIndex, record, handleSave
   const [editing, setEditing] = useState(false);
   const inputRef = useRef(null);
   const formInstance = useContext(EditableContext);
+  const [decimalSeparator, setDecimalSeparator] = useState(".");
 
   useEffect(() => {
     if (editing && inputRef.current) {
       inputRef.current?.focus();
     }
   }, [editing]);
+
+  useEffect(() => {
+    const language = localStorage.getItem("i18nextLng") || "en";
+    // Set decimal separator based on language
+    if (["tr", "az"].includes(language)) {
+      setDecimalSeparator(",");
+    } else {
+      setDecimalSeparator(".");
+    }
+  }, []);
 
   const toggleEdit = () => {
     setEditing(!editing);
@@ -60,13 +71,13 @@ const EditableCell = ({ title, editable, children, dataIndex, record, handleSave
         name={dataIndex}
         rules={[
           {
-            required: true,
+            required: dataIndex !== "aciklama", // Only make fields other than "aciklama" required
             message: `${title} zorunludur.`,
           },
         ]}
       >
         {inputType === "number" ? (
-          <InputNumber ref={inputRef} onPressEnter={save} onBlur={save} min={0} style={{ width: "100%", textAlign: "center" }} />
+          <InputNumber ref={inputRef} onPressEnter={save} onBlur={save} min={0} style={{ width: "100%", textAlign: "center" }} decimalSeparator={decimalSeparator} />
         ) : (
           <Input ref={inputRef} onPressEnter={save} onBlur={save} style={{ textAlign: "center" }} />
         )}
@@ -81,7 +92,7 @@ const EditableCell = ({ title, editable, children, dataIndex, record, handleSave
           minHeight: "22px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          // justifyContent: "center",
         }}
         onClick={toggleEdit}
       >
@@ -91,7 +102,7 @@ const EditableCell = ({ title, editable, children, dataIndex, record, handleSave
   }
 
   return (
-    <td {...restProps} style={{ ...restProps.style, textAlign: "center" }}>
+    <td {...restProps} style={{ ...restProps.style /* textAlign: "center"  */ }}>
       {childNode}
     </td>
   );
@@ -239,17 +250,8 @@ function FisIcerigi({ modalOpen }) {
       const kdvOrani = Number(row.kdvOrani) || 0;
       const kdvDH = Boolean(row.kdvDahilHaric);
 
-      // Calculate base price and araToplam based on kdvDH
-      let birimFiyat;
-      if (kdvDH) {
-        // If KDV is inclusive, extract it from the price
-        birimFiyat = round(fiyat / (1 + kdvOrani / 100));
-      } else {
-        // If KDV is exclusive, use the price as is
-        birimFiyat = round(fiyat);
-      }
-
-      const araToplam = round(miktar * birimFiyat);
+      // Exception: Always calculate araToplam as miktar * fiyat regardless of kdvDH
+      const araToplam = round(miktar * fiyat);
 
       let indirimOrani = Number(row.indirimOrani) || 0;
       let indirimTutari = Number(row.indirimTutari) || 0;
@@ -265,10 +267,19 @@ function FisIcerigi({ modalOpen }) {
 
       // Calculate KDV amount based on kdvDH
       const kdvMatrah = round(araToplam - indirimTutari);
-      const kdvTutar = round(kdvMatrah * (kdvOrani / 100));
+      let kdvTutar;
+
+      if (kdvDH) {
+        // If KDV is inclusive, calculate KDV portion from the price
+        const baseAmount = round(kdvMatrah / (1 + kdvOrani / 100));
+        kdvTutar = round(kdvMatrah - baseAmount);
+      } else {
+        // If KDV is exclusive, calculate KDV as additional
+        kdvTutar = round(kdvMatrah * (kdvOrani / 100));
+      }
 
       // Calculate total
-      const toplam = round(kdvMatrah + kdvTutar);
+      const toplam = kdvDH ? round(kdvMatrah) : round(kdvMatrah + kdvTutar);
 
       const updatedRow = {
         ...item,
@@ -322,15 +333,33 @@ function FisIcerigi({ modalOpen }) {
         message.info(`${selectedRows.length - newRows.length} malzeme zaten tabloda mevcut olduğu için eklenmedi.`);
       }
 
+      // Helper function to round to 2 decimal places
+      const round = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
+
       newRows.forEach((row) => {
         const miktar = 1;
         const fiyat = row.fiyat || 0;
-        const araToplam = miktar * fiyat;
+        const kdvOrani = row.kdvOran || 0;
+        const kdvDH = Boolean(row.kdvDahilHaric);
+
+        // Exception: Always calculate araToplam as miktar * fiyat regardless of kdvDH
+        const araToplam = round(miktar * fiyat);
         const indirimOrani = 0;
         const indirimTutari = 0;
-        const kdvOrani = row.kdvOran || 0;
-        const kdvTutar = ((araToplam - indirimTutari) * kdvOrani) / 100;
-        const toplam = araToplam - indirimTutari + kdvTutar;
+        const kdvMatrah = round(araToplam - indirimTutari);
+
+        let kdvTutar;
+        if (kdvDH) {
+          // If KDV is inclusive, calculate KDV portion from the price
+          const baseAmount = round(kdvMatrah / (1 + kdvOrani / 100));
+          kdvTutar = round(kdvMatrah - baseAmount);
+        } else {
+          // If KDV is exclusive, calculate KDV as additional
+          kdvTutar = round(kdvMatrah * (kdvOrani / 100));
+        }
+
+        // Calculate total based on kdvDH
+        const toplam = kdvDH ? round(kdvMatrah) : round(kdvMatrah + kdvTutar);
 
         const newRow = {
           malzemeId: row.malzemeId,
@@ -345,7 +374,7 @@ function FisIcerigi({ modalOpen }) {
           indirimOrani,
           indirimTutari,
           kdvOrani,
-          kdvDH: Boolean(row.kdvDahilHaric),
+          kdvDahilHaric: kdvDH,
           kdvTutar,
           toplam,
           malzemePlaka: row.malzemePlaka || plaka || "",
@@ -404,6 +433,11 @@ function FisIcerigi({ modalOpen }) {
       width: 100,
       editable: true,
       inputType: "number",
+      render: (text, record) => (
+        <div className="">
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+        </div>
+      ),
     },
     {
       title: "Birim",
@@ -445,6 +479,11 @@ function FisIcerigi({ modalOpen }) {
       width: 120,
       editable: true,
       inputType: "number",
+      render: (text, record) => (
+        <div className="">
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+        </div>
+      ),
     },
     {
       title: "Ara Toplam",
@@ -453,6 +492,11 @@ function FisIcerigi({ modalOpen }) {
       width: 120,
       editable: false,
       inputType: "number",
+      render: (text, record) => (
+        <div className="">
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+        </div>
+      ),
     },
     {
       title: "İndirim Oranı %",
@@ -461,6 +505,11 @@ function FisIcerigi({ modalOpen }) {
       width: 140,
       editable: true,
       inputType: "number",
+      render: (text, record) => (
+        <div className="">
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+        </div>
+      ),
     },
     {
       title: "İndirim Tutarı",
@@ -469,6 +518,11 @@ function FisIcerigi({ modalOpen }) {
       width: 120,
       editable: true,
       inputType: "number",
+      render: (text, record) => (
+        <div className="">
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+        </div>
+      ),
     },
     {
       title: "KDV Oranı %",
@@ -477,16 +531,21 @@ function FisIcerigi({ modalOpen }) {
       width: 120,
       editable: false,
       inputType: "number",
+      render: (text, record) => (
+        <div className="">
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+        </div>
+      ),
     },
     {
       title: "KDV D/H",
-      dataIndex: "kdvDH",
-      key: "kdvDH",
+      dataIndex: "kdvDahilHaric",
+      key: "kdvDahilHaric",
       width: 100,
       editable: false,
       ellipsis: true,
       inputType: "text",
-      render: (text) => (String(text) === "true" ? "Dahil" : "Haric"),
+      render: (value) => (value ? "Dahil" : "Haric"),
     },
     {
       title: "KDV Tutarı",
@@ -495,6 +554,11 @@ function FisIcerigi({ modalOpen }) {
       width: 120,
       editable: false,
       inputType: "number",
+      render: (text, record) => (
+        <div className="">
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+        </div>
+      ),
     },
     {
       title: "Toplam",
@@ -503,6 +567,11 @@ function FisIcerigi({ modalOpen }) {
       width: 120,
       editable: false,
       inputType: "number",
+      render: (text, record) => (
+        <div className="">
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+        </div>
+      ),
     },
     {
       title: "Plaka",
@@ -580,6 +649,7 @@ function FisIcerigi({ modalOpen }) {
       width: 200,
       editable: true,
       inputType: "text",
+      ellipsis: true,
     },
     {
       title: "İşlemler",
@@ -614,9 +684,9 @@ function FisIcerigi({ modalOpen }) {
   });
 
   return (
-    <div>
+    <div style={{ marginTop: "-55px", zIndex: 10 }}>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
+        <Button style={{ zIndex: 21 }} type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
           Ekle
         </Button>
       </div>
@@ -629,19 +699,19 @@ function FisIcerigi({ modalOpen }) {
         columns={columns}
         pagination={false}
         rowKey={(record) => record.id || Math.random().toString(36).substr(2, 9)} // Ensure stable keys
-        scroll={{ y: "calc(100vh - 600px)" }}
+        scroll={{ y: "calc(100vh - 400px)" }}
       />
-      <div style={{ display: "flex", flexDirection: "row", gap: "10px", marginTop: "10px" }}>
+      <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "10px", marginTop: "10px", maxWidth: "815px" }}>
         <div
           style={{
             display: "flex",
+            flexDirection: "row",
             flexWrap: "wrap",
-            alignItems: "flex-start",
+            alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
-
+            maxWidth: "400px",
             gap: "10px",
-            flexDirection: "column",
           }}
         >
           <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("araToplam")}</Text>
@@ -651,9 +721,16 @@ function FisIcerigi({ modalOpen }) {
               flexFlow: "column wrap",
               alignItems: "flex-start",
               width: "100%",
+              maxWidth: "250px",
             }}
           >
-            <Controller name="totalAraToplam" control={control} render={({ field }) => <Input {...field} readOnly style={{ flex: 1 }} />} />
+            <Controller
+              name="totalAraToplam"
+              control={control}
+              render={({ field }) => (
+                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
+              )}
+            />
           </div>
         </div>
 
@@ -661,12 +738,12 @@ function FisIcerigi({ modalOpen }) {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            alignItems: "flex-start",
+            alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
-
+            maxWidth: "400px",
             gap: "10px",
-            flexDirection: "column",
+            flexDirection: "row",
           }}
         >
           <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("indirim")}</Text>
@@ -676,9 +753,16 @@ function FisIcerigi({ modalOpen }) {
               flexFlow: "column wrap",
               alignItems: "flex-start",
               width: "100%",
+              maxWidth: "250px",
             }}
           >
-            <Controller name="totalIndirim" control={control} render={({ field }) => <Input {...field} readOnly style={{ flex: 1 }} />} />
+            <Controller
+              name="totalIndirim"
+              control={control}
+              render={({ field }) => (
+                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
+              )}
+            />
           </div>
         </div>
 
@@ -686,12 +770,12 @@ function FisIcerigi({ modalOpen }) {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            alignItems: "flex-start",
+            alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
-
+            maxWidth: "400px",
             gap: "10px",
-            flexDirection: "column",
+            flexDirection: "row",
           }}
         >
           <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("kdvToplam")}</Text>
@@ -701,9 +785,16 @@ function FisIcerigi({ modalOpen }) {
               flexFlow: "column wrap",
               alignItems: "flex-start",
               width: "100%",
+              maxWidth: "250px",
             }}
           >
-            <Controller name="totalKdvToplam" control={control} render={({ field }) => <Input {...field} readOnly style={{ flex: 1 }} />} />
+            <Controller
+              name="totalKdvToplam"
+              control={control}
+              render={({ field }) => (
+                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
+              )}
+            />
           </div>
         </div>
 
@@ -711,12 +802,12 @@ function FisIcerigi({ modalOpen }) {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            alignItems: "flex-start",
+            alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
-
+            maxWidth: "400px",
             gap: "10px",
-            flexDirection: "column",
+            flexDirection: "row",
           }}
         >
           <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("genelToplam")}</Text>
@@ -726,9 +817,16 @@ function FisIcerigi({ modalOpen }) {
               flexFlow: "column wrap",
               alignItems: "flex-start",
               width: "100%",
+              maxWidth: "250px",
             }}
           >
-            <Controller name="totalGenelToplam" control={control} render={({ field }) => <Input {...field} readOnly style={{ flex: 1 }} />} />
+            <Controller
+              name="totalGenelToplam"
+              control={control}
+              render={({ field }) => (
+                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
+              )}
+            />
           </div>
         </div>
       </div>
