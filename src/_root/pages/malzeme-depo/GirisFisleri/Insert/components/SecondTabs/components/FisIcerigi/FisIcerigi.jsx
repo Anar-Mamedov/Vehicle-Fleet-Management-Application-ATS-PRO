@@ -4,7 +4,7 @@ import { useFieldArray, useFormContext, Controller } from "react-hook-form";
 import { PlusOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import Malzemeler from "../../../../../../malzeme/Malzemeler";
-import PlakaSelectBox from "../../../../../../../../components/PlakaSelectBox";
+import PlakaSelectBox from "../../../../../../../../components/PlakaSelectbox";
 import ModalInput from "../../../../../../../../components/form/inputs/ModalInput";
 import LokasyonTablo from "../../../../../../../../components/form/LokasyonTable";
 import KodIDSelectbox from "../../../../../../../../components/KodIDSelectbox";

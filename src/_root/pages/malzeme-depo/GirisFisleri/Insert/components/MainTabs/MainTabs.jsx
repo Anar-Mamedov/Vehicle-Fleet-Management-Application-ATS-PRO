@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import { t } from "i18next";
 import AxiosInstance from "../../../../../../../api/http";
 import FirmaSelectBox from "../../../../../../components/FirmaSelectBox";
-import PlakaSelectBox from "../../../../../../components/PlakaSelectBox";
+import PlakaSelectBox from "../../../../../../../_root/components/PlakaSelectbox";
 import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
 import DepoSelectBox from "../../../../../../components/DepoSelectBox";
 import LokasyonTablo from "../../../../../../components/form/LokasyonTable";
