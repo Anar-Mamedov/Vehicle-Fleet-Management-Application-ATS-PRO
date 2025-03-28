@@ -243,7 +243,7 @@ export default function MainTabs({ modalOpen }) {
   };
 
   return (
-    <div style={{ display: "flex", marginBottom: "15px", flexDirection: "row", gap: "10px", width: "100%" }}>
+    <div style={{ display: "flex", marginBottom: "20px", flexDirection: "row", gap: "10px", width: "100%" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
         <div
           style={{

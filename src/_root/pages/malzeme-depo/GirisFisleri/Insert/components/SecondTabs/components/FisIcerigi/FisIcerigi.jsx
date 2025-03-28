@@ -481,7 +481,7 @@ function FisIcerigi({ modalOpen }) {
       inputType: "number",
       render: (text, record) => (
         <div className="">
-          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       ),
     },
@@ -494,12 +494,12 @@ function FisIcerigi({ modalOpen }) {
       inputType: "number",
       render: (text, record) => (
         <div className="">
-          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       ),
     },
     {
-      title: "İndirim Oranı %",
+      title: "İndirim %",
       dataIndex: "indirimOrani",
       key: "indirimOrani",
       width: 140,
@@ -520,12 +520,12 @@ function FisIcerigi({ modalOpen }) {
       inputType: "number",
       render: (text, record) => (
         <div className="">
-          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       ),
     },
     {
-      title: "KDV Oranı %",
+      title: "KDV %",
       dataIndex: "kdvOrani",
       key: "kdvOrani",
       width: 120,
@@ -556,7 +556,7 @@ function FisIcerigi({ modalOpen }) {
       inputType: "number",
       render: (text, record) => (
         <div className="">
-          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       ),
     },
@@ -569,7 +569,7 @@ function FisIcerigi({ modalOpen }) {
       inputType: "number",
       render: (text, record) => (
         <div className="">
-          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       ),
     },
@@ -699,134 +699,159 @@ function FisIcerigi({ modalOpen }) {
         columns={columns}
         pagination={false}
         rowKey={(record) => record.id || Math.random().toString(36).substr(2, 9)} // Ensure stable keys
-        scroll={{ y: "calc(100vh - 400px)" }}
+        scroll={{ y: "calc(100vh - 540px)" }}
       />
-      <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "10px", marginTop: "10px", maxWidth: "815px" }}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("araToplam")}</Text>
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
-              width: "100%",
-              maxWidth: "250px",
-            }}
-          >
-            <Controller
-              name="totalAraToplam"
-              control={control}
-              render={({ field }) => (
-                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
-              )}
-            />
-          </div>
+      <div style={{ display: "flex", flexFlow: "column wrap", gap: "10px", marginTop: "20px", width: "100%", flexDirection: "row", justifyContent: "space-between" }}>
+        <div style={{ width: "100%", maxWidth: "830px" }}>
+          <Controller name="aciklama" render={({ field }) => <TextArea {...field} rows={4} placeholder="Açıklama" style={{ width: "100%", minHeight: "160px" }} />} />
         </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("indirim")}</Text>
+        <div style={{ width: "100%", maxWidth: "400px", display: "flex", flexFlow: "wrap", gap: "10px", flexDirection: "column", alignItems: "flex-start" }}>
           <div
             style={{
               display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
               width: "100%",
-              maxWidth: "250px",
+              maxWidth: "400px",
+              gap: "10px",
             }}
           >
-            <Controller
-              name="totalIndirim"
-              control={control}
-              render={({ field }) => (
-                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
-              )}
-            />
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("araToplam")}</Text>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column wrap",
+                alignItems: "flex-start",
+                width: "100%",
+                maxWidth: "250px",
+              }}
+            >
+              <Controller
+                name="totalAraToplam"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    readOnly
+                    style={{ flex: 1 }}
+                    value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"}
+                  />
+                )}
+              />
+            </div>
           </div>
-        </div>
 
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("kdvToplam")}</Text>
           <div
             style={{
               display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
               width: "100%",
-              maxWidth: "250px",
+              maxWidth: "400px",
+              gap: "10px",
+              flexDirection: "row",
             }}
           >
-            <Controller
-              name="totalKdvToplam"
-              control={control}
-              render={({ field }) => (
-                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
-              )}
-            />
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("indirim")}</Text>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column wrap",
+                alignItems: "flex-start",
+                width: "100%",
+                maxWidth: "250px",
+              }}
+            >
+              <Controller
+                name="totalIndirim"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    readOnly
+                    style={{ flex: 1 }}
+                    value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"}
+                  />
+                )}
+              />
+            </div>
           </div>
-        </div>
 
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("genelToplam")}</Text>
           <div
             style={{
               display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
               width: "100%",
-              maxWidth: "250px",
+              maxWidth: "400px",
+              gap: "10px",
+              flexDirection: "row",
             }}
           >
-            <Controller
-              name="totalGenelToplam"
-              control={control}
-              render={({ field }) => (
-                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
-              )}
-            />
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("kdvToplam")}</Text>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column wrap",
+                alignItems: "flex-start",
+                width: "100%",
+                maxWidth: "250px",
+              }}
+            >
+              <Controller
+                name="totalKdvToplam"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    readOnly
+                    style={{ flex: 1 }}
+                    value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              maxWidth: "400px",
+              gap: "10px",
+              flexDirection: "row",
+            }}
+          >
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("genelToplam")}</Text>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column wrap",
+                alignItems: "flex-start",
+                width: "100%",
+                maxWidth: "250px",
+              }}
+            >
+              <Controller
+                name="totalGenelToplam"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    readOnly
+                    style={{ flex: 1 }}
+                    value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"}
+                  />
+                )}
+              />
+            </div>
           </div>
         </div>
       </div>
