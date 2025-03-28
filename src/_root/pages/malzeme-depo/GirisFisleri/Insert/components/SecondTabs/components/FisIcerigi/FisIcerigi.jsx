@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Table, Button, Form as AntForm, Input, InputNumber, Popconfirm, Modal, Typography } from "antd";
+import { Table, Button, Form as AntForm, Input, InputNumber, Popconfirm, Modal, Typography, message } from "antd";
 import { useFieldArray, useFormContext, Controller } from "react-hook-form";
 import { PlusOutlined } from "@ant-design/icons";
 import { t } from "i18next";
@@ -65,16 +65,36 @@ const EditableCell = ({ title, editable, children, dataIndex, record, handleSave
           },
         ]}
       >
-        {inputType === "number" ? <InputNumber ref={inputRef} onPressEnter={save} onBlur={save} min={0} /> : <Input ref={inputRef} onPressEnter={save} onBlur={save} />}
+        {inputType === "number" ? (
+          <InputNumber ref={inputRef} onPressEnter={save} onBlur={save} min={0} style={{ width: "100%", textAlign: "center" }} />
+        ) : (
+          <Input ref={inputRef} onPressEnter={save} onBlur={save} style={{ textAlign: "center" }} />
+        )}
       </AntForm.Item>
     ) : (
-      <div className="editable-cell-value-wrap" style={{ paddingRight: 24 }} onClick={toggleEdit}>
+      <div
+        className="editable-cell-value-wrap"
+        style={{
+          paddingRight: 24,
+          textAlign: "center",
+          cursor: "pointer",
+          minHeight: "22px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        onClick={toggleEdit}
+      >
         {children}
       </div>
     );
   }
 
-  return <td {...restProps}>{childNode}</td>;
+  return (
+    <td {...restProps} style={{ ...restProps.style, textAlign: "center" }}>
+      {childNode}
+    </td>
+  );
 };
 
 const MalzemeSecModal = ({ visible, onCancel, onOk }) => {
@@ -105,6 +125,35 @@ function FisIcerigi({ modalOpen }) {
   });
 
   const [dataSource, setDataSource] = useState([]);
+
+  // Add useEffect for calculating totals
+  useEffect(() => {
+    try {
+      const totals = dataSource.reduce(
+        (acc, item) => {
+          acc.araToplam += Number(item.araToplam) || 0;
+          acc.indirim += Number(item.indirimTutari) || 0;
+          acc.kdvToplam += Number(item.kdvTutar) || 0;
+          acc.genelToplam += Number(item.toplam) || 0;
+          return acc;
+        },
+        {
+          araToplam: 0,
+          indirim: 0,
+          kdvToplam: 0,
+          genelToplam: 0,
+        }
+      );
+
+      // Update form values with calculated totals
+      setValue("totalAraToplam", totals.araToplam.toFixed(2));
+      setValue("totalIndirim", totals.indirim.toFixed(2));
+      setValue("totalKdvToplam", totals.kdvToplam.toFixed(2));
+      setValue("totalGenelToplam", totals.genelToplam.toFixed(2));
+    } catch (error) {
+      console.error("Error calculating totals:", error);
+    }
+  }, [dataSource, setValue]);
 
   // Safely update dataSource when fields change
   useEffect(() => {
@@ -178,18 +227,48 @@ function FisIcerigi({ modalOpen }) {
 
       const item = newData[index];
 
+      // Helper function to round to 2 decimal places
+      const round = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
+
       // Check if price has changed
       const isPriceChanged = item.fiyat !== row.fiyat;
 
       // Calculate totals
       const miktar = Number(row.miktar) || 0;
       const fiyat = Number(row.fiyat) || 0;
-      const araToplam = miktar * fiyat;
-      const indirimOrani = Number(row.indirimOrani) || 0;
-      const indirimTutari = (araToplam * indirimOrani) / 100;
       const kdvOrani = Number(row.kdvOrani) || 0;
-      const kdvTutar = ((araToplam - indirimTutari) * kdvOrani) / 100;
-      const toplam = araToplam - indirimTutari + kdvTutar;
+      const kdvDH = Boolean(row.kdvDahilHaric);
+
+      // Calculate base price and araToplam based on kdvDH
+      let birimFiyat;
+      if (kdvDH) {
+        // If KDV is inclusive, extract it from the price
+        birimFiyat = round(fiyat / (1 + kdvOrani / 100));
+      } else {
+        // If KDV is exclusive, use the price as is
+        birimFiyat = round(fiyat);
+      }
+
+      const araToplam = round(miktar * birimFiyat);
+
+      let indirimOrani = Number(row.indirimOrani) || 0;
+      let indirimTutari = Number(row.indirimTutari) || 0;
+
+      // If indirimOrani was changed
+      if (item.indirimOrani !== row.indirimOrani) {
+        indirimTutari = round((araToplam * indirimOrani) / 100);
+      }
+      // If indirimTutari was changed
+      else if (item.indirimTutari !== row.indirimTutari) {
+        indirimOrani = round((indirimTutari / araToplam) * 100);
+      }
+
+      // Calculate KDV amount based on kdvDH
+      const kdvMatrah = round(araToplam - indirimTutari);
+      const kdvTutar = round(kdvMatrah * (kdvOrani / 100));
+
+      // Calculate total
+      const toplam = round(kdvMatrah + kdvTutar);
 
       const updatedRow = {
         ...item,
@@ -199,10 +278,11 @@ function FisIcerigi({ modalOpen }) {
         malzemePlaka: item.malzemePlaka,
         malzemePlakaId: item.malzemePlakaId,
         araToplam,
-        indirimTutari,
-        kdvTutar,
-        toplam,
-        isPriceChanged: isPriceChanged || item.isPriceChanged, // Preserve existing isPriceChanged or set to true if price changed
+        indirimOrani: round(indirimOrani),
+        indirimTutari: round(indirimTutari),
+        kdvTutar: round(kdvTutar),
+        toplam: round(toplam),
+        isPriceChanged: isPriceChanged || item.isPriceChanged,
       };
 
       newData.splice(index, 1, updatedRow);
@@ -224,15 +304,33 @@ function FisIcerigi({ modalOpen }) {
   // Safe handleMalzemeSelect with error handling
   const handleMalzemeSelect = (selectedRows) => {
     try {
-      selectedRows.forEach((row) => {
-        const miktar = 0;
+      // Get existing malzemeIds from the current dataSource
+      const existingMalzemeIds = new Set(dataSource.map((item) => item.malzemeId));
+
+      // Filter out already existing materials
+      const newRows = selectedRows.filter((row) => !existingMalzemeIds.has(row.malzemeId));
+
+      // If all selected materials already exist, show a warning
+      if (newRows.length === 0) {
+        message.warning("Seçilen malzemeler zaten tabloda mevcut.");
+        setIsModalVisible(false);
+        return;
+      }
+
+      // If some materials were filtered out, show an info message
+      if (newRows.length < selectedRows.length) {
+        message.info(`${selectedRows.length - newRows.length} malzeme zaten tabloda mevcut olduğu için eklenmedi.`);
+      }
+
+      newRows.forEach((row) => {
+        const miktar = 1;
         const fiyat = row.fiyat || 0;
         const araToplam = miktar * fiyat;
         const indirimOrani = 0;
         const indirimTutari = 0;
         const kdvOrani = row.kdvOran || 0;
-        const kdvTutar = 0;
-        const toplam = 0;
+        const kdvTutar = ((araToplam - indirimTutari) * kdvOrani) / 100;
+        const toplam = araToplam - indirimTutari + kdvTutar;
 
         const newRow = {
           malzemeId: row.malzemeId,
@@ -262,6 +360,7 @@ function FisIcerigi({ modalOpen }) {
       setIsModalVisible(false);
     } catch (error) {
       console.error("Error in handleMalzemeSelect:", error);
+      message.error("Malzeme eklenirken bir hata oluştu.");
       setIsModalVisible(false);
     }
   };
@@ -524,6 +623,7 @@ function FisIcerigi({ modalOpen }) {
       <Table
         components={components}
         rowClassName={() => "editable-row"}
+        size="small"
         bordered
         dataSource={dataSource}
         columns={columns}
