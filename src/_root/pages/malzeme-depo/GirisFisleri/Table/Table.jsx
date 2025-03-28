@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "react";
 import { useFormContext } from "react-hook-form";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateDrawer from "../Insert/CreateDrawer";
@@ -60,7 +60,7 @@ const StyledTable = styled(Table)``;
 
 // Sütunların boyutlarını ayarlamak için kullanılan component
 
-const ResizableTitle = (props) => {
+const ResizableTitle = memo((props) => {
   const { onResize, width, ...restProps } = props;
 
   // tabloyu genişletmek için kullanılan alanın stil özellikleri
@@ -100,12 +100,13 @@ const ResizableTitle = (props) => {
       <th {...restProps} />
     </Resizable>
   );
-};
+});
+ResizableTitle.displayName = "ResizableTitle";
 // Sütunların boyutlarını ayarlamak için kullanılan component sonu
 
 // Sütunların sürüklenebilir olmasını sağlayan component
 
-const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onVisibilityChange, ...restProps }) => {
+const DraggableRow = memo(({ id, text, index, style, ...restProps }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const styleWithTransform = {
     ...style,
@@ -120,11 +121,6 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
   return (
     <div ref={setNodeRef} style={styleWithTransform} {...restProps} {...attributes}>
-      {/* <Checkbox
-        checked={visible}
-        onChange={(e) => onVisibilityChange(index, e.target.checked)}
-        style={{ marginLeft: "auto" }}
-      /> */}
       <div
         {...listeners}
         style={{
@@ -139,7 +135,8 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
       </div>
     </div>
   );
-};
+});
+DraggableRow.displayName = "DraggableRow";
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
@@ -169,70 +166,71 @@ const GirisFisleri = () => {
     filters: {},
   });
 
-  // API Data Fetching with diff and setPointId
-  const fetchData = async (diff, targetPage) => {
-    setLoading(true);
-    try {
-      let currentSetPointId = 0;
+  const prevBodyRef = useRef(body);
 
-      if (diff > 0) {
-        // Moving forward
-        currentSetPointId = data[data.length - 1]?.mlzFisId || 0;
-      } else if (diff < 0) {
-        // Moving backward
-        currentSetPointId = data[0]?.mlzFisId || 0;
-      } else {
-        currentSetPointId = 0;
+  // API call - memoized with useCallback to prevent recreation on every render
+  const fetchData = useCallback(
+    async (diff, targetPage) => {
+      setLoading(true);
+      try {
+        let currentSetPointId = 0;
+
+        if (diff > 0) {
+          // Moving forward
+          currentSetPointId = data[data.length - 1]?.mlzFisId || 0;
+        } else if (diff < 0) {
+          // Moving backward
+          currentSetPointId = data[0]?.mlzFisId || 0;
+        }
+
+        const response = await AxiosInstance.post(
+          `MaterialReceipt/GetMaterialEntryReceiptList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
+          body.filters?.customfilter || {}
+        );
+
+        const total = response.data.total_count;
+        setTotalCount(total);
+        setCurrentPage(targetPage);
+
+        const newData = response.data.materialList.map((item) => ({
+          ...item,
+          key: item.mlzFisId,
+        }));
+
+        if (newData.length > 0) {
+          setData(newData);
+        } else {
+          message.warning(t("kayitBulunamadi"));
+          setData([]);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error(t("hataOlustu"));
+      } finally {
+        setLoading(false);
       }
+    },
+    [searchTerm, body.filters]
+  ); // removed data from dependencies
 
-      // Determine what to send for customfilters
-
-      const response = await AxiosInstance.post(
-        `MaterialReceipt/GetMaterialEntryReceiptList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
-        body.filters?.customfilter || {}
-      );
-
-      const total = response.data.total_count;
-      setTotalCount(total);
-      setCurrentPage(targetPage);
-
-      const newData = response.data.materialList.map((item) => ({
-        ...item,
-        key: item.mlzFisId, // Assign key directly from siraNo
-      }));
-
-      if (newData.length > 0) {
-        setData(newData);
-      } else {
-        message.warning(t("kayitBulunamadi"));
-        setData([]);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      message.error(t("hataOlustu"));
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Initial data fetch - only run once on mount
   useEffect(() => {
     fetchData(0, 1);
-  }, []);
+  }, []); // Use empty dependency array for initial load only
 
+  // Watch for body state changes
   useEffect(() => {
-    if (body !== prevBodyRef.current) {
+    if (JSON.stringify(body) !== JSON.stringify(prevBodyRef.current)) {
       fetchData(0, 1);
-      prevBodyRef.current = body;
+      prevBodyRef.current = { ...body };
     }
-  }, [body]);
-
-  const prevBodyRef = useRef(body);
+  }, [body, fetchData]);
 
   // Search handling
   // Define handleSearch function
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     fetchData(0, 1);
-  };
+  }, [fetchData]);
 
   const handleTableChange = (page) => {
     const diff = page - currentPage;
@@ -261,163 +259,166 @@ const GirisFisleri = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-  }, []);
+  }, [fetchData]);
 
   // Columns definition (adjust as needed)
-  const initialColumns = [
-    {
-      title: t("fisNo"),
-      dataIndex: "fisNo",
-      key: "fisNo",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
-      sorter: (a, b) => {
-        if (a.fisNo === null) return -1;
-        if (b.fisNo === null) return 1;
-        return a.fisNo.localeCompare(b.fisNo);
+  const initialColumns = useMemo(
+    () => [
+      {
+        title: t("fisNo"),
+        dataIndex: "fisNo",
+        key: "fisNo",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+        sorter: (a, b) => {
+          if (a.fisNo === null) return -1;
+          if (b.fisNo === null) return 1;
+          return a.fisNo.localeCompare(b.fisNo);
+        },
       },
-    },
-    {
-      title: t("tarih"),
-      dataIndex: "tarih",
-      key: "tarih",
-      width: 110,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.tarih === null) return -1;
-        if (b.tarih === null) return 1;
-        return a.tarih.localeCompare(b.tarih);
+      {
+        title: t("tarih"),
+        dataIndex: "tarih",
+        key: "tarih",
+        width: 110,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.tarih === null) return -1;
+          if (b.tarih === null) return 1;
+          return a.tarih.localeCompare(b.tarih);
+        },
+        render: (text) => formatDate(text),
       },
-      render: (text) => formatDate(text),
-    },
-    {
-      title: t("firmaTanimi"),
-      dataIndex: "firmaTanim",
-      key: "firmaTanim",
-      width: 190,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.firmaTanim === null) return -1;
-        if (b.firmaTanim === null) return 1;
-        return a.firmaTanim.localeCompare(b.firmaTanim);
+      {
+        title: t("firmaTanimi"),
+        dataIndex: "firmaTanim",
+        key: "firmaTanim",
+        width: 190,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.firmaTanim === null) return -1;
+          if (b.firmaTanim === null) return 1;
+          return a.firmaTanim.localeCompare(b.firmaTanim);
+        },
       },
-    },
-    {
-      title: t("plaka"),
-      dataIndex: "plaka",
-      key: "plaka",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.plaka === null) return -1;
-        if (b.plaka === null) return 1;
-        return a.plaka.localeCompare(b.plaka);
+      {
+        title: t("plaka"),
+        dataIndex: "plaka",
+        key: "plaka",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.plaka === null) return -1;
+          if (b.plaka === null) return 1;
+          return a.plaka.localeCompare(b.plaka);
+        },
       },
-    },
-    {
-      title: t("islemTipi"),
-      dataIndex: "islemTipi",
-      key: "islemTipi",
-      width: 150,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.islemTipi === null) return -1;
-        if (b.islemTipi === null) return 1;
-        return a.islemTipi.localeCompare(b.islemTipi);
+      {
+        title: t("islemTipi"),
+        dataIndex: "islemTipi",
+        key: "islemTipi",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.islemTipi === null) return -1;
+          if (b.islemTipi === null) return 1;
+          return a.islemTipi.localeCompare(b.islemTipi);
+        },
       },
-    },
-    {
-      title: t("girisDeposu"),
-      dataIndex: "girisDepo",
-      key: "girisDepo",
-      width: 150,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.girisDepo === null) return -1;
-        if (b.girisDepo === null) return 1;
-        return a.girisDepo.localeCompare(b.girisDepo);
+      {
+        title: t("girisDeposu"),
+        dataIndex: "girisDepo",
+        key: "girisDepo",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.girisDepo === null) return -1;
+          if (b.girisDepo === null) return 1;
+          return a.girisDepo.localeCompare(b.girisDepo);
+        },
       },
-    },
-    {
-      title: t("cikisDeposu"),
-      dataIndex: "cikisDepo",
-      key: "cikisDepo",
-      width: 150,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.cikisDepo === null) return -1;
-        if (b.cikisDepo === null) return 1;
-        return a.cikisDepo.localeCompare(b.cikisDepo);
+      {
+        title: t("cikisDeposu"),
+        dataIndex: "cikisDepo",
+        key: "cikisDepo",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.cikisDepo === null) return -1;
+          if (b.cikisDepo === null) return 1;
+          return a.cikisDepo.localeCompare(b.cikisDepo);
+        },
       },
-    },
-    {
-      title: t("araToplam"),
-      dataIndex: "araToplam",
-      key: "araToplam",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      render: (text, record) => (
-        <div className="">
-          <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
-        </div>
-      ),
-      sorter: (a, b) => {
-        if (a.araToplam === null) return -1;
-        if (b.araToplam === null) return 1;
-        return a.araToplam - b.araToplam;
+      {
+        title: t("araToplam"),
+        dataIndex: "araToplam",
+        key: "araToplam",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        render: (text, record) => (
+          <div className="">
+            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
+          </div>
+        ),
+        sorter: (a, b) => {
+          if (a.araToplam === null) return -1;
+          if (b.araToplam === null) return 1;
+          return a.araToplam - b.araToplam;
+        },
       },
-    },
-    {
-      title: t("kdvToplam"),
-      dataIndex: "kdvToplam",
-      key: "kdvToplam",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      render: (text, record) => (
-        <div className="">
-          <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
-        </div>
-      ),
-      sorter: (a, b) => {
-        if (a.kdvToplam === null) return -1;
-        if (b.kdvToplam === null) return 1;
-        return a.kdvToplam - b.kdvToplam;
+      {
+        title: t("kdvToplam"),
+        dataIndex: "kdvToplam",
+        key: "kdvToplam",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        render: (text, record) => (
+          <div className="">
+            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
+          </div>
+        ),
+        sorter: (a, b) => {
+          if (a.kdvToplam === null) return -1;
+          if (b.kdvToplam === null) return 1;
+          return a.kdvToplam - b.kdvToplam;
+        },
       },
-    },
-    {
-      title: t("genelToplam"),
-      dataIndex: "genelToplam",
-      key: "genelToplam",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      render: (text, record) => (
-        <div className="">
-          <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
-        </div>
-      ),
-      sorter: (a, b) => {
-        if (a.genelToplam === null) return -1;
-        if (b.genelToplam === null) return 1;
-        return a.genelToplam - b.genelToplam;
+      {
+        title: t("genelToplam"),
+        dataIndex: "genelToplam",
+        key: "genelToplam",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        render: (text, record) => (
+          <div className="">
+            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
+          </div>
+        ),
+        sorter: (a, b) => {
+          if (a.genelToplam === null) return -1;
+          if (b.genelToplam === null) return 1;
+          return a.genelToplam - b.genelToplam;
+        },
       },
-    },
-  ];
+    ],
+    []
+  );
 
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için
 
   // Intl.DateTimeFormat kullanarak tarih formatlama
-  const formatDate = (date) => {
+  const formatDate = useCallback((date) => {
     if (!date) return "";
 
     // Örnek bir tarih formatla ve ay formatını belirle
@@ -440,7 +441,7 @@ const GirisFisleri = () => {
       day: "2-digit",
     });
     return formatter.format(new Date(date));
-  };
+  }, []);
 
   const formatTime = (time) => {
     if (!time || time.trim() === "") return ""; // `trim` metodu ile baştaki ve sondaki boşlukları temizle
@@ -811,4 +812,4 @@ const GirisFisleri = () => {
   );
 };
 
-export default GirisFisleri;
+export default memo(GirisFisleri);

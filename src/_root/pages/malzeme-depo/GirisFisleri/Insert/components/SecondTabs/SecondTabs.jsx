@@ -2,24 +2,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Input, Tabs, Typography } from "antd";
 import styled from "styled-components";
 import { Controller, useFormContext } from "react-hook-form";
-import Sigorta from "./components/Sigorta/Sigorta";
+import { t } from "i18next";
 import OzelAlanlar from "./components/OzelAlanlar/OzelAlanlar.jsx";
-// import DetayBilgiler from "./components/DetayBilgiler/DetayBilgiler";
-// import OzelAlanlar from "./components/OzelAlanlar/OzelAlanlar";
-// import PersonelListesiTablo from "./components/Personel/PersonelListesiTablo";
-// import MalzemeListesiTablo from "./components/Malzeme/MalzemeListesiTablo";
-// import DuruslarListesiTablo from "./components/Duruslar/DuruslarListesiTablo";
-// import OlcumDegerleriListesiTablo from "./components/OlcumDegerleri/OlcumDegerleriListesiTablo";
-// import AracGereclerListesiTablo from "./components/AracGerecler/AracGereclerListesiTablo";
-// import SureBilgileri from "./components/SureBilgileri/SureBilgileri";
-// import Maliyetler from "./components/Maliyetler/Maliyetler";
-// import Notlar from "./components/Notlar/Notlar";
-// import Aciklama from "./components/Aciklama/Aciklama";
-// import ResimUpload from "./components/Resim/ResimUpload";
-// import DosyaUpload from "./components/Dosya/DosyaUpload";
-// import AxiosInstance from "../../../../../../../api/http";
-// import Forms from "./components/KapamaBilgileri/Forms.jsx";
-
+import FisIcerigi from "./components/FisIcerigi/FisIcerigi.jsx";
 const { Text, Link } = Typography;
 const { TextArea } = Input;
 
@@ -56,9 +41,9 @@ const StyledTabs = styled(Tabs)`
 
 //styled components end
 
-export default function SecondTabs({ refreshKey, fieldRequirements }) {
+export default function SecondTabs({ refreshKey, fieldRequirements, modalOpen }) {
   const { watch } = useFormContext();
-  const [activeTabKey, setActiveTabKey] = useState("3"); // Default to the first tab
+  const [activeTabKey, setActiveTabKey] = useState("4"); // Default to the FisIcerigi tab
 
   // Modify the onChange handler to update the active tab state
   const onChange = (key) => {
@@ -75,27 +60,24 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
     },*/
     {
       key: "4",
-      label: "Şikayetler",
-      children: (
-        <div>
-          <Controller name="sikayetler" render={({ field }) => <TextArea {...field} rows={4} placeholder="Şikayetler" style={{ width: "100%", resize: "none" }} />} />
-        </div>
-      ),
+      label: t("fisIcerigi"),
+      children: <FisIcerigi modalOpen={modalOpen} />,
     },
+
     {
       key: "5",
+      label: "Özel Alanlar",
+      // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
+      children: <OzelAlanlar />,
+    },
+    {
+      key: "6",
       label: "Açıklama",
       children: (
         <div>
           <Controller name="aciklama" render={({ field }) => <TextArea {...field} rows={4} placeholder="Açıklama" style={{ width: "100%", resize: "none" }} />} />
         </div>
       ),
-    },
-    {
-      key: "6",
-      label: "Özel Alanlar",
-      // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
-      children: <OzelAlanlar />,
     },
   ];
 

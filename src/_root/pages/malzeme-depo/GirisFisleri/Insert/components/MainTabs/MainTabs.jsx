@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row, Col, Checkbox, InputNumber, Radio } from "antd";
+import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row, Col, Checkbox, InputNumber, Radio, message } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
-import ServisKoduTablo from "./components/ServisKoduTablo.jsx";
 import styled from "styled-components";
-import Plaka from "./components/Plaka.jsx";
-import Surucu from "./components/Surucu.jsx";
-import ServisNedeni from "./components/ServisNedeni.jsx";
 import dayjs from "dayjs";
-import HasarNoTablo from "./components/HasarNoTablo.jsx";
-import Onay from "./components/Onay.jsx";
-import Maliyetler from "./components/Maliyetler.jsx";
-import SecondTabs from "../SecondTabs/SecondTabs.jsx";
-import IslemYapanTablo from "./components/IslemYapanTablo.jsx";
-
+import { t } from "i18next";
+import AxiosInstance from "../../../../../../../api/http";
+import FirmaSelectBox from "../../../../../../components/FirmaSelectBox";
+import PlakaSelectBox from "../../../../../../components/PlakaSelectBox";
+import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
+import DepoSelectBox from "../../../../../../components/DepoSelectBox";
+import LokasyonTablo from "../../../../../../components/form/LokasyonTable";
+import ModalInput from "../../../../../../components/form/inputs/ModalInput";
+import { PlusOutlined } from "@ant-design/icons";
 const { Text, Link } = Typography;
 const { TextArea } = Input;
 
@@ -69,6 +68,9 @@ export default function MainTabs({ modalOpen }) {
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
   const [selectboxTitle, setSelectboxTitle] = useState("Yetkili Servis");
+  const [initialFisNo, setInitialFisNo] = useState("");
+  const [isFisNoModified, setIsFisNoModified] = useState(false);
+  const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
 
   const handleMinusClick = () => {
     setValue("servisKodu", "");
@@ -213,150 +215,316 @@ export default function MainTabs({ modalOpen }) {
 
   // tarih formatlamasını kullanıcının yerel tarih formatına göre ayarlayın sonu
 
+  // Add validation function for fisNo
+  const validateFisNo = async (value) => {
+    if (!value) return;
+    try {
+      const response = await AxiosInstance.post("TableCodeItem/IsCodeItemExist", {
+        tableName: "Fis",
+        code: value,
+      });
+
+      if (response.data.status === true) {
+        message.error("Fiş numarası benzersiz değildir!");
+        setValue("fisNo", "");
+      }
+    } catch (error) {
+      console.error("Error checking fisNo uniqueness:", error);
+      message.error("Fiş numarası kontrolü sırasında hata oluştu!");
+    }
+  };
+
+  const handleYeniLokasyonPlusClick = () => {
+    setIsLokasyonModalOpen(true);
+  };
+  const handleYeniLokasyonMinusClick = () => {
+    setValue("lokasyon", null);
+    setValue("lokasyonID", null);
+  };
+
   return (
-    <div style={{ display: "flex", marginBottom: "15px", flexDirection: "column", gap: "10px", width: "100%" }}>
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "10px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "450px" }}>
-          <div style={{ width: "100%", maxWidth: "450px" }}>
-            <StyledDivBottomLine style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-              <Text style={{ fontSize: "14px", fontWeight: "600" }}>Plaka:</Text>
-              <Plaka />
-            </StyledDivBottomLine>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px" }}>
-            <Text style={{ fontSize: "14px", fontWeight: "600" }}>Servis Kodu:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "300px" }}>
-              <Controller
-                name="servisKodu"
-                control={control}
-                rules={{ required: "Alan Boş Bırakılamaz!" }}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    status={errors.servisKodu ? "error" : ""}
-                    type="text" // Set the type to "text" for name input
-                    style={{ width: "215px" }}
-                    disabled
-                  />
-                )}
-              />
+    <div style={{ display: "flex", marginBottom: "15px", flexDirection: "row", gap: "10px", width: "100%" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            width: "100%",
 
-              <Controller
-                name="servisKoduID"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="text" // Set the type to "text" for name input
-                    style={{ display: "none" }}
-                  />
-                )}
-              />
-              <ServisKoduTablo
-                onSubmit={(selectedData) => {
-                  setValue("servisKodu", selectedData.bakimKodu);
-                  setValue("servisKoduID", selectedData.key);
-                  setValue("servisTanimi", selectedData.tanim);
-                  setValue("servisTipi", selectedData.servisTipi);
-                  setValue("servisTipiID", selectedData.servisTipiKodId);
-                  setValue("periyodikBilgisi", selectedData.periyodik);
-                }}
-              />
-              <Button onClick={handleMinusClick}> - </Button>
-              {errors.servisKodu && <div style={{ color: "red", marginTop: "5px" }}>{errors.servisKodu.message}</div>}
-            </div>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", gap: "10px", rowGap: "0px" }}>
-            <Text style={{ fontSize: "14px" }}>Servis Tanımı:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller name="servisTanimi" control={control} render={({ field }) => <Input {...field} disabled style={{ flex: 1 }} />} />
-            </div>
-          </div>
-
-          <div style={{ width: "100%", maxWidth: "450px" }}>
-            <StyledDivBottomLine style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-              <Text style={{ fontSize: "14px" }}>Sürücü:</Text>
-              <Surucu />
-            </StyledDivBottomLine>
-          </div>
-          <div style={{ width: "100%", maxWidth: "450px" }}>
-            <StyledDivBottomLine style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-              <Text style={{ fontSize: "14px" }}>Servis Nedeni:</Text>
-              <ServisNedeni />
-            </StyledDivBottomLine>
+            gap: "10px",
+            flexDirection: "column",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
+            {t("fisNo")}
+            <div style={{ color: "red" }}>*</div>
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <Controller
+              name="fisNo"
+              control={control}
+              rules={{ required: t("alanBosBirakilamaz") }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  status={errors["fisNo"] ? "error" : ""}
+                  style={{ flex: 1 }}
+                  onFocus={(e) => {
+                    setInitialFisNo(e.target.value);
+                    setIsFisNoModified(false);
+                  }}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    if (e.target.value !== initialFisNo) {
+                      setIsFisNoModified(true);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    field.onBlur(e);
+                    if (isFisNoModified) {
+                      validateFisNo(e.target.value);
+                    }
+                  }}
+                />
+              )}
+            />
+            {errors["fisNo"] && <div style={{ color: "red", marginTop: "5px" }}>{errors["fisNo"].message}</div>}
           </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "450px" }}>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", gap: "10px", rowGap: "0px" }}>
-            <Text style={{ fontSize: "14px" }}>{selectboxTitle}:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "300px" }}>
-              <Controller
-                name="islemiYapan1"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="text" // Set the type to "text" for name input
-                    style={{ width: "215px" }}
-                    disabled
-                  />
-                )}
-              />
-              <Controller
-                name="islemiYapan1ID"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="text" // Set the type to "text" for name input
-                    style={{ display: "none" }}
-                  />
-                )}
-              />
-              <IslemYapanTablo
-                onSubmit={(selectedData) => {
-                  setValue("islemiYapan1", selectedData.column1);
-                  setValue("islemiYapan1ID", selectedData.key);
-                }}
-              />
-              <Button onClick={handleIslemiYapan1MinusClick}> - </Button>
-            </div>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", gap: "10px", rowGap: "0px" }}>
-            <Text style={{ fontSize: "14px" }}>Fatura No:</Text>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                alignItems: "center",
-                maxWidth: "300px",
-                minWidth: "300px",
-                gap: "10px",
-                width: "100%",
-              }}
-            >
-              <Controller name="faturaNo" control={control} render={({ field }) => <Input {...field} style={{ flex: 1 }} />} />
-            </div>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "450px", gap: "10px", width: "100%", justifyContent: "space-between" }}>
-            <Text style={{ fontSize: "14px" }}>Fatura Tarihi:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "180px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="faturaTarihi"
-                control={control}
-                render={({ field }) => <DatePicker {...field} style={{ width: "300px" }} format={localeDateFormat} placeholder="Tarih seçiniz" />}
-              />
-            </div>
-          </div>
-          <div style={{ width: "100%", maxWidth: "450px" }}>
-            <StyledDivBottomLine style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-              <Text style={{ fontSize: "14px" }}>Onay:</Text>
-              <Onay />
-            </StyledDivBottomLine>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            width: "100%",
+
+            gap: "10px",
+            flexDirection: "column",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
+            {t("firma")}
+            <div style={{ color: "red" }}>*</div>
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <FirmaSelectBox name1="firma" isRequired={true} />
           </div>
         </div>
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "10px" }}></div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            width: "100%",
+
+            gap: "10px",
+            flexDirection: "column",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("plaka")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <PlakaSelectBox name1="plaka" isRequired={false} />
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              width: "100%",
+
+              gap: "10px",
+              flexDirection: "column",
+            }}
+          >
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
+              {t("tarih")}
+              <div style={{ color: "red" }}>*</div>
+            </Text>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column wrap",
+                alignItems: "flex-start",
+                width: "100%",
+              }}
+            >
+              <Controller
+                name="tarih"
+                control={control}
+                rules={{ required: t("alanBosBirakilamaz") }}
+                render={({ field }) => (
+                  <DatePicker
+                    {...field}
+                    status={errors["tarih"] ? "error" : ""}
+                    style={{ width: "100%" }}
+                    format={localeDateFormat}
+                    onChange={(date) => {
+                      field.onChange(date);
+                      setValue("tarih", date);
+                    }}
+                  />
+                )}
+              />
+              {errors["tarih"] && <div style={{ color: "red", marginTop: "5px" }}>{errors["tarih"].message}</div>}
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              width: "100%",
+
+              gap: "10px",
+              flexDirection: "column",
+            }}
+          >
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("saat")}</Text>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column wrap",
+                alignItems: "flex-start",
+                width: "100%",
+              }}
+            >
+              <Controller
+                name="saat"
+                control={control}
+                render={({ field }) => (
+                  <TimePicker
+                    {...field}
+                    style={{ width: "100%" }}
+                    format={localeTimeFormat}
+                    onChange={(date) => {
+                      field.onChange(date);
+                      setValue("saat", date);
+                    }}
+                  />
+                )}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            width: "100%",
+
+            gap: "10px",
+            flexDirection: "column",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("islemTipi")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <KodIDSelectbox name1="islemTipi" kodID={302} isRequired={false} />
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            width: "100%",
+
+            gap: "10px",
+            flexDirection: "column",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
+            {t("girisDeposu")}
+            <div style={{ color: "red" }}>*</div>
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <DepoSelectBox name1="girisDeposu" kodID={"YAKIT"} isRequired={true} />
+          </div>
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            width: "100%",
+
+            gap: "10px",
+            flexDirection: "column",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("lokasyon")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <ModalInput name="lokasyon" readonly={true} required={false} onPlusClick={handleYeniLokasyonPlusClick} onMinusClick={handleYeniLokasyonMinusClick} />
+            <LokasyonTablo
+              onSubmit={(selectedData) => {
+                setValue("lokasyon", selectedData.location);
+                setValue("lokasyonID", selectedData.key);
+              }}
+              isModalVisible={isLokasyonModalOpen}
+              setIsModalVisible={setIsLokasyonModalOpen}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
