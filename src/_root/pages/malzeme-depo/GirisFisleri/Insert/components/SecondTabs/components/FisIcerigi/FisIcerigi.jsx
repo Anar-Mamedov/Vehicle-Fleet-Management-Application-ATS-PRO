@@ -1,12 +1,16 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Table, Button, Form as AntForm, Input, InputNumber, Popconfirm, Modal } from "antd";
+import { Table, Button, Form as AntForm, Input, InputNumber, Popconfirm, Modal, Typography } from "antd";
 import { useFieldArray, useFormContext, Controller } from "react-hook-form";
 import { PlusOutlined } from "@ant-design/icons";
+import { t } from "i18next";
 import Malzemeler from "../../../../../../malzeme/Malzemeler";
 import PlakaSelectBox from "../../../../../../../../components/PlakaSelectBox";
 import ModalInput from "../../../../../../../../components/form/inputs/ModalInput";
 import LokasyonTablo from "../../../../../../../../components/form/LokasyonTable";
 import KodIDSelectbox from "../../../../../../../../components/KodIDSelectbox";
+
+const { Text, Link } = Typography;
+const { TextArea } = Input;
 
 const EditableContext = React.createContext(null);
 
@@ -174,6 +178,9 @@ function FisIcerigi({ modalOpen }) {
 
       const item = newData[index];
 
+      // Check if price has changed
+      const isPriceChanged = item.fiyat !== row.fiyat;
+
       // Calculate totals
       const miktar = Number(row.miktar) || 0;
       const fiyat = Number(row.fiyat) || 0;
@@ -195,6 +202,7 @@ function FisIcerigi({ modalOpen }) {
         indirimTutari,
         kdvTutar,
         toplam,
+        isPriceChanged: isPriceChanged || item.isPriceChanged, // Preserve existing isPriceChanged or set to true if price changed
       };
 
       newData.splice(index, 1, updatedRow);
@@ -523,6 +531,108 @@ function FisIcerigi({ modalOpen }) {
         rowKey={(record) => record.id || Math.random().toString(36).substr(2, 9)} // Ensure stable keys
         scroll={{ y: "calc(100vh - 600px)" }}
       />
+      <div style={{ display: "flex", flexDirection: "row", gap: "10px", marginTop: "10px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            width: "100%",
+
+            gap: "10px",
+            flexDirection: "column",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("araToplam")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <Controller name="totalAraToplam" control={control} render={({ field }) => <Input {...field} readOnly style={{ flex: 1 }} />} />
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            width: "100%",
+
+            gap: "10px",
+            flexDirection: "column",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("indirim")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <Controller name="totalIndirim" control={control} render={({ field }) => <Input {...field} readOnly style={{ flex: 1 }} />} />
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            width: "100%",
+
+            gap: "10px",
+            flexDirection: "column",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("kdvToplam")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <Controller name="totalKdvToplam" control={control} render={({ field }) => <Input {...field} readOnly style={{ flex: 1 }} />} />
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            width: "100%",
+
+            gap: "10px",
+            flexDirection: "column",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("genelToplam")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <Controller name="totalGenelToplam" control={control} render={({ field }) => <Input {...field} readOnly style={{ flex: 1 }} />} />
+          </div>
+        </div>
+      </div>
+
       <MalzemeSecModal visible={isModalVisible} onCancel={() => setIsModalVisible(false)} onOk={handleMalzemeSelect} />
       <LokasyonTablo
         onSubmit={(selectedData) => {

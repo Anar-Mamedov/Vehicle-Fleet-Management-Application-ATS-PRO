@@ -139,6 +139,9 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       fisTip: "MALZEME",
       materialMovements:
         data.fisIcerigi?.map((item) => ({
+          firmaId: Number(data.firmaID),
+          girisDepoSiraNo: Number(data.girisDeposuID),
+          isPriceChanged: item.isPriceChanged || false,
           // malzemeKodu: item.malzemeKodu,
           // malzemeTanimi: item.malzemeTanimi,
           // malzemeTipi: item.malzemeTipi,

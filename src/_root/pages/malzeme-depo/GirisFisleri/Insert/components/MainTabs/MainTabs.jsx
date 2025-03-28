@@ -513,7 +513,7 @@ export default function MainTabs({ modalOpen }) {
               width: "100%",
             }}
           >
-            <ModalInput name="lokasyon" readonly={true} required={true} onPlusClick={handleYeniLokasyonPlusClick} onMinusClick={handleYeniLokasyonMinusClick} />
+            <ModalInput name="lokasyon" readonly={true} required={false} onPlusClick={handleYeniLokasyonPlusClick} onMinusClick={handleYeniLokasyonMinusClick} />
             <LokasyonTablo
               onSubmit={(selectedData) => {
                 setValue("lokasyon", selectedData.location);
