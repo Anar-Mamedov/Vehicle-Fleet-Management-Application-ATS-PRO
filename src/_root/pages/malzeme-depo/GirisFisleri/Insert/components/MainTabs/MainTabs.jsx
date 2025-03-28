@@ -249,12 +249,12 @@ export default function MainTabs({ modalOpen }) {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            alignItems: "flex-start",
+            alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
-
+            maxWidth: "400px",
             gap: "10px",
-            flexDirection: "column",
+            flexDirection: "row",
           }}
         >
           <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
@@ -267,6 +267,7 @@ export default function MainTabs({ modalOpen }) {
               flexFlow: "column wrap",
               alignItems: "flex-start",
               width: "100%",
+              maxWidth: "220px",
             }}
           >
             <Controller
@@ -304,66 +305,40 @@ export default function MainTabs({ modalOpen }) {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            alignItems: "flex-start",
+            alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
-
+            maxWidth: "400px",
             gap: "10px",
-            flexDirection: "column",
+            flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
-            {t("firma")}
-            <div style={{ color: "red" }}>*</div>
-          </Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("firma")}</Text>
           <div
             style={{
               display: "flex",
               flexFlow: "column wrap",
               alignItems: "flex-start",
               width: "100%",
+              maxWidth: "220px",
             }}
           >
-            <FirmaSelectBox name1="firma" isRequired={true} />
+            <FirmaSelectBox name1="firma" isRequired={false} />
           </div>
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            width: "100%",
-
-            gap: "10px",
-            flexDirection: "column",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("plaka")}</Text>
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
-              width: "100%",
-            }}
-          >
-            <PlakaSelectBox name1="plaka" isRequired={false} />
-          </div>
-        </div>
         <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
           <div
             style={{
               display: "flex",
               flexWrap: "wrap",
-              alignItems: "flex-start",
+              alignItems: "center",
               justifyContent: "space-between",
               width: "100%",
-
+              maxWidth: "400px",
               gap: "10px",
-              flexDirection: "column",
+              flexDirection: "row",
             }}
           >
             <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
@@ -373,9 +348,11 @@ export default function MainTabs({ modalOpen }) {
             <div
               style={{
                 display: "flex",
-                flexFlow: "column wrap",
-                alignItems: "flex-start",
+                flexDirection: "row",
+                alignItems: "center",
                 width: "100%",
+                maxWidth: "220px",
+                justifyContent: "space-between",
               }}
             >
               <Controller
@@ -386,7 +363,7 @@ export default function MainTabs({ modalOpen }) {
                   <DatePicker
                     {...field}
                     status={errors["tarih"] ? "error" : ""}
-                    style={{ width: "100%" }}
+                    style={{ width: "100%", maxWidth: "130px" }}
                     format={localeDateFormat}
                     onChange={(date) => {
                       field.onChange(date);
@@ -395,37 +372,13 @@ export default function MainTabs({ modalOpen }) {
                   />
                 )}
               />
-              {errors["tarih"] && <div style={{ color: "red", marginTop: "5px" }}>{errors["tarih"].message}</div>}
-            </div>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              width: "100%",
-
-              gap: "10px",
-              flexDirection: "column",
-            }}
-          >
-            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("saat")}</Text>
-            <div
-              style={{
-                display: "flex",
-                flexFlow: "column wrap",
-                alignItems: "flex-start",
-                width: "100%",
-              }}
-            >
               <Controller
                 name="saat"
                 control={control}
                 render={({ field }) => (
                   <TimePicker
                     {...field}
-                    style={{ width: "100%" }}
+                    style={{ width: "100%", maxWidth: "85px" }}
                     format={localeTimeFormat}
                     onChange={(date) => {
                       field.onChange(date);
@@ -434,7 +387,33 @@ export default function MainTabs({ modalOpen }) {
                   />
                 )}
               />
+              {errors["tarih"] && <div style={{ color: "red", marginTop: "5px" }}>{errors["tarih"].message}</div>}
             </div>
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("plaka")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <PlakaSelectBox name1="plaka" isRequired={false} />
           </div>
         </div>
       </div>
@@ -443,12 +422,45 @@ export default function MainTabs({ modalOpen }) {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            alignItems: "flex-start",
+            alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
-
+            maxWidth: "400px",
             gap: "10px",
-            flexDirection: "column",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("lokasyon")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <ModalInput name="lokasyon" readonly={true} required={false} onPlusClick={handleYeniLokasyonPlusClick} onMinusClick={handleYeniLokasyonMinusClick} />
+            <LokasyonTablo
+              onSubmit={(selectedData) => {
+                setValue("lokasyon", selectedData.location);
+                setValue("lokasyonID", selectedData.key);
+              }}
+              isModalVisible={isLokasyonModalOpen}
+              setIsModalVisible={setIsLokasyonModalOpen}
+            />
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
           }}
         >
           <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("islemTipi")}</Text>
@@ -458,21 +470,24 @@ export default function MainTabs({ modalOpen }) {
               flexFlow: "column wrap",
               alignItems: "flex-start",
               width: "100%",
+              maxWidth: "220px",
             }}
           >
             <KodIDSelectbox name1="islemTipi" kodID={302} isRequired={false} />
           </div>
         </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "350px" }}>
         <div
           style={{
             display: "flex",
             flexWrap: "wrap",
-            alignItems: "flex-start",
+            alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
-
+            maxWidth: "400px",
             gap: "10px",
-            flexDirection: "column",
+            flexDirection: "row",
           }}
         >
           <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
@@ -485,43 +500,10 @@ export default function MainTabs({ modalOpen }) {
               flexFlow: "column wrap",
               alignItems: "flex-start",
               width: "100%",
+              maxWidth: "220px",
             }}
           >
             <DepoSelectBox name1="girisDeposu" kodID={"YAKIT"} isRequired={true} />
-          </div>
-        </div>
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            width: "100%",
-
-            gap: "10px",
-            flexDirection: "column",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("lokasyon")}</Text>
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
-              width: "100%",
-            }}
-          >
-            <ModalInput name="lokasyon" readonly={true} required={false} onPlusClick={handleYeniLokasyonPlusClick} onMinusClick={handleYeniLokasyonMinusClick} />
-            <LokasyonTablo
-              onSubmit={(selectedData) => {
-                setValue("lokasyon", selectedData.location);
-                setValue("lokasyonID", selectedData.key);
-              }}
-              isModalVisible={isLokasyonModalOpen}
-              setIsModalVisible={setIsLokasyonModalOpen}
-            />
           </div>
         </div>
       </div>
