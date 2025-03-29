@@ -128,6 +128,7 @@ function FisIcerigi({ modalOpen }) {
   const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
   const [currentEditingRow, setCurrentEditingRow] = useState(null);
   const [previousModalState, setPreviousModalState] = useState(false);
+  const [isIndirimManuallyEdited, setIsIndirimManuallyEdited] = useState(false);
 
   const { fields, append, remove, replace } = useFieldArray({
     control,
@@ -158,13 +159,26 @@ function FisIcerigi({ modalOpen }) {
 
       // Update form values with calculated totals
       setValue("totalAraToplam", totals.araToplam.toFixed(2));
-      setValue("totalIndirim", totals.indirim.toFixed(2));
+
+      // Only update indirim if not manually edited
+      if (!isIndirimManuallyEdited) {
+        setValue("totalIndirim", totals.indirim.toFixed(2));
+      }
+
       setValue("totalKdvToplam", totals.kdvToplam.toFixed(2));
-      setValue("totalGenelToplam", totals.genelToplam.toFixed(2));
+
+      // If discount was manually edited, recalculate general total
+      if (isIndirimManuallyEdited) {
+        const manualIndirim = parseFloat(getValues("totalIndirim")) || 0;
+        const newGenelToplam = totals.araToplam - manualIndirim + totals.kdvToplam;
+        setValue("totalGenelToplam", newGenelToplam.toFixed(2));
+      } else {
+        setValue("totalGenelToplam", totals.genelToplam.toFixed(2));
+      }
     } catch (error) {
       console.error("Error calculating totals:", error);
     }
-  }, [dataSource, setValue]);
+  }, [dataSource, setValue, isIndirimManuallyEdited, getValues]);
 
   // Safely update dataSource when fields change
   useEffect(() => {
@@ -186,9 +200,13 @@ function FisIcerigi({ modalOpen }) {
         try {
           setDataSource([]);
           replace([]);
+          setIsIndirimManuallyEdited(false); // Reset manual edit state
         } catch (error) {
           console.error("Error resetting dataSource:", error);
         }
+      } else {
+        // Modal just closed, reset manual edit state
+        setIsIndirimManuallyEdited(false);
       }
     }
   }, [modalOpen, previousModalState, replace]);
@@ -243,6 +261,14 @@ function FisIcerigi({ modalOpen }) {
 
       // Check if price has changed
       const isPriceChanged = item.fiyat !== row.fiyat;
+
+      // Check if discount has changed (either discount rate or amount)
+      const isDiscountChanged = item.indirimOrani !== row.indirimOrani || item.indirimTutari !== row.indirimTutari;
+
+      // If discount was edited in table, reset manual edit flag so table calculations take precedence
+      if (isDiscountChanged) {
+        setIsIndirimManuallyEdited(false);
+      }
 
       // Calculate totals
       const miktar = Number(row.miktar) || 0;
@@ -502,7 +528,7 @@ function FisIcerigi({ modalOpen }) {
       title: "İndirim %",
       dataIndex: "indirimOrani",
       key: "indirimOrani",
-      width: 140,
+      width: 80,
       editable: true,
       inputType: "number",
       render: (text, record) => (
@@ -528,7 +554,7 @@ function FisIcerigi({ modalOpen }) {
       title: "KDV %",
       dataIndex: "kdvOrani",
       key: "kdvOrani",
-      width: 120,
+      width: 80,
       editable: false,
       inputType: "number",
       render: (text, record) => (
@@ -731,14 +757,13 @@ function FisIcerigi({ modalOpen }) {
               <Controller
                 name="totalAraToplam"
                 control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    readOnly
-                    style={{ flex: 1 }}
-                    value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"}
-                  />
-                )}
+                render={({ field }) => {
+                  // Determine decimal separator based on language
+                  const language = localStorage.getItem("i18nextLng") || "en";
+                  const decimalSeparator = ["tr", "az"].includes(language) ? "," : ".";
+
+                  return <InputNumber {...field} readOnly style={{ width: "100%" }} decimalSeparator={decimalSeparator} precision={2} />;
+                }}
               />
             </div>
           </div>
@@ -768,14 +793,45 @@ function FisIcerigi({ modalOpen }) {
               <Controller
                 name="totalIndirim"
                 control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    readOnly
-                    style={{ flex: 1 }}
-                    value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"}
-                  />
-                )}
+                render={({ field }) => {
+                  // Determine decimal separator based on language
+                  const language = localStorage.getItem("i18nextLng") || "en";
+                  const decimalSeparator = ["tr", "az"].includes(language) ? "," : ".";
+
+                  return (
+                    <InputNumber
+                      {...field}
+                      style={{ width: "100%" }}
+                      decimalSeparator={decimalSeparator}
+                      precision={2}
+                      onChange={(value) => {
+                        try {
+                          // With InputNumber, value is already a number (or null)
+                          const numValue = value || 0;
+
+                          // Mark as manually edited
+                          setIsIndirimManuallyEdited(true);
+
+                          // Update the totalIndirim field - store with decimals but display as rounded
+                          field.onChange(numValue.toFixed(2));
+                          setValue("totalIndirim", numValue.toFixed(2));
+
+                          // Get current values
+                          const araToplam = parseFloat(getValues("totalAraToplam")) || 0;
+                          const kdvToplam = parseFloat(getValues("totalKdvToplam")) || 0;
+
+                          // Recalculate general total (araToplam - indirim + kdvToplam)
+                          const newGenelToplam = araToplam - numValue + kdvToplam;
+
+                          // Update the general total
+                          setValue("totalGenelToplam", newGenelToplam.toFixed(2));
+                        } catch (error) {
+                          console.error("Error updating discount:", error);
+                        }
+                      }}
+                    />
+                  );
+                }}
               />
             </div>
           </div>
@@ -805,14 +861,13 @@ function FisIcerigi({ modalOpen }) {
               <Controller
                 name="totalKdvToplam"
                 control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    readOnly
-                    style={{ flex: 1 }}
-                    value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"}
-                  />
-                )}
+                render={({ field }) => {
+                  // Determine decimal separator based on language
+                  const language = localStorage.getItem("i18nextLng") || "en";
+                  const decimalSeparator = ["tr", "az"].includes(language) ? "," : ".";
+
+                  return <InputNumber {...field} readOnly style={{ width: "100%" }} decimalSeparator={decimalSeparator} precision={2} />;
+                }}
               />
             </div>
           </div>
@@ -842,14 +897,13 @@ function FisIcerigi({ modalOpen }) {
               <Controller
                 name="totalGenelToplam"
                 control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    readOnly
-                    style={{ flex: 1 }}
-                    value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"}
-                  />
-                )}
+                render={({ field }) => {
+                  // Determine decimal separator based on language
+                  const language = localStorage.getItem("i18nextLng") || "en";
+                  const decimalSeparator = ["tr", "az"].includes(language) ? "," : ".";
+
+                  return <InputNumber {...field} readOnly style={{ width: "100%" }} decimalSeparator={decimalSeparator} precision={2} />;
+                }}
               />
             </div>
           </div>
