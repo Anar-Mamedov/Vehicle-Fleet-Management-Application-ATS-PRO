@@ -210,8 +210,8 @@ const GirisFisleri = () => {
         setLoading(false);
       }
     },
-    [searchTerm, body.filters]
-  ); // removed data from dependencies
+    [searchTerm, body.filters, data]
+  ); // Added data to dependencies
 
   // Initial data fetch - only run once on mount
   useEffect(() => {
