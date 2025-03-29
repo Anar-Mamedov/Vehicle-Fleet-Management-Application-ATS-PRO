@@ -128,6 +128,7 @@ function FisIcerigi({ modalOpen }) {
   const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
   const [currentEditingRow, setCurrentEditingRow] = useState(null);
   const [previousModalState, setPreviousModalState] = useState(false);
+  const [isIndirimManuallyEdited, setIsIndirimManuallyEdited] = useState(false);
 
   const { fields, append, remove, replace } = useFieldArray({
     control,
@@ -158,13 +159,26 @@ function FisIcerigi({ modalOpen }) {
 
       // Update form values with calculated totals
       setValue("totalAraToplam", totals.araToplam.toFixed(2));
-      setValue("totalIndirim", totals.indirim.toFixed(2));
+
+      // Only update indirim if not manually edited
+      if (!isIndirimManuallyEdited) {
+        setValue("totalIndirim", totals.indirim.toFixed(2));
+      }
+
       setValue("totalKdvToplam", totals.kdvToplam.toFixed(2));
-      setValue("totalGenelToplam", totals.genelToplam.toFixed(2));
+
+      // If discount was manually edited, recalculate general total
+      if (isIndirimManuallyEdited) {
+        const manualIndirim = parseFloat(getValues("totalIndirim")) || 0;
+        const newGenelToplam = totals.araToplam - manualIndirim + totals.kdvToplam;
+        setValue("totalGenelToplam", newGenelToplam.toFixed(2));
+      } else {
+        setValue("totalGenelToplam", totals.genelToplam.toFixed(2));
+      }
     } catch (error) {
       console.error("Error calculating totals:", error);
     }
-  }, [dataSource, setValue]);
+  }, [dataSource, setValue, isIndirimManuallyEdited, getValues]);
 
   // Safely update dataSource when fields change
   useEffect(() => {
@@ -186,9 +200,13 @@ function FisIcerigi({ modalOpen }) {
         try {
           setDataSource([]);
           replace([]);
+          setIsIndirimManuallyEdited(false); // Reset manual edit state
         } catch (error) {
           console.error("Error resetting dataSource:", error);
         }
+      } else {
+        // Modal just closed, reset manual edit state
+        setIsIndirimManuallyEdited(false);
       }
     }
   }, [modalOpen, previousModalState, replace]);
@@ -243,6 +261,14 @@ function FisIcerigi({ modalOpen }) {
 
       // Check if price has changed
       const isPriceChanged = item.fiyat !== row.fiyat;
+
+      // Check if discount has changed (either discount rate or amount)
+      const isDiscountChanged = item.indirimOrani !== row.indirimOrani || item.indirimTutari !== row.indirimTutari;
+
+      // If discount was edited in table, reset manual edit flag so table calculations take precedence
+      if (isDiscountChanged) {
+        setIsIndirimManuallyEdited(false);
+      }
 
       // Calculate totals
       const miktar = Number(row.miktar) || 0;
@@ -481,7 +507,7 @@ function FisIcerigi({ modalOpen }) {
       inputType: "number",
       render: (text, record) => (
         <div className="">
-          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       ),
     },
@@ -494,15 +520,15 @@ function FisIcerigi({ modalOpen }) {
       inputType: "number",
       render: (text, record) => (
         <div className="">
-          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       ),
     },
     {
-      title: "İndirim Oranı %",
+      title: "İndirim %",
       dataIndex: "indirimOrani",
       key: "indirimOrani",
-      width: 140,
+      width: 80,
       editable: true,
       inputType: "number",
       render: (text, record) => (
@@ -520,15 +546,15 @@ function FisIcerigi({ modalOpen }) {
       inputType: "number",
       render: (text, record) => (
         <div className="">
-          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       ),
     },
     {
-      title: "KDV Oranı %",
+      title: "KDV %",
       dataIndex: "kdvOrani",
       key: "kdvOrani",
-      width: 120,
+      width: 80,
       editable: false,
       inputType: "number",
       render: (text, record) => (
@@ -556,7 +582,7 @@ function FisIcerigi({ modalOpen }) {
       inputType: "number",
       render: (text, record) => (
         <div className="">
-          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       ),
     },
@@ -569,7 +595,7 @@ function FisIcerigi({ modalOpen }) {
       inputType: "number",
       render: (text, record) => (
         <div className="">
-          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"))}</span>
+          <span>{Number(text).toLocaleString(localStorage.getItem("i18nextLng"), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       ),
     },
@@ -699,134 +725,187 @@ function FisIcerigi({ modalOpen }) {
         columns={columns}
         pagination={false}
         rowKey={(record) => record.id || Math.random().toString(36).substr(2, 9)} // Ensure stable keys
-        scroll={{ y: "calc(100vh - 400px)" }}
+        scroll={{ y: "calc(100vh - 540px)" }}
       />
-      <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "10px", marginTop: "10px", maxWidth: "815px" }}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("araToplam")}</Text>
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
-              width: "100%",
-              maxWidth: "250px",
-            }}
-          >
-            <Controller
-              name="totalAraToplam"
-              control={control}
-              render={({ field }) => (
-                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
-              )}
-            />
-          </div>
+      <div style={{ display: "flex", flexFlow: "column wrap", gap: "10px", marginTop: "20px", width: "100%", flexDirection: "row", justifyContent: "space-between" }}>
+        <div style={{ width: "100%", maxWidth: "830px" }}>
+          <Controller name="aciklama" render={({ field }) => <TextArea {...field} rows={4} placeholder="Açıklama" style={{ width: "100%", minHeight: "160px" }} />} />
         </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("indirim")}</Text>
+        <div style={{ width: "100%", maxWidth: "400px", display: "flex", flexFlow: "wrap", gap: "10px", flexDirection: "column", alignItems: "flex-start" }}>
           <div
             style={{
               display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
               width: "100%",
-              maxWidth: "250px",
+              maxWidth: "400px",
+              gap: "10px",
             }}
           >
-            <Controller
-              name="totalIndirim"
-              control={control}
-              render={({ field }) => (
-                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
-              )}
-            />
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("araToplam")}</Text>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column wrap",
+                alignItems: "flex-start",
+                width: "100%",
+                maxWidth: "250px",
+              }}
+            >
+              <Controller
+                name="totalAraToplam"
+                control={control}
+                render={({ field }) => {
+                  // Determine decimal separator based on language
+                  const language = localStorage.getItem("i18nextLng") || "en";
+                  const decimalSeparator = ["tr", "az"].includes(language) ? "," : ".";
+
+                  return <InputNumber {...field} readOnly style={{ width: "100%" }} decimalSeparator={decimalSeparator} precision={2} />;
+                }}
+              />
+            </div>
           </div>
-        </div>
 
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("kdvToplam")}</Text>
           <div
             style={{
               display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
               width: "100%",
-              maxWidth: "250px",
+              maxWidth: "400px",
+              gap: "10px",
+              flexDirection: "row",
             }}
           >
-            <Controller
-              name="totalKdvToplam"
-              control={control}
-              render={({ field }) => (
-                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
-              )}
-            />
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("indirim")}</Text>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column wrap",
+                alignItems: "flex-start",
+                width: "100%",
+                maxWidth: "250px",
+              }}
+            >
+              <Controller
+                name="totalIndirim"
+                control={control}
+                render={({ field }) => {
+                  // Determine decimal separator based on language
+                  const language = localStorage.getItem("i18nextLng") || "en";
+                  const decimalSeparator = ["tr", "az"].includes(language) ? "," : ".";
+
+                  return (
+                    <InputNumber
+                      {...field}
+                      style={{ width: "100%" }}
+                      decimalSeparator={decimalSeparator}
+                      precision={2}
+                      onChange={(value) => {
+                        try {
+                          // With InputNumber, value is already a number (or null)
+                          const numValue = value || 0;
+
+                          // Mark as manually edited
+                          setIsIndirimManuallyEdited(true);
+
+                          // Update the totalIndirim field - store with decimals but display as rounded
+                          field.onChange(numValue.toFixed(2));
+                          setValue("totalIndirim", numValue.toFixed(2));
+
+                          // Get current values
+                          const araToplam = parseFloat(getValues("totalAraToplam")) || 0;
+                          const kdvToplam = parseFloat(getValues("totalKdvToplam")) || 0;
+
+                          // Recalculate general total (araToplam - indirim + kdvToplam)
+                          const newGenelToplam = araToplam - numValue + kdvToplam;
+
+                          // Update the general total
+                          setValue("totalGenelToplam", newGenelToplam.toFixed(2));
+                        } catch (error) {
+                          console.error("Error updating discount:", error);
+                        }
+                      }}
+                    />
+                  );
+                }}
+              />
+            </div>
           </div>
-        </div>
 
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("genelToplam")}</Text>
           <div
             style={{
               display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
               width: "100%",
-              maxWidth: "250px",
+              maxWidth: "400px",
+              gap: "10px",
+              flexDirection: "row",
             }}
           >
-            <Controller
-              name="totalGenelToplam"
-              control={control}
-              render={({ field }) => (
-                <Input {...field} readOnly style={{ flex: 1 }} value={field.value ? Number(field.value).toLocaleString(localStorage.getItem("i18nextLng")) : "0"} />
-              )}
-            />
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("kdvToplam")}</Text>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column wrap",
+                alignItems: "flex-start",
+                width: "100%",
+                maxWidth: "250px",
+              }}
+            >
+              <Controller
+                name="totalKdvToplam"
+                control={control}
+                render={({ field }) => {
+                  // Determine decimal separator based on language
+                  const language = localStorage.getItem("i18nextLng") || "en";
+                  const decimalSeparator = ["tr", "az"].includes(language) ? "," : ".";
+
+                  return <InputNumber {...field} readOnly style={{ width: "100%" }} decimalSeparator={decimalSeparator} precision={2} />;
+                }}
+              />
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              maxWidth: "400px",
+              gap: "10px",
+              flexDirection: "row",
+            }}
+          >
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("genelToplam")}</Text>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column wrap",
+                alignItems: "flex-start",
+                width: "100%",
+                maxWidth: "250px",
+              }}
+            >
+              <Controller
+                name="totalGenelToplam"
+                control={control}
+                render={({ field }) => {
+                  // Determine decimal separator based on language
+                  const language = localStorage.getItem("i18nextLng") || "en";
+                  const decimalSeparator = ["tr", "az"].includes(language) ? "," : ".";
+
+                  return <InputNumber {...field} readOnly style={{ width: "100%" }} decimalSeparator={decimalSeparator} precision={2} />;
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
