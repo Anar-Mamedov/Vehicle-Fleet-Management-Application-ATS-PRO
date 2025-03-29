@@ -744,7 +744,7 @@ function FisIcerigi({ modalOpen }) {
               gap: "10px",
             }}
           >
-            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("araToplam")}</Text>
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row", fontWeight: 600 }}>{t("araToplam")}</Text>
             <div
               style={{
                 display: "flex",
@@ -780,7 +780,7 @@ function FisIcerigi({ modalOpen }) {
               flexDirection: "row",
             }}
           >
-            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("indirim")}</Text>
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row", fontWeight: 600 }}>{t("indirim")}</Text>
             <div
               style={{
                 display: "flex",
@@ -848,7 +848,7 @@ function FisIcerigi({ modalOpen }) {
               flexDirection: "row",
             }}
           >
-            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("kdvToplam")}</Text>
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row", fontWeight: 600 }}>{t("kdvToplam")}</Text>
             <div
               style={{
                 display: "flex",
@@ -884,7 +884,7 @@ function FisIcerigi({ modalOpen }) {
               flexDirection: "row",
             }}
           >
-            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("genelToplam")}</Text>
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row", fontWeight: 600 }}>{t("genelToplam")}</Text>
             <div
               style={{
                 display: "flex",
