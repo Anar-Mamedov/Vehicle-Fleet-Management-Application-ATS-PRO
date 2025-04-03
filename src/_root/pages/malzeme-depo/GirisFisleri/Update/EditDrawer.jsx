@@ -87,10 +87,10 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("girisDeposuID", item.girisDepoSiraNo);
           setValue("lokasyon", item.lokasyon);
           setValue("lokasyonID", item.lokasyonId);
-          setValue("totalAraToplam", item.araToplam);
-          setValue("totalIndirim", item.indirimliToplam);
-          setValue("totalKdvToplam", item.kdvToplam);
-          setValue("totalGenelToplam", item.genelToplam);
+          setTimeout(() => setValue("totalAraToplam", item.araToplam), 200);
+          setTimeout(() => setValue("totalIndirim", item.indirimliToplam), 200);
+          setTimeout(() => setValue("totalKdvToplam", item.kdvToplam), 200);
+          setTimeout(() => setValue("totalGenelToplam", item.genelToplam), 200);
           setValue("aciklama", item.aciklama);
           setValue("ozelAlan1", item.ozelAlan1);
           setValue("ozelAlan2", item.ozelAlan2);
