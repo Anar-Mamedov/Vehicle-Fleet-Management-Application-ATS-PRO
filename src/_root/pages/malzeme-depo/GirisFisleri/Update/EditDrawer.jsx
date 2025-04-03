@@ -199,6 +199,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           firmaId: Number(data.firmaID),
           girisDepoSiraNo: Number(data.girisDeposuID),
           isPriceChanged: item.isPriceChanged || false,
+          isDeleted: item.isDeleted || false,
           // malzemeKodu: item.malzemeKodu,
           // malzemeTanimi: item.malzemeTanimi,
           // malzemeTipi: item.malzemeTipi,

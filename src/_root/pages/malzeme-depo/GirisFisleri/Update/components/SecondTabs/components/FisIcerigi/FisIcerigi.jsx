@@ -141,7 +141,10 @@ function FisIcerigi({ modalOpen }) {
   // Add useEffect for calculating totals
   useEffect(() => {
     try {
-      const totals = dataSource.reduce(
+      // Filter out deleted items before calculating totals
+      const activeDataSource = dataSource.filter((item) => !item.isDeleted);
+
+      const totals = activeDataSource.reduce(
         (acc, item) => {
           acc.araToplam += Number(item.araToplam) || 0;
           acc.indirim += Number(item.indirimTutari) || 0;
@@ -320,6 +323,7 @@ function FisIcerigi({ modalOpen }) {
         kdvTutar: round(kdvTutar),
         toplam: round(toplam),
         isPriceChanged: isPriceChanged || item.isPriceChanged,
+        isDeleted: false,
       };
 
       newData.splice(index, 1, updatedRow);
@@ -408,6 +412,7 @@ function FisIcerigi({ modalOpen }) {
           malzemeLokasyon: row.lokasyon || lokasyon || "",
           malzemeLokasyonID: row.lokasyonId || lokasyonID || null,
           aciklama: "",
+          isDeleted: false,
         };
 
         append(newRow);
@@ -683,7 +688,21 @@ function FisIcerigi({ modalOpen }) {
       width: 100,
       render: (_, record) =>
         dataSource.length >= 1 ? (
-          <Popconfirm title="Silmek istediğinize emin misiniz?" onConfirm={() => remove(dataSource.findIndex((item) => item.id === record.id))}>
+          <Popconfirm
+            title="Silmek istediğinize emin misiniz?"
+            onConfirm={() => {
+              const index = dataSource.findIndex((item) => item.id === record.id);
+              if (index !== -1) {
+                // Update React Hook Form state
+                setValue(`fisIcerigi.${index}.isDeleted`, true);
+
+                // Update local dataSource state directly
+                const newData = [...dataSource];
+                newData[index] = { ...newData[index], isDeleted: true };
+                setDataSource(newData);
+              }
+            }}
+          >
             <Button type="link" danger>
               Sil
             </Button>
@@ -709,6 +728,9 @@ function FisIcerigi({ modalOpen }) {
     };
   });
 
+  // Filter out deleted rows before rendering
+  const filteredDataSource = dataSource.filter((item) => !item.isDeleted);
+
   return (
     <div style={{ marginTop: "-55px", zIndex: 10 }}>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
@@ -721,7 +743,7 @@ function FisIcerigi({ modalOpen }) {
         rowClassName={() => "editable-row"}
         size="small"
         bordered
-        dataSource={dataSource}
+        dataSource={filteredDataSource}
         columns={columns}
         pagination={false}
         rowKey={(record) => record.id || Math.random().toString(36).substr(2, 9)} // Ensure stable keys
