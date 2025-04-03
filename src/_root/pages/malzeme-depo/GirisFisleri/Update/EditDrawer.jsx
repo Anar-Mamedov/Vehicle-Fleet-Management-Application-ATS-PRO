@@ -87,10 +87,10 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("girisDeposuID", item.girisDepoSiraNo);
           setValue("lokasyon", item.lokasyon);
           setValue("lokasyonID", item.lokasyonId);
-          /*  setValue("totalAraToplam", item.araToplam);
+          setValue("totalAraToplam", item.araToplam);
           setValue("totalIndirim", item.indirimliToplam);
           setValue("totalKdvToplam", item.kdvToplam);
-          setValue("totalGenelToplam", item.genelToplam); */
+          setValue("totalGenelToplam", item.genelToplam);
           setValue("aciklama", item.aciklama);
           setValue("ozelAlan1", item.ozelAlan1);
           setValue("ozelAlan2", item.ozelAlan2);
@@ -186,14 +186,15 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       ozelAlan6: data.ozelAlan6,
       ozelAlan7: data.ozelAlan7,
       ozelAlan8: data.ozelAlan8,
-      ozelAlan9ID: data.ozelAlan9ID,
-      ozelAlan10ID: data.ozelAlan10ID,
-      ozelAlan11: data.ozelAlan11,
-      ozelAlan12: data.ozelAlan12,
+      ozelAlanKodId9: Number(data.ozelAlan9ID),
+      ozelAlanKodId10: Number(data.ozelAlan10ID),
+      ozelAlan11: Number(data.ozelAlan11),
+      ozelAlan12: Number(data.ozelAlan12),
       gc: 1,
       fisTip: "MALZEME",
       materialMovements:
         data.fisIcerigi?.map((item) => ({
+          siraNo: item.key ? Number(item.key) : 0,
           tarih: formatDateWithDayjs(data.tarih),
           firmaId: Number(data.firmaID),
           girisDepoSiraNo: Number(data.girisDeposuID),
