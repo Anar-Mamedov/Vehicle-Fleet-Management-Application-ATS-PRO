@@ -318,7 +318,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               <div>
                 <MainTabs />
-                <SecondTabs />
+                <SecondTabs selectedRowID={selectedRow?.key} />
                 {/*<Footer />*/}
               </div>
             </form>

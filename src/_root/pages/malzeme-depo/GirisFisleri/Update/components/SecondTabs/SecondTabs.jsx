@@ -5,6 +5,8 @@ import { Controller, useFormContext } from "react-hook-form";
 import { t } from "i18next";
 import OzelAlanlar from "./components/OzelAlanlar/OzelAlanlar.jsx";
 import FisIcerigi from "./components/FisIcerigi/FisIcerigi.jsx";
+import ResimUpload from "../../../../../../components/Resim/ResimUpload.jsx";
+import DosyaUpload from "../../../../../../components/Dosya/DosyaUpload.jsx";
 const { Text, Link } = Typography;
 const { TextArea } = Input;
 
@@ -45,7 +47,7 @@ const StyledTabs = styled(Tabs)`
 
 //styled components end
 
-export default function SecondTabs({ refreshKey, fieldRequirements, modalOpen }) {
+export default function SecondTabs({ refreshKey, fieldRequirements, modalOpen, selectedRowID }) {
   const { watch } = useFormContext();
   const [activeTabKey, setActiveTabKey] = useState("4"); // Default to the FisIcerigi tab
 
@@ -74,6 +76,7 @@ export default function SecondTabs({ refreshKey, fieldRequirements, modalOpen })
       // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
       children: <OzelAlanlar />,
     },
+
     /* {
       key: "6",
       label: "Açıklama",
@@ -83,6 +86,18 @@ export default function SecondTabs({ refreshKey, fieldRequirements, modalOpen })
         </div>
       ),
     }, */
+    {
+      key: "7",
+      label: "Resimler",
+      // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
+      children: <ResimUpload selectedRowID={selectedRowID} refGroup={"MALZEME_GIRIS_FIS"} />,
+    },
+    {
+      key: "8",
+      label: "Dosyalar",
+      // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
+      children: <DosyaUpload selectedRowID={selectedRowID} refGroup={"MALZEME_GIRIS_FIS"} />,
+    },
   ];
 
   return (
