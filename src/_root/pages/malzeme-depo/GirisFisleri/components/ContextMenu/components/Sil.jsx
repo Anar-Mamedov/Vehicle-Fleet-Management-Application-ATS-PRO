@@ -15,15 +15,12 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
   // Silme işlemini tetikleyecek fonksiyon
   const handleDelete = async () => {
     let isError = false;
-    // Map over selectedRows to create an array of body objects
-    const body = selectedRows.map((row) => ({
-      serviceId: row.key,
-      vid: row.aracId,
-      pid: row.bakimId,
-    }));
+    // Map over selectedRows to create an array of keys
+    const keysToDelete = selectedRows.map((row) => row.key);
+
     try {
-      // Silme API isteğini gönder
-      const response = await AxiosInstance.post(`VehicleServices/DeleteVehicleService`, body);
+      // Silme API isteğini gönder, body olarak anahtar dizisini gönder
+      const response = await AxiosInstance.post(`MaterialReceipt/DeleteReceiptById`, keysToDelete);
       console.log("Silme işlemi başarılı:", response);
       if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202 || response.data.statusCode === 204) {
         message.success("İşlem Başarılı.");
@@ -35,6 +32,8 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
       // Burada başarılı silme işlemi sonrası yapılacak işlemler bulunabilir.
     } catch (error) {
       console.error("Silme işlemi sırasında hata oluştu:", error);
+      message.error("Silme işlemi sırasında bir hata oluştu."); // Kullanıcıya hata mesajı göster
+      isError = true; // Hata durumunu işaretle
     }
     // Tüm silme işlemleri tamamlandıktan sonra ve hata oluşmamışsa refreshTableData'i çağır
     if (!isError) {
