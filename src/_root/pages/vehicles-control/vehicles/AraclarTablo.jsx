@@ -1069,7 +1069,7 @@ const Yakit = ({ ayarlarData }) => {
                 showSizeChanger: false,
                 showQuickJumper: true,
                 onChange: handleTableChange,
-                showTotal: (total, range) => `Toplam ${total}`, // Burada 'total' parametresi doğru kayıt sayısını yansıtacaktır
+                showTotal: (total, range) => `Toplam Araç: ${total}`, // Burada 'total' parametresi doğru kayıt sayısını yansıtacaktır
               }}
               scroll={{ y: "calc(100vh - 335px)" }}
             />
