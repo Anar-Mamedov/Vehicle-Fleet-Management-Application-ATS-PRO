@@ -229,7 +229,6 @@ const Yakit = ({ ayarlarData }) => {
       fetchData(0, 1);
       prevBodyRef.current = body;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [body]);
 
   const prevBodyRef = useRef(body);
@@ -277,7 +276,6 @@ const Yakit = ({ ayarlarData }) => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDurum]);
 
   // Columns definition (adjust as needed)
@@ -1069,7 +1067,7 @@ const Yakit = ({ ayarlarData }) => {
                 showSizeChanger: false,
                 showQuickJumper: true,
                 onChange: handleTableChange,
-                showTotal: (total, range) => `Toplam ${total}`, // Burada 'total' parametresi doğru kayıt sayısını yansıtacaktır
+                showTotal: (total, range) => `Toplam Araç: ${total}`, // Burada 'total' parametresi doğru kayıt sayısını yansıtacaktır
               }}
               scroll={{ y: "calc(100vh - 335px)" }}
             />
