@@ -229,7 +229,6 @@ const Yakit = ({ ayarlarData }) => {
       fetchData(0, 1);
       prevBodyRef.current = body;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [body]);
 
   const prevBodyRef = useRef(body);
@@ -277,7 +276,6 @@ const Yakit = ({ ayarlarData }) => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDurum]);
 
   // Columns definition (adjust as needed)
