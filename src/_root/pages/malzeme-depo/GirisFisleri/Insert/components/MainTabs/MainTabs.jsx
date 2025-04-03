@@ -503,7 +503,7 @@ export default function MainTabs({ modalOpen }) {
               maxWidth: "220px",
             }}
           >
-            <DepoSelectBox name1="girisDeposu" kodID={"YAKIT"} isRequired={true} />
+            <DepoSelectBox name1="girisDeposu" kodID={"MALZEME"} isRequired={true} />
           </div>
         </div>
       </div>
