@@ -334,7 +334,7 @@ export default function CustomFilter({ onSubmit }) {
                   <FirmaSelectBox name1={`input-${row.id}`} isRequired={false} onChange={(label, value) => handleKodIDSelectChange(label, value, row.id)} />
                 )}
                 {selectedValues[row.id] === "girisDepoId" && (
-                  <DepoSelectBox name1={`input-${row.id}`} isRequired={false} onChange={(value, label) => handleKodIDSelectChange(value, label, row.id)} />
+                  <DepoSelectBox name1={`input-${row.id}`} kodID={"MALZEME"} isRequired={false} onChange={(value, label) => handleKodIDSelectChange(value, label, row.id)} />
                 )}
                 {selectedValues[row.id] === "aracId" && (
                   <PlakaSelectbox name1={`input-${row.id}`} isRequired={false} onChange={(label, value) => handleKodIDSelectChange(label, value, row.id)} />
