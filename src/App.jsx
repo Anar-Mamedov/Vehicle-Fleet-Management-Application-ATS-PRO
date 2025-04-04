@@ -22,7 +22,8 @@ import YakitGirisFisleri from "./_root/pages/yakit-yonetim/giris-fis/YakitGirisF
 import Malzemeler from "./_root/pages/malzeme-depo/malzeme/Malzemeler";
 import GirisFisleri1 from "./_root/pages/malzeme-depo/giris-fis/GirisFisleri";
 import GirisFisleri from "./_root/pages/malzeme-depo/GirisFisleri/GirisFisleri.jsx";
-import CikisFisleri from "./_root/pages/malzeme-depo/cikis-fis/CikisFisleri";
+import CikisFisleri1 from "./_root/pages/malzeme-depo/cikis-fis/CikisFisleri";
+import CikisFisleri from "./_root/pages/malzeme-depo/CikisFisleri/CikisFisleri.jsx";
 import Transferler from "./_root/pages/malzeme-depo/transferler/Transferler";
 import Hareketler from "./_root/pages/malzeme-depo/hareketler/Hareketler";
 
@@ -122,6 +123,7 @@ const App = () => {
         <Route path="/giris-fisleri" element={<GirisFisleri />} />
         <Route path="/giris-fisleri1" element={<GirisFisleri1 />} />
         <Route path="/cikis-fisleri" element={<CikisFisleri />} />
+        <Route path="/cikis-fisleri1" element={<CikisFisleri1 />} />
         <Route path="/transferler" element={<Transferler />} />
 
         <Route path="/lokasyon-tanimlari" element={<LokasyonTanimlari />} />
