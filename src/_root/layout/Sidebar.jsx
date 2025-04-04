@@ -155,6 +155,10 @@ const Sidebar = () => {
           key: "35",
           label: <Link to={"/transferler"}>{t("malzemeTransferleri")}</Link>,
         },
+        /*  {
+          key: "351",
+          label: <Link to={"/transferler1"}>{t("Transferler Eski")}</Link>,
+        }, */
         {
           key: "36",
           label: <Link to={"/hazirlaniyor"}>{t("talepler")}</Link>,
