@@ -27,6 +27,7 @@ import CikisFisleri from "./_root/pages/malzeme-depo/CikisFisleri/CikisFisleri.j
 import Transferler from "./_root/pages/malzeme-depo/TransferFisleri/TransferFisleri.jsx";
 import Transferler1 from "./_root/pages/malzeme-depo/transferler/Transferler.jsx";
 import Hareketler from "./_root/pages/malzeme-depo/hareketler/Hareketler";
+import MalzemeDepoTanimlari from "./_root/pages/malzeme-depo/DepoTanimlari/DepoTanimlari.jsx";
 
 import Suruculer from "./_root/pages/sistem-tanimlari/surucu/SurucuTanim";
 import Settings from "./_root/pages/settings/Settings";
@@ -128,6 +129,7 @@ const App = () => {
         <Route path="/transferler" element={<Transferler />} />
         <Route path="/transferler1" element={<Transferler1 />} />
         <Route path="/lokasyon-tanimlari" element={<LokasyonTanimlari />} />
+        <Route path="/malzeme-depo-tanimlari" element={<MalzemeDepoTanimlari />} />
 
         <Route path="/ayarlar" element={<Settings />} />
         <Route path="/hareketler" element={<Hareketler />} />

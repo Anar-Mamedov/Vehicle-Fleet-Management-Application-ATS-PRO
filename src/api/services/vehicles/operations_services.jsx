@@ -38,7 +38,7 @@ export const GetLastThreeFuelRecordService = async (id, date, time) => {
 };
 
 export const GetWareHouseListService = async (id, type) => {
-  return await http.get(`/WareHouse/GetWareHouseList?tip=${type}&id=${id}`);
+  return await http.get(`/WareHouse/GetWareHouseByTipId?type=${type}&id=${id}`);
 };
 
 export const GetFuelCardInfoByFuelIdService = async (id) => {

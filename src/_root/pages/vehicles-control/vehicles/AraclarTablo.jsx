@@ -184,7 +184,7 @@ const Yakit = ({ ayarlarData }) => {
       const customFilters = body.filters.customfilters === "" ? null : body.filters.customfilters;
 
       const response = await AxiosInstance.post(
-        `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${selectedDurum || 0}`,
+        `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${selectedDurum || 0}&pageSize=${pageSize}`,
         customFilters
       );
 
@@ -211,13 +211,10 @@ const Yakit = ({ ayarlarData }) => {
     }
   };
 
+  // Fetch data when pageSize changes
   useEffect(() => {
-    // İlk render'da çalışmasını engellemek için (isteğe bağlı)
-    if (selectedDurum !== null) {
-      console.log("useEffect tetiklendi, seçilen durum:", selectedDurum);
-      fetchData(0, 1);
-    }
-  }, [selectedDurum]);
+    fetchData(0, 1); // Fetch data for the first page with the new page size
+  }, [pageSize, selectedDurum]); // Add pageSize to the dependency array
 
   const handleDurumChange = (value) => {
     setSelectedDurum(value);
@@ -239,9 +236,18 @@ const Yakit = ({ ayarlarData }) => {
     fetchData(0, 1);
   };
 
-  const handleTableChange = (page) => {
-    const diff = page - currentPage;
-    fetchData(diff, page);
+  const handleTableChange = (page, size) => {
+    // If the page size has changed, update the pageSize state
+    if (size !== pageSize) {
+      setPageSize(size);
+      // No need to call fetchData here as the useEffect for pageSize will handle it
+      // Also, reset to page 1 when size changes
+      setCurrentPage(1); // Reset to page 1
+    } else {
+      // If only the page number has changed, calculate the diff and fetch data
+      const diff = page - currentPage;
+      fetchData(diff, page);
+    }
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
@@ -1063,11 +1069,14 @@ const Yakit = ({ ayarlarData }) => {
               pagination={{
                 current: currentPage,
                 total: totalCount,
-                pageSize: 10,
-                showSizeChanger: false,
+                pageSize: pageSize,
+                defaultPageSize: 10,
+                showSizeChanger: true,
+                pageSizeOptions: ["10", "20", "50", "100"],
                 showQuickJumper: true,
                 onChange: handleTableChange,
-                showTotal: (total, range) => `Toplam Araç: ${total}`, // Burada 'total' parametresi doğru kayıt sayısını yansıtacaktır
+                onShowSizeChange: (current, size) => handleTableChange(1, size),
+                showTotal: (total, range) => `Toplam Araç: ${total}`,
               }}
               scroll={{ y: "calc(100vh - 335px)" }}
             />
