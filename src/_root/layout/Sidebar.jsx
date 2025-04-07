@@ -159,14 +159,18 @@ const Sidebar = () => {
           key: "351",
           label: <Link to={"/transferler1"}>{t("Transferler Eski")}</Link>,
         }, */
-        {
+        /* {
           key: "36",
           label: <Link to={"/hazirlaniyor"}>{t("talepler")}</Link>,
-        },
+        }, */
         {
-          key: "37",
-          label: <Link to={"/hareketler"}>{t("malzemeHareketleri")}</Link>,
+          key: "373b24kj5hb",
+          label: <Link to={"/malzeme-hareketleri"}>{t("malzemeHareketleri")}</Link>,
         },
+        /*  {
+          key: "37",
+          label: <Link to={"/hareketler"}>{t("Malzeme Hareketleri Eski")}</Link>,
+        }, */
         {
           key: "837",
           label: <Link to={"/malzeme-depo-tanimlari"}>{t("malzemeDepoTanimlari")}</Link>,
