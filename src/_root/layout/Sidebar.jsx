@@ -153,7 +153,7 @@ const Sidebar = () => {
         }, */
         {
           key: "35",
-          label: <Link to={"/transferler"}>{t("malzemeTransferleri")}</Link>,
+          label: <Link to={"/transferler"}>{t("transferFisleri")}</Link>,
         },
         /*  {
           key: "351",
