@@ -169,7 +169,7 @@ const Sidebar = () => {
         },
         {
           key: "837",
-          label: <Link to={"/hazirlaniyor"}>{t("malzemeDepoTanimlari")}</Link>,
+          label: <Link to={"/malzeme-depo-tanimlari"}>{t("malzemeDepoTanimlari")}</Link>,
         },
       ],
     },
