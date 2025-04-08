@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Layout, Menu, List, Button, Modal, Input, Popconfirm } from "antd";
-import { HomeOutlined } from "@ant-design/icons";
+import { HomeOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 // import AddModal from './marka-modals/AddModal';
 // import UpdateModalModal from './marka-modals/UpdateModal';
@@ -192,7 +192,22 @@ const KodYonetimi = () => {
                 <Button className="btn primary-btn" onClick={() => setIsUpdateOpen(true)} style={{ marginRight: "8px" }} disabled={!selectedCodeText}>
                   {t("duzenle")}
                 </Button>
-                <Popconfirm title={t("silmek istediğinize emin misiniz?")} onConfirm={deleteCodeItem} onCancel={() => {}} okText={t("evet")} cancelText={t("hayır")}>
+                <Popconfirm
+                  title={t("silmeIslemi")}
+                  description={<div style={{ maxWidth: "250px" }}>{t("kodSilmeUyarisi")}</div>}
+                  onConfirm={deleteCodeItem}
+                  onCancel={() => {}}
+                  okText={t("evet")}
+                  cancelText={t("hayır")}
+                  disabled={!selectedCodeText}
+                  icon={
+                    <QuestionCircleOutlined
+                      style={{
+                        color: "red",
+                      }}
+                    />
+                  }
+                >
                   <Button className="btn primary-btn" style={{ marginRight: "8px" }} disabled={!selectedCodeText}>
                     {t("sil")}
                   </Button>

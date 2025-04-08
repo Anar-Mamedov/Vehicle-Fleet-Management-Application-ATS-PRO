@@ -419,7 +419,7 @@ const LastikEnvanteri = () => {
     },
 
     {
-      title: t("takildigiKm"),
+      title: t("montajKM"),
       dataIndex: "takildigiKm",
       key: "takildigiKm",
       width: 120,
@@ -429,7 +429,7 @@ const LastikEnvanteri = () => {
     },
 
     {
-      title: t("takilmaTarih"),
+      title: t("montajTarihi"),
       dataIndex: "takilmaTarih",
       key: "takilmaTarih",
       width: 120,
