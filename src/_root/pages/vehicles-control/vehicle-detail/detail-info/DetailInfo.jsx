@@ -45,55 +45,61 @@ const DetailInfo = ({ id, refreshVehicleData }) => {
       icon: <BranchesOutlined className="text-info" />,
     },
     {
-      label: t("aracSuruculeri"),
-      key: "3",
-      icon: <UserOutlined className="text-info" />,
-    },
-    {
-      label: t("lokasyonlar"),
-      key: "13",
-      icon: <UserOutlined className="text-info" />,
-    },
-    {
       label: t("ekspertizBilgiler"),
       key: "4",
       icon: <CarOutlined className="text-info" />,
-    },
-    // {
-    //   label: t("ustYapiBilgiler"),
-    //   key: "5",
-    //   icon: <ApartmentOutlined className="text-info" />,
-    // },
-    {
-      label: t("aksesuarlar"),
-      key: "6",
-      icon: <ApiOutlined className="text-info" />,
-    },
-    {
-      label: t("satinalmaKiralamaBilgiler"),
-      key: "7",
-      icon: <CreditCardOutlined className="text-info" />,
-    },
-    {
-      label: t("garantiBilgiler"),
-      key: "8",
-      icon: <MdHealthAndSafety className="text-info" />,
-    },
-    {
-      label: t("tasitKartiYetkiBilgiler"),
-      key: "9",
-      icon: <SolutionOutlined className="text-info" />,
-    },
-    {
-      label: t("kapasiteBilgiler"),
-      key: "10",
-      icon: <DatabaseOutlined className="text-info" />,
     },
     {
       label: t("lastikBilgiler"),
       key: "11",
       icon: <PiGearSixBold className="text-info" />,
     },
+    {
+      label: t("aracSuruculeri"),
+      key: "3",
+      icon: <UserOutlined className="text-info" />,
+    },
+    {
+      label: t("lokasyonDegisimi"),
+      key: "13",
+      icon: <UserOutlined className="text-info" />,
+    },
+
+    {
+      label: t("garantiBilgiler"),
+      key: "8",
+      icon: <MdHealthAndSafety className="text-info" />,
+    },
+
+    {
+      label: t("tasitKartiYetkiBilgiler"),
+      key: "9",
+      icon: <SolutionOutlined className="text-info" />,
+    },
+    {
+      label: t("aksesuarlar"),
+      key: "6",
+      icon: <ApiOutlined className="text-info" />,
+    },
+
+    {
+      label: t("kapasiteBilgiler"),
+      key: "10",
+      icon: <DatabaseOutlined className="text-info" />,
+    },
+
+    // {
+    //   label: t("ustYapiBilgiler"),
+    //   key: "5",
+    //   icon: <ApartmentOutlined className="text-info" />,
+    // },
+
+    {
+      label: t("satinalmaKiralamaBilgiler"),
+      key: "7",
+      icon: <CreditCardOutlined className="text-info" />,
+    },
+
     {
       label: t("aracSatisBilgiler"),
       key: "12",

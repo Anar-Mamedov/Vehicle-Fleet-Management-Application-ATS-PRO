@@ -3,6 +3,9 @@ import { useFormContext } from "react-hook-form";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateDrawer from "../Insert/CreateDrawer";
 import EditDrawer from "../Update/EditDrawer";
+import GirisFisiler from "../../GirisFisleri/Update/EditDrawer.jsx";
+import CikisFisiler from "../../CikisFisleri/Update/EditDrawer.jsx";
+import TransferFisiler from "../../TransferFisleri/Update/EditDrawer.jsx";
 import Filters from "./filter/Filters";
 import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
 import { Routes, Route, useNavigate } from "react-router-dom";
@@ -264,6 +267,20 @@ const MalzemeHareketleri = () => {
   // Columns definition (adjust as needed)
   const initialColumns = useMemo(
     () => [
+      {
+        title: t("fisNo"),
+        dataIndex: "fisNo",
+        key: "fisNo",
+        width: 190,
+        ellipsis: true,
+        visible: true,
+        render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+        sorter: (a, b) => {
+          if (a.fisNo === null) return -1;
+          if (b.fisNo === null) return 1;
+          return a.fisNo.localeCompare(b.fisNo);
+        },
+      },
       {
         title: t("tarih"),
         dataIndex: "tarih",
