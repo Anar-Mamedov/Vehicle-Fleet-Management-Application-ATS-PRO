@@ -255,7 +255,13 @@ const MalzemeHareketleri = () => {
   };
 
   const onRowClick = (record) => {
-    setDrawer({ visible: true, data: record });
+    setDrawer({
+      visible: true,
+      data: {
+        ...record,
+        key: record.mlzFisId, // Set the key to mlzFisId
+      },
+    });
   };
 
   const refreshTableData = useCallback(() => {
@@ -319,6 +325,29 @@ const MalzemeHareketleri = () => {
           if (a.malezemeTanim === null) return -1;
           if (b.malezemeTanim === null) return 1;
           return a.malezemeTanim.localeCompare(b.malezemeTanim);
+        },
+      },
+      {
+        title: t("haraket"),
+        dataIndex: "gc",
+        key: "gc",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          // Handle all possible undefined, null, or empty string cases
+          const gcA = a.gc === undefined || a.gc === null || a.gc === "" ? -9999 : Number(a.gc);
+          const gcB = b.gc === undefined || b.gc === null || b.gc === "" ? -9999 : Number(b.gc);
+
+          // Compare as numbers since gc values are numeric
+          return gcA - gcB;
+        },
+        render: (text) => {
+          if (text === 1) return <Tag color="success">{t("giris")}</Tag>;
+          if (text === -1) return <Tag color="error">{t("cikis")}</Tag>;
+          if (text === 2) return <Tag color="processing">{t("transfer")}</Tag>;
+          if (text === 3) return <Tag color="warning">{t("sarf")}</Tag>;
+          return text;
         },
       },
       {
@@ -871,6 +900,37 @@ const MalzemeHareketleri = () => {
               />
             </Spin>
             {/* <EditDrawer selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} /> */}
+
+            <div>
+              {drawer.visible && drawer.data && (
+                <>
+                  {drawer.data.gc === 1 && (
+                    <GirisFisiler
+                      selectedRow={drawer.data}
+                      onDrawerClose={() => setDrawer({ ...drawer, visible: false })}
+                      drawerVisible={drawer.visible}
+                      onRefresh={refreshTableData}
+                    />
+                  )}
+                  {drawer.data.gc === -1 && (
+                    <CikisFisiler
+                      selectedRow={drawer.data}
+                      onDrawerClose={() => setDrawer({ ...drawer, visible: false })}
+                      drawerVisible={drawer.visible}
+                      onRefresh={refreshTableData}
+                    />
+                  )}
+                  {drawer.data.gc === 2 && (
+                    <TransferFisiler
+                      selectedRow={drawer.data}
+                      onDrawerClose={() => setDrawer({ ...drawer, visible: false })}
+                      drawerVisible={drawer.visible}
+                      onRefresh={refreshTableData}
+                    />
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </FormProvider>
       </ConfigProvider>

@@ -120,13 +120,13 @@ export default function CustomFilter({ onSubmit }) {
       if (selectedValue && inputValue) {
         if (selectedValue === "durum") {
           acc[selectedValue] = Number(inputValue); // Convert status to number
-        } else if (selectedValue === "islemTipKodId" || selectedValue === "malzemeTip") {
-          // Only for islemTipKodId use the ID value
+        } else if (selectedValue === "islemTipiKodId" || selectedValue === "malzemeTipKodId") {
+          // Only for islemTipiKodId use the ID value
           acc[selectedValue] = inputIDValue;
-        } else if (selectedValue === "firmaId" || selectedValue === "girisDepoId" || selectedValue === "aracId") {
+        } else if (selectedValue === "firmaId" || selectedValue === "depoId" || selectedValue === "aracId") {
           // Keep original behavior for these fields
           acc[selectedValue] = inputValue;
-        } else if (selectedValue === "lokasyonID") {
+        } else if (selectedValue === "lokasyonId") {
           acc[selectedValue] = inputIDValue;
         } else {
           acc[selectedValue] = inputValue;
@@ -144,9 +144,9 @@ export default function CustomFilter({ onSubmit }) {
     }
 
     // Add lokasyon filter if it exists but wasn't captured in the rows processing
-    const lokasyonID = watch("lokasyonID");
-    if (lokasyonID && rows.some((row) => selectedValues[row.id] === "lokasyonID")) {
-      filterData.lokasyonID = lokasyonID;
+    const lokasyonId = watch("lokasyonId");
+    if (lokasyonId && rows.some((row) => selectedValues[row.id] === "lokasyonId")) {
+      filterData.lokasyonId = lokasyonId;
     }
 
     console.log(filterData);
@@ -222,17 +222,17 @@ export default function CustomFilter({ onSubmit }) {
   };
   const handleYeniLokasyonMinusClick = () => {
     setValue("lokasyon", null);
-    setValue("lokasyonID", null);
+    setValue("lokasyonId", null);
   };
 
   // Add a function to handle location selection
   const handleLokasyonSelection = (selectedData) => {
     setValue("lokasyon", selectedData.location);
-    setValue("lokasyonID", selectedData.key);
+    setValue("lokasyonId", selectedData.key);
 
-    // Also update inputValues for the selected row that has lokasyonID
+    // Also update inputValues for the selected row that has lokasyonId
     rows.forEach((row) => {
-      if (selectedValues[row.id] === "lokasyonID") {
+      if (selectedValues[row.id] === "lokasyonId") {
         setInputValues((prev) => ({
           ...prev,
           [`input-${row.id}`]: selectedData.location,
@@ -333,11 +333,11 @@ export default function CustomFilter({ onSubmit }) {
                       label: "Malzeme Kodu",
                     },
                     {
-                      value: "malzemeTip",
+                      value: "malzemeTipKodId",
                       label: "Malzeme Tipi",
                     },
                     {
-                      value: "lokasyonID",
+                      value: "lokasyonId",
                       label: "Lokasyon",
                     },
                     /* {
@@ -345,11 +345,11 @@ export default function CustomFilter({ onSubmit }) {
                       label: "Firma",
                     }, */
                     {
-                      value: "islemTipKodId",
+                      value: "islemTipiKodId",
                       label: "İşlem Tipi",
                     },
                     {
-                      value: "girisDepoId",
+                      value: "depoId",
                       label: "Depo",
                     },
                     {
@@ -366,33 +366,33 @@ export default function CustomFilter({ onSubmit }) {
                   style={{
                     display:
                       selectedValues[row.id] === "durum" ||
-                      selectedValues[row.id] === "islemTipKodId" ||
-                      selectedValues[row.id] === "malzemeTip" ||
-                      selectedValues[row.id] === "girisDepoId" ||
+                      selectedValues[row.id] === "islemTipiKodId" ||
+                      selectedValues[row.id] === "malzemeTipKodId" ||
+                      selectedValues[row.id] === "depoId" ||
                       selectedValues[row.id] === "aracId" ||
                       selectedValues[row.id] === "firmaId" ||
-                      selectedValues[row.id] === "lokasyonID"
+                      selectedValues[row.id] === "lokasyonId"
                         ? "none"
                         : "block",
                   }}
                 />
                 {selectedValues[row.id] === "durum" && <StatusSelect value={inputValues[`input-${row.id}`]} onChange={(value) => handleStatusChange(value, row.id)} />}
-                {selectedValues[row.id] === "islemTipKodId" && (
+                {selectedValues[row.id] === "islemTipiKodId" && (
                   <KodIDSelectbox name1={`input-${row.id}`} kodID={302} isRequired={false} onChange={(value, id) => handleKodIDSelectChange(value, id, row.id)} />
                 )}
-                {selectedValues[row.id] === "malzemeTip" && (
+                {selectedValues[row.id] === "malzemeTipKodId" && (
                   <KodIDSelectbox name1={`input-${row.id}`} kodID={301} isRequired={false} onChange={(value, id) => handleKodIDSelectChange(value, id, row.id)} />
                 )}
                 {selectedValues[row.id] === "firmaId" && (
                   <FirmaSelectBox name1={`input-${row.id}`} isRequired={false} onChange={(label, value) => handleKodIDSelectChange(label, value, row.id)} />
                 )}
-                {selectedValues[row.id] === "girisDepoId" && (
+                {selectedValues[row.id] === "depoId" && (
                   <DepoSelectBox name1={`input-${row.id}`} kodID={"MALZEME"} isRequired={false} onChange={(value, label) => handleKodIDSelectChange(value, label, row.id)} />
                 )}
                 {selectedValues[row.id] === "aracId" && (
                   <PlakaSelectbox name1={`input-${row.id}`} isRequired={false} onChange={(label, value) => handleKodIDSelectChange(label, value, row.id)} />
                 )}
-                {selectedValues[row.id] === "lokasyonID" && (
+                {selectedValues[row.id] === "lokasyonId" && (
                   <div
                     style={{
                       display: "flex",
