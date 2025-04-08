@@ -34,6 +34,9 @@ import DetailUpdate from "../vehicle-detail/DetailUpdate";
 
 const { Text } = Typography;
 
+// Add a key for localStorage
+const pageSizeAraclar = "araclarTabloPageSize";
+
 const StyledButton = styled(Button)`
   display: flex;
   align-items: center;
@@ -133,12 +136,19 @@ const Yakit = ({ ayarlarData }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [loading, setLoading] = useState(false); // Set initial loading state to false
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchTimeout, setSearchTimeout] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0); // Total data count
-  const [pageSize, setPageSize] = useState(10); // Page size
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Initialize pageSize from localStorage or default to 10
+  const [pageSize, setPageSize] = useState(() => {
+    const savedPageSize = localStorage.getItem(pageSizeAraclar);
+    // Ensure the saved value is a positive number, otherwise default to 10
+    const initialSize = parseInt(savedPageSize, 10);
+    return !isNaN(initialSize) && initialSize > 0 ? initialSize : 10;
+  });
+
   const [drawer, setDrawer] = useState({
     visible: false,
     data: null,
@@ -160,94 +170,121 @@ const Yakit = ({ ayarlarData }) => {
     filters: {},
   });
 
-  // Add new state for DetailUpdate modal
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
 
-  // API Data Fetching with diff and setPointId
-  const fetchData = async (diff, targetPage) => {
+  const basePageSizeOptions = ["10", "20", "50", "100"];
+
+  const dynamicPageSizeOptions = [...basePageSizeOptions];
+  if (totalCount > 0 && !basePageSizeOptions.includes(String(totalCount))) {
+    dynamicPageSizeOptions.push(String(totalCount));
+  }
+  dynamicPageSizeOptions.sort((a, b) => Number(a) - Number(b));
+
+  const fetchData = async (diff, targetPage, currentSize = pageSize) => {
+    // Pass currentSize
     setLoading(true);
     try {
       let currentSetPointId = 0;
 
-      if (diff > 0) {
-        // Moving forward
+      // Adjust setPointId logic based on diff and data
+      if (diff > 0 && data.length > 0) {
         currentSetPointId = data[data.length - 1]?.aracId || 0;
-      } else if (diff < 0) {
-        // Moving backward
+      } else if (diff < 0 && data.length > 0) {
         currentSetPointId = data[0]?.aracId || 0;
       } else {
+        // diff is 0 (initial load, search, filter change, or size change)
         currentSetPointId = 0;
       }
 
-      // Determine what to send for customfilters
       const customFilters = body.filters.customfilters === "" ? null : body.filters.customfilters;
 
       const response = await AxiosInstance.post(
-        `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${selectedDurum || 0}&pageSize=${pageSize}`,
+        `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${selectedDurum || 0}&pageSize=${currentSize}`, // Use currentSize
         customFilters
       );
 
       const total = response.data.vehicleCount;
       setTotalCount(total);
-      setCurrentPage(targetPage);
+      // Only update currentPage if targetPage is provided (meaning it's a pagination change)
+      if (targetPage !== undefined) {
+        setCurrentPage(targetPage);
+      }
 
       const newData = response.data.vehicleList.map((item) => ({
         ...item,
-        key: item.aracId, // Assign key directly from siraNo
+        key: item.aracId,
       }));
 
-      if (newData.length > 0) {
+      if (newData.length > 0 || targetPage === 1) {
+        // Allow empty data if resetting to page 1
         setData(newData);
+      } else if (newData.length === 0 && data.length > 0 && diff !== 0) {
+        // If fetching next/prev page resulted in no data, maybe show a message but don't clear existing data?
+        // Or revert currentPage? For now, just log it.
+        console.log("Fetched page has no data, staying on current data set.");
+        // Optionally revert currentPage state if needed based on UX preference
+        // setCurrentPage(currentPage); // Revert if fetch fails for next/prev
       } else {
-        message.warning("No data found.");
+        // Initial load or filter resulted in no data
+        message.warning("Veri bulunamadı.");
         setData([]);
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
-      message.error("An error occurred while fetching data.");
+      console.error("Veri çekme hatası:", error);
+      message.error("Veri çekerken bir hata oluştu.");
+      // Optionally revert currentPage state on error
+      // if (targetPage !== undefined && targetPage !== currentPage) {
+      //   setCurrentPage(currentPage);
+      // }
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch data when pageSize changes
+  // useEffect for initial fetch and when selectedDurum changes (pageSize change is handled separately)
   useEffect(() => {
-    fetchData(0, 1); // Fetch data for the first page with the new page size
-  }, [pageSize, selectedDurum]); // Add pageSize to the dependency array
+    // Fetch initial data or when selectedDurum changes, using the current (possibly persisted) pageSize
+    fetchData(0, 1, pageSize);
+  }, [selectedDurum]); // Removed pageSize dependency here
+
+  // Separate useEffect for body (filters/search) changes
+  useEffect(() => {
+    // Check if body actually changed before fetching
+    if (JSON.stringify(body) !== JSON.stringify(prevBodyRef.current)) {
+      fetchData(0, 1, pageSize); // Fetch page 1 with current pageSize
+      prevBodyRef.current = body; // Update ref after fetch starts
+    }
+  }, [body, pageSize]); // Include pageSize here if search/filter should respect current size
+
+  const prevBodyRef = useRef(body);
+
+  const handleSearch = () => {
+    setCurrentPage(1); // Reset to page 1 on new search
+    fetchData(0, 1, pageSize); // Pass current pageSize
+  };
+
+  // Updated handleTableChange
+  const handleTableChange = (page, size) => {
+    // Check if page size has changed
+    if (size !== pageSize) {
+      // Save the new page size to localStorage
+      localStorage.setItem(pageSizeAraclar, size.toString());
+      // Update the pageSize state
+      setPageSize(size);
+      // Fetch data for the *first page* with the *new size*
+      fetchData(0, 1, size); // Pass the new size directly
+    } else {
+      // Only the page number has changed
+      const diff = page - currentPage;
+      // Fetch data for the target page with the *current size*
+      fetchData(diff, page, pageSize); // Use existing pageSize
+    }
+  };
 
   const handleDurumChange = (value) => {
     setSelectedDurum(value);
     console.log("handleDurumChange seçilen durum:", value);
-  };
-
-  useEffect(() => {
-    if (body !== prevBodyRef.current) {
-      fetchData(0, 1);
-      prevBodyRef.current = body;
-    }
-  }, [body]);
-
-  const prevBodyRef = useRef(body);
-
-  // Search handling
-  // Define handleSearch function
-  const handleSearch = () => {
-    fetchData(0, 1);
-  };
-
-  const handleTableChange = (page, size) => {
-    // If the page size has changed, update the pageSize state
-    if (size !== pageSize) {
-      setPageSize(size);
-      // No need to call fetchData here as the useEffect for pageSize will handle it
-      // Also, reset to page 1 when size changes
-      setCurrentPage(1); // Reset to page 1
-    } else {
-      // If only the page number has changed, calculate the diff and fetch data
-      const diff = page - currentPage;
-      fetchData(diff, page);
-    }
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
@@ -1072,11 +1109,13 @@ const Yakit = ({ ayarlarData }) => {
                 pageSize: pageSize,
                 defaultPageSize: 10,
                 showSizeChanger: true,
-                pageSizeOptions: ["10", "20", "50", "100"],
+                pageSizeOptions: dynamicPageSizeOptions,
                 showQuickJumper: true,
                 onChange: handleTableChange,
                 onShowSizeChange: (current, size) => handleTableChange(1, size),
-                showTotal: (total, range) => `Toplam Araç: ${total}`,
+                showTotal: (total, range) => {
+                  return `Toplam Araç: ${total}`;
+                },
               }}
               scroll={{ y: "calc(100vh - 335px)" }}
             />
