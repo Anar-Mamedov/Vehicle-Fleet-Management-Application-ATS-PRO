@@ -33,7 +33,7 @@ import DosyaUpload from "./Dosya/DosyaUpload";
 
 const { Text } = Typography;
 
-const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
+const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 }) => {
   const { setPlaka, setAracId, setPrintData } = useContext(PlakaContext);
   const [profile, setProfile] = useState([]);
   const [urls, setUrls] = useState([]);
@@ -575,14 +575,12 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
   // Content for status popover
   const statusPopoverContent = (
     <div className="status-action-menu">
-      {!dataSource.arsiv && <Arsivle selectedRows={[dataSource]} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
-      {dataSource.arsiv && <ArsivdenCikar selectedRows={[dataSource]} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
-      {!dataSource.aktif && !dataSource.arsiv && <AktifYap selectedRows={[dataSource]} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
-      {dataSource.aktif && !dataSource.arsiv && <PasifeAl selectedRows={[dataSource]} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
+      {!dataSource.arsiv && <Arsivle selectedRows={selectedRows1} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
+      {dataSource.arsiv && <ArsivdenCikar selectedRows={selectedRows1} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
+      {!dataSource.aktif && !dataSource.arsiv && <AktifYap selectedRows={selectedRows1} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
+      {dataSource.aktif && !dataSource.arsiv && <PasifeAl selectedRows={selectedRows1} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
     </div>
   );
-
-  console.log("Anar", dataSource);
 
   return (
     <Modal title={t("aracDetayKarti")} open={isOpen} onCancel={handleCancel} footer={null} width="90%" style={{ top: 20 }} maskClosable={false} destroyOnClose>

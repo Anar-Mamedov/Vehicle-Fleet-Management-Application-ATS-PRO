@@ -164,6 +164,7 @@ const Yakit = ({ ayarlarData }) => {
   const { setValue, reset, watch } = methods;
 
   const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRows1, setSelectedRows1] = useState([]);
 
   const [body, setBody] = useState({
     keyword: "",
@@ -334,6 +335,7 @@ const Yakit = ({ ayarlarData }) => {
         <a
           onClick={() => {
             setSelectedVehicleId(record.aracId);
+            setSelectedRows1([record]);
             setIsDetailModalOpen(true);
           }}
         >
@@ -1127,6 +1129,7 @@ const Yakit = ({ ayarlarData }) => {
       {selectedVehicleId && (
         <DetailUpdate
           isOpen={isDetailModalOpen}
+          selectedRows1={selectedRows1}
           onClose={() => {
             setIsDetailModalOpen(false);
             setSelectedVehicleId(null); // Clear the selected ID when closing
