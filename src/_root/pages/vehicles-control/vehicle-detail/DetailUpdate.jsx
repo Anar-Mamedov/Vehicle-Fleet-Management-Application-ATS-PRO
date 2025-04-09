@@ -582,6 +582,8 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
     </div>
   );
 
+  console.log("Anar", dataSource);
+
   return (
     <Modal title={t("aracDetayKarti")} open={isOpen} onCancel={handleCancel} footer={null} width="90%" style={{ top: 20 }} maskClosable={false} destroyOnClose>
       {loading && (
@@ -618,7 +620,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
                   <span>
                     <IoLocationSharp style={{ color: "red" }} />
                   </span>
-                  <span>{data.lokasyon}</span>
+                  <span>{watch("lokasyon")}</span>
                 </div>
                 <div style={{ cursor: "pointer" }} onClick={() => setKmHistryModal(true)} className="flex gap-1 align-center">
                   <span>
