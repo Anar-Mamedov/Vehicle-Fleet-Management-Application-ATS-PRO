@@ -11,6 +11,10 @@ import PropTypes from "prop-types";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetVehicleByIdService, UpdateVehicleService } from "../../../../api/services/vehicles/vehicles/services";
 import { GetDocumentsByRefGroupService, GetPhotosByRefGroupService } from "../../../../api/services/upload/services";
+import Arsivle from "../vehicles/components/ContextMenu/components/Arsivle";
+import ArsivdenCikar from "../vehicles/components/ContextMenu/components/ArsivdenCikar";
+import AktifYap from "../vehicles/components/ContextMenu/components/AktifYap";
+import PasifeAl from "../vehicles/components/ContextMenu/components/PasifeAl";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import TextInput from "../../../components/form/inputs/TextInput";
 import CodeControl from "../../../components/form/selects/CodeControl";
@@ -565,16 +569,16 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
                 <ProfilePhoto setImages={setProfile} urls={urls} imageUrls={imageUrls} loadingImages={loadingImages} />
               </div>
               <div className="flex gap-1 justify-between mt-10">
-                <div className="flex gap-1 align-center">
+                <div className="flex gap-1 align-center" style={{ cursor: "pointer" }}>
                   <span>{durumIcon}</span>
                 </div>
-                <div className="flex gap-1 align-center">
+                <div className="flex gap-1 align-center" style={{ cursor: "pointer" }} onClick={() => handleLokasyonPlusClick()}>
                   <span>
                     <IoLocationSharp style={{ color: "red" }} />
                   </span>
                   <span>{data.lokasyon}</span>
                 </div>
-                <div className="flex gap-1 align-center">
+                <div style={{ cursor: "pointer" }} onClick={() => setKmHistryModal(true)} className="flex gap-1 align-center">
                   <span>
                     <PiClockCounterClockwiseBold style={{ color: "grey" }} />
                   </span>

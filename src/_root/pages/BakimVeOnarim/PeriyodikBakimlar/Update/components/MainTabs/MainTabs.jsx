@@ -230,10 +230,16 @@ export default function MainTabs({ modalOpen }) {
 
   useEffect(() => {
     const calculateSum = () => {
-      const value1 = Number(herKmInput) || 0;
-      const value2 = Number(herKmInput2) || 0;
-      setSum(`${value1 + value2} km`);
-      setValue("hedefKm", `${value1 + value2}`);
+      // Check if either input is null, undefined, or empty
+      if (herKmInput === undefined || herKmInput === null || herKmInput === "" || herKmInput2 === undefined || herKmInput2 === null || herKmInput2 === "") {
+        setSum("");
+        setValue("hedefKm", "");
+      } else {
+        const value1 = Number(herKmInput) || 0;
+        const value2 = Number(herKmInput2) || 0;
+        setSum(`${value1 + value2} km`);
+        setValue("hedefKm", `${value1 + value2}`);
+      }
     };
 
     calculateSum();

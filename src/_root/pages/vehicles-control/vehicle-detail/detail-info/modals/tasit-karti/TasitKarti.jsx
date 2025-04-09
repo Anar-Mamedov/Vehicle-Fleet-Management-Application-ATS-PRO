@@ -32,6 +32,7 @@ const TasitKarti = ({ visible, onClose, id }) => {
       setValue("ybIptalYaziSayiNo", res.data.ybIptalYaziSayiNo);
       setValue("tkAciklama", res.data.tkAciklama);
       setValue("tkYbNo", res.data.tkYbNo);
+      setValue("tkNo", res.data.tkNo);
       setValue("ykTuruKodId", res.data.ykTuruKodId);
       setValue("tkYkturu", res.data.tkYkturu);
       setValue("tkVerilisTarih", res.data.tkVerilisTarih ? dayjs(res.data.tkVerilisTarih) : null);
@@ -52,6 +53,7 @@ const TasitKarti = ({ visible, onClose, id }) => {
       ybIptalYaziSayiNo: values.ybIptalYaziSayiNo,
       tkAciklama: values.tkAciklama,
       tkYbNo: values.tkYbNo,
+      tkNo: values.tkNo,
       tkVerilisTarih: dayjs(values.tkVerilisTarih).format("YYYY-MM-DD") || null,
       tkBitisTarih: dayjs(values.tkBitisTarih).format("YYYY-MM-DD") || null,
       tkIptalTarih: dayjs(values.tkIptalTarih).format("YYYY-MM-DD") || null,
@@ -103,6 +105,12 @@ const TasitKarti = ({ visible, onClose, id }) => {
                   <DateInput name="tkBitisTarih" checked={!watch("dtyTasitKarti")} />
                 </div>
               </div>
+              <div className="col-span-6">
+                <div className="flex flex-col gap-1">
+                  <label>{t("belgeNo")}</label>
+                  <TextInput name="tkNo" checked={!watch("dtyTasitKarti")} />
+                </div>
+              </div>
             </div>
           </div>
           <div className="col-span-6">
@@ -138,7 +146,7 @@ const TasitKarti = ({ visible, onClose, id }) => {
           </div>
           <div className="col-span-6">
             <h2>
-              <CheckboxInput name="tkIptal" /> {t("tasitKarti")}
+              <CheckboxInput name="tkIptal" /> {t("tasitKartiIptal")}
             </h2>
             <div className="grid gap-1 border p-20 mt-10">
               <div className="col-span-6">

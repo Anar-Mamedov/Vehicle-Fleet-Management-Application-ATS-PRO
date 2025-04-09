@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -283,7 +283,7 @@ const Teknik = ({ visible, onClose, id }) => {
             </div>
             <div className="col-span-2">
               <div className="flex flex-col gap-1">
-                <label>{t("onLastik")}</label>
+                <label>{t("onLastikEbati")}</label>
                 <TextInput name="tonlastik" />
               </div>
             </div>
@@ -295,7 +295,7 @@ const Teknik = ({ visible, onClose, id }) => {
             </div>
             <div className="col-span-2">
               <div className="flex flex-col gap-1">
-                <label>{t("arkaLastik")}</label>
+                <label>{t("arkaLastikEbati")}</label>
                 <TextInput name="tarkalastik" />
               </div>
             </div>

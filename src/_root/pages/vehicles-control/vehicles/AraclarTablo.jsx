@@ -1058,8 +1058,8 @@ const Yakit = ({ ayarlarData }) => {
               display: "flex",
               gap: "10px",
               alignItems: "center",
-              width: "100%",
-              maxWidth: "935px",
+              // width: "100%",
+              // maxWidth: "935px",
               flexWrap: "wrap",
             }}
           >
