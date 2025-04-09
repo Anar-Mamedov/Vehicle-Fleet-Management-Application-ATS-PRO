@@ -6,7 +6,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { IoLocationSharp } from "react-icons/io5";
 import { PiClockCounterClockwiseBold } from "react-icons/pi";
 import { FaCircle } from "react-icons/fa";
-import { Button, message, Modal, Spin, Tabs, Typography, Alert } from "antd";
+import { Button, message, Modal, Spin, Tabs, Typography, Alert, Popover } from "antd";
 import PropTypes from "prop-types";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetVehicleByIdService, UpdateVehicleService } from "../../../../api/services/vehicles/vehicles/services";
@@ -194,6 +194,8 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
 
   const { setValue, handleSubmit, watch } = methods;
 
+  const [popoverVisible, setPopoverVisible] = useState(false);
+
   // Function to refresh vehicle data
   const refreshVehicleData = () => {
     if (selectedId) {
@@ -277,6 +279,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
         setValue("aracRenkId", res?.data.aracRenkId ? res?.data.aracRenkId : null);
         setValue("renk", res?.data.renk);
         setValue("yil", res?.data.yil);
+        setValue("tvitesTipi", res.data.tvitesTipi);
         setValue("aciklama", res?.data.aciklama);
         setValue("aracGrubuId", res?.data.aracGrubuId ? res?.data.aracGrubuId : null);
         setValue("grup", res?.data.grup);
@@ -360,6 +363,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
       departmanId: values.departmanId || 0,
       surucuId: values.surucuId || 0,
       bagliAracId: values.bagliAracId || 0,
+      tvitesTipi: values.tvitesTipi,
       yedekAnahtarKodId: values.yedekAnahtarKodId || 0,
       hgsNo: values.hgsNo,
       muayeneTarih: values?.muayeneTarih ? dayjs(values?.muayeneTarih).format("YYYY-MM-DD") : null,
@@ -542,6 +546,42 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
     }
   }, [dataSource]);
 
+  // Function to handle refresh after status changes
+  const refreshVehicleStatus = () => {
+    if (selectedId) {
+      setLoading(true);
+      GetVehicleByIdService(selectedId)
+        .then((res) => {
+          setDataSource(res.data);
+          setData({
+            ...data,
+            aktif: res?.data.aktif,
+            lokasyon: res.data.lokasyon,
+            guncelKm: res?.data.guncelKm,
+          });
+          onSuccess?.();
+        })
+        .finally(() => {
+          setLoading(false);
+          setPopoverVisible(false);
+        });
+    }
+  };
+
+  const handlePopoverVisibleChange = (visible) => {
+    setPopoverVisible(visible);
+  };
+
+  // Content for status popover
+  const statusPopoverContent = (
+    <div className="status-action-menu">
+      {!dataSource.arsiv && <Arsivle selectedRows={[dataSource]} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
+      {dataSource.arsiv && <ArsivdenCikar selectedRows={[dataSource]} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
+      {!dataSource.aktif && !dataSource.arsiv && <AktifYap selectedRows={[dataSource]} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
+      {dataSource.aktif && !dataSource.arsiv && <PasifeAl selectedRows={[dataSource]} refreshTableData={refreshVehicleStatus} hidePopover={() => setPopoverVisible(false)} />}
+    </div>
+  );
+
   return (
     <Modal title={t("aracDetayKarti")} open={isOpen} onCancel={handleCancel} footer={null} width="90%" style={{ top: 20 }} maskClosable={false} destroyOnClose>
       {loading && (
@@ -569,9 +609,11 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess }) => {
                 <ProfilePhoto setImages={setProfile} urls={urls} imageUrls={imageUrls} loadingImages={loadingImages} />
               </div>
               <div className="flex gap-1 justify-between mt-10">
-                <div className="flex gap-1 align-center" style={{ cursor: "pointer" }}>
-                  <span>{durumIcon}</span>
-                </div>
+                <Popover content={statusPopoverContent} trigger="click" open={popoverVisible} onOpenChange={handlePopoverVisibleChange}>
+                  <div className="flex gap-1 align-center" style={{ cursor: "pointer" }}>
+                    <span>{durumIcon}</span>
+                  </div>
+                </Popover>
                 <div className="flex gap-1 align-center" style={{ cursor: "pointer" }} onClick={() => handleLokasyonPlusClick()}>
                   <span>
                     <IoLocationSharp style={{ color: "red" }} />

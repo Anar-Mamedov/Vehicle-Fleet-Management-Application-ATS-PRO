@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import { IoIosWarning } from "react-icons/io";
-import { Button, Radio, Modal } from "antd";
+import { Button, Radio, Modal, Select } from "antd";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import CodeControl from "../../../../components/form/selects/CodeControl";
 import TextInput from "../../../../components/form/inputs/TextInput";
@@ -77,8 +77,22 @@ const GeneralInfo = () => {
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
-                  <label>{t("aracCinsi")}</label>
-                  <CodeControl name="aracCinsi" codeName="aracCinsiKodId" id={107} />
+                  <label>{t("vitesTip")}</label>
+                  <Controller
+                    name="tvitesTipi"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        className="w-full"
+                        {...field}
+                        options={[
+                          { value: "DUZ", label: <span>DÜZ</span> },
+                          { value: "OTOMATIK", label: <span>OTOMATİK</span> },
+                        ]}
+                        onChange={(e) => field.onChange(e)}
+                      />
+                    )}
+                  />
                 </div>
               </div>
               <div className="col-span-4">

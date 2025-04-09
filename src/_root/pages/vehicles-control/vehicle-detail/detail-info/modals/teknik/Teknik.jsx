@@ -19,7 +19,7 @@ const Teknik = ({ visible, onClose, id }) => {
     tanahtarKod: null,
     tmotorNo: null,
     ttork: null,
-    tvitesTipi: null,
+    // tvitesTipi: null,
     tradyoKod: null,
     dtyKapiAdedi: null,
     dtyMaxHiz: null,
@@ -68,7 +68,7 @@ const Teknik = ({ visible, onClose, id }) => {
       setValue("dtyMaxHiz", res.data.dtyMaxHiz);
       setValue("dtyKapiAdedi", res.data.dtyKapiAdedi);
       setValue("tradyoKod", res.data.tradyoKod);
-      setValue("tvitesTipi", res.data.tvitesTipi);
+      // setValue("tvitesTipi", res.data.tvitesTipi);
       setValue("ttork", res.data.ttork);
       setValue("tmotorNo", res.data.tmotorNo);
       setValue("tanahtarKod", res.data.tanahtarKod);
@@ -87,7 +87,7 @@ const Teknik = ({ visible, onClose, id }) => {
       tanahtarKod: values.tanahtarKod,
       tmotorNo: values.tmotorNo,
       ttork: values.ttork,
-      tvitesTipi: values.tvitesTipi,
+      // tvitesTipi: values.tvitesTipi,
       tradyoKod: values.tradyoKod,
       dtyKapiAdedi: values.dtyKapiAdedi,
       dtyMaxHiz: values.dtyMaxHiz,
@@ -186,7 +186,7 @@ const Teknik = ({ visible, onClose, id }) => {
                 <TextInput name="dtyHizlanma" />
               </div>
             </div>
-            <div className="col-span-3">
+            {/* <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("vitesTip")}</label>
                 <Controller
@@ -205,7 +205,7 @@ const Teknik = ({ visible, onClose, id }) => {
                   )}
                 />
               </div>
-            </div>
+            </div> */}
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("cekisAksi")}</label>
