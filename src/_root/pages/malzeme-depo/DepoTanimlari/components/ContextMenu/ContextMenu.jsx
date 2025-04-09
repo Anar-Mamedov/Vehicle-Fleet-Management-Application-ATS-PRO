@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Popover, Typography } from "antd";
 import { MoreOutlined, DownOutlined } from "@ant-design/icons";
 import Sil from "./components/Sil";
+import DepoStokDurumlari from "./components/DepoStokDurumlari";
 
 const { Text, Link } = Typography;
 
@@ -16,7 +17,12 @@ export default function ContextMenu({ selectedRows, refreshTableData }) {
     setVisible(false);
   };
 
-  const content = <div>{/* {selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />} */}</div>;
+  const content = (
+    <div>
+      {/* {selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />} */}
+      {selectedRows.length == 1 && <DepoStokDurumlari selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
+    </div>
+  );
   return (
     <Popover placement="bottom" content={content} trigger="click" open={visible} onOpenChange={handleVisibleChange}>
       <Button
