@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import tr_TR from "antd/lib/locale/tr_TR";
 import { t } from "i18next";
-import { Button, Checkbox, ConfigProvider, DatePicker, Divider, Input, Modal } from "antd";
+import { Button, Checkbox, ConfigProvider, DatePicker, Divider, Input, Modal, Select } from "antd";
 import { GetVehicleDetailsInfoService, UpdateVehicleDetailsInfoService } from "../../../../../../../api/services/vehicles/vehicles/services";
 import CodeControl from "../../../../../../components/form/selects/CodeControl";
 import Towns from "../../../../../../components/form/selects/Towns";
@@ -21,8 +21,8 @@ const Ruhsat = ({ visible, onClose, id }) => {
 
   const defaultValues = {
     aciklama: "",
-    aracCinsi: "",
-    aracCinsiKodId: null,
+    /*  aracCinsi: "",
+    aracCinsiKodId: null, */
     aracSinifi: "",
     azamiYukluAgirligi: "",
     ayaktaYolcuSayisi: "",
@@ -39,6 +39,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
     istiapHaddi: "",
     istiapHaddiBirim: "",
     istiapHaddiBirimKodId: 0,
+    tvitesTipi: null,
     koltukSayisi: "",
     kullanimAmaci: "",
     onayNo: "",
@@ -68,8 +69,8 @@ const Ruhsat = ({ visible, onClose, id }) => {
   useEffect(() => {
     GetVehicleDetailsInfoService(id, 2).then((res) => {
       setValue("aciklama", res?.data.aciklama);
-      setValue("aracCinsi", res?.data.aracCinsi);
-      setValue("aracCinsiKodId", res?.data.aracCinsiKodId);
+      /*  setValue("aracCinsi", res?.data.aracCinsi);
+      setValue("aracCinsiKodId", res?.data.aracCinsiKodId); */
       setValue("aracSinifi", res?.data.aracSinifi);
       setValue("ayaktaYolcuSayisi", res?.data.ayaktaYolcuSayisi);
       setValue("azamiYukluAgirligi", res?.data.azamiYukluAgirligi);
@@ -98,6 +99,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
       setValue("resmi", res?.data.resmi);
       setValue("romok", res?.data.romok);
       setValue("ruhsatSahibi", res?.data.ruhsatSahibi);
+      setValue("tvitesTipi", res.data.tvitesTipi);
       // setValue("ruhsatSahibiKodId", res?.data.ruhsatSahibiKodId);
       setValue("taksiMetre", res?.data.taksiMetre);
       setValue("tescilNo", res?.data.tescilNo);
@@ -130,6 +132,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
       istiapHaddiBirimKodId: values.istiapHaddiBirimKodId || 0,
       belgeSeriNo: values.belgeSeriNo,
       ticariAdi: values.ticariAdi,
+      tvitesTipi: values.tvitesTipi,
       aracSinifi: values.aracSinifi,
       koltukSayisi: values.koltukSayisi,
       ayaktaYolcuSayisi: values.ayaktaYolcuSayisi,
@@ -222,10 +225,31 @@ const Ruhsat = ({ visible, onClose, id }) => {
                   <TextInput name="aracSinifi" />
                 </div>
               </div>
-              <div className="col-span-3">
+              {/* <div className="col-span-3">
                 <div className="flex flex-col gap-1">
                   <label>{t("aracCinsi")}</label>
                   <CodeControl name="aracCinsi" codeName="aracCinsiKodId" id={107} />
+                </div>
+              </div> */}
+
+              <div className="col-span-3">
+                <div className="flex flex-col gap-1">
+                  <label>{t("vitesTip")}</label>
+                  <Controller
+                    name="tvitesTipi"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        className="w-full"
+                        {...field}
+                        options={[
+                          { value: "DUZ", label: <span>DÜZ</span> },
+                          { value: "OTOMATIK", label: <span>OTOMATİK</span> },
+                        ]}
+                        onChange={(e) => field.onChange(e)}
+                      />
+                    )}
+                  />
                 </div>
               </div>
               <div className="col-span-3">
