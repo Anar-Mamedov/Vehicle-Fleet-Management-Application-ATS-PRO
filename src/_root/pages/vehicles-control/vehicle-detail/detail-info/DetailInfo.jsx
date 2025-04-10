@@ -60,7 +60,7 @@ const DetailInfo = ({ id, refreshVehicleData }) => {
       icon: <UserOutlined className="text-info" />,
     },
     {
-      label: t("lokasyonDegisimi"),
+      label: t("lokasyonDegisiklikleri"),
       key: "13",
       icon: <UserOutlined className="text-info" />,
     },
@@ -72,7 +72,7 @@ const DetailInfo = ({ id, refreshVehicleData }) => {
     },
 
     {
-      label: t("tasitKartiYetkiBilgiler"),
+      label: t("tasitKartiYetkiBelgeleri"),
       key: "9",
       icon: <SolutionOutlined className="text-info" />,
     },

@@ -299,6 +299,19 @@ export default function MainTabs({ modalOpen }) {
               />
               {errors["depoNo"] && <div style={{ color: "red", marginTop: "5px" }}>{errors["depoNo"].message}</div>}
             </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flexDirection: "row",
+                gap: "10px",
+                width: "100%",
+                maxWidth: "120px",
+              }}
+            >
+              <Controller name="aktif" control={control} render={({ field }) => <Checkbox {...field} checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />} />
+              <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("aktif")}</Text>
+            </div>
           </div>
         </div>
         <div
@@ -358,46 +371,8 @@ export default function MainTabs({ modalOpen }) {
             <div
               style={{
                 display: "flex",
+                flexDirection: "row",
                 alignItems: "center",
-                flexDirection: "row",
-                gap: "10px",
-                width: "100%",
-                maxWidth: "120px",
-              }}
-            >
-              <Controller name="aktif" control={control} render={({ field }) => <Checkbox {...field} checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />} />
-              <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("aktif")}</Text>
-            </div>
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "530px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("yetkiliPersonel")}</Text>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: "10px",
-              width: "100%",
-              maxWidth: "350px",
-            }}
-          >
-            <PersonelSelectBox name1="yetkiliPersonel" isRequired={false} />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
                 gap: "10px",
                 width: "100%",
                 maxWidth: "120px",
@@ -410,6 +385,29 @@ export default function MainTabs({ modalOpen }) {
               />
               <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("varsayilan")}</Text>
             </div>
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row", width: "100%", maxWidth: "170px" }}>{t("yetkiliPersonel")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: "10px",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <PersonelSelectBox name1="yetkiliPersonel" isRequired={false} />
           </div>
         </div>
       </div>

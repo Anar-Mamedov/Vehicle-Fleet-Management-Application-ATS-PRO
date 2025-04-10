@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import AxiosInstance from "../../../../../../../api/http";
-import { Button, message, Table, Modal, Spin } from "antd";
+import { Button, message, Table, Modal, Spin, Input } from "antd";
 import { t } from "i18next";
+
+const { Search } = Input;
 
 function DepoStokDurumlari({ selectedRows, refreshTableData, hidePopover }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,36 +12,75 @@ function DepoStokDurumlari({ selectedRows, refreshTableData, hidePopover }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const columns = [
     {
-      title: t("depoTanimi"),
-      dataIndex: "depoTanimi",
-      key: "depoTanimi",
+      title: t("malzemeKodu"),
+      dataIndex: "malzemeKodu",
+      key: "malzemeKodu",
+      ellipsis: true,
+      width: 130,
+    },
+    {
+      title: t("malzemeTanimi"),
+      dataIndex: "malzemeTanimi",
+      key: "malzemeTanimi",
+      ellipsis: true,
+      width: 190,
+    },
+    {
+      title: t("malzemeTipi"),
+      dataIndex: "malzemeTip",
+      key: "malzemeTip",
+      ellipsis: true,
+      width: 130,
+    },
+    /*  {
+      title: t("malzemeMarka"),
+      dataIndex: "malzemeMarkasi",
+      key: "malzemeMarkasi",
+      ellipsis: true,
+      width: 130,
+    },
+    {
+      title: t("malzemeModel"),
+      dataIndex: "malzemeModeli",
+      key: "malzemeModeli",
+      ellipsis: true,
+      width: 130,
+    }, */
+    {
+      title: t("fiyat"),
+      dataIndex: "birimFiyat",
+      key: "birimFiyat",
+      ellipsis: true,
+      width: 130,
     },
     {
       title: t("girenMiktar"),
       dataIndex: "girenMiktar",
       key: "girenMiktar",
+      ellipsis: true,
+      width: 130,
     },
     {
       title: t("cikanMiktar"),
       dataIndex: "cikanMiktar",
       key: "cikanMiktar",
+      ellipsis: true,
+      width: 130,
     },
     {
       title: t("stokMiktar"),
       dataIndex: "stokMiktar",
       key: "stokMiktar",
-    },
-    {
-      title: t("birim"),
-      dataIndex: "malzemeBirim",
-      key: "malzemeBirim",
+      ellipsis: true,
+      width: 130,
     },
   ];
 
-  const fetchDepoData = async (diff = 0, targetPage = 1) => {
+  const fetchDepoData = async (diff = 0, targetPage = 1, searchParam = searchTerm) => {
     setLoading(true);
     try {
       let currentSetPointId = 0;
@@ -53,7 +94,7 @@ function DepoStokDurumlari({ selectedRows, refreshTableData, hidePopover }) {
       }
 
       const response = await AxiosInstance.get(
-        `WareHouseManagement/GetWareHouseStockStatusByMaterialId?setPointId=${currentSetPointId}&diff=${diff}&materialId=${selectedRows[0].key}`
+        `WareHouseManagement/GetWareHouseStockStatusByWareHouseId?setPointId=${currentSetPointId}&diff=${diff}&parameter=${searchParam}&wareHouseId=${selectedRows[0].key}`
       );
 
       if (response.data && response.data.list) {
@@ -86,11 +127,17 @@ function DepoStokDurumlari({ selectedRows, refreshTableData, hidePopover }) {
 
   const showModal = () => {
     setIsModalOpen(true);
-    fetchDepoData(0, 1);
+    setSearchTerm("");
+    fetchDepoData(0, 1, "");
   };
 
   const handleCancel = () => {
     setIsModalOpen(false);
+  };
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    fetchDepoData(0, 1, value);
   };
 
   return (
@@ -107,8 +154,11 @@ function DepoStokDurumlari({ selectedRows, refreshTableData, hidePopover }) {
             {t("kapat")}
           </Button>,
         ]}
-        width={700}
+        width={1000}
       >
+        <div style={{ marginBottom: 10, width: "250px" }}>
+          <Search placeholder={t("aramaYap")} onSearch={handleSearch} enterButton value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        </div>
         <Spin spinning={loading}>
           <Table
             columns={columns}
@@ -122,6 +172,7 @@ function DepoStokDurumlari({ selectedRows, refreshTableData, hidePopover }) {
               showQuickJumper: true,
               onChange: handleTableChange,
             }}
+            scroll={{ y: "calc(100vh - 335px)" }}
             bordered
           />
         </Spin>

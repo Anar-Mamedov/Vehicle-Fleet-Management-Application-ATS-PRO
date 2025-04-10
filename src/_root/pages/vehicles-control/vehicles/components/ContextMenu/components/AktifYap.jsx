@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import AxiosInstance from "../../../../../../../api/http";
 import { Button, message, Modal, ConfigProvider, DatePicker, Input } from "antd";
+import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import trTR from "antd/lib/locale/tr_TR";
@@ -41,6 +42,7 @@ export default function AktifYap({ selectedRows, refreshTableData, disabled, hid
   const methods = useForm({
     defaultValues: {
       selectedDate: null, // Tarih için null yapıldı
+      neden: null,
       aciklama: "",
     },
   });
@@ -53,6 +55,7 @@ export default function AktifYap({ selectedRows, refreshTableData, disabled, hid
     const body = {
       vIds: aracIDs,
       tarih: data.selectedDate && dayjs(data.selectedDate).isValid() ? dayjs(data.selectedDate).format("YYYY-MM-DD") : null,
+      neden: data.neden,
       aciklama: data.aciklama,
     };
 
@@ -107,6 +110,7 @@ export default function AktifYap({ selectedRows, refreshTableData, disabled, hid
               control={control}
               render={({ field }) => <DatePicker {...field} style={{ width: "100%", marginBottom: 8 }} format={localeDateFormat} placeholder={t("Tarih seçiniz")} />}
             />
+            <KodIDSelectbox name1="neden" kodID={301} isRequired={false} placeholder={t("nedenSeciniz")} />
             <Controller name="aciklama" control={control} render={({ field }) => <Input.TextArea {...field} rows={4} placeholder={t("Açıklama")} style={{ marginTop: 8 }} />} />
           </form>
         </ConfigProvider>
