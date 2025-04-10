@@ -10,6 +10,7 @@ import AxiosInstance from "../../../../api/http";
 import { FormProvider, useForm } from "react-hook-form";
 import styled from "styled-components";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
+import MalzemeDepoDagilimi from "./components/ContextMenu/components/MalzemeDepoDagilimi";
 import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
 import Filters from "./filter/Filters";
@@ -20,6 +21,8 @@ import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
+import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 const localeMap = {
   tr: trTR,
@@ -320,6 +323,50 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect }) => {
       width: 100,
       ellipsis: true,
       visible: true,
+      render: (text, record) => (
+        <a
+          onClick={() => {
+            // Create a temporary div to render MalzemeDepoDagilimi
+            const tempDiv = document.createElement("div");
+            document.body.appendChild(tempDiv);
+
+            // Create the root
+            const root = createRoot(tempDiv);
+
+            // Create a custom React component to handle auto-clicking
+            const AutoClickModal = () => {
+              const containerRef = React.useRef(null);
+
+              React.useEffect(() => {
+                // Auto-click on the div inside MalzemeDepoDagilimi
+                if (containerRef.current) {
+                  const clickableDiv = containerRef.current.querySelector('div[style*="cursor: pointer"]');
+                  if (clickableDiv) {
+                    clickableDiv.click();
+                  }
+                }
+              }, []);
+
+              // When modal closes, remove the temporary div
+              const handleHidePopover = () => {
+                root.unmount();
+                document.body.removeChild(tempDiv);
+              };
+
+              return (
+                <div ref={containerRef}>
+                  <MalzemeDepoDagilimi selectedRows={[record]} refreshTableData={refreshTableData} hidePopover={handleHidePopover} />
+                </div>
+              );
+            };
+
+            // Render the custom component
+            root.render(<AutoClickModal />);
+          }}
+        >
+          {text}
+        </a>
+      ),
       sorter: (a, b) => {
         if (a.stokMiktar === null) return -1;
         if (b.stokMiktar === null) return 1;

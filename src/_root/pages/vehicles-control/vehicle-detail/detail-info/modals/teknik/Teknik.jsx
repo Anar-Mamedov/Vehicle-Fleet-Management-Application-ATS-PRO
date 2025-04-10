@@ -235,7 +235,7 @@ const Teknik = ({ visible, onClose, id }) => {
             </div>
             <div className="col-span-2">
               <div className="flex flex-col gap-1">
-                <label>{t("katarAgirlik")}</label>
+                <label>{t("katarAgirligi")}</label>
                 <NumberInput name="tkatarAgirlik" />
               </div>
             </div>

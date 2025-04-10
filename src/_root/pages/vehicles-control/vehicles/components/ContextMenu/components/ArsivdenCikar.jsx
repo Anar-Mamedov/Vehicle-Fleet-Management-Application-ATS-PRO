@@ -3,6 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import AxiosInstance from "../../../../../../../api/http";
 import { Button, message, Modal, Popconfirm, DatePicker, Input, ConfigProvider } from "antd";
 import { DeleteOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import trTR from "antd/lib/locale/tr_TR";
@@ -47,6 +48,7 @@ export default function ArsivdenCikar({ selectedRows, refreshTableData, disabled
   const methods = useForm({
     defaultValues: {
       selectedDate: null, // Tarih için null yapıldı
+      neden: null,
       aciklama: "",
     },
   });
@@ -60,6 +62,7 @@ export default function ArsivdenCikar({ selectedRows, refreshTableData, disabled
       vIds: aracIDs,
       durum: false,
       tarih: data.selectedDate && dayjs(data.selectedDate).isValid() ? dayjs(data.selectedDate).format("YYYY-MM-DD") : null,
+      neden: data.neden,
       aciklama: data.aciklama,
     };
 
@@ -117,6 +120,7 @@ export default function ArsivdenCikar({ selectedRows, refreshTableData, disabled
               control={control}
               render={({ field }) => <DatePicker {...field} style={{ width: "100%", marginBottom: 8 }} format={localeDateFormat} placeholder={t("Tarih seçiniz")} />}
             />
+            <KodIDSelectbox name1="neden" kodID={301} isRequired={false} placeholder={t("nedenSeciniz")} />
             <Controller name="aciklama" control={control} render={({ field }) => <Input.TextArea {...field} rows={4} placeholder={t("Açıklama")} style={{ marginTop: 8 }} />} />
           </form>
         </ConfigProvider>

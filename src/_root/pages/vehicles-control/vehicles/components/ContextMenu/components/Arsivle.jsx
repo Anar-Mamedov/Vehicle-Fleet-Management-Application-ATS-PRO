@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import AxiosInstance from "../../../../../../../api/http";
 import { Button, message, Modal, ConfigProvider, DatePicker, Input, Alert } from "antd";
+import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import trTR from "antd/lib/locale/tr_TR";
@@ -42,6 +43,7 @@ export default function Arsivle({ selectedRows, refreshTableData, disabled, hide
     defaultValues: {
       selectedDate: null, // Tarih için null yapıldı
       aciklama: "",
+      neden: null,
     },
   });
 
@@ -55,6 +57,7 @@ export default function Arsivle({ selectedRows, refreshTableData, disabled, hide
       durum: true,
       tarih: data.selectedDate && dayjs(data.selectedDate).isValid() ? dayjs(data.selectedDate).format("YYYY-MM-DD") : null,
       aciklama: data.aciklama,
+      neden: data.neden,
     };
 
     try {
@@ -108,6 +111,7 @@ export default function Arsivle({ selectedRows, refreshTableData, disabled, hide
               control={control}
               render={({ field }) => <DatePicker {...field} style={{ width: "100%", marginBottom: 8 }} format={localeDateFormat} placeholder={t("Tarih seçiniz")} />}
             />
+            <KodIDSelectbox name1="neden" kodID={301} isRequired={false} placeholder={t("nedenSeciniz")} />
             <Controller name="aciklama" control={control} render={({ field }) => <Input.TextArea {...field} rows={4} placeholder={t("Açıklama")} style={{ marginTop: 8 }} />} />
           </form>
           <Alert
