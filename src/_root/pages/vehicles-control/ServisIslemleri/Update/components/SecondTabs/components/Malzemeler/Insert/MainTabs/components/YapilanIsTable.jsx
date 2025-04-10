@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Button, Modal, Table, Input } from "antd";
+import { Button, Modal, Table, Input, message } from "antd";
 import AxiosInstance from "../../../../../../../../../../../../api/http";
 import { CheckCircleOutlined, CloseCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { t } from "i18next";
+
+const { Search } = Input;
 
 // Türkçe karakterleri İngilizce karşılıkları ile değiştiren fonksiyon
 const normalizeText = (text) => {
@@ -22,21 +25,14 @@ const normalizeText = (text) => {
     .replace(/Ç/g, "C");
 };
 
-export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
+export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouseId }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchCount, setSearchCount] = useState(0);
-  const [debounceTimer, setDebounceTimer] = useState(null);
-
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: 0,
-  });
 
   const columns = [
     {
@@ -102,30 +98,62 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
     },
   ];
 
-  const fetch = useCallback((page = pagination.current, term = searchTerm) => {
-    setLoading(true);
-    AxiosInstance.post(`Material/GetMaterialList?page=${page}&parameter=${term}`)
-      .then((response) => {
-        const { materialList, total_count } = response.data;
-        const fetchedData = materialList.map((item) => ({
+  // Single, clean API Data Fetching function
+  const fetchData = useCallback(
+    async (diff, targetPage, parameterOverride = null) => {
+      setLoading(true);
+      try {
+        let currentSetPointId = 0;
+
+        if (diff !== 0) {
+          // Moving forward or backward
+          if (diff > 0) {
+            currentSetPointId = data[data.length - 1]?.malzemeId || 0;
+          } else if (diff < 0) {
+            currentSetPointId = data[0]?.malzemeId || 0;
+          }
+        }
+
+        // Use parameterOverride if provided, otherwise use searchTerm from state
+        const parameterValue = parameterOverride !== null ? parameterOverride : searchTerm;
+
+        const response = await AxiosInstance.post(
+          `Material/GetMaterialList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${parameterValue}&wareHouseId=${wareHouseId || 0}`
+        );
+
+        const total = response.data.total_count;
+        setTotalCount(total);
+        setCurrentPage(targetPage);
+
+        const newData = response.data.materialList.map((item) => ({
           ...item,
           key: item.malzemeId,
         }));
-        setData(fetchedData);
-        setPagination((prev) => ({
-          ...prev,
-          current: page,
-          total: total_count,
-        }));
-      })
-      .finally(() => setLoading(false));
-  }, []);
+
+        if (newData.length > 0) {
+          setData(newData);
+        } else {
+          message.warning("Veri bulunamadı.");
+          setData([]);
+        }
+      } catch (error) {
+        console.error("Veri çekme hatası:", error);
+        message.error("Veri alınırken bir hata oluştu.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [searchTerm, wareHouseId, data]
+  );
 
   const handleModalToggle = () => {
     setIsModalVisible((prev) => {
       if (!prev) {
-        // Eğer modal açılıyorsa
-        fetch(1, searchTerm); // İlk sayfayı ve mevcut arama terimini kullanarak veriyi getir
+        // Clear search term
+        setSearchTerm("");
+        setData([]);
+        // Pass empty string directly to fetchData
+        fetchData(0, 1, "");
         setSelectedRowKeys([]);
       }
       return !prev;
@@ -148,40 +176,28 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
     setSelectedRowKeys(selectedKeys.length ? [selectedKeys[0]] : []);
   };
 
-  const handleTableChange = (newPagination) => {
-    fetch(newPagination.current, searchTerm);
+  // Handle page change correctly, exactly like in Malzemeler.jsx
+  const handleTableChange = (page) => {
+    const diff = page - currentPage;
+    fetchData(diff, page);
   };
 
-  useEffect(() => {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    const timeout = setTimeout(() => {
-      if (searchTerm.trim() !== "") {
-        fetch(1, searchTerm); // Arama yaparken her zaman ilk sayfadan başla
-        setSearchCount(searchCount + 1);
-      } else if (searchTerm.trim() === "" && searchCount > 0) {
-        fetch(1, ""); // Arama terimi boşsa, ilk sayfadan başla
-      }
-    }, 2000);
-
-    setDebounceTimer(timeout);
-
-    return () => clearTimeout(timeout);
-  }, [searchTerm, fetch]);
+  const handleSearch = () => {
+    fetchData(0, 1);
+    setCurrentPage(1);
+  };
 
   return (
     <div>
       <Button onClick={handleModalToggle}> + </Button>
-      <Modal width={1200} centered title="Malzeme Listesi" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
-        <Input
+      <Modal width={1200} centered title="Malzeme Listesi" destroyOnClose open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
+        <Search
           style={{ width: "250px", marginBottom: "10px" }}
-          type="text"
-          placeholder="Arama yap..."
+          placeholder={t("aramaYap")}
+          onSearch={handleSearch}
+          enterButton
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
         />
         <Table
           rowSelection={{
@@ -195,11 +211,14 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
           dataSource={data}
           loading={loading}
           pagination={{
-            ...pagination,
+            current: currentPage,
+            total: totalCount,
+            pageSize: 10,
+            showSizeChanger: false,
             showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} kayıt`,
+            onChange: handleTableChange,
+            showTotal: (total) => `Toplam ${total}`,
           }}
-          onChange={handleTableChange}
         />
       </Modal>
     </div>

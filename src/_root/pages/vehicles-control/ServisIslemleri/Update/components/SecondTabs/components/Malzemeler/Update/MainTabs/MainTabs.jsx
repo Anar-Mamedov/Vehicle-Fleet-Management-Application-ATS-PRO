@@ -345,6 +345,7 @@ export default function MainTabs() {
               />
 
               <YapilanIsTable
+                wareHouseId={watch("depoID")}
                 onSubmit={(selectedData) => {
                   setValue("malzemeKodu", selectedData.malzemeKod);
                   setValue("malzemeKoduID", selectedData.key);
