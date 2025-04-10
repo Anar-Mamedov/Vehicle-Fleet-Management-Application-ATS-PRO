@@ -110,14 +110,21 @@ const EditableCell = ({ title, editable, children, dataIndex, record, handleSave
 
 const MalzemeSecModal = ({ visible, onCancel, onOk }) => {
   const [selectedRows, setSelectedRows] = useState([]);
+  const { watch } = useFormContext();
+  const [modalKey, setModalKey] = useState(Date.now());
 
   const handleMalzemeSelect = (rows) => {
     setSelectedRows(rows);
   };
+  useEffect(() => {
+    if (visible) {
+      setModalKey(Date.now());
+    }
+  }, [visible]);
 
   return (
-    <Modal title="Malzeme Seç" open={visible} onCancel={onCancel} onOk={() => onOk(selectedRows)} width={1200} style={{ top: 20 }}>
-      <Malzemeler onRowSelect={handleMalzemeSelect} isSelectionMode={true} />
+    <Modal title="Malzeme Seç" open={visible} onCancel={onCancel} onOk={() => onOk(selectedRows)} width={1200} style={{ top: 20 }} destroyOnClose>
+      <Malzemeler key={modalKey} onRowSelect={handleMalzemeSelect} isSelectionMode={true} />
     </Modal>
   );
 };

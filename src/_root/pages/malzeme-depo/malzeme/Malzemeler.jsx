@@ -142,7 +142,7 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const Malzemeler = ({ isSelectionMode = false, onRowSelect }) => {
+const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId }) => {
   const formMethods = useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
@@ -194,7 +194,10 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect }) => {
         currentSetPointId = 0;
       }
 
-      const response = await AxiosInstance.post(`Material/GetMaterialList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, body.filters?.customfilter || {});
+      const response = await AxiosInstance.post(
+        `Material/GetMaterialList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&wareHouseId=${wareHouseId || 0}`,
+        body.filters?.customfilter || {}
+      );
 
       const total = response.data.total_count;
       setTotalCount(total);
