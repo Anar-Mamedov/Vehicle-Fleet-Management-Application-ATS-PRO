@@ -233,7 +233,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       <Button className="btn primary-btn" onClick={() => setIsModalOpen(true)}>
         <PlusOutlined /> {t("ekle")}
       </Button>
-      <Modal title={t("yeniMalzemeGirisi")} open={isOpen} onCancel={() => setIsModalOpen(false)} maskClosable={false} footer={footer} width={1200}>
+      <Modal title={t("yeniMalzemeGirisi")} destroyOnClose open={isOpen} onCancel={() => setIsModalOpen(false)} maskClosable={false} footer={footer} width={1200}>
         <FormProvider {...methods}>
           <form>
             <Tabs activeKey={activeKey} onChange={setActiveKey} items={items} />
