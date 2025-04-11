@@ -16,14 +16,12 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
   const handleDelete = async () => {
     let isError = false;
     // Map over selectedRows to create an array of body objects
-    const body = selectedRows.map((row) => ({
-      serviceId: row.key,
-      vid: row.aracId,
-      pid: row.bakimId,
-    }));
+    const body = {
+      ids: selectedRows.map((row) => row.key),
+    };
     try {
       // Silme API isteğini gönder
-      const response = await AxiosInstance.post(`VehicleServices/DeleteVehicleService`, body);
+      const response = await AxiosInstance.post(`Material/DeleteMaterialItemById`, body);
       console.log("Silme işlemi başarılı:", response);
       if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202 || response.data.statusCode === 204) {
         message.success("İşlem Başarılı.");
