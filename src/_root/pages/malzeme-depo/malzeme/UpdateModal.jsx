@@ -126,7 +126,7 @@ const UpdateModal = ({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) =
     sonAlisTarih: "",
     sonFiyat: null,
     kdvOran: null,
-    aktif: false,
+    aktif: true,
     yedekParca: false,
     sarfMlz: false,
     demirBas: false,
@@ -213,7 +213,7 @@ const UpdateModal = ({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) =
       GetMaterialCardByIdService(selectedRow?.key).then((res) => {
         setValue("malzemeKod", res.data.malzemeKod);
         setCode(res?.data.malzemeKod);
-        setValue("aktif", !res.data.aktif);
+        setValue("aktif", res.data.aktif);
         setValue("barKodNo", res.data.barKodNo);
         setValue("birim", res.data.birim);
         setValue("birimKodId", res.data.birimKodId);
@@ -285,7 +285,7 @@ const UpdateModal = ({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) =
       kritikMiktar: values.kritikMiktar || 0,
       sonMiktar: values.sonMiktar || 0,
       kdvOran: values.kdvOran || 0,
-      aktif: !values.aktif,
+      aktif: values.aktif,
       yedekParca: values.yedekParca,
       sarfMlz: values.sarfMlz,
       demirBas: values.demirBas,
