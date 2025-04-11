@@ -202,6 +202,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
           tarih: formatDateWithDayjs(data.tarih),
           firmaId: Number(data.firmaID),
           cikisDepoSiraNo: Number(data.cikisDeposuID),
+          girisDepoSiraNo: Number(data.girisDeposuID),
           isPriceChanged: item.isPriceChanged || false,
           // malzemeKodu: item.malzemeKodu,
           // malzemeTanimi: item.malzemeTanimi,
