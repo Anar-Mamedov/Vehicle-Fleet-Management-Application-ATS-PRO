@@ -16,9 +16,7 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
   const handleDelete = async () => {
     let isError = false;
     // Map over selectedRows to create an array of body objects
-    const body = {
-      ids: selectedRows.map((row) => row.key),
-    };
+    const body = selectedRows.map((row) => row.key);
     try {
       // Silme API isteğini gönder
       const response = await AxiosInstance.post(`Material/DeleteMaterialItemById`, body);
