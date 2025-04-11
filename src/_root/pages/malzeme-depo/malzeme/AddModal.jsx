@@ -105,6 +105,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     seriNo: "",
     barKodNo: "",
     depoId: 0,
+    girisDepoSiraNo: null,
     bolum: "",
     raf: "",
     kritikMiktar: null,
@@ -157,6 +158,8 @@ const AddModal = ({ setStatus, onRefresh }) => {
     },
   ];
 
+  console.log(watch("girisDepoSiraNo"));
+
   const onSubmit = handleSubmit((values) => {
     const body = {
       malzemeKod: values.malzemeKod,
@@ -166,7 +169,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       fiyat: values.fiyat || 0,
       seriNo: values.seriNo,
       barKodNo: values.barKodNo,
-      depoId: values.depoId || 0,
+      depoId: values.girisDepoSiraNo || 0,
       bolum: values.bolum,
       raf: values.raf,
       kritikMiktar: values.kritikMiktar || 0,
