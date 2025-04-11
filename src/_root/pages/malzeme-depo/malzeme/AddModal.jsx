@@ -11,7 +11,7 @@ import GeneralInfo from "./tabs/GeneralInfo";
 
 const AddModal = ({ setStatus, onRefresh }) => {
   const isFirstRender = useRef(true);
-  const [isOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isValid, setIsValid] = useState("normal");
   const [activeKey, setActiveKey] = useState("1");
   const [loading, setLoading] = useState(false);
@@ -109,7 +109,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     bolum: "",
     raf: "",
     kritikMiktar: null,
-    kdvOran: null,
+    kdvOran: 20,
     aktif: true,
     yedekParca: false,
     sarfMlz: false,
@@ -122,10 +122,18 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const { handleSubmit, reset, setValue, watch } = methods;
 
   useEffect(() => {
-    if (isOpen && isFirstRender.current) {
+    if (isModalOpen && isFirstRender.current) {
       GetModuleCodeByCode("MALZEME_KOD").then((res) => setValue("malzemeKod", res.data));
+      isFirstRender.current = false;
     }
-  }, [isOpen, setValue]);
+
+    if (!isModalOpen) {
+      isFirstRender.current = true;
+      reset(defaultValues);
+      setActiveKey("1");
+      setIsValid("normal");
+    }
+  }, [isModalOpen, setValue, reset]);
 
   useEffect(() => {
     if (watch("malzemeKod")) {
@@ -157,8 +165,6 @@ const AddModal = ({ setStatus, onRefresh }) => {
       children: <PersonalFields personalProps={personalProps} />,
     },
   ];
-
-  console.log(watch("kdvDahilHaric"));
 
   const onSubmit = handleSubmit((values) => {
     const body = {
@@ -199,13 +205,8 @@ const AddModal = ({ setStatus, onRefresh }) => {
       if (res?.data.statusCode === 200) {
         onRefresh();
         setIsModalOpen(false);
-        reset(defaultValues);
-        setLoading(false);
-        setIsValid("normal");
-        setActiveKey("1");
       }
     });
-    // setStatus(false);
   });
 
   const footer = [
@@ -223,8 +224,6 @@ const AddModal = ({ setStatus, onRefresh }) => {
       className="btn btn-min cancel-btn"
       onClick={() => {
         setIsModalOpen(false);
-        reset(defaultValues);
-        setActiveKey("1");
       }}
     >
       {t("kapat")}
@@ -236,7 +235,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       <Button className="btn primary-btn" onClick={() => setIsModalOpen(true)}>
         <PlusOutlined /> {t("ekle")}
       </Button>
-      <Modal title={t("yeniMalzemeGirisi")} destroyOnClose open={isOpen} onCancel={() => setIsModalOpen(false)} maskClosable={false} footer={footer} width={1200}>
+      <Modal title={t("yeniMalzemeGirisi")} destroyOnClose open={isModalOpen} onCancel={() => setIsModalOpen(false)} maskClosable={false} footer={footer} width={1200}>
         <FormProvider {...methods}>
           <form>
             <Tabs activeKey={activeKey} onChange={setActiveKey} items={items} />
