@@ -315,16 +315,14 @@ export default function MainTabs() {
             </StyledDivBottomLine>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px", fontWeight: "600" }}>Malzeme Kodu:</Text>
+            <Text style={{ fontSize: "14px" }}>Malzeme Kodu:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "300px" }}>
               <Controller
                 name="malzemeKodu"
                 control={control}
-                rules={{ required: "Alan Boş Bırakılamaz!" }}
                 render={({ field }) => (
                   <Input
                     {...field}
-                    status={errors.malzemeTanimi ? "error" : ""}
                     type="text" // Set the type to "text" for name input
                     style={{ width: "215px" }}
                     disabled
@@ -334,7 +332,6 @@ export default function MainTabs() {
               <Controller
                 name="malzemeKoduID"
                 control={control}
-                rules={{ required: "Alan Boş Bırakılamaz!" }}
                 render={({ field }) => (
                   <Input
                     {...field}
@@ -364,7 +361,6 @@ export default function MainTabs() {
               />
 
               <Button onClick={handleYapilanIsMinusClick}> - </Button>
-              {errors.malzemeKodu && <div style={{ color: "red", marginTop: "5px" }}>{errors.malzemeKodu.message}</div>}
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>

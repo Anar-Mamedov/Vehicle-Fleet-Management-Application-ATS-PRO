@@ -9,7 +9,10 @@ import Depo from "../../../../components/form/selects/Depo";
 import FirmaUnvani from "../../../../components/form/FirmaUnvani";
 
 const GeneralInfo = ({ isValid }) => {
-  const { control } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
 
   return (
     <div>
@@ -18,18 +21,23 @@ const GeneralInfo = ({ isValid }) => {
           <div className="grid gap-1">
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
-                <label>{t("malzemeKodu")}</label>
+                <label>
+                  {t("malzemeKodu")} <span style={{ color: "red" }}>*</span>
+                </label>
                 <Controller
                   name="malzemeKod"
                   control={control}
+                  rules={{ required: "Bu alan boş bırakılamaz!" }}
                   render={({ field }) => (
                     <Input
                       {...field}
+                      status={errors.malzemeKod ? "error" : ""}
                       style={isValid === "error" ? { borderColor: "#dc3545" } : isValid === "success" ? { borderColor: "#23b545" } : { color: "#000" }}
                       onChange={(e) => field.onChange(e.target.value)}
                     />
                   )}
                 />
+                {errors.malzemeKod && <div style={{ color: "red", marginTop: "5px" }}>{errors.malzemeKod.message}</div>}
               </div>
             </div>
             <div className="col-span-6">
@@ -44,14 +52,25 @@ const GeneralInfo = ({ isValid }) => {
             </div>
             <div className="col-span-8">
               <div className="flex flex-col gap-1">
-                <label>{t("tanimi")}</label>
-                <Controller name="tanim" control={control} render={({ field }) => <Input {...field} onChange={(e) => field.onChange(e.target.value)} />} />
+                <label>
+                  {t("tanimi")} <span style={{ color: "red" }}>*</span>
+                </label>
+                <Controller
+                  name="tanim"
+                  control={control}
+                  rules={{ required: "Bu alan boş bırakılamaz!" }}
+                  render={({ field }) => <Input {...field} status={errors.tanim ? "error" : ""} onChange={(e) => field.onChange(e.target.value)} />}
+                />
+                {errors.tanim && <div style={{ color: "red", marginTop: "5px" }}>{errors.tanim.message}</div>}
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
-                <label>{t("birim")}</label>
-                <Controller name="birimKodId" control={control} render={({ field }) => <Birim field={field} />} />
+                <label>
+                  {t("birim")} <span style={{ color: "red" }}>*</span>
+                </label>
+                <Controller name="birimKodId" control={control} rules={{ required: "Bu alan boş bırakılamaz!" }} render={({ field }) => <Birim field={field} />} />
+                {errors.birimKodId && <div style={{ color: "red", marginTop: "5px" }}>{errors.birimKodId.message}</div>}
               </div>
             </div>
             <div className="col-span-4">

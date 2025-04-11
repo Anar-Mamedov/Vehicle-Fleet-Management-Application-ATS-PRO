@@ -719,7 +719,13 @@ function FisIcerigi({ modalOpen }) {
   return (
     <div style={{ marginTop: "-55px", zIndex: 10 }}>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
-        <Button style={{ zIndex: 21 }} type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
+        <Button
+          style={{ zIndex: 21 }}
+          type="primary"
+          disabled={watch("cikisDeposuID") === null || isNaN(watch("cikisDeposuID"))}
+          icon={<PlusOutlined />}
+          onClick={() => setIsModalVisible(true)}
+        >
           Ekle
         </Button>
       </div>
