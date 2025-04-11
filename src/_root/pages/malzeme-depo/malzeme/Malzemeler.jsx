@@ -1097,10 +1097,12 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId }) => {
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
             </div>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-              <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
-            </div>
+            {!isSelectionMode && (
+              <div style={{ display: "flex", gap: "10px" }}>
+                <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+                <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+              </div>
+            )}
           </div>
 
           <div
