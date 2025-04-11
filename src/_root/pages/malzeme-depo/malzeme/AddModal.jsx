@@ -158,7 +158,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     },
   ];
 
-  console.log(watch("girisDepoSiraNo"));
+  console.log(watch("kdvDahilHaric"));
 
   const onSubmit = handleSubmit((values) => {
     const body = {
@@ -192,7 +192,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       ozelAlanKodId10: values.ozelAlanKodId10 || 0,
       ozelAlan11: values.ozelAlan11 || 0,
       ozelAlan12: values.ozelAlan12 || 0,
-      kdvDahilHaric: values.kdvDH === "dahil" || values.kdvDH === "Dahil" ? true : false,
+      kdvDahilHaric: values.kdvDahilHaric === "dahil" || values.kdvDahilHaric === "Dahil" ? true : false,
     };
 
     AddMaterialService(body).then((res) => {
