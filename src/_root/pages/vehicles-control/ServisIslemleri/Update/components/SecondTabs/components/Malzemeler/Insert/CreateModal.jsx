@@ -20,7 +20,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, s
       malzemeTanimi: "",
       miktar: 1,
       iscilikUcreti: 0,
-      kdvOrani: 18,
+      kdvOrani: 20,
       kdvDegeri: 0,
       indirimOrani: 0,
       indirimYuzde: 0,
@@ -59,7 +59,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, s
       birimKodId: Number(data.birimID),
       miktar: Number(data.miktar),
       fiyat: Number(data.iscilikUcreti),
-      gc: -1,
+      gc: 3,
       kdvOran: Number(data.kdvOrani),
       indirim: Number(data.indirimOrani),
       indirimOran: Number(data.indirimYuzde),
@@ -68,6 +68,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, s
       stoklu: data.stokluMalzeme,
       kdvTutar: Number(data.kdvDegeri),
       malzemeTipKodId: Number(data.isTipiID),
+      malzemeTanim: data.malzemeTanimi,
     };
 
     AxiosInstance.post(`MaterialMovements/AddMaterialMovementService`, Body)

@@ -19,7 +19,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
       malzemeTanimi: "",
       miktar: 1,
       iscilikUcreti: 0,
-      kdvOrani: 18,
+      kdvOrani: 20,
       kdvDegeri: 0,
       indirimOrani: 0,
       indirimYuzde: 0,
@@ -109,7 +109,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
       birimKodId: Number(data.birimID),
       miktar: Number(data.miktar),
       fiyat: Number(data.iscilikUcreti),
-      gc: -1,
+      gc: 3,
       kdvOran: Number(data.kdvOrani),
       indirim: Number(data.indirimOrani),
       indirimOran: Number(data.indirimYuzde),
@@ -118,6 +118,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
       stoklu: data.stokluMalzeme,
       kdvTutar: Number(data.kdvDegeri),
       malzemeTipKodId: Number(data.isTipiID),
+      malzemeTanim: data.malzemeTanimi,
     };
 
     AxiosInstance.post(`MaterialMovements/UpdateMaterialMovementService`, Body)
