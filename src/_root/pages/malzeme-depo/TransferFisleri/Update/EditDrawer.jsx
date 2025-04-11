@@ -203,6 +203,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           tarih: formatDateWithDayjs(data.tarih),
           firmaId: Number(data.firmaID),
           cikisDepoSiraNo: Number(data.cikisDeposuID),
+          girisDepoSiraNo: Number(data.girisDeposuID),
           isPriceChanged: item.isPriceChanged || false,
           isDeleted: item.isDeleted || false,
           // malzemeKodu: item.malzemeKodu,
