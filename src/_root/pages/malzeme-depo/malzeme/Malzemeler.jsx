@@ -545,7 +545,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId }) => {
       width: 80,
       ellipsis: true,
       visible: true,
-      render: (text, record) => <Checkbox checked={record.ozelKullanim} readOnly />,
+      render: (text, record) => <Checkbox checked={record.aktif} readOnly />,
     },
     {
       title: t("kdvOrani"),
