@@ -242,7 +242,11 @@ const UpdateModal = ({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) =
         setValue("cikanMiktar", res.data.cikanMiktar);
         setValue("sonMiktar", res.data.sonMiktar);
         setValue("stokMiktar", res.data.girenMiktar - res.data.cikanMiktar);
-        setValue("sonAlisTarih", dayjs(res.data.sonAlisTarih).format("DD.MM.YYYY"));
+        if (res.data.sonAlisTarih && dayjs(res.data.sonAlisTarih).isValid() && res.data.sonAlisTarih !== "0001-01-01T00:00:00") {
+          setValue("sonAlisTarih", dayjs(res.data.sonAlisTarih).format("DD.MM.YYYY"));
+        } else {
+          setValue("sonAlisTarih", "");
+        }
         setValue("ozelAlan1", res?.data.ozelAlan1);
         setValue("ozelAlan2", res?.data.ozelAlan2);
         setValue("ozelAlan3", res?.data.ozelAlan3);
