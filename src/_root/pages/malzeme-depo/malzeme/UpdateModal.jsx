@@ -241,6 +241,7 @@ const UpdateModal = ({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) =
         setValue("sonAlinanFirma", res.data.sonAlinanFirma);
         setValue("cikanMiktar", res.data.cikanMiktar);
         setValue("sonMiktar", res.data.sonMiktar);
+        setValue("sonFiyat", res.data.sonFiyat);
         setValue("stokMiktar", res.data.girenMiktar - res.data.cikanMiktar);
         if (res.data.sonAlisTarih && dayjs(res.data.sonAlisTarih).isValid() && res.data.sonAlisTarih !== "0001-01-01T00:00:00") {
           setValue("sonAlisTarih", dayjs(res.data.sonAlisTarih).format("DD.MM.YYYY"));
