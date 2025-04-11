@@ -109,7 +109,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     raf: "",
     kritikMiktar: null,
     kdvOran: null,
-    aktif: false,
+    aktif: true,
     yedekParca: false,
     sarfMlz: false,
     demirBas: false,
