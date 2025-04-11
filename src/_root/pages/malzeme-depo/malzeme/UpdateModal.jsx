@@ -283,7 +283,7 @@ const UpdateModal = ({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) =
       tedarikciIskontoOran: values.tedarikciIskontoOran || 0,
       seriNo: values.seriNo,
       barKodNo: values.barKodNo,
-      depoId: values.depoId || 0,
+      depoId: Number(values.girisDepoSiraNo) || Number(values.depoId),
       bolum: values.bolum,
       raf: values.raf,
       kritikMiktar: values.kritikMiktar || 0,
