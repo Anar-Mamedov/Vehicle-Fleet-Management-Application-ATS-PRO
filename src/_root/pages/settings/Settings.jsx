@@ -1,3 +1,4 @@
+import React from "react";
 import { t } from "i18next";
 import { HomeOutlined } from "@ant-design/icons";
 import { Tabs } from "antd";
