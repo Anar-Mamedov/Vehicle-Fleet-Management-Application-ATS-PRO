@@ -37,7 +37,7 @@ const { Option } = Select;
 
 // Add a key for localStorage
 const pageSizeAraclar = "araclarTabloPageSize";
-const infiniteScrollKey = "araclarTabloInfiniteScroll"; // Add new key for infinite scroll setting
+const infiniteScrollKey = "tabloInfiniteScroll"; // Add new key for infinite scroll setting
 
 const StyledButton = styled(Button)`
   display: flex;
@@ -145,15 +145,15 @@ const Yakit = ({ ayarlarData }) => {
   const [isLoadingMore, setIsLoadingMore] = useState(false); // Added for infinite scrolling
   const [infiniteScrollEnabled, setInfiniteScrollEnabled] = useState(() => {
     const savedScrollMode = localStorage.getItem(infiniteScrollKey);
-    return savedScrollMode !== null ? JSON.parse(savedScrollMode) : true;
+    return savedScrollMode !== null ? JSON.parse(savedScrollMode) : false;
   });
 
-  // Initialize pageSize from localStorage or default to 10
+  // Initialize pageSize from localStorage or default to 20
   const [pageSize, setPageSize] = useState(() => {
     const savedPageSize = localStorage.getItem(pageSizeAraclar);
-    // Ensure the saved value is a positive number, otherwise default to 10
+    // Ensure the saved value is a positive number, otherwise default to 20
     const initialSize = parseInt(savedPageSize, 10);
-    return !isNaN(initialSize) && initialSize > 0 ? initialSize : 10;
+    return !isNaN(initialSize) && initialSize > 0 ? initialSize : 20;
   });
 
   const [drawer, setDrawer] = useState({
@@ -181,13 +181,8 @@ const Yakit = ({ ayarlarData }) => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
 
-  const basePageSizeOptions = ["10", "20", "50", "100"];
-
-  const dynamicPageSizeOptions = [...basePageSizeOptions];
-  if (totalCount > 0 && !basePageSizeOptions.includes(String(totalCount))) {
-    dynamicPageSizeOptions.push(String(totalCount));
-  }
-  dynamicPageSizeOptions.sort((a, b) => Number(a) - Number(b));
+  // Fixed page size options
+  const pageSizeOptions = [20, 50, 100];
 
   const fetchData = async (diff, targetPage, currentSize = pageSize) => {
     // Pass currentSize
@@ -262,6 +257,18 @@ const Yakit = ({ ayarlarData }) => {
       prevBodyRef.current = body; // Update ref after fetch starts
     }
   }, [body, pageSize]); // Include pageSize here if search/filter should respect current size
+
+  // Ensure localStorage has valid page size value
+  useEffect(() => {
+    const savedPageSize = localStorage.getItem(pageSizeAraclar);
+    const parsedValue = parseInt(savedPageSize, 10);
+
+    // If the value in localStorage is invalid, reset it to 20
+    if (isNaN(parsedValue) || ![20, 50, 100].includes(parsedValue)) {
+      localStorage.setItem(pageSizeAraclar, "20");
+      setPageSize(20);
+    }
+  }, []);
 
   const prevBodyRef = useRef(body);
 
@@ -982,19 +989,16 @@ const Yakit = ({ ayarlarData }) => {
     }
 
     const handlePageSizeChange = (value) => {
+      // Ensure value is one of the allowed options
+      const validValue = [20, 50, 100].includes(value) ? value : 20;
+
       // Save the new page size to localStorage
-      localStorage.setItem(pageSizeAraclar, value.toString());
+      localStorage.setItem(pageSizeAraclar, validValue.toString());
       // Update the pageSize state
-      setPageSize(value);
+      setPageSize(validValue);
       // Reset data and fetch with new size
       setData([]);
-      fetchData(0, 1, value);
-    };
-
-    const toggleScrollMode = () => {
-      const newState = !infiniteScrollEnabled;
-      setInfiniteScrollEnabled(newState);
-      localStorage.setItem(infiniteScrollKey, JSON.stringify(newState));
+      fetchData(0, 1, validValue);
     };
 
     return (
@@ -1004,22 +1008,17 @@ const Yakit = ({ ayarlarData }) => {
             Toplam Araç: {totalCount} | Görüntülenen: {data.length}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-            <Checkbox checked={infiniteScrollEnabled} onChange={toggleScrollMode}>
-              Sonsuz Kaydırma
-            </Checkbox>
-
+            {!infiniteScrollEnabled && (
+              <Pagination current={currentPage} total={totalCount} pageSize={pageSize} onChange={handleTableChange} showSizeChanger={false} simple size="small" />
+            )}
             <div style={{ display: "flex", alignItems: "center" }}>
               <span style={{ marginRight: "8px" }}>Kayıt:</span>
-              <Select value={pageSize} onChange={handlePageSizeChange} style={{ width: 70 }} dropdownMatchSelectWidth={false}>
+              <Select value={[20, 50, 100].includes(pageSize) ? pageSize : 20} onChange={handlePageSizeChange} style={{ width: 70 }} dropdownMatchSelectWidth={false}>
                 <Option value={20}>20</Option>
                 <Option value={50}>50</Option>
                 <Option value={100}>100</Option>
               </Select>
             </div>
-
-            {!infiniteScrollEnabled && (
-              <Pagination current={currentPage} total={totalCount} pageSize={pageSize} onChange={handleTableChange} showSizeChanger={false} simple size="small" />
-            )}
           </div>
         </div>
       </div>
