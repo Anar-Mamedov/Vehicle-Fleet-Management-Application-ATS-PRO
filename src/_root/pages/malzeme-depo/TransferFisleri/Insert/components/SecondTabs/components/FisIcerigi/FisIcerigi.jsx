@@ -124,7 +124,7 @@ const MalzemeSecModal = ({ visible, onCancel, onOk }) => {
 
   return (
     <Modal title="Malzeme Seç" open={visible} onCancel={onCancel} onOk={() => onOk(selectedRows)} width={1200} style={{ top: 20 }} destroyOnClose>
-      <Malzemeler key={modalKey} onRowSelect={handleMalzemeSelect} isSelectionMode={true} wareHouseId={watch("cikisDeposuID")} />
+      <Malzemeler key={modalKey} onRowSelect={handleMalzemeSelect} isSelectionMode={true} isCikisTransfer={true} wareHouseId={watch("cikisDeposuID")} />
     </Modal>
   );
 };

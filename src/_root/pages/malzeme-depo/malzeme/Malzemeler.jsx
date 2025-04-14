@@ -142,7 +142,7 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId }) => {
+const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikisTransfer = false }) => {
   const formMethods = useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
@@ -184,20 +184,35 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId }) => {
     try {
       let currentSetPointId = 0;
 
-      if (diff > 0) {
-        // Moving forward
-        currentSetPointId = data[data.length - 1]?.malzemeId || 0;
-      } else if (diff < 0) {
-        // Moving backward
-        currentSetPointId = data[0]?.malzemeId || 0;
+      if (isCikisTransfer) {
+        // For isCikisTransfer = true, use siraNo
+        if (diff > 0) {
+          // Moving forward
+          currentSetPointId = data[data.length - 1]?.siraNo || 0;
+        } else if (diff < 0) {
+          // Moving backward
+          currentSetPointId = data[0]?.siraNo || 0;
+        } else {
+          currentSetPointId = 0;
+        }
       } else {
-        currentSetPointId = 0;
+        // For isCikisTransfer = false, use malzemeId (original logic)
+        if (diff > 0) {
+          // Moving forward
+          currentSetPointId = data[data.length - 1]?.malzemeId || 0;
+        } else if (diff < 0) {
+          // Moving backward
+          currentSetPointId = data[0]?.malzemeId || 0;
+        } else {
+          currentSetPointId = 0;
+        }
       }
 
-      const response = await AxiosInstance.post(
-        `Material/GetMaterialList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&wareHouseId=${wareHouseId || 0}`,
-        body.filters?.customfilter || {}
-      );
+      const endpoint = isCikisTransfer
+        ? `WareHouseManagement/GetMaterialListByWareHouseId?setPointId=${currentSetPointId}&diff=${diff}&parameter=${searchTerm}&wareHouseId=${wareHouseId || 0}`
+        : `Material/GetMaterialList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&wareHouseId=${wareHouseId || 0}`;
+
+      const response = await AxiosInstance.post(endpoint, body.filters?.customfilter || {});
 
       const total = response.data.total_count;
       setTotalCount(total);
@@ -358,7 +373,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId }) => {
 
               return (
                 <div ref={containerRef}>
-                  <MalzemeDepoDagilimi selectedRows={[record]} refreshTableData={refreshTableData} hidePopover={handleHidePopover} />
+                  <MalzemeDepoDagilimi selectedRows={[record]} fromTableCell={true} refreshTableData={refreshTableData} hidePopover={handleHidePopover} />
                 </div>
               );
             };

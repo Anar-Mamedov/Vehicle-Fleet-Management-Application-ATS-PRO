@@ -41,13 +41,21 @@ export default function Arsivle({ selectedRows, refreshTableData, disabled, hide
 
   const methods = useForm({
     defaultValues: {
-      selectedDate: null, // Tarih için null yapıldı
+      selectedDate: null,
       aciklama: "",
       neden: null,
+      nedenID: null,
     },
   });
 
-  const { reset, handleSubmit, control } = methods;
+  const { reset, handleSubmit, control, setValue } = methods;
+
+  // Add useEffect to set current date when modal opens
+  useEffect(() => {
+    if (isModalVisible) {
+      setValue("selectedDate", dayjs());
+    }
+  }, [isModalVisible, setValue]);
 
   const onSubmit = async (data) => {
     const aracIDs = selectedRows.map((row) => row.key);
@@ -57,7 +65,7 @@ export default function Arsivle({ selectedRows, refreshTableData, disabled, hide
       durum: true,
       tarih: data.selectedDate && dayjs(data.selectedDate).isValid() ? dayjs(data.selectedDate).format("YYYY-MM-DD") : null,
       aciklama: data.aciklama,
-      neden: data.neden,
+      nedenKodId: data.nedenID,
     };
 
     try {
@@ -111,7 +119,7 @@ export default function Arsivle({ selectedRows, refreshTableData, disabled, hide
               control={control}
               render={({ field }) => <DatePicker {...field} style={{ width: "100%", marginBottom: 8 }} format={localeDateFormat} placeholder={t("Tarih seçiniz")} />}
             />
-            <KodIDSelectbox name1="neden" kodID={301} isRequired={false} placeholder={t("nedenSeciniz")} />
+            <KodIDSelectbox name1="neden" kodID={895} isRequired={false} placeholder={t("nedenSeciniz")} />
             <Controller name="aciklama" control={control} render={({ field }) => <Input.TextArea {...field} rows={4} placeholder={t("Açıklama")} style={{ marginTop: 8 }} />} />
           </form>
           <Alert

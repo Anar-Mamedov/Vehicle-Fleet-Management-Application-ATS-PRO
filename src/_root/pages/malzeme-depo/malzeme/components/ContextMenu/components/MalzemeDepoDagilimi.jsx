@@ -3,7 +3,7 @@ import AxiosInstance from "../../../../../../../api/http";
 import { Button, message, Table, Modal, Spin } from "antd";
 import { t } from "i18next";
 
-function MalzemeDepoDagilimi({ selectedRows, refreshTableData, hidePopover }) {
+function MalzemeDepoDagilimi({ selectedRows, refreshTableData, hidePopover, fromTableCell = false }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -95,7 +95,13 @@ function MalzemeDepoDagilimi({ selectedRows, refreshTableData, hidePopover }) {
 
   return (
     <div>
-      <div style={{ cursor: "pointer" }} onClick={showModal}>
+      <div
+        style={{
+          cursor: "pointer",
+          display: fromTableCell ? "none" : "block",
+        }}
+        onClick={showModal}
+      >
         {t("malzemeDepoDagilimi")}
       </div>
       <Modal
