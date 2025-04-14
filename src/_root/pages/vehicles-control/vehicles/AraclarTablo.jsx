@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef, useContext } from "react";
 import { Link } from "react-router-dom";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip } from "antd";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select, Pagination } from "antd";
 import {
   HolderOutlined,
   SearchOutlined,
@@ -33,9 +33,11 @@ import { t } from "i18next";
 import DetailUpdate from "../vehicle-detail/DetailUpdate";
 
 const { Text } = Typography;
+const { Option } = Select;
 
 // Add a key for localStorage
 const pageSizeAraclar = "araclarTabloPageSize";
+const infiniteScrollKey = "araclarTabloInfiniteScroll"; // Add new key for infinite scroll setting
 
 const StyledButton = styled(Button)`
   display: flex;
@@ -140,6 +142,11 @@ const Yakit = ({ ayarlarData }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false); // Added for infinite scrolling
+  const [infiniteScrollEnabled, setInfiniteScrollEnabled] = useState(() => {
+    const savedScrollMode = localStorage.getItem(infiniteScrollKey);
+    return savedScrollMode !== null ? JSON.parse(savedScrollMode) : true;
+  });
 
   // Initialize pageSize from localStorage or default to 10
   const [pageSize, setPageSize] = useState(() => {
@@ -184,7 +191,7 @@ const Yakit = ({ ayarlarData }) => {
 
   const fetchData = async (diff, targetPage, currentSize = pageSize) => {
     // Pass currentSize
-    setLoading(true);
+    diff === 0 ? setLoading(true) : setIsLoadingMore(true);
     try {
       let currentSetPointId = 0;
 
@@ -207,6 +214,7 @@ const Yakit = ({ ayarlarData }) => {
 
       const total = response.data.vehicleCount;
       setTotalCount(total);
+
       // Only update currentPage if targetPage is provided (meaning it's a pagination change)
       if (targetPage !== undefined) {
         setCurrentPage(targetPage);
@@ -217,15 +225,15 @@ const Yakit = ({ ayarlarData }) => {
         key: item.aracId,
       }));
 
-      if (newData.length > 0 || targetPage === 1) {
-        // Allow empty data if resetting to page 1
+      // For infinite scrolling, append new data rather than replacing
+      if (diff > 0 && newData.length > 0) {
+        setData((prevData) => [...prevData, ...newData]);
+      } else if (newData.length > 0 || targetPage === 1) {
+        // For first load or refresh, replace data
         setData(newData);
       } else if (newData.length === 0 && data.length > 0 && diff !== 0) {
-        // If fetching next/prev page resulted in no data, maybe show a message but don't clear existing data?
-        // Or revert currentPage? For now, just log it.
+        // If no more data, just keep current data
         console.log("Fetched page has no data, staying on current data set.");
-        // Optionally revert currentPage state if needed based on UX preference
-        // setCurrentPage(currentPage); // Revert if fetch fails for next/prev
       } else {
         // Initial load or filter resulted in no data
         message.warning("Veri bulunamadı.");
@@ -234,12 +242,9 @@ const Yakit = ({ ayarlarData }) => {
     } catch (error) {
       console.error("Veri çekme hatası:", error);
       message.error("Veri çekerken bir hata oluştu.");
-      // Optionally revert currentPage state on error
-      // if (targetPage !== undefined && targetPage !== currentPage) {
-      //   setCurrentPage(currentPage);
-      // }
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
@@ -249,7 +254,7 @@ const Yakit = ({ ayarlarData }) => {
     fetchData(0, 1, pageSize);
   }, [selectedDurum]); // Removed pageSize dependency here
 
-  // Separate useEffect for body (filters/search) changes
+  // useEffect for body (filters/search) changes
   useEffect(() => {
     // Check if body actually changed before fetching
     if (JSON.stringify(body) !== JSON.stringify(prevBodyRef.current)) {
@@ -265,7 +270,7 @@ const Yakit = ({ ayarlarData }) => {
     fetchData(0, 1, pageSize); // Pass current pageSize
   };
 
-  // Updated handleTableChange
+  // Updated handleTableChange for pagination
   const handleTableChange = (page, size) => {
     // Check if page size has changed
     if (size !== pageSize) {
@@ -274,11 +279,13 @@ const Yakit = ({ ayarlarData }) => {
       // Update the pageSize state
       setPageSize(size);
       // Fetch data for the *first page* with the *new size*
+      setData([]);
       fetchData(0, 1, size); // Pass the new size directly
     } else {
       // Only the page number has changed
       const diff = page - currentPage;
-      // Fetch data for the target page with the *current size*
+      setData([]);
+      setCurrentPage(page);
       fetchData(diff, page, pageSize); // Use existing pageSize
     }
   };
@@ -955,6 +962,70 @@ const Yakit = ({ ayarlarData }) => {
 
   const keyArray = selectedRows.map((row) => row.key);
 
+  // Handle table scroll for infinite loading
+  const handleTableScroll = (e) => {
+    if (!infiniteScrollEnabled) return; // Skip if infinite scroll is disabled
+
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    // Load more when user scrolls to 80% of the way down
+    const scrollBottom = scrollHeight - scrollTop - clientHeight;
+    if (scrollBottom <= clientHeight * 0.2 && !loading && !isLoadingMore && data.length < totalCount) {
+      console.log("Loading more data...");
+      fetchData(1, undefined, pageSize);
+    }
+  };
+
+  // Add a footer component to show loading and total count
+  const tableFooter = () => {
+    if (isLoadingMore) {
+      return <div style={{ textAlign: "center" }}>Daha fazla yükleniyor...</div>;
+    }
+
+    const handlePageSizeChange = (value) => {
+      // Save the new page size to localStorage
+      localStorage.setItem(pageSizeAraclar, value.toString());
+      // Update the pageSize state
+      setPageSize(value);
+      // Reset data and fetch with new size
+      setData([]);
+      fetchData(0, 1, value);
+    };
+
+    const toggleScrollMode = () => {
+      const newState = !infiniteScrollEnabled;
+      setInfiniteScrollEnabled(newState);
+      localStorage.setItem(infiniteScrollKey, JSON.stringify(newState));
+    };
+
+    return (
+      <div style={{}}>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
+          <div>
+            Toplam Araç: {totalCount} | Görüntülenen: {data.length}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+            <Checkbox checked={infiniteScrollEnabled} onChange={toggleScrollMode}>
+              Sonsuz Kaydırma
+            </Checkbox>
+
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <span style={{ marginRight: "8px" }}>Kayıt:</span>
+              <Select value={pageSize} onChange={handlePageSizeChange} style={{ width: 70 }} dropdownMatchSelectWidth={false}>
+                <Option value={20}>20</Option>
+                <Option value={50}>50</Option>
+                <Option value={100}>100</Option>
+              </Select>
+            </div>
+
+            {!infiniteScrollEnabled && (
+              <Pagination current={currentPage} total={totalCount} pageSize={pageSize} onChange={handleTableChange} showSizeChanger={false} simple size="small" />
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       {/* Modal for managing columns */}
@@ -1105,21 +1176,10 @@ const Yakit = ({ ayarlarData }) => {
               rowSelection={rowSelection}
               columns={filteredColumns}
               dataSource={data}
-              pagination={{
-                current: currentPage,
-                total: totalCount,
-                pageSize: pageSize,
-                defaultPageSize: 10,
-                showSizeChanger: true,
-                pageSizeOptions: dynamicPageSizeOptions,
-                showQuickJumper: true,
-                onChange: handleTableChange,
-                onShowSizeChange: (current, size) => handleTableChange(1, size),
-                showTotal: (total, range) => {
-                  return `Toplam Araç: ${total}`;
-                },
-              }}
+              pagination={false} // Always disable pagination, we use custom pagination in footer
               scroll={{ y: "calc(100vh - 335px)" }}
+              onScroll={handleTableScroll}
+              footer={tableFooter}
             />
           </Spin>
         </div>
