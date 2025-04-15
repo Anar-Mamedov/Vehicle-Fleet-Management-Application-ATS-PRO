@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FormProvider } from "react-hook-form";
 import AxiosInstance from "../../../../../../../api/http";
 import { Button, message, Modal, ConfigProvider, DatePicker, Input, Alert } from "antd";
 import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
@@ -65,7 +65,7 @@ export default function Arsivle({ selectedRows, refreshTableData, disabled, hide
       durum: true,
       tarih: data.selectedDate && dayjs(data.selectedDate).isValid() ? dayjs(data.selectedDate).format("YYYY-MM-DD") : null,
       aciklama: data.aciklama,
-      nedenKodId: data.nedenID,
+      nedenKodId: Number(data.nedenID),
     };
 
     try {
@@ -113,29 +113,31 @@ export default function Arsivle({ selectedRows, refreshTableData, disabled, hide
 
       <Modal title={t("arsivle")} open={isModalVisible} onOk={handleSubmit(onSubmit)} onCancel={handleCancel}>
         <ConfigProvider locale={currentLocale}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Controller
-              name="selectedDate"
-              control={control}
-              render={({ field }) => <DatePicker {...field} style={{ width: "100%", marginBottom: 8 }} format={localeDateFormat} placeholder={t("Tarih seçiniz")} />}
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Controller
+                name="selectedDate"
+                control={control}
+                render={({ field }) => <DatePicker {...field} style={{ width: "100%", marginBottom: 8 }} format={localeDateFormat} placeholder={t("Tarih seçiniz")} />}
+              />
+              <KodIDSelectbox name1="neden" kodID={895} isRequired={false} placeholder={t("nedenSeciniz")} />
+              <Controller name="aciklama" control={control} render={({ field }) => <Input.TextArea {...field} rows={4} placeholder={t("Açıklama")} style={{ marginTop: 8 }} />} />
+            </form>
+            <Alert
+              message="Uyarı"
+              description={
+                <ul style={{ listStyleType: "initial" }}>
+                  <li>Arşivleme işlemi, araca ait tüm verilerin sistemde saklanmasını sağlar. Ancak araç tüm listelerden kaldırılarak görünmez hale gelir.</li>
+                  <li>⁠Araçla ilgili işlem yapılamaz.</li>
+                  <li>Bu işlem geri alınabilir.</li>
+                  Devam etmek istiyor musunuz?
+                </ul>
+              }
+              type="error"
+              showIcon
+              style={{ marginTop: 16 }}
             />
-            <KodIDSelectbox name1="neden" kodID={895} isRequired={false} placeholder={t("nedenSeciniz")} />
-            <Controller name="aciklama" control={control} render={({ field }) => <Input.TextArea {...field} rows={4} placeholder={t("Açıklama")} style={{ marginTop: 8 }} />} />
-          </form>
-          <Alert
-            message="Uyarı"
-            description={
-              <ul style={{ listStyleType: "initial" }}>
-                <li>Arşivleme işlemi, araca ait tüm verilerin sistemde saklanmasını sağlar. Ancak araç tüm listelerden kaldırılarak görünmez hale gelir.</li>
-                <li>⁠Araçla ilgili işlem yapılamaz.</li>
-                <li>Bu işlem geri alınabilir.</li>
-                Devam etmek istiyor musunuz?
-              </ul>
-            }
-            type="error"
-            showIcon
-            style={{ marginTop: 16 }}
-          />
+          </FormProvider>
         </ConfigProvider>
       </Modal>
     </div>
