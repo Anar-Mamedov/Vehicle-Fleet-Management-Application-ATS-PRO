@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef, useContext } from "react";
 import { Link } from "react-router-dom";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select, Pagination } from "antd";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select, Pagination, Switch } from "antd";
 import {
   HolderOutlined,
   SearchOutlined,
@@ -183,6 +183,13 @@ const Yakit = ({ ayarlarData }) => {
     return savedScrollMode !== null ? JSON.parse(savedScrollMode) : false;
   });
 
+  // Add this state to prevent duplicate requests
+  const [isLoadingPage, setIsLoadingPage] = useState(false);
+  // Add ref to track last fetch ID for deduplication
+  const lastFetchIdRef = useRef(0);
+  // Add set to track already loaded IDs to prevent duplicates
+  const [loadedIds, setLoadedIds] = useState(new Set());
+
   // Initialize pageSize from localStorage or default to 20
   const [pageSize, setPageSize] = useState(() => {
     const savedPageSize = localStorage.getItem(pageSizeAraclar);
@@ -220,8 +227,18 @@ const Yakit = ({ ayarlarData }) => {
   const pageSizeOptions = [20, 50, 100];
 
   const fetchData = async (diff, targetPage, currentSize = pageSize) => {
-    // Pass currentSize
+    // Increment fetch ID to track this specific request
+    const currentFetchId = lastFetchIdRef.current + 1;
+    lastFetchIdRef.current = currentFetchId;
+
+    // If already loading page and this is an infinite scroll request, skip
+    if (isLoadingPage && diff > 0) {
+      return;
+    }
+
     diff === 0 ? setLoading(true) : setIsLoadingMore(true);
+    setIsLoadingPage(true);
+
     try {
       let currentSetPointId = 0;
 
@@ -242,6 +259,12 @@ const Yakit = ({ ayarlarData }) => {
         customFilters
       );
 
+      // Check if this response is still relevant (could be outdated by now)
+      if (currentFetchId !== lastFetchIdRef.current) {
+        console.log("Ignoring outdated fetch response");
+        return;
+      }
+
       const total = response.data.vehicleCount;
       setTotalCount(total);
 
@@ -250,25 +273,53 @@ const Yakit = ({ ayarlarData }) => {
         setCurrentPage(targetPage);
       }
 
-      const newData = response.data.vehicleList.map((item) => ({
-        ...item,
-        key: item.aracId,
-      }));
+      // Add ID deduplication
+      const newItems = [];
+      const currentIds = new Set(loadedIds);
 
-      // For infinite scrolling, append new data rather than replacing
-      if (diff > 0 && newData.length > 0) {
-        setData((prevData) => [...prevData, ...newData]);
-      } else if (newData.length > 0 || targetPage === 1) {
-        // For first load or refresh, replace data
-        setData(newData);
-      } else if (newData.length === 0 && data.length > 0 && diff !== 0) {
-        // If no more data, just keep current data
-        console.log("Fetched page has no data, staying on current data set.");
-      } else if (newData.length === 0) {
-        // Initial load or filter resulted in no data
-        message.warning("Veri bulunamadı.");
-        // Eski veriyi koruyoruz, kullanıcı tabloyu görmeye devam edebilsin
-        // setData([]);
+      response.data.vehicleList.forEach((item) => {
+        // Only add items we haven't seen before
+        if (!currentIds.has(item.aracId)) {
+          currentIds.add(item.aracId);
+          newItems.push({
+            ...item,
+            key: item.aracId,
+          });
+        }
+      });
+
+      // Handle data updating based on whether infinite scroll is enabled and on diff
+      if (infiniteScrollEnabled) {
+        // For infinite scrolling mode
+        if (diff > 0 && newItems.length > 0) {
+          // Only add new items that aren't already in the list
+          setData((prevData) => [...prevData, ...newItems]);
+          // Update our loaded IDs tracker
+          setLoadedIds(currentIds);
+        } else if (newItems.length > 0 || targetPage === 1) {
+          // For first load or refresh, replace data and reset ID tracking
+          setData(newItems);
+          setLoadedIds(new Set(newItems.map((item) => item.aracId)));
+        } else if (newItems.length === 0 && data.length > 0 && diff !== 0) {
+          // If no more data, just keep current data
+          console.log("Fetched page has no data, staying on current data set.");
+        }
+      } else {
+        // For pagination mode, always replace the data
+        if (newItems.length > 0) {
+          setData(newItems);
+          // Reset ID tracking for pagination mode
+          setLoadedIds(new Set(newItems.map((item) => item.aracId)));
+        } else {
+          // No data found for this page
+          message.warning("Veri bulunamadı.");
+          if (targetPage === 1) {
+            // If it's the first page and no data, clear the list
+            setData([]);
+            setLoadedIds(new Set());
+          }
+          // Otherwise keep current data so user can navigate back
+        }
       }
     } catch (error) {
       console.error("Veri çekme hatası:", error);
@@ -277,6 +328,7 @@ const Yakit = ({ ayarlarData }) => {
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
+      setIsLoadingPage(false);
     }
   };
 
@@ -991,15 +1043,26 @@ const Yakit = ({ ayarlarData }) => {
     });
   });
 
+  // Update scroll handler with throttle using setTimeout
+  const scrollTimeoutRef = useRef(null);
   const handleTableScroll = (e) => {
     if (!infiniteScrollEnabled) return; // Skip if infinite scroll is disabled
 
     const { scrollTop, scrollHeight, clientHeight } = e.target;
     // Load more when user scrolls to 80% of the way down
     const scrollBottom = scrollHeight - scrollTop - clientHeight;
-    if (scrollBottom <= clientHeight * 0.2 && !loading && !isLoadingMore && data.length < totalCount) {
-      console.log("Loading more data...");
-      fetchData(1, undefined, pageSize);
+
+    // Clear any pending scroll timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    if (scrollBottom <= clientHeight * 0.2 && !loading && !isLoadingMore && !isLoadingPage && data.length < totalCount) {
+      // Use setTimeout to throttle scroll events (200ms delay)
+      scrollTimeoutRef.current = setTimeout(() => {
+        console.log("Loading more data...");
+        fetchData(1, undefined, pageSize);
+      }, 200);
     }
   };
 
@@ -1038,17 +1101,20 @@ const Yakit = ({ ayarlarData }) => {
   // Filtered columns
   const filteredColumns = mergedColumns.filter((col) => col.visible);
 
-  // Add a footer component to show loading and total count
+  // Update the footer component to enforce data count <= totalCount
   const tableFooter = () => {
     if (isLoadingMore) {
       return <div style={{ textAlign: "center" }}>Daha fazla yükleniyor...</div>;
     }
 
+    // Ensure displayed count never exceeds total count
+    const displayCount = infiniteScrollEnabled ? Math.min(data.length, totalCount) : data.length;
+
     return (
       <div style={{}}>
         <div style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
           <div>
-            Toplam Araç: {totalCount} | Görüntülenen: {data.length}
+            Toplam Araç: {totalCount} | Görüntülenen: {displayCount}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             {!infiniteScrollEnabled && (
@@ -1153,6 +1219,15 @@ const Yakit = ({ ayarlarData }) => {
   // filtreleme işlemi için kullanılan useEffect son
 
   const keyArray = selectedRows.map((row) => row.key);
+
+  // Add cleanup for the scroll timeout ref in a useEffect
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <>
