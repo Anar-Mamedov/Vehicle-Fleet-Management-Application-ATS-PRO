@@ -30,7 +30,7 @@ import AddSurucu from "./detail-info/modals/surucu/AddModalForInput";
 import AddLokasyon from "./detail-info/modals/lokasyon/AddModalForInput";
 import ResimUpload from "./Resim/ResimUpload";
 import DosyaUpload from "./Dosya/DosyaUpload";
-
+import DurumTarihcesi from "./DurumTarihce/DurumTarihcesi";
 const { Text } = Typography;
 
 const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 }) => {
@@ -70,6 +70,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
 
   const [durumIcon, setDurumIcon] = useState(null);
   const [durumNeden, setDurumNeden] = useState(null);
+  const [durumTarihceModal, setDurumTarihceModal] = useState(false);
 
   const [photoUploaded, setPhotoUploaded] = useState(0);
   const [dosyaUploaded, setDosyaUploaded] = useState(0);
@@ -582,6 +583,10 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     </div>
   );
 
+  const handleDurumTarihceModal = () => {
+    setDurumTarihceModal(true);
+  };
+
   return (
     <Modal title={t("aracDetayKarti")} open={isOpen} onCancel={handleCancel} footer={null} width="90%" style={{ top: 20 }} maskClosable={false} destroyOnClose>
       {loading && (
@@ -609,11 +614,11 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                 <ProfilePhoto setImages={setProfile} urls={urls} imageUrls={imageUrls} loadingImages={loadingImages} />
               </div>
               <div className="flex gap-1 justify-between mt-10">
-                <Popover content={statusPopoverContent} trigger="click" open={popoverVisible} onOpenChange={handlePopoverVisibleChange}>
-                  <div className="flex gap-1 align-center" style={{ cursor: "pointer" }}>
-                    <span>{durumIcon}</span>
-                  </div>
-                </Popover>
+                {/* <Popover content={statusPopoverContent} trigger="click" open={popoverVisible} onOpenChange={handlePopoverVisibleChange}> */}
+                <div className="flex gap-1 align-center" style={{ cursor: "pointer" }} onClick={handleDurumTarihceModal}>
+                  <span>{durumIcon}</span>
+                </div>
+                {/* </Popover> */}
                 <div className="flex gap-1 align-center" style={{ cursor: "pointer" }} onClick={() => handleLokasyonPlusClick()}>
                   <span>
                     <IoLocationSharp style={{ color: "red" }} />
@@ -756,6 +761,10 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         width={1200}
       >
         <KmLog data={{ aracId: selectedId }} setDataStatus={setDataStatus} />
+      </Modal>
+
+      <Modal title={t("durumTarihcesi")} open={durumTarihceModal} onCancel={() => setDurumTarihceModal(false)} footer={null} width={1200}>
+        <DurumTarihcesi selectedId={selectedId} durumTarihceModal={durumTarihceModal} />
       </Modal>
     </Modal>
   );

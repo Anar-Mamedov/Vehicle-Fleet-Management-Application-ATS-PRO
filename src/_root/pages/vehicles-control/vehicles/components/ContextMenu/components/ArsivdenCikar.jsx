@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FormProvider } from "react-hook-form";
 import AxiosInstance from "../../../../../../../api/http";
 import { Button, message, Modal, Popconfirm, DatePicker, Input, ConfigProvider } from "antd";
 import { DeleteOutlined, QuestionCircleOutlined } from "@ant-design/icons";
@@ -70,7 +70,7 @@ export default function ArsivdenCikar({ selectedRows, refreshTableData, disabled
       vIds: aracIDs,
       durum: false,
       tarih: data.selectedDate && dayjs(data.selectedDate).isValid() ? dayjs(data.selectedDate).format("YYYY-MM-DD") : null,
-      nedenKodId: data.nedenID,
+      nedenKodId: Number(data.nedenID),
       aciklama: data.aciklama,
     };
 
@@ -122,15 +122,17 @@ export default function ArsivdenCikar({ selectedRows, refreshTableData, disabled
 
       <Modal title={t("arsivdenCikar")} open={isModalVisible} onOk={methods.handleSubmit(onSubmit)} onCancel={handleCancel}>
         <ConfigProvider locale={currentLocale}>
-          <form onSubmit={methods.handleSubmit(onSubmit)}>
-            <Controller
-              name="selectedDate"
-              control={control}
-              render={({ field }) => <DatePicker {...field} style={{ width: "100%", marginBottom: 8 }} format={localeDateFormat} placeholder={t("Tarih seçiniz")} />}
-            />
-            <KodIDSelectbox name1="neden" kodID={895} isRequired={false} placeholder={t("nedenSeciniz")} />
-            <Controller name="aciklama" control={control} render={({ field }) => <Input.TextArea {...field} rows={4} placeholder={t("Açıklama")} style={{ marginTop: 8 }} />} />
-          </form>
+          <FormProvider {...methods}>
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
+              <Controller
+                name="selectedDate"
+                control={control}
+                render={({ field }) => <DatePicker {...field} style={{ width: "100%", marginBottom: 8 }} format={localeDateFormat} placeholder={t("Tarih seçiniz")} />}
+              />
+              <KodIDSelectbox name1="neden" kodID={895} isRequired={false} placeholder={t("nedenSeciniz")} />
+              <Controller name="aciklama" control={control} render={({ field }) => <Input.TextArea {...field} rows={4} placeholder={t("Açıklama")} style={{ marginTop: 8 }} />} />
+            </form>
+          </FormProvider>
         </ConfigProvider>
       </Modal>
     </div>
