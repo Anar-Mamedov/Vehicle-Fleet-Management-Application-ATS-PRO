@@ -38,40 +38,6 @@ const { Option } = Select;
 // Add a key for localStorage
 const pageSizeAraclar = "araclarTabloPageSize";
 const infiniteScrollKey = "tabloInfiniteScroll"; // Add new key for infinite scroll setting
-const columnOrderKey = "columnOrderAraclar";
-const columnVisibilityKey = "columnVisibilityAraclar";
-const columnWidthsKey = "columnWidthsAraclar";
-
-// Utility functions for safely handling localStorage
-const safeLocalStorage = {
-  getItem: (key, defaultValue) => {
-    try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultValue;
-    } catch (error) {
-      console.error(`Error getting item ${key} from localStorage:`, error);
-      return defaultValue;
-    }
-  },
-  setItem: (key, value) => {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-      return true;
-    } catch (error) {
-      console.error(`Error setting item ${key} in localStorage:`, error);
-      return false;
-    }
-  },
-  removeItem: (key) => {
-    try {
-      localStorage.removeItem(key);
-      return true;
-    } catch (error) {
-      console.error(`Error removing item ${key} from localStorage:`, error);
-      return false;
-    }
-  },
-};
 
 const StyledButton = styled(Button)`
   display: flex;
@@ -267,8 +233,7 @@ const Yakit = ({ ayarlarData }) => {
       } else if (newData.length === 0) {
         // Initial load or filter resulted in no data
         message.warning("Veri bulunamadı.");
-        // Eski veriyi koruyoruz, kullanıcı tabloyu görmeye devam edebilsin
-        // setData([]);
+        setData([]);
       }
     } catch (error) {
       console.error("Veri çekme hatası:", error);
@@ -350,7 +315,7 @@ const Yakit = ({ ayarlarData }) => {
     if (!infiniteScrollEnabled) {
       setPaginationLoading(true);
     }
-
+    
     // Check if page size has changed
     if (size !== pageSize) {
       // Save the new page size to localStorage
@@ -359,21 +324,23 @@ const Yakit = ({ ayarlarData }) => {
       setPageSize(size);
       // Fetch data for the *first page* with the *new size*
       // setData([]) çağrısını kaldırdık, eski veriyi tutuyoruz
-      fetchData(0, 1, size).finally(() => {
-        if (!infiniteScrollEnabled) {
-          setPaginationLoading(false);
-        }
-      });
+      fetchData(0, 1, size)
+        .finally(() => {
+          if (!infiniteScrollEnabled) {
+            setPaginationLoading(false);
+          }
+        });
     } else {
       // Only the page number has changed
       const diff = page - currentPage;
       setCurrentPage(page);
       // setData([]) çağrısını kaldırdık, eski veriyi tutuyoruz
-      fetchData(diff, page, pageSize).finally(() => {
-        if (!infiniteScrollEnabled) {
-          setPaginationLoading(false);
-        }
-      });
+      fetchData(diff, page, pageSize)
+        .finally(() => {
+          if (!infiniteScrollEnabled) {
+            setPaginationLoading(false);
+          }
+        });
     }
   };
 
@@ -952,386 +919,10 @@ const Yakit = ({ ayarlarData }) => {
     setPageSize(validValue);
     // Reset data and fetch with new size
     // setData([]) çağrısını kaldırdık, eski veriyi tutuyoruz
-    fetchData(0, 1, validValue).finally(() => {
-      if (!infiniteScrollEnabled) {
-        setPaginationLoading(false);
-      }
-    });
-  };
-
-  // Manage columns from localStorage or default
-  const [columns, setColumns] = useState(() => {
-    const savedOrder = safeLocalStorage.getItem(columnOrderKey, []);
-    const savedVisibility = safeLocalStorage.getItem(columnVisibilityKey, {});
-    const savedWidths = safeLocalStorage.getItem(columnWidthsKey, {});
-
-    let order = savedOrder;
-    let visibility = savedVisibility;
-    let widths = savedWidths;
-
-    initialColumns.forEach((col) => {
-      if (!order.includes(col.key)) {
-        order.push(col.key);
-      }
-      if (visibility[col.key] === undefined) {
-        visibility[col.key] = col.visible;
-      }
-      if (widths[col.key] === undefined) {
-        widths[col.key] = col.width;
-      }
-    });
-
-    safeLocalStorage.setItem(columnOrderKey, order);
-    safeLocalStorage.setItem(columnVisibilityKey, visibility);
-    safeLocalStorage.setItem(columnWidthsKey, widths);
-
-    return order.map((key) => {
-      const column = initialColumns.find((col) => col.key === key);
-      return { ...column, visible: visibility[key], width: widths[key] };
-    });
-  });
-
-  const handleTableScroll = (e) => {
-    if (!infiniteScrollEnabled) return; // Skip if infinite scroll is disabled
-
-    const { scrollTop, scrollHeight, clientHeight } = e.target;
-    // Load more when user scrolls to 80% of the way down
-    const scrollBottom = scrollHeight - scrollTop - clientHeight;
-    if (scrollBottom <= clientHeight * 0.2 && !loading && !isLoadingMore && data.length < totalCount) {
-      console.log("Loading more data...");
-      fetchData(1, undefined, pageSize);
-    }
-  };
-
-  // Handle column resize
-  const handleResize =
-    (key) =>
-    (_, { size }) => {
-      setColumns((prev) => {
-        const newColumns = prev.map((col) => (col.key === key ? { ...col, width: size.width } : col));
-
-        // Save the updated column widths to localStorage
-        const widths = {};
-        newColumns.forEach((col) => {
-          widths[col.key] = col.width;
-        });
-        safeLocalStorage.setItem(columnWidthsKey, widths);
-
-        return newColumns;
-      });
-    };
-
-  const components = {
-    header: {
-      cell: ResizableTitle,
-    },
-  };
-
-  const mergedColumns = columns.map((col) => ({
-    ...col,
-    onHeaderCell: (column) => ({
-      width: column.width,
-      onResize: handleResize(column.key),
-    }),
-  }));
-
-  // Filtered columns
-  const filteredColumns = mergedColumns.filter((col) => col.visible);
-
-  // Add a footer component to show loading and total count
-  const tableFooter = () => {
-    if (isLoadingMore) {
-      return <div style={{ textAlign: "center" }}>Daha fazla yükleniyor...</div>;
-    }
-
-    return (
-      <div style={{}}>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
-          <div>
-            Toplam Araç: {totalCount} | Görüntülenen: {data.length}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-            {!infiniteScrollEnabled && (
-              <Pagination current={currentPage} total={totalCount} pageSize={pageSize} onChange={handleTableChange} showSizeChanger={false} showQuickJumper size="small" />
-            )}
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={{ marginRight: "8px" }}>Kayıt:</span>
-              <Select value={[20, 50, 100].includes(pageSize) ? pageSize : 20} onChange={handlePageSizeChange} style={{ width: 70 }} dropdownMatchSelectWidth={false}>
-                <Option value={20}>20</Option>
-                <Option value={50}>50</Option>
-                <Option value={100}>100</Option>
-              </Select>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Handle drag and drop
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      const oldIndex = columns.findIndex((column) => column.key === active.id);
-      const newIndex = columns.findIndex((column) => column.key === over.id);
-      if (oldIndex !== -1 && newIndex !== -1) {
-        setColumns((columns) => {
-          const newColumns = arrayMove(columns, oldIndex, newIndex);
-          // Save the updated column order to localStorage
-          const order = newColumns.map((col) => col.key);
-          safeLocalStorage.setItem(columnOrderKey, order);
-
-          // Save column visibility and widths
-          const visibility = {};
-          const widths = {};
-          newColumns.forEach((col) => {
-            visibility[col.key] = col.visible;
-            widths[col.key] = col.width;
-          });
-          safeLocalStorage.setItem(columnVisibilityKey, visibility);
-          safeLocalStorage.setItem(columnWidthsKey, widths);
-
-          return newColumns;
-        });
-      } else {
-        console.error(`Column with key ${active.id} or ${over.id} does not exist.`);
-      }
-    }
-  };
-
-  // Toggle column visibility
-  const toggleVisibility = (key, checked) => {
-    const index = columns.findIndex((col) => col.key === key);
-    if (index !== -1) {
-      const newColumns = [...columns];
-      newColumns[index].visible = checked;
-      setColumns(newColumns);
-
-      // Save the updated column visibility to localStorage
-      const visibility = {};
-      newColumns.forEach((col) => {
-        visibility[col.key] = col.visible;
-      });
-      safeLocalStorage.setItem(columnVisibilityKey, visibility);
-    } else {
-      console.error(`Column with key ${key} does not exist.`);
-    }
-  };
-
-  // Reset columns
-  const resetColumns = () => {
-    safeLocalStorage.removeItem(columnOrderKey);
-    safeLocalStorage.removeItem(columnVisibilityKey);
-    safeLocalStorage.removeItem(columnWidthsKey);
-    window.location.reload();
-  };
-
-  // filtreleme işlemi için kullanılan useEffect
-  const handleBodyChange = useCallback(
-    (type, newBody) => {
-      // Show loading if infinite scroll is disabled
-      if (!infiniteScrollEnabled) {
-        setPaginationLoading(true);
-      }
-
-      setSelectedDurum(null);
-      setBody((state) => ({
-        ...state,
-        [type]: newBody,
-      }));
-      setCurrentPage(1); // Filtreleme yapıldığında sayfa numarasını 1'e ayarla
-
-      // The fetchData will be triggered by the useEffect, but we need to make sure to clear the loading state
-      setTimeout(() => {
+    fetchData(0, 1, validValue)
+      .finally(() => {
         if (!infiniteScrollEnabled) {
           setPaginationLoading(false);
         }
-      }, 100);
-    },
-    [infiniteScrollEnabled]
-  ); // Add infiniteScrollEnabled as a dependency
-  // filtreleme işlemi için kullanılan useEffect son
-
-  const keyArray = selectedRows.map((row) => row.key);
-
-  return (
-    <>
-      {/* Modal for managing columns */}
-      <Modal title="Sütunları Yönet" centered width={800} open={isModalVisible} onOk={() => setIsModalVisible(false)} onCancel={() => setIsModalVisible(false)}>
-        <Text style={{ marginBottom: "15px" }}>Aşağıdaki Ekranlardan Sütunları Göster / Gizle ve Sıralamalarını Ayarlayabilirsiniz.</Text>
-        <div
-          style={{
-            display: "flex",
-            width: "100%",
-            justifyContent: "center",
-            marginTop: "10px",
-          }}
-        >
-          <Button onClick={resetColumns} style={{ marginBottom: "15px" }}>
-            Sütunları Sıfırla
-          </Button>
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div
-            style={{
-              width: "46%",
-              border: "1px solid #8080806e",
-              borderRadius: "8px",
-              padding: "10px",
-            }}
-          >
-            <div
-              style={{
-                marginBottom: "20px",
-                borderBottom: "1px solid #80808051",
-                padding: "8px 8px 12px 8px",
-              }}
-            >
-              <Text style={{ fontWeight: 600 }}>Sütunları Göster / Gizle</Text>
-            </div>
-            <div style={{ height: "400px", overflow: "auto" }}>
-              {initialColumns.map((col) => (
-                <div style={{ display: "flex", gap: "10px" }} key={col.key}>
-                  <Checkbox checked={columns.find((column) => column.key === col.key)?.visible || false} onChange={(e) => toggleVisibility(col.key, e.target.checked)} />
-                  {col.title}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <DndContext
-            onDragEnd={handleDragEnd}
-            sensors={useSensors(
-              useSensor(PointerSensor),
-              useSensor(KeyboardSensor, {
-                coordinateGetter: sortableKeyboardCoordinates,
-              })
-            )}
-          >
-            <div
-              style={{
-                width: "46%",
-                border: "1px solid #8080806e",
-                borderRadius: "8px",
-                padding: "10px",
-              }}
-            >
-              <div
-                style={{
-                  marginBottom: "20px",
-                  borderBottom: "1px solid #80808051",
-                  padding: "8px 8px 12px 8px",
-                }}
-              >
-                <Text style={{ fontWeight: 600 }}>Sütunların Sıralamasını Ayarla</Text>
-              </div>
-              <div style={{ height: "400px", overflow: "auto" }}>
-                <SortableContext items={columns.filter((col) => col.visible).map((col) => col.key)} strategy={verticalListSortingStrategy}>
-                  {columns
-                    .filter((col) => col.visible)
-                    .map((col, index) => (
-                      <DraggableRow key={col.key} id={col.key} index={index} text={col.title} />
-                    ))}
-                </SortableContext>
-              </div>
-            </div>
-          </DndContext>
-        </div>
-      </Modal>
-      <FormProvider {...methods}>
-        {/* Toolbar */}
-        <div
-          style={{
-            backgroundColor: "white",
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            marginBottom: "15px",
-            gap: "10px",
-            padding: "15px",
-            borderRadius: "8px 8px 8px 8px",
-            filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              alignItems: "center",
-              // width: "100%",
-              // maxWidth: "935px",
-              flexWrap: "wrap",
-            }}
-          >
-            <StyledButton onClick={() => setIsModalVisible(true)}>
-              <MenuOutlined />
-            </StyledButton>
-            <Input
-              style={{ width: "250px" }}
-              type="text"
-              placeholder="Arama yap..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onPressEnter={handleSearch}
-              // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
-              suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
-            />
-            <Filters onChange={handleBodyChange} />
-            <DurumSelect value={selectedDurum} onChange={handleDurumChange} />
-            {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
-            {/* Other toolbar components */}
-          </div>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <OperationsInfo ids={keyArray} selectedRowsData={selectedRows} onRefresh={refreshTableData} />
-            <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-            <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
-          </div>
-        </div>
-        {/* Table */}
-        <div
-          style={{
-            backgroundColor: "white",
-            padding: "10px",
-            height: "calc(100vh - 200px)",
-            borderRadius: "8px 8px 8px 8px",
-            filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
-          }}
-        >
-          <Spin spinning={loading || (!infiniteScrollEnabled && paginationLoading)}>
-            <Table
-              components={components}
-              rowSelection={rowSelection}
-              columns={filteredColumns}
-              dataSource={data}
-              pagination={false}
-              scroll={{ y: "calc(100vh - 335px)" }}
-              onScroll={handleTableScroll}
-              footer={tableFooter}
-            />
-          </Spin>
-        </div>
-      </FormProvider>
-
-      {/* Only render DetailUpdate when we have a selectedVehicleId */}
-      {selectedVehicleId && (
-        <DetailUpdate
-          isOpen={isDetailModalOpen}
-          selectedRows1={selectedRows1}
-          onClose={() => {
-            setIsDetailModalOpen(false);
-            setSelectedVehicleId(null);
-          }}
-          selectedId={selectedVehicleId}
-          onSuccess={() => {
-            refreshTableData();
-            setIsDetailModalOpen(false);
-            setSelectedVehicleId(null);
-          }}
-        />
-      )}
-    </>
-  );
-};
-
-export default Yakit;
+      });
+  };
