@@ -5,6 +5,7 @@ import styled from "styled-components";
 import "./style.css";
 import { useFormContext } from "react-hook-form";
 import StatusSelect from "./components/StatusSelect";
+import { t } from "i18next";
 
 const { Text } = Typography;
 
@@ -146,20 +147,20 @@ export default function CustomFilter({ onSubmit }) {
         className={isFilterApplied ? "#ff0000-dot-button" : ""}
       >
         <FilterOutlined />
-        <span style={{ marginRight: "5px" }}>Filtreler</span>
+        <span style={{ marginRight: "5px" }}>{t("filtreler")}</span>
         {isFilterApplied && <span className="blue-dot"></span>}
       </Button>
       <Drawer
         extra={
           <Space>
             <Button type="primary" onClick={handleSubmit}>
-              Uygula
+              {t("uygula")}
             </Button>
           </Space>
         }
         title={
           <span>
-            <FilterOutlined style={{ marginRight: "8px" }} /> Filtreler
+            <FilterOutlined style={{ marginRight: "8px" }} /> {t("filtreler")}
           </span>
         }
         placement="right"
@@ -186,7 +187,7 @@ export default function CustomFilter({ onSubmit }) {
                   alignItems: "center",
                 }}
               >
-                <Text>Yeni Filtre</Text>
+                <Text>{t("yeniFiltre")}</Text>
                 <CloseButton onClick={() => handleCancelClick(row.id)}>
                   <StyledCloseOutlined />
                 </CloseButton>
@@ -195,7 +196,7 @@ export default function CustomFilter({ onSubmit }) {
                 <Select
                   style={{ width: "100%", marginBottom: "10px" }}
                   showSearch
-                  placeholder={`Seçim Yap`}
+                  placeholder={`${t("secimYap")}`}
                   optionFilterProp="children"
                   onChange={(value) => handleSelectChange(value, row.id)}
                   value={selectedValues[row.id] || undefined}
@@ -204,28 +205,28 @@ export default function CustomFilter({ onSubmit }) {
                   options={[
                     {
                       value: "aracTip",
-                      label: "Araç Tipi",
+                      label: t("aracTip"),
                     },
                     {
                       value: "grup",
-                      label: "Araç Grubu",
+                      label: t("grup"),
                     },
                     {
                       value: "marka",
-                      label: "Marka",
+                      label: t("marka"),
                     },
                     {
                       value: "model",
-                      label: "Model",
+                      label: t("model"),
                     },
                     {
                       value: "plaka",
-                      label: "Plaka",
+                      label: t("plaka"),
                     },
                   ]}
                 />
                 <Input
-                  placeholder="Arama Yap"
+                  placeholder={t("aramaYap")}
                   name={`input-${row.id}`}
                   value={inputValues[`input-${row.id}`] || ""}
                   onChange={(e) => handleInputChange(e, row.id)}
@@ -247,7 +248,7 @@ export default function CustomFilter({ onSubmit }) {
           }}
         >
           <PlusOutlined />
-          Filtre ekle
+          {t("filtreEkle")}
         </Button>
       </Drawer>
     </>

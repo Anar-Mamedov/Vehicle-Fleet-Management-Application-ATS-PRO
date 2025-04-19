@@ -7,7 +7,7 @@ import MainTabs from "./components/MainTabs/MainTabs.jsx";
 import { useForm, Controller, useFormContext, FormProvider } from "react-hook-form";
 import dayjs from "dayjs";
 import AxiosInstance from "../../../../../api/http.jsx";
-
+import { t } from "i18next";
 export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) {
   const [, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
@@ -135,10 +135,10 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
 
   const onClose = () => {
     Modal.confirm({
-      title: "İptal etmek istediğinden emin misin?",
-      content: "Kaydedilmemiş değişiklikler kaybolacaktır.",
-      okText: "Evet",
-      cancelText: "Hayır",
+      title: t("iptalEtmekIstedigindenEminMisin"),
+      content: t("kaydedilmemisDegisikliklerKaybolacaktir"),
+      okText: t("evet"),
+      cancelText: t("hayir"),
       onOk: () => {
         setOpen(false);
         reset();
@@ -153,12 +153,12 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
         <Modal
           width="880px"
           centered
-          title={`Aks Yapılandırma`}
+          title={t("aksYapilandirma")}
           open={drawerVisible}
           onCancel={onClose}
           footer={
             <Space>
-              <Button onClick={onClose}>İptal</Button>
+              <Button onClick={onClose}>{t("iptal")}</Button>
               <Button
                 type="submit"
                 onClick={methods.handleSubmit(onSubmit)}
@@ -168,7 +168,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
                   color: "#ffffff",
                 }}
               >
-                Güncelle
+                {t("guncelle")}
               </Button>
             </Space>
           }

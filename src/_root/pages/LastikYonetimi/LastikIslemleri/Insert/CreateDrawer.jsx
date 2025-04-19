@@ -16,10 +16,10 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   };
   const onClose = () => {
     Modal.confirm({
-      title: "İptal etmek istediğinden emin misin?",
-      content: "Kaydedilmemiş değişiklikler kaybolacaktır.",
-      okText: "Evet",
-      cancelText: "Hayır",
+      title: t("iptalEtmekIstedigindenEminMisin"),
+      content: t("kaydedilmemisDegisikliklerKaybolacaktir"),
+      okText: t("evet"),
+      cancelText: t("hayir"),
       onOk: () => {
         setOpen(false);
         methods.reset();
@@ -83,23 +83,23 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
     AxiosInstance.post("Axel/AddAxelItem", Body)
       .then((response) => {
         // Handle successful response here, e.g.:
-        console.log("Data sent successfully:", response);
+        console.log(t("dataGonderildiBasarili"), response);
 
         if (response.data.statusCode === 200 || response.data.statusCode === 201) {
-          message.success("Ekleme Başarılı.");
+          message.success(t("eklemeBasarili"));
           setOpen(false);
           onRefresh();
           reset();
         } else if (response.data.statusCode === 401) {
-          message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
+          message.error(t("buIslemiYapmayaYetkinizBulunmamaktadir"));
         } else {
-          message.error("Ekleme Başarısız.");
+          message.error(t("eklemeBasarisiz"));
         }
       })
       .catch((error) => {
         // Handle errors here, e.g.:
-        console.error("Error sending data:", error);
-        message.error("Başarısız Olundu.");
+        console.error(t("dataGondermeBasarisiz"), error);
+        message.error(t("basarisizOlundu"));
       });
     console.log({ Body });
   };
@@ -126,18 +126,18 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
           }}
         >
           <PlusOutlined />
-          Ekle
+          {t("ekle")}
         </Button>
         <Modal
           width="880px"
           centered
-          title={`Yeni Aks Yapılandırma`}
+          title={t("yeniAksYapilandirma")}
           destroyOnClose
           open={open}
           onCancel={onClose}
           footer={
             <Space>
-              <Button onClick={onClose}>İptal</Button>
+              <Button onClick={onClose}>{t("iptal")}</Button>
               <Button
                 type="submit"
                 onClick={methods.handleSubmit(onSubmit)}
@@ -147,7 +147,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
                   color: "#ffffff",
                 }}
               >
-                Kaydet
+                {t("kaydet")}
               </Button>
             </Space>
           }

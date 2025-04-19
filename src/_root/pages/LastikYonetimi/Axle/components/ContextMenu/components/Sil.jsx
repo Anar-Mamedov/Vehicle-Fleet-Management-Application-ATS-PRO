@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import AxiosInstance from "../../../../../../../api/http";
 import { Button, message, Popconfirm } from "antd";
 import { DeleteOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { t } from "i18next";
 
 export default function Sil({ selectedRows, refreshTableData, disabled, hidePopover }) {
   // selectedRows.forEach((row, index) => {
@@ -20,19 +21,19 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
     try {
       // Silme API isteğini gönder
       const response = await AxiosInstance.post(`Axel/DeleteAxelItem`, body);
-      console.log("Silme işlemi başarılı:", response);
+      console.log(t("silmeIslemiBasarili"), response);
       if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202 || response.data.statusCode === 204) {
-        message.success("İşlem Başarılı.");
+        message.success(t("islemBasarili"));
       } else if (response.data.statusCode === 401) {
-        message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
+        message.error(t("buIslemiYapmayaYetkinizBulunmamaktadir"));
       } else if (response.data.statusCode === 409) {
-        message.error("Bu aks yapılandırmasına bağlı kayıtlar bulunmaktadır.");
+        message.error(t("buAksYapilandirmasinaBagliKayitlarBulunmaktadir"));
       } else {
-        message.error("İşlem Başarısız.");
+        message.error(t("islemBasarisiz"));
       }
       // Burada başarılı silme işlemi sonrası yapılacak işlemler bulunabilir.
     } catch (error) {
-      console.error("Silme işlemi sırasında hata oluştu:", error);
+      console.error(t("silmeIslemiSırasındaHataOlustu"), error);
     }
     // Tüm silme işlemleri tamamlandıktan sonra ve hata oluşmamışsa refreshTableData'i çağır
     if (!isError) {
@@ -69,11 +70,11 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
   return (
     <div style={buttonStyle}>
       <Popconfirm
-        title="Silme İşlemi"
-        description="Bu öğeyi silmek istediğinize emin misiniz?"
+        title={t("silmeIslemi")}
+        description={t("silmeIslemiAciklama")}
         onConfirm={handleDelete}
-        okText="Evet"
-        cancelText="Hayır"
+        okText={t("evet")}
+        cancelText={t("hayir")}
         icon={
           <QuestionCircleOutlined
             style={{
@@ -83,7 +84,7 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
         }
       >
         <Button style={{ paddingLeft: "0px" }} type="link" danger icon={<DeleteOutlined />}>
-          Sil
+          {t("sil")}
         </Button>
       </Popconfirm>
     </div>

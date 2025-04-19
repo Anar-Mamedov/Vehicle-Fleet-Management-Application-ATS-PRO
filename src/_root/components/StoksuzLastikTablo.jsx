@@ -1,8 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Button, Modal, Table, Input, Spin } from "antd";
+import { Button, Modal, Table, Input, Spin, ConfigProvider } from "antd";
 import AxiosInstance from "../../api/http";
 import { SearchOutlined } from "@ant-design/icons";
-
+import { t } from "i18next";
+import tr_TR from "antd/es/locale/tr_TR";
+import en_US from "antd/es/locale/en_US";
+import ru_RU from "antd/es/locale/ru_RU";
+import i18next from "i18next";
 // Türkçe karakterleri İngilizce karşılıkları ile değiştiren fonksiyon
 const normalizeText = (text) => {
   return text
@@ -31,10 +35,55 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [locale, setLocale] = useState(tr_TR);
+
+  useEffect(() => {
+    // Set locale based on i18next language
+    const currentLang = i18next.language;
+
+    // Select locale based on language
+    switch (currentLang) {
+      case "en":
+        setLocale(en_US);
+        break;
+      case "ru":
+        setLocale(ru_RU);
+        break;
+      case "az":
+        setLocale(tr_TR); // Use Turkish locale for Azerbaijani as it's close enough
+        break;
+      default:
+        setLocale(tr_TR);
+    }
+
+    // Listen for language changes
+    const handleLanguageChanged = () => {
+      const lang = i18next.language;
+      switch (lang) {
+        case "en":
+          setLocale(en_US);
+          break;
+        case "ru":
+          setLocale(ru_RU);
+          break;
+        case "az":
+          setLocale(tr_TR); // Use Turkish locale for Azerbaijani
+          break;
+        default:
+          setLocale(tr_TR);
+      }
+    };
+
+    i18next.on("languageChanged", handleLanguageChanged);
+
+    return () => {
+      i18next.off("languageChanged", handleLanguageChanged);
+    };
+  }, []);
 
   const columns = [
     {
-      title: "Tanım",
+      title: t("tanim"),
       dataIndex: "tanim",
       key: "tanim",
       width: 120,
@@ -47,7 +96,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
       },
     },
     {
-      title: "Marka",
+      title: t("marka"),
       dataIndex: "marka",
       key: "marka",
       width: 130,
@@ -59,7 +108,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
       },
     },
     {
-      title: "Model",
+      title: t("model"),
       dataIndex: "model",
       key: "model",
       width: 130,
@@ -71,7 +120,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
       },
     },
     {
-      title: "Tip",
+      title: t("tip"),
       dataIndex: "tip",
       key: "tip",
       width: 120,
@@ -83,7 +132,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
       },
     },
     {
-      title: "Ebat",
+      title: t("ebat"),
       dataIndex: "ebat",
       key: "ebat",
       width: 120,
@@ -95,7 +144,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
       },
     },
     {
-      title: "Firma",
+      title: t("firma"),
       dataIndex: "firma",
       key: "firma",
       width: 120,
@@ -107,7 +156,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
       },
     },
     {
-      title: "Açıklama",
+      title: t("aciklama"),
       dataIndex: "aciklama",
       key: "aciklama",
       width: 120,
@@ -119,7 +168,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
       },
     },
     {
-      title: "Lastik Ömrü",
+      title: t("lastikOmru"),
       dataIndex: "lastikOmru",
       key: "lastikOmru",
       width: 120,
@@ -131,7 +180,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
       },
     },
     {
-      title: "Basınç",
+      title: t("basinc"),
       dataIndex: "basinc",
       key: "basinc",
       width: 130,
@@ -143,7 +192,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
       },
     },
     {
-      title: "Diş Derinlik",
+      title: t("disDerinlik"),
       dataIndex: "disDerinlik",
       key: "disDerinlik",
       width: 130,
@@ -155,7 +204,7 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
       },
     },
     {
-      title: "Fiyat",
+      title: t("fiyat"),
       dataIndex: "fiyat",
       key: "fiyat",
       width: 130,
@@ -239,43 +288,45 @@ export default function StoksuzLastikTablo({ workshopSelectedId, onSubmit, selec
   };
 
   return (
-    <div style={{ display: "flex", gap: "5px" }}>
-      <Button onClick={handleModalToggle}> + </Button>
-      <Button onClick={onClear} danger>
-        -
-      </Button>
-      <Modal width={1200} centered title="Lastik Listesi" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
-        <Input
-          style={{ width: "300px", marginBottom: "15px" }}
-          type="text"
-          placeholder="Arama yap..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onPressEnter={handleSearch}
-          suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
-        />
-        <Spin spinning={loading}>
-          <Table
-            rowSelection={{
-              type: "radio",
-              selectedRowKeys,
-              onChange: onRowSelectChange,
-            }}
-            columns={columns}
-            dataSource={data}
-            loading={loading}
-            pagination={{
-              current: currentPage,
-              total: totalCount,
-              pageSize: pageSize,
-              showSizeChanger: false,
-              showQuickJumper: true,
-              onChange: handleTableChange,
-            }}
-            scroll={{ y: "calc(100vh - 330px)" }}
+    <ConfigProvider locale={locale}>
+      <div style={{ display: "flex", gap: "5px" }}>
+        <Button onClick={handleModalToggle}> + </Button>
+        <Button onClick={onClear} danger>
+          -
+        </Button>
+        <Modal width={1200} centered title={t("lastikListesi")} open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
+          <Input
+            style={{ width: "300px", marginBottom: "15px" }}
+            type="text"
+            placeholder={t("aramaYap")}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onPressEnter={handleSearch}
+            suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
           />
-        </Spin>
-      </Modal>
-    </div>
+          <Spin spinning={loading}>
+            <Table
+              rowSelection={{
+                type: "radio",
+                selectedRowKeys,
+                onChange: onRowSelectChange,
+              }}
+              columns={columns}
+              dataSource={data}
+              loading={loading}
+              pagination={{
+                current: currentPage,
+                total: totalCount,
+                pageSize: pageSize,
+                showSizeChanger: false,
+                showQuickJumper: true,
+                onChange: handleTableChange,
+              }}
+              scroll={{ y: "calc(100vh - 330px)" }}
+            />
+          </Spin>
+        </Modal>
+      </div>
+    </ConfigProvider>
   );
 }

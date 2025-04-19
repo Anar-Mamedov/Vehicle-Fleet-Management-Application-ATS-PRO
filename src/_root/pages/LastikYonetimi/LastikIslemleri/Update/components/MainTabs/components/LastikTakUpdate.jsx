@@ -10,10 +10,30 @@ import AxiosInstance from "../../../../../../../../api/http";
 import { t } from "i18next";
 import { Controller, useFormContext, FormProvider, useForm } from "react-hook-form";
 import dayjs from "dayjs";
+// Import locale data for DatePicker
+import enUS from "antd/lib/date-picker/locale/en_US";
+import trTR from "antd/lib/date-picker/locale/tr_TR";
+import ruRU from "antd/lib/date-picker/locale/ru_RU";
+import azAZ from "antd/lib/date-picker/locale/az_AZ";
 
 const getDecimalSeparator = () => {
   const lang = localStorage.getItem("i18nextLng") || "en";
   return ["tr", "az", "ru"].includes(lang) ? "," : ".";
+};
+
+// Function to get DatePicker locale based on i18next language
+const getDatePickerLocale = () => {
+  const lang = localStorage.getItem("i18nextLng") || "en";
+  switch (lang) {
+    case "tr":
+      return trTR;
+    case "ru":
+      return ruRU;
+    case "az":
+      return azAZ;
+    default:
+      return enUS;
+  }
 };
 
 const { Text } = Typography;
@@ -509,6 +529,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                               onChange={(date) => {
                                 field.onChange(date ? date.format("YYYY-MM-DD") : null);
                               }}
+                              locale={getDatePickerLocale()}
                             />
                             {error && <div style={{ color: "red" }}>{error.message}</div>}
                           </>

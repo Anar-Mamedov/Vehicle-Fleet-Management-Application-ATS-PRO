@@ -571,8 +571,8 @@ const Yakit = () => {
   return (
     <>
       {/* Modal for managing columns */}
-      <Modal title="Sütunları Yönet" centered width={800} open={isModalVisible} onOk={() => setIsModalVisible(false)} onCancel={() => setIsModalVisible(false)}>
-        <Text style={{ marginBottom: "15px" }}>Aşağıdaki Ekranlardan Sütunları Göster / Gizle ve Sıralamalarını Ayarlayabilirsiniz.</Text>
+      <Modal title={t("sutunlarYonet")} centered width={800} open={isModalVisible} onOk={() => setIsModalVisible(false)} onCancel={() => setIsModalVisible(false)}>
+        <Text style={{ marginBottom: "15px" }}>{t("sutunlarYonetAciklama")}</Text>
         <div
           style={{
             display: "flex",
@@ -582,7 +582,7 @@ const Yakit = () => {
           }}
         >
           <Button onClick={resetColumns} style={{ marginBottom: "15px" }}>
-            Sütunları Sıfırla
+            {t("sutunlarSifirla")}
           </Button>
         </div>
 
@@ -602,7 +602,7 @@ const Yakit = () => {
                 padding: "8px 8px 12px 8px",
               }}
             >
-              <Text style={{ fontWeight: 600 }}>Sütunları Göster / Gizle</Text>
+              <Text style={{ fontWeight: 600 }}>{t("sutunlarGosterGizle")}</Text>
             </div>
             <div style={{ height: "400px", overflow: "auto" }}>
               {initialColumns.map((col) => (
@@ -638,7 +638,7 @@ const Yakit = () => {
                   padding: "8px 8px 12px 8px",
                 }}
               >
-                <Text style={{ fontWeight: 600 }}>Sütunların Sıralamasını Ayarla</Text>
+                <Text style={{ fontWeight: 600 }}>{t("sutunlarSiralamaAyarla")}</Text>
               </div>
               <div style={{ height: "400px", overflow: "auto" }}>
                 <SortableContext items={columns.filter((col) => col.visible).map((col) => col.key)} strategy={verticalListSortingStrategy}>
@@ -684,7 +684,7 @@ const Yakit = () => {
           <Input
             style={{ width: "250px" }}
             type="text"
-            placeholder="Arama yap..."
+            placeholder={t("aramaYap")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onPressEnter={handleSearch}

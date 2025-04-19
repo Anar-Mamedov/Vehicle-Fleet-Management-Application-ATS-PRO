@@ -107,7 +107,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
           <form>
             <div className="grid gap-1">
               <div className="col-span-12">
-                <h2 className="">Genel Bilgiler</h2>
+                <h2 className="">{t("genelBilgiler")}</h2>
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
@@ -191,7 +191,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
             </div>
             <div className="grid gap-1">
               <div className="col-span-12">
-                <h2 className="">Satınalma Bilgiler</h2>
+                <h2 className="">{t("satinalmaBilgiler")}</h2>
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">

@@ -10,10 +10,31 @@ import LastikModel from "../../../../../../../components/LastikModel";
 import { t } from "i18next";
 import { Controller, useFormContext, FormProvider, useForm } from "react-hook-form";
 import dayjs from "dayjs";
+import locale from "antd/es/date-picker/locale/tr_TR";
+import enLocale from "antd/es/date-picker/locale/en_US";
+import ruLocale from "antd/es/date-picker/locale/ru_RU";
+// Using tr locale for az since Ant Design does not have a specific Azerbaijani locale
+import azLocale from "antd/es/date-picker/locale/tr_TR";
 
 const getDecimalSeparator = () => {
   const lang = localStorage.getItem("i18nextLng") || "en";
   return ["tr", "az", "ru"].includes(lang) ? "," : ".";
+};
+
+// Get DatePicker locale based on i18next language
+const getDatePickerLocale = () => {
+  const lang = localStorage.getItem("i18nextLng") || "en";
+
+  switch (lang) {
+    case "tr":
+      return locale;
+    case "ru":
+      return ruLocale;
+    case "az":
+      return azLocale;
+    default:
+      return enLocale;
+  }
 };
 
 const { Text } = Typography;
@@ -490,6 +511,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                               onChange={(date) => {
                                 field.onChange(date ? date.format("YYYY-MM-DD") : null);
                               }}
+                              locale={getDatePickerLocale()}
                             />
                             {error && <div style={{ color: "red" }}>{error.message}</div>}
                           </>

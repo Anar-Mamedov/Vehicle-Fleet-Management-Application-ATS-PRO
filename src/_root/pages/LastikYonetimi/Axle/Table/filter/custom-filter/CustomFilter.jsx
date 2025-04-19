@@ -5,6 +5,7 @@ import styled from "styled-components";
 import "./style.css";
 import { Controller, useFormContext } from "react-hook-form";
 import dayjs from "dayjs";
+import { t } from "i18next";
 import "dayjs/locale/tr"; // For Turkish locale
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import advancedFormat from "dayjs/plugin/advancedFormat";
@@ -297,7 +298,7 @@ export default function CustomFilter({ onSubmit }) {
                   ]}
                 />
                 <Input
-                  placeholder="Arama Yap"
+                  placeholder={t("aramaYap")}
                   name={`input-${row.id}`}
                   value={inputValues[`input-${row.id}`] || ""}
                   onChange={(e) => handleInputChange(e, row.id)}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Select } from "antd";
 import AxiosInstance from "../../../../../../../../../api/http";
+import { t } from "i18next";
 
 const AxleList = ({ onSelect, clearData }) => {
   const [axles, setAxles] = useState([]);
@@ -40,7 +41,7 @@ const AxleList = ({ onSelect, clearData }) => {
   return (
     <Select
       style={{ width: "100%" }}
-      placeholder="Aks seçiniz"
+      placeholder={t("aksSeciniz")}
       onChange={handleChange}
       loading={loading}
       onDropdownVisibleChange={handleDropdownVisibleChange}
