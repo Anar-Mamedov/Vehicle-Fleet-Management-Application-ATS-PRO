@@ -500,8 +500,8 @@ function LastiginTarihcesi({ vehicleId }) {
     <>
       <ConfigProvider locale={currentLocale}>
         {/* Modal for managing columns */}
-        <Modal title={t("sutunlariYonet")} centered width={800} open={isModalVisible} onOk={() => setIsModalVisible(false)} onCancel={() => setIsModalVisible(false)}>
-          <Text style={{ marginBottom: "15px" }}>{t("sutunAyarlamaAciklama")}</Text>
+        <Modal title={t("sutunlarYonet")} centered width={800} open={isModalVisible} onOk={() => setIsModalVisible(false)} onCancel={() => setIsModalVisible(false)}>
+          <Text style={{ marginBottom: "15px" }}>{t("sutunlarYonetAciklama")}</Text>
           <div
             style={{
               display: "flex",
@@ -511,7 +511,7 @@ function LastiginTarihcesi({ vehicleId }) {
             }}
           >
             <Button onClick={resetColumns} style={{ marginBottom: "15px" }}>
-              {t("sutunlariSifirla")}
+              {t("sutunlarSifirla")}
             </Button>
           </div>
 
@@ -531,7 +531,7 @@ function LastiginTarihcesi({ vehicleId }) {
                   padding: "8px 8px 12px 8px",
                 }}
               >
-                <Text style={{ fontWeight: 600 }}>{t("sutunlariGosterGizle")}</Text>
+                <Text style={{ fontWeight: 600 }}>{t("sutunlarGosterGizle")}</Text>
               </div>
               <div style={{ height: "400px", overflow: "auto" }}>
                 {initialColumns.map((col) => (
@@ -567,7 +567,7 @@ function LastiginTarihcesi({ vehicleId }) {
                     padding: "8px 8px 12px 8px",
                   }}
                 >
-                  <Text style={{ fontWeight: 600 }}>{t("sutunlarinSiralamasiniAyarla")}</Text>
+                  <Text style={{ fontWeight: 600 }}>{t("sutunlarSiralamaAyarla")}</Text>
                 </div>
                 <div style={{ height: "400px", overflow: "auto" }}>
                   <SortableContext items={columns.filter((col) => col.visible).map((col) => col.key)} strategy={verticalListSortingStrategy}>

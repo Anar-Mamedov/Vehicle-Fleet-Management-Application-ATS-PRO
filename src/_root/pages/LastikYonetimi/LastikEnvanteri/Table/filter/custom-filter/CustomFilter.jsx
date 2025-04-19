@@ -5,6 +5,7 @@ import styled from "styled-components";
 import "./style.css";
 import { useFormContext } from "react-hook-form";
 import StatusSelect from "./components/StatusSelect";
+import { t } from "i18next";
 
 const { Text } = Typography;
 
@@ -225,7 +226,7 @@ export default function CustomFilter({ onSubmit }) {
                   ]}
                 />
                 <Input
-                  placeholder="Arama Yap"
+                  placeholder={t("aramaYap")}
                   name={`input-${row.id}`}
                   value={inputValues[`input-${row.id}`] || ""}
                   onChange={(e) => handleInputChange(e, row.id)}
