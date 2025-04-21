@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
@@ -115,6 +115,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     sozlesmeTarih: "",
     egzosTarih: "",
     vergiTarih: "",
+    takografTarih: "",
     ozelAlan1: "",
     ozelAlan2: "",
     ozelAlan3: "",
@@ -187,6 +188,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       muayeneTarih: value.muayeneTarih ? dayjs(value.muayeneTarih).format("YYYY-MM-DD") : null,
       egzosTarih: value.egzosTarih ? dayjs(value.egzosTarih).format("YYYY-MM-DD") : null,
       vergiTarih: value.vergiTarih ? dayjs(value.vergiTarih).format("YYYY-MM-DD") : null,
+      takografTarih: value.takografTarih ? dayjs(value.takografTarih).format("YYYY-MM-DD") : null,
       sozlesmeTarih: value.sozlesmeTarih ? dayjs(value.sozlesmeTarih).format("YYYY-MM-DD") : null,
       yakitTipId: value.yakitTipId || 0,
       kmLog: kmLog,
