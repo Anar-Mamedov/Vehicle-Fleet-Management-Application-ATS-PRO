@@ -1,3 +1,4 @@
+import React from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import TextInput from "../../../../components/form/inputs/TextInput";
@@ -152,6 +153,12 @@ const GeneralInfo = ({ isValid }) => {
               <div className="flex flex-col gap-1">
                 <label className="text-info">{t("vergiTarihi")}</label>
                 <DateInput name="vergiTarih" />
+              </div>
+            </div>
+            <div className="col-span-6">
+              <div className="flex flex-col gap-1">
+                <label className="text-info">{t("takograf")}</label>
+                <DateInput name="takografTarih" />
               </div>
             </div>
           </div>

@@ -175,6 +175,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     sozlesmeTarih: "",
     egzosTarih: "",
     vergiTarih: "",
+    takografTarih: "",
     ozelAlan1: "",
     ozelAlan2: "",
     ozelAlan3: "",
@@ -293,6 +294,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setValue("muayeneTarih", res?.data.muayeneTarih ? dayjs(res?.data.muayeneTarih) : null);
         setValue("sozlesmeTarih", res?.data.sozlesmeTarih ? dayjs(res?.data.sozlesmeTarih) : null);
         setValue("vergiTarih", res?.data.vergiTarih ? dayjs(res?.data.vergiTarih) : null);
+        setValue("takografTarih", res?.data.takografTarih ? dayjs(res?.data.takografTarih) : null);
         setValue("egzosTarih", res?.data.egzosTarih ? dayjs(res?.data.egzosTarih) : null);
         setValue("onGorulen", res?.data.onGorulen.toFixed(Number(res?.data.ortalamaFormat)));
         setValue("onGorulenMin", res?.data.onGorulenMin.toFixed(Number(res?.data.ortalamaFormat)));
@@ -371,6 +373,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       egzosTarih: values?.egzosTarih ? dayjs(values?.egzosTarih).format("YYYY-MM-DD") : null,
       vergiTarih: values?.vergiTarih ? dayjs(values?.vergiTarih).format("YYYY-MM-DD") : null,
       sozlesmeTarih: values?.sozlesmeTarih ? dayjs(values?.sozlesmeTarih).format("YYYY-MM-DD") : null,
+      takografTarih: values?.takografTarih ? dayjs(values?.takografTarih).format("YYYY-MM-DD") : null,
       yakitTipId: values.yakitTipId || 0,
       tts: values.tts,
       aracMulkiyetKodId: values.mulkiyetID || 0,

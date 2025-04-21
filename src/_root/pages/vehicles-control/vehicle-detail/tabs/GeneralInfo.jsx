@@ -244,6 +244,17 @@ const GeneralInfo = () => {
                   <DateInput name="vergiTarih" />
                 </div>
               </div>
+              <div className="col-span-6">
+                <div className="flex flex-col gap-1">
+                  <label className="text-info flex gap-2" style={{ color: warning.takograf ? "red" : "#17a2b8" }}>
+                    <span>{t("takograf")} </span>
+                    <span className={`warning-icon ${warning.takograf ? "show" : "hide"}`}>
+                      <IoIosWarning style={{ color: "red", fontSize: 18 }} />
+                    </span>
+                  </label>
+                  <DateInput name="takografTarih" />
+                </div>
+              </div>
             </div>
           </div>
           <div className="border mt-10" style={{ padding: "5px 10px" }}>
