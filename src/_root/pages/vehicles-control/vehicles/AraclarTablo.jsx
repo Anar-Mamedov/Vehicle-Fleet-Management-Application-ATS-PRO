@@ -187,6 +187,8 @@ const Yakit = ({ ayarlarData }) => {
   const [isLoadingPage, setIsLoadingPage] = useState(false);
   // Add ref to track last fetch ID for deduplication
   const lastFetchIdRef = useRef(0);
+  // Add scroll timeout ref for throttling
+  const scrollTimeoutRef = useRef(null);
   // Add set to track already loaded IDs to prevent duplicates
   const [loadedIds, setLoadedIds] = useState(new Set());
 
@@ -226,7 +228,7 @@ const Yakit = ({ ayarlarData }) => {
   // Fixed page size options
   const pageSizeOptions = [20, 50, 100];
 
-  const fetchData = async (diff, targetPage, currentSize = pageSize) => {
+  const fetchDataWithDurum = async (diff, targetPage, currentSize = pageSize, durumValue) => {
     // Increment fetch ID to track this specific request
     const currentFetchId = lastFetchIdRef.current + 1;
     lastFetchIdRef.current = currentFetchId;
@@ -254,12 +256,17 @@ const Yakit = ({ ayarlarData }) => {
 
       const customFilters = body.filters.customfilters === "" ? null : body.filters.customfilters;
 
+      // Use the directly passed durum value to ensure no lag
+      const durumParam = durumValue !== undefined ? durumValue : selectedDurum !== null ? selectedDurum : 0;
+
+      console.log(`API request with durum value: ${durumParam}`);
+
       const response = await AxiosInstance.post(
-        `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${selectedDurum || 0}&pageSize=${currentSize}`, // Use currentSize
+        `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${durumParam}&pageSize=${currentSize}`,
         customFilters
       );
 
-      // Check if this response is still relevant (could be outdated by now)
+      // Continue with the same processing logic as fetchData
       if (currentFetchId !== lastFetchIdRef.current) {
         console.log("Ignoring outdated fetch response");
         return;
@@ -268,63 +275,42 @@ const Yakit = ({ ayarlarData }) => {
       const total = response.data.vehicleCount;
       setTotalCount(total);
 
-      // Only update currentPage if targetPage is provided (meaning it's a pagination change)
       if (targetPage !== undefined) {
         setCurrentPage(targetPage);
       }
 
-      // Add ID deduplication
-      const newItems = [];
-      const currentIds = new Set(loadedIds);
+      const vehicleItems = response.data.vehicleList || [];
+      const newItems = vehicleItems.map((item) => ({
+        ...item,
+        key: item.aracId,
+      }));
 
-      response.data.vehicleList.forEach((item) => {
-        // Only add items we haven't seen before
-        if (!currentIds.has(item.aracId)) {
-          currentIds.add(item.aracId);
-          newItems.push({
-            ...item,
-            key: item.aracId,
-          });
-        }
-      });
-
-      // Handle data updating based on whether infinite scroll is enabled and on diff
       if (infiniteScrollEnabled) {
-        // For infinite scrolling mode
         if (diff > 0 && newItems.length > 0) {
-          // Only add new items that aren't already in the list
-          setData((prevData) => [...prevData, ...newItems]);
-          // Update our loaded IDs tracker
-          setLoadedIds(currentIds);
-        } else if (newItems.length > 0 || targetPage === 1) {
-          // For first load or refresh, replace data and reset ID tracking
+          const existingIds = new Set(data.map((item) => item.aracId));
+          const uniqueNewItems = newItems.filter((item) => !existingIds.has(item.aracId));
+
+          if (uniqueNewItems.length > 0) {
+            setData((prevData) => [...prevData, ...uniqueNewItems]);
+          }
+        } else if (diff === 0 || targetPage === 1) {
           setData(newItems);
-          setLoadedIds(new Set(newItems.map((item) => item.aracId)));
         } else if (newItems.length === 0 && data.length > 0 && diff !== 0) {
-          // If no more data, just keep current data
           console.log("Fetched page has no data, staying on current data set.");
         }
       } else {
-        // For pagination mode, always replace the data
         if (newItems.length > 0) {
           setData(newItems);
-          // Reset ID tracking for pagination mode
-          setLoadedIds(new Set(newItems.map((item) => item.aracId)));
         } else {
-          // No data found for this page
           message.warning("Veri bulunamadı.");
           if (targetPage === 1) {
-            // If it's the first page and no data, clear the list
             setData([]);
-            setLoadedIds(new Set());
           }
-          // Otherwise keep current data so user can navigate back
         }
       }
     } catch (error) {
       console.error("Veri çekme hatası:", error);
       message.error("Veri çekerken bir hata oluştu.");
-      // Hata durumunda verileri değiştirmiyoruz, eski verileri koruyoruz
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
@@ -332,20 +318,26 @@ const Yakit = ({ ayarlarData }) => {
     }
   };
 
-  // useEffect for initial fetch and when selectedDurum changes
+  // The original fetchData function now uses the helper
+  const fetchData = async (diff, targetPage, currentSize = pageSize) => {
+    return fetchDataWithDurum(diff, targetPage, currentSize, undefined);
+  };
+
+  // useEffect for initial fetch and when component mounts
   useEffect(() => {
     // Show loading if infinite scroll is disabled
     if (!infiniteScrollEnabled) {
       setPaginationLoading(true);
     }
 
-    // Fetch initial data or when selectedDurum changes, using the current (possibly persisted) pageSize
+    // Fetch initial data using the current pageSize
     fetchData(0, 1, pageSize).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
     });
-  }, [selectedDurum]);
+    // We removed selectedDurum from dependencies since handleDurumChange handles that separately
+  }, []); // Empty dependency array means this runs only on mount
 
   // useEffect for body (filters/search) changes
   useEffect(() => {
@@ -435,15 +427,22 @@ const Yakit = ({ ayarlarData }) => {
       setPaginationLoading(true);
     }
 
+    // Reset to a clean state when durum changes
+    setData([]);
+    setLoadedIds(new Set());
+    setCurrentPage(1);
+
+    // Set the selected value first
     setSelectedDurum(value);
     console.log("handleDurumChange seçilen durum:", value);
 
-    // The fetchData will be triggered by the useEffect, but we need to make sure to clear the loading state
-    setTimeout(() => {
+    // Fetch data with the current value directly instead of using state
+    // This ensures we use the exact value that was just selected
+    fetchDataWithDurum(0, 1, pageSize, value).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
-    }, 100);
+    });
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
@@ -482,13 +481,63 @@ const Yakit = ({ ayarlarData }) => {
 
     setSelectedRowKeys([]);
     setSelectedRows([]);
+
+    // No need to reset selectedDurum here, as it should be preserved during refresh
+
     // Eski veriyi tutuyoruz, yeni veri gelene kadar
     fetchData(0, 1).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
     });
-  }, [selectedDurum, infiniteScrollEnabled]);
+  }, [infiniteScrollEnabled]);
+
+  // filtreleme işlemi için kullanılan useEffect
+  const handleBodyChange = useCallback(
+    (type, newBody) => {
+      // Show loading if infinite scroll is disabled
+      if (!infiniteScrollEnabled) {
+        setPaginationLoading(true);
+      }
+
+      // Reset selectedDurum when filter changes to avoid conflicts
+      setSelectedDurum(null);
+
+      setBody((state) => ({
+        ...state,
+        [type]: newBody,
+      }));
+      setCurrentPage(1); // Filtreleme yapıldığında sayfa numarasını 1'e ayarla
+
+      // The fetchData will be triggered by the useEffect, but we need to make sure to clear the loading state
+      setTimeout(() => {
+        if (!infiniteScrollEnabled) {
+          setPaginationLoading(false);
+        }
+      }, 100);
+    },
+    [infiniteScrollEnabled]
+  );
+  // filtreleme işlemi için kullanılan useEffect son
+
+  const keyArray = selectedRows.map((row) => row.key);
+
+  // Add cleanup for the scroll timeout ref in a useEffect
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Reset columns
+  const resetColumns = () => {
+    safeLocalStorage.removeItem(columnOrderKey);
+    safeLocalStorage.removeItem(columnVisibilityKey);
+    safeLocalStorage.removeItem(columnWidthsKey);
+    window.location.reload();
+  };
 
   // Columns definition (adjust as needed)
   const initialColumns = [
@@ -989,28 +1038,6 @@ const Yakit = ({ ayarlarData }) => {
     }
   };
 
-  const handlePageSizeChange = (value) => {
-    // Ensure value is one of the allowed options
-    const validValue = [20, 50, 100].includes(value) ? value : 20;
-
-    // Show loading if infinite scroll is disabled
-    if (!infiniteScrollEnabled) {
-      setPaginationLoading(true);
-    }
-
-    // Save the new page size to localStorage
-    localStorage.setItem(pageSizeAraclar, validValue.toString());
-    // Update the pageSize state
-    setPageSize(validValue);
-    // Reset data and fetch with new size
-    // setData([]) çağrısını kaldırdık, eski veriyi tutuyoruz
-    fetchData(0, 1, validValue).finally(() => {
-      if (!infiniteScrollEnabled) {
-        setPaginationLoading(false);
-      }
-    });
-  };
-
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
     const savedOrder = safeLocalStorage.getItem(columnOrderKey, []);
@@ -1037,32 +1064,61 @@ const Yakit = ({ ayarlarData }) => {
     safeLocalStorage.setItem(columnVisibilityKey, visibility);
     safeLocalStorage.setItem(columnWidthsKey, widths);
 
-    return order.map((key) => {
-      const column = initialColumns.find((col) => col.key === key);
-      return { ...column, visible: visibility[key], width: widths[key] };
-    });
+    return order
+      .map((key) => {
+        const column = initialColumns.find((col) => col.key === key);
+        return column ? { ...column, visible: visibility[key], width: widths[key] } : null;
+      })
+      .filter(Boolean);
   });
 
-  // Update scroll handler with throttle using setTimeout
-  const scrollTimeoutRef = useRef(null);
-  const handleTableScroll = (e) => {
-    if (!infiniteScrollEnabled) return; // Skip if infinite scroll is disabled
+  // Toggle column visibility
+  const toggleVisibility = (key, checked) => {
+    const index = columns.findIndex((col) => col.key === key);
+    if (index !== -1) {
+      const newColumns = [...columns];
+      newColumns[index].visible = checked;
+      setColumns(newColumns);
 
-    const { scrollTop, scrollHeight, clientHeight } = e.target;
-    // Load more when user scrolls to 80% of the way down
-    const scrollBottom = scrollHeight - scrollTop - clientHeight;
-
-    // Clear any pending scroll timeout
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
+      // Save the updated column visibility to localStorage
+      const visibility = {};
+      newColumns.forEach((col) => {
+        visibility[col.key] = col.visible;
+      });
+      safeLocalStorage.setItem(columnVisibilityKey, visibility);
+    } else {
+      console.error(`Column with key ${key} does not exist.`);
     }
+  };
 
-    if (scrollBottom <= clientHeight * 0.2 && !loading && !isLoadingMore && !isLoadingPage && data.length < totalCount) {
-      // Use setTimeout to throttle scroll events (200ms delay)
-      scrollTimeoutRef.current = setTimeout(() => {
-        console.log("Loading more data...");
-        fetchData(1, undefined, pageSize);
-      }, 200);
+  // Handle drag and drop
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      const oldIndex = columns.findIndex((column) => column.key === active.id);
+      const newIndex = columns.findIndex((column) => column.key === over.id);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        setColumns((columns) => {
+          const newColumns = arrayMove(columns, oldIndex, newIndex);
+          // Save the updated column order to localStorage
+          const order = newColumns.map((col) => col.key);
+          safeLocalStorage.setItem(columnOrderKey, order);
+
+          // Save column visibility and widths
+          const visibility = {};
+          const widths = {};
+          newColumns.forEach((col) => {
+            visibility[col.key] = col.visible;
+            widths[col.key] = col.width;
+          });
+          safeLocalStorage.setItem(columnVisibilityKey, visibility);
+          safeLocalStorage.setItem(columnWidthsKey, widths);
+
+          return newColumns;
+        });
+      } else {
+        console.error(`Column with key ${active.id} or ${over.id} does not exist.`);
+      }
     }
   };
 
@@ -1083,6 +1139,28 @@ const Yakit = ({ ayarlarData }) => {
         return newColumns;
       });
     };
+
+  // Update scroll handler with throttle using setTimeout
+  const handleTableScroll = (e) => {
+    if (!infiniteScrollEnabled) return; // Skip if infinite scroll is disabled
+
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    // Load more when user scrolls to 80% of the way down
+    const scrollBottom = scrollHeight - scrollTop - clientHeight;
+
+    // Clear any pending scroll timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    if (scrollBottom <= clientHeight * 0.2 && !loading && !isLoadingMore && !isLoadingPage && data.length < totalCount) {
+      // Use setTimeout to throttle scroll events (200ms delay)
+      scrollTimeoutRef.current = setTimeout(() => {
+        console.log("Loading more data...");
+        fetchData(1, undefined, pageSize);
+      }, 200);
+    }
+  };
 
   const components = {
     header: {
@@ -1122,7 +1200,7 @@ const Yakit = ({ ayarlarData }) => {
             )}
             <div style={{ display: "flex", alignItems: "center" }}>
               <span style={{ marginRight: "8px" }}>Kayıt:</span>
-              <Select value={[20, 50, 100].includes(pageSize) ? pageSize : 20} onChange={handlePageSizeChange} style={{ width: 70 }} dropdownMatchSelectWidth={false}>
+              <Select value={[20, 50, 100].includes(pageSize) ? pageSize : 20} onChange={handlePageSizeChange} style={{ width: 70 }} popupMatchSelectWidth={false}>
                 <Option value={20}>20</Option>
                 <Option value={50}>50</Option>
                 <Option value={100}>100</Option>
@@ -1134,100 +1212,26 @@ const Yakit = ({ ayarlarData }) => {
     );
   };
 
-  // Handle drag and drop
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      const oldIndex = columns.findIndex((column) => column.key === active.id);
-      const newIndex = columns.findIndex((column) => column.key === over.id);
-      if (oldIndex !== -1 && newIndex !== -1) {
-        setColumns((columns) => {
-          const newColumns = arrayMove(columns, oldIndex, newIndex);
-          // Save the updated column order to localStorage
-          const order = newColumns.map((col) => col.key);
-          safeLocalStorage.setItem(columnOrderKey, order);
+  const handlePageSizeChange = (value) => {
+    // Ensure value is one of the allowed options
+    const validValue = [20, 50, 100].includes(value) ? value : 20;
 
-          // Save column visibility and widths
-          const visibility = {};
-          const widths = {};
-          newColumns.forEach((col) => {
-            visibility[col.key] = col.visible;
-            widths[col.key] = col.width;
-          });
-          safeLocalStorage.setItem(columnVisibilityKey, visibility);
-          safeLocalStorage.setItem(columnWidthsKey, widths);
-
-          return newColumns;
-        });
-      } else {
-        console.error(`Column with key ${active.id} or ${over.id} does not exist.`);
-      }
+    // Show loading if infinite scroll is disabled
+    if (!infiniteScrollEnabled) {
+      setPaginationLoading(true);
     }
-  };
 
-  // Toggle column visibility
-  const toggleVisibility = (key, checked) => {
-    const index = columns.findIndex((col) => col.key === key);
-    if (index !== -1) {
-      const newColumns = [...columns];
-      newColumns[index].visible = checked;
-      setColumns(newColumns);
-
-      // Save the updated column visibility to localStorage
-      const visibility = {};
-      newColumns.forEach((col) => {
-        visibility[col.key] = col.visible;
-      });
-      safeLocalStorage.setItem(columnVisibilityKey, visibility);
-    } else {
-      console.error(`Column with key ${key} does not exist.`);
-    }
-  };
-
-  // Reset columns
-  const resetColumns = () => {
-    safeLocalStorage.removeItem(columnOrderKey);
-    safeLocalStorage.removeItem(columnVisibilityKey);
-    safeLocalStorage.removeItem(columnWidthsKey);
-    window.location.reload();
-  };
-
-  // filtreleme işlemi için kullanılan useEffect
-  const handleBodyChange = useCallback(
-    (type, newBody) => {
-      // Show loading if infinite scroll is disabled
+    // Save the new page size to localStorage
+    localStorage.setItem(pageSizeAraclar, validValue.toString());
+    // Update the pageSize state
+    setPageSize(validValue);
+    // Reset data and fetch with new size
+    fetchData(0, 1, validValue).finally(() => {
       if (!infiniteScrollEnabled) {
-        setPaginationLoading(true);
+        setPaginationLoading(false);
       }
-
-      setSelectedDurum(null);
-      setBody((state) => ({
-        ...state,
-        [type]: newBody,
-      }));
-      setCurrentPage(1); // Filtreleme yapıldığında sayfa numarasını 1'e ayarla
-
-      // The fetchData will be triggered by the useEffect, but we need to make sure to clear the loading state
-      setTimeout(() => {
-        if (!infiniteScrollEnabled) {
-          setPaginationLoading(false);
-        }
-      }, 100);
-    },
-    [infiniteScrollEnabled]
-  ); // Add infiniteScrollEnabled as a dependency
-  // filtreleme işlemi için kullanılan useEffect son
-
-  const keyArray = selectedRows.map((row) => row.key);
-
-  // Add cleanup for the scroll timeout ref in a useEffect
-  useEffect(() => {
-    return () => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
-  }, []);
+    });
+  };
 
   return (
     <>
