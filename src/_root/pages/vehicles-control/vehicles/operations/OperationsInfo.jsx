@@ -21,10 +21,12 @@ import Servisler from "./Servisler/Servisler";
 import Surucu from "../../vehicle-detail/detail-info/modals/surucu/Surucu.jsx";
 import Sil from "./Sil/Sil.jsx";
 import Ekspertiz from "../../vehicle-detail/detail-info/modals/ekspertiz/Ekspertiz";
+import AksYapilandirma from "../../../LastikYonetimi/LastikIslemleri/Update/EditDrawer.jsx";
 
 const OperationsInfo = ({ ids, selectedRowsData, onRefresh }) => {
   const { setPlaka } = useContext(PlakaContext);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [drawer, setDrawer] = useState({ visible: false, data: null });
 
   const items = [
     {
@@ -67,11 +69,15 @@ const OperationsInfo = ({ ids, selectedRowsData, onRefresh }) => {
       key: "7",
       icon: <MdHealthAndSafety className="text-info" />,
     },
-    {
-      label: t("lastikler"),
-      key: "8",
-      icon: <FaGear className="text-info" />,
-    },
+    ...(ids.length === 1
+      ? [
+          {
+            label: t("lastikler"),
+            key: "8",
+            icon: <FaGear className="text-info" />,
+          },
+        ]
+      : []),
     {
       label: t("kmTakibi"),
       key: "9",
@@ -123,6 +129,10 @@ const OperationsInfo = ({ ids, selectedRowsData, onRefresh }) => {
     items,
     onClick: (e) => {
       setSelectedItem(e.key);
+      if (e.key === "8") {
+        // When lastikler (key 8) is selected, set the drawer data and make it visible
+        setDrawer({ visible: true, data: selectedRowsData[0] });
+      }
     },
   };
 
@@ -213,17 +223,17 @@ const OperationsInfo = ({ ids, selectedRowsData, onRefresh }) => {
           />
         );
       case "8":
-        return (
-          <Lastik
-            visible={selectedItem === "8"}
-            onClose={() => {
+        return ids.length === 1 ? (
+          <AksYapilandirma
+            selectedRow={drawer.data}
+            onDrawerClose={() => {
+              setDrawer({ ...drawer, visible: false });
               setSelectedItem(null);
-              // setPlaka([]);
             }}
-            ids={ids}
-            selectedRowsData={selectedRowsData}
+            drawerVisible={drawer.visible}
+            onRefresh={onRefresh}
           />
-        );
+        ) : null;
       case "9":
         return (
           <KmTakibi
@@ -322,6 +332,8 @@ const OperationsInfo = ({ ids, selectedRowsData, onRefresh }) => {
 
 OperationsInfo.propTypes = {
   ids: PropTypes.array,
+  selectedRowsData: PropTypes.array,
+  onRefresh: PropTypes.func,
 };
 
 export default OperationsInfo;

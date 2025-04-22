@@ -11,6 +11,7 @@ import { useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import CreateDrawer from "../Insert/CreateDrawer";
 import EditDrawer from "../../../../ServisIslemleri/Update/EditDrawer";
+import Filters from "../../../../ServisIslemleri/Table/filter/Filters";
 import dayjs from "dayjs";
 import { t } from "i18next";
 
@@ -662,7 +663,10 @@ const MainTable = ({ ids, selectedRowsData }) => {
         currentSetPointId = 0;
       }
 
-      const response = await AxiosInstance.post(`VehicleServices/GetVehicleServicesByVehicleIds?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, ids);
+      const response = await AxiosInstance.post(`VehicleServices/GetVehicleServicesByVehicleIds?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, {
+        vIds: ids,
+        filter: body.filters?.customfilter || {},
+      });
 
       setTotalDataCount(response.data.recordCount);
       setCurrentPage(targetPage);
@@ -718,11 +722,30 @@ const MainTable = ({ ids, selectedRowsData }) => {
 
   // filtreleme işlemi için kullanılan useEffect
   const handleBodyChange = useCallback((type, newBody) => {
-    setBody((state) => ({
-      ...state,
-      [type]: newBody,
-    }));
+    setBody((prevBody) => {
+      if (type === "filters") {
+        // If newBody is a function, call it with previous filters
+        const updatedFilters =
+          typeof newBody === "function"
+            ? newBody(prevBody.filters)
+            : {
+                ...prevBody.filters,
+                ...newBody,
+              };
+
+        return {
+          ...prevBody,
+          filters: updatedFilters,
+        };
+      }
+      return {
+        ...prevBody,
+        [type]: newBody,
+      };
+    });
+    setCurrentPage(1);
   }, []);
+  // filtreleme işlemi için kullanılan useEffect son
 
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -1001,6 +1024,8 @@ const MainTable = ({ ids, selectedRowsData }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
             prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
           />
+
+          <Filters onChange={handleBodyChange} />
           {/* <TeknisyenSubmit selectedRows={selectedRows} refreshTableData={refreshTableData} />
           <AtolyeSubmit selectedRows={selectedRows} refreshTableData={refreshTableData} /> */}
         </div>
