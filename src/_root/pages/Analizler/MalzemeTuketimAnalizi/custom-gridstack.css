@@ -1,0 +1,73 @@
+/* custom-gridstack.css */
+
+/* Widgetların kutu gölgesini ekleyin */
+.grid-stack-item {
+  -webkit-filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  transition: filter 0.3s ease-in-out;
+}
+
+.grid-stack-item:hover {
+  -webkit-filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+}
+
+/* custom-gridstack.css */
+
+.grid-stack-item {
+  padding: 10px 10px 0 10px !important;
+}
+
+.grid-stack-item .widget-header {
+  position: relative;
+  border-radius: 5px;
+  color: #ff000000;
+  /*border: 1px solid red;*/
+  z-index: 2;
+  padding: 15px 15px 15px 15px;
+  background-color: rgba(240, 240, 240, 0);
+  cursor: grab;
+  width: 90%;
+  justify-self: center;
+}
+
+.grid-stack-item .widget-body {
+  inset: 7px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: auto;
+  position: absolute;
+}
+
+/*.grid-stack-item > :first-child {*/
+/*    -webkit-filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;*/
+/*    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;*/
+/*    transition: filter 0.3s ease-in-out !important;*/
+/*}*/
+
+/*.grid-stack-item > :first-child:hover {*/
+/*    -webkit-filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3)) !important;*/
+/*    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3)) !important;*/
+/*}*/
+
+/* Resize handle için özel ikon */
+
+.grid-stack .ui-resizable-se {
+  background: url("./icon.svg") no-repeat center center;
+  background-size: contain;
+  width: 16px; /* Icon width */
+  height: 16px; /* Icon height */
+  right: 0;
+  bottom: 0;
+  cursor: se-resize;
+}
+
+.grid-stack .ui-resizable-sw {
+  background: url("./icon.svg") no-repeat center center;
+  background-size: contain;
+  width: 16px; /* Icon width */
+  height: 16px; /* Icon height */
+  right: 0;
+  bottom: 0;
+  cursor: sw-resize;
+}
