@@ -107,7 +107,7 @@ function ComponentSingleCard() {
     <div style={{ width: "100%", height: "100%" }}>
       {renderCard(
         data, // API'den gelen değer (type=1 sonucu)
-        t("toplamMalzemeTutari"), // Kart üzerindeki başlık/label
+        t("toplamMalzemeMaliyeti"), // Kart üzerindeki başlık/label
         "linear-gradient(to right, #ff7e5f, #feb47b)", // Arka plan
         isLoading // Yüklenme durumu
       )}

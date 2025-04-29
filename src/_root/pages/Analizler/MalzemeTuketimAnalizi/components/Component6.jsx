@@ -13,8 +13,11 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import trTR from "antd/lib/locale/tr_TR";
 import { t } from "i18next";
+import Filters from "./filter/Filters";
 
 const { Text } = Typography;
+
+const infiniteScrollKey = "tabloInfiniteScroll";
 
 const StyledButton = styled(Button)`
   display: flex;
@@ -141,6 +144,17 @@ const Yakit = () => {
   const [popoverVisible, setPopoverVisible] = useState(false); // Popover için state
   const [tourVisible, setTourVisible] = useState(false); // Tour için state
 
+  const [infiniteScrollEnabled, setInfiniteScrollEnabled] = useState(() => {
+    const savedScrollMode = localStorage.getItem(infiniteScrollKey);
+    return savedScrollMode !== null ? JSON.parse(savedScrollMode) : false;
+  });
+  const [selectedDurum, setSelectedDurum] = useState(null);
+  const [paginationLoading, setPaginationLoading] = useState(false);
+  const [body, setBody] = useState({
+    keyword: "",
+    filters: {},
+  });
+
   const [selectedRows, setSelectedRows] = useState([]);
 
     const baslangicTarihi = watch("baslangicTarihi") ? dayjs(watch("baslangicTarihi")).toISOString() : null;
@@ -244,19 +258,6 @@ const Yakit = () => {
   // Columns definition (adjust as needed)
   const initialColumns = [
     {
-      title: t("malzemeTanim"),
-      dataIndex: "malzemeTanim",
-      key: "malzemeTanim",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.malzemeTanim === null) return -1;
-        if (b.malzemeTanim === null) return 1;
-        return a.malzemeTanim.localeCompare(b.malzemeTanim);
-      },
-    },
-    {
       title: t("malzemeKod"),
       dataIndex: "malzemeKod",
       key: "malzemeKod",
@@ -267,6 +268,19 @@ const Yakit = () => {
         if (a.malzemeKod === null) return -1;
         if (b.malzemeKod === null) return 1;
         return a.malzemeKod.localeCompare(b.malzemeKod);
+      },
+    },
+    {
+      title: t("malzemeTanim"),
+      dataIndex: "malzemeTanim",
+      key: "malzemeTanim",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.malzemeTanim === null) return -1;
+        if (b.malzemeTanim === null) return 1;
+        return a.malzemeTanim.localeCompare(b.malzemeTanim);
       },
     },
     {
@@ -379,11 +393,15 @@ const Yakit = () => {
       key: "sonKullanimTarihi",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık   
+      visible: true,
       sorter: (a, b) => {
         if (a.sonKullanimTarihi === null) return -1;
         if (b.sonKullanimTarihi === null) return 1;
-        return a.sonKullanimTarihi - b.sonKullanimTarihi;
+        return new Date(a.sonKullanimTarihi) - new Date(b.sonKullanimTarihi);
+      },
+      render: (text) => {
+        if (!text) return "-";
+        return dayjs(text).format("DD.MM.YYYY");
       },
     },
     {
@@ -392,11 +410,15 @@ const Yakit = () => {
       key: "ortalamaKullanimSuresi",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık   
+      visible: true,
       sorter: (a, b) => {
         if (a.ortalamaKullanimSuresi === null) return -1;
         if (b.ortalamaKullanimSuresi === null) return 1;
         return a.ortalamaKullanimSuresi - b.ortalamaKullanimSuresi;
+      },
+      render: (text) => {
+        if (text === null || text === undefined) return "-";
+        return Number(text).toFixed(3); // 3 basamaklı gösterir: 0.002
       },
     },
     {
@@ -707,6 +729,56 @@ const Yakit = () => {
       </div>
     );
 
+    const handleBodyChange = useCallback(
+        (type, newBody) => {
+          // Show loading if infinite scroll is disabled
+          if (!infiniteScrollEnabled) {
+            setPaginationLoading(true);
+          }
+    
+          // Reset selectedDurum when filter changes to avoid conflicts
+          setSelectedDurum(null);
+    
+          setBody((state) => ({
+            ...state,
+            [type]: newBody,
+          }));
+          setCurrentPage(1); // Filtreleme yapıldığında sayfa numarasını 1'e ayarla
+    
+          // The fetchData will be triggered by the useEffect, but we need to make sure to clear the loading state
+          setTimeout(() => {
+            if (!infiniteScrollEnabled) {
+              setPaginationLoading(false);
+            }
+          }, 100);
+        },
+        [infiniteScrollEnabled]
+      );
+
+      const handleDurumChange = (value) => {
+        // Show loading if infinite scroll is disabled
+        if (!infiniteScrollEnabled) {
+          setPaginationLoading(true);
+        }
+    
+        // Reset to a clean state when durum changes
+        setData([]);
+        setLoadedIds(new Set());
+        setCurrentPage(1);
+    
+        // Set the selected value first
+        setSelectedDurum(value);
+        console.log("handleDurumChange seçilen durum:", value);
+    
+        // Fetch data with the current value directly instead of using state
+        // This ensures we use the exact value that was just selected
+        fetchDataWithDurum(0, 1, pageSize, value).finally(() => {
+          if (!infiniteScrollEnabled) {
+            setPaginationLoading(false);
+          }
+        });
+      };
+
   return (
     <>
     <ConfigProvider locale={trTR}>
@@ -723,6 +795,16 @@ const Yakit = () => {
           filter: "drop-shadow(0 0 0.75rem rgba(0, 0, 0, 0.1))",
         }}
       >
+        <Text
+          style={{
+            fontWeight: "500",
+            fontSize: "20px",
+            marginLeft: "16px",  // Sağa kaydırma
+            marginTop: "8px",    // Aşağı kaydırma
+          }}
+        >
+          {componentTitle}
+        </Text>
         <div
           style={{
             padding: "10px",
@@ -733,23 +815,21 @@ const Yakit = () => {
           }}
         >
           <div
-          style={{
-            display: "flex",
-            gap: "10px",
-            alignItems: "center",
-            width: "100%",
-            maxWidth: "935px",
-            flexWrap: "wrap",
-          }}
-        >
-          <StyledButton onClick={() => setIsModalVisible(true)}>
-            <MenuOutlined />
-          </StyledButton>
-          {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
-          {/* Other toolbar components */}
-          <Text style={{ fontWeight: "500", fontSize: "17px" }}>
-            {componentTitle} {`(${baslangicTarihi && bitisTarihi ? `${formatDateWithLocale(baslangicTarihi)} / ${formatDateWithLocale(bitisTarihi)}` : ""})`}
-          </Text>
+            style={{
+              display: "flex",
+              gap: "10px",
+              alignItems: "center",
+              // width: "100%",
+              // maxWidth: "935px",
+              flexWrap: "wrap",
+            }}
+          >
+            <StyledButton onClick={() => setIsModalVisible(true)}>
+              <MenuOutlined />
+            </StyledButton>
+            <Filters onChange={handleBodyChange} />
+            {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
+            {/* Other toolbar components */}
           </div>
           <Popover placement="bottom" content={content} trigger="click" open={popoverVisible} onOpenChange={(visible) => setPopoverVisible(visible)}>
             <Button

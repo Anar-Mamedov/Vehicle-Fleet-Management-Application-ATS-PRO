@@ -82,18 +82,23 @@ function ComponentSingleCard() {
               height: "100%",
             }}
           >
-            <Text style={{ fontWeight: "bold", fontSize: "15px", color: "white" }}>
-              {data?.plaka || "-"}
-            </Text>
-            <Text style={{ fontSize: "15px", color: "#e0e0e0" }}>
-              Marka: {data?.marka || "-"}
-            </Text>
-            <Text style={{ fontSize: "15px", color: "#e0e0e0" }}>
-              Toplam Tutar: {data?.toplamTutar?.toLocaleString() || "0"} ₺
-            </Text>
-            <Text style={{ marginTop: "10px", fontSize: "15px", color: "white", opacity: 0.8 }}>
+          <Text style={{ fontWeight: "bold", fontSize: "18px", color: "white" }}>
+            {data?.plaka || "-"}
+          </Text>
+  
+          <Text style={{ fontSize: "20px", fontWeight: "bold", color: "#e0e0e0", marginTop: "5px" }}>
+            {`${data?.marka || "0"} ${data?.model || ""}`}
+          </Text>
+  
+          <Text style={{ fontSize: "16px", color: "#e0e0e0", marginTop: "5px" }}>
+            Toplam Tutar: {data?.toplamTutar?.toLocaleString() || "0"} ₺
+          </Text>
+  
+          {label && (
+            <Text style={{ marginTop: "10px", fontSize: "14px", color: "white", opacity: 0.8 }}>
               {label}
             </Text>
+          )}
           </div>
         )}
       </div>

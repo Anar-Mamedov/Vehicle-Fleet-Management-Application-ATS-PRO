@@ -79,21 +79,32 @@ function ComponentSingleCard() {
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
+            alignItems: "flex-start",
             height: "100%",
+            textAlign: "left",
           }}
         >
-          <Text style={{ fontWeight: "bold", fontSize: "15px", color: "white" }}>
+          <Text style={{ fontWeight: "bold", fontSize: "18px", color: "white" }}>
+            {data?.malzemeKod || "-"}
+          </Text>
+
+          <Text style={{ fontWeight: "bold", fontSize: "18px", color: "white" }}>
             {data?.tanim || "-"}
           </Text>
-          <Text style={{ fontSize: "15px", color: "#e0e0e0" }}>
-            Birim: {data?.birim || "-"}
+  
+          <Text style={{ fontSize: "20px", fontWeight: "bold", color: "#e0e0e0", marginTop: "5px" }}>
+            {`${data?.toplamMiktar || "0"} ${data?.birim || ""}`}
           </Text>
-          <Text style={{ fontSize: "15px", color: "#e0e0e0" }}>
+  
+          <Text style={{ fontSize: "16px", color: "#e0e0e0", marginTop: "5px" }}>
             Toplam Tutar: {data?.toplamTutar?.toLocaleString() || "0"} ₺
           </Text>
-          <Text style={{ marginTop: "10px", fontSize: "15px", color: "white", opacity: 0.8 }}>
-            {label}
-          </Text>
+  
+          {label && (
+            <Text style={{ marginTop: "10px", fontSize: "14px", color: "white", opacity: 0.8 }}>
+              {label}
+            </Text>
+          )}
         </div>
       )}
     </div>

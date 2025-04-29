@@ -39,11 +39,11 @@ import "./custom-gridstack.css"; // Add this line to import your custom CSS
 const { Text } = Typography;
 
 const widgetTitles = {
-  widget1: "Toplam Yakıt Miktarı",
-  widget2: "Toplam Yakıt Tutarı",
-  widget3: "Toplam Mesafe",
-  widget4: "Km Başına Yakıt Tüketimi",
-  widget6: "Araçlar Arası Yakıt Tüketimi ve Gider Karşılaştırması",
+  widget1: "Toplam Malzeme Maliyeti",
+  widget2: "En Çok Tüketilen Malzeme",
+  widget3: "En Çok Tüketim Yapan Araç",
+  widget4: "Araç Başına Ortalama Malzeme Maliyeti",
+  widget6: "Malzeme Tüketimleri",
 };
 
 const defaultItems = [
@@ -51,7 +51,7 @@ const defaultItems = [
   { id: "widget2", x: 3, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
   { id: "widget3", x: 6, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
   { id: "widget4", x: 9, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
-  { id: "widget6", x: 0, y: 8, width: 6, height: 3, minW: 3, minH: 2 },
+  { id: "widget6", x: 0, y: 8, width: 12, height: 5, minW: 3, minH: 2 },
 ];
 
 function MainDashboard() {
@@ -435,7 +435,7 @@ function MainDashboard() {
         </Tooltip>
       </div>
       <Checkbox name="widget1" onChange={handleCheckboxChange} checked={checkedWidgets.widget1}>
-        Toplam Malzeme Tutarı
+        Toplam Malzeme Maliyeti
       </Checkbox>
       <Checkbox name="widget2" onChange={handleCheckboxChange} checked={checkedWidgets.widget2}>
         En Çok Tüketilen Malzeme
@@ -444,7 +444,7 @@ function MainDashboard() {
         En Çok Tüketim Yapan Araç
       </Checkbox>
       <Checkbox name="widget4" onChange={handleCheckboxChange} checked={checkedWidgets.widget4}>
-        Araç Başına Ortalama Malzeme Maliyet
+        Araç Başına Ortalama Malzeme Maliyeti
       </Checkbox>
       <Checkbox name="widget6" onChange={handleCheckboxChange} checked={checkedWidgets.widget6}>
         Araçlar Arası Yakıt Tüketimi ve Gider Karşılaştırması
