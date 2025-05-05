@@ -13,6 +13,8 @@ import Kaza from "./_root/pages/vehicles-control/kaza/Kaza";
 import Harcama from "./_root/pages/vehicles-control/harcama/Harcama";
 import Ceza from "./_root/pages/vehicles-control/ceza/Ceza";
 import KmUpdate from "./_root/pages/vehicles-control/hizli-km/KmUpdate";
+// hgs islemleri
+import HgsİslemTakibi from "./_root/pages/HgsIslemleri/HgsIslemTakibi/HgsIslemTakibi.jsx";
 // yakit yonetimi
 import YakitTanimlar from "./_root/pages/yakit-yonetim/yakit-tanim/YakitTanimlar";
 import YakitCikisFisleri from "./_root/pages/yakit-yonetim/cikis-fis/YakitCikisFisleri";
@@ -36,6 +38,7 @@ import MarkaList from "./_root/pages/sistem-tanimlari/marka-model/MarkaList";
 import Sehirler from "./_root/pages/sistem-tanimlari/sehirler/Sehirler";
 import Guzergah from "./_root/pages/sistem-tanimlari/guzergah/Guzergah";
 import IsKartlari from "./_root/pages/sistem-tanimlari/is-kartlari/IsKartlari";
+import HgsGecisUcretleri from "./_root/pages/sistem-tanimlari/hgs-gecis-fiyatlari/HgsGecisFiyatlari.jsx";
 
 // Lastik Yonetimi
 import LastikTanim from "./_root/pages/sistem-tanimlari/lastik-tanim/LastikTanim";
@@ -151,6 +154,9 @@ const App = () => {
         <Route path="/servis-tanimlari" element={<ServisTanim />} />
         <Route path="/firma-tanimlari" element={<FirmaTanim />} />
         <Route path="/personel-tanimlari" element={<PersonelTanim />} />
+        <Route path="/hgs-gecis-ucretleri" element={<HgsGecisUcretleri/>} />
+        {/* hgs islemleri */}
+        <Route path="/hgs-islem-takibi" element={<HgsİslemTakibi/>} />
         {/*Analızlar*/}
         <Route path="/fuel-analysis" element={<YakitTuketimAnalizi />} />
         <Route path="/performance-analysis" element={<PerformansAnalizi />} />
