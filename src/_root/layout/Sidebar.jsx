@@ -181,6 +181,11 @@ const Sidebar = () => {
         },
       ],
     },
+    {
+      key: "2bskfa",
+      icon: <HiOutlineDocumentReport />,
+      label: <Link to={"/hgs-islem-takibi"}>{t("hgsIslemTakibi")}</Link>,
+    },
     /* {
       key: "13",
       icon: <BsFuelPump />,
@@ -286,6 +291,10 @@ const Sidebar = () => {
         {
           key: "49",
           label: <Link to={"/is-kartlari"}>{t("isKartlari")}</Link>,
+        },
+        {
+          key: "798asd5fasd",
+          label: <Link to={"/hgs-gecis-ucretleri"}>{t("hgsGecisUcretleri")}</Link>,
         },
       ],
     },
