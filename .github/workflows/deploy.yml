@@ -27,6 +27,13 @@ jobs:
         env:
           VITE_APP_GEMINI: ${{ secrets.GEMINI_API_KEY }} # Use VITE_APP_GEMINI
           VITE_APP_BASE_URL: ${{ secrets.BASE_URL }} # Add other env vars as needed
+          VITE_VAKIFBANK_TOKEN_URL: ${{ secrets.VAKIFBANK_TOKEN_URL }}
+          VITE_VAKIFBANK_CLIENT_ID: ${{ secrets.VAKIFBANK_CLIENT_ID }}
+          VITE_VAKIFBANK_CLIENT_SECRET: ${{ secrets.VAKIFBANK_CLIENT_SECRET }}
+          VITE_VAKIFBANK_GRANT_TYPE: ${{ secrets.VAKIFBANK_GRANT_TYPE }}
+          VITE_VAKIFBANK_SCOPE: ${{ secrets.VAKIFBANK_SCOPE }}
+          VITE_VAKIFBANK_CONSENT_ID: ${{ secrets.VAKIFBANK_CONSENT_ID }}
+          VITE_VAKIFBANK_RESOURCE: ${{ secrets.VAKIFBANK_RESOURCE }}
         run: |
           set -e
           npm run build
@@ -44,4 +51,4 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: dist/ # Vite's default build directory
           server-dir: /public_html/
-          debug: true
+          debug: true
