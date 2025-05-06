@@ -51,4 +51,4 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: dist/ # Vite's default build directory
           server-dir: /public_html/
-          debug: true
+          debug: true
