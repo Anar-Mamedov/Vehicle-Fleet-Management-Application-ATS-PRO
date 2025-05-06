@@ -21,19 +21,19 @@ export const GetHgsOperationItemByIdService = async (id) => {
   return await http.get(`/HgsOperations/GetHgsOperationItemById?id=${id}`);
 };
 
-// surucu
+// hgs fiyat
 export const GetDriverListService = async (search, page, data) => {
   return await http.get(`/Driver/GetDriverList?page=${page}&parameter=${search}`, data);
 };
 
-export const AddDriverService = async (data) => {
-  return await http.post(`/Driver/AddDriver`, data);
+export const AddHgsGecisFiyat = async (data) => {
+  return await http.post(`/HgsTransitionPrice/AddHgsTransitionPriceItem`, data);
 };
 
-export const UpdateDriverService = async (data) => {
-  return await http.post(`/Driver/UpdateDriver`, data);
+export const UpdateHgsGecisFiyat = async (data) => {
+  return await http.post(`/HgsTransitionPrice/UpdateHgsTransitionPriceItem`, data);
 };
 
-export const GetDriverByIdService = async (id) => {
-  return await http.get(`/Driver/GetDriverById?id=${id}`);
+export const GetHgsGecisFiyatByIdService = async (id) => {
+  return await http.get(`/HgsTransitionPrice/GetHgsTransitionPriceItemById?id=${id}`);
 };

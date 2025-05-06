@@ -12,6 +12,7 @@ import styled from "styled-components";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
 import AddModal from "./add/AddModal";
 import UpdateModal from "./update/UpdateModal";
+import HgsEntegrasyon from "../HgsEntegrasyonu/HgsEntegrasyon";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
@@ -949,11 +950,7 @@ const Yakit = () => {
           {/* Other toolbar components */}
         </div>
         <div style={{ display: "flex", gap: "25px" }}>
-          <img
-            src="./public/images/hgsk-logo-sarı.png"
-            alt="ikon"
-            style={{ width: "60px", height: "35px" }}
-          />
+          <HgsEntegrasyon onRefresh={refreshTableData} />
           <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
           <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
         </div>
