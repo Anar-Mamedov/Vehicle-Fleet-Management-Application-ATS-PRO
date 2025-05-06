@@ -184,7 +184,7 @@ const Sidebar = () => {
     {
       key: "2bskfa",
       icon: <HiOutlineDocumentReport />,
-      label: <Link to={"/hgs-islem-takibi"}>{t("hgsIslemTakibi")}</Link>,
+      label: <Link to={"/hgs-islem-takibi"}>{t("hgsIslemleri")}</Link>,
     },
     /* {
       key: "13",

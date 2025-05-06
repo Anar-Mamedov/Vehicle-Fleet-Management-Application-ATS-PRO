@@ -137,15 +137,15 @@ const Yakit = () => {
 
       if (diff > 0) {
         // Moving forward
-        currentSetPointId = data[data.length - 1]?.firmaId || 0;
+        currentSetPointId = data[data.length - 1]?.siraNo || 0;
       } else if (diff < 0) {
         // Moving backward
-        currentSetPointId = data[0]?.firmaId || 0;
+        currentSetPointId = data[0]?.siraNo || 0;
       } else {
         currentSetPointId = 0;
       }
 
-      const response = await AxiosInstance.get(`Company/GetCompaniesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
+      const response = await AxiosInstance.get(`HgsTransitionPrice/GetHgsTransitionPrices?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
 
       const total = response.data.recordCount;
       setTotalCount(total);
@@ -153,7 +153,7 @@ const Yakit = () => {
 
       const newData = response.data.list.map((item) => ({
         ...item,
-        key: item.firmaId, // Assign key directly from siraNo
+        key: item.siraNo, // Assign key directly from siraNo
       }));
 
       if (newData.length > 0) {
@@ -214,13 +214,27 @@ const Yakit = () => {
   // Columns definition (adjust as needed)
   const initialColumns = [
     {
+      title: t("firmaAdi"),
+      dataIndex: "firmaAdi",
+      key: "firmaAdi",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+      sorter: (a, b) => {
+        if (a.firmaAdi === null) return -1;
+        if (b.firmaAdi === null) return 1;
+        return a.firmaAdi.localeCompare(b.firmaAdi);
+      },
+    },
+    {
       title: t("girisYeri"),
       dataIndex: "girisYeri",
       key: "girisYeri",
       width: 120,
       ellipsis: true,
       visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+      
       sorter: (a, b) => {
         if (a.girisYeri === null) return -1;
         if (b.girisYeri === null) return 1;
@@ -269,21 +283,6 @@ const Yakit = () => {
         if (a.aciklama === null) return -1;
         if (b.aciklama === null) return 1;
         return a.aciklama - b.aciklama;
-      },
-    },
-
-    {
-      title: t("firma"),
-      dataIndex: "firma",
-      key: "firma",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.firma === null) return -1;
-        if (b.firma === null) return 1;
-        return a.firma - b.firma;
       },
     },
 
