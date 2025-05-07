@@ -23,24 +23,32 @@ function ComponentSingleCard() {
 
   const fetchData = async () => {
     setIsLoading(true);
-
+  
+    // Tarihleri formatlayın
+    const today = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(today.getFullYear() - 1);
+  
+    const formattedStartDate = baslangicTarihi ? baslangicTarihi : oneYearAgo.toISOString().split('T')[0];
+    const formattedEndDate = bitisTarihi ? bitisTarihi : today.toISOString().split('T')[0];
+  
     const body = {
-      plaka: plakaValues || "",
-      aracTipi: aracTipiValues || "",
-      lokasyon: lokasyonId || "",
-      departman: departmanValues || "",
-      startDate: baslangicTarihi || null,
-      endDate: bitisTarihi || null,
+      baslangicTarihi: formattedStartDate,
+      bitisTarihi: formattedEndDate,
+      // Burada diğer form alanlarını da parametre olarak ekleyebilirsiniz
+      lokasyonId,
+      plakaValues,
+      aracTipiValues,
+      departmanValues
     };
-
+  
     try {
-      // Sadece type=1 ile tek bir istek
       const response = await AxiosInstance.post("/MaterialAnalysis/GetMaterialAnalysisInfoByType?type=1", body);
-      setData(response.data);
+      setData(response.data); // Veriyi state'e set ediyoruz
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Yükleme durumunu kapatıyoruz
     }
   };
 

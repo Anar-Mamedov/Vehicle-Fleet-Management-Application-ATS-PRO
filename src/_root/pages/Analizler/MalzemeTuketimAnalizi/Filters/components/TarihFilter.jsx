@@ -4,20 +4,20 @@ import { Controller, useFormContext } from "react-hook-form";
 import dayjs from "dayjs";
 import { t } from "i18next";
 
-const { Option } = Select;
 const { Text } = Typography;
 
-const TarihFilter = () => {
+const TarihFilter = ({ onDateChange }) => {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false); // Loading state
   const [startDate, setStartDate] = useState(null); // Normal React state
   const [endDate, setEndDate] = useState(null); // Normal React state
   const [timeRange, setTimeRange] = useState("all"); // Initial value is "all"
 
-  const { control, setValue } = useFormContext();
+  const { setValue } = useFormContext();
 
   const handleSubmit = () => {
     setOpen(false);
+    // OnDateChange fonksiyonuna startDate ve endDate'i gönderiyoruz
+    onDateChange(startDate, endDate);
   };
 
   useEffect(() => {
@@ -124,20 +124,6 @@ const TarihFilter = () => {
           style={{ width: "100%" }}
           value={timeRange} // Set the current value
           onChange={handleTimeRangeChange}
-          notFoundContent={
-            loading ? (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "40px",
-                }}
-              >
-                <Spin size="small" />
-              </div>
-            ) : null
-          }
           options={[
             { value: "all", label: "Tümü" },
             { value: "today", label: "Bugün" },

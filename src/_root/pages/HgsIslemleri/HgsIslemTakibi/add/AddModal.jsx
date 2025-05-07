@@ -109,18 +109,18 @@ const AddModal = ({ setStatus, onRefresh }) => {
     const body = [
       {
         tarih: values.tarih,
-        saat: values.saat || "00:00",
+        saat: values.saat || "",
         aracId: values.aracId,
         surucuId: values.surucuId,
         otoYolKodId: values.otoYolKodId,
         girisTarih: values.girisTarih,
-        girisSaat: values.girisSaat ? dayjs(values.girisSaat).format("HH:mm") : "00:00",
+        girisSaat: values.girisSaat ? dayjs(values.girisSaat).format("HH:mm") : null,
         cikisTarih: values.cikisTarih,
-        cikisSaat: values.cikisSaat ? dayjs(values.cikisSaat).format("HH:mm") : "00:00",
+        cikisSaat: values.cikisSaat ? dayjs(values.cikisSaat).format("HH:mm") : null,
         girisYeriKodId: values.girisYeriKodId,
         cikisYeriKodId: values.cikisYeriKodId,
         odemeTuruKodId: values.odemeTuruKodId,
-        gecisUcreti: values.gecisUcreti,
+        gecisUcreti: values.gecisUcreti ? parseFloat(values.gecisUcreti.replace(",", ".")).toFixed(2) : null,
         odemeDurumuKodId: values.odemeDurumuKodId,
         fisNo: values.fisNo,
         gecisKategorisiKodId: values.gecisKategorisiKodId,
@@ -134,10 +134,10 @@ const AddModal = ({ setStatus, onRefresh }) => {
         ozelAlan6: values.ozelAlan6 || "",
         ozelAlan7: values.ozelAlan7 || "",
         ozelAlan8: values.ozelAlan8 || "",
-        ozelAlanKodId9: values.ozelAlanKodId9 || -1,
-        ozelAlanKodId10: values.ozelAlanKodId10 || -1,
-        ozelAlan11: values.ozelAlan11 || 0,
-        ozelAlan12: values.ozelAlan12 || 0,
+        ozelAlanKodId9: values.ozelAlanKodId9 ?? -1,
+        ozelAlanKodId10: values.ozelAlanKodId10 ?? -1,
+        ozelAlan11: values.ozelAlan11 ?? 0,
+        ozelAlan12: values.ozelAlan12 ?? 0,
       }
     ];
   

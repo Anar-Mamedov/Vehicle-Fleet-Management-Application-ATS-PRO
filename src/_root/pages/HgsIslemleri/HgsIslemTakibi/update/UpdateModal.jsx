@@ -134,7 +134,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("cikisYeri", data.cikisYeri);
         setValue("odemeTuruKodId", data.odemeTuruKodId);
         setValue("odemeTuru", data.odemeTuru);
-        setValue("gecisUcreti", data.gecisUcreti);
+        setValue("gecisUcreti", data.gecisUcreti ? parseFloat(data.gecisUcreti.toString().replace(",", ".")).toFixed(2) : "");
         setValue("odemeDurumuKodId", data.odemeDurumuKodId);
         setValue("odemeDurumu", data.odemeDurumu);
         setValue("fisNo", data.fisNo);
@@ -168,18 +168,18 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
     const body = {
       siraNo: values.siraNo || 1,
       tarih: values.tarih,
-      saat: values.saat || "00:00",
+      saat: values.saat || "",
       aracId: values.aracId,
       surucuId: values.surucuId,
       otoYolKodId: values.otoYolKodId,
       girisTarih: values.girisTarih,
-      girisSaat: values.girisSaat,
+      girisSaat: values.girisSaat ? dayjs(values.girisSaat).format("HH:mm") : "",
       cikisTarih: values.cikisTarih,
-      cikisSaat: values.cikisSaat,
+      cikisSaat: values.cikisSaat ? dayjs(values.cikisSaat).format("HH:mm") : "",
       girisYeriKodId: values.girisYeriKodId,
       cikisYeriKodId: values.cikisYeriKodId,
       odemeTuruKodId: values.odemeTuruKodId,
-      gecisUcreti: values.gecisUcreti,
+      gecisUcreti: values.gecisUcreti ? (typeof values.gecisUcreti === 'string' ? values.gecisUcreti.replace(",", ".") : values.gecisUcreti.toString().replace(",", ".")) : null,
       odemeDurumuKodId: values.odemeDurumuKodId,
       fisNo: values.fisNo,
       gecisKategorisiKodId: values.gecisKategorisiKodId,
@@ -193,10 +193,10 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       ozelAlan6: values.ozelAlan6 || "",
       ozelAlan7: values.ozelAlan7 || "",
       ozelAlan8: values.ozelAlan8 || "",
-      ozelAlanKodId9: values.ozelAlanKodId9 || -1,
-      ozelAlanKodId10: values.ozelAlanKodId10 || -1,
-      ozelAlan11: values.ozelAlan11 || 0,
-      ozelAlan12: values.ozelAlan12 || 0,
+      ozelAlanKodId9: values.ozelAlanKodId9 ?? -1,
+      ozelAlanKodId10: values.ozelAlanKodId10 ?? -1,
+      ozelAlan11: values.ozelAlan11 ?? 0,
+      ozelAlan12: values.ozelAlan12 ?? 0,
     };
   
     UpdateHgsItemService(body).then((res) => {
@@ -208,6 +208,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       }
     });
   
+    // Dosya ve görsel işlemleri sonradan gelsin
     uploadImages();
     uploadFiles();
   });
