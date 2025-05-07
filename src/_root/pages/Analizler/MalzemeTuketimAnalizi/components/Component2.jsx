@@ -23,30 +23,34 @@ function ComponentSingleCard() {
 
   const fetchData = async () => {
     setIsLoading(true);
-
+  
+    // Tarihleri formatlayın
+    const today = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(today.getFullYear() - 1);
+  
+    const formattedStartDate = baslangicTarihi ? baslangicTarihi : oneYearAgo.toISOString().split('T')[0];
+    const formattedEndDate = bitisTarihi ? bitisTarihi : today.toISOString().split('T')[0];
+  
     const body = {
-      tanim: tanimValues || "",
-      birim: birimValues || "",
-      lokasyon: lokasyonId || "",
-      toplamTutar: toplamTutar || null,
-      startDate: baslangicTarihi || null,
-      endDate: bitisTarihi || null,
+      baslangicTarihi: formattedStartDate,
+      bitisTarihi: formattedEndDate,
+      // Burada diğer form alanlarını da parametre olarak ekleyebilirsiniz
     };
-
+  
     try {
-      // Sadece type=1 ile tek bir istek
       const response = await AxiosInstance.post("/MaterialAnalysis/GetMaterialAnalysisInfoByType?type=2", body);
-      setData(response.data);
+      setData(response.data); // Veriyi state'e set ediyoruz
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Yükleme durumunu kapatıyoruz
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, [lokasyonId, tanimValues, birimValues, toplamTutar, baslangicTarihi, bitisTarihi]);
+  }, [lokasyonId, baslangicTarihi, bitisTarihi]);
 
   const renderCard = (data, label, backgroundColor, loading) => (
     <div

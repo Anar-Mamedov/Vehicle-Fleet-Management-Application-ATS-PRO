@@ -155,6 +155,12 @@ const Yakit = () => {
     filters: {},
   });
 
+  function formatDateWithLocale(dateString, locale = 'tr-TR') {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString(locale);
+  }
+
   const [selectedRows, setSelectedRows] = useState([]);
 
     const baslangicTarihi = watch("baslangicTarihi") ? dayjs(watch("baslangicTarihi")).toISOString() : null;
@@ -174,14 +180,17 @@ const Yakit = () => {
         currentSetPointId = 0;
       }
   
-      // 🔥 Dinamik tarih hesaplama
+      // Tarihleri formatlayın
       const today = new Date();
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(today.getFullYear() - 1);
   
+      const formattedStartDate = baslangicTarihi ? baslangicTarihi : oneYearAgo.toISOString().split('T')[0];
+      const formattedEndDate = bitisTarihi ? bitisTarihi : today.toISOString().split('T')[0];
+  
       const body = {
-        baslangicTarihi: oneYearAgo.toISOString(),
-        bitisTarihi: today.toISOString(),
+        baslangicTarihi: formattedStartDate,
+        bitisTarihi: formattedEndDate,
       };
   
       const response = await AxiosInstance.post(`/MaterialAnalysis/GetMaterialAnalysisInfoByType?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=5`, body);
@@ -334,6 +343,7 @@ const Yakit = () => {
         if (b.toplamKullanimTutari === null) return 1;
         return a.toplamKullanimTutari - b.toplamKullanimTutari;
       },
+      render: (value) => (value !== null && value !== undefined ? value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ".") : "-"),
     },
     {
       title: t("kulanimSikligi"),
@@ -373,6 +383,7 @@ const Yakit = () => {
         if (b.fiyat === null) return 1;
         return a.fiyat - b.fiyat;
       },
+      render: (value) => (value !== null && value !== undefined ? value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ".") : "-"),
     },
     {
       title: t("harcamaOrani"),
@@ -386,6 +397,7 @@ const Yakit = () => {
         if (b.harcamaOrani === null) return 1;
         return a.harcamaOrani - b.harcamaOrani;
       },
+      render: (value) => (value !== null && value !== undefined ? `%${value.toFixed(2)}` : "-"),
     },
     {
       title: t("sonKullanimTarihi"),

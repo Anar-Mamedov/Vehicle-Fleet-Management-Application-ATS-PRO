@@ -51,7 +51,7 @@ const defaultItems = [
   { id: "widget2", x: 3, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
   { id: "widget3", x: 6, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
   { id: "widget4", x: 9, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
-  { id: "widget6", x: 0, y: 8, width: 12, height: 5, minW: 3, minH: 2 },
+  { id: "widget6", x: 0, y: 8, width: 12, height: 4, minW: 3, minH: 2 },
 ];
 
 function MainDashboard() {
@@ -472,6 +472,15 @@ function MainDashboard() {
               marginBottom: "10px",
             }}
           >
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "10px" }}>
+              <Filters />
+            <Button type="primary" onClick={rerenderWidgets}>
+              <ReloadOutlined />
+                Sorgula
+            </Button>
+            </div>
+
+
             <div
               style={{
                 display: "flex",

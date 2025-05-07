@@ -215,6 +215,20 @@ const Yakit = () => {
   // Columns definition (adjust as needed)
   const initialColumns = [
     {
+      title: t("plaka"),
+      dataIndex: "plaka",
+      key: "plaka",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+      sorter: (a, b) => {
+        if (a.plaka === null) return -1;
+        if (b.plaka === null) return 1;
+        return a.plaka.localeCompare(b.plaka);
+      },
+    },
+    {
       title: t("tarih"),
       dataIndex: "tarih",
       key: "tarih",
@@ -229,20 +243,6 @@ const Yakit = () => {
         render: (text) => {
         if (!text) return "-";
         return dayjs(text).format("DD.MM.YYYY");
-      },
-    },
-    {
-      title: t("plaka"),
-      dataIndex: "plaka",
-      key: "plaka",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
-      sorter: (a, b) => {
-        if (a.plaka === null) return -1;
-        if (b.plaka === null) return 1;
-        return a.plaka.localeCompare(b.plaka);
       },
     },
     {
@@ -383,11 +383,15 @@ const Yakit = () => {
       width: 120,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-
+    
       sorter: (a, b) => {
         if (a.gecisUcreti === null) return -1;
         if (b.gecisUcreti === null) return 1;
         return a.gecisUcreti - b.gecisUcreti;
+      },
+      render: (value) => {
+        // Ondalık sayıyı 2 haneli olarak formatlıyoruz
+        return value !== null ? value.toFixed(2) : "-";
       },
     },
     {

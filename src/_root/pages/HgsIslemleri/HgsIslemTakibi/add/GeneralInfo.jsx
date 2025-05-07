@@ -30,20 +30,20 @@ const GeneralInfo = ({ isValid }) => {
       <div className="grid gap-2 border p-20">
         <div className="col-span-12">
           <div className="grid gap-1">
+          <div className="col-span-3">
+              <div className="flex flex-col gap-1">
+                <label htmlFor="plaka">
+                  {t("plaka")} <span className="text-danger">*</span>
+                </label>
+                  <Plaka required={true} />
+              </div>
+            </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>
                   {t("tarih")}<span className="text-danger">*</span>
                 </label>
                   <RecordDateInput name="tarih" required={true} />
-              </div>
-            </div>
-            <div className="col-span-3">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="plaka">
-                  {t("plaka")} <span className="text-danger">*</span>
-                </label>
-                  <Plaka required={true} />
               </div>
             </div>
             <div className="col-span-3">
@@ -97,7 +97,7 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("gecisUcreti")}</label>
-                  <NumberInput name="gecisUcreti" />
+                  <TextInput name="gecisUcreti" />
               </div>
             </div>
             <div className="col-span-3">
@@ -118,7 +118,7 @@ const GeneralInfo = ({ isValid }) => {
                   <GecisKategorisi name="gecisKategorisiKodId" />
               </div>
             </div>
-            <div className="col-span-3">
+            <div className="col-span-6">
               <div className="flex flex-col gap-1">
               <label>{t("guzergah")}</label>
                 <Guzergah name="guzergahId" />
