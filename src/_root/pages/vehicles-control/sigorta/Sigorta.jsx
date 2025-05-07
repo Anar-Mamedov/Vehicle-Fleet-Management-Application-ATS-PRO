@@ -222,7 +222,6 @@ const Sigorta = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -230,7 +229,6 @@ const Sigorta = () => {
       fetchData(0, 1);
       prevBodyRef.current = body;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [body]);
 
   const prevBodyRef = useRef(body);
@@ -268,7 +266,6 @@ const Sigorta = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
@@ -307,7 +304,7 @@ const Sigorta = () => {
       width: 130,
       ellipsis: true,
       visible: true,
-      render: (value) => (value ? <CheckOutlined style={{ color: "#52c41a" }} /> : <CloseOutlined style={{ color: "#ff4d4f" }} />),
+      render: (value) => (value ? <Tag color="success">{t("aktif")}</Tag> : <Tag color="error">{t("pasif")}</Tag>),
       sorter: (a, b) => {
         if (a.aktif === null) return -1;
         if (b.aktif === null) return 1;
@@ -831,7 +828,6 @@ const Sigorta = () => {
               rowSelection={rowSelection}
               columns={filteredColumns}
               dataSource={data}
-              rowClassName={(record) => (record.aktif ? "active-row" : "")} // active-row classını aktif olan satırlara ekler ve o satırdaki yazıları yeşil yapar
               pagination={{
                 current: currentPage,
                 total: totalCount,
