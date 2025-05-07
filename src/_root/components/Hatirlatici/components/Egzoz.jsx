@@ -169,7 +169,6 @@ const Egzoz = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Search handling
@@ -205,7 +204,6 @@ const Egzoz = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
@@ -301,15 +299,15 @@ const Egzoz = () => {
     },
 
     {
-      title: t("sozlesmeTarihi"),
-      dataIndex: "sozlesmeTarih",
-      key: "sozlesmeTarih",
+      title: t("egzozTarihi"),
+      dataIndex: "egzozTarih",
+      key: "egzozTarih",
       width: 110,
       ellipsis: true,
       sorter: (a, b) => {
-        if (a.sozlesmeTarih === null) return -1;
-        if (b.sozlesmeTarih === null) return 1;
-        return a.sozlesmeTarih.localeCompare(b.sozlesmeTarih);
+        if (a.egzozTarih === null) return -1;
+        if (b.egzozTarih === null) return 1;
+        return a.egzozTarih.localeCompare(b.egzozTarih);
       },
 
       visible: true, // Varsayılan olarak açık
