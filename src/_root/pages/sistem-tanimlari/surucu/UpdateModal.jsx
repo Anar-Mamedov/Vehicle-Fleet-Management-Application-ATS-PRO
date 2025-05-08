@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -14,7 +14,7 @@ import KimlikBilgiler from "./tabs/KimlikBilgiler";
 import EhliyetBilgiler from "./tabs/EhliyetBilgiler";
 import MeslekiYeterlilik from "./tabs/MeslekiYeterlilik";
 
-const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id,selectedRow, onDrawerClose, drawerVisible, onRefresh   }) => {
+const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const [isValid, setIsValid] = useState("normal");
   const [surucuId, setSurucuId] = useState(0);
   const [images, setImages] = useState([]);
@@ -149,9 +149,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id,selectedRow, o
         setValue("mezunOlduguBolum", res.data.mezunOlduguBolum);
         setValue("tcKimlikNo", res.data.tcKimlikNo);
         setValue("kimlikSeriNo", res.data.kimlikSeriNo);
-        setValue("iseBaslamaTarih", dayjs(res.data.iseBaslamaTarih));
-        setValue("istenAyrilmaTarih", dayjs(res.data.istenAyrilmaTarih));
-        setValue("mezuniyetTarih", dayjs(res.data.mezuniyetTarih));
+        setValue("iseBaslamaTarih", res.data.iseBaslamaTarih ? dayjs(res.data.iseBaslamaTarih) : null);
+        setValue("istenAyrilmaTarih", res.data.istenAyrilmaTarih ? dayjs(res.data.istenAyrilmaTarih) : null);
+        setValue("mezuniyetTarih", res.data.mezuniyetTarih ? dayjs(res.data.mezuniyetTarih) : null);
         setValue("babaAdi", res.data.babaAdi);
         setValue("anaAdi", res.data.anaAdi);
         setValue("dogumYeri", res.data.dogumYeri);
@@ -159,7 +159,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id,selectedRow, o
         setValue("kimlikKayitNo", res.data.kimlikKayitNo);
         setValue("kayitliOlduguIl", res.data.kayitliOlduguIl);
         setValue("medeniHali", res.data.medeniHali);
-        setValue("dogumTarihi", dayjs(res.data.dogumTarihi));
+        setValue("dogumTarihi", res.data.dogumTarihi ? dayjs(res.data.dogumTarihi) : null);
         setValue("kayitliOlduguIlce", res.data.kayitliOlduguIlce);
         setValue("mahalleKoy", res.data.mahalleKoy);
         setValue("kimlikCiltNo", res.data.kimlikCiltNo);
@@ -167,21 +167,21 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id,selectedRow, o
         setValue("kimlikSiraNo", res.data.kimlikSiraNo);
         setValue("kimlikVerildigiYer", res.data.kimlikVerildigiYer);
         setValue("kimlikVerilisNedeni", res.data.kimlikVerilisNedeni);
-        setValue("kimlikVerilisTarihi", dayjs(res.data.kimlikVerilisTarihi));
+        setValue("kimlikVerilisTarihi", res.data.kimlikVerilisTarihi ? dayjs(res.data.kimlikVerilisTarihi) : null);
         setValue("myb", res.data.myb);
         setValue("mybBelgeNo", res.data.mybBelgeNo);
         setValue("mybKapsadigiDigerMyb", res.data.mybKapsadigiDigerMyb);
         setValue("mybTuru", res.data.mybTuru);
-        setValue("mybVerilisTarih", dayjs(res.data.mybVerilisTarih));
-        setValue("mybBitisTarih", dayjs(res.data.mybBitisTarih));
-        setValue("srcPiskoteknikVerilisTarihi", dayjs(res.data.srcPiskoteknikVerilisTarihi));
-        setValue("srcPiskoteknikBitisTarihi", dayjs(res.data.srcPiskoteknikBitisTarihi));
+        setValue("mybVerilisTarih", res.data.mybVerilisTarih ? dayjs(res.data.mybVerilisTarih) : null);
+        setValue("mybBitisTarih", res.data.mybBitisTarih ? dayjs(res.data.mybBitisTarih) : null);
+        setValue("srcPiskoteknikVerilisTarihi", res.data.srcPiskoteknikVerilisTarihi ? dayjs(res.data.srcPiskoteknikVerilisTarihi) : null);
+        setValue("srcPiskoteknikBitisTarihi", res.data.srcPiskoteknikBitisTarihi ? dayjs(res.data.srcPiskoteknikBitisTarihi) : null);
         setValue("srcPiskoteknik", res.data.srcPiskoteknik);
         setValue("srcPiskoteknikBelgeNo", res.data.srcPiskoteknikBelgeNo);
         setValue("aciklama", res.data.aciklama);
         setValue("sinif", res.data.sinif);
         setValue("ehliyetVerildigiIlIlce", res.data.ehliyetVerildigiIlIlce);
-        setValue("ehliyetBelgeTarihi", dayjs(res.data.ehliyetBelgeTarihi));
+        setValue("ehliyetBelgeTarihi", res.data.ehliyetBelgeTarihi ? dayjs(res.data.ehliyetBelgeTarihi) : null);
         setValue("ehliyetSeriNo", res.data.ehliyetSeriNo);
         setValue("ehliyetKullandigiChiazProtez", res.data.ehliyetKullandigiChiazProtez);
         setValue("ehliyetNo", res.data.ehliyetNo);
@@ -238,9 +238,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id,selectedRow, o
       egitimDurumu: values.egitimDurumu,
       mezunOlduguOkul: values.mezunOlduguOkul,
       mezunOlduguBolum: values.mezunOlduguBolum,
-      iseBaslamaTarih: dayjs(values.iseBaslamaTarih).format("YYYY-MM-DD"),
-      istenAyrilmaTarih: dayjs(values.istenAyrilmaTarih).format("YYYY-MM-DD"),
-      mezuniyetTarih: dayjs(values.mezuniyetTarih).format("YYYY-MM-DD"),
+      iseBaslamaTarih: values.iseBaslamaTarih ? dayjs(values.iseBaslamaTarih).format("YYYY-MM-DD") : null,
+      istenAyrilmaTarih: values.istenAyrilmaTarih ? dayjs(values.istenAyrilmaTarih).format("YYYY-MM-DD") : null,
+      mezuniyetTarih: values.mezuniyetTarih ? dayjs(values.mezuniyetTarih).format("YYYY-MM-DD") : null,
       tcKimlikNo: values.tcKimlikNo,
       kimlikSeriNo: values.kimlikSeriNo,
       babaAdi: values.babaAdi,
@@ -248,7 +248,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id,selectedRow, o
       dogumYeri: values.dogumYeri,
       dini: values.dini,
       kimlikKayitNo: values.kimlikKayitNo,
-      dogumTarihi: dayjs(values.dogumTarihi).format("YYYY-MM-DD"),
+      dogumTarihi: values.dogumTarihi ? dayjs(values.dogumTarihi).format("YYYY-MM-DD") : null,
       medeniHali: values.medeniHali,
       kayitliOlduguIl: values.kayitliOlduguIl,
       kayitliOlduguIlce: values.kayitliOlduguIlce,
@@ -258,21 +258,21 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id,selectedRow, o
       kimlikSiraNo: values.kimlikSiraNo,
       kimlikVerildigiYer: values.kimlikVerildigiYer,
       kimlikVerilisNedeni: values.kimlikVerilisNedeni,
-      kimlikVerilisTarihi: dayjs(values.kimlikVerilisTarihi).format("YYYY-MM-DD"),
+      kimlikVerilisTarihi: values.kimlikVerilisTarihi ? dayjs(values.kimlikVerilisTarihi).format("YYYY-MM-DD") : null,
       myb: values.myb,
-      mybVerilisTarih: dayjs(values.mybVerilisTarih).format("YYYY-MM-DD"),
+      mybVerilisTarih: values.mybVerilisTarih ? dayjs(values.mybVerilisTarih).format("YYYY-MM-DD") : null,
       mybBelgeNo: values.mybBelgeNo,
       mybKapsadigiDigerMyb: values.mybKapsadigiDigerMyb,
       mybTuru: values.mybTuru,
-      mybBitisTarih: dayjs(values.mybBitisTarih).format("YYYY-MM-DD"),
+      mybBitisTarih: values.mybBitisTarih ? dayjs(values.mybBitisTarih).format("YYYY-MM-DD") : null,
       srcPiskoteknik: values.srcPiskoteknik,
-      srcPiskoteknikVerilisTarihi: dayjs(values.srcPiskoteknikVerilisTarihi).format("YYYY-MM-DD"),
+      srcPiskoteknikVerilisTarihi: values.srcPiskoteknikVerilisTarihi ? dayjs(values.srcPiskoteknikVerilisTarihi).format("YYYY-MM-DD") : null,
       srcPiskoteknikBelgeNo: values.srcPiskoteknikBelgeNo,
-      srcPiskoteknikBitisTarihi: dayjs(values.srcPiskoteknikBitisTarihi).format("YYYY-MM-DD"),
+      srcPiskoteknikBitisTarihi: values.srcPiskoteknikBitisTarihi ? dayjs(values.srcPiskoteknikBitisTarihi).format("YYYY-MM-DD") : null,
       aciklama: values.aciklama,
       sinif: values.sinif,
       ehliyetVerildigiIlIlce: values.ehliyetVerildigiIlIlce,
-      ehliyetBelgeTarihi: dayjs(values.ehliyetBelgeTarihi).format("YYYY-MM-DD"),
+      ehliyetBelgeTarihi: values.ehliyetBelgeTarihi ? dayjs(values.ehliyetBelgeTarihi).format("YYYY-MM-DD") : null,
       ehliyetSeriNo: values.ehliyetSeriNo,
       ehliyetKullandigiChiazProtez: values.ehliyetKullandigiChiazProtez,
       ehliyetNo: values.ehliyetNo,
