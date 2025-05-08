@@ -181,6 +181,7 @@ export default function LokasyonTablo({ isModalVisible, setIsModalVisible, works
           columns={columns}
           dataSource={treeData}
           loading={loading}
+          pagination={false}
           scroll={{
             y: "calc(100vh - 400px)",
           }}
