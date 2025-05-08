@@ -10,6 +10,8 @@ import ContextMenu from "../components/ContextMenu/ContextMenu.jsx";
 import { t } from "i18next";
 import styled from "styled-components";
 
+const { Search } = Input;
+
 const breadcrumb = [{ href: "/", title: <HomeOutlined /> }, { title: t("lokasyonTanimlari") }];
 
 const CustomSpin = styled(Spin)`
@@ -22,185 +24,137 @@ export default function MainTable() {
   const { watch, control, setValue } = useFormContext();
   const { fields, append, replace } = useFieldArray({
     control,
-    name: "lokasyon", // Name of the field array
+    name: "lokasyon",
   });
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [selectedRows, setSelectedRows] = useState([]); // State for selected rows
+  const [selectedRows, setSelectedRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [treeData, setTreeData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [expandedRowKeys, setExpandedRowKeys] = useState([]);
 
   // edit drawer için
   const [drawer, setDrawer] = useState({
     visible: false,
     data: null,
   });
-  // edit drawer için son
-
-  // arama işlevi için
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [filteredData, setFilteredData] = useState([]);
-  const [expandedRowKeys, setExpandedRowKeys] = useState([]);
 
   useEffect(() => {
-    const timerId = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 1000); // 1000 ms gecikme
-
-    return () => clearTimeout(timerId); // Kullanıcı yazmaya devam ederse timeout'u iptal et
-  }, [searchTerm]);
-
-  const toLowerTurkish = (str) => {
-    return str.replace(/İ/g, "i").replace(/I/g, "ı").toLowerCase();
-  };
-
-  const filterTree = (nodeList, searchTerm, path = []) => {
-    let isMatchFound = false;
-    let expandedKeys = [];
-
-    const lowerSearchTerm = toLowerTurkish(searchTerm);
-
-    const filtered = nodeList
-      .map((node) => {
-        let nodeMatch = toLowerTurkish(node.LOK_TANIM).includes(lowerSearchTerm);
-        let childrenMatch = false;
-        let filteredChildren = [];
-
-        if (node.children) {
-          const result = filterTree(node.children, lowerSearchTerm, path.concat(node.key));
-          childrenMatch = result.isMatch;
-          filteredChildren = result.filtered;
-          expandedKeys = expandedKeys.concat(result.expandedKeys);
-        }
-
-        if (nodeMatch || childrenMatch) {
-          isMatchFound = true;
-          expandedKeys = expandedKeys.concat(path);
-          // Eğer düğüm eşleşirse, tüm çocuklarını da dahil et
-          return { ...node, children: childrenMatch ? filteredChildren : node.children };
-        }
-
-        return null;
-      })
-      .filter((node) => node !== null);
-
-    return { filtered, isMatch: isMatchFound, expandedKeys };
-  };
-
-  useEffect(() => {
-    if (debouncedSearchTerm) {
-      const result = filterTree(fields, debouncedSearchTerm);
-      setFilteredData(result.filtered);
-      setExpandedRowKeys([...new Set(result.expandedKeys)]);
-    } else {
-      setFilteredData(fields);
-      setExpandedRowKeys([]);
-    }
-  }, [debouncedSearchTerm, fields]);
-
-  const onTableRowExpand = (expanded, record) => {
-    const keys = expanded ? [...expandedRowKeys, record.key] : expandedRowKeys.filter((k) => k !== record.key);
-
-    setExpandedRowKeys(keys);
-  };
-
-  // arama işlevi için son
-
-  useEffect(() => {
-    fetchEquipmentData();
+    // Initial data fetch with empty search
+    fetchRootData("");
   }, []);
 
-  const fetchEquipmentData = async () => {
+  const fetchRootData = async (parameter = "") => {
     try {
-      setLoading(true); // Yükleme başladığında
-      const response = await AxiosInstance.get("Location/GetLocationList");
+      setLoading(true);
+      const response = await AxiosInstance.get(`Location/GetChildLocationListByParentId?parentID=0&parameter=${parameter}`);
       if (response.data) {
         const formattedData = formatDataForTable(response.data);
-        replace(formattedData); // Populate the field array
-        setLoading(false); // Yükleme bittiğinde
+        setTreeData(formattedData);
+        replace(formattedData);
       } else {
         console.error("API response is not in expected format");
       }
+      setLoading(false);
     } catch (error) {
       console.error("Error in API request:", error);
-      setLoading(false); // Hata durumunda da yükleme bitti
+      setLoading(false);
     }
   };
 
+  const handleSearch = (value) => {
+    // Clear existing data and reset expanded rows to avoid confusion
+    setTreeData([]);
+    setExpandedRowKeys([]);
+    setSelectedRowKeys([]);
+    setSelectedRows([]);
+    setValue("selectedLokasyonId", null);
+
+    // Set loading state to show the user something is happening
+    setLoading(true);
+
+    // Update search term
+    const searchValue = value !== undefined ? value : searchTerm;
+    setSearchTerm(searchValue);
+
+    // Fetch new data
+    fetchRootData(searchValue);
+  };
+
   const formatDataForTable = (data) => {
-    let nodes = {};
-    let tree = [];
+    return data.map((item) => ({
+      ...item,
+      key: item.locationId,
+      lokasyonTanim: item.location,
+      lokasyonTip: item.locationType,
+      lokasyonPersonel: item.locationManager,
+      children: item.hasChild ? [] : undefined,
+      fullLocationPath: item.fullLocationPath,
+    }));
+  };
 
-    // Her bir lokasyonu bir node olarak hazırlayın
-    data.forEach((item) => {
-      nodes[item.lokasyonId] = {
-        ...item,
-        key: item.lokasyonId,
-        lokasyonTanim: item.lokasyonTanim,
-        lokasyonTip: item.lokasyonTipId,
-        lokasyonPersonel: item.lokasyonDegistirenId,
-        children: [],
-      };
-    });
-
-    // Lokasyonlar arasındaki ilişkileri kurun
-    data.forEach((item) => {
-      if (item.anaLokasyonId && nodes[item.anaLokasyonId]) {
-        // Çocuk düğümleri burada oluşturun
-        nodes[item.anaLokasyonId].children.push(nodes[item.lokasyonId]);
+  const onTableRowExpand = (expanded, record) => {
+    // Update expanded row keys
+    setExpandedRowKeys((prevKeys) => {
+      if (expanded) {
+        return [...prevKeys, record.key];
       } else {
-        // Eğer üst düzey bir lokasyon ise, ağacın köküne ekleyin
-        tree.push(nodes[item.lokasyonId]);
+        return prevKeys.filter((key) => key !== record.key);
       }
     });
 
-    // Çocukları olmayan düğümlerde children alanını silin
-    Object.values(nodes).forEach((node) => {
-      if (node.children.length === 0) {
-        delete node.children;
-      }
-    });
+    // Load children data when expanding
+    if (expanded && record.hasChild && record.children.length === 0 && record.locationId) {
+      setLoading(true);
 
-    return tree;
+      AxiosInstance.get(`Location/GetChildLocationListByParentId?parentID=${record.locationId}&parameter=${searchTerm}`)
+        .then((response) => {
+          const childrenData = formatDataForTable(response.data);
+
+          // Update tree data with new children
+          const updateTreeData = (data) => {
+            return data.map((item) => {
+              if (item.key === record.key) {
+                return { ...item, children: childrenData };
+              } else if (item.children) {
+                return { ...item, children: updateTreeData(item.children) };
+              } else {
+                return item;
+              }
+            });
+          };
+
+          const updatedTreeData = updateTreeData([...treeData]);
+          setTreeData(updatedTreeData);
+          replace(updatedTreeData);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("API Error:", error);
+          setLoading(false);
+        });
+    }
   };
 
   const columns = [
-    // {
-    //   title: "",
-    //   key: "key",
-    //   dataIndex: "key",
-    //   width: 150,
-    //   render: (text, record) => <div >{record.key}</div>,
-    // },
     {
       title: "Lokasyon Tanımı",
       key: "lokasyonBilgisi",
       width: "100%",
       ellipsis: true,
-      render: (text, record) => <div>{record.lokasyonTanim}</div>,
+      render: (text, record) => (
+        <div>
+          <div>{record.lokasyonTanim}</div>
+          {record.fullLocationPath && <div style={{ color: "gray", fontSize: "12px" }}>{record.fullLocationPath}</div>}
+        </div>
+      ),
     },
-    // {
-    //   title: "Lokasyon Tipi",
-    //   key: "LOK_TIP",
-    //   width: 150,
-    //   ellipsis: true,
-    //   render: (text, record) => <div>{record.lokasyonTip}</div>,
-    // },
-    // {
-    //   title: "Yönetici",
-    //   key: "LOK_PERSONEL",
-    //   width: 150,
-    //   ellipsis: true,
-    //   render: (text, record) => <div>{record.lokasyonPersonel}</div>,
-    // },
-    // Other columns...
   ];
 
   const onSelectChange = (newSelectedRowKeys, newSelectedRows) => {
     setSelectedRowKeys(newSelectedRowKeys);
-    setSelectedRows(newSelectedRows); // Update selected rows state
-    // Seçilen satırın ID'sini formun bir alanına yazdır
+    setSelectedRows(newSelectedRows);
     if (newSelectedRowKeys.length > 0) {
       setValue("selectedLokasyonId", newSelectedRowKeys[0]);
     } else {
@@ -209,10 +163,9 @@ export default function MainTable() {
   };
 
   const rowSelection = {
-    type: "radio", // Radio tipi seçim kutuları kullan
+    type: "radio",
     selectedRowKeys,
     onChange: onSelectChange,
-    // You can add more configuration here if needed
   };
 
   const onRowClick = (record) => {
@@ -223,13 +176,14 @@ export default function MainTable() {
     };
   };
 
-  // kaydet düğmesine basıldıktan sonra apiye tekrardan istek atmasını sağlamak
   const refreshTableData = useCallback(() => {
-    // Assuming `fetch` is your function to fetch table data
-    fetchEquipmentData();
-  }, [fetchEquipmentData]);
-
-  // kaydet düğmesine basıldıktan sonra apiye tekrardan istek atmasını sağlamak son
+    // Reset all states when refreshing data
+    setExpandedRowKeys([]);
+    setSelectedRowKeys([]);
+    setSelectedRows([]);
+    setValue("selectedLokasyonId", null);
+    fetchRootData(searchTerm);
+  }, [searchTerm]);
 
   return (
     <div>
@@ -258,14 +212,7 @@ export default function MainTable() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", flexDirection: "row", gap: "10px" }}>
-          <Input
-            style={{ width: "250px" }}
-            type="text"
-            placeholder="Arama yap..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            prefix={<SearchOutlined style={{ color: "#0091ff" }} />} // Arama ikonunu ekle
-          />
+          <Search style={{ width: "250px" }} placeholder="Arama yap..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onSearch={handleSearch} enterButton />
           <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
         </div>
 
@@ -275,7 +222,7 @@ export default function MainTable() {
         style={{
           backgroundColor: "white",
           padding: "10px",
-          height: "calc(100vh - 290px)",
+          height: "calc(100vh - 200px)",
           borderRadius: "8px 8px 8px 8px",
           filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
         }}
@@ -284,12 +231,12 @@ export default function MainTable() {
           <Table
             rowSelection={rowSelection}
             columns={columns}
-            dataSource={debouncedSearchTerm ? filteredData : fields}
+            dataSource={treeData}
             pagination={false}
             onRow={onRowClick}
             scroll={{ y: "calc(100vh - 300px)" }}
             expandedRowKeys={expandedRowKeys}
-            onExpand={onTableRowExpand} // Elle genişletme/küçültme işlemlerini takip et
+            onExpand={onTableRowExpand}
           />
         </CustomSpin>
         <EditDrawer selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} />
