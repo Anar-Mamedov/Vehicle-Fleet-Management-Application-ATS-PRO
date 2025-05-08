@@ -23,6 +23,7 @@ export default function LokasyonTablo({ isModalVisible, setIsModalVisible, works
           <div style={{ color: "gray", fontSize: "12px" }}>{record.fullLocationPath}</div>
         </div>
       ),
+      sorter: (a, b) => a.location.localeCompare(b.location),
     },
     // Diğer sütunlar...
   ];
