@@ -8,6 +8,7 @@ import BreadcrumbComp from "../..//../components/breadcrumb/Breadcrumb";
 import Filter from "./filter/Filter";
 import ContextMenu from "./context-menu/ContextMenu";
 import FormattedNumber from "../../../../hooks/FormattedNumber";
+import { FormProvider, useForm } from "react-hook-form";
 
 const breadcrumb = [
   {
@@ -258,6 +259,7 @@ const defaultColumns = [
 ];
 
 const KmUpdate = () => {
+  const formMethods = useForm();
   const [dataSource, setDataSource] = useState([]);
   const [showContext, setShowContext] = useState(false);
   const [status, setStatus] = useState(false);
@@ -282,7 +284,7 @@ const KmUpdate = () => {
     tarih: dayjs(new Date()).format("DD.MM.YYYY"),
     saat: dayjs(new Date()).format("HH:mm"),
   });
-  const [filter, setFilter] = useState(null);
+  const [filter, setFilter] = useState({ plaka: "", aracTip: "", lokasyon: "", departman: "" });
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -534,6 +536,9 @@ const KmUpdate = () => {
   const clear = () => {
     fetchData(0, 1);
     setFilter({ plaka: "", aracTip: "", lokasyon: "", departman: "" });
+    // Also clear form fields
+    formMethods.setValue("lokasyon", "");
+    formMethods.setValue("lokasyonID", null);
   };
 
   const content = (
@@ -560,6 +565,12 @@ const KmUpdate = () => {
     </Space>
   );
 
+  useEffect(() => {
+    // Initialize form with default values
+    formMethods.setValue("lokasyon", "");
+    formMethods.setValue("lokasyonID", null);
+  }, []);
+
   return (
     <div className="km">
       {/* <div className="content">
@@ -567,19 +578,21 @@ const KmUpdate = () => {
       </div> */}
 
       <div className="content">
-        <Filter
-          setDataSource={setDataSource}
-          setTableParams={setTableParams}
-          tableParams={tableParams}
-          content={content}
-          addKm={addKm}
-          errorRows={errorRows}
-          validatedRows={validatedRows}
-          setFilter={setFilter}
-          filter={filter}
-          getData={getData}
-          clear={clear}
-        />
+        <FormProvider {...formMethods}>
+          <Filter
+            setDataSource={setDataSource}
+            setTableParams={setTableParams}
+            tableParams={tableParams}
+            content={content}
+            addKm={addKm}
+            errorRows={errorRows}
+            validatedRows={validatedRows}
+            setFilter={setFilter}
+            filter={filter}
+            getData={getData}
+            clear={clear}
+          />
+        </FormProvider>
       </div>
 
       <div className="content settings">
