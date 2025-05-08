@@ -58,6 +58,12 @@ const GeneralInfo = ({ isValid }) => {
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
+                <label>{t("girisYeri")}</label>
+                  <GirisYeri name="girisYeriKodId" />
+              </div>
+            </div>
+            <div className="col-span-3">
+              <div className="flex flex-col gap-1">
                 <label>{t("girisTarih-Saat")}</label>
                   <div className="flex gap-2">
                     <DateInput name="girisTarih" />
@@ -67,8 +73,8 @@ const GeneralInfo = ({ isValid }) => {
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
-                <label>{t("girisYeri")}</label>
-                  <GirisYeri name="girisYeriKodId" />
+                <label>{t("cikisYeri")}</label>
+                  <CikisYeri name="cikisYeriKodId" />
               </div>
             </div>
             <div className="col-span-3">
@@ -78,12 +84,6 @@ const GeneralInfo = ({ isValid }) => {
                     <DateInput name="cikisTarih" />
                     <TextInput name="cikisSaat" placeholder="SS:dd" />
                   </div>
-              </div>
-            </div>
-            <div className="col-span-3">
-              <div className="flex flex-col gap-1">
-                <label>{t("cikisYeri")}</label>
-                  <CikisYeri name="cikisYeriKodId" />
               </div>
             </div>
             <div className="col-span-3">
