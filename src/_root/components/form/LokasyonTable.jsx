@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Table, Input, message } from "antd";
+import { Button, Modal, Table, Input } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import AxiosInstance from "../../../api/http.jsx";
 import { t } from "i18next";
+
+const { Search } = Input;
 
 export default function LokasyonTablo({ isModalVisible, setIsModalVisible, workshopSelectedId, onSubmit, currentUserId, setRefreshKey }) {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false);
   const [treeData, setTreeData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
 
   const columns = [
@@ -37,21 +38,23 @@ export default function LokasyonTablo({ isModalVisible, setIsModalVisible, works
     }));
   };
 
-  // Arama terimini gecikmeli olarak ayarlama
-  useEffect(() => {
-    const timerId = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 1000);
+  // Search function called when button is clicked or Enter key is pressed
+  const handleSearch = (value) => {
+    fetchData(value);
+  };
 
-    return () => clearTimeout(timerId);
-  }, [searchTerm]);
-
-  // debouncedSearchTerm değiştiğinde verileri yeniden çek
+  // Modal durumu değiştiğinde yapılacak işlemler
   useEffect(() => {
     if (isModalVisible) {
-      fetchData();
+      // Reset state when modal opens
+      setSelectedRowKeys([]);
+      setSearchTerm("");
+      setExpandedRowKeys([]);
+
+      // Initial data fetch with empty search
+      fetchData("");
     }
-  }, [debouncedSearchTerm, isModalVisible]);
+  }, [isModalVisible]);
 
   // Tablodaki satırı genişletme ve çocuklarını yükleme fonksiyonu
   const onTableRowExpand = (expanded, record) => {
@@ -67,7 +70,7 @@ export default function LokasyonTablo({ isModalVisible, setIsModalVisible, works
     if (expanded && record.hasChild && record.children.length === 0 && record.locationId) {
       setLoading(true);
 
-      AxiosInstance.get(`Location/GetChildLocationListByParentId?parentID=${record.locationId}&parameter=${debouncedSearchTerm}`)
+      AxiosInstance.get(`Location/GetChildLocationListByParentId?parentID=${record.locationId}&parameter=${searchTerm}`)
         .then((response) => {
           const childrenData = formatDataForTable(response.data);
           const newData = [...treeData];
@@ -103,9 +106,9 @@ export default function LokasyonTablo({ isModalVisible, setIsModalVisible, works
   };
 
   // İlk veri çekme fonksiyonu
-  const fetchData = () => {
+  const fetchData = (parameter = "") => {
     setLoading(true);
-    AxiosInstance.get(`Location/GetChildLocationListByParentId?parentID=0&parameter=${debouncedSearchTerm}`)
+    AxiosInstance.get(`Location/GetChildLocationListByParentId?parentID=0&parameter=${parameter}`)
       .then((response) => {
         const tree = formatDataForTable(response.data);
         setTreeData(tree);
@@ -132,25 +135,7 @@ export default function LokasyonTablo({ isModalVisible, setIsModalVisible, works
   // Modal açma/kapatma fonksiyonu
   const handleModalToggle = () => {
     setIsModalVisible((prev) => !prev);
-    if (!isModalVisible) {
-      fetchData(); // Modal açıldığında verileri çek
-      setSelectedRowKeys([]);
-      setSearchTerm("");
-      setDebouncedSearchTerm("");
-      setExpandedRowKeys([]);
-    }
   };
-
-  // Modal modal açıldığında aşağıdakileri yap.
-  useEffect(() => {
-    if (!isModalVisible) {
-      fetchData(); // Modal açıldığında verileri çek
-      setSelectedRowKeys([]);
-      setSearchTerm("");
-      setDebouncedSearchTerm("");
-      setExpandedRowKeys([]);
-    }
-  }, [isModalVisible]);
 
   // Modal onaylama fonksiyonu
   const handleModalOk = () => {
@@ -183,13 +168,13 @@ export default function LokasyonTablo({ isModalVisible, setIsModalVisible, works
         {t("lokasyonEkle")}
       </Button> */}
       <Modal width="1200px" title={t("lokasyon")} open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
-        <Input
+        <Search
           style={{ width: "250px", marginBottom: "10px" }}
-          type="text"
           placeholder={t("aramaYap")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
+          onSearch={handleSearch}
+          enterButton
         />
         <Table
           rowSelection={rowSelection}
