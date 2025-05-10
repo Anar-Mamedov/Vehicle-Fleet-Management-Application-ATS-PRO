@@ -162,6 +162,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       ozelAlanKodId10: Number(data.ozelAlan10ID),
       ozelAlan11: Number(data.ozelAlan11),
       ozelAlan12: Number(data.ozelAlan12),
+      isRecordSeen: true,
     };
 
     // AxiosInstance.post("/api/endpoint", { Body }).then((response) => {
