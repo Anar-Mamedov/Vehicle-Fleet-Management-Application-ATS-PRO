@@ -748,6 +748,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                         {...field}
                         className="w-full"
                         disabled={true}
+                        decimalSeparator={getDecimalSeparator()}
                         onChange={(val) => {
                           field.onChange(val);
                           const tutarVal = watch("tutar") ?? 0;

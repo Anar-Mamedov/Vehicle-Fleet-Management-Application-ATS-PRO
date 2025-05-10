@@ -1,10 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { InputNumber } from "antd";
 
 const NumberInput = ({ name, checked, required }) => {
   const { control, setValue } = useFormContext();
+  const [decimalSeparator, setDecimalSeparator] = useState(".");
+
+  useEffect(() => {
+    const userLanguage = localStorage.getItem("i18nextLng") || "en";
+    // Set decimal separator based on language
+    // Comma for Turkish, Azerbaijani and Russian, dot for English
+    if (["tr", "az", "ru"].includes(userLanguage)) {
+      setDecimalSeparator(",");
+    } else {
+      setDecimalSeparator(".");
+    }
+  }, []);
 
   return (
     <Controller
@@ -17,6 +29,7 @@ const NumberInput = ({ name, checked, required }) => {
             {...field}
             className={fieldState.error ? "input-error w-full" : "w-full"}
             disabled={checked}
+            decimalSeparator={decimalSeparator}
             onChange={(e) => {
               field.onChange(e);
               if (e === null) {
