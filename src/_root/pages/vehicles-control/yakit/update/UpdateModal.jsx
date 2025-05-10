@@ -190,6 +190,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         setValue("engelle", res?.data.hasToInsertKmLog);
         setValue("yakitHacmi", res?.data.yakitHacmi);
         setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
+        setValue("isRecordSeen", res?.data.isRecordSeen);
       });
 
       GetPhotosByRefGroupService(selectedRow?.key, "YAKIT").then((res) => setImageUrls(res.data));
@@ -220,7 +221,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     }
   };
 
-  const onSubmit = handleSubmit((values) => {
+  const constructRequestBody = (values) => {
     const kmLog = !watch("engelle")
       ? {
           siraNo: watch("kmLogId"),
@@ -236,7 +237,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         }
       : null;
 
-    const body = {
+    return {
       siraNo: selectedRow?.key,
       aracId: values.aracId,
       plaka: values.plaka,
@@ -247,14 +248,12 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       faturaNo: values.faturaNo,
       sonAlinanKm: values.sonAlinanKm,
       farkKm: values.farkKm,
-      // "yakitHacmi": `${values.yakitHacmi}`,
       yakitTipId: values.yakitTipId,
       lokasyonId: values.lokasyonId,
       guzergahId: values.guzergahId,
       surucuId: values.surucuId,
       firmaId: values.firmaId,
       istasyonKodId: values.istasyonKodId,
-      // tuketim: values.tuketim,
       alinanKm: values.alinanKm,
       miktar: values.miktar,
       kdv: values.kdv,
@@ -282,8 +281,24 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       ozelAlan11: values.ozelAlan11 || 0,
       ozelAlan12: values.ozelAlan12 || 0,
       depoYakitMiktar: values.depoYakitMiktar,
-      // "yakitTanki": values.yakitTanki
     };
+  };
+
+  const onSubmitRecordSeen = (values) => {
+    const body = constructRequestBody(values);
+    body.isRecordSeen = false;
+
+    UpdateFuelService(body).then((res) => {
+      if (res.data.statusCode === 202) {
+        setValue("isRecordSeen", false);
+        onRefresh();
+        message.success("Kayıt görüldü olarak işaretlendi.");
+      }
+    });
+  };
+
+  const onSubmit = handleSubmit((values) => {
+    const body = constructRequestBody(values);
 
     UpdateFuelService(body).then((res) => {
       if (res.data.statusCode === 202) {
@@ -374,6 +389,13 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       {t("kapat")}
     </Button>,
   ];
+
+  useEffect(() => {
+    if (watch("isRecordSeen") === true) {
+      // methods.handleSubmit(onSubmit)(); - eski kod
+      methods.handleSubmit(onSubmitRecordSeen)(); // Yeni kod - özel submit fonksiyonu
+    }
+  }, [watch("isRecordSeen")]);
 
   return (
     <>

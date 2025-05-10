@@ -923,6 +923,9 @@ const Yakit = () => {
                 components={components}
                 rowSelection={rowSelection}
                 columns={filteredColumns}
+                onRow={(record) => ({
+                  style: record.isRecordSeen === true ? { fontWeight: 600 } : {},
+                })}
                 dataSource={data}
                 pagination={{
                   current: currentPage,
