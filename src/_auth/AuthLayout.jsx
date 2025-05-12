@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import { Link, useNavigate } from "react-router-dom";
 import { t } from "i18next";
@@ -11,12 +11,16 @@ import ErrorAlert from "../components/alerts/ErrorAlert";
 import LanguageSelectbox from "../_root/components/lang/LanguageSelectbox.jsx";
 import { useForm } from "antd/lib/form/Form";
 import { MdVpnKey } from "react-icons/md";
+import AxiosInstance from "../api/http.jsx";
 import styled from "styled-components";
 
 const { Text } = Typography;
 
 const ImageContainer = styled.div`
-  background: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5)), url("/images/ats_login_image.webp");
+  background: ${(props) =>
+    props.backgroundImage
+      ? `linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)), url(${props.backgroundImage})`
+      : `linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5)), url("/images/ats_login_image.webp")`};
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -54,10 +58,55 @@ const AuthLayout = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [clientLogo, setClientLogo] = useState(null);
+  const [backgroundImage, setBackgroundImage] = useState(null);
 
   const [form] = useForm();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchClientAssets = async () => {
+      try {
+        const companyInfo = JSON.parse(localStorage.getItem("companyInfo"));
+        if (companyInfo) {
+          // Fetch logo
+          if (companyInfo.logoId) {
+            const logoBody = {
+              photoId: companyInfo.logoId,
+              fileName: "logo",
+              extension: ".png",
+            };
+
+            const logoResponse = await AxiosInstance.post("ClientInfo/GetClientAssets", logoBody, { responseType: "blob" });
+            if (logoResponse.data) {
+              const logoUrl = URL.createObjectURL(logoResponse.data);
+              setClientLogo(logoUrl);
+            }
+          }
+
+          // Fetch background image
+          if (companyInfo.resimId) {
+            const backgroundBody = {
+              photoId: companyInfo.resimId,
+              fileName: "background",
+              extension: ".png",
+            };
+
+            const backgroundResponse = await AxiosInstance.post("ClientInfo/GetClientAssets", backgroundBody, { responseType: "blob" });
+            if (backgroundResponse.data) {
+              const backgroundUrl = URL.createObjectURL(backgroundResponse.data);
+              setBackgroundImage(backgroundUrl);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching client assets:", error);
+      }
+    };
+
+    fetchClientAssets();
+  }, []);
 
   const onFinish = (values) => {
     console.log("Success:", values);
@@ -102,17 +151,13 @@ const AuthLayout = () => {
   return (
     <div
       style={{
-        /* background: `linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5)), url('/images/ats_login_image.webp')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat", */
         minHeight: "100vh",
         display: "flex",
         justifyContent: "flex-end",
         width: "100%",
       }}
     >
-      <ImageContainer></ImageContainer>
+      <ImageContainer backgroundImage={backgroundImage}></ImageContainer>
       <FormContainer>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "34px", width: "150px" }}></div>
         <div style={{ width: "400px" }}>
@@ -207,6 +252,9 @@ const AuthLayout = () => {
               </Button>
             </Form.Item>
           </Form>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "34px" }}>
+            {clientLogo ? <img src={clientLogo} alt="client logo" style={{ width: "150px" }} /> : null}
+          </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "34px" }}>
           {/* <img src="/images/orjinLogo.png" alt="ats logo" style={{ width: "150px" }} /> */}

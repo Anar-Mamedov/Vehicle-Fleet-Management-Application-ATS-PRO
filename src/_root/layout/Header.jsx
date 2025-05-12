@@ -11,7 +11,7 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import LanguageSelectbox from "../components/lang/LanguageSelectbox";
 import KullaniciProfil from "../pages/KullaniciProfil/KullaniciProfil";
-
+import { CompanyLogo } from "./components/CompanyLogo";
 const { Header } = Layout;
 
 const CustomSpin = styled(Spin)`
@@ -98,6 +98,7 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
           <HomeOutlined />
           {/* <LanguageSelector /> */}
           <LanguageSelectbox />
+          <CompanyLogo />
         </div>
         <div style={{ gap: "10px" }} className="flex gap-1 justify-between align-center">
           <CustomSpin spinning={loading}>
