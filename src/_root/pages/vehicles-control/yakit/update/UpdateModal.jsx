@@ -292,7 +292,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       if (res.data.statusCode === 202) {
         setValue("isRecordSeen", false);
         onRefresh();
-        message.success("Kayıt görüldü olarak işaretlendi.");
+        // message.success("Kayıt görüldü olarak işaretlendi.");
       }
     });
   };
