@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef, useContext } from "react";
 import { Link } from "react-router-dom";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select, Pagination, Switch } from "antd";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select, Pagination, Switch, Popconfirm, InputNumber } from "antd";
 import {
   HolderOutlined,
   SearchOutlined,
@@ -165,6 +165,77 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 };
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
+
+// Add this component before the Yakit component
+const KmCell = ({ record, text, refreshTableData }) => {
+  const [inputValue, setInputValue] = useState(text || 0);
+
+  // Get locale from localStorage
+  const getLocale = () => {
+    try {
+      const locale = localStorage.getItem("i18nextLng") || "tr";
+      return locale;
+    } catch (error) {
+      console.error("Error getting locale from localStorage:", error);
+      return "tr"; // Default to Turkish if there's an error
+    }
+  };
+
+  // Format number based on locale
+  const formatNumber = (value) => {
+    if (value === null || value === undefined) return "";
+
+    try {
+      const locale = getLocale();
+      return new Intl.NumberFormat(locale).format(value);
+    } catch (error) {
+      console.error("Error formatting number:", error);
+      return value.toString();
+    }
+  };
+
+  const handleConfirm = async () => {
+    try {
+      const payload = [
+        {
+          kmAracId: record.aracId,
+          tarih: dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+          saat: dayjs().format("HH:mm"),
+          eskiKm: text || 0,
+          yeniKm: inputValue,
+          kaynak: "GÜNCELLEME",
+          lokasyonId: record.lokasyonId || 0,
+          surucuId: record.surucuId || 0,
+        },
+      ];
+
+      await AxiosInstance.post("KmLog/AddKmLog", payload);
+      message.success("Kilometre başarıyla güncellendi");
+      refreshTableData();
+    } catch (error) {
+      console.error("Kilometre güncelleme hatası:", error);
+      message.error("Kilometre güncellenirken bir hata oluştu");
+    }
+  };
+
+  return (
+    <Popconfirm
+      title="Kilometre Güncelleme"
+      description={
+        <div>
+          {/* <p>Yeni kilometre değerini giriniz:</p> */}
+          <InputNumber min={text || 0} value={inputValue} onChange={(value) => setInputValue(value)} style={{ width: "100%" }} />
+        </div>
+      }
+      onConfirm={handleConfirm}
+      okText="Tamam"
+      cancelText="İptal"
+      trigger="click"
+    >
+      <div style={{ cursor: "pointer" }}>{formatNumber(text)}</div>
+    </Popconfirm>
+  );
+};
 
 const Yakit = ({ ayarlarData }) => {
   const { setPlaka } = useContext(PlakaContext);
@@ -654,7 +725,7 @@ const Yakit = ({ ayarlarData }) => {
       width: 130,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-
+      render: (text, record) => <KmCell record={record} text={text} refreshTableData={refreshTableData} />,
       sorter: (a, b) => {
         if (a.guncelKm === null) return -1;
         if (b.guncelKm === null) return 1;
