@@ -169,6 +169,8 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 // Add this component before the Yakit component
 const KmCell = ({ record, text, refreshTableData }) => {
   const [inputValue, setInputValue] = useState(text || 0);
+  const [error, setError] = useState(null);
+  const [popconfirmOpen, setPopconfirmOpen] = useState(false);
 
   // Get locale from localStorage
   const getLocale = () => {
@@ -194,7 +196,24 @@ const KmCell = ({ record, text, refreshTableData }) => {
     }
   };
 
+  const handleInputChange = (value) => {
+    setInputValue(value);
+
+    // Validate input value
+    if (value === null || value < (text || 0)) {
+      setError("Yeni kilometre değeri mevcut değerden küçük olamaz!");
+    } else {
+      setError(null);
+    }
+  };
+
   const handleConfirm = async () => {
+    // Extra validation check
+    if (inputValue === null || inputValue < (text || 0)) {
+      message.error("Yeni kilometre değeri mevcut değerden küçük olamaz!");
+      return;
+    }
+
     try {
       const payload = [
         {
@@ -212,10 +231,21 @@ const KmCell = ({ record, text, refreshTableData }) => {
       await AxiosInstance.post("KmLog/AddKmLog", payload);
       message.success("Kilometre başarıyla güncellendi");
       refreshTableData();
+      setPopconfirmOpen(false);
     } catch (error) {
       console.error("Kilometre güncelleme hatası:", error);
       message.error("Kilometre güncellenirken bir hata oluştu");
     }
+  };
+
+  // Handle popconfirm visibility
+  const handleOpenChange = (visible) => {
+    // When opening, reset input value to current value
+    if (visible) {
+      setInputValue(text || 0);
+      setError(null);
+    }
+    setPopconfirmOpen(visible);
   };
 
   return (
@@ -223,14 +253,17 @@ const KmCell = ({ record, text, refreshTableData }) => {
       title="Kilometre Güncelleme"
       description={
         <div>
-          {/* <p>Yeni kilometre değerini giriniz:</p> */}
-          <InputNumber min={text || 0} value={inputValue} onChange={(value) => setInputValue(value)} style={{ width: "100%" }} />
+          <InputNumber value={inputValue} onChange={handleInputChange} style={{ width: "100%" }} status={error ? "error" : ""} />
+          {error && <div style={{ color: "#ff4d4f", fontSize: "12px", marginTop: "4px" }}>{error}</div>}
         </div>
       }
       onConfirm={handleConfirm}
       okText="Tamam"
       cancelText="İptal"
+      okButtonProps={{ disabled: error !== null }}
       trigger="click"
+      open={popconfirmOpen}
+      onOpenChange={handleOpenChange}
     >
       <div style={{ cursor: "pointer" }}>{formatNumber(text)}</div>
     </Popconfirm>
