@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef, useContext } from "react";
 import { Link } from "react-router-dom";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select, Pagination, Switch, Popconfirm, InputNumber } from "antd";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select, Pagination, Switch, Popconfirm, InputNumber, Popover } from "antd";
 import {
   HolderOutlined,
   SearchOutlined,
@@ -198,20 +198,16 @@ const KmCell = ({ record, text, refreshTableData }) => {
 
   const handleInputChange = (value) => {
     setInputValue(value);
-
-    // Validate input value
-    if (value === null || value < (text || 0)) {
-      setError("Yeni kilometre değeri mevcut değerden küçük olamaz!");
-    } else {
-      setError(null);
-    }
+    // Remove validation during input
+    setError(null);
   };
 
   const handleConfirm = async () => {
-    // Extra validation check
+    // Validate input value when confirming
     if (inputValue === null || inputValue < (text || 0)) {
       message.error("Yeni kilometre değeri mevcut değerden küçük olamaz!");
-      return;
+      setError("Yeni kilometre değeri mevcut değerden küçük olamaz!");
+      return Promise.reject(); // Reject the promise to prevent Popconfirm from closing
     }
 
     try {
@@ -232,9 +228,11 @@ const KmCell = ({ record, text, refreshTableData }) => {
       message.success("Kilometre başarıyla güncellendi");
       refreshTableData();
       setPopconfirmOpen(false);
+      return Promise.resolve(); // Explicitly resolve the promise when successful
     } catch (error) {
       console.error("Kilometre güncelleme hatası:", error);
       message.error("Kilometre güncellenirken bir hata oluştu");
+      return Promise.reject(); // Reject the promise to prevent Popconfirm from closing on API error
     }
   };
 
@@ -248,6 +246,26 @@ const KmCell = ({ record, text, refreshTableData }) => {
     setPopconfirmOpen(visible);
   };
 
+  // Format date for the popover
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    try {
+      const date = dayjs(dateString);
+      return date.format("DD.MM.YYYY HH:mm");
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return dateString;
+    }
+  };
+
+  // Popover content showing last update date
+  const popoverContent = (
+    <div>
+      <p>Son Güncelleme: {formatDate(record.sonKmGuncellemeTarih)}</p>
+    </div>
+  );
+
   return (
     <Popconfirm
       title="Kilometre Güncelleme"
@@ -260,12 +278,14 @@ const KmCell = ({ record, text, refreshTableData }) => {
       onConfirm={handleConfirm}
       okText="Tamam"
       cancelText="İptal"
-      okButtonProps={{ disabled: error !== null }}
+      okButtonProps={{ disabled: false }} // Allow clicking even with error
       trigger="click"
       open={popconfirmOpen}
       onOpenChange={handleOpenChange}
     >
-      <div style={{ cursor: "pointer" }}>{formatNumber(text)}</div>
+      <Popover content={popoverContent} title="Kilometre Bilgisi" trigger="hover">
+        <div style={{ cursor: "pointer", borderBottom: "1px dashed #1890ff", display: "inline-block" }}>{formatNumber(text)}</div>
+      </Popover>
     </Popconfirm>
   );
 };
