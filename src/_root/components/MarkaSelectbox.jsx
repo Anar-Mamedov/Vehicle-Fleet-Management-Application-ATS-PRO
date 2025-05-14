@@ -34,7 +34,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth }) {
+export default function MarkaSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth }) {
   const {
     control,
     watch,
@@ -48,7 +48,7 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await AxiosInstance.get(`Vehicle/GetVehiclePlates`);
+      const response = await AxiosInstance.get(`Mark/GetMarkList`);
       if (response && response.data) {
         setOptions(response.data);
       }
@@ -80,7 +80,7 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
             status={errors[name1] ? "error" : ""}
             showSearch
             allowClear
-            placeholder="Plaka Seçiniz"
+            placeholder="Marka Seçiniz"
             optionFilterProp="children"
             filterOption={(input, option) => (option?.label ? option.label.toLowerCase().includes(input.toLowerCase()) : false)}
             onDropdownVisibleChange={(open) => {
@@ -89,16 +89,15 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
               }
             }}
             options={options.map((item) => ({
-              value: item.aracId,
-              label: item.plaka,
+              value: item.siraNo,
+              label: item.marka,
             }))}
             onChange={(value, option) => {
-              const numericValue = value ? Number(value) : null;
               setValue(name1, option?.label || null);
-              setValue(`${name1}ID`, numericValue);
+              setValue(`${name1}ID`, value);
               field.onChange(option?.label || null);
               if (onChange) {
-                onChange(numericValue, option);
+                onChange(value, option);
               }
             }}
             style={{ width: inputWidth }}

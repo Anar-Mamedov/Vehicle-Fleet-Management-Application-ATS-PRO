@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Select, Typography, Spin, Input } from "antd";
 import AxiosInstance from "../../api/http";
@@ -34,7 +34,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth }) {
+export default function ModelSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth, markaId }) {
   const {
     control,
     watch,
@@ -45,10 +45,21 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Clear model selection when markaId becomes null/undefined
+  useEffect(() => {
+    if (!markaId) {
+      setValue(name1, null);
+      setValue(`${name1}ID`, null);
+      if (onChange) {
+        onChange(null, null);
+      }
+    }
+  }, [markaId, name1, setValue, onChange]);
+
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await AxiosInstance.get(`Vehicle/GetVehiclePlates`);
+      const response = await AxiosInstance.get(`Model/GetModelListByMarkId?markId=${markaId}`);
       if (response && response.data) {
         setOptions(response.data);
       }
@@ -78,9 +89,10 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
           <StyledSelect
             {...field}
             status={errors[name1] ? "error" : ""}
+            disabled={!markaId}
             showSearch
             allowClear
-            placeholder="Plaka Seçiniz"
+            placeholder="Model Seçiniz"
             optionFilterProp="children"
             filterOption={(input, option) => (option?.label ? option.label.toLowerCase().includes(input.toLowerCase()) : false)}
             onDropdownVisibleChange={(open) => {
@@ -89,16 +101,15 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
               }
             }}
             options={options.map((item) => ({
-              value: item.aracId,
-              label: item.plaka,
+              value: item.siraNo,
+              label: item.modelDef,
             }))}
             onChange={(value, option) => {
-              const numericValue = value ? Number(value) : null;
               setValue(name1, option?.label || null);
-              setValue(`${name1}ID`, numericValue);
+              setValue(`${name1}ID`, value);
               field.onChange(option?.label || null);
               if (onChange) {
-                onChange(numericValue, option);
+                onChange(value, option);
               }
             }}
             style={{ width: inputWidth }}

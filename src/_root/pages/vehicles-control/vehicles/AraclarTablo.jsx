@@ -346,6 +346,9 @@ const Yakit = ({ ayarlarData }) => {
     filters: {},
   });
 
+  // Add a state to track whether filters have been applied
+  const [filtersApplied, setFiltersApplied] = useState(false);
+
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
 
@@ -380,10 +383,22 @@ const Yakit = ({ ayarlarData }) => {
 
       const customFilters = body.filters.customfilters === "" ? null : body.filters.customfilters;
 
-      // Use the directly passed durum value to ensure no lag
-      const durumParam = durumValue !== undefined ? durumValue : selectedDurum !== null ? selectedDurum : 0;
+      // Use durumValue from filters if available, otherwise use the passed value or selectedDurum
+      // Ensure we default to 0 if all values are null or undefined
+      let durumParam = 0; // Default to 0
 
-      console.log(`API request with durum value: ${durumParam}`);
+      if (body.filters.durumValue !== undefined) {
+        durumParam = body.filters.durumValue;
+      } else if (durumValue !== undefined) {
+        // If durumValue is explicitly passed (even if null), use it or default to 0
+        durumParam = durumValue !== null ? durumValue : 0;
+      } else if (selectedDurum !== null) {
+        durumParam = selectedDurum;
+      }
+      // If we reach here, durumParam remains 0
+
+      // Final check to ensure durumParam is never undefined or null
+      durumParam = durumParam === undefined || durumParam === null ? 0 : durumParam;
 
       const response = await AxiosInstance.post(
         `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${durumParam}&pageSize=${currentSize}`,
@@ -463,16 +478,19 @@ const Yakit = ({ ayarlarData }) => {
     // We removed selectedDurum from dependencies since handleDurumChange handles that separately
   }, []); // Empty dependency array means this runs only on mount
 
-  // useEffect for body (filters/search) changes
+  // Modify the useEffect for body (filters/search) changes to only fetch when filtersApplied is true
   useEffect(() => {
-    // Check if body actually changed before fetching
-    if (JSON.stringify(body) !== JSON.stringify(prevBodyRef.current)) {
+    // Only fetch data when filters are explicitly applied via the search button
+    if (filtersApplied) {
+      // Reset the flag
+      setFiltersApplied(false);
+
       // Show loading if infinite scroll is disabled
       if (!infiniteScrollEnabled) {
         setPaginationLoading(true);
       }
 
-      // Eski veriyi tutuyoruz, yeni veri gelene kadar
+      // Fetch data with the new filters
       fetchData(0, 1, pageSize).finally(() => {
         if (!infiniteScrollEnabled) {
           setPaginationLoading(false);
@@ -480,7 +498,7 @@ const Yakit = ({ ayarlarData }) => {
       });
       prevBodyRef.current = body; // Update ref after fetch starts
     }
-  }, [body, pageSize, infiniteScrollEnabled]);
+  }, [body, filtersApplied, pageSize, infiniteScrollEnabled]);
 
   // Ensure localStorage has valid page size value
   useEffect(() => {
@@ -546,23 +564,26 @@ const Yakit = ({ ayarlarData }) => {
   };
 
   const handleDurumChange = (value) => {
+    // If value is undefined (when dropdown is cleared), set it to 0 for API call
+    let apiValue = value === undefined || value === null ? 0 : value;
+
+    // Ensure apiValue is always a number
+    apiValue = Number(apiValue);
+
+    // Update the selectedDurum state - keep as null for UI purposes when cleared
+    setSelectedDurum(value);
+
+    // Immediately trigger API call when durum changes
     // Show loading if infinite scroll is disabled
     if (!infiniteScrollEnabled) {
       setPaginationLoading(true);
     }
 
-    // Reset to a clean state when durum changes
-    setData([]);
-    setLoadedIds(new Set());
+    // Reset to page 1 when durum filter changes
     setCurrentPage(1);
 
-    // Set the selected value first
-    setSelectedDurum(value);
-    console.log("handleDurumChange seçilen durum:", value);
-
-    // Fetch data with the current value directly instead of using state
-    // This ensures we use the exact value that was just selected
-    fetchDataWithDurum(0, 1, pageSize, value).finally(() => {
+    // Fetch data with the new durum value
+    fetchDataWithDurum(0, 1, pageSize, apiValue).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
@@ -617,31 +638,19 @@ const Yakit = ({ ayarlarData }) => {
   }, [infiniteScrollEnabled]);
 
   // filtreleme işlemi için kullanılan useEffect
-  const handleBodyChange = useCallback(
-    (type, newBody) => {
-      // Show loading if infinite scroll is disabled
-      if (!infiniteScrollEnabled) {
-        setPaginationLoading(true);
-      }
+  const handleBodyChange = useCallback((type, newBody) => {
+    // Update the body state
+    setBody((state) => ({
+      ...state,
+      [type]: newBody,
+    }));
 
-      // Reset selectedDurum when filter changes to avoid conflicts
-      setSelectedDurum(null);
+    // Set the flag to indicate filters have been explicitly applied
+    setFiltersApplied(true);
 
-      setBody((state) => ({
-        ...state,
-        [type]: newBody,
-      }));
-      setCurrentPage(1); // Filtreleme yapıldığında sayfa numarasını 1'e ayarla
-
-      // The fetchData will be triggered by the useEffect, but we need to make sure to clear the loading state
-      setTimeout(() => {
-        if (!infiniteScrollEnabled) {
-          setPaginationLoading(false);
-        }
-      }, 100);
-    },
-    [infiniteScrollEnabled]
-  );
+    // Reset to page 1 when filters are applied
+    setCurrentPage(1);
+  }, []);
   // filtreleme işlemi için kullanılan useEffect son
 
   const keyArray = selectedRows.map((row) => row.key);
@@ -1357,6 +1366,23 @@ const Yakit = ({ ayarlarData }) => {
     });
   };
 
+  // Function to clear the selectedDurum state
+  const handleClearDurum = () => {
+    setSelectedDurum(null);
+
+    // Update the body state to remove any previously set durumValue
+    setBody((prevBody) => ({
+      ...prevBody,
+      filters: {
+        ...prevBody.filters,
+        durumValue: undefined, // Set to undefined so it will use the default 0 in the API call
+      },
+    }));
+
+    // Set the flag to indicate filters have been explicitly applied
+    setFiltersApplied(true);
+  };
+
   return (
     <>
       {/* Modal for managing columns */}
@@ -1471,7 +1497,7 @@ const Yakit = ({ ayarlarData }) => {
               <MenuOutlined />
             </StyledButton>
             <Input
-              style={{ width: "250px" }}
+              style={{ width: "130px" }}
               type="text"
               placeholder="Arama yap..."
               value={searchTerm}
@@ -1480,12 +1506,13 @@ const Yakit = ({ ayarlarData }) => {
               // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
               suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
             />
-            <Filters onChange={handleBodyChange} />
-            <DurumSelect value={selectedDurum} onChange={handleDurumChange} />
+            <Filters onChange={handleBodyChange} durumValue={selectedDurum} onClearDurum={handleClearDurum} />
             {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
             {/* Other toolbar components */}
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
+            <DurumSelect value={selectedDurum} onChange={handleDurumChange} inputWidth="100px" dropdownWidth="250px" />
+
             <OperationsInfo ids={keyArray} selectedRowsData={selectedRows} onRefresh={refreshTableData} />
             <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
             <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
