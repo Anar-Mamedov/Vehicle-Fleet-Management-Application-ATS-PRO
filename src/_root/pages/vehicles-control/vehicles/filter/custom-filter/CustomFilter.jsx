@@ -197,7 +197,7 @@ export default function CustomFilter({ onSubmit }) {
                       value: "grup",
                       label: "Araç Grubu",
                     },
-                    {
+                    /* {
                       value: "marka",
                       label: "Marka",
                     },
@@ -208,7 +208,7 @@ export default function CustomFilter({ onSubmit }) {
                     {
                       value: "plaka",
                       label: "Plaka",
-                    },
+                    }, */
                     {
                       value: "renk",
                       label: "Renk",

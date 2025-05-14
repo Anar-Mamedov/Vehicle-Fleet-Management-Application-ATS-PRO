@@ -1,6 +1,7 @@
 import React from "react";
 import { Select } from "antd";
 import { t } from "i18next";
+import styled from "styled-components";
 
 const { Option } = Select;
 
@@ -15,9 +16,32 @@ const DURUM_OPTIONS = [
   { value: 8, label: t("tumAraclar"), color: "#000" },
 ];
 
-const DurumSelect = ({ value, onChange, placeholder = "Durum Seçin" }) => {
+const StyledSelect = styled(Select)`
+  @media (min-width: 600px) {
+    width: 100%;
+  }
+  @media (max-width: 600px) {
+    width: 300px;
+  }
+
+  // Custom styles for dropdown menu
+  .ant-select-dropdown {
+    width: auto !important;
+    min-width: 100px !important;
+  }
+`;
+
+const DurumSelect = ({ value, onChange, placeholder = "Durum Seçin", inputWidth, dropdownWidth }) => {
   return (
-    <Select value={value} onChange={onChange} placeholder={placeholder} style={{ width: "230px" }} allowClear>
+    <StyledSelect
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      allowClear
+      style={{ width: inputWidth }}
+      dropdownStyle={{ width: dropdownWidth || "auto", minWidth: "100px" }}
+      popupMatchSelectWidth={false}
+    >
       {DURUM_OPTIONS.map((option) => (
         <Option key={option.value} value={option.value}>
           <span
@@ -33,7 +57,7 @@ const DurumSelect = ({ value, onChange, placeholder = "Durum Seçin" }) => {
           {option.label}
         </Option>
       ))}
-    </Select>
+    </StyledSelect>
   );
 };
 
