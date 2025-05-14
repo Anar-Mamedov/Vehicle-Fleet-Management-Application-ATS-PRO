@@ -406,6 +406,9 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         message.success("Güncelleme başarılı!");
         onSuccess?.();
         handleCancel();
+      } else if (res.data.statusCode === 401) {
+        message.error("Güncelleme Yetkiniz Bulunmamaktadır!");
+        setLoading(false);
       }
     });
   });
