@@ -12,6 +12,12 @@ const http = axios.create({
 http.interceptors.request.use(async (config) => {
   const token = await getItemWithExpiration("token");
 
+  // Redirect to home if user has a valid token and tries to access login page
+  if (token && window.location.pathname === "/login") {
+    window.location.href = "/";
+    return config;
+  }
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

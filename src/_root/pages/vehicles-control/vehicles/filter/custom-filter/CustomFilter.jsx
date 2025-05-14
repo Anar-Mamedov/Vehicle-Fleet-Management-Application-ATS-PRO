@@ -190,25 +190,26 @@ export default function CustomFilter({ onSubmit }) {
                   filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
                   options={[
                     {
-                      value: "aracTip",
-                      label: "Araç Tipi",
-                    },
-                    {
                       value: "grup",
                       label: "Araç Grubu",
                     },
                     /* {
+                      value: "aracTip",
+                      label: "Araç Tipi",
+                    },
+                     {
                       value: "marka",
                       label: "Marka",
                     },
                     {
                       value: "model",
                       label: "Model",
-                    },
+                    }, 
                     {
                       value: "plaka",
                       label: "Plaka",
-                    }, */
+                    },
+                     */
                     {
                       value: "renk",
                       label: "Renk",

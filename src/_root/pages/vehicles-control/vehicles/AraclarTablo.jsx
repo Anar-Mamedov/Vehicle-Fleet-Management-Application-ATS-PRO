@@ -384,10 +384,24 @@ const Yakit = ({ ayarlarData }) => {
       const customFilters = body.filters.customfilters === "" ? null : body.filters.customfilters;
 
       // Use durumValue from filters if available, otherwise use the passed value or selectedDurum
-      const durumParam = body.filters.durumValue !== undefined ? body.filters.durumValue : durumValue !== undefined ? durumValue : selectedDurum !== null ? selectedDurum : 0;
+      // Ensure we default to 0 if all values are null or undefined
+      let durumParam = 0; // Default to 0
+
+      if (body.filters.durumValue !== undefined) {
+        durumParam = body.filters.durumValue;
+      } else if (durumValue !== undefined) {
+        // If durumValue is explicitly passed (even if null), use it or default to 0
+        durumParam = durumValue !== null ? durumValue : 0;
+      } else if (selectedDurum !== null) {
+        durumParam = selectedDurum;
+      }
+      // If we reach here, durumParam remains 0
+
+      // Final check to ensure durumParam is never undefined or null
+      durumParam = durumParam === undefined || durumParam === null ? 0 : durumParam;
 
       const response = await AxiosInstance.post(
-        `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${durumParam || 0}&pageSize=${currentSize}`,
+        `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${durumParam}&pageSize=${currentSize}`,
         customFilters
       );
 
@@ -550,11 +564,30 @@ const Yakit = ({ ayarlarData }) => {
   };
 
   const handleDurumChange = (value) => {
-    // Just update the selectedDurum state without triggering an API call
+    // If value is undefined (when dropdown is cleared), set it to 0 for API call
+    let apiValue = value === undefined || value === null ? 0 : value;
+
+    // Ensure apiValue is always a number
+    apiValue = Number(apiValue);
+
+    // Update the selectedDurum state - keep as null for UI purposes when cleared
     setSelectedDurum(value);
 
-    // No need to fetch data here - it will be fetched when the "Ara" button is clicked
-    console.log("Durum değeri değişti:", value);
+    // Immediately trigger API call when durum changes
+    // Show loading if infinite scroll is disabled
+    if (!infiniteScrollEnabled) {
+      setPaginationLoading(true);
+    }
+
+    // Reset to page 1 when durum filter changes
+    setCurrentPage(1);
+
+    // Fetch data with the new durum value
+    fetchDataWithDurum(0, 1, pageSize, apiValue).finally(() => {
+      if (!infiniteScrollEnabled) {
+        setPaginationLoading(false);
+      }
+    });
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
@@ -1333,6 +1366,23 @@ const Yakit = ({ ayarlarData }) => {
     });
   };
 
+  // Function to clear the selectedDurum state
+  const handleClearDurum = () => {
+    setSelectedDurum(null);
+
+    // Update the body state to remove any previously set durumValue
+    setBody((prevBody) => ({
+      ...prevBody,
+      filters: {
+        ...prevBody.filters,
+        durumValue: undefined, // Set to undefined so it will use the default 0 in the API call
+      },
+    }));
+
+    // Set the flag to indicate filters have been explicitly applied
+    setFiltersApplied(true);
+  };
+
   return (
     <>
       {/* Modal for managing columns */}
@@ -1456,7 +1506,7 @@ const Yakit = ({ ayarlarData }) => {
               // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
               suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
             />
-            <Filters onChange={handleBodyChange} durumValue={selectedDurum} />
+            <Filters onChange={handleBodyChange} durumValue={selectedDurum} onClearDurum={handleClearDurum} />
             {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
             {/* Other toolbar components */}
           </div>

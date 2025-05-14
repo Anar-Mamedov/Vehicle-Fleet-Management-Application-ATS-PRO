@@ -17,6 +17,12 @@ const StyledSelect = styled(Select)`
   @media (max-width: 600px) {
     width: 300px;
   }
+
+  // Custom styles for dropdown menu
+  .ant-select-dropdown {
+    width: auto !important;
+    min-width: 100px !important;
+  }
 `;
 
 const StyledDiv = styled.div`
@@ -29,7 +35,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, placeholder }) {
+export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, placeholder, inputWidth, dropdownWidth }) {
   const {
     control,
     watch,
@@ -161,15 +167,17 @@ export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, pla
               label: item.codeText, // Display the name in the dropdown
             }))}
             onChange={(value, option) => {
-              // Set the form values
-              setValue(`${name1}ID`, value);
-              field.onChange(value);
-
-              // Call the parent's onChange if provided
+              const numericValue = value ? Number(value) : null;
+              setValue(name1, option?.label || null);
+              setValue(`${name1}ID`, numericValue);
+              field.onChange(option?.label || null);
               if (onChange) {
-                onChange(option?.label, value);
+                onChange(numericValue, option);
               }
             }}
+            style={{ width: inputWidth }}
+            dropdownStyle={{ width: dropdownWidth || "auto", minWidth: "100px" }}
+            popupMatchSelectWidth={false}
           />
         )}
       />

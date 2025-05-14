@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { getItemWithExpiration } from "./utils/expireToken";
 import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
@@ -88,6 +88,7 @@ import CompanyKeyPage from "./_auth/CompanyKeyPage.jsx";
 const App = () => {
   const [hasToken, setHasToken] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = getItemWithExpiration("token");
@@ -100,8 +101,12 @@ const App = () => {
       navigate("/login");
     } else {
       setHasToken(false);
+      // Redirect logged-in users away from login page
+      if (location.pathname === "/login") {
+        navigate("/");
+      }
     }
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   return (
     <Routes>
@@ -154,9 +159,9 @@ const App = () => {
         <Route path="/servis-tanimlari" element={<ServisTanim />} />
         <Route path="/firma-tanimlari" element={<FirmaTanim />} />
         <Route path="/personel-tanimlari" element={<PersonelTanim />} />
-        <Route path="/hgs-gecis-ucretleri" element={<HgsGecisUcretleri/>} />
+        <Route path="/hgs-gecis-ucretleri" element={<HgsGecisUcretleri />} />
         {/* hgs islemleri */}
-        <Route path="/hgs-islem-takibi" element={<HgsİslemTakibi/>} />
+        <Route path="/hgs-islem-takibi" element={<HgsİslemTakibi />} />
         {/*Analızlar*/}
         <Route path="/fuel-analysis" element={<YakitTuketimAnalizi />} />
         <Route path="/performance-analysis" element={<PerformansAnalizi />} />
