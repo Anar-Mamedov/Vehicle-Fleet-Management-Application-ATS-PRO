@@ -18,15 +18,18 @@ const { Text } = Typography;
 
 const ImageContainer = styled.div`
   background: ${(props) =>
-    props.backgroundImage
-      ? `linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)), url(${props.backgroundImage})`
-      : `linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5)), url("/images/ats_login_image.webp")`};
+    props.isLoading
+      ? "none"
+      : props.backgroundImage
+        ? `linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)), url(${props.backgroundImage})`
+        : `linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5)), url("/images/ats_login_image.webp")`};
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   min-height: 100vh;
   display: flex;
-  justify-content: flex-end;
+  justify-content: ${(props) => (props.isLoading ? "center" : "flex-end")};
+  align-items: ${(props) => (props.isLoading ? "center" : "flex-start")};
   width: 100%;
 
   @media (max-width: 600px) {
@@ -60,6 +63,7 @@ const AuthLayout = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [clientLogo, setClientLogo] = useState(null);
   const [backgroundImage, setBackgroundImage] = useState(null);
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
   const [form] = useForm();
 
@@ -67,6 +71,7 @@ const AuthLayout = () => {
 
   useEffect(() => {
     const fetchClientAssets = async () => {
+      setIsImageLoading(true);
       try {
         const companyInfo = JSON.parse(localStorage.getItem("companyInfo"));
         if (companyInfo) {
@@ -102,6 +107,8 @@ const AuthLayout = () => {
         }
       } catch (error) {
         console.error("Error fetching client assets:", error);
+      } finally {
+        setIsImageLoading(false);
       }
     };
 
@@ -157,7 +164,9 @@ const AuthLayout = () => {
         width: "100%",
       }}
     >
-      <ImageContainer backgroundImage={backgroundImage}></ImageContainer>
+      <ImageContainer backgroundImage={backgroundImage} isLoading={isImageLoading}>
+        {isImageLoading && <Spin size="large" />}
+      </ImageContainer>
       <FormContainer>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "34px", width: "150px" }}></div>
         <div style={{ width: "400px" }}>
