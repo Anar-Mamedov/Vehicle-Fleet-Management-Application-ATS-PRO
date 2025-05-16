@@ -290,7 +290,7 @@ const KmCell = ({ record, text, refreshTableData }) => {
   );
 };
 
-const Yakit = ({ ayarlarData }) => {
+const Yakit = ({ ayarlarData, customFields }) => {
   const { setPlaka } = useContext(PlakaContext);
   const [selectedDurum, setSelectedDurum] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -1099,6 +1099,195 @@ const Yakit = ({ ayarlarData }) => {
       },
     },
 
+    {
+      title: customFields.ozelAlan1 || t("ozelAlan1"),
+      dataIndex: "ozelAlan1",
+      key: "ozelAlan1",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan1 === null) return -1;
+        if (b.ozelAlan1 === null) return 1;
+        return a.ozelAlan1.localeCompare(b.ozelAlan1);
+      },
+    },
+
+    {
+      title: customFields.ozelAlan2 || t("ozelAlan2"),
+      dataIndex: "ozelAlan2",
+      key: "ozelAlan2",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan2 === null) return -1;
+        if (b.ozelAlan2 === null) return 1;
+        return a.ozelAlan2.localeCompare(b.ozelAlan2);
+      },
+    },
+    {
+      title: customFields.ozelAlan3 || t("ozelAlan3"),
+      dataIndex: "ozelAlan3",
+      key: "ozelAlan3",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan3 === null) return -1;
+        if (b.ozelAlan3 === null) return 1;
+        return a.ozelAlan3.localeCompare(b.ozelAlan3);
+      },
+    },
+
+    {
+      title: customFields.ozelAlan4 || t("ozelAlan4"),
+      dataIndex: "ozelAlan4",
+      key: "ozelAlan4",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan4 === null) return -1;
+        if (b.ozelAlan4 === null) return 1;
+        return a.ozelAlan4.localeCompare(b.ozelAlan4);
+      },
+    },
+
+    {
+      title: customFields.ozelAlan5 || t("ozelAlan5"),
+      dataIndex: "ozelAlan5",
+      key: "ozelAlan5",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan5 === null) return -1;
+        if (b.ozelAlan5 === null) return 1;
+        return a.ozelAlan5.localeCompare(b.ozelAlan5);
+      },
+    },
+
+    {
+      title: customFields.ozelAlan6 || t("ozelAlan6"),
+      dataIndex: "ozelAlan6",
+      key: "ozelAlan6",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan6 === null) return -1;
+        if (b.ozelAlan6 === null) return 1;
+        return a.ozelAlan6.localeCompare(b.ozelAlan6);
+      },
+    },
+
+    {
+      title: customFields.ozelAlan7 || t("ozelAlan7"),
+      dataIndex: "ozelAlan7",
+      key: "ozelAlan7",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan7 === null) return -1;
+        if (b.ozelAlan7 === null) return 1;
+        return a.ozelAlan7.localeCompare(b.ozelAlan7);
+      },
+    },
+
+    {
+      title: customFields.ozelAlan8 || t("ozelAlan8"),
+      dataIndex: "ozelAlan8",
+      key: "ozelAlan8",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan8 === null) return -1;
+        if (b.ozelAlan8 === null) return 1;
+        return a.ozelAlan8.localeCompare(b.ozelAlan8);
+      },
+    },
+
+    {
+      title: customFields.ozelAlan9 || t("ozelAlan9"),
+      dataIndex: "ozelAlan9",
+      key: "ozelAlan9",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan9 === null) return -1;
+        if (b.ozelAlan9 === null) return 1;
+        return a.ozelAlan9.localeCompare(b.ozelAlan9);
+      },
+    },
+
+    {
+      title: customFields.ozelAlan10 || t("ozelAlan10"),
+      dataIndex: "ozelAlan10",
+      key: "ozelAlan10",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan10 === null) return -1;
+        if (b.ozelAlan10 === null) return 1;
+        return a.ozelAlan10.localeCompare(b.ozelAlan10);
+      },
+    },
+
+    {
+      title: customFields.ozelAlan11 || t("ozelAlan11"),
+      dataIndex: "ozelAlan11",
+      key: "ozelAlan11",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan11 === null) return -1;
+        if (b.ozelAlan11 === null) return 1;
+        // Check if values are numbers and sort numerically if they are
+        if (!isNaN(Number(a.ozelAlan11)) && !isNaN(Number(b.ozelAlan11))) {
+          return Number(a.ozelAlan11) - Number(b.ozelAlan11);
+        }
+        // Fall back to string comparison if not numbers
+        return String(a.ozelAlan11).localeCompare(String(b.ozelAlan11));
+      },
+    },
+
+    {
+      title: customFields.ozelAlan12 || t("ozelAlan12"),
+      dataIndex: "ozelAlan12",
+      key: "ozelAlan12",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ozelAlan12 === null) return -1;
+        if (b.ozelAlan12 === null) return 1;
+        // Check if values are numbers and sort numerically if they are
+        if (!isNaN(Number(a.ozelAlan12)) && !isNaN(Number(b.ozelAlan12))) {
+          return Number(a.ozelAlan12) - Number(b.ozelAlan12);
+        }
+        // Fall back to string comparison if not numbers
+        return String(a.ozelAlan12).localeCompare(String(b.ozelAlan12));
+      },
+    },
+
     // Add other columns as needed
   ];
 
@@ -1329,7 +1518,16 @@ const Yakit = ({ ayarlarData }) => {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             {!infiniteScrollEnabled && (
-              <Pagination current={currentPage} total={totalCount} pageSize={pageSize} onChange={handleTableChange} showSizeChanger={false} showQuickJumper size="small" />
+              <Pagination
+                simple={{ readOnly: true }}
+                current={currentPage}
+                total={totalCount}
+                pageSize={pageSize}
+                onChange={handleTableChange}
+                showSizeChanger={false}
+                // showQuickJumper
+                size="small"
+              />
             )}
             <div style={{ display: "flex", alignItems: "center" }}>
               <span style={{ marginRight: "8px" }}>Kayıt:</span>
