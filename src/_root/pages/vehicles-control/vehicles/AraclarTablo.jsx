@@ -381,7 +381,8 @@ const Yakit = ({ ayarlarData, customFields }) => {
         currentSetPointId = 0;
       }
 
-      const customFilters = body.filters.customfilters === "" ? null : body.filters.customfilters;
+      // Check if customfilters exists and is not empty
+      const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
 
       // Use durumValue from filters if available, otherwise use the passed value or selectedDurum
       // Ensure we default to 0 if all values are null or undefined
