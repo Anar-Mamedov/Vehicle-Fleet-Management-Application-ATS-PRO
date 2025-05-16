@@ -15,23 +15,24 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
   // Silme işlemini tetikleyecek fonksiyon
   const handleDelete = async () => {
     let isError = false;
-    // Seçili satırlar üzerinde döngü yaparak her birini sil
-    for (const row of selectedRows) {
-      try {
-        // Silme API isteğini gönder
-        const response = await AxiosInstance.get(`VehicleServices/DeleteVehicleService?sId=${row.key}&vId=${row.aracId}&pId=${row.bakimId}`);
-        console.log("Silme işlemi başarılı:", response);
-        if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202) {
-          message.success("İşlem Başarılı.");
-        } else if (response.data.statusCode === 401) {
-          message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
-        } else {
-          message.error("İşlem Başarısız.");
-        }
-        // Burada başarılı silme işlemi sonrası yapılacak işlemler bulunabilir.
-      } catch (error) {
-        console.error("Silme işlemi sırasında hata oluştu:", error);
+    // Map over selectedRows to create an array of body objects
+    const body = selectedRows.map((row) => row.key);
+    try {
+      // Silme API isteğini gönder
+      const response = await AxiosInstance.post(`User/DeleteUsersByIds`, body);
+      console.log("Silme işlemi başarılı:", response);
+      if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202 || response.data.statusCode === 204) {
+        message.success("İşlem Başarılı.");
+      } else if (response.data.statusCode === 401) {
+        message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
+      } else if (response.data.statusCode === 409) {
+        message.error("Bu aks yapılandırmasına bağlı kayıtlar bulunmaktadır.");
+      } else {
+        message.error("İşlem Başarısız.");
       }
+      // Burada başarılı silme işlemi sonrası yapılacak işlemler bulunabilir.
+    } catch (error) {
+      console.error("Silme işlemi sırasında hata oluştu:", error);
     }
     // Tüm silme işlemleri tamamlandıktan sonra ve hata oluşmamışsa refreshTableData'i çağır
     if (!isError) {
