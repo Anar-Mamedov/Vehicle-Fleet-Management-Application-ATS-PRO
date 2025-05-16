@@ -68,19 +68,39 @@ export default function Filters({ onChange, durumValue, onClearDurum }) {
 
   // Handler for CustomFilter submissions
   const handleCustomFilterSubmit = (newFilters) => {
+    // Update the customFilterValues state
     setCustomFilterValues(newFilters);
 
-    // Update the filters state but don't trigger onChange yet
-    setFilters((state) => ({
-      ...state,
+    // Create an object with only the currently selected values from the main filters
+    const mainFilterValues = {};
+
+    if (aracTipId) mainFilterValues.aracTipId = aracTipId;
+    if (markaId) mainFilterValues.markaId = markaId;
+    if (modelId) mainFilterValues.modelId = modelId;
+    if (lokasyonId?.locationId) mainFilterValues.lokasyonId = lokasyonId.locationId;
+
+    // Check if there are any filter values
+    const hasFilterValues = Object.keys(newFilters).length > 0 || Object.keys(mainFilterValues).length > 0;
+
+    // If there are filter values, clear the DurumSelectbox
+    if (hasFilterValues && onClearDurum) {
+      onClearDurum();
+    }
+
+    // Create the updated filters object with the new custom filters
+    const updatedFilters = {
+      ...filters,
       customfilters: {
         ...newFilters,
-        ...(aracTipId ? { aracTipId } : {}),
-        ...(markaId ? { markaId } : {}),
-        ...(modelId ? { modelId } : {}),
-        ...(lokasyonId?.locationId ? { lokasyonId: lokasyonId.locationId } : {}),
+        ...mainFilterValues,
       },
-    }));
+    };
+
+    // Update the internal state
+    setFilters(updatedFilters);
+
+    // Trigger the API request by calling onChange
+    onChange("filters", updatedFilters);
   };
 
   return (
@@ -101,10 +121,18 @@ export default function Filters({ onChange, durumValue, onClearDurum }) {
       {/* <TypeFilter onSubmit={(newFilters) => setFilters((state) => ({ ...state, isemritipleri: newFilters }))} /> */}
       {/* <ConditionFilter onSubmit={(newFilters) => setFilters((state) => ({ ...state, durumlar: newFilters }))} /> */}
       {/* <LocationFilter onSubmit={(newFilters) => setFilters((state) => ({ ...state, lokasyonlar: newFilters }))} /> */}
-      <CustomFilter onSubmit={handleCustomFilterSubmit} />
-      <Button onClick={handleSearch} icon={<SearchOutlined />}>
-        Ara
+      <Button
+        onClick={handleSearch}
+        icon={<SearchOutlined />}
+        style={{
+          backgroundColor: "#1890ff",
+          borderColor: "#1890ff",
+          color: "#fff",
+        }}
+      >
+        {/* Ara */}
       </Button>
+      <CustomFilter onSubmit={handleCustomFilterSubmit} />
     </>
   );
 }

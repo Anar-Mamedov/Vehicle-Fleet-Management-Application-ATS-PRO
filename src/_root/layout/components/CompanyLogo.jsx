@@ -31,8 +31,8 @@ export function CompanyLogo() {
     fetchClientLogo();
   }, []);
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "34px" }}>
-      {clientLogo && !logoError ? <img src={clientLogo} alt="client logo" style={{ height: "30px" }} /> : null}
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+      {clientLogo && !logoError ? <img src={clientLogo} alt="client logo" style={{ height: "24px" }} /> : null}
     </div>
   );
 }
