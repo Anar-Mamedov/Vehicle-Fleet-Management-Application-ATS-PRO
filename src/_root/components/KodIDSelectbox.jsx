@@ -35,7 +35,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, placeholder, inputWidth, dropdownWidth }) {
+export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, placeholder, inputWidth, dropdownWidth, addHide = false }) {
   const {
     control,
     watch,
@@ -142,24 +142,28 @@ export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, pla
             dropdownRender={(menu) => (
               <Spin spinning={loading}>
                 {menu}
-                <Divider
-                  style={{
-                    margin: "8px 0",
-                  }}
-                />
-                <div
-                  style={{
-                    padding: "0 8px 4px",
-                    width: "100%",
-                    display: "flex",
-                    gap: "10px",
-                  }}
-                >
-                  <Input style={{ width: "100%" }} placeholder="" ref={inputRef} value={name} onChange={onNameChange} />
-                  <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
-                    Ekle
-                  </Button>
-                </div>
+                {!addHide && (
+                  <>
+                    <Divider
+                      style={{
+                        margin: "8px 0",
+                      }}
+                    />
+                    <div
+                      style={{
+                        padding: "0 8px 4px",
+                        width: "100%",
+                        display: "flex",
+                        gap: "10px",
+                      }}
+                    >
+                      <Input style={{ width: "100%" }} placeholder="" ref={inputRef} value={name} onChange={onNameChange} />
+                      <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
+                        Ekle
+                      </Button>
+                    </div>
+                  </>
+                )}
               </Spin>
             )}
             options={options.map((item) => ({
