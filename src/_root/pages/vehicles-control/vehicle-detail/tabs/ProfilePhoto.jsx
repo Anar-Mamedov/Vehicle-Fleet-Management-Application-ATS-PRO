@@ -12,6 +12,8 @@ const CarouselSlide = styled.div`
   justify-content: center !important;
   align-items: center !important;
   overflow: hidden !important;
+  max-height: 210px !important;
+  height: 210px !important;
 `;
 
 const ImageCarousel = ({ imageUrls, loadingImages }) => {
@@ -118,7 +120,16 @@ const ImageCarousel = ({ imageUrls, loadingImages }) => {
           <Carousel arrows autoplay>
             {images.map((image, index) => (
               <CarouselSlide key={`image-${index}-${image.url || image.path}`}>
-                <Image src={image.url || image.path} alt={`Vehicle ${index + 1}`} style={{ width: "100%", height: "100%" }} />
+                <Image
+                  src={image.url || image.path}
+                  alt={`Vehicle ${index + 1}`}
+                  style={{
+                    width: "100%",
+                    maxHeight: "210px",
+                    objectFit: "contain",
+                    objectPosition: "center",
+                  }}
+                />
               </CarouselSlide>
             ))}
           </Carousel>
@@ -127,7 +138,16 @@ const ImageCarousel = ({ imageUrls, loadingImages }) => {
         // images.length === 0 ise fallback resmi gösteriyoruz
         <Carousel arrows autoplay>
           <CarouselSlide>
-            <Image src={fallbackSrc} alt="Fallback" style={{ width: "100%", height: "100%" }} />
+            <Image
+              src={fallbackSrc}
+              alt="Fallback"
+              style={{
+                width: "100%",
+                maxHeight: "210px",
+                objectFit: "contain",
+                objectPosition: "center",
+              }}
+            />
           </CarouselSlide>
         </Carousel>
       )}
