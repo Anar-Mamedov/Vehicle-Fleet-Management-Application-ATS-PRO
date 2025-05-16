@@ -106,7 +106,16 @@ export default function Filters({ onChange, durumValue, onClearDurum }) {
   return (
     <>
       <div style={{ display: "flex", gap: "10px" }}>
-        <KodIDSelectbox name1={"aracTipi"} kodID={100} isRequired={false} onChange={setAracTipId} inputWidth="100px" dropdownWidth="300px" placeholder={t("aracTip")} />
+        <KodIDSelectbox
+          name1={"aracTipi"}
+          addHide={true}
+          kodID={100}
+          isRequired={false}
+          onChange={setAracTipId}
+          inputWidth="100px"
+          dropdownWidth="300px"
+          placeholder={t("aracTip")}
+        />
       </div>
       <div style={{ display: "flex", gap: "10px" }}>
         <MarkaSelectbox name1={"marka"} isRequired={false} onChange={setMarkaId} dropdownWidth="300px" inputWidth="100px" />
