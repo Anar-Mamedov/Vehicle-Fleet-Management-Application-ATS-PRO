@@ -31,6 +31,7 @@ import AddLokasyon from "./detail-info/modals/lokasyon/AddModalForInput";
 import ResimUpload from "./Resim/ResimUpload";
 import DosyaUpload from "./Dosya/DosyaUpload";
 import DurumTarihcesi from "./DurumTarihce/DurumTarihcesi";
+import Textarea from "../../../components/form/inputs/Textarea";
 const { Text } = Typography;
 
 const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 }) => {
@@ -171,6 +172,8 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     departmanId: 0,
     surucuId: 0,
     yakitTipId: 0,
+    utts: "",
+    tts: "",
     muayeneTarih: "",
     sozlesmeTarih: "",
     egzosTarih: "",
@@ -291,6 +294,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setValue("durumKodId", res?.data.durumKodId ? res?.data.durumKodId : null);
         setValue("durum", res?.data.durum);
         setValue("tts", res?.data.tts);
+        setValue("utts", res?.data.utts);
         setValue("muayeneTarih", res?.data.muayeneTarih ? dayjs(res?.data.muayeneTarih) : null);
         setValue("sozlesmeTarih", res?.data.sozlesmeTarih ? dayjs(res?.data.sozlesmeTarih) : null);
         setValue("vergiTarih", res?.data.vergiTarih ? dayjs(res?.data.vergiTarih) : null);
@@ -376,11 +380,12 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       takografTarih: values?.takografTarih ? dayjs(values?.takografTarih).format("YYYY-MM-DD") : null,
       yakitTipId: values.yakitTipId || 0,
       tts: values.tts,
+      utts: values.utts,
       aracMulkiyetKodId: values.mulkiyetID || 0,
       durumKodId: values.durumKodId || 0,
       DepoBataryaKapasitesi: Number(values.DepoBataryaKapasitesi), // name i alborzdan al
       tamDepoSarjIleMenzil: Number(values.tamDepoSarjIleMenzil), // namei alborzdan al
-      yakitUyari: values.uyari,
+      yakitUyari: true,
       havuzGrup: values.havuzGrup,
       onGorulenMin: values.onGorulenMin,
       onGorulen: values.onGorulen,
@@ -424,6 +429,20 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       key: "1",
       label: t("genelBilgiler"),
       children: <GeneralInfo />,
+    },
+    {
+      key: "5",
+      label: t("aciklama"),
+      children: (
+        <div className="col-span-12">
+          <div className="border p-10 mt-10">
+            <div className="flex flex-col gap-1">
+              <label>{t("aciklama")}</label>
+              <Textarea name="aciklama" />
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
       key: "2",

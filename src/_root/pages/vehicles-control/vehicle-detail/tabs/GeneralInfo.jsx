@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import { IoIosWarning } from "react-icons/io";
-import { Button, Radio, Modal, Select } from "antd";
+import { Button, Radio, Modal, Select, Tooltip } from "antd";
+import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import CodeControl from "../../../../components/form/selects/CodeControl";
 import TextInput from "../../../../components/form/inputs/TextInput";
@@ -134,8 +135,8 @@ const GeneralInfo = () => {
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
-                  <label>{t("durum")}</label>
-                  <CodeControl name="durum" codeName="durumKodId" id={122} />
+                  <label>{t("utts")}</label>
+                  <TextInput name="utts" />
                 </div>
               </div>
               <div className="col-span-4">
@@ -177,10 +178,6 @@ const GeneralInfo = () => {
                   <NumberInput name="tamDepoSarjIleMenzil" />
                 </div>
               </div>
-            </div>
-          </div>
-          <div className="border p-10 mt-10">
-            <div className="grid gap-1">
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
                   <label>{t("anahtarKodu")}</label>
@@ -191,6 +188,12 @@ const GeneralInfo = () => {
                 <div className="flex flex-col gap-1">
                   <label>{t("yedekAnahtar")}</label>
                   <CodeControl name="yedekAnahtar" codeName="yedekAnahtarKodId" id={888} />
+                </div>
+              </div>
+              <div className="col-span-4">
+                <div className="flex flex-col gap-1">
+                  <label>{t("durum")}</label>
+                  <CodeControl name="durum" codeName="durumKodId" id={122} />
                 </div>
               </div>
             </div>
@@ -258,7 +261,40 @@ const GeneralInfo = () => {
             </div>
           </div>
           <div className="border mt-10" style={{ padding: "5px 10px" }}>
-            <h3 className="sub-title">{t("yakitTuketimKontrol")} (100 km)</h3>
+            <div className="sub-title flex gap-1" style={{ alignItems: "center", justifyContent: "space-between" }}>
+              <h3>{t("yakitTuketimKontrol")} (100 km)</h3>
+              <label style={{ color: "#000000", display: "flex", alignItems: "center", gap: 4 }}>
+                {t("gerceklesen")} -
+                <Tooltip title={`Gerçekleşen: ${watch("gerceklesen")}`}>
+                  <span style={{ color: "#17a2b8", display: "inline-flex", alignItems: "center" }}>
+                    {watch("gerceklesen")}
+                    {(() => {
+                      const gerceklesen = watch("gerceklesen");
+                      const onGorulen = watch("onGorulen");
+                      const onGorulenMin = watch("onGorulenMin");
+
+                      if (!gerceklesen) return null;
+
+                      if (onGorulenMin !== null && onGorulenMin !== 0) {
+                        if (gerceklesen < onGorulenMin) {
+                          return <ArrowDownOutlined style={{ color: "green", marginLeft: 4 }} />;
+                        } else if (gerceklesen > onGorulen) {
+                          return <ArrowUpOutlined style={{ color: "red", marginLeft: 4 }} />;
+                        } else if (gerceklesen >= onGorulenMin && gerceklesen <= onGorulen) {
+                          return <span style={{ marginLeft: 4 }}>~</span>;
+                        }
+                      } else if (onGorulen !== null && onGorulen !== 0) {
+                        if (gerceklesen < onGorulen) {
+                          return <ArrowDownOutlined style={{ color: "green", marginLeft: 4 }} />;
+                        }
+                      }
+
+                      return null;
+                    })()}
+                  </span>
+                </Tooltip>
+              </label>
+            </div>
             <div className="grid gap-2">
               <div className="col-span-6 mt-10">
                 <div className="flex flex-col gap-1">
@@ -272,7 +308,8 @@ const GeneralInfo = () => {
                   <NumberInput name="onGorulen" />
                 </div>
               </div>
-              <div className="col-span-6">
+
+              {/*  <div className="col-span-6">
                 <div className="flex flex-col gap-1">
                   <label>{t("gercekYakitTuketimi")}</label>
                   <NumberInput name="gerceklesen" />
@@ -283,15 +320,7 @@ const GeneralInfo = () => {
                   <label>{t("uyari")}</label>
                   <CheckboxInput name="uyari" />
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-span-12">
-          <div className="border p-10 mt-10">
-            <div className="flex flex-col gap-1">
-              <label>{t("aciklama")}</label>
-              <Textarea name="aciklama" />
+              </div> */}
             </div>
           </div>
         </div>
