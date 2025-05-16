@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef, useContext } from "react";
+import React, { useCallback, useEffect, useState, useRef, useContext, isValidElement } from "react";
 import { Link } from "react-router-dom";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select, Pagination, Switch, Popconfirm, InputNumber, Popover } from "antd";
 import {
@@ -11,6 +11,7 @@ import {
   CheckOutlined,
   CloseOutlined,
   ExclamationOutlined,
+  FileExcelOutlined,
 } from "@ant-design/icons";
 import { FaExclamation, FaCheck, FaTimes } from "react-icons/fa";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
@@ -31,9 +32,24 @@ import { PlakaContext } from "../../../../context/plakaSlice";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 import DetailUpdate from "../vehicle-detail/DetailUpdate";
+import * as XLSX from "xlsx";
 
 const { Text } = Typography;
 const { Option } = Select;
+
+function extractTextFromElement(element) {
+  let text = "";
+  if (typeof element === "string") {
+    text = element;
+  } else if (Array.isArray(element)) {
+    text = element.map((child) => extractTextFromElement(child)).join("");
+  } else if (isValidElement(element)) {
+    text = extractTextFromElement(element.props.children);
+  } else if (element !== null && element !== undefined) {
+    text = element.toString();
+  }
+  return text;
+}
 
 // Add a key for localStorage
 const pageSizeAraclar = "araclarTabloPageSize";
@@ -306,6 +322,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
     const savedScrollMode = localStorage.getItem(infiniteScrollKey);
     return savedScrollMode !== null ? JSON.parse(savedScrollMode) : false;
   });
+  const [xlsxLoading, setXlsxLoading] = useState(false);
 
   // Add this state to prevent duplicate requests
   const [isLoadingPage, setIsLoadingPage] = useState(false);
@@ -1582,6 +1599,133 @@ const Yakit = ({ ayarlarData, customFields }) => {
     setFiltersApplied(true);
   };
 
+  // Function to handle CSV download
+  const handleDownloadXLSX = async () => {
+    try {
+      // İndirme işlemi başlıyor
+      setXlsxLoading(true);
+
+      // API'den verileri çekiyoruz
+      // Check if customfilters exists and is not empty
+      const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+
+      // Use durumValue from filters if available, otherwise use selectedDurum
+      // Ensure we default to 0 if all values are null or undefined
+      let durumParam = 0; // Default to 0
+
+      // Önce selectedDurum'u kontrol et - bu kullanıcının seçtiği en güncel değerdir
+      if (selectedDurum !== null && selectedDurum !== undefined) {
+        durumParam = selectedDurum;
+      }
+      // Eğer selectedDurum yoksa, body.filters.durumValue'yi kontrol et
+      else if (body.filters.durumValue !== undefined) {
+        durumParam = body.filters.durumValue;
+      }
+
+      // Final check to ensure durumParam is never undefined or null
+      durumParam = durumParam === undefined || durumParam === null ? 0 : durumParam;
+
+      console.log("Excel indirme için kullanılan durum değeri:", durumParam);
+
+      const response = await AxiosInstance.post(`Vehicle/GetVehiclesListReport?parameter=${searchTerm}&type=${durumParam}`, customFilters);
+      if (response && response.data) {
+        // Verileri işliyoruz
+        const xlsxData = response.data.vehicleList.map((row) => {
+          let xlsxRow = {};
+          filteredColumns.forEach((col) => {
+            const key = col.dataIndex;
+            if (key) {
+              let value = row[key];
+
+              // Özel durumları ele alıyoruz
+              if (col.render) {
+                if (key === "muayeneTarih" || key === "egzosTarih" || key === "vergiTarih" || key === "sozlesmeTarih" || key === "sigortaBitisTarih" || key.endsWith("Tarih")) {
+                  value = formatDate(value);
+                } else if (key === "guncelKm") {
+                  // Kilometre değeri için özel işlem
+                  value = value !== null && value !== undefined ? value.toString() : "";
+                } else if (key === "aracDurum") {
+                  // Durum için özel işlem
+                  if (row.arsiv) {
+                    value = "Arşiv";
+                  } else if (row.aktif) {
+                    value = "Aktif";
+                  } else {
+                    value = "Pasif";
+                  }
+                } else {
+                  // Diğer sütunlar için
+                  try {
+                    value = extractTextFromElement(value);
+                  } catch (e) {
+                    value = value !== null && value !== undefined ? value.toString() : "";
+                  }
+                }
+              }
+
+              xlsxRow[extractTextFromElement(col.title)] = value;
+            }
+          });
+          return xlsxRow;
+        });
+
+        // XLSX dosyasını oluşturuyoruz
+        const worksheet = XLSX.utils.json_to_sheet(xlsxData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Araçlar");
+
+        // Sütun genişliklerini ayarlıyoruz
+        const headers = filteredColumns
+          .map((col) => {
+            let label = extractTextFromElement(col.title);
+            return {
+              label: label,
+              key: col.dataIndex,
+              width: col.width, // Tablo sütun genişliği
+            };
+          })
+          .filter((col) => col.key); // Geçerli dataIndex'e sahip sütunları dahil ediyoruz
+
+        // Genişlikleri ölçeklendirme faktörü ile ayarlıyoruz
+        const scalingFactor = 0.8; // Gerektiği gibi ayarlayın
+
+        worksheet["!cols"] = headers.map((header) => ({
+          wpx: header.width ? header.width * scalingFactor : 100, // Tablo sütun genişliğini kullanıyoruz
+        }));
+
+        // İndirme işlemini başlatıyoruz
+        const excelBuffer = XLSX.write(workbook, {
+          bookType: "xlsx",
+          type: "array",
+        });
+        const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Araçlar_Listesi.xlsx");
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // İndirme işlemi bitti
+        setXlsxLoading(false);
+      } else {
+        console.error("API yanıtı beklenen formatta değil");
+        message.error("Excel indirme işlemi başarısız oldu: API yanıtı beklenen formatta değil");
+        setXlsxLoading(false);
+      }
+    } catch (error) {
+      setXlsxLoading(false);
+      console.error("XLSX indirme hatası:", error);
+      if (navigator.onLine) {
+        message.error("Excel indirme hatası: " + (error.message || "Bilinmeyen hata"));
+      } else {
+        message.error("Internet Bağlantısı Mevcut Değil.");
+      }
+    }
+  };
+
   return (
     <>
       {/* Modal for managing columns */}
@@ -1711,7 +1855,9 @@ const Yakit = ({ ayarlarData, customFields }) => {
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             <DurumSelect value={selectedDurum} onChange={handleDurumChange} inputWidth="100px" dropdownWidth="250px" />
-
+            <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
+              İndir
+            </Button>
             <OperationsInfo ids={keyArray} selectedRowsData={selectedRows} onRefresh={refreshTableData} />
             <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
             <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
