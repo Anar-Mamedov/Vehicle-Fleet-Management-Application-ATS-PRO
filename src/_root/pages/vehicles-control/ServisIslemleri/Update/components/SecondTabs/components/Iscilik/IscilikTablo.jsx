@@ -233,7 +233,7 @@ export default function KontrolListesiTablo({ isActive }) {
         loading={loading}
         scroll={{
           // x: "auto",
-          y: "300px",
+          y: "240px",
         }}
       />
       {isModalVisible && (
