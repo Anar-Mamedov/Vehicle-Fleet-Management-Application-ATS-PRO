@@ -647,13 +647,25 @@ const Yakit = ({ ayarlarData, customFields }) => {
 
     // No need to reset selectedDurum here, as it should be preserved during refresh
 
+    // Get current filters from body state
+    const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+
+    // Get current durumParam value
+    let durumParam = 0;
+    if (selectedDurum !== null && selectedDurum !== undefined) {
+      durumParam = selectedDurum;
+    } else if (body.filters.durumValue !== undefined) {
+      durumParam = body.filters.durumValue;
+    }
+    durumParam = durumParam === undefined || durumParam === null ? 0 : durumParam;
+
     // Eski veriyi tutuyoruz, yeni veri gelene kadar
-    fetchData(0, 1).finally(() => {
+    fetchDataWithDurum(0, 1, pageSize, durumParam).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
     });
-  }, [infiniteScrollEnabled]);
+  }, [infiniteScrollEnabled, body, selectedDurum, pageSize]);
 
   // filtreleme işlemi için kullanılan useEffect
   const handleBodyChange = useCallback((type, newBody) => {
