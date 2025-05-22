@@ -242,7 +242,10 @@ const KmCell = ({ record, text, refreshTableData }) => {
 
       await AxiosInstance.post("KmLog/AddKmLog", payload);
       message.success("Kilometre başarıyla güncellendi");
-      refreshTableData();
+
+      // Pass true to indicate that this is a KM update and should preserve filters
+      refreshTableData(true);
+
       setPopconfirmOpen(false);
       return Promise.resolve(); // Explicitly resolve the promise when successful
     } catch (error) {
@@ -372,7 +375,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
   // Fixed page size options
   const pageSizeOptions = [20, 50, 100];
 
-  const fetchDataWithDurum = async (diff, targetPage, currentSize = pageSize, durumValue) => {
+  const fetchDataWithDurum = async (diff, targetPage, currentSize = pageSize, durumValue, forcedCustomFilters = null) => {
     // Increment fetch ID to track this specific request
     const currentFetchId = lastFetchIdRef.current + 1;
     lastFetchIdRef.current = currentFetchId;
@@ -398,8 +401,10 @@ const Yakit = ({ ayarlarData, customFields }) => {
         currentSetPointId = 0;
       }
 
-      // Check if customfilters exists and is not empty
-      const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+      // If forcedCustomFilters is provided, use it directly
+      // Otherwise, check if customfilters exists and is not empty in the body state
+      const customFilters =
+        forcedCustomFilters !== null ? forcedCustomFilters : body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
 
       // Use durumValue from filters if available, otherwise use the passed value or selectedDurum
       // Ensure we default to 0 if all values are null or undefined
@@ -417,6 +422,9 @@ const Yakit = ({ ayarlarData, customFields }) => {
 
       // Final check to ensure durumParam is never undefined or null
       durumParam = durumParam === undefined || durumParam === null ? 0 : durumParam;
+
+      // Debug log to show what filters are being passed to API
+      console.log("Calling API with customFilters:", customFilters);
 
       const response = await AxiosInstance.post(
         `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${durumParam}&pageSize=${currentSize}`,
@@ -476,8 +484,8 @@ const Yakit = ({ ayarlarData, customFields }) => {
   };
 
   // The original fetchData function now uses the helper
-  const fetchData = async (diff, targetPage, currentSize = pageSize) => {
-    return fetchDataWithDurum(diff, targetPage, currentSize, undefined);
+  const fetchData = async (diff, targetPage, currentSize = pageSize, forcedCustomFilters = null) => {
+    return fetchDataWithDurum(diff, targetPage, currentSize, undefined, forcedCustomFilters);
   };
 
   // useEffect for initial fetch and when component mounts
@@ -487,8 +495,11 @@ const Yakit = ({ ayarlarData, customFields }) => {
       setPaginationLoading(true);
     }
 
+    // For initial load, no custom filters are needed
+    const customFilters = null;
+
     // Fetch initial data using the current pageSize
-    fetchData(0, 1, pageSize).finally(() => {
+    fetchData(0, 1, pageSize, customFilters).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
@@ -508,12 +519,16 @@ const Yakit = ({ ayarlarData, customFields }) => {
         setPaginationLoading(true);
       }
 
+      // Get custom filters from body state
+      const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+
       // Fetch data with the new filters
-      fetchData(0, 1, pageSize).finally(() => {
+      fetchData(0, 1, pageSize, customFilters).finally(() => {
         if (!infiniteScrollEnabled) {
           setPaginationLoading(false);
         }
       });
+
       prevBodyRef.current = body; // Update ref after fetch starts
     }
   }, [body, filtersApplied, pageSize, infiniteScrollEnabled]);
@@ -538,9 +553,12 @@ const Yakit = ({ ayarlarData, customFields }) => {
       setPaginationLoading(true);
     }
 
+    // Get custom filters from body state
+    const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+
     setCurrentPage(1); // Reset to page 1 on new search
     // Eski veriyi tutuyoruz, yeni veri gelene kadar
-    fetchData(0, 1, pageSize) // Pass current pageSize
+    fetchData(0, 1, pageSize, customFilters) // Pass current pageSize and filters
       .finally(() => {
         if (!infiniteScrollEnabled) {
           setPaginationLoading(false);
@@ -555,6 +573,9 @@ const Yakit = ({ ayarlarData, customFields }) => {
       setPaginationLoading(true);
     }
 
+    // Get custom filters from body state
+    const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+
     // Check if page size has changed
     if (size !== pageSize) {
       // Save the new page size to localStorage
@@ -563,7 +584,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
       setPageSize(size);
       // Fetch data for the *first page* with the *new size*
       // setData([]) çağrısını kaldırdık, eski veriyi tutuyoruz
-      fetchData(0, 1, size).finally(() => {
+      fetchData(0, 1, size, customFilters).finally(() => {
         if (!infiniteScrollEnabled) {
           setPaginationLoading(false);
         }
@@ -573,7 +594,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
       const diff = page - currentPage;
       setCurrentPage(page);
       // setData([]) çağrısını kaldırdık, eski veriyi tutuyoruz
-      fetchData(diff, page, pageSize).finally(() => {
+      fetchData(diff, page, pageSize, customFilters).finally(() => {
         if (!infiniteScrollEnabled) {
           setPaginationLoading(false);
         }
@@ -591,6 +612,9 @@ const Yakit = ({ ayarlarData, customFields }) => {
     // Update the selectedDurum state - keep as null for UI purposes when cleared
     setSelectedDurum(value);
 
+    // Get custom filters from body state
+    const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+
     // Immediately trigger API call when durum changes
     // Show loading if infinite scroll is disabled
     if (!infiniteScrollEnabled) {
@@ -600,8 +624,8 @@ const Yakit = ({ ayarlarData, customFields }) => {
     // Reset to page 1 when durum filter changes
     setCurrentPage(1);
 
-    // Fetch data with the new durum value
-    fetchDataWithDurum(0, 1, pageSize, apiValue).finally(() => {
+    // Fetch data with the new durum value and current filters
+    fetchDataWithDurum(0, 1, pageSize, apiValue, customFilters).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
@@ -636,36 +660,59 @@ const Yakit = ({ ayarlarData, customFields }) => {
     setDrawer({ visible: true, data: record });
   };
 
-  const refreshTableData = useCallback(() => {
-    // Show loading if infinite scroll is disabled
-    if (!infiniteScrollEnabled) {
-      setPaginationLoading(true);
-    }
-
-    setSelectedRowKeys([]);
-    setSelectedRows([]);
-
-    // No need to reset selectedDurum here, as it should be preserved during refresh
-
-    // Get current filters from body state
-    const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
-
-    // Get current durumParam value
-    let durumParam = 0;
-    if (selectedDurum !== null && selectedDurum !== undefined) {
-      durumParam = selectedDurum;
-    } else if (body.filters.durumValue !== undefined) {
-      durumParam = body.filters.durumValue;
-    }
-    durumParam = durumParam === undefined || durumParam === null ? 0 : durumParam;
-
-    // Eski veriyi tutuyoruz, yeni veri gelene kadar
-    fetchDataWithDurum(0, 1, pageSize, durumParam).finally(() => {
+  const refreshTableData = useCallback(
+    (isKmUpdate = false) => {
+      // Show loading if infinite scroll is disabled
       if (!infiniteScrollEnabled) {
-        setPaginationLoading(false);
+        setPaginationLoading(true);
       }
-    });
-  }, [infiniteScrollEnabled, body, selectedDurum, pageSize]);
+
+      setSelectedRowKeys([]);
+      setSelectedRows([]);
+
+      // No need to reset selectedDurum here, as it should be preserved during refresh
+
+      // Get current filters from body state - for KM updates, force check for current active filters
+      let customFilters = null;
+
+      if (isKmUpdate) {
+        // For KM updates, we need to manually check all sources to ensure we get the latest filters
+
+        // First check if we have active filters in the body state
+        if (body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0) {
+          customFilters = body.filters.customfilters;
+        }
+
+        // If there are no filters in body, check if we previously had filters applied
+        if (!customFilters && prevBodyRef.current?.filters?.customfilters && Object.keys(prevBodyRef.current.filters.customfilters).length > 0) {
+          customFilters = prevBodyRef.current.filters.customfilters;
+        }
+      } else {
+        // Normal refresh - use standard logic
+        customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+      }
+
+      // Log to confirm filters are being used
+      console.log("Refreshing table with filters:", customFilters, "isKmUpdate:", isKmUpdate);
+
+      // Get current durumParam value
+      let durumParam = 0;
+      if (selectedDurum !== null && selectedDurum !== undefined) {
+        durumParam = selectedDurum;
+      } else if (body.filters.durumValue !== undefined) {
+        durumParam = body.filters.durumValue;
+      }
+      durumParam = durumParam === undefined || durumParam === null ? 0 : durumParam;
+
+      // Eski veriyi tutuyoruz, yeni veri gelene kadar
+      fetchDataWithDurum(0, 1, pageSize, durumParam, customFilters).finally(() => {
+        if (!infiniteScrollEnabled) {
+          setPaginationLoading(false);
+        }
+      });
+    },
+    [infiniteScrollEnabled, body, selectedDurum, pageSize]
+  );
 
   // filtreleme işlemi için kullanılan useEffect
   const handleBodyChange = useCallback((type, newBody) => {
