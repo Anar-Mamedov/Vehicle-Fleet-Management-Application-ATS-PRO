@@ -267,8 +267,11 @@ const Yakit = ({ customFields }) => {
         currentSetPointId = 0;
       }
 
-      // Check if customfilters exists and is not empty
-      const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+      // Properly prepare filters for API request
+      // Make sure we extract custom filters from the correct property path
+      const customFilters = body.filters && body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+
+      console.log("API request with filters:", customFilters);
 
       const response = await AxiosInstance.post(`Fuel/GetFuelList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&pageSize=${currentSize}`, customFilters);
 
@@ -457,13 +460,11 @@ const Yakit = ({ customFields }) => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
 
-    // No need to reset selectedDurum here, as it should be preserved during refresh
-
     // Get current filters from body state
-    const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+    const customFilters = body.filters && body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
 
-    // Eski veriyi tutuyoruz, yeni veri gelene kadar
-    fetchDataWithDurum(0, 1, customFilters, pageSize).finally(() => {
+    // Fetch data with current filters
+    fetchData(0, 1, pageSize).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
@@ -472,6 +473,8 @@ const Yakit = ({ customFields }) => {
 
   // filtreleme işlemi için kullanılan useEffect
   const handleBodyChange = useCallback((type, newBody) => {
+    console.log(`Updating ${type} with:`, newBody);
+
     // Update the body state
     setBody((state) => ({
       ...state,
@@ -1280,9 +1283,9 @@ const Yakit = ({ customFields }) => {
       setXlsxLoading(true);
 
       // Get custom filters if they exist
-      const customFilters = body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+      const exportCustomFilters = body.filters && body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
 
-      const response = await AxiosInstance.post(`Fuel/GetFuelReportList?parameter=${searchTerm}`, customFilters);
+      const response = await AxiosInstance.post(`Fuel/GetFuelReportList?parameter=${searchTerm}`, exportCustomFilters);
 
       if (response?.data?.fuel_list) {
         const xlsxData = response.data.fuel_list.map((row) => {
