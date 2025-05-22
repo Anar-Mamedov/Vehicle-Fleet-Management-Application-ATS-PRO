@@ -35,7 +35,7 @@ const CloseButton = styled.div`
   cursor: pointer;
 `;
 
-export default function CustomFilter({ onSubmit }) {
+export default function CustomFilter({ onSubmit, currentFilters }) {
   const {
     control,
     watch,
@@ -47,15 +47,15 @@ export default function CustomFilter({ onSubmit }) {
   const [newObjectsAdded, setNewObjectsAdded] = useState(false);
   const [filtersExist, setFiltersExist] = useState(false);
   const [inputValues, setInputValues] = useState({});
-  const [filters, setFilters] = useState({});
-  const [filterValues, setFilterValues] = useState({});
+  const [selectedValues, setSelectedValues] = useState({});
   const [isInitialMount, setIsInitialMount] = useState(true);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [baslangicTarih, setBaslangicTarih] = useState(null);
+  const [bitisTarih, setBitisTarih] = useState(null);
 
-  const startDateSelected = watch("startDate");
-  const endDateSelected = watch("endDate");
+  const baslangicTarihSelected = watch("baslangicTarih");
+  const bitisTarihSelected = watch("bitisTarih");
 
   useEffect(() => {
     if (isInitialMount) {
@@ -63,36 +63,29 @@ export default function CustomFilter({ onSubmit }) {
       return;
     }
 
-    if (startDateSelected === null) {
-      setStartDate(null);
+    if (baslangicTarihSelected === null) {
+      setBaslangicTarih(null);
     } else {
-      setStartDate(dayjs(startDateSelected));
+      setBaslangicTarih(dayjs(baslangicTarihSelected));
+      setHasUserInteracted(true);
     }
-    if (endDateSelected === null) {
-      setEndDate(null);
+    if (bitisTarihSelected === null) {
+      setBitisTarih(null);
     } else {
-      setEndDate(dayjs(endDateSelected));
+      setBitisTarih(dayjs(bitisTarihSelected));
+      setHasUserInteracted(true);
     }
-  }, [startDateSelected, endDateSelected, isInitialMount]);
-
-  useEffect(() => {
-    if (isInitialMount) return;
-
-    // Always submit after initial mount when dates change (including null)
-    handleSubmit();
-  }, [startDate, endDate]);
-
-  // Create a state variable to store selected values for each row
-  const [selectedValues, setSelectedValues] = useState({});
+  }, [baslangicTarihSelected, bitisTarihSelected, isInitialMount]);
 
   // Tarih seçimi yapıldığında veya filtreler eklenip kaldırıldığında düğmenin stilini değiştirmek için bir durum
-  const isFilterApplied = newObjectsAdded || filtersExist || startDate || endDate;
+  const isFilterApplied = newObjectsAdded || filtersExist || baslangicTarih || bitisTarih;
 
   const handleSelectChange = (value, rowId) => {
     setSelectedValues((prevSelectedValues) => ({
       ...prevSelectedValues,
       [rowId]: value,
     }));
+    setHasUserInteracted(true);
   };
 
   const showDrawer = () => {
@@ -104,6 +97,12 @@ export default function CustomFilter({ onSubmit }) {
   };
 
   const handleSubmit = () => {
+    // Sadece kullanıcı etkileşimi olduğunda filtreleri gönder
+    if (!hasUserInteracted && !rows.length && !baslangicTarih && !bitisTarih) {
+      setOpen(false);
+      return;
+    }
+
     // Combine selected values, input values for each row, and date range
     const filterData = rows.reduce((acc, row) => {
       const selectedValue = selectedValues[row.id] || "";
@@ -115,21 +114,43 @@ export default function CustomFilter({ onSubmit }) {
     }, {});
 
     // Add date range to the filterData object if dates are selected
-    if (startDate) {
-      filterData.baslangicTarih = startDate.format("YYYY-MM-DD");
+    if (baslangicTarih) {
+      filterData.baslangicTarih = baslangicTarih.format("YYYY-MM-DD");
     }
-    if (endDate) {
-      filterData.bitisTarih = endDate.format("YYYY-MM-DD");
+    if (bitisTarih) {
+      filterData.bitisTarih = bitisTarih.format("YYYY-MM-DD");
     }
 
-    console.log(filterData);
-    // You can now submit or process the filterData object as needed.
+    // Preserve existing lokasyonId and aracId values if available
+    const existingFilters = currentFilters || {};
+    if (existingFilters.aracId !== undefined) {
+      filterData.aracId = existingFilters.aracId;
+    }
+    if (existingFilters.lokasyonId !== undefined) {
+      filterData.lokasyonId = existingFilters.lokasyonId;
+    }
+
+    console.log("Submitting filter data:", filterData);
+    // Pass the filter data to the parent component
     onSubmit(filterData);
     setOpen(false);
   };
 
   const handleCancelClick = (rowId) => {
-    setFilters({});
+    setHasUserInteracted(true);
+
+    setSelectedValues((prev) => {
+      const newSelectedValues = { ...prev };
+      delete newSelectedValues[rowId];
+      return newSelectedValues;
+    });
+
+    setInputValues((prev) => {
+      const newInputValues = { ...prev };
+      delete newInputValues[`input-${rowId}`];
+      return newInputValues;
+    });
+
     setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
 
     const filtersRemaining = rows.length > 1;
@@ -137,6 +158,9 @@ export default function CustomFilter({ onSubmit }) {
     if (!filtersRemaining) {
       setNewObjectsAdded(false);
     }
+
+    // Submit updated filters after removing one
+    // setTimeout(handleSubmit, 0);
   };
 
   const handleInputChange = (e, rowId) => {
@@ -144,6 +168,7 @@ export default function CustomFilter({ onSubmit }) {
       ...prevInputValues,
       [`input-${rowId}`]: e.target.value,
     }));
+    setHasUserInteracted(true);
   };
 
   const handleDateChange = (date, rowId) => {
@@ -151,18 +176,15 @@ export default function CustomFilter({ onSubmit }) {
       ...prevInputValues,
       [`input-${rowId}`]: date ? date.format("YYYY-MM-DD") : "",
     }));
+    setHasUserInteracted(true);
   };
 
   const handleAddFilterClick = () => {
     const newRow = { id: Date.now() };
     setRows((prevRows) => [...prevRows, newRow]);
-
+    setHasUserInteracted(true);
     setNewObjectsAdded(true);
     setFiltersExist(true);
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [newRow.id]: "", // Set an empty input value for the new row
-    }));
   };
 
   const onChange = (value) => {
@@ -171,6 +193,17 @@ export default function CustomFilter({ onSubmit }) {
 
   const onSearch = (value) => {
     console.log("search:", value);
+  };
+
+  // Handle date picker changes
+  const handleBaslangicTarihChange = (date) => {
+    setBaslangicTarih(date);
+    setHasUserInteracted(true);
+  };
+
+  const handleBitisTarihChange = (date) => {
+    setBitisTarih(date);
+    setHasUserInteracted(true);
   };
 
   return (
@@ -218,9 +251,9 @@ export default function CustomFilter({ onSubmit }) {
           </div>
 
           <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-            <DatePicker style={{ width: "100%" }} placeholder="Başlangıç Tarihi" value={startDate} onChange={setStartDate} locale={dayjs.locale("tr")} />
+            <DatePicker style={{ width: "100%" }} placeholder="Başlangıç Tarihi" value={baslangicTarih} onChange={handleBaslangicTarihChange} locale={dayjs.locale("tr")} />
             <Text style={{ fontSize: "14px" }}>-</Text>
-            <DatePicker style={{ width: "100%" }} placeholder="Bitiş Tarihi" value={endDate} onChange={setEndDate} locale={dayjs.locale("tr")} />
+            <DatePicker style={{ width: "100%" }} placeholder="Bitiş Tarihi" value={bitisTarih} onChange={handleBitisTarihChange} locale={dayjs.locale("tr")} />
           </div>
         </div>
         {rows.map((row) => (
@@ -263,10 +296,10 @@ export default function CustomFilter({ onSubmit }) {
                       value: "surucu",
                       label: "Sürücü",
                     },
-                    {
+                    /* {
                       value: "lokasyon",
                       label: "Lokasyon",
-                    },
+                    }, */
                     {
                       value: "istasyon",
                       label: "İstasyon",
