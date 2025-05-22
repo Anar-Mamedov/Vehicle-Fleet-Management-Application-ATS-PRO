@@ -1,108 +1,94 @@
-import React, { useState } from "react";
-import { Select, Button, Dropdown, Menu } from "antd";
+import React, { useState, useEffect } from "react";
+import { Select, Button, Popover } from "antd";
 import AxiosInstance from "../../../../../api/http";
 
 const { Option } = Select;
 
 const TypeFilter = ({ onSubmit }) => {
-  const [visible, setVisible] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [options, setOptions] = useState([]);
+  const [selectedValues, setSelectedValues] = useState([]);
 
-  // useeffect ile api den veri data cekip options a atayacagiz
-  const [options, setOptions] = React.useState([]);
-  const [filters, setFilters] = useState({});
-
-  const handleChange = (value) => {
-    // Create a copy of the current selected items
-    const selectedItemsCopy = { ...filters };
-
-    // Loop through all options
-    options.forEach((option) => {
-      const isSelected = selectedItemsCopy[option.key] !== undefined;
-
-      // If the option is already selected, and it's not in the new value, remove it
-      if (isSelected && !value.includes(option.value)) {
-        delete selectedItemsCopy[option.key];
-      }
-      // If the option is not selected and it's in the new value, add it
-      else if (!isSelected && value.includes(option.value)) {
-        selectedItemsCopy[option.key] = option.value;
-      }
-    });
-
-    // Update the filters state with the updated selection
-    setFilters(selectedItemsCopy);
+  const handleChange = (selectedOptionValues) => {
+    setSelectedValues(selectedOptionValues);
   };
 
-  React.useEffect(() => {
-    AxiosInstance.get("IsEmriTip")
-      .then((response) => {
-        const options = response.map((option, index) => ({ key: index, value: option.IMT_TANIM }));
-        setOptions(options);
-
-        const definitions = response.map((option, index) => ({ index: index, value: option.IMT_DEFINITION }));
-      })
-      .catch((error) => {
-        console.log("API Error:", error);
-      });
-  }, []);
+  useEffect(() => {
+    // Selectbox açık olduğunda API isteğini yap
+    if (open) {
+      AxiosInstance.get("IsEmriTip")
+        .then((response) => {
+          const options = response.map((option) => ({
+            key: option.TB_ISEMRI_TIP_ID,
+            value: option.TB_ISEMRI_TIP_ID,
+            label: option.IMT_TANIM,
+          }));
+          setOptions(options);
+        })
+        .catch((error) => {
+          console.log("API Error:", error);
+        });
+    }
+  }, [open]); // open state'i değiştiğinde useEffect hook'unu tetikle
 
   const handleSubmit = () => {
-    // Seçilen öğeleri başka bir bileşene iletmek için prop olarak gelen işlevi çağırın
-    onSubmit(filters);
+    const selectedOptionsObj = selectedValues.reduce((acc, currentValue) => {
+      const option = options.find((option) => option.value === currentValue);
+      if (option) {
+        acc[option.value] = option.label;
+      }
+      return acc;
+    }, {});
 
-    // Seçilen öğeleri sıfırlayabiliriz
-    // setFilters({});
-    // Dropdown'ı gizle
-    setVisible(false);
+    onSubmit(selectedOptionsObj);
+    setOpen(false);
   };
 
   const handleCancelClick = () => {
-    // Seçimleri iptal etmek için seçilen öğeleri sıfırlayın
-    setFilters({});
-    // Dropdown'ı gizle
-    setVisible(false);
+    setSelectedValues([]);
+    setOpen(false);
     onSubmit("");
   };
 
-  const menu = (
-    <Menu style={{ width: "300px" }}>
+  const content = (
+    <div style={{ width: "300px" }}>
       <div
-        style={{ borderBottom: "1px solid #ccc", padding: "10px", display: "flex", justifyContent: "space-between" }}>
+        style={{
+          borderBottom: "1px solid #ccc",
+          padding: "10px",
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
         <Button onClick={handleCancelClick}>İptal</Button>
         <Button type="primary" onClick={handleSubmit}>
           Uygula
         </Button>
       </div>
       <div style={{ padding: "10px" }}>
-        <Select
-          mode="multiple"
-          style={{ width: "100%" }}
-          placeholder="Ara..."
-          value={Object.values(filters)}
-          onChange={handleChange}
-          allowClear
-          showArrow={false}>
-          {/* Seçenekleri elle ekleyin */}
+        <Select mode="multiple" style={{ width: "100%" }} placeholder="Ara..." value={selectedValues} onChange={handleChange} allowClear>
           {options.map((option) => (
             <Option key={option.key} value={option.value}>
-              {option.value}
+              {option.label}
             </Option>
           ))}
         </Select>
       </div>
-    </Menu>
+    </div>
   );
 
   return (
-    <Dropdown
-      overlay={menu}
-      placement="bottomLeft"
-      trigger={["click"]}
-      visible={visible}
-      onVisibleChange={(v) => setVisible(v)}>
-      <Button style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+    <Popover content={content} trigger="click" open={open} onOpenChange={setOpen} placement="bottom">
+      <Button
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         İş Emri Tipi
-        <span
+        <div
           style={{
             marginLeft: "5px",
             background: "#006cb8",
@@ -113,11 +99,12 @@ const TypeFilter = ({ onSubmit }) => {
             justifyContent: "center",
             alignItems: "center",
             color: "white",
-          }}>
-          {Object.keys(filters).length}{" "}
-        </span>
+          }}
+        >
+          {selectedValues.length}
+        </div>
       </Button>
-    </Dropdown>
+    </Popover>
   );
 };
 
