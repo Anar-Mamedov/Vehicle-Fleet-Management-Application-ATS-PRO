@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Button, Modal, Table, Input } from "antd";
+import { Button, Modal, Table, Input, message } from "antd";
 import AxiosInstance from "../../../../../../../../api/http";
 import { Resizable } from "react-resizable";
 import { CheckCircleOutlined, CloseCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { useFormContext } from "react-hook-form";
+import { t } from "i18next";
 
 const ResizableTitle = (props) => {
   const { onResize, width, ...restProps } = props;
@@ -54,6 +55,8 @@ export default function IslemYapanTablo({ workshopSelectedId, onSubmit }) {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debounceTimer, setDebounceTimer] = useState(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { watch } = useFormContext();
 
@@ -192,26 +195,59 @@ export default function IslemYapanTablo({ workshopSelectedId, onSubmit }) {
 
   const plakaID = watch("PlakaID");
 
-  const fetch = useCallback(() => {
-    setLoading(true);
-    const body = [plakaID];
+  const fetch = useCallback(
+    async (diff = 0, targetPage = 1) => {
+      setLoading(true);
+      try {
+        let currentSetPointId = 0;
 
-    AxiosInstance.get(`Company/GetCompaniesList?page=${pagination.current}&parameter=${searchTerm}&isService=true`)
-      .then((response) => {
-        const { list, recordCount } = response.data;
-        const fetchedData = list.map((item) => ({
+        if (diff > 0) {
+          // Moving forward
+          currentSetPointId = data[data.length - 1]?.firmaId || 0;
+        } else if (diff < 0) {
+          // Moving backward
+          currentSetPointId = data[0]?.firmaId || 0;
+        } else {
+          currentSetPointId = 0;
+        }
+
+        const response = await AxiosInstance.get(`Company/GetCompaniesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&isService=true`);
+
+        const total = response.data.recordCount;
+        setTotalCount(total);
+        setCurrentPage(targetPage);
+
+        const newData = response.data.list.map((item) => ({
           ...item,
           key: item.firmaId,
           column1: item.unvan,
         }));
-        setData(fetchedData);
-        setPagination((prev) => ({
-          ...prev,
-          total: recordCount,
-        }));
-      })
-      .finally(() => setLoading(false));
-  }, [pagination.current, searchTerm, plakaID]);
+
+        if (newData.length > 0) {
+          setData(newData);
+          setPagination((prev) => ({
+            ...prev,
+            current: targetPage,
+            total: total,
+          }));
+        } else {
+          message.warning("No data found.");
+          setData([]);
+          setPagination((prev) => ({
+            ...prev,
+            current: 1,
+            total: 0,
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error("An error occurred while fetching data.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [data, searchTerm]
+  );
 
   const fetch1 = useCallback(() => {
     setLoading(true);
@@ -225,6 +261,20 @@ export default function IslemYapanTablo({ workshopSelectedId, onSubmit }) {
           column1: item.codeText,
         }));
         setData(fetchedData);
+
+        if (fetchedData.length > 0) {
+          setPagination((prev) => ({
+            ...prev,
+            total: fetchedData.length,
+          }));
+        } else {
+          message.warning("No data found.");
+          setPagination((prev) => ({
+            ...prev,
+            current: 1,
+            total: 0,
+          }));
+        }
       })
       .finally(() => setLoading(false));
   }, [pagination.current, searchTerm, plakaID]);
@@ -233,7 +283,8 @@ export default function IslemYapanTablo({ workshopSelectedId, onSubmit }) {
     setSearchTerm(""); // Clear the search input value
     setSelectedRowKeys([]); // Reset the selected row keys
     setData([]); // Clear the data
-    setPagination({ current: 1, pageSize: 10 }); // Reset the pagination to the first page
+    setPagination({ current: 1, pageSize: 10, total: 0 }); // Reset the pagination to the first page with total 0
+    setTotalCount(0); // Reset the total count
   };
 
   const handleModalToggle = () => {
@@ -247,7 +298,7 @@ export default function IslemYapanTablo({ workshopSelectedId, onSubmit }) {
 
     if (!isModalVisible) {
       if (parseInt(islemiYapan) === 1) {
-        fetch();
+        fetch(0, 1);
       } else if (parseInt(islemiYapan) === 2) {
         fetch1();
       }
@@ -272,42 +323,43 @@ export default function IslemYapanTablo({ workshopSelectedId, onSubmit }) {
   };
 
   const handleTableChange = (newPagination) => {
-    setPagination(newPagination);
+    const diff = newPagination.current - pagination.current;
+    if (parseInt(islemiYapan) === 1) {
+      fetch(diff, newPagination.current);
+      setPagination(newPagination);
+    } else {
+      setPagination(newPagination);
+    }
   };
 
-  useEffect(() => {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
+  const handleSearch = () => {
+    if (parseInt(islemiYapan) === 1) {
+      fetch(0, 1);
+    } else if (parseInt(islemiYapan) === 2) {
+      fetch1();
     }
-
-    const timeout = setTimeout(() => {
-      if (searchTerm !== "") {
-        if (parseInt(islemiYapan) === 1) {
-          fetch(); // Fetch function for islemiYapan value 1
-        } else if (parseInt(islemiYapan) === 2) {
-          fetch1(); // Fetch1 function for islemiYapan value 2
-        }
-        setPagination((prev) => ({ ...prev, current: 1 })); // Reset to page 1 when search term changes
-      }
-    }, 2000);
-
-    setDebounceTimer(timeout);
-
-    return () => clearTimeout(timeout);
-  }, [searchTerm, islemiYapan]); // Add islemiYapan to the dependency array
+  };
 
   return (
     <div>
       <Button onClick={handleModalToggle}>+</Button>
       <Modal width={1200} centered title={modalTitle} open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
-        <Input
-          style={{ width: "250px", marginBottom: "10px" }}
-          type="text"
-          placeholder="Arama yap..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
-        />
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+          <Input
+            style={{ width: "250px" }}
+            type="text"
+            placeholder="Arama yap..."
+            value={searchTerm}
+            allowClear
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onPressEnter={handleSearch}
+            prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
+          />
+          <Button type="primary" onClick={handleSearch}>
+            <SearchOutlined />
+          </Button>
+        </div>
+
         <Table
           rowSelection={{
             type: "radio",
@@ -324,7 +376,11 @@ export default function IslemYapanTablo({ workshopSelectedId, onSubmit }) {
           columns={mergedColumns}
           dataSource={data}
           loading={loading}
-          pagination={pagination}
+          pagination={{
+            ...pagination,
+            showTotal: (total, range) => `${total} ${t("Kayit")}`,
+            showSizeChanger: false,
+          }}
           onChange={handleTableChange}
         />
       </Modal>
