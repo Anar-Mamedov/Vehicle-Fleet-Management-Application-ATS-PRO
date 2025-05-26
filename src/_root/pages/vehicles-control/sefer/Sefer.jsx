@@ -141,7 +141,6 @@ const Yakit = () => {
       fetchData(0, 1);
       prevBodyRef.current = body;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [body]);
 
   const prevBodyRef = useRef(body);
@@ -192,7 +191,6 @@ const Yakit = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Search handling
@@ -228,7 +226,6 @@ const Yakit = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
@@ -743,7 +740,7 @@ const Yakit = () => {
             padding: "10px",
             height: "calc(100vh - 200px)",
             borderRadius: "8px 8px 8px 8px",
-            filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
+            // filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
           }}
         >
           <Spin spinning={loading}>
