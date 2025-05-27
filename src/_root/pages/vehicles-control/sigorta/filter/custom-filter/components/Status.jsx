@@ -2,7 +2,7 @@ import React from "react";
 import { Select } from "antd";
 import { t } from "i18next";
 
-function Status({ value, onChange }) {
+function Status({ value, onSubmit }) {
   const options = [
     { value: 0, label: t("tumu") },
     { value: 1, label: t("aktif") },
@@ -10,10 +10,9 @@ function Status({ value, onChange }) {
   ];
 
   const handleChange = (selectedValue) => {
-    onChange("filters", (prevFilters) => ({
-      ...prevFilters,
-      status: selectedValue,
-    }));
+    if (onSubmit) {
+      onSubmit(selectedValue);
+    }
   };
 
   return (

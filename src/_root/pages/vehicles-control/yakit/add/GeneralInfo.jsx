@@ -748,6 +748,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                         {...field}
                         className="w-full"
                         disabled={true}
+                        decimalSeparator={getDecimalSeparator()}
                         onChange={(val) => {
                           field.onChange(val);
                           const tutarVal = watch("tutar") ?? 0;
@@ -860,7 +861,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                 <p style={{ fontSize: "14px" }}>
                   {history[2]?.miktar} Lt. {history[2]?.fullDepo && <CheckOutlined className="text-success" />}
                 </p>
-                <p style={{ fontSize: "14px" }}>{history[2]?.tuketim} Lt.Km..</p>
+                <p style={{ fontSize: "14px" }}>{Number(history[2]?.tuketim).toFixed(history[2]?.ortalamaFormat || 2)} Lt.Km..</p>
               </div>
               <div className="col-span-1 mt-20" style={{ textAlign: "center" }}>
                 <img src="/images/yol.svg" alt="" style={{ width: "70%" }} />
@@ -876,7 +877,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                 <p style={{ fontSize: "14px" }}>
                   {history[1]?.miktar} Lt. {history[1]?.fullDepo && <CheckOutlined className="text-success" />}
                 </p>
-                <p style={{ fontSize: "14px" }}>{history[1]?.tuketim} Lt.Km..</p>
+                <p style={{ fontSize: "14px" }}>{Number(history[1]?.tuketim).toFixed(history[1]?.ortalamaFormat || 2)} Lt.Km..</p>
               </div>
               <div className="col-span-1 mt-20" style={{ textAlign: "center" }}>
                 <img src="/images/yol.svg" alt="" style={{ width: "70%" }} />
@@ -892,7 +893,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                 <p style={{ fontSize: "14px" }}>
                   {history[0]?.miktar} Lt. {history[0]?.fullDepo && <CheckOutlined className="text-success" />}
                 </p>
-                <p style={{ fontSize: "14px" }}>{history[0]?.tuketim} Lt.Km..</p>
+                <p style={{ fontSize: "14px" }}>{Number(history[0]?.tuketim).toFixed(history[0]?.ortalamaFormat || 2)} Lt.Km..</p>
               </div>
               <div className="col-span-1 mt-20" style={{ textAlign: "center" }}>
                 <img src="/images/yol.svg" alt="" style={{ width: "70%" }} />

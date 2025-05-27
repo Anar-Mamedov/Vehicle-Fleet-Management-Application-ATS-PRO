@@ -16,6 +16,7 @@ function CompanyKeyPage() {
   const handleSave = () => {
     AxiosInstance.get(`ClientInfo/GetClientInfo?clientIdentifier=${companyKey}`)
       .then((response) => {
+        localStorage.setItem("companyInfo", JSON.stringify(response.data));
         if (response.data.siraNo !== 0) {
           localStorage.setItem("companyKey", companyKey);
           navigate("/login");

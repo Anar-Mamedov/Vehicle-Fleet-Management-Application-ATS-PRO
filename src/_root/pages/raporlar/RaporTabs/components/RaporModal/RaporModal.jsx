@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Modal, Table, Button, Checkbox, Typography, Input, Space, DatePicker, InputNumber, TimePicker } from "antd";
+import { Modal, Table, Button, Checkbox, Typography, Input, Space, DatePicker, InputNumber, TimePicker, Select, Tag } from "antd";
 import { MenuOutlined, SearchOutlined } from "@ant-design/icons";
 import AxiosInstance from "../../../../../../api/http.jsx";
 import { DndContext, PointerSensor, useSensor, useSensors, KeyboardSensor } from "@dnd-kit/core";
@@ -10,6 +10,7 @@ import * as XLSX from "xlsx";
 import { FaFileExcel } from "react-icons/fa";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { t } from "i18next";
 
 dayjs.extend(customParseFormat); // Enable custom date formats
 
@@ -45,6 +46,7 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
         params: { id: selectedRow.key, lan: lan },
       })
         .then((response) => {
+          console.log(response.data);
           const { headers, list } = response.data;
           if (headers && headers.length > 0) {
             const cols = headers.map((header) => {
@@ -138,7 +140,17 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
 
       if (!column) return;
 
-      if (typeof filterVal === "string") {
+      // Special handling for AKTIF column
+      if (colKey === "AKTIF" && filterVal) {
+        const boolValue = filterVal === "true";
+        filteredData = filteredData.filter((item) => {
+          // Convert column value to boolean for comparison
+          const cellValue = item[colKey];
+          const cellBoolValue = typeof cellValue === "string" ? cellValue.toLowerCase() === "true" : Boolean(cellValue);
+
+          return cellBoolValue === boolValue;
+        });
+      } else if (typeof filterVal === "string") {
         const searchTerm = filterVal.toLowerCase();
         filteredData = filteredData.filter((item) => {
           const cellValue = item[colKey] != null ? item[colKey].toString().toLowerCase() : "";
@@ -211,7 +223,16 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
     const column = columns.find((col) => col.key === dataIndex);
     if (!column) return;
 
-    if (column.isYear) {
+    // Special handling for AKTIF column filtering
+    if (dataIndex === "AKTIF") {
+      const value = selectedKeys[0] || "";
+      setColumnFilters((prev) => {
+        const newFilters = { ...prev, [dataIndex]: value };
+        const filtered = applyAllFilters(newFilters);
+        setTableData(filtered);
+        return newFilters;
+      });
+    } else if (column.isYear) {
       const startYear = selectedKeys[0] ? parseInt(selectedKeys[0], 10) : null;
       const endYear = selectedKeys[1] ? parseInt(selectedKeys[1], 10) : null;
       setColumnFilters((prev) => {
@@ -290,6 +311,47 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
       const column = columns.find((col) => col.key === dataIndex);
 
       if (!column) return null;
+
+      // Special handling for AKTIF column
+      if (dataIndex === "AKTIF") {
+        return (
+          <div style={{ padding: 8, width: 200 }}>
+            <Select
+              placeholder="Aktiflik Durumu"
+              value={selectedKeys[0]}
+              onChange={(value) => setSelectedKeys(value ? [value] : [])}
+              style={{ width: "100%", marginBottom: 8 }}
+              options={[
+                { value: "true", label: "Aktif" },
+                { value: "false", label: "Pasif" },
+              ]}
+            />
+            <Space>
+              <Button
+                type="primary"
+                onClick={() => handleSearch(selectedKeys, dataIndex, closeDropdown, setSelectedKeys)}
+                icon={<SearchOutlined />}
+                size="small"
+                style={{ width: 90 }}
+              >
+                Ara
+              </Button>
+              <Button onClick={() => handleReset(dataIndex, closeDropdown, setSelectedKeys)} size="small" style={{ width: 90 }}>
+                Sıfırla
+              </Button>
+              <Button
+                type="link"
+                size="small"
+                onClick={() => {
+                  close();
+                }}
+              >
+                Kapat
+              </Button>
+            </Space>
+          </div>
+        );
+      }
 
       if (column.isYear) {
         return (
@@ -560,8 +622,16 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
             textOverflow: "ellipsis",
           },
         }),
-        // Custom render to handle null values
-        render: (text) => <span style={{ whiteSpace: "nowrap" }}>{text !== null && text !== undefined ? text : "\u00A0"}</span>,
+        // Custom render to handle null values and AKTIF column with Tags
+        render: (text, record, index) => {
+          if (col.dataIndex === "AKTIF") {
+            // Handle AKTIF column with Tags
+            const boolValue = typeof text === "string" ? text.toLowerCase() === "true" : Boolean(text);
+            return boolValue ? <Tag color="success">{t("Aktif")}</Tag> : <Tag color="error">{t("Pasif")}</Tag>;
+          }
+          // Default rendering for other columns
+          return <span style={{ whiteSpace: "nowrap" }}>{text !== null && text !== undefined ? text : "\u00A0"}</span>;
+        },
       };
     });
   }, [visibleColumns, columnFilters]);

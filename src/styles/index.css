@@ -13,20 +13,20 @@
 @import url(./components/antd.css);
 
 @font-face {
-    font-family: Roboto;
-    src: url("/fonts/Roboto/Roboto-Regular.ttf");
+  /* font-family: Roboto; */
+  src: url("/fonts/Roboto/Roboto-Regular.ttf");
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    border: none;
-    outline: none;
-    box-shadow: none;
-    box-sizing: border-box;
-    text-decoration: none;
-    font-family: Roboto;
-    /* font-size: 14px; */
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  box-sizing: border-box;
+  text-decoration: none;
+  /* font-family: Roboto; */
+  /* font-size: 14px; */
 }
 
 img,
@@ -35,25 +35,25 @@ input,
 label,
 select,
 textarea {
-    display: inline-block;
+  display: inline-block;
 }
 
 button,
 input,
 a {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 textarea {
-    resize: unset !important;
-    height: 80px !important;
+  resize: unset !important;
+  height: 80px !important;
 }
 
 ul {
-    list-style-type: none;
+  list-style-type: none;
 }
 
 .menu-divider {
-    margin: 8px 0;
-    border-top: 1px solid #e8e8e8;
+  margin: 8px 0;
+  border-top: 1px solid #e8e8e8;
 }

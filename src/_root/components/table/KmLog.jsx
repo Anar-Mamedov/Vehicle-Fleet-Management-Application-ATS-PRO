@@ -6,7 +6,7 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Input, InputNumber, Modal, Popconfirm, Table } from "antd";
 import { t } from "i18next";
 
-const KmLog = ({ data, setDataStatus }) => {
+const KmLog = ({ setDataStatus, selectedRowsData }) => {
   const [dataSource, setDataSource] = useState([]);
   const [status, setStatus] = useState(false);
   const [updateModal, setUpdateModal] = useState(false);
@@ -19,27 +19,28 @@ const KmLog = ({ data, setDataStatus }) => {
     },
   });
 
-  useEffect(() => {
-    // If data is an array, use it directly
-    if (Array.isArray(data)) {
-      setDataSource(data);
-      return;
-    }
+  console.log("selectedRowsData", selectedRowsData);
 
-    // If data has aracId, fetch data from API
-    if (data && data.aracId) {
-      KMLogListGetByIdService(data?.aracId, tableParams?.pagination.current).then((res) => {
-        setDataSource(res?.data.km_list);
-        setTableParams({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: res?.data.total_count,
-          },
+  useEffect(() => {
+    // If selectedRowsData has items with aracId, fetch data from API
+    if (selectedRowsData && selectedRowsData.length > 0) {
+      // Extract all aracId values from selectedRowsData
+      const aracIds = selectedRowsData.map((row) => row.aracId).filter(Boolean);
+
+      if (aracIds.length > 0) {
+        KMLogListGetByIdService(aracIds, tableParams?.pagination.current).then((res) => {
+          setDataSource(res?.data.km_list);
+          setTableParams({
+            ...tableParams,
+            pagination: {
+              ...tableParams.pagination,
+              total: res?.data.total_count,
+            },
+          });
         });
-      });
+      }
     }
-  }, [data, tableParams?.pagination.current, status]);
+  }, [selectedRowsData, tableParams?.pagination.current, status]);
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -187,7 +188,18 @@ const KmLog = ({ data, setDataStatus }) => {
 
   return (
     <>
-      <Table rowClassName={() => "editable-row"} pagination={tableParams.pagination} dataSource={dataSource} columns={columns} size="small" onChange={handleTableChange} />
+      <Table
+        rowClassName={() => "editable-row"}
+        pagination={{
+          ...tableParams.pagination,
+          showSizeChanger: false,
+          pageSizeOptions: [10, 20, 50, 100],
+        }}
+        dataSource={dataSource}
+        columns={columns}
+        size="small"
+        onChange={handleTableChange}
+      />
       <Modal title={"Kilometre Güncelleme Geçmişi Düzelt"} open={updateModal} onCancel={onClose} maskClosable={false} footer={footer} width={500}>
         <div className="grid gap-1">
           <div className="col-span-6">
@@ -240,8 +252,8 @@ const KmLog = ({ data, setDataStatus }) => {
 };
 
 KmLog.propTypes = {
-  data: PropTypes.array,
   setDataStatus: PropTypes.func,
+  selectedRowsData: PropTypes.array,
 };
 
 export default KmLog;

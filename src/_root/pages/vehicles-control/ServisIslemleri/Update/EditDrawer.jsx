@@ -187,6 +187,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("ozelAlan10ID", item.ozelAlanKodId10);
           setValue("ozelAlan11", item.ozelAlan11);
           setValue("ozelAlan12", item.ozelAlan12);
+          setValue("isRecordSeen", item.isRecordSeen);
           // ... Diğer setValue çağrıları
 
           setLoading(false); // Yükleme tamamlandığında
@@ -210,9 +211,9 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
     return formattedTime.isValid() ? formattedTime.format("HH:mm:ss") : "";
   };
 
-  const onSubmit = (data) => {
-    // Form verilerini API'nin beklediği formata dönüştür
-    const Body = {
+  // Form verilerinden Body objesini oluşturan yardımcı fonksiyon
+  const createRequestBody = (data) => {
+    return {
       siraNo: Number(data.secilenKayitID),
       aracId: Number(data.PlakaID),
       bakimId: Number(data.servisKoduID),
@@ -221,7 +222,6 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       tamamlandi: data.durumBilgisi === "4" ? true : false,
       islemiYapan: data.islemiYapan,
       servisNedeniKodId: Number(data.servisNedeniID),
-
       islemiYapanId: Number(data.islemiYapan1ID),
       surucuId: Number(data.SurucuID),
       km: Number(data.aracKM),
@@ -258,7 +258,13 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       ozelAlanKodId10: Number(data.ozelAlan10ID),
       ozelAlan11: Number(data.ozelAlan11),
       ozelAlan12: Number(data.ozelAlan12),
+      isRecordSeen: false,
     };
+  };
+
+  const onSubmit = (data) => {
+    // Body objesini ortak fonksiyondan al
+    const Body = createRequestBody(data);
 
     // API'ye POST isteği gönder
     AxiosInstance.post("VehicleServices/UpdateServiceItem", Body)
@@ -295,6 +301,36 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
     console.log({ Body });
   };
 
+  // Sadece isRecordSeen güncellemesi için ayrı bir fonksiyon
+  const onSubmitRecordSeen = (data) => {
+    // Body objesini ortak fonksiyondan al
+    const Body = createRequestBody(data);
+
+    // API'ye POST isteği gönder
+    AxiosInstance.post("VehicleServices/UpdateServiceItem", Body)
+      .then((response) => {
+        console.log("Record seen status updated successfully:", response);
+        if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202) {
+          setValue("isRecordSeen", false);
+          // Modal kapatılmadan hafif bir bildirim
+          // message.success({ content: "Kayıt görüldü olarak işaretlendi", duration: 2 });
+          onRefresh();
+        } else {
+          console.error("Failed to update record seen status");
+        }
+      })
+      .catch((error) => {
+        console.error("Error updating record seen status:", error);
+      });
+  };
+
+  useEffect(() => {
+    if (watch("isRecordSeen") == true) {
+      // methods.handleSubmit(onSubmit)(); - eski kod
+      methods.handleSubmit(onSubmitRecordSeen)(); // Yeni kod - özel submit fonksiyonu
+    }
+  }, [watch("isRecordSeen")]);
+
   const onClose = () => {
     Modal.confirm({
       title: "İptal etmek istediğinden emin misin?",
@@ -323,7 +359,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
     <FormProvider {...methods}>
       <ConfigProvider locale={tr_TR}>
         <Modal
-          width="1190px"
+          width="1400px"
           centered
           title={`Servis Güncelleme ${periyodikBakim}`}
           open={drawerVisible}

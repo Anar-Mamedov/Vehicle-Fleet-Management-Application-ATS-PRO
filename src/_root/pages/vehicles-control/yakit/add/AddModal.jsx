@@ -261,6 +261,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       ozelAlan11: values.ozelAlan11 || 0,
       ozelAlan12: values.ozelAlan12 || 0,
       hasToInsertKmLog: values.engelle ? values.engelle : false,
+      isRecordSeen: true,
     };
 
     AddFuelService(body)

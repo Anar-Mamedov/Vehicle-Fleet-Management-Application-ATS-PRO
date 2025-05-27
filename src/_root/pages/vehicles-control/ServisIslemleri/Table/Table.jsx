@@ -1109,6 +1109,9 @@ const Ceza = ({ statusId1 }) => {
                 rowSelection={rowSelection}
                 columns={filteredColumns}
                 dataSource={data}
+                onRow={(record) => ({
+                  style: record.isRecordSeen === true ? { fontWeight: 600 } : {},
+                })}
                 pagination={{
                   current: currentPage,
                   total: totalCount,

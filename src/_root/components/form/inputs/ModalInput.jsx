@@ -1,11 +1,12 @@
 import React from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useFormContext, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Input } from "antd";
 import { PlusOutlined, CloseCircleFilled } from "@ant-design/icons";
 
-const SurucuInput = ({ name, checked, readonly, onPlusClick, onMinusClick, required, disabled }) => {
-  const { control } = useFormContext();
+const SurucuInput = ({ name, checked, readonly, onPlusClick, onMinusClick, required, disabled, placeholder }) => {
+  const methods = useFormContext() || useForm();
+  const { control } = methods;
 
   return (
     <Controller
@@ -17,6 +18,7 @@ const SurucuInput = ({ name, checked, readonly, onPlusClick, onMinusClick, requi
           <Input
             {...field}
             status={error ? "error" : ""}
+            placeholder={placeholder}
             readOnly={readonly}
             disabled={disabled}
             suffix={
@@ -45,6 +47,10 @@ SurucuInput.propTypes = {
   checked: PropTypes.bool,
   readonly: PropTypes.bool,
   onPlusClick: PropTypes.func,
+  onMinusClick: PropTypes.func,
+  required: PropTypes.bool,
+  disabled: PropTypes.bool,
+  placeholder: PropTypes.string,
 };
 
 export default SurucuInput;

@@ -16,6 +16,12 @@ const StyledSelect = styled(Select)`
   @media (max-width: 600px) {
     width: 300px;
   }
+
+  // Custom styles for dropdown menu
+  .ant-select-dropdown {
+    width: auto !important;
+    min-width: 100px !important;
+  }
 `;
 
 const StyledDiv = styled.div`
@@ -28,7 +34,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function PlakaSelectbox({ name1, isRequired, onChange }) {
+export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth }) {
   const {
     control,
     watch,
@@ -95,6 +101,9 @@ export default function PlakaSelectbox({ name1, isRequired, onChange }) {
                 onChange(numericValue, option);
               }
             }}
+            style={{ width: inputWidth }}
+            dropdownStyle={{ width: dropdownWidth || "auto", minWidth: "100px" }}
+            popupMatchSelectWidth={false}
           />
         )}
       />

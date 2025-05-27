@@ -1,9 +1,19 @@
 import { CloseOutlined, FilterOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Drawer, Row, Typography, Select, Space, Input } from "antd";
-import Status from "./components/Status";
-import React, { useState } from "react";
+import { Button, Col, Drawer, Row, Typography, Select, Space, Input, DatePicker } from "antd";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import "./style.css";
+import { Controller, useFormContext } from "react-hook-form";
+import dayjs from "dayjs";
+import "dayjs/locale/tr"; // For Turkish locale
+import weekOfYear from "dayjs/plugin/weekOfYear";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+import DatePickerComponent from "./components/DatePickerComponent";
+
+dayjs.extend(weekOfYear);
+dayjs.extend(advancedFormat);
+
+dayjs.locale("tr"); // use Turkish locale
 
 const { Text, Link } = Typography;
 
@@ -25,58 +35,57 @@ const CloseButton = styled.div`
   cursor: pointer;
 `;
 
-export default function CustomFilter({ onSubmit }) {
+export default function CustomFilter({ onSubmit, currentFilters }) {
+  const {
+    control,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useFormContext();
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [newObjectsAdded, setNewObjectsAdded] = useState(false);
   const [filtersExist, setFiltersExist] = useState(false);
-  const [inputValues, setInputValues] = useState({}); // Input değerlerini saklamak için bir state kullanıyoruz
-  const [filters, setFilters] = useState({});
-  const [filterValues, setFilterValues] = useState({});
-
-  // Create a state variable to store selected values for each row
+  const [inputValues, setInputValues] = useState({});
   const [selectedValues, setSelectedValues] = useState({});
+  const [isInitialMount, setIsInitialMount] = useState(true);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+
+  const [baslangicTarih, setBaslangicTarih] = useState(null);
+  const [bitisTarih, setBitisTarih] = useState(null);
+
+  const baslangicTarihSelected = watch("baslangicTarih");
+  const bitisTarihSelected = watch("bitisTarih");
+
+  useEffect(() => {
+    if (isInitialMount) {
+      setIsInitialMount(false);
+      return;
+    }
+
+    if (baslangicTarihSelected === null) {
+      setBaslangicTarih(null);
+    } else {
+      setBaslangicTarih(dayjs(baslangicTarihSelected));
+      setHasUserInteracted(true);
+    }
+    if (bitisTarihSelected === null) {
+      setBitisTarih(null);
+    } else {
+      setBitisTarih(dayjs(bitisTarihSelected));
+      setHasUserInteracted(true);
+    }
+  }, [baslangicTarihSelected, bitisTarihSelected, isInitialMount]);
+
+  // Tarih seçimi yapıldığında veya filtreler eklenip kaldırıldığında düğmenin stilini değiştirmek için bir durum
+  const isFilterApplied = newObjectsAdded || filtersExist || baslangicTarih || bitisTarih;
 
   const handleSelectChange = (value, rowId) => {
     setSelectedValues((prevSelectedValues) => ({
       ...prevSelectedValues,
       [rowId]: value,
     }));
-
-    // Clear any existing input value when changing selection
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [`input-${rowId}`]: "",
-    }));
-  };
-
-  const handleInputChange = (e, rowId) => {
-    const { value } = e.target;
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [`input-${rowId}`]: value,
-    }));
-  };
-
-  // Add this function to determine which input to show
-  const renderInput = (rowId) => {
-    const selectedValue = selectedValues[rowId];
-
-    if (selectedValue === "status") {
-      return (
-        <Status
-          value={inputValues[`input-${rowId}`]}
-          onChange={(value) => {
-            setInputValues((prevInputValues) => ({
-              ...prevInputValues,
-              [`input-${rowId}`]: value,
-            }));
-          }}
-        />
-      );
-    }
-
-    return <Input placeholder="Arama Yap" name={`input-${rowId}`} value={inputValues[`input-${rowId}`] || ""} onChange={(e) => handleInputChange(e, rowId)} />;
+    setHasUserInteracted(true);
   };
 
   const showDrawer = () => {
@@ -88,79 +97,94 @@ export default function CustomFilter({ onSubmit }) {
   };
 
   const handleSubmit = () => {
-    // Combine selected values and input values for each row
-    const filters = {};
+    // Sadece kullanıcı etkileşimi olduğunda filtreleri gönder
+    if (!hasUserInteracted && !rows.length && !baslangicTarih && !bitisTarih) {
+      setOpen(false);
+      return;
+    }
 
-    rows.forEach((row) => {
-      const selectedValue = selectedValues[row.id];
-      const inputValue = inputValues[`input-${row.id}`];
-
-      // Only add to filters if both values exist
+    // Combine selected values, input values for each row, and date range
+    const filterData = rows.reduce((acc, row) => {
+      const selectedValue = selectedValues[row.id] || "";
+      const inputValue = inputValues[`input-${row.id}`] || "";
       if (selectedValue && inputValue) {
-        filters[selectedValue] = inputValue;
+        acc[selectedValue] = inputValue;
       }
-    });
+      return acc;
+    }, {});
 
-    // Send the active filters to parent
-    onSubmit(filters);
+    // Add date range to the filterData object if dates are selected
+    if (baslangicTarih) {
+      filterData.baslangicTarih = baslangicTarih.format("YYYY-MM-DD");
+    }
+    if (bitisTarih) {
+      filterData.bitisTarih = bitisTarih.format("YYYY-MM-DD");
+    }
 
+    // Preserve existing lokasyonId and aracId values if available
+    const existingFilters = currentFilters || {};
+    if (existingFilters.aracId !== undefined) {
+      filterData.aracId = existingFilters.aracId;
+    }
+    if (existingFilters.lokasyonId !== undefined) {
+      filterData.lokasyonId = existingFilters.lokasyonId;
+    }
+
+    console.log("Submitting filter data:", filterData);
+    // Pass the filter data to the parent component
+    onSubmit(filterData);
     setOpen(false);
   };
 
   const handleCancelClick = (rowId) => {
-    // Remove the row
-    setRows((prevRows) => {
-      const newRows = prevRows.filter((row) => row.id !== rowId);
-      // If no rows left, reset states
-      if (newRows.length === 0) {
-        setNewObjectsAdded(false);
-        setFiltersExist(false);
-      }
-      return newRows;
-    });
+    setHasUserInteracted(true);
 
-    // Get the selected value before removing it
-    const selectedValue = selectedValues[rowId];
-
-    // Clear the removed row's values
     setSelectedValues((prev) => {
-      const newValues = { ...prev };
-      delete newValues[rowId];
-      return newValues;
+      const newSelectedValues = { ...prev };
+      delete newSelectedValues[rowId];
+      return newSelectedValues;
     });
 
     setInputValues((prev) => {
-      const newValues = { ...prev };
-      delete newValues[`input-${rowId}`];
-      return newValues;
+      const newInputValues = { ...prev };
+      delete newInputValues[`input-${rowId}`];
+      return newInputValues;
     });
 
-    // Create a new filters object without the cancelled filter
-    const updatedFilters = {};
-    rows.forEach((row) => {
-      if (row.id !== rowId) {
-        const value = selectedValues[row.id];
-        const inputValue = inputValues[`input-${row.id}`];
-        if (value && inputValue) {
-          updatedFilters[value] = inputValue;
-        }
-      }
-    });
+    setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
 
-    // Send the updated filters to parent
-    onSubmit(updatedFilters);
+    const filtersRemaining = rows.length > 1;
+    setFiltersExist(filtersRemaining);
+    if (!filtersRemaining) {
+      setNewObjectsAdded(false);
+    }
+
+    // Submit updated filters after removing one
+    // setTimeout(handleSubmit, 0);
+  };
+
+  const handleInputChange = (e, rowId) => {
+    setInputValues((prevInputValues) => ({
+      ...prevInputValues,
+      [`input-${rowId}`]: e.target.value,
+    }));
+    setHasUserInteracted(true);
+  };
+
+  const handleDateChange = (date, rowId) => {
+    setInputValues((prevInputValues) => ({
+      ...prevInputValues,
+      [`input-${rowId}`]: date ? date.format("YYYY-MM-DD") : "",
+    }));
+    setHasUserInteracted(true);
   };
 
   const handleAddFilterClick = () => {
     const newRow = { id: Date.now() };
     setRows((prevRows) => [...prevRows, newRow]);
-
+    setHasUserInteracted(true);
     setNewObjectsAdded(true);
     setFiltersExist(true);
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [newRow.id]: "", // Set an empty input value for the new row
-    }));
   };
 
   const onChange = (value) => {
@@ -171,6 +195,17 @@ export default function CustomFilter({ onSubmit }) {
     console.log("search:", value);
   };
 
+  // Handle date picker changes
+  const handleBaslangicTarihChange = (date) => {
+    setBaslangicTarih(date);
+    setHasUserInteracted(true);
+  };
+
+  const handleBitisTarihChange = (date) => {
+    setBitisTarih(date);
+    setHasUserInteracted(true);
+  };
+
   return (
     <>
       <Button
@@ -178,13 +213,13 @@ export default function CustomFilter({ onSubmit }) {
         style={{
           display: "flex",
           alignItems: "center",
-          backgroundColor: newObjectsAdded || filtersExist ? "#EBF6FE" : "#ffffffff",
+          backgroundColor: isFilterApplied ? "#EBF6FE" : "#ffffffff",
         }}
-        className={newObjectsAdded ? "#ff0000-dot-button" : ""}
+        className={isFilterApplied ? "#ff0000-dot-button" : ""}
       >
         <FilterOutlined />
         <span style={{ marginRight: "5px" }}>Filtreler</span>
-        {newObjectsAdded && <span className="blue-dot"></span>}
+        {isFilterApplied && <span className="blue-dot"></span>}
       </Button>
       <Drawer
         extra={
@@ -203,6 +238,24 @@ export default function CustomFilter({ onSubmit }) {
         onClose={onClose}
         open={open}
       >
+        <div
+          style={{
+            marginBottom: "20px",
+            border: "1px solid #80808048",
+            padding: "15px 10px",
+            borderRadius: "8px",
+          }}
+        >
+          <div style={{ marginBottom: "10px" }}>
+            <Text style={{ fontSize: "14px" }}>Tarih Aralığı</Text>
+          </div>
+
+          <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
+            <DatePicker style={{ width: "100%" }} placeholder="Başlangıç Tarihi" value={baslangicTarih} onChange={handleBaslangicTarihChange} locale={dayjs.locale("tr")} />
+            <Text style={{ fontSize: "14px" }}>-</Text>
+            <DatePicker style={{ width: "100%" }} placeholder="Bitiş Tarihi" value={bitisTarih} onChange={handleBitisTarihChange} locale={dayjs.locale("tr")} />
+          </div>
+        </div>
         {rows.map((row) => (
           <Row
             key={row.id}
@@ -240,24 +293,21 @@ export default function CustomFilter({ onSubmit }) {
                   filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
                   options={[
                     {
-                      value: "plaka",
-                      label: "Plaka",
-                    },
-                    {
                       value: "sigortaTuru",
                       label: "Sigorta Türü",
                     },
-                    {
-                      value: "lokasyon",
-                      label: "Lokasyon",
-                    },
-                    /*  {
-                      value: "status",
-                      label: "Durum",
-                    }, */
                   ]}
                 />
-                {renderInput(row.id)}
+                <Input
+                  placeholder="Arama Yap"
+                  name={`input-${row.id}`}
+                  value={inputValues[`input-${row.id}`] || ""}
+                  onChange={(e) => handleInputChange(e, row.id)}
+                  style={{ display: selectedValues[row.id] === "tebligBaslangicTarih" || selectedValues[row.id] === "tebligBitisTarih" ? "none" : "block" }}
+                />
+                {(selectedValues[row.id] === "tebligBaslangicTarih" || selectedValues[row.id] === "tebligBitisTarih") && (
+                  <DatePickerComponent value={inputValues[`input-${row.id}`]} onChange={(date) => handleDateChange(date, row.id)} />
+                )}
               </Col>
             </Col>
           </Row>

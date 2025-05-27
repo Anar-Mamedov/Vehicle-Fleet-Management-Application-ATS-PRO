@@ -60,25 +60,25 @@ export default function CustomFilter({ onSubmit }) {
 
     // Filter out rows where both selectedValue and inputValue are empty
     const filteredData = rowData.filter(({ selectedValue, inputValue }) => {
-      return selectedValue !== "" || inputValue !== "";
+      return selectedValue !== "" && inputValue !== "";
     });
+
+    let json = {};
 
     if (filteredData.length > 0) {
       // Convert the filteredData array to the desired JSON format
-      const json = filteredData.reduce((acc, { selectedValue, inputValue }) => {
+      json = filteredData.reduce((acc, { selectedValue, inputValue }) => {
         return {
           ...acc,
           [selectedValue]: inputValue,
         };
       }, {});
-
-      console.log(json);
-      // You can now submit or process the json object as needed.
-      onSubmit(json);
     } else {
-      // Handle the case where there are no non-empty filters (optional)
-      console.log("No filters to submit.");
+      // Handle the case where there are no non-empty filters
     }
+
+    // Always call onSubmit with the filters (empty object if no filters)
+    onSubmit(json);
     setOpen(false);
   };
 
@@ -91,7 +91,7 @@ export default function CustomFilter({ onSubmit }) {
     if (!filtersRemaining) {
       setNewObjectsAdded(false);
     }
-    onSubmit("");
+    onSubmit({});
   };
 
   const handleInputChange = (e, rowId) => {
@@ -133,7 +133,7 @@ export default function CustomFilter({ onSubmit }) {
         className={newObjectsAdded ? "#ff0000-dot-button" : ""}
       >
         <FilterOutlined />
-        <span style={{ marginRight: "5px" }}>Filtreler</span>
+        {/* <span style={{ marginRight: "5px" }}>Filtreler</span> */}
         {newObjectsAdded && <span className="blue-dot"></span>}
       </Button>
       <Drawer
@@ -190,25 +190,26 @@ export default function CustomFilter({ onSubmit }) {
                   filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
                   options={[
                     {
-                      value: "aracTip",
-                      label: "Araç Tipi",
-                    },
-                    {
                       value: "grup",
                       label: "Araç Grubu",
                     },
-                    {
+                    /* {
+                      value: "aracTip",
+                      label: "Araç Tipi",
+                    },
+                     {
                       value: "marka",
                       label: "Marka",
                     },
                     {
                       value: "model",
                       label: "Model",
-                    },
+                    }, 
                     {
                       value: "plaka",
                       label: "Plaka",
                     },
+                     */
                     {
                       value: "renk",
                       label: "Renk",
