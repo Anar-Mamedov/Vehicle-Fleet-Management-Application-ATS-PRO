@@ -785,7 +785,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         footer={footer}
         width={1200}
       >
-        <KmLog data={{ aracId: selectedId }} setDataStatus={setDataStatus} />
+        <KmLog selectedRowsData={selectedRows1} setDataStatus={setDataStatus} />
       </Modal>
 
       <Modal title={t("durumTarihcesi")} open={durumTarihceModal} onCancel={() => setDurumTarihceModal(false)} footer={null} width={1200}>

@@ -11,11 +11,11 @@ function KmTakibi({ visible, onClose, ids, selectedRowsData }) {
   const [kmHistryModal, setKmHistryModal] = useState(false);
   const [dataStatus, setDataStatus] = useState(false);
 
-  useEffect(() => {
+  /*  useEffect(() => {
     GetVehicleByIdService(ids).then((res) => {
       setDataSource(res.data);
     });
-  }, [ids, status, dataStatus]);
+  }, [ids, status, dataStatus]); */
 
   const footer = [
     <Button key="back" className="btn cancel-btn" onClick={onClose}>
@@ -23,10 +23,22 @@ function KmTakibi({ visible, onClose, ids, selectedRowsData }) {
     </Button>,
   ];
 
+  // Create a truncated title with ellipsis if needed
+  const getTruncatedTitle = () => {
+    const plakalar = selectedRowsData?.map((row) => row.plaka).join(", ");
+    const maxLength = 50; // Adjust this value based on your UI requirements
+
+    if (plakalar.length > maxLength) {
+      return `${t("kilometreTakibi")}: ${plakalar.substring(0, maxLength)}...`;
+    }
+
+    return `${t("kilometreTakibi")}: ${plakalar}`;
+  };
+
   return (
     <div>
-      <Modal title={`${t("kilometreTakibi")}: ${dataSource?.plaka}`} open={visible} onCancel={onClose} maskClosable={false} footer={footer} width={1200}>
-        <KmLog data={dataSource} setDataStatus={setDataStatus} />
+      <Modal title={getTruncatedTitle()} open={visible} onCancel={onClose} maskClosable={false} footer={footer} width={1200}>
+        <KmLog data={dataSource} selectedRowsData={selectedRowsData} setDataStatus={setDataStatus} />
       </Modal>
     </div>
   );
