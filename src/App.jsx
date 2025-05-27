@@ -85,6 +85,10 @@ import DenemeTable from "./_root/pages/Deneme/DenemeTable.jsx";
 
 import CompanyKeyPage from "./_auth/CompanyKeyPage.jsx";
 
+// Aktarım
+
+import AracAktarim from "./_root/pages/Aktarim/AracAktarim.jsx";
+
 const App = () => {
   const [hasToken, setHasToken] = useState(false);
   const navigate = useNavigate();
@@ -176,6 +180,9 @@ const App = () => {
         {/* Profil Düzenleme */}
         <Route path="/edit_profile" element={<ProfiliDuzenleTabs />} />
         <Route path="/unauthorized" element={<YetkisizIslem />} />
+
+        {/* Aktarım */}
+        <Route path="/arac-aktarim" element={< AracAktarim />} />
 
         <Route path="/deneme" element={<DenemeTable />} />
       </Route>
