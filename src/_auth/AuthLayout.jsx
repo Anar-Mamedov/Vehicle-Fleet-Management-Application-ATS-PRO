@@ -73,35 +73,42 @@ const AuthLayout = () => {
     const fetchClientAssets = async () => {
       setIsImageLoading(true);
       try {
-        const companyInfo = JSON.parse(localStorage.getItem("companyInfo"));
-        if (companyInfo) {
-          // Fetch logo
-          if (companyInfo.logoId) {
-            const logoBody = {
-              photoId: companyInfo.logoId,
-              fileName: "logo",
-              extension: ".png",
-            };
+        const companyKey = localStorage.getItem("companyKey");
 
-            const logoResponse = await AxiosInstance.post("ClientInfo/GetClientAssets", logoBody, { responseType: "blob" });
-            if (logoResponse.data) {
-              const logoUrl = URL.createObjectURL(logoResponse.data);
-              setClientLogo(logoUrl);
+        if (companyKey) {
+          // Fetch company info from API
+          const companyInfoResponse = await AxiosInstance.get(`ClientInfo/GetClientInfo?clientIdentifier=${companyKey}`);
+          const companyInfo = companyInfoResponse.data;
+
+          if (companyInfo) {
+            // Fetch logo
+            if (companyInfo.logoId) {
+              const logoBody = {
+                photoId: companyInfo.logoId,
+                fileName: "logo",
+                extension: ".png",
+              };
+
+              const logoResponse = await AxiosInstance.post("ClientInfo/GetClientAssets", logoBody, { responseType: "blob" });
+              if (logoResponse.data) {
+                const logoUrl = URL.createObjectURL(logoResponse.data);
+                setClientLogo(logoUrl);
+              }
             }
-          }
 
-          // Fetch background image
-          if (companyInfo.resimId) {
-            const backgroundBody = {
-              photoId: companyInfo.resimId,
-              fileName: "background",
-              extension: ".png",
-            };
+            // Fetch background image
+            if (companyInfo.resimId) {
+              const backgroundBody = {
+                photoId: companyInfo.resimId,
+                fileName: "background",
+                extension: ".png",
+              };
 
-            const backgroundResponse = await AxiosInstance.post("ClientInfo/GetClientAssets", backgroundBody, { responseType: "blob" });
-            if (backgroundResponse.data) {
-              const backgroundUrl = URL.createObjectURL(backgroundResponse.data);
-              setBackgroundImage(backgroundUrl);
+              const backgroundResponse = await AxiosInstance.post("ClientInfo/GetClientAssets", backgroundBody, { responseType: "blob" });
+              if (backgroundResponse.data) {
+                const backgroundUrl = URL.createObjectURL(backgroundResponse.data);
+                setBackgroundImage(backgroundUrl);
+              }
             }
           }
         }

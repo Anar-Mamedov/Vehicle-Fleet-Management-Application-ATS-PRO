@@ -8,7 +8,16 @@ export function CompanyLogo() {
   useEffect(() => {
     const fetchClientLogo = async () => {
       try {
-        const companyInfo = JSON.parse(localStorage.getItem("companyInfo"));
+        const companyKey = localStorage.getItem("companyKey");
+        if (!companyKey) {
+          setLogoError(true);
+          return;
+        }
+
+        // Fetch company info from API
+        const companyResponse = await AxiosInstance.get(`ClientInfo/GetClientInfo?clientIdentifier=${companyKey}`);
+        const companyInfo = companyResponse.data;
+
         if (companyInfo && companyInfo.logoId) {
           const body = {
             photoId: companyInfo.logoId,
