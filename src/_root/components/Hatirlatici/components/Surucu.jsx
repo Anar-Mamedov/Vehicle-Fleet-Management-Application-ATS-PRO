@@ -161,7 +161,7 @@ const Surucu = () => {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      message.error("An error occurred while fetching data.");
+      // message.error("An error occurred while fetching data.");
     } finally {
       setLoading(false);
     }

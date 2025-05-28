@@ -79,7 +79,8 @@ const GeneralInfo = () => {
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
                   <label>{t("vitesTip")}</label>
-                  <Controller
+                  <KodIDSelectbox name1="vitesTipi" kodID={902} isRequired={false} />
+                  {/* <Controller
                     name="tvitesTipi"
                     control={control}
                     render={({ field }) => (
@@ -93,7 +94,7 @@ const GeneralInfo = () => {
                         onChange={(e) => field.onChange(e)}
                       />
                     )}
-                  />
+                  /> */}
                 </div>
               </div>
               <div className="col-span-4">

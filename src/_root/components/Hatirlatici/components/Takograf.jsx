@@ -108,7 +108,7 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const Kiralama = () => {
+const Takograf = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -142,7 +142,7 @@ const Kiralama = () => {
         currentSetPointId = 0;
       }
 
-      const response = await AxiosInstance.get(`VehicleRentalReminder/GetVehicleRentalReminderList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
+      const response = await AxiosInstance.get(`VehicleInfosReminder/GetVehicleTachographReminderList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
 
       const total = response.data.recordCount;
       setTotalCount(total);
@@ -216,105 +216,64 @@ const Kiralama = () => {
       ellipsis: true,
       visible: true,
       render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
-      sorter: (a, b) => {
-        if (a.plaka === null) return -1;
-        if (b.plaka === null) return 1;
-        return a.plaka.localeCompare(b.plaka);
-      },
+      sorter: (a, b) => a.plaka?.localeCompare(b.plaka) || 0,
     },
-
-    {
-      title: t("lokasyon"),
-      dataIndex: "lokasyon",
-      key: "lokasyon",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.lokasyon === null) return -1;
-        if (b.lokasyon === null) return 1;
-        return a.lokasyon.localeCompare(b.lokasyon);
-      },
-    },
-
     {
       title: t("marka"),
       dataIndex: "marka",
       key: "marka",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.marka === null) return -1;
-        if (b.marka === null) return 1;
-        return a.marka.localeCompare(b.marka);
-      },
+      visible: true,
+      sorter: (a, b) => a.marka?.localeCompare(b.marka) || 0,
     },
-
     {
       title: t("model"),
       dataIndex: "model",
       key: "model",
-      width: 190,
+      width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.model === null) return -1;
-        if (b.model === null) return 1;
-        return a.model.localeCompare(b.model);
-      },
+      visible: true,
+      sorter: (a, b) => a.model?.localeCompare(b.model) || 0,
     },
-
     {
-      title: t("kalanSure"),
-      dataIndex: "kalanSure",
-      key: "kalanSure",
-      width: 120,
+      title: t("lokasyon"),
+      dataIndex: "lokasyon",
+      key: "lokasyon",
+      width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-      sorter: (a, b) => {
-        if (a.kalanSure === null) return -1;
-        if (b.kalanSure === null) return 1;
-        return a.kalanSure - b.kalanSure;
-      },
+      visible: true,
+      sorter: (a, b) => a.lokasyon?.localeCompare(b.lokasyon) || 0,
     },
-
     {
-      title: t("krediBitisTarihi"),
-      dataIndex: "krediBitisTarih",
-      key: "krediBitisTarih",
-      width: 110,
+      title: t("surucu"),
+      dataIndex: "surucu",
+      key: "surucu",
+      width: 130,
       ellipsis: true,
-      sorter: (a, b) => {
-        if (a.krediBitisTarih === null) return -1;
-        if (b.krediBitisTarih === null) return 1;
-        return a.krediBitisTarih.localeCompare(b.krediBitisTarih);
-      },
-
-      visible: true, // Varsayılan olarak açık
+      visible: true,
+      sorter: (a, b) => a.surucu?.localeCompare(b.surucu) || 0,
+    },
+    {
+      title: t("takografTarih"),
+      dataIndex: "takografTarih",
+      key: "takografTarih",
+      width: 150,
+      ellipsis: true,
+      visible: true,
       render: (text) => formatDate(text),
+      sorter: (a, b) => new Date(a.takografTarih) - new Date(b.takografTarih),
     },
-
     {
-      title: t("krediIlkOdemeTarihi"),
-      dataIndex: "krediIlkOdemeTarih",
-      key: "krediIlkOdemeTarih",
-      width: 110,
+      title: t("kayitTarih"),
+      dataIndex: "kayitTarih",
+      key: "kayitTarih",
+      width: 150,
       ellipsis: true,
-      sorter: (a, b) => {
-        if (a.krediIlkOdemeTarih === null) return -1;
-        if (b.krediIlkOdemeTarih === null) return 1;
-        return a.krediIlkOdemeTarih.localeCompare(b.krediIlkOdemeTarih);
-      },
-
-      visible: true, // Varsayılan olarak açık
+      visible: true,
       render: (text) => formatDate(text),
+      sorter: (a, b) => new Date(a.kayitTarih) - new Date(b.kayitTarih),
     },
-
-    // Add other columns as needed
   ];
 
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için
@@ -390,9 +349,9 @@ const Kiralama = () => {
 
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
-    const savedOrder = localStorage.getItem("columnOrderKiralama");
-    const savedVisibility = localStorage.getItem("columnVisibilityKiralama");
-    const savedWidths = localStorage.getItem("columnWidthsKiralama");
+    const savedOrder = localStorage.getItem("columnOrderTakograf");
+    const savedVisibility = localStorage.getItem("columnVisibilityTakograf");
+    const savedWidths = localStorage.getItem("columnWidthsTakograf");
 
     let order = savedOrder ? JSON.parse(savedOrder) : [];
     let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
@@ -410,9 +369,9 @@ const Kiralama = () => {
       }
     });
 
-    localStorage.setItem("columnOrderKiralama", JSON.stringify(order));
-    localStorage.setItem("columnVisibilityKiralama", JSON.stringify(visibility));
-    localStorage.setItem("columnWidthsKiralama", JSON.stringify(widths));
+    localStorage.setItem("columnOrderTakograf", JSON.stringify(order));
+    localStorage.setItem("columnVisibilityTakograf", JSON.stringify(visibility));
+    localStorage.setItem("columnWidthsTakograf", JSON.stringify(widths));
 
     return order.map((key) => {
       const column = initialColumns.find((col) => col.key === key);
@@ -422,9 +381,9 @@ const Kiralama = () => {
 
   // Save columns to localStorage
   useEffect(() => {
-    localStorage.setItem("columnOrderKiralama", JSON.stringify(columns.map((col) => col.key)));
+    localStorage.setItem("columnOrderTakograf", JSON.stringify(columns.map((col) => col.key)));
     localStorage.setItem(
-      "columnVisibilityKiralama",
+      "columnVisibilityTakograf",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -436,7 +395,7 @@ const Kiralama = () => {
       )
     );
     localStorage.setItem(
-      "columnWidthsKiralama",
+      "columnWidthsTakograf",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -501,9 +460,9 @@ const Kiralama = () => {
 
   // Reset columns
   const resetColumns = () => {
-    localStorage.removeItem("columnOrderKiralama");
-    localStorage.removeItem("columnVisibilityKiralama");
-    localStorage.removeItem("columnWidthsKiralama");
+    localStorage.removeItem("columnOrderTakograf");
+    localStorage.removeItem("columnVisibilityTakograf");
+    localStorage.removeItem("columnWidthsTakograf");
     window.location.reload();
   };
 
@@ -654,4 +613,4 @@ const Kiralama = () => {
   );
 };
 
-export default Kiralama;
+export default Takograf;
