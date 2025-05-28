@@ -14,6 +14,7 @@ import Muayene from "./components/Muayene";
 import Sozlesme from "./components/Sozlesme";
 import Egzoz from "./components/Egzoz";
 import PeriyodikBakim from "./components/PeriyodikBakim";
+import Takograf from "./components/Takograf";
 import { FormProvider, useForm } from "react-hook-form";
 
 const { Text } = Typography;
@@ -332,6 +333,22 @@ const Hatirlatici = ({ data, getHatirlatici, loading, data1, getHatirlatici1 }) 
               }}
             >
               {data?.periyodikBakimHatirlaticiSayisi}
+            </Text>
+          </Row>
+          <Row onClick={() => handleRowClick("Takograf", <Takograf />)}>
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px" }}>
+              <Indicator style={{ backgroundColor: "#6a0ea8" }} />
+              <Text>Takograf</Text>
+            </div>
+            <Text
+              style={{
+                borderRadius: "8px 8px 8px 8px",
+                padding: "1px 7px",
+                backgroundColor: "rgba(106, 14, 168, 0.35)",
+                color: "#6a0ea8",
+              }}
+            >
+              {data?.aracTakografHatirlaticiSayisi}
             </Text>
           </Row>
         </div>

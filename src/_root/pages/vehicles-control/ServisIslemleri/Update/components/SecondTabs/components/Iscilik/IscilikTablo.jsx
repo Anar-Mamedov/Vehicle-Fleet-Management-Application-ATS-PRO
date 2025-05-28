@@ -212,7 +212,7 @@ export default function KontrolListesiTablo({ isActive }) {
               setSelectedRowsData([]);
             }}
           />
-          <CreateModal onRefresh={refreshTable} secilenKayitID={secilenKayitID} plaka={plaka} aracID={aracID} />
+          <CreateModal kdvOran={watch("kdvOran")} onRefresh={refreshTable} secilenKayitID={secilenKayitID} plaka={plaka} aracID={aracID} />
         </div>
       </div>
 

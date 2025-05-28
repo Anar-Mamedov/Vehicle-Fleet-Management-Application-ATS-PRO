@@ -188,6 +188,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("ozelAlan11", item.ozelAlan11);
           setValue("ozelAlan12", item.ozelAlan12);
           setValue("isRecordSeen", item.isRecordSeen);
+          setValue("kdvOran", item.kdvOran);
           // ... Diğer setValue çağrıları
 
           setLoading(false); // Yükleme tamamlandığında

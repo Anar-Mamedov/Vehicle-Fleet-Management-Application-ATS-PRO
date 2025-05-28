@@ -284,7 +284,8 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setValue("aracRenkId", res?.data.aracRenkId ? res?.data.aracRenkId : null);
         setValue("renk", res?.data.renk);
         setValue("yil", res?.data.yil);
-        setValue("tvitesTipi", res.data.tvitesTipi);
+        setValue("vitesTipiID", res.data.vitesTipiKodId);
+        setValue("vitesTipi", res.data.vitesTipi);
         setValue("aciklama", res?.data.aciklama);
         setValue("aracGrubuId", res?.data.aracGrubuId ? res?.data.aracGrubuId : null);
         setValue("grup", res?.data.grup);
@@ -370,7 +371,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       departmanId: values.departmanId || 0,
       surucuId: values.surucuId || 0,
       bagliAracId: values.bagliAracId || 0,
-      tvitesTipi: values.tvitesTipi,
+      vitesTipiKodId: values.vitesTipiID,
       yedekAnahtarKodId: values.yedekAnahtarKodId || 0,
       hgsNo: values.hgsNo,
       muayeneTarih: values?.muayeneTarih ? dayjs(values?.muayeneTarih).format("YYYY-MM-DD") : null,
