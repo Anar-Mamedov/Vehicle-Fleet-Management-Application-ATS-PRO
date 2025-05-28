@@ -9,7 +9,7 @@ import Textarea from "../../../../components/form/inputs/Textarea";
 import TextInput from "../../../../components/form/inputs/TextInput";
 import RecordDateInput from "../components/ContextMenu/components/RecordDateInput";
 import DateInput from "../components/ContextMenu/components/DateInput";
-import ClockInput from "../components/ContextMenu/components/ClockInput";
+import TimeInput from "../../../../components/form/date/TimeInput";
 import CodeControl from "../../../../components/form/selects/CodeControl";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import Guzergah from "../../../../components/form/selects/Guzergah";
@@ -60,25 +60,16 @@ const GeneralInfo = ({ isValid }) => {
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
-                <label>{t("girisTarih-Saat")}</label>
-                <div className="flex gap-2">
-                  <DateInput name="girisTarih" />
-                  <ClockInput name="girisSaat" />
-                </div>
-              </div>
-            </div>
-            <div className="col-span-3">
-              <div className="flex flex-col gap-1">
                 <label>{t("girisYeri")}</label>
                   <GirisYeri name="girisYeriKodId" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
-                <label>{t("cikisTarih-Saat")}</label>
+                <label>{t("girisTarih-Saat")}</label>
                 <div className="flex gap-2">
-                  <DateInput name="cikisTarih"  />
-                  <ClockInput name="cikisSaat" />
+                  <DateInput name="girisTarih" />
+                  <TimeInput name="girisSaat" />
                 </div>
               </div>
             </div>
@@ -86,6 +77,15 @@ const GeneralInfo = ({ isValid }) => {
               <div className="flex flex-col gap-1">
                 <label>{t("cikisYeri")}</label>
                   <CikisYeri name="cikisYeriKodId" />
+              </div>
+            </div>
+            <div className="col-span-3">
+              <div className="flex flex-col gap-1">
+                <label>{t("cikisTarih-Saat")}</label>
+                <div className="flex gap-2">
+                  <DateInput name="cikisTarih"  />
+                  <TimeInput name="cikisSaat" />
+                </div>
               </div>
             </div>
             <div className="col-span-3">
