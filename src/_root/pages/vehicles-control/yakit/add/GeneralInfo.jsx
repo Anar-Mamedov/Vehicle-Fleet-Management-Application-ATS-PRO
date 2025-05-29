@@ -16,6 +16,7 @@ import {
 } from "../../../../../api/services/vehicles/yakit/services";
 import { UpdateVehicleDetailsInfoService } from "../../../../../api/services/vehicles/vehicles/services";
 import Plaka from "../../../../components/form/selects/Plaka";
+import PlakaGetValueFromProp from "../../../../components/form/selects/PlakaGetValueFromProp";
 import Driver from "../../../../components/form/selects/Driver";
 import MaterialType from "../../../../components/form/selects/MaterialType";
 import CheckboxInput from "../../../../components/form/checkbox/CheckboxInput";
@@ -41,7 +42,7 @@ const getDecimalSeparator = () => {
   }
 };
 
-const GeneralInfo = ({ setIsValid, response, setResponse }) => {
+const GeneralInfo = ({ setIsValid, response, setResponse, selectedRow = null }) => {
   const [, contextHolder] = message.useMessage();
   const { control, setValue, watch } = useFormContext();
   const { data, history, setHistory } = useContext(PlakaContext);
@@ -55,6 +56,8 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [selectedYakitTipId, setSelectedYakitTipId] = useState(null);
 
+  console.log("Anar", selectedRow);
+
   // ------------------------------------------------------------------
   // 1) PLAKA GELDİĞİNDE YAKIT TİPİ, TARİH, SAAT, etc. HAZIRLA
   // ------------------------------------------------------------------
@@ -67,7 +70,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
       fetchData();
     } else {
       // Sadece son 3 yakıt kaydını çek
-      GetLastThreeFuelRecordService(data.aracId, dayjs(watch("tarih")).format("YYYY-MM-DD"), dayjs(watch("saat")).format("HH:mm:ss")).then((res) => setHistory(res.data));
+      GetLastThreeFuelRecordService(watch("aracId"), dayjs(watch("tarih")).format("YYYY-MM-DD"), dayjs(watch("saat")).format("HH:mm:ss")).then((res) => setHistory(res.data));
     }
   }, [data]);
 
@@ -279,12 +282,12 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   // ------------------------------------------------------------------
   const validateLog = () => {
     const body = {
-      aracId: data.aracId,
+      aracId: watch("aracId"),
       tarih: dayjs(watch("tarih")).format("YYYY-MM-DD"),
       saat: dayjs(watch("saat")).format("HH:mm:ss"),
       alinanKm: watch("alinanKm"),
       kmLog: {
-        kmAracId: data.aracId,
+        kmAracId: watch("aracId"),
         plaka: data.plaka,
         tarih: dayjs(watch("tarih")).format("YYYY-MM-DD"),
         saat: dayjs(watch("saat")).format("HH:mm:ss"),
@@ -367,7 +370,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   // ------------------------------------------------------------------
   const updateDepoHacmi = () => {
     const body = {
-      dtyAracId: data.aracId,
+      dtyAracId: watch("aracId"),
       tyakitHacmi: watch("yakitHacmi"),
     };
 
@@ -383,7 +386,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   // ------------------------------------------------------------------
   const fetchData = () => {
     const body = {
-      aracId: data.aracId,
+      aracId: watch("aracId"),
       tarih: dayjs(watch("tarih")).format("YYYY-MM-DD"),
       saat: dayjs(watch("saat")).format("HH:mm:ss"),
     };
@@ -397,7 +400,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
       // Çünkü artık bu hesaplamayı onChange'lerde yapıyoruz.
     });
 
-    GetLastThreeFuelRecordService(data.aracId, dayjs(watch("tarih")).format("YYYY-MM-DD"), dayjs(watch("saat")).format("HH:mm:ss")).then((res) => setHistory(res.data));
+    GetLastThreeFuelRecordService(watch("aracId"), dayjs(watch("tarih")).format("YYYY-MM-DD"), dayjs(watch("saat")).format("HH:mm:ss")).then((res) => setHistory(res.data));
   };
 
   // ------------------------------------------------------------------
@@ -435,7 +438,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                 <label htmlFor="plaka">
                   {t("plaka")} <span className="text-danger">*</span>
                 </label>
-                <Plaka required={true} />
+                {selectedRow ? <PlakaGetValueFromProp selectedRow={selectedRow} required={true} /> : <Plaka required={true} />}
               </div>
             </div>
             {/* --- Sürücü --- */}

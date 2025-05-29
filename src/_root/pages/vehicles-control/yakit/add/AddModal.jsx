@@ -10,7 +10,7 @@ import { AddFuelService, GetFuelCardContentByIdService, GetMaterialPriceService 
 import GeneralInfo from "./GeneralInfo";
 import PersonalFields from "../../../../components/form/personal-fields/PersonalFields";
 
-const AddModal = ({ setStatus, onRefresh }) => {
+const AddModal = ({ setStatus, onRefresh, seferId = null, selectedRow = null }) => {
   const { data, plaka, setPlaka, setData, setHistory } = useContext(PlakaContext);
 
   const [openModal, setopenModal] = useState(false);
@@ -223,6 +223,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     };
 
     const body = {
+      ...(seferId !== null && { SeferSirano: seferId }),
       aracId: data.aracId,
       plaka: data.plaka,
       tarih: dayjs(values.tarih).format("YYYY-MM-DD") || null,
@@ -341,7 +342,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     {
       key: "1",
       label: "Genel Bilgiler",
-      children: <GeneralInfo setIsValid={setIsValid} response={response} setResponse={setResponse} />,
+      children: <GeneralInfo selectedRow={selectedRow} setIsValid={setIsValid} response={response} setResponse={setResponse} />,
     },
     {
       key: "2",
