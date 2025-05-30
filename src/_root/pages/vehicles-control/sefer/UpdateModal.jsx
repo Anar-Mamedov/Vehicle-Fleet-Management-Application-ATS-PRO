@@ -242,10 +242,10 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     }
   };
 
-  useEffect(() => {
+  /*   useEffect(() => {
     setValue("surucuId1", data.surucuId);
     setValue("surucu1", data.surucuAdi);
-  }, [data]);
+  }, [data]); */
 
   // Add this useEffect to trigger re-render
   useEffect(() => {
