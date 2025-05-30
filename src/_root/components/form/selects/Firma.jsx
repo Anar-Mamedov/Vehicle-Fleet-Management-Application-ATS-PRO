@@ -1,22 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
-import { Select } from "antd";
+import { Select, Spin } from "antd";
 import { CodeControlByUrlService } from "../../../../api/services/code/services";
 
 const Firma = ({ name, codeName, checked, required }) => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { setValue, watch, control } = useFormContext();
 
-  const handleClick = () => {
-    CodeControlByUrlService("Company/GetCompanyListForSelectInput?isInsurance=true").then((res) => {
-      setData(res?.data);
-    });
-  };
+  const fetchData = useCallback(() => {
+    setLoading(true);
+    CodeControlByUrlService("Company/GetCompanyListForSelectInput?isInsurance=true")
+      .then((res) => {
+        setData(res?.data || []);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <Controller
-      name={codeName ? codeName : "firmaId"}
+      name={codeName || "firmaId"}
       control={control}
       rules={{ required: required ? "Bu alan boş bırakılamaz!" : false }}
       render={({ field, fieldState }) => (
@@ -25,33 +31,42 @@ const Firma = ({ name, codeName, checked, required }) => {
             {...field}
             showSearch
             allowClear
+            disabled={checked}
             optionFilterProp="children"
             className={fieldState.error ? "input-error" : ""}
-            disabled={checked}
             filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
-            filterSort={(optionA, optionB) => (optionA?.label.toLowerCase() ?? "").localeCompare(optionB?.label.toLowerCase() ?? "")}
+            filterSort={(a, b) => (a?.label.toLowerCase() ?? "").localeCompare(b?.label.toLowerCase() ?? "")}
             options={data.map((item) => ({
               label: item.unvan,
               value: item.firmaId,
             }))}
+            dropdownRender={(menu) =>
+              loading ? (
+                <div style={{ textAlign: "center", padding: 8 }}>
+                  <Spin size="small" />
+                </div>
+              ) : (
+                menu
+              )
+            }
             value={name ? watch(name) : watch("unvan")}
-            onClick={handleClick}
-            onChange={(e) => {
-              field.onChange(e);
-              if (e === undefined) {
+            onDropdownVisibleChange={(open) => {
+              if (open) {
+                fetchData();
+              }
+            }}
+            onChange={(value) => {
+              field.onChange(value);
+              if (value === undefined) {
                 setValue("tedarikciKod", "");
                 setValue("unvan", "");
-                const selectedOption = data.find((option) => option.firmaId === e);
-                if (!selectedOption) {
-                  name ? setValue(name, "") : setValue("unvan", "");
-                }
+                name ? setValue(name, "") : setValue("unvan", "");
               } else {
-                const selectedOption = data.find((option) => option.firmaId === e);
-                if (selectedOption) {
-                  setValue("tedarikciKod", selectedOption.kod);
-                  setValue("unvan", selectedOption.unvan);
-
-                  name ? setValue(name, selectedOption.unvan) : setValue("unvan", selectedOption.unvan);
+                const selected = data.find((opt) => opt.firmaId === value);
+                if (selected) {
+                  setValue("tedarikciKod", selected.kod);
+                  setValue("unvan", selected.unvan);
+                  name ? setValue(name, selected.unvan) : setValue("unvan", selected.unvan);
                 }
               }
             }}
