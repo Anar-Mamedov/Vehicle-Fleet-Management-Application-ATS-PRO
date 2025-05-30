@@ -141,7 +141,7 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const Sigorta = () => {
+const Sigorta = ({ seferId = null, isSefer = false, tableHeight = null, selectedRow = null }) => {
   const formMethods = useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
@@ -184,8 +184,15 @@ const Sigorta = () => {
       }
 
       // Determine what to send for customfilters
-
-      const response = await AxiosInstance.post(`Expenses/GetExpensesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, body.filters?.customfilter || {});
+      let response;
+      if (isSefer) {
+        response = await AxiosInstance.post(
+          `Expenses/GetExpensesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&expeditionId=${seferId}`,
+          body.filters?.customfilter || {}
+        );
+      } else {
+        response = await AxiosInstance.post(`Expenses/GetExpensesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, body.filters?.customfilter || {});
+      }
 
       const total = response.data.recordCount;
       setTotalCount(total);
@@ -212,7 +219,6 @@ const Sigorta = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -220,7 +226,6 @@ const Sigorta = () => {
       fetchData(0, 1);
       prevBodyRef.current = body;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [body]);
 
   const prevBodyRef = useRef(body);
@@ -258,7 +263,6 @@ const Sigorta = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
@@ -668,60 +672,105 @@ const Sigorta = () => {
             </div>
           </Modal>
           {/* Toolbar */}
-          <div
-            style={{
-              backgroundColor: "white",
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "space-between",
-              marginBottom: "15px",
-              gap: "10px",
-              padding: "15px",
-              borderRadius: "8px 8px 8px 8px",
-              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
-            }}
-          >
+
+          {isSefer ? (
             <div
               style={{
                 display: "flex",
-                gap: "10px",
-                alignItems: "center",
-                width: "100%",
-                maxWidth: "935px",
                 flexWrap: "wrap",
+                justifyContent: "space-between",
+                gap: "10px",
+                padding: "0px 10px 0 10px",
               }}
             >
-              <StyledButton onClick={() => setIsModalVisible(true)}>
-                <MenuOutlined />
-              </StyledButton>
-              <Input
-                style={{ width: "250px" }}
-                type="text"
-                placeholder="Arama yap..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onPressEnter={handleSearch}
-                // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
-                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
-              />
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  width: "100%",
+                  maxWidth: "935px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <StyledButton onClick={() => setIsModalVisible(true)}>
+                  <MenuOutlined />
+                </StyledButton>
+                <Input
+                  style={{ width: "250px" }}
+                  type="text"
+                  placeholder="Arama yap..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onPressEnter={handleSearch}
+                  // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
+                  suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+                />
 
-              <Filters onChange={handleBodyChange} />
-              {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
-              {/* Other toolbar components */}
+                <Filters onChange={handleBodyChange} />
+                {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
+                {/* Other toolbar components */}
+              </div>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+                <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} seferId={seferId} selectedRow={selectedRow} />
+              </div>
             </div>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-              <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+          ) : (
+            <div
+              style={{
+                backgroundColor: "white",
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "space-between",
+                marginBottom: "15px",
+                gap: "10px",
+                padding: "15px",
+                borderRadius: "8px 8px 8px 8px",
+                filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  width: "100%",
+                  maxWidth: "935px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <StyledButton onClick={() => setIsModalVisible(true)}>
+                  <MenuOutlined />
+                </StyledButton>
+                <Input
+                  style={{ width: "250px" }}
+                  type="text"
+                  placeholder="Arama yap..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onPressEnter={handleSearch}
+                  // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
+                  suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+                />
+
+                <Filters onChange={handleBodyChange} />
+                {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
+                {/* Other toolbar components */}
+              </div>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+                <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+              </div>
             </div>
-          </div>
+          )}
           {/* Table */}
           <div
             style={{
               backgroundColor: "white",
               padding: "10px",
-              height: "calc(100vh - 200px)",
+              height: isSefer ? undefined : "calc(100vh - 200px)",
               borderRadius: "8px 8px 8px 8px",
-              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
             }}
           >
             <Spin spinning={loading}>
@@ -739,7 +788,7 @@ const Sigorta = () => {
                   showQuickJumper: true,
                   onChange: handleTableChange,
                 }}
-                scroll={{ y: "calc(100vh - 335px)" }}
+                scroll={{ y: tableHeight ? tableHeight : "calc(100vh - 335px)" }}
               />
             </Spin>
             <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} />

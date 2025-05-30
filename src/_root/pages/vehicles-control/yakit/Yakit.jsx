@@ -3,7 +3,7 @@ import AxiosInstance from "../../../../api/http";
 import { message, Spin } from "antd";
 import AraclarTablo from "./YakitTablo";
 
-function Vehicles() {
+function Vehicles({ seferId = null, isSefer = false, tableHeight = null, selectedRow = null }) {
   const [customFields, setCustomFields] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -33,7 +33,7 @@ function Vehicles() {
           <Spin size="large" />
         </div>
       ) : (
-        <AraclarTablo customFields={customFields || {}} />
+        <AraclarTablo customFields={customFields || {}} seferId={seferId} isSefer={isSefer} tableHeight={tableHeight} selectedRow={selectedRow} />
       )}
     </div>
   );

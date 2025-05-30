@@ -6,31 +6,53 @@ import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetFuelCardContentByIdService } from "../../../../api/services/vehicles/yakit/services";
 import { CodeControlByUrlService } from "../../../../api/services/code/services";
 
-const Plaka = ({ name, codeName, required, onSubmit }) => {
+const Plaka = ({ name, codeName, required, onSubmit, selectedRow = null }) => {
   const { plaka, setData } = useContext(PlakaContext);
   const { setValue, control, watch } = useFormContext();
   const [plateList, setPlateList] = useState([]);
 
   useEffect(() => {
-    const aracId = watch("aracId");
-    if (aracId) {
-      GetFuelCardContentByIdService(aracId).then((res) => {
+    // plaka mutlaka array mi? Kontrol edelim
+    if (Array.isArray(plaka) && plaka.length === 1) {
+      GetFuelCardContentByIdService(plaka[0].id).then((res) => {
         setData(res.data);
       });
     }
-  }, [watch("aracId"), setData]);
+  }, [plaka, setData]);
+
+  // Auto-fetch and auto-select when selectedRow is provided
+  useEffect(() => {
+    if (selectedRow && selectedRow.plaka) {
+      (async () => {
+        const res = await CodeControlByUrlService("Vehicle/GetVehiclePlates");
+        const updatedData = res.data.map((item) => ("aracId" in item && "plaka" in item ? { ...item, id: item.aracId } : item));
+        const filteredData = updatedData.filter((item) => item.plaka === selectedRow.plaka);
+        setPlateList(filteredData);
+        const idField = codeName ? codeName : "plaka";
+        setValue(idField, filteredData[0]?.id);
+        setValue("aracId", filteredData[0]?.id);
+        if (name) setValue(name, filteredData[0]?.plaka);
+        if (filteredData[0]) {
+          // Automatically fetch fuel card content for the selected plate
+          const fuelRes = await GetFuelCardContentByIdService(filteredData[0].id);
+          setData(fuelRes.data);
+          // Call onSubmit with fetched data
+          if (onSubmit && typeof onSubmit === "function") {
+            onSubmit(fuelRes.data);
+          }
+        }
+      })();
+    }
+  }, [selectedRow, codeName, name, setValue, onSubmit]);
 
   const handleChange = (e) => {
-    const aracId = watch("aracId");
-    if (aracId) {
-      GetFuelCardContentByIdService(aracId).then((res) => {
-        setData(res.data);
-        // If onSubmit is provided, call it with the response data
-        if (onSubmit && typeof onSubmit === "function") {
-          onSubmit(res.data);
-        }
-      });
-    }
+    GetFuelCardContentByIdService(e).then((res) => {
+      setData(res.data);
+      // If onSubmit is provided, call it with the response data
+      if (onSubmit && typeof onSubmit === "function") {
+        onSubmit(res.data);
+      }
+    });
     setValue("aracId", e);
   };
 
@@ -47,7 +69,9 @@ const Plaka = ({ name, codeName, required, onSubmit }) => {
         }
         return item;
       });
-      setPlateList(updatedData);
+      // Filter by selectedRow.plaka if provided
+      const filteredData = selectedRow && selectedRow.plaka ? updatedData.filter((item) => item.plaka === selectedRow.plaka) : updatedData;
+      setPlateList(filteredData);
     }
   };
 
@@ -123,7 +147,7 @@ const Plaka = ({ name, codeName, required, onSubmit }) => {
                 }
               }}
               // plaka tek elemanlı bir array ise disabled olsun
-              disabled={Array.isArray(plaka) && plakaArray.length === 1}
+              disabled={(Array.isArray(plaka) && plakaArray.length === 1) || !!selectedRow}
             />
             {fieldState.error && <span style={{ color: "red" }}>{fieldState.error.message}</span>}
           </>

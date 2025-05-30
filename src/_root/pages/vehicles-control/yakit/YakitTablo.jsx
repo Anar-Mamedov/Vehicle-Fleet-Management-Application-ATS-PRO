@@ -180,7 +180,7 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const Yakit = ({ customFields }) => {
+const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = null, selectedRow = null }) => {
   const { setPlaka } = useContext(PlakaContext);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
@@ -273,7 +273,15 @@ const Yakit = ({ customFields }) => {
 
       console.log("API request with filters:", customFilters);
 
-      const response = await AxiosInstance.post(`Fuel/GetFuelList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&pageSize=${currentSize}`, customFilters);
+      let response;
+      if (isSefer) {
+        response = await AxiosInstance.post(
+          `Fuel/GetFuelList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&pageSize=${currentSize}&expeditionId=${seferId}`,
+          customFilters
+        );
+      } else {
+        response = await AxiosInstance.post(`Fuel/GetFuelList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&pageSize=${currentSize}`, customFilters);
+      }
 
       // Continue with the same processing logic as fetchData
       if (currentFetchId !== lastFetchIdRef.current) {
@@ -1453,60 +1461,107 @@ const Yakit = ({ customFields }) => {
       </Modal>
       <FormProvider {...methods}>
         {/* Toolbar */}
-        <div
-          style={{
-            backgroundColor: "white",
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            marginBottom: "15px",
-            gap: "10px",
-            padding: "15px",
-            borderRadius: "8px 8px 8px 8px",
-            filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
-          }}
-        >
+        {isSefer ? (
           <div
             style={{
               display: "flex",
-              gap: "10px",
-              alignItems: "center",
-              // width: "100%",
-              // maxWidth: "935px",
               flexWrap: "wrap",
+              justifyContent: "space-between",
+              gap: "10px",
+              padding: "0px 10px 0 10px",
             }}
           >
-            <StyledButton onClick={() => setIsModalVisible(true)}>
-              <MenuOutlined />
-            </StyledButton>
-            <Input
-              style={{ width: "130px" }}
-              type="text"
-              placeholder="Arama yap..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onPressEnter={handleSearch}
-              // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
-              suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
-            />
-            <Filters onChange={handleBodyChange} />
-            {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
-            {/* Other toolbar components */}
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                alignItems: "center",
+                // width: "100%",
+                // maxWidth: "935px",
+                flexWrap: "wrap",
+              }}
+            >
+              <StyledButton onClick={() => setIsModalVisible(true)}>
+                <MenuOutlined />
+              </StyledButton>
+              <Input
+                style={{ width: "130px" }}
+                type="text"
+                placeholder="Arama yap..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onPressEnter={handleSearch}
+                // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
+                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+              />
+              <Filters onChange={handleBodyChange} />
+              {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
+              {/* Other toolbar components */}
+            </div>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
+                İndir
+              </Button>
+              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+              <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} seferId={seferId} selectedRow={selectedRow} />
+            </div>
           </div>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
-              İndir
-            </Button>
-            <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-            <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+        ) : (
+          <div
+            style={{
+              backgroundColor: "white",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              marginBottom: "15px",
+              gap: "10px",
+              padding: "15px",
+              borderRadius: "8px 8px 8px 8px",
+              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                alignItems: "center",
+                // width: "100%",
+                // maxWidth: "935px",
+                flexWrap: "wrap",
+              }}
+            >
+              <StyledButton onClick={() => setIsModalVisible(true)}>
+                <MenuOutlined />
+              </StyledButton>
+              <Input
+                style={{ width: "130px" }}
+                type="text"
+                placeholder="Arama yap..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onPressEnter={handleSearch}
+                // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
+                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+              />
+              <Filters onChange={handleBodyChange} />
+              {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
+              {/* Other toolbar components */}
+            </div>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
+                İndir
+              </Button>
+              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+              <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+            </div>
           </div>
-        </div>
+        )}
         {/* Table */}
         <div
           style={{
             backgroundColor: "white",
             padding: "10px",
-            height: "calc(100vh - 200px)",
+            height: isSefer ? undefined : "calc(100vh - 200px)",
             borderRadius: "8px 8px 8px 8px",
             // filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
           }}
@@ -1518,7 +1573,7 @@ const Yakit = ({ customFields }) => {
               columns={filteredColumns}
               dataSource={data}
               pagination={false}
-              scroll={{ y: "calc(100vh - 335px)" }}
+              scroll={{ y: tableHeight ? tableHeight : "calc(100vh - 335px)" }}
               onScroll={handleTableScroll}
               footer={tableFooter}
             />
