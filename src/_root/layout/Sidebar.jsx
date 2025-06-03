@@ -71,6 +71,10 @@ const Sidebar = () => {
           label: <Link to={"/ceza-islemleri"}>{t("cezalar")}</Link>,
         },
         {
+          key: "48ashjd6",
+          label: <Link to={"/kiralik-araclar"}>{t("kiralikAraclar")}</Link>,
+        },
+        {
           key: "121",
           label: <Link to={"/ekspertizler"}>{t("ekspertizler")}</Link>,
         },
@@ -250,51 +254,6 @@ const Sidebar = () => {
         {
           key: "55",
           label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
-        },
-        {
-          key: "56",
-          label: <Link to={"/lokasyon-tanimlari"}>{t("lokasyonlar")}</Link>,
-        },
-        {
-          key: "57",
-          label: <Link to={"/firma-tanimlari"}>{t("firma")}</Link>,
-        },
-        {
-          key: "58",
-          label: <Link to={"/surucu-tanimlari"}>{t("surucu")}</Link>,
-        },
-        {
-          key: "59",
-          label: <Link to={"/personel-tanimlari"}>{t("personel")}</Link>,
-        },
-        {
-          key: "60",
-          label: <Link to={"/servis-tanimlari"}>{t("servisTanimlari")}</Link>,
-        },
-        {
-          key: "61",
-          label: <Link to={"/guzergah-tanimlari"}>{t("guzergah")}</Link>,
-        },
-
-        {
-          key: "62",
-          label: <Link to={"/ceza-tanimlari"}>{t("cezaTanimlari")}</Link>,
-        },
-        {
-          key: "63",
-          label: <Link to={"/arac-marka-ve-model"}>{t("markaModel")}</Link>,
-        },
-        {
-          key: "64",
-          label: <Link to={"/sehir-tanimlari"}>{t("sehirTanimlari")}</Link>,
-        },
-        {
-          key: "65",
-          label: <Link to={"/is-kartlari"}>{t("isKartlari")}</Link>,
-        },
-        {
-          key: "66",
-          label: <Link to={"/hgs-gecis-ucretleri"}>{t("hgsGecisUcretleri")}</Link>,
         },
       ],
     },
