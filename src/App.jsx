@@ -13,6 +13,7 @@ import Kaza from "./_root/pages/vehicles-control/kaza/Kaza";
 import Harcama from "./_root/pages/vehicles-control/harcama/Harcama";
 import Ceza from "./_root/pages/vehicles-control/ceza/Ceza";
 import KmUpdate from "./_root/pages/vehicles-control/hizli-km/KmUpdate";
+import KiralikAraclar from "./_root/pages/vehicles-control/kiralikAraclar/KiralikAraclarTablo.jsx";
 // hgs islemleri
 import HgsİslemTakibi from "./_root/pages/HgsIslemleri/HgsIslemTakibi/HgsIslemTakibi.jsx";
 // yakit yonetimi
@@ -118,6 +119,7 @@ const App = () => {
         <Route index element={<Dashboard />} />
         {/* arac yonetimi */}
         <Route path="/araclar" element={<Vehicles />} />
+        <Route path="/kiralik-araclar" element={<KiralikAraclar/>} />
         <Route path="/hizli-km-guncelleme" element={<KmUpdate />} />
         <Route path="/yakit-islemleri" element={<Yakit />} />
         <Route path="/kod-yonetimi" element={<KodYonetimi />} />
