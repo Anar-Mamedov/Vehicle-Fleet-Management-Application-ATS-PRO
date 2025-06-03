@@ -327,6 +327,8 @@ const Yakit = ({ ayarlarData, customFields }) => {
   });
   const [xlsxLoading, setXlsxLoading] = useState(false);
 
+  console.log("arama işlemi", searchTerm);
+
   // Add this state to prevent duplicate requests
   const [isLoadingPage, setIsLoadingPage] = useState(false);
   // Add ref to track last fetch ID for deduplication
@@ -375,7 +377,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
   // Fixed page size options
   const pageSizeOptions = [20, 50, 100];
 
-  const fetchDataWithDurum = async (diff, targetPage, currentSize = pageSize, durumValue, forcedCustomFilters = null) => {
+  const fetchDataWithDurum = async (diff, targetPage, currentSize = pageSize, durumValue, forcedCustomFilters = null, searchParam = searchTerm) => {
     // Increment fetch ID to track this specific request
     const currentFetchId = lastFetchIdRef.current + 1;
     lastFetchIdRef.current = currentFetchId;
@@ -427,7 +429,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
       console.log("Calling API with customFilters:", customFilters);
 
       const response = await AxiosInstance.post(
-        `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${durumParam}&pageSize=${currentSize}`,
+        `Vehicle/GetVehicles?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchParam}&type=${durumParam}&pageSize=${currentSize}`,
         customFilters
       );
 
@@ -558,12 +560,11 @@ const Yakit = ({ ayarlarData, customFields }) => {
 
     setCurrentPage(1); // Reset to page 1 on new search
     // Eski veriyi tutuyoruz, yeni veri gelene kadar
-    fetchData(0, 1, pageSize, customFilters) // Pass current pageSize and filters
-      .finally(() => {
-        if (!infiniteScrollEnabled) {
-          setPaginationLoading(false);
-        }
-      });
+    fetchData(0, 1, pageSize, customFilters, searchTerm).finally(() => {
+      if (!infiniteScrollEnabled) {
+        setPaginationLoading(false);
+      }
+    });
   };
 
   // Updated handleTableChange for pagination
@@ -584,7 +585,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
       setPageSize(size);
       // Fetch data for the *first page* with the *new size*
       // setData([]) çağrısını kaldırdık, eski veriyi tutuyoruz
-      fetchData(0, 1, size, customFilters).finally(() => {
+      fetchData(0, 1, size, customFilters, searchTerm).finally(() => {
         if (!infiniteScrollEnabled) {
           setPaginationLoading(false);
         }
@@ -594,7 +595,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
       const diff = page - currentPage;
       setCurrentPage(page);
       // setData([]) çağrısını kaldırdık, eski veriyi tutuyoruz
-      fetchData(diff, page, pageSize, customFilters).finally(() => {
+      fetchData(diff, page, pageSize, customFilters, searchTerm).finally(() => {
         if (!infiniteScrollEnabled) {
           setPaginationLoading(false);
         }
@@ -625,7 +626,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
     setCurrentPage(1);
 
     // Fetch data with the new durum value and current filters
-    fetchDataWithDurum(0, 1, pageSize, apiValue, customFilters).finally(() => {
+    fetchDataWithDurum(0, 1, pageSize, apiValue, customFilters, searchTerm).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
@@ -705,13 +706,13 @@ const Yakit = ({ ayarlarData, customFields }) => {
       durumParam = durumParam === undefined || durumParam === null ? 0 : durumParam;
 
       // Eski veriyi tutuyoruz, yeni veri gelene kadar
-      fetchDataWithDurum(0, 1, pageSize, durumParam, customFilters).finally(() => {
+      fetchDataWithDurum(0, 1, pageSize, durumParam, customFilters, searchTerm).finally(() => {
         if (!infiniteScrollEnabled) {
           setPaginationLoading(false);
         }
       });
     },
-    [infiniteScrollEnabled, body, selectedDurum, pageSize]
+    [infiniteScrollEnabled, body, selectedDurum, pageSize, searchTerm] // searchTerm eklendi
   );
 
   // filtreleme işlemi için kullanılan useEffect

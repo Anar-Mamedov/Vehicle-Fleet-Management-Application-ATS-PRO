@@ -6,7 +6,7 @@ import { Controller, useForm, FormProvider } from "react-hook-form";
 import MainTabs from "./MainTabs/MainTabs";
 import dayjs from "dayjs";
 
-export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, secilenKayitID, plaka, aracID }) {
+export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, secilenKayitID, plaka, aracID, kdvOran }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const methods = useForm({
@@ -18,7 +18,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, s
       yapilanIsID: "",
       personel: "",
       personelID: "",
-      kdvOrani: 18,
+      kdvOrani: kdvOran,
       kdvDegeri: 0,
       iscilikUcreti: 0,
       indirimYuzde: 0,

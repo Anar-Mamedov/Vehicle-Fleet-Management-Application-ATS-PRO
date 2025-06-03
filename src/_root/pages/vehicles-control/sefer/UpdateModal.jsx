@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -13,6 +13,8 @@ import GeneralInfo from "./tabs/GeneralInfo";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import FileUpload from "../../../components/upload/FileUpload";
 import PhotoUpload from "../../../components/upload/PhotoUpload";
+import Yakit from "../yakit/Yakit";
+import Harcamalar from "../harcama/Harcama";
 
 const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const { data, plaka } = useContext(PlakaContext);
@@ -27,6 +29,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
   const [imageUrls, setImageUrls] = useState([]);
   const [loadingImages, setLoadingImages] = useState(false);
   const [images, setImages] = useState([]);
+  // Add this new state
+  const [yakitKey, setYakitKey] = useState(0);
+  const [harcamaKey, setHarcamaKey] = useState(0);
 
   const [fields, setFields] = useState([
     {
@@ -207,6 +212,13 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     }
   }, [selectedRow, drawerVisible]);
 
+  // Ensure the first tab is active whenever the modal opens
+  useEffect(() => {
+    if (drawerVisible) {
+      setActiveKey("1");
+    }
+  }, [drawerVisible]);
+
   const uploadFiles = () => {
     try {
       setLoadingFiles(true);
@@ -230,10 +242,20 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     }
   };
 
-  useEffect(() => {
+  /*   useEffect(() => {
     setValue("surucuId1", data.surucuId);
     setValue("surucu1", data.surucuAdi);
-  }, [data]);
+  }, [data]); */
+
+  // Add this useEffect to trigger re-render
+  useEffect(() => {
+    if (activeKey === "5") {
+      setYakitKey((prevKey) => prevKey + 1);
+    }
+    if (activeKey === "6") {
+      setHarcamaKey((prevKey) => prevKey + 1);
+    }
+  }, [activeKey]);
 
   const onSubmit = handleSubmit((values) => {
     const body = {
@@ -300,6 +322,16 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       key: "2",
       label: t("ozelAlanlar"),
       children: <PersonalFields personalProps={personalProps} />,
+    },
+    {
+      key: "5",
+      label: t("yakitGiderleri"),
+      children: <Yakit key={yakitKey} selectedRow={selectedRow} seferId={selectedRow?.key} isSefer={true} tableHeight="calc(100vh - 440px)" />,
+    },
+    {
+      key: "6",
+      label: t("harcamalar"),
+      children: <Harcamalar key={harcamaKey} selectedRow={selectedRow} seferId={selectedRow?.key} isSefer={true} tableHeight="calc(100vh - 440px)" />,
     },
     {
       key: "3",

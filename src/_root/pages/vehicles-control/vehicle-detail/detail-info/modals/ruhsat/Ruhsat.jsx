@@ -39,7 +39,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
     istiapHaddi: "",
     istiapHaddiBirim: "",
     istiapHaddiBirimKodId: 0,
-    tvitesTipi: null,
+    // tvitesTipi: null,
     koltukSayisi: "",
     kullanimAmaci: "",
     onayNo: "",
@@ -99,7 +99,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
       setValue("resmi", res?.data.resmi);
       setValue("romok", res?.data.romok);
       setValue("ruhsatSahibi", res?.data.ruhsatSahibi);
-      setValue("tvitesTipi", res.data.tvitesTipi);
+      // setValue("tvitesTipi", res.data.tvitesTipi);
       // setValue("ruhsatSahibiKodId", res?.data.ruhsatSahibiKodId);
       setValue("taksiMetre", res?.data.taksiMetre);
       setValue("tescilNo", res?.data.tescilNo);
@@ -132,7 +132,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
       istiapHaddiBirimKodId: values.istiapHaddiBirimKodId || 0,
       belgeSeriNo: values.belgeSeriNo,
       ticariAdi: values.ticariAdi,
-      tvitesTipi: values.tvitesTipi,
+      // tvitesTipi: values.tvitesTipi,
       aracSinifi: values.aracSinifi,
       koltukSayisi: values.koltukSayisi,
       ayaktaYolcuSayisi: values.ayaktaYolcuSayisi,
@@ -232,7 +232,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
                 </div>
               </div> */}
 
-              <div className="col-span-3">
+              {/*  <div className="col-span-3">
                 <div className="flex flex-col gap-1">
                   <label>{t("vitesTip")}</label>
                   <Controller
@@ -251,7 +251,7 @@ const Ruhsat = ({ visible, onClose, id }) => {
                     )}
                   />
                 </div>
-              </div>
+              </div> */}
               <div className="col-span-3">
                 <div className="flex flex-col gap-1">
                   <label>{t("ticariAdi")}</label>

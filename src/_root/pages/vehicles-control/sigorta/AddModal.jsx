@@ -118,7 +118,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       aciklama: values.aciklama,
       tutar: values.tutar || 0,
       policeNo: values.policeNo,
-      aktif: !values.aktif,
+      aktif: values.aktif,
       varsayilan: values.varsayilan,
       yetkili: values.yetkili,
       ruhsatBelgeSeriNo: values.ruhsatBelgeSeriNo,

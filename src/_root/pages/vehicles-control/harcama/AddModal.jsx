@@ -10,7 +10,7 @@ import { AddExpenseItemService } from "../../../../api/services/vehicles/operati
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import GeneralInfo from "./tabs/GeneralInfo";
 
-const AddModal = ({ setStatus, onRefresh }) => {
+const AddModal = ({ setStatus, onRefresh, seferId = null, selectedRow = null }) => {
   const { data, plaka, setPlaka } = useContext(PlakaContext);
   const [isOpen, setIsOpen] = useState(false);
   const [activeKey, setActiveKey] = useState("1");
@@ -95,7 +95,12 @@ const AddModal = ({ setStatus, onRefresh }) => {
     },
   ]);
 
-  const defaultValues = {};
+  const defaultValues = {
+    ...(selectedRow && {
+      aracId: selectedRow.aracId || 0,
+      plaka: selectedRow.plaka || "",
+    }),
+  };
   const methods = useForm({
     defaultValues: defaultValues,
   });
@@ -106,11 +111,15 @@ const AddModal = ({ setStatus, onRefresh }) => {
   useEffect(() => {
     if (isOpen) {
       reset();
+      if (selectedRow) {
+        setPlaka([selectedRow.plaka]);
+      }
     }
-  }, [isOpen, reset]);
+  }, [isOpen, reset, selectedRow]);
 
   const onSubmit = handleSubmit((values) => {
     const body = {
+      ...(seferId !== null && { SeferSirano: seferId }),
       aracId: data.aracId,
       tarih: dayjs(values.tarih).format("YYYY-MM-DD"),
       surucuId: values.surucuId || 0,
