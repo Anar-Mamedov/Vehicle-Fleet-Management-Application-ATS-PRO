@@ -158,6 +158,18 @@ function YapayZekayaSor({ selectedRows }) {
 
     const conversationHistory = buildCurrentConversationHistory();
 
+    // Web search talimatları
+    const webSearchInstructions = webSearchEnabled
+      ? `\n\n🌐 WEB ARAMA AKTİF: Bu soruyu yanıtlarken MUTLAKA güncel web bilgilerini araştır ve kullan. İnternetten en son bilgileri bul ve cevabına dahil et. Özellikle:
+- Güncel fiyat bilgileri
+- Son model araç özellikleri  
+- Yeni teknolojiler ve güncellemeler
+- Piyasa durumu ve karşılaştırmalar
+- Güncel servis bilgileri ve öneriler
+- Son çıkan haberler ve gelişmeler
+Web'den bulduğun bilgileri mutlaka belirt ve kaynaklarını göster.`
+      : `\n\n📚 YEREL BİLGİ MODU: Sadece mevcut araç bilgileri ve genel bilgilerle cevap ver.`;
+
     // Araç bilgilerini ve conversation history'yi prompt olarak hazırla
     const vehiclePrompt = vehicleData
       ? `Sen bir araç bilgisi asistanısın. Aşağıda araçla ilgili detaylı bilgiler verilmiştir. Bu bilgileri kullanarak kullanıcının sorularına cevap ver.
@@ -167,10 +179,16 @@ ${JSON.stringify(vehicleData, null, 2)}
 
 ${conversationHistory}
 
+${webSearchInstructions}
+
 Yeni Kullanıcı Sorusu: ${userMessage}
 
 Lütfen önceki sohbet geçmişini dikkate alarak tutarlı ve bağlamsal bir cevap ver.`
-      : `${conversationHistory}\n\nYeni Kullanıcı Sorusu: ${userMessage}`;
+      : `${conversationHistory}
+
+${webSearchInstructions}
+
+Yeni Kullanıcı Sorusu: ${userMessage}`;
 
     const payload = {
       language: "Turkish",
@@ -355,7 +373,11 @@ Lütfen önceki sohbet geçmişini dikkate alarak tutarlı ve bağlamsal bir cev
               rows={4}
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
-              placeholder="Araç hakkında soru sorun... (Önceki sohbetleriniz hatırlanır)"
+              placeholder={
+                webSearchEnabled
+                  ? "Araç hakkında soru sorun... (Web araması aktif - güncel bilgiler dahil edilecek)"
+                  : "Araç hakkında soru sorun... (Sadece mevcut bilgilerle yanıt verilecek)"
+              }
               onPressEnter={(e) => {
                 if (!e.shiftKey) {
                   e.preventDefault();
