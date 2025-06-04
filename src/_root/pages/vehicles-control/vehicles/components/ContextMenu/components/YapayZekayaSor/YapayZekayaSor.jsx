@@ -48,9 +48,6 @@ function YapayZekayaSor({ selectedRows }) {
   // Mesaj listesini otomatik kaydırmak için ref
   const messageListRef = useRef(null);
 
-  // Use environment variable for Gemini API key
-  const GEMINI = import.meta.env.VITE_APP_GEMINI;
-
   // Modal açıldığında araç bilgilerini çek ve sohbete başla
   const showModal = async () => {
     if (!selectedRows || !selectedRows.key) {
@@ -67,10 +64,12 @@ function YapayZekayaSor({ selectedRows }) {
       });
 
       setVehicleData(response.data);
+      setInitialLoading(false);
     } catch (error) {
       console.error("API Hatası:", error);
       AntMessage.error("Araç bilgileri yüklenirken bir hata oluştu.");
       setIsModalVisible(false);
+      setInitialLoading(false);
     }
   };
 
@@ -82,61 +81,48 @@ function YapayZekayaSor({ selectedRows }) {
     setVehicleData(null);
   };
 
-  useEffect(() => {
-    if (vehicleData) {
-      sendToGemini("Araç bilgileri: " + JSON.stringify(vehicleData));
-    }
-  }, [vehicleData]);
+  // Yeni AI API'ye mesaj gönderme fonksiyonu
+  const sendToAI = async (userMessage) => {
+    const AI_API_URL = "https://ai-chat-anar.vercel.app/translate/form";
 
-  // Google Gemini API'ye mesaj gönderme fonksiyonu
-  const sendToGemini = async (message) => {
-    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI}`;
+    // Araç bilgilerini prompt olarak hazırla
+    const vehiclePrompt = vehicleData
+      ? `Sen bir araç bilgisi asistanısın. Aşağıda araçla ilgili detaylı bilgiler verilmiştir. Bu bilgileri kullanarak kullanıcının sorularına cevap ver.
+
+Araç Bilgileri:
+${JSON.stringify(vehicleData, null, 2)}
+
+Kullanıcı Sorusu: ${userMessage}`
+      : userMessage;
+
+    const payload = {
+      language: "Turkish",
+      text: userMessage,
+      model: "gemini-2.0-flash",
+      promptTemplate: vehiclePrompt,
+    };
 
     try {
-      const response = await fetch(GEMINI_URL, {
+      const response = await fetch(AI_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: message,
-                },
-              ],
-            },
-          ],
-          systemInstruction: {
-            role: "system",
-            parts: [
-              {
-                text:
-                  "Sen bir araç bilgisi asistanısın. Aşağıda araçla ilgili detaylı bilgiler verilmiştir. Bu bilgileri kullanarak kullanıcının sorularına cevap ver. Kullanıcı bir soru sormasını bekle:\n" +
-                  JSON.stringify(vehicleData),
-              },
-            ],
-          },
-        }),
+        body: JSON.stringify(payload),
       });
 
-      if (response) {
-        setInitialLoading(false);
-      }
-
       if (!response.ok) {
-        throw new Error(`Google Gemini API Hatası: ${response.statusText}`);
+        throw new Error(`AI API Hatası: ${response.statusText}`);
       }
 
       const data = await response.json();
-      const geminiResponse = data.candidates[0].content.parts[0].text;
 
-      setMessages((prevMessages) => [...prevMessages, { sender: "bot", text: geminiResponse }]);
+      // API'den gelen yanıtı mesajlara ekle
+      const aiResponse = data.translation || data.translatedText || data.response || "Yanıt alınamadı.";
+      setMessages((prevMessages) => [...prevMessages, { sender: "bot", text: aiResponse }]);
     } catch (error) {
-      console.error("Gemini API Hatası:", error);
-      AntMessage.error("Google Gemini API ile iletişim kurulamadı.");
+      console.error("AI API Hatası:", error);
+      AntMessage.error("AI API ile iletişim kurulamadı.");
       setMessages((prevMessages) => [...prevMessages, { sender: "bot", text: "Bir hata oluştu. Lütfen tekrar deneyin." }]);
     }
   };
@@ -147,13 +133,14 @@ function YapayZekayaSor({ selectedRows }) {
 
     const newMessages = [...messages, { sender: "user", text: userInput }];
     setMessages(newMessages);
+    const currentInput = userInput;
     setUserInput("");
 
     // Yanıt beklerken loading aç
     setResponseLoading(true);
 
     try {
-      await sendToGemini(userInput);
+      await sendToAI(currentInput);
     } catch (error) {
       console.error("Mesaj gönderme sırasında hata:", error);
       setMessages((prev) => [...prev, { sender: "bot", text: "Bir hata oluştu. Lütfen tekrar deneyin." }]);
@@ -238,6 +225,7 @@ function YapayZekayaSor({ selectedRows }) {
         {initialLoading ? (
           <div style={{ textAlign: "center", marginBottom: "20px" }}>
             <Spin />
+            <div style={{ marginTop: "10px" }}>Araç bilgileri yükleniyor...</div>
           </div>
         ) : (
           <>
@@ -249,7 +237,7 @@ function YapayZekayaSor({ selectedRows }) {
               rows={4}
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
-              placeholder="Mesajınızı yazın..."
+              placeholder="Araç hakkında soru sorun..."
               onPressEnter={(e) => {
                 if (!e.shiftKey) {
                   e.preventDefault();
