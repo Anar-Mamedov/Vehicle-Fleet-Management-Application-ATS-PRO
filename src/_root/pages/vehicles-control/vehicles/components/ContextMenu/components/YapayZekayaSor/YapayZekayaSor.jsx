@@ -1,7 +1,7 @@
 // src/components/YapayZekayaSor.js
 
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Modal, Input, List, Typography, Divider, Spin, message as AntMessage, Table } from "antd";
+import { Button, Modal, Input, List, Typography, Divider, Spin, message as AntMessage, Table, Switch } from "antd";
 import AxiosInstance from "../../../../../../../../api/http";
 import { isMarkdownTable } from "./utils/isMarkdownTable";
 import { parseMarkdownTable } from "./utils/parseMarkdownTable";
@@ -45,8 +45,48 @@ function YapayZekayaSor({ selectedRows }) {
   // Yanıt beklerken (mesaj gönderdiğimizde) bekleme durumunu tutan state
   const [responseLoading, setResponseLoading] = useState(false);
 
+  // Web arama özelliğini kontrol eden switch durumu (varsayılan: false)
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
+
+  // Session ID - her araç için benzersiz
+  const [sessionId, setSessionId] = useState(null);
+
   // Mesaj listesini otomatik kaydırmak için ref
   const messageListRef = useRef(null);
+
+  // LocalStorage'dan mesaj geçmişini yükle
+  const loadChatHistory = (vehicleId) => {
+    try {
+      const storageKey = `ai_chat_${vehicleId}`;
+      const savedHistory = localStorage.getItem(storageKey);
+      if (savedHistory) {
+        const parsedHistory = JSON.parse(savedHistory);
+        setMessages(parsedHistory.messages || []);
+        setSessionId(parsedHistory.sessionId || `session_${vehicleId}_${Date.now()}`);
+      } else {
+        setSessionId(`session_${vehicleId}_${Date.now()}`);
+      }
+    } catch (error) {
+      console.error("Chat geçmişi yüklenirken hata:", error);
+      setSessionId(`session_${vehicleId}_${Date.now()}`);
+    }
+  };
+
+  // LocalStorage'a mesaj geçmişini kaydet
+  const saveChatHistory = (vehicleId, messagesData, sessionIdData) => {
+    try {
+      const storageKey = `ai_chat_${vehicleId}`;
+      const dataToSave = {
+        messages: messagesData,
+        sessionId: sessionIdData,
+        lastUpdated: new Date().toISOString(),
+        vehicleId: vehicleId,
+      };
+      localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+    } catch (error) {
+      console.error("Chat geçmişi kaydedilirken hata:", error);
+    }
+  };
 
   // Modal açıldığında araç bilgilerini çek ve sohbete başla
   const showModal = async () => {
@@ -64,6 +104,10 @@ function YapayZekayaSor({ selectedRows }) {
       });
 
       setVehicleData(response.data);
+
+      // Chat geçmişini yükle
+      loadChatHistory(selectedRows.key);
+
       setInitialLoading(false);
     } catch (error) {
       console.error("API Hatası:", error);
@@ -76,30 +120,65 @@ function YapayZekayaSor({ selectedRows }) {
   // Modal'ı kapatma fonksiyonu
   const handleCancel = () => {
     setIsModalVisible(false);
-    setMessages([]);
+    // Mesajları temizleme - artık geçmişi koruyoruz
+    // setMessages([]);
     setUserInput("");
     setVehicleData(null);
+    setWebSearchEnabled(false); // Switch'i de sıfırla
+  };
+
+  // Chat geçmişini temizleme fonksiyonu
+  const clearChatHistory = () => {
+    if (selectedRows?.key) {
+      const storageKey = `ai_chat_${selectedRows.key}`;
+      localStorage.removeItem(storageKey);
+      setMessages([]);
+      setSessionId(`session_${selectedRows.key}_${Date.now()}`);
+      AntMessage.success("Sohbet geçmişi temizlendi.");
+    }
   };
 
   // Yeni AI API'ye mesaj gönderme fonksiyonu
-  const sendToAI = async (userMessage) => {
+  const sendToAI = async (userMessage, currentMessages) => {
     const AI_API_URL = "https://ai-chat-anar.vercel.app/translate/form";
 
-    // Araç bilgilerini prompt olarak hazırla
+    // Conversation history'yi mevcut mesajlardan al
+    const buildCurrentConversationHistory = () => {
+      if (!currentMessages || currentMessages.length === 0) return "";
+
+      let conversationText = "\n\nÖnceki Sohbet Geçmişi:\n";
+      currentMessages.forEach((msg, index) => {
+        const role = msg.sender === "user" ? "Kullanıcı" : "Asistan";
+        conversationText += `${role}: ${msg.text}\n`;
+      });
+      conversationText += "\nYukarıdaki sohbet geçmişini dikkate alarak yeni soruya cevap ver.\n";
+
+      return conversationText;
+    };
+
+    const conversationHistory = buildCurrentConversationHistory();
+
+    // Araç bilgilerini ve conversation history'yi prompt olarak hazırla
     const vehiclePrompt = vehicleData
       ? `Sen bir araç bilgisi asistanısın. Aşağıda araçla ilgili detaylı bilgiler verilmiştir. Bu bilgileri kullanarak kullanıcının sorularına cevap ver.
 
 Araç Bilgileri:
 ${JSON.stringify(vehicleData, null, 2)}
 
-Kullanıcı Sorusu: ${userMessage}`
-      : userMessage;
+${conversationHistory}
+
+Yeni Kullanıcı Sorusu: ${userMessage}
+
+Lütfen önceki sohbet geçmişini dikkate alarak tutarlı ve bağlamsal bir cevap ver.`
+      : `${conversationHistory}\n\nYeni Kullanıcı Sorusu: ${userMessage}`;
 
     const payload = {
       language: "Turkish",
       text: userMessage,
       model: "gemini-2.0-flash",
       promptTemplate: vehiclePrompt,
+      web_search: webSearchEnabled,
+      session_id: sessionId, // Session ID'yi de gönder
     };
 
     try {
@@ -117,13 +196,26 @@ Kullanıcı Sorusu: ${userMessage}`
 
       const data = await response.json();
 
-      // API'den gelen yanıtı mesajlara ekle
+      // API'den gelen yanıtı mevcut mesajlara ekle
       const aiResponse = data.translation || data.translatedText || data.response || "Yanıt alınamadı.";
-      setMessages((prevMessages) => [...prevMessages, { sender: "bot", text: aiResponse }]);
+      const newMessages = [...currentMessages, { sender: "bot", text: aiResponse, timestamp: new Date().toISOString() }];
+      setMessages(newMessages);
+
+      // Chat geçmişini kaydet
+      if (selectedRows?.key) {
+        saveChatHistory(selectedRows.key, newMessages, sessionId);
+      }
     } catch (error) {
       console.error("AI API Hatası:", error);
       AntMessage.error("AI API ile iletişim kurulamadı.");
-      setMessages((prevMessages) => [...prevMessages, { sender: "bot", text: "Bir hata oluştu. Lütfen tekrar deneyin." }]);
+      const errorMessage = { sender: "bot", text: "Bir hata oluştu. Lütfen tekrar deneyin.", timestamp: new Date().toISOString() };
+      const newMessages = [...currentMessages, errorMessage];
+      setMessages(newMessages);
+
+      // Hata mesajını da kaydet
+      if (selectedRows?.key) {
+        saveChatHistory(selectedRows.key, newMessages, sessionId);
+      }
     }
   };
 
@@ -131,8 +223,15 @@ Kullanıcı Sorusu: ${userMessage}`
   const handleSend = async () => {
     if (userInput.trim() === "") return;
 
-    const newMessages = [...messages, { sender: "user", text: userInput }];
+    const userMessage = { sender: "user", text: userInput, timestamp: new Date().toISOString() };
+    const newMessages = [...messages, userMessage];
     setMessages(newMessages);
+
+    // Kullanıcı mesajını hemen kaydet
+    if (selectedRows?.key) {
+      saveChatHistory(selectedRows.key, newMessages, sessionId);
+    }
+
     const currentInput = userInput;
     setUserInput("");
 
@@ -140,10 +239,18 @@ Kullanıcı Sorusu: ${userMessage}`
     setResponseLoading(true);
 
     try {
-      await sendToAI(currentInput);
+      await sendToAI(currentInput, newMessages);
     } catch (error) {
       console.error("Mesaj gönderme sırasında hata:", error);
-      setMessages((prev) => [...prev, { sender: "bot", text: "Bir hata oluştu. Lütfen tekrar deneyin." }]);
+      const errorMessage = { sender: "bot", text: "Bir hata oluştu. Lütfen tekrar deneyin.", timestamp: new Date().toISOString() };
+      const errorMessages = [...newMessages, errorMessage];
+      setMessages(errorMessages);
+
+      // Hata mesajını kaydet
+      if (selectedRows?.key) {
+        saveChatHistory(selectedRows.key, errorMessages, sessionId);
+      }
+
       AntMessage.error("Mesaj gönderilirken bir hata oluştu.");
     } finally {
       setResponseLoading(false);
@@ -158,13 +265,13 @@ Kullanıcı Sorusu: ${userMessage}`
   }, [messages]);
 
   // Mesaj render işlemini güncelleme
-  const renderMessage = (item) => {
+  const renderMessage = (item, index) => {
     const isUser = item.sender === "user";
 
     if (isUser) {
       return (
         <List.Item
-          key={item.key || Math.random()} // unique key
+          key={`${item.timestamp || index}_user`} // unique key with timestamp
           style={{
             display: "flex",
             justifyContent: "flex-end",
@@ -181,6 +288,7 @@ Kullanıcı Sorusu: ${userMessage}`
             }}
           >
             <TextRenderer text={item.text} />
+            {item.timestamp && <div style={{ fontSize: "10px", color: "#999", marginTop: "4px" }}>{new Date(item.timestamp).toLocaleTimeString()}</div>}
           </div>
         </List.Item>
       );
@@ -191,7 +299,7 @@ Kullanıcı Sorusu: ${userMessage}`
 
     return (
       <List.Item
-        key={item.key || Math.random()} // unique key
+        key={`${item.timestamp || index}_bot`} // unique key with timestamp
         style={{
           display: "flex",
           justifyContent: "flex-start",
@@ -210,6 +318,7 @@ Kullanıcı Sorusu: ${userMessage}`
           {before && <TextRenderer text={before} />}
           {table && <TableRenderer markdown={table} />}
           {after && <TextRenderer text={after} />}
+          {item.timestamp && <div style={{ fontSize: "10px", color: "#999", marginTop: "4px" }}>{new Date(item.timestamp).toLocaleTimeString()}</div>}
         </div>
       </List.Item>
     );
@@ -229,15 +338,24 @@ Kullanıcı Sorusu: ${userMessage}`
           </div>
         ) : (
           <>
-            <div ref={messageListRef} style={{ maxHeight: "calc(100vh - 310px)", overflowY: "auto" }}>
-              <List dataSource={messages} renderItem={renderMessage} locale={{ emptyText: "Sohbete başlayın!" }} />
+            <div style={{ marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Switch checked={webSearchEnabled} onChange={setWebSearchEnabled} size="small" />
+                <span style={{ fontSize: "14px", color: "#666" }}>Web Araması {webSearchEnabled ? "Açık" : "Kapalı"}</span>
+              </div>
+              <Button size="small" danger onClick={clearChatHistory} style={{ fontSize: "12px" }}>
+                Geçmişi Temizle
+              </Button>
+            </div>
+            <div ref={messageListRef} style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto" }}>
+              <List dataSource={messages} renderItem={renderMessage} locale={{ emptyText: "Sohbete başlayın! Mesaj geçmişiniz otomatik olarak kaydedilir." }} />
             </div>
             <Divider />
             <TextArea
               rows={4}
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
-              placeholder="Araç hakkında soru sorun..."
+              placeholder="Araç hakkında soru sorun... (Önceki sohbetleriniz hatırlanır)"
               onPressEnter={(e) => {
                 if (!e.shiftKey) {
                   e.preventDefault();
@@ -249,6 +367,7 @@ Kullanıcı Sorusu: ${userMessage}`
             <Button type="primary" onClick={handleSend} style={{ marginTop: "10px" }} block disabled={responseLoading}>
               {responseLoading ? <Spin /> : "Gönder"}
             </Button>
+            {sessionId && <div style={{ fontSize: "10px", color: "#999", marginTop: "8px", textAlign: "center" }}>Session: {sessionId}</div>}
           </>
         )}
       </Modal>
