@@ -62,13 +62,22 @@ function YapayZekayaSor({ selectedRows }) {
       const savedHistory = localStorage.getItem(storageKey);
       if (savedHistory) {
         const parsedHistory = JSON.parse(savedHistory);
-        setMessages(parsedHistory.messages || []);
-        setSessionId(parsedHistory.sessionId || `session_${vehicleId}_${Date.now()}`);
+        // Sadece bu araç için olan mesajları yükle
+        if (parsedHistory.vehicleId === vehicleId) {
+          setMessages(parsedHistory.messages || []);
+          setSessionId(parsedHistory.sessionId || `session_${vehicleId}_${Date.now()}`);
+        } else {
+          // Eğer vehicleId uyuşmuyorsa yeni session başlat
+          setMessages([]);
+          setSessionId(`session_${vehicleId}_${Date.now()}`);
+        }
       } else {
+        setMessages([]);
         setSessionId(`session_${vehicleId}_${Date.now()}`);
       }
     } catch (error) {
       console.error("Chat geçmişi yüklenirken hata:", error);
+      setMessages([]);
       setSessionId(`session_${vehicleId}_${Date.now()}`);
     }
   };
@@ -96,6 +105,15 @@ function YapayZekayaSor({ selectedRows }) {
       return;
     }
 
+    // Önce tüm state'leri temizle
+    setMessages([]);
+    setUserInput("");
+    setVehicleData(null);
+    setWebSearchEnabled(false);
+    setSessionId(null);
+    setResponseLoading(false);
+    setProgressMessage("");
+
     setIsModalVisible(true);
     setInitialLoading(true);
 
@@ -121,11 +139,15 @@ function YapayZekayaSor({ selectedRows }) {
   // Modal'ı kapatma fonksiyonu
   const handleCancel = () => {
     setIsModalVisible(false);
-    // Mesajları temizleme - artık geçmişi koruyoruz
-    // setMessages([]);
+    // State'leri temizle - yeni araç seçildiğinde karışmaması için
+    setMessages([]);
     setUserInput("");
     setVehicleData(null);
-    setWebSearchEnabled(false); // Switch'i de sıfırla
+    setWebSearchEnabled(false);
+    setSessionId(null);
+    setInitialLoading(false);
+    setResponseLoading(false);
+    setProgressMessage("");
   };
 
   // Chat geçmişini temizleme fonksiyonu
@@ -136,6 +158,8 @@ function YapayZekayaSor({ selectedRows }) {
       setMessages([]);
       setSessionId(`session_${selectedRows.key}_${Date.now()}`);
       AntMessage.success("Sohbet geçmişi temizlendi.");
+    } else {
+      AntMessage.error("Araç seçili değil.");
     }
   };
 
