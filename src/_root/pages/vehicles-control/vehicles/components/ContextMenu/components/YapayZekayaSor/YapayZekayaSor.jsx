@@ -1,5 +1,3 @@
-// src/components/YapayZekayaSor.js
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button, Modal, Input, List, Typography, Divider, Spin, message as AntMessage, Table, Switch } from "antd";
 import AxiosInstance from "../../../../../../../../api/http";
@@ -44,6 +42,9 @@ function YapayZekayaSor({ selectedRows }) {
 
   // Yanıt beklerken (mesaj gönderdiğimizde) bekleme durumunu tutan state
   const [responseLoading, setResponseLoading] = useState(false);
+
+  // Progress tracking için state
+  const [progressMessage, setProgressMessage] = useState("");
 
   // Web arama özelliğini kontrol eden switch durumu (varsayılan: false)
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
@@ -199,6 +200,15 @@ Yeni Kullanıcı Sorusu: ${userMessage}`;
       session_id: sessionId, // Session ID'yi de gönder
     };
 
+    // AbortController ile timeout kontrolü
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => {
+        controller.abort();
+      },
+      webSearchEnabled ? 120000 : 60000
+    ); // Web search aktifse 2 dakika, değilse 1 dakika
+
     try {
       const response = await fetch(AI_API_URL, {
         method: "POST",
@@ -206,17 +216,30 @@ Yeni Kullanıcı Sorusu: ${userMessage}`;
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
+        signal: controller.signal, // AbortController signal'ı
       });
 
+      clearTimeout(timeoutId); // Başarılı olursa timeout'u temizle
+
       if (!response.ok) {
-        throw new Error(`AI API Hatası: ${response.statusText}`);
+        if (response.status === 504) {
+          throw new Error("İstek zaman aşımına uğradı. Web araması uzun sürdü, lütfen tekrar deneyin.");
+        }
+        throw new Error(`AI API Hatası: ${response.status} - ${response.statusText}`);
       }
 
       const data = await response.json();
 
       // API'den gelen yanıtı mevcut mesajlara ekle
       const aiResponse = data.translation || data.translatedText || data.response || "Yanıt alınamadı.";
-      const newMessages = [...currentMessages, { sender: "bot", text: aiResponse, timestamp: new Date().toISOString() }];
+      const newMessages = [
+        ...currentMessages,
+        {
+          sender: "bot",
+          text: aiResponse,
+          timestamp: new Date().toISOString(),
+        },
+      ];
       setMessages(newMessages);
 
       // Chat geçmişini kaydet
@@ -224,10 +247,30 @@ Yeni Kullanıcı Sorusu: ${userMessage}`;
         saveChatHistory(selectedRows.key, newMessages, sessionId);
       }
     } catch (error) {
+      clearTimeout(timeoutId); // Hata durumunda da timeout'u temizle
+
       console.error("AI API Hatası:", error);
-      AntMessage.error("AI API ile iletişim kurulamadı.");
-      const errorMessage = { sender: "bot", text: "Bir hata oluştu. Lütfen tekrar deneyin.", timestamp: new Date().toISOString() };
-      const newMessages = [...currentMessages, errorMessage];
+
+      let errorMessage = "Bir hata oluştu. Lütfen tekrar deneyin.";
+
+      if (error.name === "AbortError") {
+        errorMessage = webSearchEnabled
+          ? "⏱️ Web araması çok uzun sürdü (2 dakika). Lütfen web aramasını kapatıp tekrar deneyin veya daha kısa sorular sorun."
+          : "⏱️ İstek zaman aşımına uğradı (1 dakika). Lütfen tekrar deneyin.";
+      } else if (error.message.includes("504")) {
+        errorMessage = "🔄 Sunucu zaman aşımı. Web araması uzun sürdü, lütfen birkaç saniye bekleyip tekrar deneyin.";
+      } else if (error.message.includes("Failed to fetch")) {
+        errorMessage = "🌐 Bağlantı hatası. İnternet bağlantınızı kontrol edip tekrar deneyin.";
+      }
+
+      AntMessage.error(errorMessage);
+
+      const errorMessageObj = {
+        sender: "bot",
+        text: errorMessage,
+        timestamp: new Date().toISOString(),
+      };
+      const newMessages = [...currentMessages, errorMessageObj];
       setMessages(newMessages);
 
       // Hata mesajını da kaydet
@@ -241,7 +284,11 @@ Yeni Kullanıcı Sorusu: ${userMessage}`;
   const handleSend = async () => {
     if (userInput.trim() === "") return;
 
-    const userMessage = { sender: "user", text: userInput, timestamp: new Date().toISOString() };
+    const userMessage = {
+      sender: "user",
+      text: userInput,
+      timestamp: new Date().toISOString(),
+    };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
 
@@ -256,11 +303,25 @@ Yeni Kullanıcı Sorusu: ${userMessage}`;
     // Yanıt beklerken loading aç
     setResponseLoading(true);
 
+    // Progress mesajını ayarla
+    if (webSearchEnabled) {
+      setProgressMessage("Web araması başlatılıyor...");
+      setTimeout(() => setProgressMessage("Web araması devam ediyor..."), 10000);
+      setTimeout(() => setProgressMessage("Sonuçlar işleniyor..."), 30000);
+      setTimeout(() => setProgressMessage("Yanıt hazırlanıyor..."), 60000);
+    } else {
+      setProgressMessage("Yanıt hazırlanıyor...");
+    }
+
     try {
       await sendToAI(currentInput, newMessages);
     } catch (error) {
       console.error("Mesaj gönderme sırasında hata:", error);
-      const errorMessage = { sender: "bot", text: "Bir hata oluştu. Lütfen tekrar deneyin.", timestamp: new Date().toISOString() };
+      const errorMessage = {
+        sender: "bot",
+        text: "Bir hata oluştu. Lütfen tekrar deneyin.",
+        timestamp: new Date().toISOString(),
+      };
       const errorMessages = [...newMessages, errorMessage];
       setMessages(errorMessages);
 
@@ -272,6 +333,7 @@ Yeni Kullanıcı Sorusu: ${userMessage}`;
       AntMessage.error("Mesaj gönderilirken bir hata oluştu.");
     } finally {
       setResponseLoading(false);
+      setProgressMessage("");
     }
   };
 
@@ -356,7 +418,14 @@ Yeni Kullanıcı Sorusu: ${userMessage}`;
           </div>
         ) : (
           <>
-            <div style={{ marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div
+              style={{
+                marginBottom: "16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <Switch checked={webSearchEnabled} onChange={setWebSearchEnabled} size="small" />
                 <span style={{ fontSize: "14px", color: "#666" }}>Web Araması {webSearchEnabled ? "Açık" : "Kapalı"}</span>
@@ -366,7 +435,13 @@ Yeni Kullanıcı Sorusu: ${userMessage}`;
               </Button>
             </div>
             <div ref={messageListRef} style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto" }}>
-              <List dataSource={messages} renderItem={renderMessage} locale={{ emptyText: "Sohbete başlayın! Mesaj geçmişiniz otomatik olarak kaydedilir." }} />
+              <List
+                dataSource={messages}
+                renderItem={renderMessage}
+                locale={{
+                  emptyText: "Sohbete başlayın! Mesaj geçmişiniz otomatik olarak kaydedilir.",
+                }}
+              />
             </div>
             <Divider />
             <TextArea
@@ -386,10 +461,42 @@ Yeni Kullanıcı Sorusu: ${userMessage}`;
               }}
               disabled={responseLoading}
             />
+            {responseLoading && progressMessage && (
+              <div
+                style={{
+                  textAlign: "center",
+                  marginTop: "10px",
+                  padding: "8px",
+                  backgroundColor: "#f0f8ff",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                  color: "#1890ff",
+                }}
+              >
+                <Spin size="small" /> {progressMessage}
+              </div>
+            )}
             <Button type="primary" onClick={handleSend} style={{ marginTop: "10px" }} block disabled={responseLoading}>
-              {responseLoading ? <Spin /> : "Gönder"}
+              {responseLoading ? (
+                <span>
+                  <Spin /> İşleniyor...
+                </span>
+              ) : (
+                "Gönder"
+              )}
             </Button>
-            {sessionId && <div style={{ fontSize: "10px", color: "#999", marginTop: "8px", textAlign: "center" }}>Session: {sessionId}</div>}
+            {sessionId && (
+              <div
+                style={{
+                  fontSize: "10px",
+                  color: "#999",
+                  marginTop: "8px",
+                  textAlign: "center",
+                }}
+              >
+                Session: {sessionId}
+              </div>
+            )}
           </>
         )}
       </Modal>
