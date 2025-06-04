@@ -15,6 +15,7 @@ import FileUpload from "../../../components/upload/FileUpload";
 import PhotoUpload from "../../../components/upload/PhotoUpload";
 import Yakit from "../yakit/Yakit";
 import Harcamalar from "../harcama/Harcama";
+import TasimaRotaBilgileri from "./tabs/TasimaRota/TasimaRota";
 
 const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const { data, plaka } = useContext(PlakaContext);
@@ -32,6 +33,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
   // Add this new state
   const [yakitKey, setYakitKey] = useState(0);
   const [harcamaKey, setHarcamaKey] = useState(0);
+  const [tasimaRotaKey, setTasimaRotaKey] = useState(0);
 
   const [fields, setFields] = useState([
     {
@@ -255,6 +257,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     if (activeKey === "6") {
       setHarcamaKey((prevKey) => prevKey + 1);
     }
+    if (activeKey === "7") {
+      setTasimaRotaKey((prevKey) => prevKey + 1);
+    }
   }, [activeKey]);
 
   const onSubmit = handleSubmit((values) => {
@@ -332,6 +337,20 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       key: "6",
       label: t("harcamalar"),
       children: <Harcamalar key={harcamaKey} selectedRow={selectedRow} seferId={selectedRow?.key} isSefer={true} tableHeight="calc(100vh - 440px)" />,
+    },
+    {
+      key: "7",
+      label: t("tasima/RotaBilgileri"),
+      children: (
+        <TasimaRotaBilgileri
+          key={tasimaRotaKey}
+          selectedRow1={selectedRow}
+          seferId={selectedRow?.key}
+          isSefer={true}
+          tableHeight="calc(100vh - 440px)"
+          isActive={activeKey === "7"}
+        />
+      ),
     },
     {
       key: "3",

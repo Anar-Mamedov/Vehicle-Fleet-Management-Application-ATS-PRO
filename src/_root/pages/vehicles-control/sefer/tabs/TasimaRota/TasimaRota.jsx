@@ -7,7 +7,7 @@ import CreateModal from "./Insert/CreateModal";
 import EditModal from "./Update/EditModal";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
 
-export default function KontrolListesiTablo({ isActive }) {
+export default function KontrolListesiTablo({ isActive, selectedRow1 }) {
   const [loading, setLoading] = useState(false);
   const { control, watch, setValue } = useFormContext();
   const [data, setData] = useState([]);
@@ -21,7 +21,10 @@ export default function KontrolListesiTablo({ isActive }) {
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
+    prevPage: 1, // Önceki sayfa numarası için
   });
+
+  console.log(selectedRow1);
 
   // Define a global function to clear table selections
   useEffect(() => {
@@ -129,7 +132,24 @@ export default function KontrolListesiTablo({ isActive }) {
     if (isActive) {
       setLoading(true);
 
-      AxiosInstance.get(`ServiceWorkCard/GetServiceWorkCardByServiceId?serviceId=${secilenKayitID}&page=${pagination.current}&parameter=${searchTerm}`)
+      // diff değerini hesapla: sayfa değişim miktarı
+      // Önceki değer yoksa veya ilk sayfa ise diff 0 olur
+      const prevPage = pagination.prevPage || 1;
+      const diff = pagination.current - prevPage;
+
+      // setPointId hesapla: diff pozitifse son kaydın ID'si, negatifse ilk kaydın ID'si
+      let setPointId = 0;
+      if (data.length > 0) {
+        if (diff > 0) {
+          // İleri sayfaya gidildiğinde son kaydın ID'si
+          setPointId = data[data.length - 1].id || 0;
+        } else if (diff < 0) {
+          // Geri sayfaya gidildiğinde ilk kaydın ID'si
+          setPointId = data[0].id || 0;
+        }
+      }
+
+      AxiosInstance.get(`ExpeditionOpr/GetExpeditionOperationsList?setPointId=${setPointId}&diff=${diff}&parameter=${searchTerm}&expeditionId=${selectedRow1?.key || 0}`)
         .then((response) => {
           const { list, recordCount } = response.data;
           const fetchedData = list.map((item) => ({
@@ -140,18 +160,19 @@ export default function KontrolListesiTablo({ isActive }) {
           setPagination((prev) => ({
             ...prev,
             total: recordCount,
+            prevPage: prev.current, // Mevcut sayfayı sonraki fetch için saklayalım
           }));
         })
         .finally(() => setLoading(false));
     }
-  }, [pagination.current, searchTerm, isActive, secilenKayitID]); // pagination.current, searchTerm veya plakaID değiştiğinde fetch fonksiyonunu güncelle
+  }, [pagination.current, searchTerm, isActive, data, selectedRow1?.key]); // pagination.current, searchTerm, selectedRow1.key değiştiğinde fetch fonksiyonunu güncelle
 
   useEffect(() => {
-    if (secilenKayitID) {
+    if (selectedRow1 && isActive) {
       // secilenKayitID'nin varlığını ve geçerliliğini kontrol edin
       fetch(); // fetch fonksiyonunu çağırın
     }
-  }, [secilenKayitID]); // secilenKayitID veya fetch fonksiyonu değiştiğinde useEffect'i tetikle
+  }, [selectedRow1, isActive]); // secilenKayitID, isActive veya fetch fonksiyonu değiştiğinde useEffect'i tetikle
 
   const onRowSelectChange = (selectedKeys) => {
     setSelectedRowKeys(selectedKeys.length ? [selectedKeys[0]] : []);
@@ -168,7 +189,11 @@ export default function KontrolListesiTablo({ isActive }) {
   }, [fetch]);
 
   const handleTableChange = (newPagination) => {
-    setPagination(newPagination);
+    // Sayfa değişikliğini takip etmek için mevcut sayfayı prevPage olarak saklayalım
+    setPagination((prev) => ({
+      ...newPagination,
+      prevPage: prev.current,
+    }));
   };
 
   useEffect(() => {
@@ -178,12 +203,22 @@ export default function KontrolListesiTablo({ isActive }) {
 
     const timeout = setTimeout(() => {
       if (searchTerm.trim() !== "") {
+        // Arama yapıldığında sayfa bilgilerini sıfırla
+        setPagination((prev) => ({
+          ...prev,
+          current: 1,
+          prevPage: 1,
+        }));
         fetch(); // Trigger the API request based on your search logic
-        setPagination((prev) => ({ ...prev, current: 1 })); // Reset to page 1 when search term changes
         setSearchCount(searchCount + 1);
       } else if (searchTerm.trim() === "" && searchCount > 0) {
+        // Arama temizlendiğinde sayfa bilgilerini sıfırla
+        setPagination((prev) => ({
+          ...prev,
+          current: 1,
+          prevPage: 1,
+        }));
         fetch(); // Fetch data without search term
-        setPagination((prev) => ({ ...prev, current: 1 })); // Reset to page 1 when search term changes
       }
     }, 2000);
 
