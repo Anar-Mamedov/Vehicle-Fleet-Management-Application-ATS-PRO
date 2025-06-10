@@ -7,7 +7,7 @@ import CreateModal from "./Insert/CreateModal";
 import EditModal from "./Update/EditModal";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
 
-export default function KontrolListesiTablo({ isActive, selectedRow1 }) {
+export default function TasimaRotaBilgileri({ isActive, selectedRow1 }) {
   const [loading, setLoading] = useState(false);
   const { control, watch, setValue } = useFormContext();
   const [data, setData] = useState([]);
@@ -72,9 +72,9 @@ export default function KontrolListesiTablo({ isActive, selectedRow1 }) {
 
   const columns = [
     {
-      title: "İş Tanımı",
-      dataIndex: "isTanim",
-      key: "isTanim",
+      title: "Firma Ünvan",
+      dataIndex: "firmaUnvan",
+      key: "firmaUnvan",
       width: 150,
       ellipsis: true,
       render: (text, record) => (
@@ -90,17 +90,134 @@ export default function KontrolListesiTablo({ isActive, selectedRow1 }) {
       ),
     },
     {
-      title: "İş Tipi",
-      dataIndex: "isTip",
-      key: "isTip",
+      title: "Firma İlgili",
+      dataIndex: "firmaIlgili",
+      key: "firmaIlgili",
+      width: 120,
+      ellipsis: true,
+    },
+    {
+      title: "Firma Tel",
+      dataIndex: "firmaTel",
+      key: "firmaTel",
+      width: 120,
+      ellipsis: true,
+    },
+    {
+      title: "Çıkış Şehir",
+      dataIndex: "cikisSehir",
+      key: "cikisSehir",
+      width: 120,
+      ellipsis: true,
+    },
+    {
+      title: "Çıkış Yeri",
+      dataIndex: "cikisSehirYer",
+      key: "cikisSehirYer",
+      width: 120,
+      ellipsis: true,
+    },
+    {
+      title: "Varış Şehir",
+      dataIndex: "varisSehir",
+      key: "varisSehir",
+      width: 120,
+      ellipsis: true,
+    },
+    {
+      title: "Varış Yeri",
+      dataIndex: "varisSehirYer",
+      key: "varisSehirYer",
+      width: 120,
+      ellipsis: true,
+    },
+    {
+      title: "Çıkış Tarihi",
+      dataIndex: "cikisTarih",
+      key: "cikisTarih",
+      width: 120,
+      ellipsis: true,
+      render: (text) => text && formatDate(text),
+    },
+    {
+      title: "Çıkış Saati",
+      dataIndex: "cikisSaat",
+      key: "cikisSaat",
       width: 100,
       ellipsis: true,
     },
     {
-      title: "İşçilik Ücreti",
-      dataIndex: "iscilikUcreti",
-      key: "iscilikUcreti",
+      title: "Varış Tarihi",
+      dataIndex: "varisTarih",
+      key: "varisTarih",
+      width: 120,
+      ellipsis: true,
+      render: (text) => text && formatDate(text),
+    },
+    {
+      title: "Varış Saati",
+      dataIndex: "varisSaat",
+      key: "varisSaat",
       width: 100,
+      ellipsis: true,
+    },
+    {
+      title: "Taşıma Türü",
+      dataIndex: "tasimaTuru",
+      key: "tasimaTuru",
+      width: 120,
+      ellipsis: true,
+    },
+    {
+      title: "Taşıma Cinsi",
+      dataIndex: "tasimaCinsi",
+      key: "tasimaCinsi",
+      width: 120,
+      ellipsis: true,
+    },
+    {
+      title: "Mesafe",
+      dataIndex: "mesafe",
+      key: "mesafe",
+      width: 80,
+      ellipsis: true,
+    },
+    {
+      title: "Ücret",
+      dataIndex: "ucret",
+      key: "ucret",
+      width: 100,
+      ellipsis: true,
+      render: (text) => (text ? text.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ""),
+    },
+    {
+      title: "Ödeme Durumu",
+      dataIndex: "odemeYapildi",
+      key: "odemeYapildi",
+      width: 100,
+      align: "center",
+      render: (text, record) => (record.odemeYapildi ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />),
+    },
+    {
+      title: "Fatura No",
+      dataIndex: "faturaNo",
+      key: "faturaNo",
+      width: 120,
+      ellipsis: true,
+    },
+    {
+      title: "Fatura Tarihi",
+      dataIndex: "faturaTarih",
+      key: "faturaTarih",
+      width: 120,
+      ellipsis: true,
+      render: (text) => text && formatDate(text),
+    },
+    {
+      title: "Açıklama",
+      dataIndex: "aciklama",
+      key: "aciklama",
+      width: 150,
       ellipsis: true,
     },
   ];
@@ -149,12 +266,12 @@ export default function KontrolListesiTablo({ isActive, selectedRow1 }) {
         }
       }
 
-      AxiosInstance.get(`ExpeditionOpr/GetExpeditionOperationsList?setPointId=${setPointId}&diff=${diff}&parameter=${searchTerm}&expeditionId=${selectedRow1?.key || 0}`)
+      AxiosInstance.get(`ExpeditionOpr/GetExpeditionOperationsList?setPointId=${setPointId}&diff=${diff}&parameter=${searchTerm}&expId=${selectedRow1?.key || 0}`)
         .then((response) => {
           const { list, recordCount } = response.data;
           const fetchedData = list.map((item) => ({
             ...item,
-            key: item.siraNo,
+            key: item.seferOprId,
           }));
           setData(fetchedData);
           setPagination((prev) => ({
@@ -233,7 +350,7 @@ export default function KontrolListesiTablo({ isActive, selectedRow1 }) {
         <Input
           style={{ width: "250px", marginBottom: "10px" }}
           type="text"
-          placeholder="Arama yap..."
+          placeholder="Firma veya şehir ara..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
@@ -247,17 +364,17 @@ export default function KontrolListesiTablo({ isActive, selectedRow1 }) {
               setSelectedRowsData([]);
             }}
           />
-          <CreateModal kdvOran={watch("kdvOran")} onRefresh={refreshTable} secilenKayitID={secilenKayitID} plaka={plaka} aracID={aracID} />
+          <CreateModal kdvOran={watch("kdvOran")} selectedRow1={selectedRow1} onRefresh={refreshTable} secilenKayitID={secilenKayitID} plaka={plaka} aracID={aracID} />
         </div>
       </div>
 
       <Table
         rowSelection={{
-          type: "checkbox", // Change from 'radio' to 'checkbox'
+          type: "checkbox",
           selectedRowKeys,
           onChange: (selectedKeys, selectedRows) => {
             setSelectedRowKeys(selectedKeys);
-            setSelectedRowsData(selectedRows); // Store the selected rows' data
+            setSelectedRowsData(selectedRows);
           },
         }}
         size={"small"}
@@ -266,13 +383,11 @@ export default function KontrolListesiTablo({ isActive, selectedRow1 }) {
         pagination={pagination}
         onChange={handleTableChange}
         loading={loading}
-        scroll={{
-          // x: "auto",
-          y: "240px",
-        }}
+        scroll={{ y: "calc(100vh - 335px)" }}
       />
       {isModalVisible && (
         <EditModal
+          selectedRow1={selectedRow1}
           selectedRow={selectedRow}
           isModalVisible={isModalVisible}
           onModalClose={() => {

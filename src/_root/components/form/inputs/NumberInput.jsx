@@ -3,7 +3,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { InputNumber } from "antd";
 
-const NumberInput = ({ name, checked, required }) => {
+const NumberInput = ({ name, checked, required, placeholder = "", style, min, max }) => {
   const { control, setValue } = useFormContext();
   const [decimalSeparator, setDecimalSeparator] = useState(".");
 
@@ -27,8 +27,14 @@ const NumberInput = ({ name, checked, required }) => {
         <>
           <InputNumber
             {...field}
+            {...(min !== undefined && min !== null && { min })}
+            {...(max !== undefined && max !== null && { max })}
+            placeholder={placeholder}
             className={fieldState.error ? "input-error w-full" : "w-full"}
             disabled={checked}
+            style={{
+              ...style,
+            }}
             decimalSeparator={decimalSeparator}
             onChange={(e) => {
               field.onChange(e);
@@ -48,6 +54,10 @@ NumberInput.propTypes = {
   name: PropTypes.string,
   checked: PropTypes.bool,
   required: PropTypes.bool,
+  placeholder: PropTypes.string,
+  style: PropTypes.object,
+  min: PropTypes.number,
+  max: PropTypes.number,
 };
 
 export default NumberInput;

@@ -3,7 +3,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Input } from "antd";
 
-const TextInput = ({ name, length, style, readonly, required, checked }) => {
+const TextInput = ({ name, length, style, readonly, required, checked, placeholder = "" }) => {
   const { control } = useFormContext();
 
   return (
@@ -16,6 +16,7 @@ const TextInput = ({ name, length, style, readonly, required, checked }) => {
           <Input
             {...field}
             maxLength={length}
+            placeholder={placeholder}
             style={{
               ...style,
             }}

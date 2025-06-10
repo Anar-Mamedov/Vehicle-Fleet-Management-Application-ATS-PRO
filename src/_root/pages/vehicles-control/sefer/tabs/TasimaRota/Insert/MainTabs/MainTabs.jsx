@@ -5,7 +5,10 @@ import styled from "styled-components";
 import dayjs from "dayjs";
 import TextInput from "../../../../../../../components/form/inputs/TextInput";
 import { t } from "i18next";
-
+import { FirmaBilgileri } from "./components/FirmaBilgileri/FirmaBilgileri";
+import { TasimaBilgileri } from "./components/TasimaBilgileri/TasimaBilgileri";
+import { RotaBilgileri } from "./components/RotaBilgileri/RotaBilgileri";
+import OzelAlanlar from "./components/OzelAlanlar/OzelAlanlar";
 const { Text, Link } = Typography;
 const { TextArea } = Input;
 
@@ -63,8 +66,28 @@ export default function MainTabs() {
   const items = [
     {
       key: "1",
-      label: "Açıklama",
+      label: t("firmaBilgileri"),
+      children: <FirmaBilgileri />,
+    },
+    {
+      key: "2",
+      label: t("tasimaIcmalBilgileri"),
+      children: <TasimaBilgileri />,
+    },
+    {
+      key: "3",
+      label: t("rotaBilgileri"),
+      children: <RotaBilgileri />,
+    },
+    {
+      key: "4",
+      label: t("aciklama"),
       children: <Controller name="aciklama" control={control} render={({ field }) => <TextArea {...field} rows={4} />} />,
+    },
+    {
+      key: "5",
+      label: t("ozelAlanlar"),
+      children: <OzelAlanlar />,
     },
   ];
 
