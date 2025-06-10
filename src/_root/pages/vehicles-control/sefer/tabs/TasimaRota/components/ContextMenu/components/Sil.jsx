@@ -16,11 +16,11 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
   const handleDelete = async () => {
     let isError = false;
     // Extract just the IDs (row.key values) into an array
-    const serviceIds = selectedRows.map((row) => row.key);
+    const ids = selectedRows.map((row) => row.key);
 
     try {
       // Silme API isteğini gönder - sending just the array of IDs
-      const response = await AxiosInstance.post(`ServiceWorkCard/DeleteServiceWorkCard`, serviceIds);
+      const response = await AxiosInstance.post(`ExpeditionOpr/DeleteExpeditionOperationItemById`, ids);
       console.log("Silme işlemi başarılı:", response);
       if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202 || response.data.statusCode === 204) {
         message.success("İşlem Başarılı.");
