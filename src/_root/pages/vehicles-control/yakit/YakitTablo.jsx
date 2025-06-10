@@ -1235,7 +1235,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
       <div style={{}}>
         <div style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
           <div>
-            Toplam Araç: {totalCount} | Görüntülenen: {displayCount}
+            Toplam Kayıt: {totalCount} | Görüntülenen: {displayCount}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             {!infiniteScrollEnabled && (
@@ -1494,14 +1494,14 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                 // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
-              <Filters onChange={handleBodyChange} />
+              {/* <Filters onChange={handleBodyChange} /> */}
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
-              <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
+              {/* <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
                 İndir
-              </Button>
+              </Button> */}
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
               <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} seferId={seferId} selectedRow={selectedRow} />
             </div>
