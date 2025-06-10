@@ -3,11 +3,12 @@ import { Button, Modal, Input, Typography, Tabs, DatePicker, TimePicker, InputNu
 import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
-import YapilanIsTable from "./components/YapilanIsTable.jsx";
-import PersonelTable from "./components/PersonelTable.jsx";
-import { SearchOutlined } from "@ant-design/icons";
-import IsTipi from "./components/IsTipi.jsx";
-
+import TextInput from "../../../../../../../components/form/inputs/TextInput";
+import { t } from "i18next";
+import { FirmaBilgileri } from "./components/FirmaBilgileri/FirmaBilgileri";
+import { TasimaBilgileri } from "./components/TasimaBilgileri/TasimaBilgileri";
+import { RotaBilgileri } from "./components/RotaBilgileri/RotaBilgileri";
+import OzelAlanlar from "./components/OzelAlanlar/OzelAlanlar";
 const { Text, Link } = Typography;
 const { TextArea } = Input;
 
@@ -57,36 +58,36 @@ const StyledTabs = styled(Tabs)`
 `;
 
 //styled components end
-export default function MainTabs({ isApiUpdate }) {
+export default function MainTabs() {
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
   const { control, watch, setValue, getValues } = useFormContext();
 
-  const handleYapilanIsMinusClick = () => {
-    setValue("yapilanIs", "");
-    setValue("yapilanIsID", "");
-    setValue("iscilikUcreti", 0);
-    setValue("saat", "");
-    setValue("dakika", "");
-    setValue("isTipi", null);
-    setValue("isTipiID", "");
-    setValue("toplam", 0);
-
-    // KDV, indirim ve toplam değerlerini sıfırla veya yeniden hesapla
-    recalculateIndirimOrani(0, indirimYuzde);
-    recalculateToplam(0, 0, kdvOrani);
-  };
-
-  const handlePersonelMinusClick = () => {
-    setValue("personel", "");
-    setValue("personelID", "");
-  };
-
   const items = [
     {
       key: "1",
-      label: "Açıklama",
+      label: t("firmaBilgileri"),
+      children: <FirmaBilgileri />,
+    },
+    {
+      key: "2",
+      label: t("tasimaIcmalBilgileri"),
+      children: <TasimaBilgileri />,
+    },
+    {
+      key: "3",
+      label: t("rotaBilgileri"),
+      children: <RotaBilgileri />,
+    },
+    {
+      key: "4",
+      label: t("aciklama"),
       children: <Controller name="aciklama" control={control} render={({ field }) => <TextArea {...field} rows={4} />} />,
+    },
+    {
+      key: "5",
+      label: t("ozelAlanlar"),
+      children: <OzelAlanlar />,
     },
   ];
 
@@ -178,301 +179,24 @@ export default function MainTabs({ isApiUpdate }) {
 
   // tarih formatlamasını kullanıcının yerel tarih formatına göre ayarlayın sonu
 
-  // iki tarih ve saat arasında geçen süreyi hesaplamak için
-
-  const watchFields = watch(["baslangicTarihi", "baslangicSaati", "bitisTarihi", "bitisSaati"]);
-
-  useEffect(() => {
-    const [baslangicTarihi, baslangicSaati, bitisTarihi, bitisSaati] = watchFields;
-    if (baslangicTarihi && baslangicSaati && bitisTarihi && bitisSaati) {
-      const baslangicZamani = dayjs(baslangicTarihi).hour(baslangicSaati.hour()).minute(baslangicSaati.minute());
-      const bitisZamani = dayjs(bitisTarihi).hour(bitisSaati.hour()).minute(bitisSaati.minute());
-
-      const sure = bitisZamani.diff(baslangicZamani, "minute");
-      setValue("sure", sure > 0 ? sure : 0);
-    }
-  }, [watchFields, setValue]);
-
-  // iki tarih ve saat arasında geçen süreyi hesaplamak için sonu
-
-  const iscilikUcreti = watch("iscilikUcreti") || 0;
-  const indirimYuzde = watch("indirimYuzde") || 0;
-  const indirimOrani = watch("indirimOrani") || 0;
-  const kdvOrani = watch("kdvOrani") || 0;
-
-  const handleIscilikUcretiChange = (value) => {
-    setValue("iscilikUcreti", value);
-    recalculateIndirimOrani(value, indirimYuzde);
-    recalculateToplam(value, indirimOrani, kdvOrani);
-  };
-
-  const handleIndirimYuzdeChange = (value) => {
-    setValue("indirimYuzde", value);
-    recalculateIndirimOrani(iscilikUcreti, value);
-  };
-
-  const handleIndirimOraniChange = (value) => {
-    setValue("indirimOrani", value);
-    recalculateIndirimYuzde(iscilikUcreti, value);
-    recalculateToplam(iscilikUcreti, value, kdvOrani);
-  };
-
-  const handleKdvOraniChange = (value) => {
-    setValue("kdvOrani", value);
-    recalculateToplam(iscilikUcreti, indirimOrani, value);
-  };
-
-  const handleKdvDegeriChange = (value) => {
-    setValue("kdvDegeri", value);
-
-    // Recalculate KDV oranı based on the new KDV değeri
-    const values = getValues();
-    const miktar = values.miktar || 1;
-    const iscilikUcreti = (values.iscilikUcreti || 0) * miktar;
-    const indirimOrani = values.indirimOrani || 0;
-    const remainingAmount = iscilikUcreti - (indirimOrani || 0);
-
-    if (remainingAmount > 0 && value > 0) {
-      const newKdvOrani = (value / remainingAmount) * 100;
-      setValue("kdvOrani", newKdvOrani);
-    }
-
-    // Update final total
-    const kdvDegeri = value || 0;
-    const finalAmount = remainingAmount + kdvDegeri;
-    setValue("toplam", isNaN(finalAmount) ? 0 : finalAmount);
-  };
-
-  const recalculateIndirimOrani = (iscilikUcreti, indirimYuzde) => {
-    if (!isApiUpdate) {
-      const calculatedIndirimOrani = (iscilikUcreti * indirimYuzde) / 100;
-      setValue("indirimOrani", isNaN(calculatedIndirimOrani) ? 0 : calculatedIndirimOrani);
-    }
-  };
-
-  const recalculateIndirimYuzde = (iscilikUcreti, indirimOrani) => {
-    if (!isApiUpdate) {
-      const calculatedIndirimYuzde = (indirimOrani / iscilikUcreti) * 100;
-      setValue("indirimYuzde", isNaN(calculatedIndirimYuzde) ? 0 : calculatedIndirimYuzde);
-    }
-  };
-
-  const recalculateToplam = (iscilikUcreti, indirimOrani, kdvOrani) => {
-    if (!iscilikUcreti || iscilikUcreti <= 0) {
-      setValue("kdvDegeri", 0);
-      setValue("toplam", 0);
-    } else {
-      const remainingAmount = iscilikUcreti - (indirimOrani || 0);
-      const kdv = remainingAmount * (kdvOrani / 100);
-      const finalAmount = remainingAmount + kdv;
-
-      setValue("kdvDegeri", isNaN(kdv) ? 0 : kdv);
-      setValue("toplam", isNaN(finalAmount) ? 0 : finalAmount);
-    }
-  };
-
   return (
     <div>
-      <div style={{ display: "flex", columnGap: "10px", flexWrap: "wrap" }}>
-        <div style={{ width: "100%", maxWidth: "450px" }}>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-              maxWidth: "450px",
-              gap: "10px",
-              rowGap: "0px",
-              marginBottom: "10px",
-            }}
-          >
-            <Text style={{ fontSize: "14px", fontWeight: "600" }}>Plaka:</Text>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                alignItems: "center",
-                maxWidth: "300px",
-                minWidth: "300px",
-                gap: "10px",
-                width: "100%",
-              }}
-            >
-              <Controller
-                name="plaka"
-                control={control}
-                rules={{ required: "Alan Boş Bırakılamaz!" }}
-                render={({ field, fieldState: { error } }) => (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "5px", width: "100%" }}>
-                    <Input {...field} status={error ? "error" : ""} disabled style={{ flex: 1 }} />
-                    {error && <div style={{ color: "red" }}>{error.message}</div>}
-                  </div>
-                )}
-              />
-              <Controller
-                name="aracID"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="text" // Set the type to "text" for name input
-                    style={{ display: "none" }}
-                  />
-                )}
-              />
-            </div>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px", fontWeight: "600" }}>Yapılan İş:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "300px" }}>
-              <Controller
-                name="yapilanIs"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="text" // Set the type to "text" for name input
-                    style={{ width: "215px" }}
-                    disabled
-                  />
-                )}
-              />
-              <Controller
-                name="yapilanIsID"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="text" // Set the type to "text" for name input
-                    style={{ display: "none" }}
-                  />
-                )}
-              />
-              <YapilanIsTable
-                onSubmit={(selectedData) => {
-                  setValue("yapilanIs", selectedData.tanim);
-                  setValue("yapilanIsID", selectedData.key);
-                  setValue("iscilikUcreti", selectedData.ucret);
-                  setValue("saat", selectedData.saat);
-                  setValue("dakika", selectedData.dakika);
-                  setValue("isTipi", selectedData.isTip);
-                  setValue("isTipiID", selectedData.isTipKodId);
-
-                  // Yeni değerleri güncelledikten sonra hesaplamaları tetikleyin
-                  recalculateIndirimOrani(selectedData.ucret, indirimYuzde);
-                  recalculateToplam(selectedData.ucret, indirimOrani, kdvOrani);
-                }}
-              />
-              <Button onClick={handleYapilanIsMinusClick}> - </Button>
-            </div>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>Personel:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "300px" }}>
-              <Controller
-                name="personel"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="text" // Set the type to "text" for name input
-                    style={{ width: "215px" }}
-                    disabled
-                  />
-                )}
-              />
-              <Controller
-                name="personelID"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="text" // Set the type to "text" for name input
-                    style={{ display: "none" }}
-                  />
-                )}
-              />
-              <PersonelTable
-                onSubmit={(selectedData) => {
-                  setValue("personel", selectedData.isim);
-                  setValue("personelID", selectedData.key);
-                }}
-              />
-              <Button onClick={handlePersonelMinusClick}> - </Button>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>İş Tipi:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <IsTipi />
-            </div>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>Saat-Dakika:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller name="saat" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} />} />
-              <Controller name="dakika" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} />} />
-            </div>
-          </div>
+      <div className="grid grid-cols-4 flex gap-4 mb-10">
+        <div className="flex flex-col gap-1 w-[200px]">
+          <Text className="font-medium">{t("plaka")}</Text>
+          <TextInput name="plaka" checked={true} />
         </div>
-
-        <div style={{ width: "100%", maxWidth: "450px" }}>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>İşçilik Ücreti:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="iscilikUcreti"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleIscilikUcretiChange(value)} />}
-              />
-            </div>
-          </div>
-
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>KDV Oranı %:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="kdvOrani"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber {...field} style={{ flex: 1 }} prefix={<Text style={{ color: "#0091ff" }}>%</Text>} onChange={(value) => handleKdvOraniChange(value)} />
-                )}
-              />
-              <Controller
-                name="kdvDegeri"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleKdvDegeriChange(value)} />}
-              />
-            </div>
-          </div>
-
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>İndirim %:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="indirimYuzde"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber {...field} style={{ flex: 1 }} prefix={<Text style={{ color: "#0091ff" }}>%</Text>} onChange={(value) => handleIndirimYuzdeChange(value)} />
-                )}
-              />
-              <Controller
-                name="indirimOrani"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleIndirimOraniChange(value)} />}
-              />
-            </div>
-          </div>
-
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>Toplam:</Text>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller name="toplam" control={control} render={({ field }) => <InputNumber {...field} disabled style={{ flex: 1 }} />} />
-            </div>
-          </div>
+        <div className="flex flex-col gap-1 w-[200px]">
+          <Text className="font-medium">{t("surucu")}</Text>
+          <TextInput name="surucu" checked={true} />
+        </div>
+        <div className="flex flex-col gap-1 w-[200px]">
+          <Text className="font-medium">{t("seferNo")}</Text>
+          <TextInput name="seferNo" checked={true} />
+        </div>
+        <div className="flex flex-col gap-1 w-[200px]">
+          <Text className="font-medium">{t("seferAdedi")}</Text>
+          <TextInput name="seferAdedi" checked={true} />
         </div>
       </div>
       <StyledTabs defaultActiveKey="1" items={items} onChange={onChange} />

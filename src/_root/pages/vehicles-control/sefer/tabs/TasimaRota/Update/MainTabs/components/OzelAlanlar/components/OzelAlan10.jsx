@@ -1,13 +1,13 @@
 import React, { useState, createRef, useEffect } from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import { Select, Typography, Divider, Spin, Button, Input, message, Space } from "antd";
-import AxiosInstance from "../../../../../../../../../api/http";
+import AxiosInstance from "../../../../../../../../../../../api/http";
 import { PlusOutlined } from "@ant-design/icons";
 
 const { Text, Link } = Typography;
 const { Option } = Select;
 
-export default function IsTipi({ disabled, fieldRequirements }) {
+export default function OzelAlan10({ disabled, fieldRequirements }) {
   const {
     control,
     setValue,
@@ -28,7 +28,7 @@ export default function IsTipi({ disabled, fieldRequirements }) {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await AxiosInstance.get(`Code/GetCodeTextById?codeNumber=113`);
+      const response = await AxiosInstance.get(`Code/GetCodeTextById?codeNumber=904`);
       if (response && response.data) {
         setOptions(response.data);
       }
@@ -55,7 +55,7 @@ export default function IsTipi({ disabled, fieldRequirements }) {
         return;
       }
       const body = {
-        codeId: 113,
+        codeId: 904,
         codeText: name,
       };
       setLoading(true);
@@ -100,7 +100,7 @@ export default function IsTipi({ disabled, fieldRequirements }) {
       {contextHolder}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", flexDirection: "column" }}>
         <Controller
-          name="isTipi"
+          name="ozelAlan10"
           control={control}
           render={({ field }) => (
             <Select
@@ -145,8 +145,8 @@ export default function IsTipi({ disabled, fieldRequirements }) {
               onChange={(value) => {
                 // Seçilen değerin ID'sini NedeniID alanına set et
                 // `null` veya `undefined` değerlerini ele al
-                setValue("isTipi", value ?? null);
-                setValue("isTipiID", value ?? null);
+                setValue("ozelAlan10", value ?? null);
+                setValue("ozelAlan10ID", value ?? null);
                 field.onChange(value ?? null);
               }}
               value={field.value ?? null} // Eğer `field.value` `undefined` ise, `null` kullanarak `Select` bileşenine geçir
@@ -154,7 +154,7 @@ export default function IsTipi({ disabled, fieldRequirements }) {
           )}
         />
         <Controller
-          name="isTipiID"
+          name="ozelAlan10ID"
           control={control}
           render={({ field }) => (
             <Input
