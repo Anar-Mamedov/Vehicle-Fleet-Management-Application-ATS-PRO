@@ -25,7 +25,7 @@ function OzelAlanlar(props) {
 
   const handleOk = async () => {
     try {
-      const response = await AxiosInstance.post(`/CustomField/AddCustomFieldTopic?form=SERVİS&topic=${inputValue}&field=${clickedField}`);
+      const response = await AxiosInstance.post(`/CustomField/AddCustomFieldTopic?form=SEFER_OPR&topic=${inputValue}&field=${clickedField}`);
       setIsModalVisible(false);
       setInputValue("");
       if (response.data.statusCode === 200) {
@@ -45,7 +45,7 @@ function OzelAlanlar(props) {
 
   const nameOfField = async () => {
     try {
-      const response = await AxiosInstance.get(`CustomField/GetCustomFields?form=SERVİS`);
+      const response = await AxiosInstance.get(`CustomField/GetCustomFields?form=SEFER_OPR`);
       setCustomFieldNames(response.data);
     } catch (error) {
       console.error("API request failed: ", error);
