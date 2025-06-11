@@ -4,6 +4,7 @@ import AxiosInstance from "../../../../../../../api/http";
 import { Controller, useForm, FormProvider } from "react-hook-form";
 import dayjs from "dayjs";
 import MainTabs from "./MainTabs/MainTabs";
+import { t } from "i18next";
 
 export default function EditModal({ selectedRow, isModalVisible, onModalClose, onRefresh, secilenUstKayitID, selectedRow1 }) {
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
       cikisSehriID: null,
       tasimaTuru: null,
       yuklemeKodu: null,
-      yuklemeKoduID: null,
+      yuklemeKodId: null,
       varisSehri: null,
       varisSehriID: null,
       cikisYeri: null,
@@ -60,9 +61,9 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
       ozelAlan7: null,
       ozelAlan8: null,
       ozelAlan9: null,
-      ozelAlanID9: null,
+      ozelAlan9ID: null,
       ozelAlan10: null,
-      ozelAlanID10: null,
+      ozelAlan10ID: null,
       ozelAlan11: null,
       ozelAlan12: null,
       odemeYapildi: false,
@@ -94,31 +95,32 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
 
           // API'den gelen verileri set ederken
           setValue("firmaID", item.firmaId);
-          setValue("firmaTanim", item.firmaTanim);
-          setValue("telefon", item.telefon);
-          setValue("ilgili", item.ilgili);
-          setValue("faturaNo", item.faturaNo);
-          setValue("irsaliyeNo", item.faturaIrsaliye);
+          setValue("firmaKodu", item.firmaKod || null);
+          setValue("firmaTanim", item.firmaUnvan || null);
+          setValue("telefon", item.firmaTel || null);
+          setValue("ilgili", item.firmaIlgili || null);
+          setValue("faturaNo", item.faturaNo || null);
+          setValue("irsaliyeNo", item.faturaIrsaliye || null);
           setValue("faturaTarih", item.faturaTarih ? dayjs(item.faturaTarih) : null);
           setValue("faturaSaat", item.faturaSaat ? dayjs(item.faturaSaat, "HH:mm") : null);
           setValue("ucret", item.ucret);
-          setValue("tasimaCinsi", item.tasimaCinsi);
+          setValue("tasimaCinsi", item.tasimaCinsi || null);
           setValue("tasimaCinsiID", item.tasimaCinsiKodId);
           setValue("tasimaMiktari", item.yuklemeMiktari);
-          setValue("tasimaBirimi", item.tasimaBirimi);
+          setValue("tasimaBirimi", item.yuklemeBirim || null);
           setValue("tasimaBirimiID", item.yukelemeBirimKodId);
-          setValue("cikisSehri", item.cikisSehri);
+          setValue("cikisSehri", item.cikisSehir || null);
           setValue("cikisSehriID", item.cikisSehirId);
-          setValue("tasimaTuru", item.tasimaTuru);
+          setValue("tasimaTuru", item.tasimaTuru || null);
           setValue("tasimaTuruID", item.tasimaTuruKodId);
-          setValue("yuklemeKodu", item.yuklemeKodu);
-          setValue("yuklemeKoduID", item.yuklemeId);
-          setValue("varisSehri", item.varisSehri);
+          setValue("yuklemeKodAciklama", item.yuklemeAciklama || null);
+          setValue("yuklemeKodId", item.yuklemeId);
+          setValue("varisSehri", item.varisSehir || null);
           setValue("varisSehriID", item.varisSehirId);
-          setValue("cikisYeri", item.cikisYeri);
+          setValue("cikisYeri", item.cikisSehirYer || null);
           setValue("cikisYeriID", item.cikisSehirYerId);
           setValue("cikisKm", item.cikisKm);
-          setValue("varisYeri", item.varisYeri);
+          setValue("varisYeri", item.varisSehirYer || null);
           setValue("varisYeriID", item.varisSehirYerId);
           setValue("varisKm", item.varisKm);
           setValue("mesafe", item.mesafe);
@@ -128,21 +130,21 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
           setValue("varisSaat", item.varisSaat ? dayjs(item.varisSaat, "HH:mm") : null);
           setValue("sureSaat", item.sureSaat);
           setValue("sureDk", item.sureDakika);
-          setValue("aciklama", item.aciklama);
-          setValue("ozelAlan1", item.ozelAlan1);
-          setValue("ozelAlan2", item.ozelAlan2);
-          setValue("ozelAlan3", item.ozelAlan3);
-          setValue("ozelAlan4", item.ozelAlan4);
-          setValue("ozelAlan5", item.ozelAlan5);
-          setValue("ozelAlan6", item.ozelAlan6);
-          setValue("ozelAlan7", item.ozelAlan7);
-          setValue("ozelAlan8", item.ozelAlan8);
-          setValue("ozelAlan9", item.ozelAlan9);
-          setValue("ozelAlanID9", item.ozelAlanKodId9);
-          setValue("ozelAlan10", item.ozelAlan10);
-          setValue("ozelAlanID10", item.ozelAlanKodId10);
-          setValue("ozelAlan11", item.ozelAlan11);
-          setValue("ozelAlan12", item.ozelAlan12);
+          setValue("aciklama", item.aciklama || null);
+          setValue("ozelAlan1", item.ozelAlan1 || null);
+          setValue("ozelAlan2", item.ozelAlan2 || null);
+          setValue("ozelAlan3", item.ozelAlan3 || null);
+          setValue("ozelAlan4", item.ozelAlan4 || null);
+          setValue("ozelAlan5", item.ozelAlan5 || null);
+          setValue("ozelAlan6", item.ozelAlan6 || null);
+          setValue("ozelAlan7", item.ozelAlan7 || null);
+          setValue("ozelAlan8", item.ozelAlan8 || null);
+          setValue("ozelAlan9", item.ozelAlan9 || null);
+          setValue("ozelAlan9ID", item.ozelAlanKodId9);
+          setValue("ozelAlan10", item.ozelAlan10 || null);
+          setValue("ozelAlan10ID", item.ozelAlanKodId10);
+          setValue("ozelAlan11", item.ozelAlan11 || null);
+          setValue("ozelAlan12", item.ozelAlan12 || null);
           setValue("odemeYapildi", item.odemeYapildi);
 
           setIsApiUpdate(false); // API güncellemeleri bittiğinde flag'i false yap
@@ -181,6 +183,8 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
       // expeditionOperation: selectedRow1.key,
       // seferSiraNo: Number(selectedRow1.key),
       firmaId: Number(data.firmaID),
+      firmaTel: String(data.telefon || ""),
+      firmaIlgili: String(data.ilgili || ""),
       faturaNo: String(data.faturaNo || ""),
       faturaIrsaliye: String(data.irsaliyeNo || ""),
       faturaTarih: data.faturaTarih ? formatDateWithDayjs(data.faturaTarih) : null,
@@ -194,7 +198,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
       varisSehirId: Number(data.varisSehriID || 0),
       cikisSehirId: Number(data.cikisSehriID || 0),
       tasimaTuruKodId: Number(data.tasimaTuruID || 0),
-      yuklemeId: Number(data.yuklemeKoduID || 0),
+      yuklemeId: Number(data.yuklemeKodId || 0),
       varisSehirYerId: Number(data.varisYeriID || 0),
       cikisSehirYerId: Number(data.cikisYeriID || 0),
       varisTarih: data.varisTarih ? formatDateWithDayjs(data.varisTarih) : null,
@@ -212,8 +216,8 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
       ozelAlan6: String(data.ozelAlan6 || ""),
       ozelAlan7: String(data.ozelAlan7 || ""),
       ozelAlan8: String(data.ozelAlan8 || ""),
-      ozelAlanKodId9: Number(data.ozelAlanID9 || 0),
-      ozelAlanKodId10: Number(data.ozelAlanID10 || 0),
+      ozelAlanKodId9: Number(data.ozelAlan9ID || 0),
+      ozelAlanKodId10: Number(data.ozelAlan10ID || 0),
       ozelAlan11: Number(data.ozelAlan11 || 0),
       ozelAlan12: Number(data.ozelAlan12 || 0),
       varisKm: Number(data.varisKm || 0),
@@ -248,7 +252,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
   return (
     <FormProvider {...methods}>
       <div>
-        <Modal width="990px" title="İşçilik Güncelle" open={isModalVisible} onOk={methods.handleSubmit(onSubmited)} onCancel={onModalClose}>
+        <Modal width="990px" title={t("tasima/RotaBilgileri") + " " + t("guncelle")} open={isModalVisible} onOk={methods.handleSubmit(onSubmited)} onCancel={onModalClose}>
           {loading ? (
             <Spin
               spinning={loading}

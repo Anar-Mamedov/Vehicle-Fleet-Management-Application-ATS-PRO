@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Typography } from "antd";
 import { useFormContext } from "react-hook-form";
 import { t } from "i18next";
+import dayjs from "dayjs";
 import KodIDSelectbox from "../../../../../../../../../components/KodIDSelectbox";
 import NumberInput from "../../../../../../../../../components/form/inputs/NumberInput";
 import TextInput from "../../../../../../../../../components/form/inputs/TextInput";
@@ -14,7 +15,29 @@ import TimeInput from "../../../../../../../../../components/form/date/TimeInput
 const { Text } = Typography;
 
 export function RotaBilgileri() {
-  const { watch } = useFormContext();
+  const { watch, setValue } = useFormContext();
+
+  const cikisTarih = watch("cikisTarih");
+  const cikisSaat = watch("cikisSaat");
+  const varisTarih = watch("varisTarih");
+  const varisSaat = watch("varisSaat");
+
+  useEffect(() => {
+    if (cikisTarih && cikisSaat && varisTarih && varisSaat) {
+      const cikisDateTime = dayjs(cikisTarih).hour(cikisSaat.hour()).minute(cikisSaat.minute());
+      const varisDateTime = dayjs(varisTarih).hour(varisSaat.hour()).minute(varisSaat.minute());
+
+      if (varisDateTime.isAfter(cikisDateTime)) {
+        const farkDakika = varisDateTime.diff(cikisDateTime, "minute");
+        const saat = Math.floor(farkDakika / 60);
+        const dakika = farkDakika % 60;
+
+        setValue("sureSaat", saat);
+        setValue("sureDk", dakika);
+      }
+    }
+  }, [cikisTarih, cikisSaat, varisTarih, varisSaat, setValue]);
+
   return (
     <div style={{ display: "flex", gap: "10px" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -61,7 +84,7 @@ export function RotaBilgileri() {
         <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "400px", justifyContent: "space-between" }}>
           <Text>{t("sure") + " " + t("saat") + " / " + t("dk")}</Text>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            <NumberInput name="sureSaat" min={0} max={23} placeholder={t("saat")} style={{ width: "121px" }} />
+            <NumberInput name="sureSaat" min={0} placeholder={t("saat")} style={{ width: "121px" }} />
             <NumberInput name="sureDk" min={0} max={59} placeholder={t("dk")} style={{ width: "121px" }} />
           </div>
         </div>

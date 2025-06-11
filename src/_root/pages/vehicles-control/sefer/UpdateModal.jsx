@@ -323,11 +323,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       label: t("genelBilgiler"),
       children: <GeneralInfo isValid={isValid} />,
     },
-    {
-      key: "2",
-      label: t("ozelAlanlar"),
-      children: <PersonalFields personalProps={personalProps} />,
-    },
+
     {
       key: "5",
       label: t("yakitGiderleri"),
@@ -351,6 +347,11 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
           isActive={activeKey === "7"}
         />
       ),
+    },
+    {
+      key: "2",
+      label: t("ozelAlanlar"),
+      children: <PersonalFields personalProps={personalProps} />,
     },
     {
       key: "3",

@@ -403,7 +403,7 @@ export function YuklemeKodlariTablo({ workshopSelectedId, onSubmit }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
       {control && (
-        <Controller name="yuklemeKodu" control={control} render={({ field }) => <Input {...field} placeholder={t("yuklemeKodu")} style={{ width: "160px" }} readOnly />} />
+        <Controller name="yuklemeKodAciklama" control={control} render={({ field }) => <Input {...field} placeholder={t("yuklemeKodu")} style={{ width: "160px" }} readOnly />} />
       )}
       <Button onClick={handleModalToggle}>+</Button>
       <Button onClick={handleClearForms}>-</Button>
