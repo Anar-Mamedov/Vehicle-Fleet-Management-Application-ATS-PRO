@@ -7,7 +7,7 @@ import { Button, message, Modal } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../../context/plakaSlice";
 import { AddLokasyonTransferService } from "../../../../../../../api/services/vehicles/vehicles/services";
-import { CodeItemValidateService, GetModuleCodeByCode } from "../../../../../../../api/services/code/services";
+
 import TextInput from "../../../../../../components/form/inputs/TextInput";
 import NumberInput from "../../../../../../components/form/inputs/NumberInput";
 import Textarea from "../../../../../../components/form/inputs/Textarea";
@@ -22,8 +22,7 @@ const AddModal = ({ setStatus, isModalOpen, setIsModalOpen, lokasyon, lokasyonId
   const [isLoading, setIsLoading] = useState(false);
   const { plaka, aracId, printData } = useContext(PlakaContext);
   const isFirstRender = useRef(true);
-  const [isValid, setIsValid] = useState("normal");
-  const [surucuIsValid, setSurucuIsValid] = useState(false);
+
   const [data, setData] = useState(null);
   const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
 
@@ -49,24 +48,6 @@ const AddModal = ({ setStatus, isModalOpen, setIsModalOpen, lokasyon, lokasyonId
       setValue("teslimSaat", dayjs());
     }
   }, [lokasyon, lokasyonId, isModalOpen, guncelKm]);
-
-  useEffect(() => {
-    if (isModalOpen && isFirstRender.current) {
-      GetModuleCodeByCode("ARAC_TESTLIM").then((res) => setValue("tutanakNo", res.data));
-    }
-  }, [isModalOpen, setValue]);
-
-  useEffect(() => {
-    if (watch("tutanakNo")) {
-      const body = {
-        tableName: "TutanakNo",
-        code: watch("tutanakNo"),
-      };
-      CodeItemValidateService(body).then((res) => {
-        !res.data.status ? setIsValid("success") : setIsValid("error");
-      });
-    }
-  }, [watch("tutanakNo")]);
 
   const handleOk = handleSubmit(async (values) => {
     setIsLoading(true);
@@ -131,7 +112,7 @@ const AddModal = ({ setStatus, isModalOpen, setIsModalOpen, lokasyon, lokasyonId
   const teslimSaat = watch("teslimSaat");
   const yeniLokasyonID = watch("yeniLokasyonID");
 
-  const isButtonDisabled = isLoading || !teslimTarih || !teslimSaat || !yeniLokasyonID || isValid !== "success" || surucuIsValid;
+  const isButtonDisabled = isLoading || !teslimTarih || !teslimSaat || !yeniLokasyonID;
 
   const footer = [
     // <Button
@@ -162,10 +143,6 @@ const AddModal = ({ setStatus, isModalOpen, setIsModalOpen, lokasyon, lokasyonId
       </div>
     </div>,
   ];
-
-  const validateStyle = {
-    borderColor: isValid === "error" ? "#dc3545" : isValid === "success" ? "#23b545" : "#000",
-  };
 
   return (
     <div>

@@ -326,6 +326,8 @@ const Yakit = ({ ayarlarData, customFields }) => {
     return savedScrollMode !== null ? JSON.parse(savedScrollMode) : false;
   });
   const [xlsxLoading, setXlsxLoading] = useState(false);
+  const [columnSearchTerm, setColumnSearchTerm] = useState("");
+  const [columnSortOrder, setColumnSortOrder] = useState("asc"); // "asc" or "desc"
 
   console.log("arama işlemi", searchTerm);
 
@@ -1659,6 +1661,30 @@ const Yakit = ({ ayarlarData, customFields }) => {
     setFiltersApplied(true);
   };
 
+  // Filter and sort columns for the modal
+  const getFilteredAndSortedColumns = () => {
+    let filteredCols = initialColumns;
+
+    // Filter by search term
+    if (columnSearchTerm) {
+      filteredCols = filteredCols.filter((col) => extractTextFromElement(col.title).toLowerCase().includes(columnSearchTerm.toLowerCase()));
+    }
+
+    // Sort alphabetically
+    filteredCols = [...filteredCols].sort((a, b) => {
+      const titleA = extractTextFromElement(a.title).toLowerCase();
+      const titleB = extractTextFromElement(b.title).toLowerCase();
+
+      if (columnSortOrder === "asc") {
+        return titleA.localeCompare(titleB);
+      } else {
+        return titleB.localeCompare(titleA);
+      }
+    });
+
+    return filteredCols;
+  };
+
   // Function to handle CSV download
   const handleDownloadXLSX = async () => {
     try {
@@ -1789,7 +1815,18 @@ const Yakit = ({ ayarlarData, customFields }) => {
   return (
     <>
       {/* Modal for managing columns */}
-      <Modal title="Sütunları Yönet" centered width={800} open={isModalVisible} onOk={() => setIsModalVisible(false)} onCancel={() => setIsModalVisible(false)}>
+      <Modal
+        title="Sütunları Yönet"
+        centered
+        width={800}
+        open={isModalVisible}
+        onOk={() => setIsModalVisible(false)}
+        onCancel={() => setIsModalVisible(false)}
+        afterClose={() => {
+          setColumnSearchTerm("");
+          setColumnSortOrder("asc");
+        }}
+      >
         <Text style={{ marginBottom: "15px" }}>Aşağıdaki Ekranlardan Sütunları Göster / Gizle ve Sıralamalarını Ayarlayabilirsiniz.</Text>
         <div
           style={{
@@ -1822,9 +1859,28 @@ const Yakit = ({ ayarlarData, customFields }) => {
             >
               <Text style={{ fontWeight: 600 }}>Sütunları Göster / Gizle</Text>
             </div>
-            <div style={{ height: "400px", overflow: "auto" }}>
-              {initialColumns.map((col) => (
-                <div style={{ display: "flex", gap: "10px" }} key={col.key}>
+
+            {/* Search and Sort Controls */}
+            <div style={{ marginBottom: "15px", display: "flex", gap: "8px", alignItems: "center" }}>
+              <Input
+                placeholder="Sütun ara..."
+                value={columnSearchTerm}
+                onChange={(e) => setColumnSearchTerm(e.target.value)}
+                style={{ flex: 1 }}
+                prefix={<SearchOutlined />}
+                allowClear
+              />
+              <Button
+                size="small"
+                onClick={() => setColumnSortOrder(columnSortOrder === "asc" ? "desc" : "asc")}
+                icon={columnSortOrder === "asc" ? <ArrowDownOutlined /> : <ArrowUpOutlined />}
+                title={columnSortOrder === "asc" ? "A-Z Sıralama" : "Z-A Sıralama"}
+              />
+            </div>
+
+            <div style={{ height: "350px", overflow: "auto" }}>
+              {getFilteredAndSortedColumns().map((col) => (
+                <div style={{ display: "flex", gap: "10px", marginBottom: "8px" }} key={col.key}>
                   <Checkbox checked={columns.find((column) => column.key === col.key)?.visible || false} onChange={(e) => toggleVisibility(col.key, e.target.checked)} />
                   {col.title}
                 </div>
