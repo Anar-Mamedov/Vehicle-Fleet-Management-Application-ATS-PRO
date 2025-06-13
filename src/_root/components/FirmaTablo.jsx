@@ -48,7 +48,7 @@ const ResizableTitle = (props) => {
   );
 };
 
-export function FirmaTablo({ workshopSelectedId, onSubmit }) {
+export function FirmaTablo({ workshopSelectedId, onSubmit, type = 0 }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState([]);
@@ -112,7 +112,7 @@ export function FirmaTablo({ workshopSelectedId, onSubmit }) {
         ellipsis: true,
         width: 100,
       },
-      {
+      /*  {
         title: t("durum"),
         dataIndex: "aktif",
         key: "aktif",
@@ -123,7 +123,7 @@ export function FirmaTablo({ workshopSelectedId, onSubmit }) {
             {aktif ? ` ${t("aktif")}` : ` ${t("pasif")}`}
           </span>
         ),
-      },
+      }, */
     ];
 
     if (!savedWidths) {
@@ -250,7 +250,7 @@ export function FirmaTablo({ workshopSelectedId, onSubmit }) {
           currentSetPointId = 0;
         }
 
-        const url = `Company/GetCompaniesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&isService=true`;
+        const url = `Company/GetCompaniesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${type}`;
         console.log("API URL:", url);
 
         const response = await AxiosInstance.get(url);

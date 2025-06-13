@@ -707,7 +707,7 @@ const Sigorta = ({ seferId = null, isSefer = false, tableHeight = null, selected
                   suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
                 />
 
-                <Filters onChange={handleBodyChange} />
+                {/* <Filters onChange={handleBodyChange} /> */}
                 {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
                 {/* Other toolbar components */}
               </div>
