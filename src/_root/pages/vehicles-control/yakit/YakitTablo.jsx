@@ -378,18 +378,6 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
     }
   }, [body, filtersApplied, pageSize, infiniteScrollEnabled]);
 
-  // Ensure localStorage has valid page size value
-  useEffect(() => {
-    const savedPageSize = localStorage.getItem(tabloPageSize);
-    const parsedValue = parseInt(savedPageSize, 10);
-
-    // If the value in localStorage is invalid, reset it to 20
-    if (isNaN(parsedValue) || ![20, 50, 100].includes(parsedValue)) {
-      localStorage.setItem(tabloPageSize, "20");
-      setPageSize(20);
-    }
-  }, []);
-
   const prevBodyRef = useRef(body);
 
   const handleSearch = () => {
@@ -496,6 +484,23 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
     setCurrentPage(1);
   }, []);
   // filtreleme işlemi için kullanılan useEffect son
+
+  // Update localStorage when totalCount changes if user had selected totalCount option
+  useEffect(() => {
+    if (totalCount > 0) {
+      const savedPageSize = localStorage.getItem(tabloPageSize);
+      const parsedValue = parseInt(savedPageSize, 10);
+
+      // Check if the saved value is greater than 100 (indicating user selected totalCount option)
+      // and if it's different from current totalCount
+      if (!isNaN(parsedValue) && parsedValue > 100 && parsedValue !== totalCount) {
+        // Update localStorage with new totalCount value
+        localStorage.setItem(tabloPageSize, totalCount.toString());
+        // Update pageSize state
+        setPageSize(totalCount);
+      }
+    }
+  }, [totalCount]);
 
   // Add cleanup for the scroll timeout ref in a useEffect
   useEffect(() => {
@@ -1252,10 +1257,11 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
             )}
             <div style={{ display: "flex", alignItems: "center" }}>
               <span style={{ marginRight: "8px" }}>Kayıt:</span>
-              <Select value={[20, 50, 100].includes(pageSize) ? pageSize : 20} onChange={handlePageSizeChange} style={{ width: 70 }} popupMatchSelectWidth={false}>
+              <Select value={pageSize} onChange={handlePageSizeChange} style={{ width: 70 }} popupMatchSelectWidth={false}>
                 <Option value={20}>20</Option>
                 <Option value={50}>50</Option>
                 <Option value={100}>100</Option>
+                {/* {totalCount > 100 && <Option value={totalCount}>{totalCount}</Option>} */}
               </Select>
             </div>
           </div>
@@ -1265,20 +1271,17 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
   };
 
   const handlePageSizeChange = (value) => {
-    // Ensure value is one of the allowed options
-    const validValue = [20, 50, 100].includes(value) ? value : 20;
-
     // Show loading if infinite scroll is disabled
     if (!infiniteScrollEnabled) {
       setPaginationLoading(true);
     }
 
     // Save the new page size to localStorage
-    localStorage.setItem(tabloPageSize, validValue.toString());
+    localStorage.setItem(tabloPageSize, value.toString());
     // Update the pageSize state
-    setPageSize(validValue);
+    setPageSize(value);
     // Reset data and fetch with new size
-    fetchData(0, 1, validValue).finally(() => {
+    fetchData(0, 1, value).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
