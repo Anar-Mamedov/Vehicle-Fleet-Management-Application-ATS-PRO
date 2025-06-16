@@ -13,6 +13,7 @@ import SecondTabs from "./components/SecondTabs/SecondTabs";
 
 export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) {
   const [, startTransition] = useTransition();
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const showModal = () => {
     setOpen(true);
@@ -147,7 +148,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
     console.log({ Body });
   };
 
-  useEffect(() => {
+  /*  useEffect(() => {
     if (drawerVisible && selectedRow) {
       // console.log("selectedRow", selectedRow);
       // startTransition(() => {
@@ -179,6 +180,48 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       // });
       // });
     }
+  }, [selectedRow, setValue, drawerVisible]); */
+
+  useEffect(() => {
+    const handleDataFetchAndUpdate = async () => {
+      if (drawerVisible && selectedRow) {
+        setOpen(true); // İşlemler tamamlandıktan sonra drawer'ı aç
+        setLoading(true); // Yükleme başladığında
+        try {
+          const response = await AxiosInstance.get(`Location/GetLocationById?locationId=${selectedRow.key}`);
+          const item = response.data; // Veri dizisinin ilk elemanını al
+          // Form alanlarını set et
+          setValue("selectedLokasyonId", selectedRow.key);
+          setValue("lokasyonTanimi", item.lokasyonTanim);
+          setValue("lokasyonAktif", item.lokasyonAktif);
+          setValue("anaLokasyonID", item.anaLokasyonId);
+          setValue("anaLokasyonTanim", item.anaLokasyon);
+          setValue("lokasyonAciklama", item.lokasyonAciklama);
+
+          setValue("LokasyonTipi", item.LOK_TIP);
+          setValue("LokasyonTipiID", item.LOK_TIP_ID);
+          setValue("LokasyonBina", item.LOK_BINA);
+          setValue("LokasyonBinaID", item.LOK_BINA_KOD_ID);
+          setValue("lokasyonMasrafMerkeziTanim", item.LOK_MASRAF_MERKEZ);
+          setValue("lokasyonMasrafMerkeziID", item.LOK_MASRAF_MERKEZ_KOD_ID);
+          setValue("LokasyonKat", item.LOK_KAT);
+          setValue("LokasyonKatID", item.LOK_KAT_KOD_ID);
+          setValue("lokasyonYoneticiTanim", item.LOK_PERSONEL);
+          setValue("lokasyonYoneticiID", item.LOK_PERSONEL_ID);
+          setValue("lokasyonDepoTanim", item.LOK_DEPO);
+          setValue("lokasyonDepoID", item.LOK_MALZEME_DEPO_ID);
+          setValue("lokasyonEmail", item.LOK_EMAIL);
+          // ... Diğer setValue çağrıları
+
+          setLoading(false); // Yükleme tamamlandığında
+        } catch (error) {
+          console.error("Veri çekilirken hata oluştu:", error);
+          setLoading(false); // Hata oluştuğunda
+        }
+      }
+    };
+
+    handleDataFetchAndUpdate();
   }, [selectedRow, setValue, drawerVisible]);
 
   useEffect(() => {

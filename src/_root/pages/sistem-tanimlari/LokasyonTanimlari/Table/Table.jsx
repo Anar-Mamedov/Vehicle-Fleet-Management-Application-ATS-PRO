@@ -86,11 +86,7 @@ export default function MainTable() {
     return data.map((item) => ({
       ...item,
       key: item.locationId,
-      lokasyonTanim: item.location,
-      lokasyonTip: item.locationType,
-      lokasyonPersonel: item.locationManager,
       children: item.hasChild ? [] : undefined,
-      fullLocationPath: item.fullLocationPath,
     }));
   };
 
@@ -141,14 +137,21 @@ export default function MainTable() {
     {
       title: "Lokasyon Tanımı",
       key: "lokasyonBilgisi",
-      width: "100%",
+      width: "60%",
       ellipsis: true,
       render: (text, record) => (
         <div>
-          <div>{record.lokasyonTanim}</div>
+          <div>{record.location}</div>
           {record.fullLocationPath && <div style={{ color: "gray", fontSize: "12px" }}>{record.fullLocationPath}</div>}
         </div>
       ),
+    },
+    {
+      title: "Lokasyon Tüm Yol",
+      dataIndex: "fullLocationPath",
+      key: "fullLocationPath",
+      width: "40%",
+      ellipsis: true,
     },
   ];
 
