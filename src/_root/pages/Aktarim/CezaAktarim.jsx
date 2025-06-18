@@ -14,7 +14,7 @@ const BaslikEslemeModal = ({ visible, onClose, excelHeaders, dbHeaders, onSave }
 
     useEffect(() => {
     const otomatikEslesmeler = {};
-    dbHeaders.slice(0, 6).forEach((dbHeader) => {
+    dbHeaders.slice(0, 2).forEach((dbHeader) => {
         let maxSimilarity = 0;
         let bestMatch = null;
         excelHeaders.forEach((excelHeader) => {
@@ -53,7 +53,7 @@ const BaslikEslemeModal = ({ visible, onClose, excelHeaders, dbHeaders, onSave }
   >
     <Table
       dataSource={dbHeaders
-        .filter((header) => header !== "DORSE_PLAKA") // 👈 filtreleme burada
+        .filter((header) => header !== "SIRANO") // 👈 filtreleme burada
         .map((header, index) => ({
           key: `${header}_${index}`,
           dbHeader: header,
@@ -89,11 +89,10 @@ const BaslikEslemeModal = ({ visible, onClose, excelHeaders, dbHeaders, onSave }
 );
 };
 
-const AracAktarim = () => {
+const CezaAktarim = () => {
   const [fileList, setFileList] = useState([]);
   const [jsonData, setJsonData] = useState([]);
   const [isFileUploaded, setIsFileUploaded] = useState(false);
-  const [excelData, setExcelData] = useState([]);
   const [columns, setColumns] = useState([]);
   const [kontrolSonuclari, setKontrolSonuclari] = useState([]);
   const [eslemeModalVisible, setEslemeModalVisible] = useState(false);
@@ -104,16 +103,48 @@ const AracAktarim = () => {
   const [tikSayisi, setTikSayisi] = useState(0);
   const [carpiSayisi, setCarpiSayisi] = useState(0);
 
+  function excelDateToJSDate(serial) {
+  const utc_days = Math.floor(serial - 25569);
+  const utc_value = utc_days * 86400; 
+  const date_info = new Date(utc_value * 1000);
+
+  const fractional_day = serial - Math.floor(serial) + 0.0000001;
+  const total_seconds = Math.floor(86400 * fractional_day);
+
+  const seconds = total_seconds % 60;
+  const hours = Math.floor(total_seconds / 3600);
+  const minutes = Math.floor((total_seconds - (hours * 3600)) / 60);
+
+  date_info.setHours(hours);
+  date_info.setMinutes(minutes);
+  date_info.setSeconds(seconds);
+
+  return date_info;
+}
+
+const formatDateTime = (date) => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const seconds = String(d.getSeconds()).padStart(2, "0");
+
+  return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
+};
+
 const fetchDbHeaders = async () => {
   try {
-    const response = await httpAktarim.post("/api/AracAktarim/aracbaslik");
+    const response = await httpAktarim.post("/api/CezaAktarim/cezabaslik");
 
     // ID ile biten veya tamamen ID olanları filtrele
     const filteredHeaders = response.data.filter(
       (header) =>
     !header.toUpperCase().endsWith("_ID") &&
     header.toUpperCase() !== "ID" &&
-    header.toUpperCase() !== "DORSE_PLAKA"
+    header.toUpperCase() !== "SIRANO"
     );
 
     setDbHeaders(filteredHeaders);
@@ -127,64 +158,101 @@ useEffect(() => {
 }, []);
 
   const handleUpload = (info) => {
-    const file = info.fileList[info.fileList.length - 1];
-    if (file && file.originFileObj) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const ab = e.target.result;
-        const wb = XLSX.read(ab, { type: "array" });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        const headers = data[0];
+  const file = info.fileList[info.fileList.length - 1];
+  if (file && file.originFileObj) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const ab = e.target.result;
+      const wb = XLSX.read(ab, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      const headers = data[0];
 
-        const dynamicColumns = headers.map((header) => ({
-          title: header,
-          dataIndex: header,
-          key: header,
-          ellipsis: true,
-        }));
-        setColumns(dynamicColumns);
+      const dynamicColumns = headers.map((header) => ({
+        title: header,
+        dataIndex: header,
+        key: header,
+        ellipsis: true,
+      }));
+      setColumns(dynamicColumns);
 
-        const jsonData = data.slice(1).map((row, index) => {
-          let rowData = {};
-          headers.forEach((header, i) => {
-            rowData[header] = row[i] || "";
-          });
-          return { key: index, ...rowData };
-        });
+      const jsonData = data.slice(1).map((row, index) => {
+  let rowData = {};
+  headers.forEach((header, i) => {
+    let cellValue = row[i] || "";
 
-        setJsonData(jsonData);
-        setIsFileUploaded(true);
-        setKontrolSonuclari([]); // önceki kontrol sonuçlarını temizle
-      };
-      reader.readAsArrayBuffer(file.originFileObj);
+    if (header.toUpperCase() === "TARIH" && typeof cellValue === "number") {
+      cellValue = formatDateTime(excelDateToJSDate(cellValue));
     }
-    setFileList(info.fileList);
-  };
+
+    rowData[header] = cellValue;
+  });
+  return { key: index, ...rowData };
+});
+
+      setJsonData(jsonData);
+      setIsFileUploaded(true);
+      setKontrolSonuclari([]); // önceki kontrol sonuçlarını temizle
+    };
+    reader.readAsArrayBuffer(file.originFileObj);
+  }
+  setFileList(info.fileList);
+};
+
+function toSqlDateTime(date) {
+  if (!(date instanceof Date) || isNaN(date.getTime())) return null;
+
+  const pad = (n) => n.toString().padStart(2, "0");
+
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hour = pad(date.getHours());
+  const minute = pad(date.getMinutes());
+  const second = pad(date.getSeconds());
+
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+}
 
   // API kontrol işlemi
   const handleKontrolEt = async () => {
   try {
-    const kontrolList = eslesmisVeriler.map((d) => ({
-      plaka: String(d.PLAKA || ""),
-      lokasyon: String(d.BOLGE || ""),
-      yakitTipi: String(d.YAKITTIP || ""),
-      surucu: String(d.SURUCU || ""),
-    }));
+    const kontrolList = eslesmisVeriler
+      .filter(d => d.TARIH !== undefined && d.TARIH !== null && d.TARIH !== "")
+      .map(d => {
+        // Tarih Excel seri numarası ise JS Date'ye çevir
+        const dateObj = typeof d.TARIH === "number" ? excelDateToJSDate(d.TARIH) : new Date(d.TARIH);
 
-    const response = await httpAktarim.post("/api/AracAktarim/kontrolarac", kontrolList);
+        // SQL formatına çevir
+        const cezaTarihiSql = toSqlDateTime(dateObj);
 
-    const merged = eslesmisVeriler.map((d) => {
+        return {
+          plaka: String(d.PLAKA || "").trim(),
+          cezaTarihi: cezaTarihiSql,
+          surucu: d.SURUCU ? String(d.SURUCU).trim() : null,
+        };
+      })
+      .filter(item => item.cezaTarihi !== null);
+
+    if (kontrolList.length === 0) {
+      message.warning("Geçerli ceza tarihi olan kayıt bulunamadı.");
+      return;
+    }
+
+    const response = await httpAktarim.post("/api/CezaAktarim/cezakontrol", { cezaList: kontrolList });
+
+    // Sonuçları işle
+    const merged = eslesmisVeriler.map(d => {
       const found = response.data.find(
-        (x) => x.plaka?.trim().toLowerCase() === d.PLAKA?.trim().toLowerCase()
+        x => x.plaka?.trim().toLowerCase() === (d.PLAKA || "").trim().toLowerCase()
       );
-      const sonucMesajlari = found ? found.sonuc?.map((s) => s.message) || [] : [];
+      const sonucMesajlari = found?.sonuc?.map(s => s.message) || [];
       return { ...d, Sonuc: sonucMesajlari };
     });
 
-    // ✅ Burada ✔ ve ❌ sayılarını hesaplıyoruz
     const tik = merged.filter(item => (item.Sonuc?.length ?? 0) === 0).length;
     const carpi = merged.filter(item => (item.Sonuc?.length ?? 0) > 0).length;
+
     setTikSayisi(tik);
     setCarpiSayisi(carpi);
 
@@ -294,13 +362,13 @@ const newColumns = Object.entries(eslesmeler)
     <>
 
     <div style={{ marginBottom: 15 }}>
-      <Button type="default" href="/public/file/ornek-arac-sablonu.xlsx" download>
+      <Button type="default" href="/public/file/ornek-ceza-sablonu.xlsx" download>
         Örnek Excel Şablonunu İndir
       </Button>
     </div>
 
     <h4>
-      LÜTFEN ARAÇ AKTARIMI İŞLEMİ İÇİN YUKARIDAKİ BUTONA TIKLAYARAK ÖRNEK ŞABLONU İNDİRİNİZ.
+      LÜTFEN CEZA AKTARIMI İŞLEMİ İÇİN YUKARIDAKİ BUTONA TIKLAYARAK ÖRNEK ŞABLONU İNDİRİNİZ.
     </h4>
 
     <div style={{ maxWidth: '600px', margin: '0 auto', marginBottom: '10px' }}>
@@ -319,7 +387,7 @@ const newColumns = Object.entries(eslesmeler)
 
         {isFileUploaded && (
             <h4>
-                ARAÇ LİSTESİ AKTARIMI İÇİN EXCEL DOSYASINDAKİ TABLO BAŞLIKLARI İLE VERİTABANI BAŞLIKLARINI EŞLEŞTİRMENİZ GEREKMEKTEDİR.
+                CEZA LİSTESİ AKTARIMI İÇİN EXCEL DOSYASINDAKİ TABLO BAŞLIKLARI İLE VERİTABANI BAŞLIKLARINI EŞLEŞTİRMENİZ GEREKMEKTEDİR.
             </h4>
         )}
 
@@ -415,4 +483,4 @@ const newColumns = Object.entries(eslesmeler)
 );
 };
 
-export default AracAktarim;
+export default CezaAktarim;

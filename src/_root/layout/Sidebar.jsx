@@ -255,6 +255,10 @@ const Sidebar = () => {
           key: "55",
           label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
         },
+        {
+          key: "5asdasdasd5",
+          label: <Link to={"/ceza-aktarim"}>{t("cezaAktarim")}</Link>,
+        },
       ],
     },
     {
