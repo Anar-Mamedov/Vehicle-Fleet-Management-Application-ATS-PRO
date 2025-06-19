@@ -61,7 +61,7 @@ const StyledTabs = styled(Tabs)`
 export default function MainTabs({ isApiUpdate }) {
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
-  const { control, watch, setValue } = useFormContext();
+  const { control, watch, setValue, getValues } = useFormContext();
 
   const handleYapilanIsMinusClick = () => {
     setValue("yapilanIs", "");
@@ -221,6 +221,27 @@ export default function MainTabs({ isApiUpdate }) {
   const handleKdvOraniChange = (value) => {
     setValue("kdvOrani", value);
     recalculateToplam(iscilikUcreti, indirimOrani, value);
+  };
+
+  const handleKdvDegeriChange = (value) => {
+    setValue("kdvDegeri", value);
+
+    // Recalculate KDV oranı based on the new KDV değeri
+    const values = getValues();
+    const miktar = values.miktar || 1;
+    const iscilikUcreti = (values.iscilikUcreti || 0) * miktar;
+    const indirimOrani = values.indirimOrani || 0;
+    const remainingAmount = iscilikUcreti - (indirimOrani || 0);
+
+    if (remainingAmount > 0 && value > 0) {
+      const newKdvOrani = (value / remainingAmount) * 100;
+      setValue("kdvOrani", newKdvOrani);
+    }
+
+    // Update final total
+    const kdvDegeri = value || 0;
+    const finalAmount = remainingAmount + kdvDegeri;
+    setValue("toplam", isNaN(finalAmount) ? 0 : finalAmount);
   };
 
   const recalculateIndirimOrani = (iscilikUcreti, indirimYuzde) => {
@@ -421,7 +442,11 @@ export default function MainTabs({ isApiUpdate }) {
                   <InputNumber {...field} style={{ flex: 1 }} prefix={<Text style={{ color: "#0091ff" }}>%</Text>} onChange={(value) => handleKdvOraniChange(value)} />
                 )}
               />
-              <Controller name="kdvDegeri" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1, display: "none" }} />} />
+              <Controller
+                name="kdvDegeri"
+                control={control}
+                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleKdvDegeriChange(value)} />}
+              />
             </div>
           </div>
 
