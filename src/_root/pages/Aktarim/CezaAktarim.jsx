@@ -127,7 +127,6 @@ const formatDateTime = (date) => {
   const day = String(d.getDate()).padStart(2, "0");
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const year = d.getFullYear();
-
   const hours = String(d.getHours()).padStart(2, "0");
   const minutes = String(d.getMinutes()).padStart(2, "0");
   const seconds = String(d.getSeconds()).padStart(2, "0");
@@ -181,9 +180,17 @@ useEffect(() => {
   headers.forEach((header, i) => {
     let cellValue = row[i] || "";
 
-    if (header.toUpperCase() === "TARIH" && typeof cellValue === "number") {
-      cellValue = formatDateTime(excelDateToJSDate(cellValue));
+    if (header.toUpperCase() === "TARIH") {
+  if (typeof cellValue === "number") {
+    const dateObj = excelDateToJSDate(cellValue);
+    cellValue = formatDateTime(dateObj); // string olarak ata
+  } else if (typeof cellValue === "string" || cellValue instanceof Date) {
+    const dateObj = new Date(cellValue);
+    if (!isNaN(dateObj.getTime())) {
+      cellValue = formatDateTime(dateObj); // yine string ata
     }
+  }
+}
 
     rowData[header] = cellValue;
   });
@@ -211,7 +218,7 @@ function toSqlDateTime(date) {
   const minute = pad(date.getMinutes());
   const second = pad(date.getSeconds());
 
-  return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+  return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
 }
 
   // API kontrol işlemi
@@ -220,10 +227,10 @@ function toSqlDateTime(date) {
     const kontrolList = eslesmisVeriler
       .filter(d => d.TARIH !== undefined && d.TARIH !== null && d.TARIH !== "")
       .map(d => {
-        // Tarih Excel seri numarası ise JS Date'ye çevir
-        const dateObj = typeof d.TARIH === "number" ? excelDateToJSDate(d.TARIH) : new Date(d.TARIH);
+        const dateObj = typeof d.TARIH === "number"
+          ? excelDateToJSDate(d.TARIH)
+          : new Date(d.TARIH); // tarih string geldiyse yine dönüştür
 
-        // SQL formatına çevir
         const cezaTarihiSql = toSqlDateTime(dateObj);
 
         return {
@@ -239,9 +246,8 @@ function toSqlDateTime(date) {
       return;
     }
 
-    const response = await httpAktarim.post("/api/CezaAktarim/cezakontrol", { cezaList: kontrolList });
+    const response = await httpAktarim.post("/api/CezaAktarim/cezakontrol", kontrolList);
 
-    // Sonuçları işle
     const merged = eslesmisVeriler.map(d => {
       const found = response.data.find(
         x => x.plaka?.trim().toLowerCase() === (d.PLAKA || "").trim().toLowerCase()
@@ -255,8 +261,8 @@ function toSqlDateTime(date) {
 
     setTikSayisi(tik);
     setCarpiSayisi(carpi);
-
     setKontrolSonuclari(merged);
+
     message.success("Kontrol tamamlandı.");
   } catch (err) {
     console.error("API hata:", err);
@@ -297,11 +303,29 @@ function toSqlDateTime(date) {
 
 const newColumns = Object.entries(eslesmeler)
   .filter(([_, excelHeader]) => !!excelHeader)
-  .map(([dbHeader]) => ({
-    title: dbHeader,
-    dataIndex: dbHeader,
-    key: dbHeader,
-  }));
+  .map(([dbHeader]) => {
+    const column = {
+      title: dbHeader,
+      dataIndex: dbHeader,
+      key: dbHeader,
+    };
+
+    if (dbHeader.toUpperCase() === "TARIH") {
+      column.render = (value) => {
+        if (!value) return "";
+        const d = new Date(value);
+        const gun = String(d.getDate()).padStart(2, "0");
+        const ay = String(d.getMonth() + 1).padStart(2, "0");
+        const yil = d.getFullYear();
+        const saat = String(d.getHours()).padStart(2, "0");
+        const dakika = String(d.getMinutes()).padStart(2, "0");
+
+        return `${gun}.${ay}.${yil} ${saat}:${dakika}`;
+      };
+    }
+
+    return column;
+  });
 
         setEslesmisVeriler(eslesmisVeri);
         setEslesmisColumns(newColumns);
