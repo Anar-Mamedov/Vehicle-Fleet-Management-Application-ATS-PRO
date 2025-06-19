@@ -89,6 +89,7 @@ import CompanyKeyPage from "./_auth/CompanyKeyPage.jsx";
 // Aktarım
 
 import AracAktarim from "./_root/pages/Aktarim/AracAktarim.jsx";
+import CezaAktarim from "./_root/pages/Aktarim/CezaAktarim.jsx";
 
 const App = () => {
   const [hasToken, setHasToken] = useState(false);
@@ -190,6 +191,7 @@ const App = () => {
 
         {/* Aktarım */}
         <Route path="/arac-aktarim" element={< AracAktarim />} />
+        <Route path="/ceza-aktarim" element={< CezaAktarim />} />
 
         <Route path="/deneme" element={<DenemeTable />} />
       </Route>
