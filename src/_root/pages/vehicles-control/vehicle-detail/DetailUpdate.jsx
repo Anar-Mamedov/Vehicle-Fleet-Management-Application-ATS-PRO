@@ -162,7 +162,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     guncelKm: 0,
     markaId: null,
     modelId: 0,
-    yil: 0,
+    yil: null,
     aracGrubuId: 0,
     AracCinsiKodId: 0,
     aracRenkId: 0,
@@ -283,7 +283,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setValue("yakitTip", res?.data.yakitTip);
         setValue("aracRenkId", res?.data.aracRenkId ? res?.data.aracRenkId : null);
         setValue("renk", res?.data.renk);
-        setValue("yil", res?.data.yil);
+        setValue("yil", res?.data.yil ? dayjs().year(res?.data.yil) : null);
         setValue("vitesTipiID", res.data.vitesTipiKodId);
         setValue("vitesTipi", res.data.vitesTipi);
         setValue("aciklama", res?.data.aciklama);
@@ -358,7 +358,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       plaka: values.plaka,
       anahtarKodu: values.anahtarKodu,
       aciklama: values.aciklama,
-      yil: values.yil ? values.yil : 0,
+      yil: values.yil ? dayjs(values.yil).year() : 0,
       aracTipId: values.aracTipId || 0,
       guncelKm: values.guncelKm ? values.guncelKm : 0,
       kullanimAmaciKodId: values.kullanimAmaciKodId || 0,

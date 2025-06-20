@@ -13,6 +13,7 @@ import VehicleList from "./VehiclesList";
 import { useFormContext, Controller } from "react-hook-form";
 import Textarea from "../../../../components/form/inputs/Textarea";
 import KodIDSelectbox from "../../../../components/form/selects/KodIDSelectbox";
+import DatePickerSelectYear from "../../../../components/form/inputs/DatePickerSelectYear";
 
 const GeneralInfo = () => {
   const { setValue, watch, control } = useFormContext();
@@ -106,7 +107,7 @@ const GeneralInfo = () => {
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
                   <label htmlFor="yil">{t("yil")}</label>
-                  <NumberInput name="yil" />
+                  <DatePickerSelectYear name="yil" />
                 </div>
               </div>
 
