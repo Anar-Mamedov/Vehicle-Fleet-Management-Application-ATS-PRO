@@ -53,7 +53,7 @@ const BaslikEslemeModal = ({ visible, onClose, excelHeaders, dbHeaders, onSave }
   >
     <Table
       dataSource={dbHeaders
-        .filter((header) => header !== "SIRANO") // 👈 filtreleme burada
+        .filter((header) => header !== "DORSE_PLAKA") // 👈 filtreleme burada
         .map((header, index) => ({
           key: `${header}_${index}`,
           dbHeader: header,
@@ -89,10 +89,11 @@ const BaslikEslemeModal = ({ visible, onClose, excelHeaders, dbHeaders, onSave }
 );
 };
 
-const CezaAktarim = () => {
+const AracAktarim = () => {
   const [fileList, setFileList] = useState([]);
   const [jsonData, setJsonData] = useState([]);
   const [isFileUploaded, setIsFileUploaded] = useState(false);
+  const [excelData, setExcelData] = useState([]);
   const [columns, setColumns] = useState([]);
   const [kontrolSonuclari, setKontrolSonuclari] = useState([]);
   const [eslemeModalVisible, setEslemeModalVisible] = useState(false);
@@ -103,50 +104,16 @@ const CezaAktarim = () => {
   const [tikSayisi, setTikSayisi] = useState(0);
   const [carpiSayisi, setCarpiSayisi] = useState(0);
 
-  function excelDateToJSDate(serial) {
-  const utc_days = Math.floor(serial - 25569);
-  const utc_value = utc_days * 86400; 
-  const date_info = new Date(utc_value * 1000);
-
-  const fractional_day = serial - Math.floor(serial) + 0.0000001;
-  const total_seconds = Math.floor(86400 * fractional_day);
-
-  const seconds = total_seconds % 60;
-  const hours = Math.floor(total_seconds / 3600);
-  const minutes = Math.floor((total_seconds - (hours * 3600)) / 60);
-
-  date_info.setHours(hours);
-  date_info.setMinutes(minutes);
-  date_info.setSeconds(seconds);
-
-  return date_info;
-}
-
-const formatDateTime = (date) => {
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return ""; // 🔐 Geçersizse boş string dön
-
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-
-  const hours = String(d.getHours()).padStart(2, "0");
-  const minutes = String(d.getMinutes()).padStart(2, "0");
-  const seconds = String(d.getSeconds()).padStart(2, "0");
-
-  return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
-};
-
 const fetchDbHeaders = async () => {
   try {
-    const response = await httpAktarim.post("/api/CezaAktarim/cezabaslik");
+    const response = await httpAktarim.post("/api/SurucuAktarim/surucubaslik");
 
     // ID ile biten veya tamamen ID olanları filtrele
     const filteredHeaders = response.data.filter(
       (header) =>
     !header.toUpperCase().endsWith("_ID") &&
     header.toUpperCase() !== "ID" &&
-    header.toUpperCase() !== "SIRANO"
+    header.toUpperCase() !== "SURUCUKOD"
     );
 
     setDbHeaders(filteredHeaders);
@@ -160,126 +127,73 @@ useEffect(() => {
 }, []);
 
   const handleUpload = (info) => {
-  const file = info.fileList[info.fileList.length - 1];
-  if (file && file.originFileObj) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const ab = e.target.result;
-      const wb = XLSX.read(ab, { type: "array" });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      const headers = data[0];
+    const file = info.fileList[info.fileList.length - 1];
+    if (file && file.originFileObj) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const ab = e.target.result;
+        const wb = XLSX.read(ab, { type: "array" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        const headers = data[0];
 
-      const dynamicColumns = headers.map((header) => ({
-        title: header,
-        dataIndex: header,
-        key: header,
-        ellipsis: true,
-      }));
-      setColumns(dynamicColumns);
+        const dynamicColumns = headers.map((header) => ({
+          title: header,
+          dataIndex: header,
+          key: header,
+          ellipsis: true,
+        }));
+        setColumns(dynamicColumns);
 
-      const jsonData = data.slice(1).map((row, index) => {
-  let rowData = {};
-  headers.forEach((header, i) => {
-    let cellValue = row[i] || "";
+        const jsonData = data.slice(1).map((row, index) => {
+          let rowData = {};
+          headers.forEach((header, i) => {
+            rowData[header] = row[i] || "";
+          });
+          return { key: index, ...rowData };
+        });
 
-    if (header.toUpperCase() === "TARIH") {
-  if (typeof cellValue === "number") {
-    const dateObj = excelDateToJSDate(cellValue);
-    cellValue = formatDateTime(dateObj); // geçerli tarih garantili
-  } else if (typeof cellValue === "string" || cellValue instanceof Date) {
-    const dateObj = new Date(cellValue);
-    if (!isNaN(dateObj.getTime())) {
-      cellValue = formatDateTime(dateObj);
-    } else {
-      cellValue = ""; // Geçersiz string varsa temizle
+        setJsonData(jsonData);
+        setIsFileUploaded(true);
+        setKontrolSonuclari([]); // önceki kontrol sonuçlarını temizle
+      };
+      reader.readAsArrayBuffer(file.originFileObj);
     }
-  }
-}
-
-    rowData[header] = cellValue;
-  });
-  return { key: index, ...rowData };
-});
-
-      setJsonData(jsonData);
-      setIsFileUploaded(true);
-      setKontrolSonuclari([]); // önceki kontrol sonuçlarını temizle
-    };
-    reader.readAsArrayBuffer(file.originFileObj);
-  }
-  setFileList(info.fileList);
-};
-
-function toSqlDateTime(date) {
-  if (!(date instanceof Date) || isNaN(date.getTime())) return null;
-
-  const pad = (n) => n.toString().padStart(2, "0");
-
-  const year = date.getFullYear();
-  const month = pad(date.getMonth() + 1);
-  const day = pad(date.getDate());
-  const hour = pad(date.getHours());
-  const minute = pad(date.getMinutes());
-  const second = pad(date.getSeconds());
-
-  return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
-}
+    setFileList(info.fileList);
+  };
 
   // API kontrol işlemi
   const handleKontrolEt = async () => {
   try {
-    const kontrolList = eslesmisVeriler
-      .filter(d => d.TARIH !== undefined && d.TARIH !== null && d.TARIH !== "")
-      .map(d => {
-        let dateObj;
+    // API'ye gönderilecek sürücü + lokasyon listesi
+    const kontrolList = eslesmisVeriler.map((d) => ({
+      Isim: String(d.ISIM || ""),      // API modeline uygun: Isim
+      lokasyon: String(d.BOLGE || ""),   // API modeline uygun: Lokasyon
+    }));
 
-        if (typeof d.TARIH === "number") {
-          dateObj = excelDateToJSDate(d.TARIH);
-        } else if (typeof d.TARIH === "string") {
-          const convertedValue = d.TARIH.replace(/(\d{2})\.(\d{2})\.(\d{4})/, "$2/$1/$3");
-          dateObj = new Date(convertedValue);
-        } else {
-          dateObj = new Date(d.TARIH);
-        }
+    const response = await httpAktarim.post("/api/SurucuAktarim/kontrolsurucu", kontrolList);
 
-        const cezaTarihiSql = toSqlDateTime(dateObj);
-
-        return {
-          plaka: String(d.PLAKA || "").trim(),
-          cezaTarihi: cezaTarihiSql,
-          surucu: d.SURUCU ? String(d.SURUCU).trim() : null,
-        };
-      })
-      .filter(item => item.cezaTarihi !== null);
-
-    if (kontrolList.length === 0) {
-      message.warning("Geçerli ceza tarihi olan kayıt bulunamadı.");
-      return;
-    }
-
-    // Listeyi doğrudan gönderiyoruz, obje içinde cezaList: [...] değil!
-    const response = await httpAktarim.post("/api/CezaAktarim/cezakontrol", kontrolList);
-
-    const merged = eslesmisVeriler.map(d => {
-      const found = response.data.find(
-        x => x.plaka?.trim().toLowerCase() === (d.PLAKA || "").trim().toLowerCase()
+    const merged = eslesmisVeriler.map((d) => {
+      const matched = response.data.find(
+        (x) =>
+          x.Surucu?.trim().toLowerCase() === d.SURUCU?.trim().toLowerCase() &&
+          x.Lokasyon?.trim().toLowerCase() === d.BOLGE?.trim().toLowerCase()
       );
-      const sonucMesajlari = found?.sonuc?.map(s => s.message) || [];
+      const sonucMesajlari = matched ? matched.Sonuc?.map((s) => s.Message) || [] : [];
       return { ...d, Sonuc: sonucMesajlari };
     });
 
+    // ✔ ve ❌ sayıları
     const tik = merged.filter(item => (item.Sonuc?.length ?? 0) === 0).length;
     const carpi = merged.filter(item => (item.Sonuc?.length ?? 0) > 0).length;
-
     setTikSayisi(tik);
     setCarpiSayisi(carpi);
-    setKontrolSonuclari(merged);
 
-    message.success("Kontrol tamamlandı.");
+    setKontrolSonuclari(merged);
+    message.success("Sürücü ve Lokasyon kontrolü tamamlandı.");
   } catch (err) {
     console.error("API hata:", err);
-    message.error("API kontrol hatası.");
+    message.error("Sürücü kontrol API hatası.");
   }
 };
 
@@ -304,43 +218,28 @@ function toSqlDateTime(date) {
   ];
 
   const handleEslesmeKaydet = (eslesmeler) => {
-  const eslesmisVeri = jsonData.map((row) => {
-    let newRow = {};
-
-    Object.entries(eslesmeler).forEach(([dbHeader, excelHeader]) => {
-      let value = row[excelHeader];
-
-      // TARIH kolonunu yeniden parse et
-      if (dbHeader.toUpperCase() === "TARIH" && typeof value === "string") {
-        // Türkçe tarih stringini İngilizce parse edilebilir hale getir
-        const convertedValue = value.replace(
-          /(\d{2})\.(\d{2})\.(\d{4})/,
-          "$2/$1/$3"
-        );
-        const parsed = new Date(convertedValue);
-        newRow[dbHeader] = isNaN(parsed.getTime())
-          ? ""
-          : formatDateTime(parsed);
-      } else {
-        newRow[dbHeader] = value;
-      }
-    });
-
-    return newRow;
+        const eslesmisVeri = jsonData.map((row) => {
+  let newRow = {};
+  Object.entries(eslesmeler).forEach(([dbHeader, excelHeader]) => {
+    if (excelHeader) {
+      newRow[dbHeader] = row[excelHeader];
+    }
   });
+  return newRow;
+});
 
-  const newColumns = Object.entries(eslesmeler)
-    .filter(([_, excelHeader]) => !!excelHeader)
-    .map(([dbHeader]) => ({
-      title: dbHeader,
-      dataIndex: dbHeader,
-      key: dbHeader,
-    }));
+const newColumns = Object.entries(eslesmeler)
+  .filter(([_, excelHeader]) => !!excelHeader)
+  .map(([dbHeader]) => ({
+    title: dbHeader,
+    dataIndex: dbHeader,
+    key: dbHeader,
+  }));
 
-  setEslesmisVeriler(eslesmisVeri);
-  setEslesmisColumns(newColumns);
-  setIsMapped(true);
-};
+        setEslesmisVeriler(eslesmisVeri);
+        setEslesmisColumns(newColumns);
+        setIsMapped(true);
+    };
 
     const handleVeritabaninaKaydet = async () => {
   const temizKayitlar = kontrolSonuclari.filter(item => !item.Sonuc || item.Sonuc.length === 0);
@@ -350,55 +249,83 @@ function toSqlDateTime(date) {
     return;
   }
 
-  const toSqlDateTime = (dateStr) => {
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return null;
-    const pad = (n) => n.toString().padStart(2, "0");
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-  };
-
-  const temizKayitlarAPIFormat = temizKayitlar.map(item => ({
-    plaka: item.PLAKA,
-    cezaTarihi: toSqlDateTime(item.TARIH),
-    surucu: item.SURUCU || null,
-    lokasyon: item.LOKASYON || null,
-    odemeTarih: toSqlDateTime(item.ODEMETARIH),
-    cezaTuru: item.CEZATURU || null,
-    cezaPuan: item.CEZAPUAN ? Number(item.CEZAPUAN) : null,
-    tutar: item.TUTAR ? Number(item.TUTAR) : null,
-    gecikmeTutar: item.GECIKMETUTAR ? Number(item.GECIKMETUTAR) : null,
-    toplamTutar: item.TOPLAMTUTAR ? Number(item.TOPLAMTUTAR) : null,
-    odeme: item.ODEME === "Evet" || item.ODEME === true ? true : false,
-    aciklama: item.ACIKLAMA || null,
-    belgeNo: item.BELGENO || null,
-    bankaHesap: item.BANKAHESAP || null,
-    olusturma: toSqlDateTime(item.OLUSTURMA),
-    degistirme: toSqlDateTime(item.DEGISTIRME),
-    cezaMadde: item.MADDE || null,
-    saat: item.SAAT || null,
-    bolge: item.BOLGE || null,
-    aracKm: item.ARACKM ? Number(item.ARACKM) : null,
-    teblihTarih: toSqlDateTime(item.TEBLIGTARIH),
-    indirimOran: item.INDIRIMORAN ? Number(item.INDIRIMORAN) : null,
-    cezaOzelAlan1: item.CEZAOZELALAN1 || null,
-    cezaOzelAlan2: item.CEZAOZELALAN2 || null,
-    cezaOzelAlan3: item.CEZAOZELALAN3 || null,
-    cezaOzelAlan4: item.CEZAOZELALAN4 || null,
-    cezaOzelAlan5: item.CEZAOZELALAN5 || null,
-    cezaOzelAlan6: item.CEZAOZELALAN6 || null,
-    cezaOzelAlan7: item.CEZAOZELALAN7 || null,
-    cezaOzelAlan8: item.CEZAOZELALAN8 || null,
+  const temizKayitlarAPIFormat = temizKayitlar.map((item) => ({
+    SurucuKod: item.SURUCUKOD,
+    Isim: item.SURUCU,
+    SskNo: item.SSKNO,
+    Ehliyet: item.EHLIYET,
+    Sinif: item.SINIF,
+    EhliyetNo: item.EHLIYETNO,
+    Bolge: item.BOLGE,
+    KanGrubu: item.KANGRUBU,
+    DogumTarih: item.DOGUMTARIH,
+    IsTarih: item.ISTARIH,
+    AyrilmaTarih: item.AYRILMATARIH,
+    Adres: item.ADRES,
+    Il: item.IL,
+    Ilce: item.ILCE,
+    Telefon1: item.TELEFON1,
+    Telefon2: item.TELEFON2,
+    Fax: item.FAX,
+    Gsm: item.GSM,
+    CezaPuan: item.CEZAPUAN,
+    Aciklama: item.ACIKLAMA,
+    Unvan: item.UNVAN,
+    TcKimlikNo: item.TCKIMLIKNO,
+    BelgeNo: item.MYB_BELGENO,
+    VerilisTarih: item.MYB_VERILISTARIH,
+    MybTuru: item.MYB_TURU,
+    MybKapsadigiDiger: item.MYB_KAPSADIGI_DIGER,
+    KimlikSeriNo: item.KIMLIK_SERINO,
+    BabaAdi: item.BABA_ADI,
+    AnaAdi: item.ANA_ADI,
+    DogumYeri: item.DOGUM_YERI,
+    MedeniHali: item.MEDENI_HALI,
+    Dini: item.DINI,
+    KayitliOlduguIl: item.KAYITLIOLDUGUIL,
+    KayitliOlduguIlce: item.KAYITLIOLDUGUILCE,
+    MahalleKoy: item.MAHALLEKOY,
+    KimlikCiltNo: item.CILTNO,
+    KimlikAileSiraNo: item.AILESIRANO,
+    KimlikSiraNo: item.SIRANO,
+    KimlikVerildigiYer: item.VERILDIGIYER,
+    KimlikVerilisNedeni: item.VERILISNEDENI,
+    KimlikKayitNo: item.KAYITNO,
+    KimlikVerilisTarih: item.VERILISTARIH,
+    VergiNo: item.VERGINO,
+    EhliyetVerildigiIlIlce: item.EHLIYETVERILDIGIIL,
+    EhliyetBelgeTarih: item.EHLIYETBELGETARIH,
+    EhliyetSeriNo: item.EHLIYETSERINO,
+    EhliyetKullanıldigiCihazProtez: item.EHLIYETCIHAZ,
+    EgitimDurumu: item.EGITIMDURUMU,
+    MezunOlduguOkul: item.OKUL,
+    MezunOlduguBolum: item.BOLUM,
+    MezuniyetTarih: item.MEZUNIYETTARIH,
+    OzelAlan1: item.SURUCUOZELALAN1,
+    OzelAlan2: item.SURUCUOZELALAN2,
+    OzelAlan3: item.SURUCUOZELALAN3,
+    OzelAlan4: item.SURUCUOZELALAN4,
+    OzelAlan5: item.SURUCUOZELALAN5,
+    OzelAlan6: item.SURUCUOZELALAN6,
+    OzelAlan7: item.SURUCUOZELALAN7,
+    OzelAlan8: item.SURUCUOZELALAN8,
+    Lokasyon: item.BOLGE, // Lokasyon tanımı gönderiliyor
+    Departman: item.DEPARTMAN,
+    SurucuTip: item.SURUCUTIP,
+    SurucuGorev: item.SURUCUGOREV,
   }));
 
   try {
-    await httpAktarim.post("/api/CezaAktarim/cezaaktar", temizKayitlarAPIFormat);
-    message.success("Veritabanına başarıyla kaydedildi.");
+    await httpAktarim.post("/api/SurucuAktarimKayit/surucuaktar", temizKayitlarAPIFormat);
+    message.success("Sürücüler başarıyla kaydedildi.");
 
-    const hataliKayitlar = kontrolSonuclari.filter(item => item.Sonuc && item.Sonuc.length > 0);
+    const hataliKayitlar = kontrolSonuclari.filter(
+      (item) => item.kontrolMesaji && item.kontrolMesaji.trim() !== ""
+    );
     setKontrolSonuclari(hataliKayitlar);
   } catch (error) {
-    console.error("Veri kaydederken hata oluştu:", error);
-    message.error("Kaydetme işlemi sırasında bir hata oluştu.");
+    console.error("Sürücü kaydederken hata:", error);
+    message.error("Sürücü kaydı sırasında hata oluştu.");
   }
 };
 
@@ -406,13 +333,13 @@ function toSqlDateTime(date) {
     <>
 
     <div style={{ marginBottom: 15 }}>
-      <Button type="default" href="/public/file/ornek-ceza-sablonu.xlsx" download>
+      <Button type="default" href="/public/file/ornek-surucu-sablonu.xlsx" download>
         Örnek Excel Şablonunu İndir
       </Button>
     </div>
 
     <h4>
-      LÜTFEN CEZA AKTARIMI İŞLEMİ İÇİN YUKARIDAKİ BUTONA TIKLAYARAK ÖRNEK ŞABLONU İNDİRİNİZ.
+      LÜTFEN SÜRÜCÜ AKTARIMI İŞLEMİ İÇİN YUKARIDAKİ BUTONA TIKLAYARAK ÖRNEK ŞABLONU İNDİRİNİZ.
     </h4>
 
     <div style={{ maxWidth: '600px', margin: '0 auto', marginBottom: '10px' }}>
@@ -431,7 +358,7 @@ function toSqlDateTime(date) {
 
         {isFileUploaded && (
             <h4>
-                CEZA LİSTESİ AKTARIMI İÇİN EXCEL DOSYASINDAKİ TABLO BAŞLIKLARI İLE VERİTABANI BAŞLIKLARINI EŞLEŞTİRMENİZ GEREKMEKTEDİR.
+                SÜRÜCÜ LİSTESİ AKTARIMI İÇİN EXCEL DOSYASINDAKİ TABLO BAŞLIKLARI İLE VERİTABANI BAŞLIKLARINI EŞLEŞTİRMENİZ GEREKMEKTEDİR.
             </h4>
         )}
 
@@ -527,4 +454,4 @@ function toSqlDateTime(date) {
 );
 };
 
-export default CezaAktarim;
+export default AracAktarim;
