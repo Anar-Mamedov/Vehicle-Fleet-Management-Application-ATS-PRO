@@ -241,7 +241,7 @@ const newColumns = Object.entries(eslesmeler)
     };
 
     const handleVeritabaninaKaydet = async () => {
-  const temizKayitlar = kontrolSonuclari.filter(item => !item.kontrolMesaji || item.kontrolMesaji.trim() === "");
+  const temizKayitlar = kontrolSonuclari.filter(item => !item.Sonuc || item.Sonuc.length === 0);
 
   if (temizKayitlar.length === 0) {
     message.warning("Gönderilecek sorunsuz kayıt bulunamadı.");

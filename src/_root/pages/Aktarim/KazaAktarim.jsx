@@ -89,7 +89,7 @@ const BaslikEslemeModal = ({ visible, onClose, excelHeaders, dbHeaders, onSave }
 );
 };
 
-const CezaAktarim = () => {
+const KazaAktarim = () => {
   const [fileList, setFileList] = useState([]);
   const [jsonData, setJsonData] = useState([]);
   const [isFileUploaded, setIsFileUploaded] = useState(false);
@@ -139,7 +139,7 @@ const formatDateTime = (date) => {
 
 const fetchDbHeaders = async () => {
   try {
-    const response = await httpAktarim.post("/api/CezaAktarim/cezabaslik");
+    const response = await httpAktarim.post("/api/KazaAktarim/kazabaslik");
 
     // ID ile biten veya tamamen ID olanları filtrele
     const filteredHeaders = response.data.filter(
@@ -243,23 +243,21 @@ function toSqlDateTime(date) {
           dateObj = new Date(d.TARIH);
         }
 
-        const cezaTarihiSql = toSqlDateTime(dateObj);
-
         return {
           plaka: String(d.PLAKA || "").trim(),
-          cezaTarihi: cezaTarihiSql,
-          surucu: d.SURUCU ? String(d.SURUCU).trim() : null,
+          kazaTarih: dateObj.toISOString(), // ISO format kullanılıyor
+          surucu: d.SURUCUKOD ? String(d.SURUCUKOD).trim() : null,
         };
       })
-      .filter(item => item.cezaTarihi !== null);
+      .filter(item => item.kazaTarih !== null);
 
     if (kontrolList.length === 0) {
-      message.warning("Geçerli ceza tarihi olan kayıt bulunamadı.");
+      message.warning("Geçerli kaza tarihi olan kayıt bulunamadı.");
       return;
     }
 
-    // Listeyi doğrudan gönderiyoruz, obje içinde cezaList: [...] değil!
-    const response = await httpAktarim.post("/api/CezaAktarim/cezakontrol", kontrolList);
+    // Yeni API'ye gönderiyoruz
+    const response = await httpAktarim.post("/api/KazaAktarim/kazakontrol", kontrolList);
 
     const merged = eslesmisVeriler.map(d => {
       const found = response.data.find(
@@ -276,7 +274,7 @@ function toSqlDateTime(date) {
     setCarpiSayisi(carpi);
     setKontrolSonuclari(merged);
 
-    message.success("Kontrol tamamlandı.");
+    message.success("Kaza kontrolü tamamlandı.");
   } catch (err) {
     console.error("API hata:", err);
     message.error("API kontrol hatası.");
@@ -357,43 +355,51 @@ function toSqlDateTime(date) {
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   };
 
-  const temizKayitlarAPIFormat = temizKayitlar.map(item => ({
+  const apiFormatKayitlar = temizKayitlar.map(item => ({
     plaka: item.PLAKA,
-    cezaTarihi: toSqlDateTime(item.TARIH),
+    kazaTarih: toSqlDateTime(item.TARIH),
     surucu: item.SURUCU || null,
     lokasyon: item.LOKASYON || null,
-    odemeTarih: toSqlDateTime(item.ODEMETARIH),
-    cezaTuru: item.CEZATURU || null,
-    cezaPuan: item.CEZAPUAN ? Number(item.CEZAPUAN) : null,
-    tutar: item.TUTAR ? Number(item.TUTAR) : null,
-    gecikmeTutar: item.GECIKMETUTAR ? Number(item.GECIKMETUTAR) : null,
-    toplamTutar: item.TOPLAMTUTAR ? Number(item.TOPLAMTUTAR) : null,
-    odeme: item.ODEME === "Evet" || item.ODEME === true ? true : false,
     aciklama: item.ACIKLAMA || null,
+    karsiPlaka: item.KARSIPLAKA || null,
+    karsiSurucu: item.KARSISURUCU || null,
+    karsiSigorta: item.KARSISIGORTA || null,
+    surucuKasli: item.SURUCUKASLI || null,
+    surucuKtali: item.SURUCKUTALI || null,
+    geriOdemeTarih: toSqlDateTime(item.GERIODEMETARIH),
+    faturaTarih: toSqlDateTime(item.FATURATARIH),
+    geriOdemeTutar: item.GERIODEMETUTAR ? Number(item.GERIODEMETUTAR) : null,
+    faturaTutar: item.FATURATUTAR ? Number(item.FATURATUTAR) : null,
     belgeNo: item.BELGENO || null,
     bankaHesap: item.BANKAHESAP || null,
-    olusturma: toSqlDateTime(item.OLUSTURMA),
-    degistirme: toSqlDateTime(item.DEGISTIRME),
-    cezaMadde: item.MADDE || null,
-    saat: item.SAAT || null,
     bolge: item.BOLGE || null,
+    saat: item.SAAT || null,
     aracKm: item.ARACKM ? Number(item.ARACKM) : null,
-    teblihTarih: toSqlDateTime(item.TEBLIGTARIH),
-    indirimOran: item.INDIRIMORAN ? Number(item.INDIRIMORAN) : null,
-    cezaOzelAlan1: item.CEZAOZELALAN1 || null,
-    cezaOzelAlan2: item.CEZAOZELALAN2 || null,
-    cezaOzelAlan3: item.CEZAOZELALAN3 || null,
-    cezaOzelAlan4: item.CEZAOZELALAN4 || null,
-    cezaOzelAlan5: item.CEZAOZELALAN5 || null,
-    cezaOzelAlan6: item.CEZAOZELALAN6 || null,
-    cezaOzelAlan7: item.CEZAOZELALAN7 || null,
-    cezaOzelAlan8: item.CEZAOZELALAN8 || null,
+    sigortaSiraNo: item.SIGORTASIRANO ? Number(item.SIGORTASIRANO) : null,
+    servisSiraNo: item.SERVISSIRANO ? Number(item.SERVISSIRANO) : null,
+    geriOdemeBanka: item.GERIODEMEBANKA || null,
+    geriOdemeAciklama: item.GERIODEMEACIKLAMA || null,
+    hasarNo: item.HASARNO || null,
+    kazaTuru: item.KAZATURU || null,
+    kazaSekli: item.KAZASEKLI || null,
+    asliKusur: item.ASLIKUSUR || null,
+    taliKusur: item.TALIKUSUR || null,
+    banka: item.BANKA || null,
+    kazaOzelAlan1: item.KAZAOZELALAN1 || null,
+    kazaOzelAlan2: item.KAZAOZELALAN2 || null,
+    kazaOzelAlan3: item.KAZAOZELALAN3 || null,
+    kazaOzelAlan4: item.KAZAOZELALAN4 || null,
+    kazaOzelAlan5: item.KAZAOZELALAN5 || null,
+    kazaOzelAlan6: item.KAZAOZELALAN6 || null,
+    kazaOzelAlan7: item.KAZAOZELALAN7 || null,
+    kazaOzelAlan8: item.KAZAOZELALAN8 || null,
   }));
 
   try {
-    await httpAktarim.post("/api/CezaAktarim/cezaaktar", temizKayitlarAPIFormat);
+    await httpAktarim.post("/api/KazaAktarim/kazaaktar", apiFormatKayitlar);
     message.success("Veritabanına başarıyla kaydedildi.");
 
+    // Başarıyla kaydedilenleri sil, hatalılar kalsın
     const hataliKayitlar = kontrolSonuclari.filter(item => item.Sonuc && item.Sonuc.length > 0);
     setKontrolSonuclari(hataliKayitlar);
   } catch (error) {
@@ -406,13 +412,13 @@ function toSqlDateTime(date) {
     <>
 
     <div style={{ marginBottom: 15 }}>
-      <Button type="default" href="/public/file/ornek-ceza-sablonu.xlsx" download>
+      <Button type="default" href="/public/file/ornek-kaza-sablonu.xlsx" download>
         Örnek Excel Şablonunu İndir
       </Button>
     </div>
 
     <h4>
-      LÜTFEN CEZA AKTARIMI İŞLEMİ İÇİN YUKARIDAKİ BUTONA TIKLAYARAK ÖRNEK ŞABLONU İNDİRİNİZ.
+      LÜTFEN KAZA AKTARIMI İŞLEMİ İÇİN YUKARIDAKİ BUTONA TIKLAYARAK ÖRNEK ŞABLONU İNDİRİNİZ.
     </h4>
 
     <div style={{ maxWidth: '600px', margin: '0 auto', marginBottom: '10px' }}>
@@ -431,7 +437,7 @@ function toSqlDateTime(date) {
 
         {isFileUploaded && (
             <h4>
-                CEZA LİSTESİ AKTARIMI İÇİN EXCEL DOSYASINDAKİ TABLO BAŞLIKLARI İLE VERİTABANI BAŞLIKLARINI EŞLEŞTİRMENİZ GEREKMEKTEDİR.
+                KAZA LİSTESİ AKTARIMI İÇİN EXCEL DOSYASINDAKİ TABLO BAŞLIKLARI İLE VERİTABANI BAŞLIKLARINI EŞLEŞTİRMENİZ GEREKMEKTEDİR.
             </h4>
         )}
 
@@ -527,4 +533,4 @@ function toSqlDateTime(date) {
 );
 };
 
-export default CezaAktarim;
+export default KazaAktarim;

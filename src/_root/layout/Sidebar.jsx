@@ -247,21 +247,6 @@ const Sidebar = () => {
       label: <Link to={"/raporlar"}>{t("raporlar")}</Link>,
     },
     {
-      key: "54",
-      icon: <MdOutlineSystemUpdateAlt />,
-      label: t("aktarim"),
-      children: [
-        {
-          key: "55",
-          label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
-        },
-        {
-          key: "5asdasdasd5",
-          label: <Link to={"/ceza-aktarim"}>{t("cezaAktarim")}</Link>,
-        },
-      ],
-    },
-    {
       key: "39",
       icon: <MdOutlineSystemUpdateAlt />,
       label: t("sistemTanimlari"),
@@ -333,6 +318,33 @@ const Sidebar = () => {
         {
           key: "53",
           label: <Link to={`/kod-yonetimi`}>{t("kodYonetimi")}</Link>,
+        },
+      ],
+    },
+    {
+      key: "54",
+      icon: <MdOutlineSystemUpdateAlt />,
+      label: t("aktarim"),
+      children: [
+        {
+          key: "55",
+          label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
+        },
+        {
+          key: "5asdasdasd5",
+          label: <Link to={"/ceza-aktarim"}>{t("cezaAktarim")}</Link>,
+        },
+        {
+          key: "5asdasdasd6",
+          label: <Link to={"/kaza-aktarim"}>{t("kazaAktarim")}</Link>,
+        },
+        {
+          key: "5asdasdasd7",
+          label: <Link to={"/surucu-aktarim"}>{t("surucuAktarim")}</Link>,
+        },
+        {
+          key: "5asdasdasd8",
+          label: <Link to={"/km-aktarim"}>{t("kmAktarim")}</Link>,
         },
       ],
     },
