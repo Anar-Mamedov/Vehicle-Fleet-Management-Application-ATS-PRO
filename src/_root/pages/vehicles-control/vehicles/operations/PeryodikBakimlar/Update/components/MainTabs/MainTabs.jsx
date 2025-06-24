@@ -230,14 +230,23 @@ export default function MainTabs({ modalOpen }) {
 
   useEffect(() => {
     const calculateSum = () => {
-      const value1 = Number(herKmInput) || 0;
-      const value2 = Number(herKmInput2) || 0;
-      setSum(`${value1 + value2} km`);
-      setValue("hedefKm", `${value1 + value2}`);
+      // Check if either input is null, undefined, or empty
+      if (herKmInput === undefined || herKmInput === null || herKmInput === "" || herKmInput2 === undefined || herKmInput2 === null || herKmInput2 === "") {
+        setSum("");
+        setValue("hedefKm", "");
+      } else {
+        const value1 = Number(herKmInput) || 0;
+        const value2 = Number(herKmInput2) || 0;
+        setSum(`${value1 + value2} km`);
+        setValue("hedefKm", `${value1 + value2}`);
+      }
     };
 
     calculateSum();
   }, [herKmInput, herKmInput2]);
+
+  const herKm = watch("herKm");
+  const herGun = watch("herGun");
 
   return (
     <div style={{ display: "flex", marginBottom: "15px", flexDirection: "column", gap: "10px", width: "100%" }}>
@@ -294,6 +303,24 @@ export default function MainTabs({ modalOpen }) {
                   setValue("servisTanimi", selectedData.tanim);
                   setValue("servisTipi", selectedData.servisTipi);
                   setValue("servisTipiID", selectedData.servisTipiKodId);
+                  setValue("herKmInput", selectedData.km);
+                  setValue("herGunInput", selectedData.gun);
+
+                  // Set herKm to true if selectedData.km has a value
+                  if (selectedData.km != null && selectedData.km !== "" && selectedData.km !== 0) {
+                    setValue("herKm", true);
+                  } else {
+                    // Optionally, set herKm to false if km is null or empty
+                    setValue("herKm", false);
+                  }
+
+                  // Set herGun to true if selectedData.gun has a value
+                  if (selectedData.gun != null && selectedData.gun !== "" && selectedData.gun !== 0) {
+                    setValue("herGun", true);
+                  } else {
+                    // Optionally, set herGun to false if gun is null or empty
+                    setValue("herGun", false);
+                  }
                 }}
               />
               <Button onClick={handleMinusClick}> - </Button>
@@ -325,16 +352,46 @@ export default function MainTabs({ modalOpen }) {
                   </Checkbox>
                 )}
               />
-              <Controller name="herKmInput" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1, maxWidth: "150px" }} addonAfter="km" />} />
+              <Controller
+                name="herKmInput"
+                control={control}
+                rules={{
+                  validate: (value) => {
+                    if (herKm && (value === undefined || value === null || value === "")) {
+                      return "Bu alan boş bırakılamaz!";
+                    }
+                    return true;
+                  },
+                }}
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <InputNumber {...field} disabled={!herKm} style={{ flex: 1, maxWidth: "150px" }} addonAfter="km" status={error ? "error" : ""} />
+                  </>
+                )}
+              />
+
               <Text>Son Uygulama</Text>
-              <Controller name="herKmInput2" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1, maxWidth: "150px" }} />} />
+              <Controller
+                name="herKmInput2"
+                control={control}
+                rules={{
+                  validate: (value) => {
+                    if (herKm && (value === undefined || value === null || value === "")) {
+                      return "Bu alan boş bırakılamaz!";
+                    }
+                    return true;
+                  },
+                }}
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <InputNumber {...field} disabled={!herKm} style={{ flex: 1, maxWidth: "150px" }} status={error ? "error" : ""} />
+                  </>
+                )}
+              />
+
               <Text>Hedef</Text>
               <Text>{sum}</Text>
             </div>
-            {/* <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-            <Text>Hedef</Text>
-            <Text>{sum}</Text>
-          </div>*/}
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
@@ -348,12 +405,40 @@ export default function MainTabs({ modalOpen }) {
                   </Checkbox>
                 )}
               />
-              <Controller name="herGunInput" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1, maxWidth: "150px" }} addonAfter="gün" />} />
+              <Controller
+                name="herGunInput"
+                control={control}
+                rules={{
+                  validate: (value) => {
+                    if (herGun && (value === undefined || value === null || value === "")) {
+                      return "Bu alan boş bırakılamaz!";
+                    }
+                    return true;
+                  },
+                }}
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <InputNumber {...field} disabled={!herGun} style={{ flex: 1, maxWidth: "150px" }} status={error ? "error" : ""} addonAfter="gün" />
+                  </>
+                )}
+              />
               <Text>Son Uygulama</Text>
               <Controller
                 name="herTarihi"
                 control={control}
-                render={({ field }) => <DatePicker {...field} style={{ width: "150px" }} format={localeDateFormat} placeholder="Tarih seçiniz" />}
+                rules={{
+                  validate: (value) => {
+                    if (herGun && (value === undefined || value === null || value === "")) {
+                      return "Bu alan boş bırakılamaz!";
+                    }
+                    return true;
+                  },
+                }}
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <DatePicker {...field} disabled={!herGun} style={{ width: "150px" }} status={error ? "error" : ""} format={localeDateFormat} placeholder="Tarih seçiniz" />
+                  </>
+                )}
               />
               <Text>Hedef</Text>
               <Text>{sum1}</Text>

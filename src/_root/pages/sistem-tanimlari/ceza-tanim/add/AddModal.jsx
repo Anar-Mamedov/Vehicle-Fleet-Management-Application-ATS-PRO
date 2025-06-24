@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { Button, Input, InputNumber, Modal } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
@@ -6,7 +6,7 @@ import { t } from "i18next";
 import TextArea from "antd/es/input/TextArea";
 import { AddCezaService } from "../../../../../api/services/ceza_services";
 
-const AddModal = ({ setStatus, onRefresh  }) => {
+const AddModal = ({ setStatus, onRefresh }) => {
   const [openModal, setopenModal] = useState(false);
 
   const defaultValues = {};

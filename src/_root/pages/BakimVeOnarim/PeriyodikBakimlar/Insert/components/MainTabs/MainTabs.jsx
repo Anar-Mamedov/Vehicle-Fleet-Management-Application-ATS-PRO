@@ -307,7 +307,7 @@ export default function MainTabs({ modalOpen }) {
                   setValue("herGunInput", selectedData.gun);
 
                   // Set herKm to true if selectedData.km has a value
-                  if (selectedData.km != null && selectedData.km !== "") {
+                  if (selectedData.km != null && selectedData.km !== "" && selectedData.km !== 0) {
                     setValue("herKm", true);
                   } else {
                     // Optionally, set herKm to false if km is null or empty
@@ -315,7 +315,7 @@ export default function MainTabs({ modalOpen }) {
                   }
 
                   // Set herGun to true if selectedData.gun has a value
-                  if (selectedData.gun != null && selectedData.gun !== "") {
+                  if (selectedData.gun != null && selectedData.gun !== "" && selectedData.gun !== 0) {
                     setValue("herGun", true);
                   } else {
                     // Optionally, set herGun to false if gun is null or empty

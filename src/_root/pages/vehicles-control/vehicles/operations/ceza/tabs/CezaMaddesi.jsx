@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Input, Table } from "antd";
 import { t } from "i18next";
@@ -8,13 +8,15 @@ const CezaMaddesiTable = ({ setMadde, open, key }) => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
+      total: 0,
     },
   });
-  const [loading, setLoading] = useState(false);
 
   const columns = [
     {
@@ -54,6 +56,45 @@ const CezaMaddesiTable = ({ setMadde, open, key }) => {
     },
   ];
 
+  const fetchData = async (diff, targetPage) => {
+    setLoading(true);
+    try {
+      let currentSetPointId = 0;
+
+      if (diff > 0) {
+        // Moving forward
+        currentSetPointId = data[data.length - 1]?.siraNo || 0;
+      } else if (diff < 0) {
+        // Moving backward
+        currentSetPointId = data[0]?.siraNo || 0;
+      } else {
+        currentSetPointId = 0;
+      }
+
+      const res = await GetPenaltyDefListService(diff, currentSetPointId, search);
+      const total = res?.data.recordCount;
+      setCurrentPage(targetPage);
+
+      if (res?.data.list?.length > 0) {
+        setData(res.data.list);
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: total,
+            current: targetPage,
+          },
+        });
+      } else {
+        setData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!open) {
       setSelectedRowKeys([]);
@@ -62,32 +103,12 @@ const CezaMaddesiTable = ({ setMadde, open, key }) => {
   }, [open]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const res = await GetPenaltyDefListService(search, tableParams.pagination.current);
-      setLoading(false);
-      setData(res?.data.list);
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: res?.data.recordCount,
-        },
-      });
-    };
-    fetchData();
-  }, [search, tableParams.pagination.current, key]);
+    fetchData(0, 1);
+  }, [search, key]);
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
-
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setData([]);
-    }
+  const handleTableChange = (pagination) => {
+    const diff = pagination.current - currentPage;
+    fetchData(diff, pagination.current);
   };
 
   const rowSelection = {

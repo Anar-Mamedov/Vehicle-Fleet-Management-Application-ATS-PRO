@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { PersonalFieldsReadService, PersonalFieldsUpdateService } from "../../../../api/service";
@@ -46,15 +46,14 @@ const PersonalFields = ({ personalProps }) => {
   const handleInputChange = (field, value) => {
     const updatedFields = fields.map((fld) => (fld.key === field.key ? { ...fld, value } : fld));
     setFields(updatedFields);
+  };
 
-    if (debounceTimers.current[field.key]) {
-      clearTimeout(debounceTimers.current[field.key]);
-    }
-
-    debounceTimers.current[field.key] = setTimeout(() => {
+  const handleInputBlur = (field, value) => {
+    const originalField = originalFields.find((fld) => fld.key === field.key);
+    if (originalField && originalField.value !== value) {
       setIsModalOpen(true);
-    }, 800);
-    setValues({ key: field.key, value });
+      setValues({ key: field.key, value });
+    }
   };
 
   const handleConfirmOk = () => {
@@ -84,7 +83,13 @@ const PersonalFields = ({ personalProps }) => {
           return (
             <div key={item.label} className="col-span-3 mt-10">
               <div className="flex flex-col gap-1">
-                <input id={item.label} onChange={(e) => handleInputChange(item, e.target.value)} value={item.value} className="personal-input" />
+                <input
+                  id={item.label}
+                  onChange={(e) => handleInputChange(item, e.target.value)}
+                  onBlur={(e) => handleInputBlur(item, e.target.value)}
+                  value={item.value}
+                  className="personal-input"
+                />
                 <Controller name={item.label} control={control} render={({ field }) => <Input {...field} onChange={(e) => field.onChange(e.target.value)} />} />
               </div>
             </div>
@@ -92,7 +97,13 @@ const PersonalFields = ({ personalProps }) => {
         } else if (item.type === "select") {
           return (
             <div key={item.label} className="col-span-3 mt-10 flex flex-col gap-1">
-              <input id={item.label} onChange={(e) => handleInputChange(item, e.target.value)} value={item.value} className="personal-input" />
+              <input
+                id={item.label}
+                onChange={(e) => handleInputChange(item, e.target.value)}
+                onBlur={(e) => handleInputBlur(item, e.target.value)}
+                value={item.value}
+                className="personal-input"
+              />
               <Controller
                 name={item.name2}
                 control={control}
@@ -131,7 +142,13 @@ const PersonalFields = ({ personalProps }) => {
           return (
             <div key={item.label} className="col-span-3 mt-10">
               <div className="flex flex-col gap-1">
-                <input id={item.label} onChange={(e) => handleInputChange(item, e.target.value)} value={item.value} className="personal-input" />
+                <input
+                  id={item.label}
+                  onChange={(e) => handleInputChange(item, e.target.value)}
+                  onBlur={(e) => handleInputBlur(item, e.target.value)}
+                  value={item.value}
+                  className="personal-input"
+                />
                 <Controller name={item.label} control={control} render={({ field }) => <InputNumber {...field} className="w-full" onChange={(e) => field.onChange(e)} />} />
               </div>
             </div>
