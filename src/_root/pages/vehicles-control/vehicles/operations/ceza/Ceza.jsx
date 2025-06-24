@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
@@ -28,7 +28,17 @@ const Ceza = ({ visible, onClose, ids, selectedRowsData }) => {
   const [rows, setRows] = useState([]);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [id, setId] = useState(0);
+  const [id1, setId1] = useState(null);
   const [aracId, setAracId] = useState(0);
+
+  // ids prop'una göre id state'ini güncelle
+  useEffect(() => {
+    if (ids && ids.length === 1) {
+      setId1(ids[0]);
+    } else {
+      setId1(null);
+    }
+  }, [ids]);
 
   const fetchData = async (diff, targetPage) => {
     setLoading(true);
@@ -261,7 +271,7 @@ const Ceza = ({ visible, onClose, ids, selectedRowsData }) => {
           </Button>
         </Popover>
         <Input placeholder={t("arama")} style={{ width: "20%" }} onChange={(e) => setSearch(e.target.value)} />
-        <AddModal setStatus={setStatus} />
+        <AddModal setStatus={setStatus} id1={id1} />
       </div>
 
       <UpdateModal updateModal={updateModalOpen} setUpdateModal={setUpdateModalOpen} id={id} aracId={aracId} setStatus={setStatus} />

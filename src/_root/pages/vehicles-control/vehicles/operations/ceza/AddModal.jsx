@@ -10,7 +10,7 @@ import { AddVehicleFineItemService } from "../../../../../../api/services/vehicl
 import GeneralInfo from "./tabs/GeneralInfo";
 import PersonalFields from "../../../../../components/form/personal-fields/PersonalFields";
 
-const AddModal = ({ setStatus }) => {
+const AddModal = ({ setStatus, id1 }) => {
   const { data, plaka } = useContext(PlakaContext);
   const [isOpen, setIsOpen] = useState(false);
   const [activeKey, setActiveKey] = useState("1");
@@ -99,7 +99,7 @@ const AddModal = ({ setStatus }) => {
   const methods = useForm({
     defaultValues: defaultValues,
   });
-  const { handleSubmit, reset, setValue } = methods;
+  const { handleSubmit, reset, setValue, watch } = methods;
 
   useEffect(() => {
     if (plaka.length === 1) {
@@ -111,7 +111,7 @@ const AddModal = ({ setStatus }) => {
 
   const onSubmit = handleSubmit((values) => {
     const body = {
-      aracId: data.aracId,
+      aracId: data.aracId || id1,
       tarih: dayjs(values.tarih).format("YYYY-MM-DD"),
       saat: dayjs(values.saat).format("HH:mm:ss"),
       cezaTuruKodId: values.cezaTuruKodId || 0,
