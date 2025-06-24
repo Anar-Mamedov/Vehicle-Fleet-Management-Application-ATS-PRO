@@ -27,7 +27,7 @@ function DurumFiltresi(props) {
     },
     {
       value: "6",
-      label: "Peryodik Bakımı Geçenler",
+      label: "Periyodik Bakımı Geçenler",
     },
     {
       value: "7",

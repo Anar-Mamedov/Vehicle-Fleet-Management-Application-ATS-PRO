@@ -319,7 +319,7 @@ const Hatirlatici = ({ data, getHatirlatici, loading, data1, getHatirlatici1 }) 
               {data?.aracEgzozHatiraticiSayisi}
             </Text>
           </Row>
-          <Row onClick={() => handleRowClick("Peryodik Bakım", <PeriyodikBakim />)}>
+          <Row onClick={() => handleRowClick("Periyodik Bakım", <PeriyodikBakim />)}>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px" }}>
               <Indicator style={{ backgroundColor: "#00cfaa" }} />
               <Text>Periyodik Bakım</Text>
