@@ -407,7 +407,7 @@ function toSqlDateTime(date) {
 
     <div style={{ marginBottom: 15 }}>
       <Button type="default" href="/public/file/ornek-ceza-sablonu.xlsx" download>
-        Örnek Excel Şablonunu İndir
+        Ceza Aktarım Şablonunu İndir
       </Button>
     </div>
 

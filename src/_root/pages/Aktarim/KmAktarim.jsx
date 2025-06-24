@@ -373,7 +373,7 @@ const KmAktarim = () => {
 
     <div style={{ marginBottom: 15 }}>
       <Button type="default" href="/public/file/ornek-km-sablonu.xlsx" download>
-        Örnek Excel Şablonunu İndir
+        Km Aktarım Şablonunu İndir
       </Button>
     </div>
 

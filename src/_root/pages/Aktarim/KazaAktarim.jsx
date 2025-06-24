@@ -413,7 +413,7 @@ function toSqlDateTime(date) {
 
     <div style={{ marginBottom: 15 }}>
       <Button type="default" href="/public/file/ornek-kaza-sablonu.xlsx" download>
-        Örnek Excel Şablonunu İndir
+        Kaza Aktarım Şablonunu İndir
       </Button>
     </div>
 

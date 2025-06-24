@@ -295,7 +295,7 @@ const newColumns = Object.entries(eslesmeler)
 
     <div style={{ marginBottom: 15 }}>
       <Button type="default" href="/public/file/ornek-arac-sablonu.xlsx" download>
-        Örnek Excel Şablonunu İndir
+        Araç Aktarım Şablonunu İndir
       </Button>
     </div>
 
