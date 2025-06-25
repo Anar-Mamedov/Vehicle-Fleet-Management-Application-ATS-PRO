@@ -397,11 +397,11 @@ const CezaAktarim = () => {
     <>
       <div style={{ marginBottom: 15 }}>
         <Button type="default" href="/file/ornek-ceza-sablonu.xlsx" download>
-          Örnek Excel Şablonunu İndir
+          Ceza Aktarım Şablonunu İndir
         </Button>
       </div>
 
-      <h4>LÜTFEN CEZA AKTARIMI İŞLEMİ İÇİN YUKARIDAKİ BUTONA TIKLAYARAK ÖRNEK ŞABLONU İNDİRİNİZ.</h4>
+      <h4>LÜTFEN CEZA AKTARIMI İŞLEMİ İÇİN YUKARIDAKİ BUTONA TIKLAYARAK ŞABLONU İNDİRİNİZ.</h4>
 
       <div style={{ maxWidth: "600px", margin: "0 auto", marginBottom: "10px" }}>
         <Dragger fileList={fileList} onChange={handleUpload} beforeUpload={() => false} multiple={false} accept=".xlsx, .xls">
