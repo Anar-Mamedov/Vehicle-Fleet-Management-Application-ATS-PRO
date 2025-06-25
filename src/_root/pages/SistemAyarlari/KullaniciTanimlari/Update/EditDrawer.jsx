@@ -27,6 +27,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       soyisim: "",
       telefonNo: "",
       sifre: "",
+      sifre1: "",
       paraf: "",
       color: null,
     },
@@ -53,7 +54,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("isim", item.isim);
           setValue("soyisim", item.soyAd);
           setValue("telefonNo", item.telefon);
-          setValue("sifre", item.sifre);
+          setValue("sifre1", item.sifre);
           setValue("paraf", item.paraf);
           setValue("color", item.kullaniciRengi);
           setValue("aktif", item.aktif);
@@ -87,7 +88,6 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       siraNo: Number(data.siraNo),
       kullaniciKod: data.kullaniciKod,
       isim: data.isim,
-      sifre: data.sifre,
       aktif: data.aktif,
       soyAd: data.soyisim,
       email: data.mail,
@@ -95,6 +95,11 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       paraf: data.paraf,
       kullaniciRengi: data.color ? (/^#[0-9A-F]{6}$/i.test(data.color) ? data.color : data.color.toHexString()) : null,
     };
+
+    // Şifre değeri varsa payload'a ekle
+    if (data.sifre !== null && data.sifre !== undefined && data.sifre !== "" && data.sifre.trim() !== "") {
+      Body.sifre = data.sifre;
+    }
 
     // API'ye POST isteği gönder
     AxiosInstance.post("User/UpdateUserInfo", Body)

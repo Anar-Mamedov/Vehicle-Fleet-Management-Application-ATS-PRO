@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Tabs, Typography } from "antd";
+import { Tabs, Typography, Button, Modal, Input, message, Popconfirm } from "antd";
 import {
   ToolOutlined,
   FundProjectionScreenOutlined,
@@ -9,17 +9,15 @@ import {
   ApartmentOutlined,
   WalletOutlined,
   HomeOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
 import { useFormContext } from "react-hook-form";
 import AxiosInstance from "../../../../api/http.jsx";
-import RaporsTables from "./components/RaporsTables";
-import BreadcrumbComp from "../../../components/breadcrumb/Breadcrumb.jsx";
+import RaporsTables from "./components/RaporsTables.jsx";
 import { t } from "i18next";
 
 const { Text } = Typography;
-
-const breadcrumb = [{ href: "/", title: <HomeOutlined /> }, { title: t("raporTanimlari") }];
 
 const onChange = (key) => {
   // console.log(key);
@@ -75,10 +73,53 @@ const StyledTabs = styled(Tabs)`
 export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
   const { watch } = useFormContext();
   const [items, setItems] = useState([]); // state to hold the items
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state ekledim
+  const lan = localStorage.getItem("i18nextLng") || "tr";
+  const [activeTabKey, setActiveTabKey] = useState("1");
 
-  useEffect(() => {
-    // fetch data from API
-    const lan = localStorage.getItem("i18nextLng") || "tr";
+  const onChange = (key) => {
+    setActiveTabKey(key);
+  };
+
+  const handleAddGroup = async () => {
+    if (loading) return; // Eğer loading durumundaysa işlemi durdur
+
+    setLoading(true); // Loading'i başlat
+    try {
+      await AxiosInstance.post("ReportGroup/AddReportGroup", {
+        rpgAciklama: newGroupName,
+        rpgProgram: "G",
+      });
+      message.success("Yeni grup başarıyla eklendi");
+      setIsModalOpen(false);
+      setNewGroupName("");
+      // Grupları yeniden yükle
+      fetchData();
+    } catch (error) {
+      message.error("Grup eklenirken bir hata oluştu");
+    } finally {
+      setLoading(false); // Loading'i bitir
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    try {
+      const response = await AxiosInstance.get(`ReportGroup/DeleteReportGroupById?id=${Number(activeTabKey)}`);
+      if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 204) {
+        message.success("Rapor grubu başarıyla silindi");
+        // Grupları yeniden yükle
+        fetchData();
+      } else if (response.data.statusCode === 500) {
+        message.error(response.data.message);
+      }
+    } catch (error) {
+      message.error("Rapor grubu silinirken bir hata oluştu");
+    }
+  };
+
+  const fetchData = async () => {
     AxiosInstance.get(`ReportGroup/GetReportGroup?lan=${lan}`).then((response) => {
       // map over the data to create items
       const newItems = response.data.map((item) => ({
@@ -107,38 +148,66 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
             </Text>
           </div>
         ),
-        children: <RaporsTables tabKey={item.tbRaporGroupId.toString()} tabName={item.rpgAciklama} />, // replace with actual component
+        children: <RaporsTables key={item.tbRaporGroupId} tabKey={item.tbRaporGroupId.toString()} tabName={item.rpgAciklama} />,
       }));
 
       // set the items
       setItems(newItems);
     });
+  };
+
+  useEffect(() => {
+    // fetch data from API
+    fetchData();
   }, []);
 
   return (
     <div>
-      {/* <div
-        style={{
-          backgroundColor: "white",
-          marginBottom: "15px",
-          padding: "15px",
-          borderRadius: "8px 8px 8px 8px",
-          filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
-        }}
-      >
-        <BreadcrumbComp items={breadcrumb} />
-      </div> */}
-      <div
-        style={{
-          backgroundColor: "white",
-          padding: "10px",
-          height: "calc(100vh - 115px)",
-          borderRadius: "8px 8px 8px 8px",
-          filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
-        }}
-      >
-        <StyledTabs tabPosition="left" defaultActiveKey="1" items={items} onChange={onChange} />
+      <div style={{ width: "316px", display: "flex", justifyContent: "flex-start", gap: "10px", alignItems: "center" }}>
+        <Button type="primary" onClick={() => setIsModalOpen(true)} style={{ marginBottom: "10px" }}>
+          Rapor Grubu Ekle
+        </Button>
+        <Popconfirm
+          title="Rapor Grubu Silme"
+          description="Bu rapor grubunu silmek istediğinize emin misiniz?"
+          onConfirm={handleDeleteGroup}
+          okText="Evet"
+          cancelText="Hayır"
+          icon={
+            <QuestionCircleOutlined
+              style={{
+                color: "red",
+              }}
+            />
+          }
+        >
+          <Button danger style={{ marginBottom: "10px" }}>
+            Rapor Grubu Sil
+          </Button>
+        </Popconfirm>
       </div>
+      <StyledTabs tabPosition="left" defaultActiveKey="1" destroyInactiveTabPane items={items} onChange={onChange} />
+
+      <Modal
+        title="Yeni Rapor Grubu Ekle"
+        open={isModalOpen}
+        onOk={handleAddGroup}
+        confirmLoading={loading} // Modal'a loading state ekledim
+        onCancel={() => {
+          if (!loading) {
+            // Loading durumunda cancel'a basmayı engelle
+            setIsModalOpen(false);
+            setNewGroupName("");
+          }
+        }}
+      >
+        <Input
+          placeholder="Rapor Grubu Adı"
+          value={newGroupName}
+          onChange={(e) => setNewGroupName(e.target.value)}
+          disabled={loading} // Loading durumunda input'u devre dışı bırak
+        />
+      </Modal>
     </div>
   );
 }
