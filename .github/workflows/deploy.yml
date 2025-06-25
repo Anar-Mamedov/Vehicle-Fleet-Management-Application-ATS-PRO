@@ -27,6 +27,7 @@ jobs:
         env:
           VITE_APP_GEMINI: ${{ secrets.GEMINI_API_KEY }} # Use VITE_APP_GEMINI
           VITE_APP_BASE_URL: ${{ secrets.BASE_URL }} # Add other env vars as needed
+          VITE_AKTARIM_BASE_URL: ${{ secrets.AKTARIM_BASE_URL }}
           VITE_VAKIFBANK_TOKEN_URL: ${{ secrets.VAKIFBANK_TOKEN_URL }}
           VITE_VAKIFBANK_CLIENT_ID: ${{ secrets.VAKIFBANK_CLIENT_ID }}
           VITE_VAKIFBANK_CLIENT_SECRET: ${{ secrets.VAKIFBANK_CLIENT_SECRET }}

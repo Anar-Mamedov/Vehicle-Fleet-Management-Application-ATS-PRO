@@ -79,7 +79,7 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
   useEffect(() => {
     // fetch data from API
     const lan = localStorage.getItem("i18nextLng") || "tr";
-    AxiosInstance.get(`ReportGroup/api/GetReportGroup?lan=${lan}`).then((response) => {
+    AxiosInstance.get(`ReportGroup/GetReportGroup?lan=${lan}`).then((response) => {
       // map over the data to create items
       const newItems = response.data.map((item) => ({
         key: item.tbRaporGroupId.toString(),

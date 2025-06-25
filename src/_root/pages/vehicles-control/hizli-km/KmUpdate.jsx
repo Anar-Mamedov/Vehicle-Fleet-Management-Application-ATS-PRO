@@ -84,9 +84,42 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
     }
   };
 
+  const validateDateTime = (newDate, newTime) => {
+    const currentDate = record.tarih || dayjs().format("DD.MM.YYYY");
+    const currentTime = record.saat || dayjs().format("HH:mm");
+
+    const dateToCheck = newDate || currentDate;
+    const timeToCheck = newTime || currentTime;
+
+    const dateTimeString = `${dateToCheck} ${timeToCheck}`;
+    const selectedDateTime = dayjs(dateTimeString, "DD.MM.YYYY HH:mm");
+    const now = dayjs();
+
+    if (selectedDateTime.isAfter(now)) {
+      message.warning(t("gelecekTarihSecilmez") || "Gelecek tarih ve saat seçilemez!");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleDatePickerChange = async (date) => {
     try {
-      form.setFieldsValue({ [dataIndex]: date ? date : "" });
+      if (date) {
+        const newDateStr = dayjs(date).format("DD.MM.YYYY");
+        const currentTime = record.saat || dayjs().format("HH:mm");
+
+        if (!validateDateTime(newDateStr, currentTime)) {
+          form.setFieldsValue({ [dataIndex]: dayjs(record.tarih, "DD.MM.YYYY") });
+          setOpenDatePicker(false);
+          return;
+        }
+
+        form.setFieldsValue({ [dataIndex]: date });
+      } else {
+        form.setFieldsValue({ [dataIndex]: "" });
+      }
+
       setOpenDatePicker(false);
       save();
     } catch (error) {
@@ -97,6 +130,15 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
   const handleTimePickerChange = async (time) => {
     try {
       if (time) {
+        const newTimeStr = dayjs(time).format("HH:mm");
+        const currentDate = record.tarih || dayjs().format("DD.MM.YYYY");
+
+        if (!validateDateTime(currentDate, newTimeStr)) {
+          form.setFieldsValue({ [dataIndex]: dayjs(record.saat, "HH:mm") });
+          setOpenTimePicker(false);
+          return;
+        }
+
         form.setFieldsValue({ [dataIndex]: time });
         setOpenTimePicker(false);
         save();
@@ -161,7 +203,19 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
 
         childNode = editing ? (
           <Form.Item style={{ margin: 0 }} name={dataIndex}>
-            <DatePicker allowClear={false} format="DD.MM.YYYY" open={openDatePicker} onOpenChange={(status) => setOpenDatePicker(status)} onChange={handleDatePickerChange} />
+            <DatePicker
+              allowClear={false}
+              format="DD.MM.YYYY"
+              open={openDatePicker}
+              onOpenChange={(status) => setOpenDatePicker(status)}
+              onChange={handleDatePickerChange}
+              disabledDate={(current) => {
+                const currentTime = record.saat || dayjs().format("HH:mm");
+                const dateTimeString = `${dayjs(current).format("DD.MM.YYYY")} ${currentTime}`;
+                const selectedDateTime = dayjs(dateTimeString, "DD.MM.YYYY HH:mm");
+                return selectedDateTime.isAfter(dayjs());
+              }}
+            />
           </Form.Item>
         ) : (
           <div className="editable-cell-value-wrap" style={{ paddingRight: 24 }} onClick={toggleEdit}>
@@ -180,6 +234,34 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
               needConfirm={false}
               onOpenChange={(status) => setOpenTimePicker(status)}
               onChange={handleTimePickerChange}
+              disabledTime={() => {
+                const currentDate = record.tarih || dayjs().format("DD.MM.YYYY");
+                const today = dayjs().format("DD.MM.YYYY");
+
+                if (currentDate === today) {
+                  const now = dayjs();
+                  return {
+                    disabledHours: () => {
+                      const hours = [];
+                      for (let i = now.hour() + 1; i < 24; i++) {
+                        hours.push(i);
+                      }
+                      return hours;
+                    },
+                    disabledMinutes: (selectedHour) => {
+                      if (selectedHour === now.hour()) {
+                        const minutes = [];
+                        for (let i = now.minute() + 1; i < 60; i++) {
+                          minutes.push(i);
+                        }
+                        return minutes;
+                      }
+                      return [];
+                    },
+                  };
+                }
+                return {};
+              }}
             />
           </Form.Item>
         ) : (
