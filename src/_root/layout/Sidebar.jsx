@@ -319,13 +319,6 @@ const Sidebar = () => {
           key: "53",
           label: <Link to={`/kod-yonetimi`}>{t("kodYonetimi")}</Link>,
         },
-      ],
-    },
-    {
-      key: "54",
-      icon: <MdOutlineSystemUpdateAlt />,
-      label: t("aktarim"),
-      children: [
         {
           key: "55",
           label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
