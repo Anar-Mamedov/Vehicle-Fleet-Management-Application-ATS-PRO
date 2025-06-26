@@ -42,12 +42,23 @@ export default function Bildirim({ reportResponse, setRaporModalVisible, updateR
   };
 
   const handleReportClick = (report) => {
+    // Benzersiz key'ler ekle
+    const dataWithUniqueKeys = report.list.map((item, index) => ({
+      ...item,
+      uniqueRowKey: item.ID ? `${item.ID}-${index}` : `row-${index}`,
+    }));
+
+    const originalDataWithKeys = (report.originalData || report.list).map((item, index) => ({
+      ...item,
+      uniqueRowKey: item.ID ? `${item.ID}-${index}` : `row-${index}`,
+    }));
+
     // Update context with the selected report data
     updateReportData({
       initialColumns: report.headers,
       columns: report.headers,
-      tableData: report.list,
-      originalData: report.originalData || report.list,
+      tableData: dataWithUniqueKeys, // Benzersiz key'li veri
+      originalData: originalDataWithKeys, // Benzersiz key'li orijinal veri
       columnFilters: report.columnFilters || {},
       filters: report.filters,
       reportName: report.reportName,
@@ -66,6 +77,7 @@ export default function Bildirim({ reportResponse, setRaporModalVisible, updateR
       {reportResponse && reportResponse.length > 0 ? (
         <ReportList
           dataSource={reportResponse}
+          rowKey={(item, index) => `report-${index}-${item.timestamp}`}
           renderItem={(item, index) => (
             <ReportItem style={{ padding: "10px" }} onClick={() => handleReportClick(item)}>
               <List.Item.Meta title={item.reportName} description={`${item.totalRecords} kayıt - ${new Date(item.timestamp).toLocaleString()}`} />

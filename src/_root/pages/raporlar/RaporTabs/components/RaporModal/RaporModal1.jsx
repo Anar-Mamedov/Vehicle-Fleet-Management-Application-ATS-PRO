@@ -703,47 +703,76 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
 
   // ------------------ SORTING ------------------
   const getSorter = (column) => {
-    // Sayısal değerler için
-    if (column.isNumber) {
-      return (a, b) => {
-        const aVal = a[column.dataIndex];
-        const bVal = b[column.dataIndex];
-        return (aVal || 0) - (bVal || 0);
-      };
-    }
-
-    // Tarih değerleri için
-    if (column.isDate) {
-      return (a, b) => {
-        const aVal = a[column.dataIndex] ? dayjs(a[column.dataIndex], "DD.MM.YYYY").valueOf() : 0;
-        const bVal = b[column.dataIndex] ? dayjs(b[column.dataIndex], "DD.MM.YYYY").valueOf() : 0;
-        return aVal - bVal;
-      };
-    }
-
-    // Saat değerleri için
-    if (column.isHour) {
-      return (a, b) => {
-        const aVal = a[column.dataIndex] ? dayjs(a[column.dataIndex], "HH:mm").valueOf() : 0;
-        const bVal = b[column.dataIndex] ? dayjs(b[column.dataIndex], "HH:mm").valueOf() : 0;
-        return aVal - bVal;
-      };
-    }
-
-    // Yıl değerleri için
-    if (column.isYear) {
-      return (a, b) => {
-        const aVal = a[column.dataIndex] || 0;
-        const bVal = b[column.dataIndex] || 0;
-        return aVal - bVal;
-      };
-    }
-
-    // Metin değerleri için (varsayılan)
     return (a, b) => {
-      const aVal = a[column.dataIndex] ? a[column.dataIndex].toString().toLowerCase() : "";
-      const bVal = b[column.dataIndex] ? b[column.dataIndex].toString().toLowerCase() : "";
-      return aVal.localeCompare(bVal);
+      const aVal = a[column.dataIndex];
+      const bVal = b[column.dataIndex];
+
+      // Null/undefined değerleri en sona koy
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      // Sayısal değerler için
+      if (column.isNumber) {
+        const aNum = parseFloat(aVal);
+        const bNum = parseFloat(bVal);
+        if (isNaN(aNum) && isNaN(bNum)) return 0;
+        if (isNaN(aNum)) return 1;
+        if (isNaN(bNum)) return -1;
+        return aNum - bNum;
+      }
+
+      // Tarih değerleri için
+      if (column.isDate) {
+        const aDate = dayjs(aVal, ["DD.MM.YYYY", "DD/MM/YYYY", "YYYY-MM-DD"], true);
+        const bDate = dayjs(bVal, ["DD.MM.YYYY", "DD/MM/YYYY", "YYYY-MM-DD"], true);
+        if (!aDate.isValid() && !bDate.isValid()) return 0;
+        if (!aDate.isValid()) return 1;
+        if (!bDate.isValid()) return -1;
+        return aDate.valueOf() - bDate.valueOf();
+      }
+
+      // Saat değerleri için
+      if (column.isHour) {
+        const aTime = dayjs(aVal, ["HH:mm", "HH:mm:ss"], true);
+        const bTime = dayjs(bVal, ["HH:mm", "HH:mm:ss"], true);
+        if (!aTime.isValid() && !bTime.isValid()) return 0;
+        if (!aTime.isValid()) return 1;
+        if (!bTime.isValid()) return -1;
+        return aTime.valueOf() - bTime.valueOf();
+      }
+
+      // Yıl değerleri için
+      if (column.isYear) {
+        const aYear = parseInt(aVal);
+        const bYear = parseInt(bVal);
+        if (isNaN(aYear) && isNaN(bYear)) return 0;
+        if (isNaN(aYear)) return 1;
+        if (isNaN(bYear)) return -1;
+        return aYear - bYear;
+      }
+
+      // Karışık string/number değerler için akıllı sorting
+      const aStr = aVal.toString();
+      const bStr = bVal.toString();
+
+      // Her ikisi de sayı gibi görünüyorsa sayısal karşılaştırma yap
+      const aIsNumeric = /^-?\d+\.?\d*$/.test(aStr.trim());
+      const bIsNumeric = /^-?\d+\.?\d*$/.test(bStr.trim());
+
+      if (aIsNumeric && bIsNumeric) {
+        return parseFloat(aStr) - parseFloat(bStr);
+      }
+
+      // Biri sayı biri string ise, sayıyı öne koy
+      if (aIsNumeric && !bIsNumeric) return -1;
+      if (!aIsNumeric && bIsNumeric) return 1;
+
+      // Her ikisi de string ise, locale-aware karşılaştırma
+      return aStr.toLowerCase().localeCompare(bStr.toLowerCase(), "tr", {
+        numeric: true,
+        sensitivity: "base",
+      });
     };
   };
 
@@ -897,7 +926,7 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
           columns={styledColumns}
           dataSource={tableData}
           loading={reportLoading}
-          rowKey={(record) => (record.ID ? record.ID : JSON.stringify(record))}
+          rowKey="uniqueRowKey"
           pagination={{
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100"],

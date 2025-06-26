@@ -195,16 +195,27 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
         // Default filtreleri uygula
         const filteredList = Object.keys(defaultFilters).length > 0 ? applyDefaultFilters(defaultFilters, cols, list) : list;
 
+        // Benzersiz key'ler ekle
+        const dataWithUniqueKeys = filteredList.map((item, index) => ({
+          ...item,
+          uniqueRowKey: item.ID ? `${item.ID}-${index}` : `row-${index}`,
+        }));
+
+        const originalDataWithKeys = list.map((item, index) => ({
+          ...item,
+          uniqueRowKey: item.ID ? `${item.ID}-${index}` : `row-${index}`,
+        }));
+
         // Context'teki verileri güncelle
         updateReportData({
           initialColumns: cols,
           columns: cols,
-          tableData: filteredList, // Filtrelenmiş veri
-          originalData: list, // Orijinal veri
+          tableData: dataWithUniqueKeys, // Benzersiz key'li filtrelenmiş veri
+          originalData: originalDataWithKeys, // Benzersiz key'li orijinal veri
           columnFilters: defaultFilters,
           filters: requestParams.reportFilters,
           reportName: requestParams.reportRow.rprTanim || requestParams.reportRow.key,
-          totalRecords: filteredList.length, // Filtrelenmiş veri sayısı
+          totalRecords: dataWithUniqueKeys.length,
         });
 
         // requestParams nesnesindeki değerleri kullanarak, modal kapansa bile
@@ -213,13 +224,13 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
           try {
             const reportData = {
               headers: cols,
-              list: filteredList,
+              list: dataWithUniqueKeys, // Zaten benzersiz key'li veri
               timestamp: new Date().toISOString(),
               filters: requestParams.reportFilters,
-              totalRecords: filteredList.length,
+              totalRecords: dataWithUniqueKeys.length,
               reportName: requestParams.reportRow.rprTanim || requestParams.reportRow.key,
               columnFilters: defaultFilters,
-              originalData: list,
+              originalData: originalDataWithKeys, // Benzersiz key'li orijinal veri
             };
 
             // State'e kaydet
