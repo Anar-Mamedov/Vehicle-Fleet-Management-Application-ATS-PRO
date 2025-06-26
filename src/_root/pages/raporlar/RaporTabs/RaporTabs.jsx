@@ -10,6 +10,7 @@ import {
   WalletOutlined,
   HomeOutlined,
   QuestionCircleOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
 import { useFormContext } from "react-hook-form";
@@ -80,6 +81,11 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
   const [activeTabKey, setActiveTabKey] = useState("1");
 
   const onChange = (key) => {
+    // "Rapor Grubu Ekle" tab'ı seçilirse modal aç ama tab'ı değiştirme
+    if (key === "add-group") {
+      setIsModalOpen(true);
+      return;
+    }
     setActiveTabKey(key);
   };
 
@@ -104,11 +110,22 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
     }
   };
 
-  const handleDeleteGroup = async () => {
+  const handleDeleteGroup = async (groupId) => {
     try {
-      const response = await AxiosInstance.get(`ReportGroup/DeleteReportGroupById?id=${Number(activeTabKey)}`);
+      const response = await AxiosInstance.get(`ReportGroup/DeleteReportGroupById?id=${Number(groupId)}`);
       if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 204) {
         message.success("Rapor grubu başarıyla silindi");
+
+        // Eğer silinen grup aktif tab ise, mevcut tab'lar arasından ilk geçerli tab'ı bul
+        if (activeTabKey === groupId.toString()) {
+          // Önce güncel veriyi al
+          const updatedResponse = await AxiosInstance.get(`ReportGroup/GetReportGroup?lan=${lan}`);
+          if (updatedResponse.data.length > 0) {
+            // İlk mevcut grup'un ID'sini al
+            setActiveTabKey(updatedResponse.data[0].tbRaporGroupId.toString());
+          }
+        }
+
         // Grupları yeniden yükle
         fetchData();
       } else if (response.data.statusCode === 500) {
@@ -121,6 +138,11 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
 
   const fetchData = async () => {
     AxiosInstance.get(`ReportGroup/GetReportGroup?lan=${lan}`).then((response) => {
+      // İlk yüklemede activeTabKey'i ilk grup'un ID'si ile ayarla
+      if (response.data.length > 0 && activeTabKey === "1") {
+        setActiveTabKey(response.data[0].tbRaporGroupId.toString());
+      }
+
       // map over the data to create items
       const newItems = response.data.map((item) => ({
         key: item.tbRaporGroupId.toString(),
@@ -130,26 +152,80 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              width: "100%",
+              gap: "10px",
             }}
           >
-            <div style={{ marginRight: "10px" }}>{item.rpgAciklama}</div>
-            <Text
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: "50%",
-                backgroundColor: "#e4e4e4",
-                minWidth: "20px",
-                height: "20px",
-              }}
-            >
-              {item.raporSayisi}
-            </Text>
+            <span>{item.rpgAciklama}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Text
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "50%",
+                  backgroundColor: "#e4e4e4",
+                  minWidth: "20px",
+                  height: "20px",
+                }}
+              >
+                {item.raporSayisi}
+              </Text>
+              <Popconfirm
+                title="Rapor Grubu Silme"
+                description="Bu rapor grubunu silmek istediğinize emin misiniz?"
+                onConfirm={(e) => {
+                  e.stopPropagation();
+                  handleDeleteGroup(item.tbRaporGroupId);
+                }}
+                okText="Evet"
+                cancelText="Hayır"
+                icon={
+                  <QuestionCircleOutlined
+                    style={{
+                      color: "red",
+                    }}
+                  />
+                }
+              >
+                <DeleteOutlined
+                  style={{
+                    color: "#ff4d4f",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    padding: "4px",
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </Popconfirm>
+            </div>
           </div>
         ),
         children: <RaporsTables key={item.tbRaporGroupId} tabKey={item.tbRaporGroupId.toString()} tabName={item.rpgAciklama} />,
       }));
+
+      // "Yeni Rapor Grubu Ekle" butonunu en son tab olarak ekle
+      newItems.push({
+        key: "add-group",
+        label: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#1890ff",
+              cursor: "pointer",
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsModalOpen(true);
+            }}
+          >
+            + Rapor Grubu Ekle
+          </div>
+        ),
+        children: <div style={{ padding: "20px", textAlign: "center" }}>Yeni rapor grubu eklemek için yukarıdaki butona tıklayın.</div>,
+      });
 
       // set the items
       setItems(newItems);
@@ -163,30 +239,7 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
 
   return (
     <div>
-      <div style={{ width: "316px", display: "flex", justifyContent: "flex-start", gap: "10px", alignItems: "center" }}>
-        <Button type="primary" onClick={() => setIsModalOpen(true)} style={{ marginBottom: "10px" }}>
-          Rapor Grubu Ekle
-        </Button>
-        <Popconfirm
-          title="Rapor Grubu Silme"
-          description="Bu rapor grubunu silmek istediğinize emin misiniz?"
-          onConfirm={handleDeleteGroup}
-          okText="Evet"
-          cancelText="Hayır"
-          icon={
-            <QuestionCircleOutlined
-              style={{
-                color: "red",
-              }}
-            />
-          }
-        >
-          <Button danger style={{ marginBottom: "10px" }}>
-            Rapor Grubu Sil
-          </Button>
-        </Popconfirm>
-      </div>
-      <StyledTabs tabPosition="left" defaultActiveKey="1" destroyInactiveTabPane items={items} onChange={onChange} />
+      <StyledTabs tabPosition="left" activeKey={activeTabKey} destroyInactiveTabPane items={items} onChange={onChange} />
 
       <Modal
         title="Yeni Rapor Grubu Ekle"
