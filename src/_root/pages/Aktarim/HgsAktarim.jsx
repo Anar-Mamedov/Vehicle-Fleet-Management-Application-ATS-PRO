@@ -234,27 +234,30 @@ const AracAktarim = () => {
   const handleKontrolEt = async () => {
   try {
     const kontrolList = eslesmisVeriler
-  .filter((d) => d.TARIH && d.GIRIS_ZAMANI && d.CIKIS_ZAMANI)
-  .map((d) => {
-    let tarihStr = "";
-    if (typeof d.TARIH === "number") {
-      const tarihDate = excelSerialToJSDate(d.TARIH);
-      tarihStr = isNaN(tarihDate.getTime()) ? "" : tarihDate.toISOString().split("T")[0];
-    } else if (typeof d.TARIH === "string") {
-      const parsed = new Date(d.TARIH.replace(/(\d{2})\.(\d{2})\.(\d{4})/, "$2/$1/$3"));
-      tarihStr = !isNaN(parsed.getTime()) ? parsed.toISOString().split("T")[0] : "";
-    }
+      .filter((d) => d.TARIH) // sadece tarih zorunlu
+      .map((d) => {
+        // Tarih dönüştürme
+        const parseDate = (excelDateOrStr) => {
+          if (typeof excelDateOrStr === "number") {
+            return excelSerialToJSDate(excelDateOrStr).toISOString();
+          } else if (typeof excelDateOrStr === "string") {
+            const parsed = new Date(excelDateOrStr.replace(/(\d{2})\.(\d{2})\.(\d{4})/, "$2/$1/$3"));
+            return !isNaN(parsed.getTime()) ? parsed.toISOString() : null;
+          }
+          return null;
+        };
 
-    return {
-  Plaka: String(d.PLAKA || "").trim(),
-  Tarih: toDateOnlyString(d.TARIH),
-  GirisZamani: toDateOnlyString(d.GIRIS_ZAMANI),
-  CikisZamani: toDateOnlyString(d.CIKIS_ZAMANI),
-  GecisUcreti: String(d.GECIS_UCRETI ?? ""),
-  GirisSaat: typeof d.GIRIS_SAAT === "number" ? excelSerialToTimeString(d.GIRIS_SAAT) : (d.GIRIS_SAAT || "00:00:00"),
-  CikisSaat: typeof d.CIKIS_SAAT === "number" ? excelSerialToTimeString(d.CIKIS_SAAT) : (d.CIKIS_SAAT || "00:00:00"),
-};
-  });
+        return {
+          Plaka: String(d.PLAKA || "").trim(),
+          Tarih: parseDate(d.TARIH),
+          Surucu: String(d.SURUCU || "").trim(),
+          GirisZamani: parseDate(d.GIRIS_ZAMANI),
+          CikisZamani: parseDate(d.CIKIS_ZAMANI),
+          GirisYeri: String(d.GIRIS_YERI || "").trim(),
+          CikisYeri: String(d.CIKIS_YERI || "").trim(),
+          GecisUcreti: String(d.GECIS_UCRETI ?? "").replace(",", "."),
+        };
+      });
 
     if (kontrolList.length === 0) {
       message.warning("Geçerli veriye sahip kayıt bulunamadı.");
