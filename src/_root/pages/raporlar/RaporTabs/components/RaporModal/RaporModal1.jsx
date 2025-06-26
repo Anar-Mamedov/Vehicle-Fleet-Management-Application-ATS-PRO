@@ -30,7 +30,7 @@ const arrayMove = (array, from, to) => {
 
 const pxToWch = (px) => Math.ceil(px / 7); // 1 wch ≈ 7px
 
-function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
+function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoaded = false }) {
   // Context'ten rapor verilerini al
   const { reportData, updateReportData, reportLoading, setReportLoading } = useAppContext();
 
@@ -60,8 +60,8 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
 
   useEffect(() => {
     if (!drawerVisible) {
-      // Reset when modal is closed - don't reset if already done
-      if (columns.length > 0 || tableData.length > 0) {
+      // Reset when modal is closed, but only if not already loaded from context
+      if (!dataAlreadyLoaded && (columns.length > 0 || tableData.length > 0)) {
         updateReportData({
           tableData: [],
           originalData: [],
@@ -71,9 +71,8 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
           columnFilters: {},
           filters: [],
         });
-        setFilterDropdownOpen({});
       }
-      // Reset the initialization flag when modal is closed
+      setFilterDropdownOpen({});
       hasInitialized.current = false;
       return;
     }
@@ -81,28 +80,37 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
     // If modal is visible but no selectedRow, exit early
     if (!selectedRow) return;
 
+    // For pre-loaded data, just set the filters label if needed
+    if (dataAlreadyLoaded) {
+      if (reportData && reportData.filters && Object.keys(filtersLabel).length === 0) {
+        const contextFilters = reportData.filters;
+        setFiltersLabel({
+          LokasyonID: contextFilters.LokasyonID || "",
+          plakaID: contextFilters.plakaID || "",
+          BaslamaTarih: contextFilters.BaslamaTarih || null,
+          BitisTarih: contextFilters.BitisTarih || null,
+          // context namleride set etme
+          LokasyonName: contextFilters.LokasyonName || "",
+          plakaName: contextFilters.plakaName || "",
+          reportName: reportData.reportName || selectedRow?.RPR_TANIM,
+        });
+      }
+      return;
+    }
+
     // Skip if already initialized for this row
     if (hasInitialized.current && reportData.selectedRow?.key === selectedRow.key) {
       return;
     }
 
-    // Mark as initialized
+    // Mark as initialized and fetch data
     hasInitialized.current = true;
     setReportLoading(true);
 
-    // Fetch filters
     fetchFilters().finally(() => {
       setReportLoading(false);
     });
-  }, [drawerVisible, selectedRow?.key]); // Only depend on drawerVisible and selectedRow.key, not reportData
-
-  // Sorgula Düğmesine tıklandığında Modalı'ı kapat
-
-  useEffect(() => {
-    if (kullaniciRaporu === true) {
-      onDrawerClose();
-    }
-  }, [kullaniciRaporu, onDrawerClose]);
+  }, [drawerVisible, selectedRow?.key, dataAlreadyLoaded]); // Only depend on these key props
 
   // ------------------ DATA FETCH ------------------
   const handleFilterSubmit = (values) => {
@@ -148,18 +156,100 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
   const applyAllFilters = (filtersObj = {}, cols = columns, data = originalData) => {
     let filteredData = [...data];
 
-    Object.keys(filtersObj).forEach((colKey) => {
-      const [val1, val2] = filtersObj[colKey] || ["", ""];
+    // İlk olarak sütunlardaki isFilter ve isFilter1 değerlerini de filtersObj'e ekle
+    const combinedFilters = { ...filtersObj };
+
+    // Sütunlardaki default filter değerlerini ekle
+    cols.forEach((col) => {
+      if (!combinedFilters[col.dataIndex]) {
+        const defaultFilter1 = col.isFilter?.trim() || "";
+        const defaultFilter2 = col.isFilter1?.trim() || "";
+        if (defaultFilter1 !== "" || defaultFilter2 !== "") {
+          combinedFilters[col.dataIndex] = [defaultFilter1, defaultFilter2];
+        }
+      }
+    });
+
+    Object.keys(combinedFilters).forEach((colKey) => {
+      const [val1, val2] = combinedFilters[colKey] || ["", ""];
       const column = cols.find((c) => c.dataIndex === colKey);
       if (!column) return;
 
-      // Handle numeric/date/year/hour columns or skip if you only want to do text
-      if (column.isYear || column.isDate || column.isNumber || column.isHour) {
-        // Numeric/date/hour vs. text bazlı filtre gibi durumlarınızı burada ayrıca ele alabilirsiniz
+      // Sayısal sütunlar için filtreleme
+      if (column.isNumber) {
+        if (val1 !== "" || val2 !== "") {
+          filteredData = filteredData.filter((row) => {
+            const cellValue = parseFloat(row[colKey]) || 0;
+            const minVal = val1 !== "" ? parseFloat(val1) : null;
+            const maxVal = val2 !== "" ? parseFloat(val2) : null;
+
+            if (minVal !== null && cellValue < minVal) return false;
+            if (maxVal !== null && cellValue > maxVal) return false;
+            return true;
+          });
+        }
         return;
       }
 
-      // ELSE: String-based filtering
+      // Tarih sütunları için filtreleme
+      if (column.isDate) {
+        if (val1 !== "" || val2 !== "") {
+          filteredData = filteredData.filter((row) => {
+            const cellValue = row[colKey];
+            if (!cellValue) return false;
+
+            const cellDate = dayjs(cellValue, "DD.MM.YYYY");
+            if (!cellDate.isValid()) return false;
+
+            const minDate = val1 !== "" ? dayjs(val1, "DD.MM.YYYY") : null;
+            const maxDate = val2 !== "" ? dayjs(val2, "DD.MM.YYYY") : null;
+
+            if (minDate && cellDate.isBefore(minDate, "day")) return false;
+            if (maxDate && cellDate.isAfter(maxDate, "day")) return false;
+            return true;
+          });
+        }
+        return;
+      }
+
+      // Yıl sütunları için filtreleme
+      if (column.isYear) {
+        if (val1 !== "" || val2 !== "") {
+          filteredData = filteredData.filter((row) => {
+            const cellValue = parseInt(row[colKey]) || 0;
+            const minYear = val1 !== "" ? parseInt(val1) : null;
+            const maxYear = val2 !== "" ? parseInt(val2) : null;
+
+            if (minYear !== null && cellValue < minYear) return false;
+            if (maxYear !== null && cellValue > maxYear) return false;
+            return true;
+          });
+        }
+        return;
+      }
+
+      // Saat sütunları için filtreleme
+      if (column.isHour) {
+        if (val1 !== "" || val2 !== "") {
+          filteredData = filteredData.filter((row) => {
+            const cellValue = row[colKey];
+            if (!cellValue) return false;
+
+            const cellTime = dayjs(cellValue, "HH:mm");
+            if (!cellTime.isValid()) return false;
+
+            const minTime = val1 !== "" ? dayjs(val1, "HH:mm") : null;
+            const maxTime = val2 !== "" ? dayjs(val2, "HH:mm") : null;
+
+            if (minTime && cellTime.isBefore(minTime)) return false;
+            if (maxTime && cellTime.isAfter(maxTime)) return false;
+            return true;
+          });
+        }
+        return;
+      }
+
+      // String-based filtering (default)
       if (val1 !== "" || val2 !== "") {
         filteredData = filteredData.filter((row) => {
           const cellValue = row[colKey] ? row[colKey].toString().toLowerCase() : "";
@@ -613,47 +703,76 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
 
   // ------------------ SORTING ------------------
   const getSorter = (column) => {
-    // Sayısal değerler için
-    if (column.isNumber) {
-      return (a, b) => {
-        const aVal = a[column.dataIndex];
-        const bVal = b[column.dataIndex];
-        return (aVal || 0) - (bVal || 0);
-      };
-    }
-
-    // Tarih değerleri için
-    if (column.isDate) {
-      return (a, b) => {
-        const aVal = a[column.dataIndex] ? dayjs(a[column.dataIndex], "DD.MM.YYYY").valueOf() : 0;
-        const bVal = b[column.dataIndex] ? dayjs(b[column.dataIndex], "DD.MM.YYYY").valueOf() : 0;
-        return aVal - bVal;
-      };
-    }
-
-    // Saat değerleri için
-    if (column.isHour) {
-      return (a, b) => {
-        const aVal = a[column.dataIndex] ? dayjs(a[column.dataIndex], "HH:mm").valueOf() : 0;
-        const bVal = b[column.dataIndex] ? dayjs(b[column.dataIndex], "HH:mm").valueOf() : 0;
-        return aVal - bVal;
-      };
-    }
-
-    // Yıl değerleri için
-    if (column.isYear) {
-      return (a, b) => {
-        const aVal = a[column.dataIndex] || 0;
-        const bVal = b[column.dataIndex] || 0;
-        return aVal - bVal;
-      };
-    }
-
-    // Metin değerleri için (varsayılan)
     return (a, b) => {
-      const aVal = a[column.dataIndex] ? a[column.dataIndex].toString().toLowerCase() : "";
-      const bVal = b[column.dataIndex] ? b[column.dataIndex].toString().toLowerCase() : "";
-      return aVal.localeCompare(bVal);
+      const aVal = a[column.dataIndex];
+      const bVal = b[column.dataIndex];
+
+      // Null/undefined değerleri en sona koy
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      // Sayısal değerler için
+      if (column.isNumber) {
+        const aNum = parseFloat(aVal);
+        const bNum = parseFloat(bVal);
+        if (isNaN(aNum) && isNaN(bNum)) return 0;
+        if (isNaN(aNum)) return 1;
+        if (isNaN(bNum)) return -1;
+        return aNum - bNum;
+      }
+
+      // Tarih değerleri için
+      if (column.isDate) {
+        const aDate = dayjs(aVal, ["DD.MM.YYYY", "DD/MM/YYYY", "YYYY-MM-DD"], true);
+        const bDate = dayjs(bVal, ["DD.MM.YYYY", "DD/MM/YYYY", "YYYY-MM-DD"], true);
+        if (!aDate.isValid() && !bDate.isValid()) return 0;
+        if (!aDate.isValid()) return 1;
+        if (!bDate.isValid()) return -1;
+        return aDate.valueOf() - bDate.valueOf();
+      }
+
+      // Saat değerleri için
+      if (column.isHour) {
+        const aTime = dayjs(aVal, ["HH:mm", "HH:mm:ss"], true);
+        const bTime = dayjs(bVal, ["HH:mm", "HH:mm:ss"], true);
+        if (!aTime.isValid() && !bTime.isValid()) return 0;
+        if (!aTime.isValid()) return 1;
+        if (!bTime.isValid()) return -1;
+        return aTime.valueOf() - bTime.valueOf();
+      }
+
+      // Yıl değerleri için
+      if (column.isYear) {
+        const aYear = parseInt(aVal);
+        const bYear = parseInt(bVal);
+        if (isNaN(aYear) && isNaN(bYear)) return 0;
+        if (isNaN(aYear)) return 1;
+        if (isNaN(bYear)) return -1;
+        return aYear - bYear;
+      }
+
+      // Karışık string/number değerler için akıllı sorting
+      const aStr = aVal.toString();
+      const bStr = bVal.toString();
+
+      // Her ikisi de sayı gibi görünüyorsa sayısal karşılaştırma yap
+      const aIsNumeric = /^-?\d+\.?\d*$/.test(aStr.trim());
+      const bIsNumeric = /^-?\d+\.?\d*$/.test(bStr.trim());
+
+      if (aIsNumeric && bIsNumeric) {
+        return parseFloat(aStr) - parseFloat(bStr);
+      }
+
+      // Biri sayı biri string ise, sayıyı öne koy
+      if (aIsNumeric && !bIsNumeric) return -1;
+      if (!aIsNumeric && bIsNumeric) return 1;
+
+      // Her ikisi de string ise, locale-aware karşılaştırma
+      return aStr.toLowerCase().localeCompare(bStr.toLowerCase(), "tr", {
+        numeric: true,
+        sensitivity: "base",
+      });
     };
   };
 
@@ -695,36 +814,82 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
   };
 
   const onFinish = (values) => {
+    console.log("Form values:", values);
+    console.log("ReportData state:", reportData);
+    console.log("Filters:", filters);
+    console.log("FiltersLabel:", filtersLabel);
+    console.log("SelectedRow:", selectedRow);
     saveReport(values);
   };
+
   const onFinishFailed = (errorInfo) => {
     // console.log("Failed:", errorInfo);
   };
 
   const saveReport = async (values) => {
+    console.log("Save Report - Current state:", {
+      reportData,
+      filters,
+      filtersLabel,
+      selectedRow,
+      values,
+    });
+
     // Filters boş olabilir, o yüzden varsayılan değerler tanımlayalım
     const filterValues = filters && filters.length > 0 ? filters[0] : {};
 
-    const body = {
-      EskiRaporID: selectedRow.key,
-      YeniRaporGrupID: values.reportID,
+    console.log("FilterValues to be used:", filterValues);
+
+    // FiltersLabel'dan değerler alınabilir mi kontrol et
+    if (Object.keys(filtersLabel).length > 0) {
+      console.log("FiltersLabel available:", filtersLabel);
+    }
+
+    // Backend'in beklediği format için değerleri hazırlayalım
+    const lokasyonIds = filterValues.LokasyonID || filtersLabel.LokasyonID || null;
+    const aracIds = filterValues.plakaID || filtersLabel.plakaID || null;
+    const baslamaTarih = filterValues.BaslamaTarih || filtersLabel.BaslamaTarih || null;
+    const bitisTarih = filterValues.BitisTarih || filtersLabel.BitisTarih || null;
+
+    // Sütun başlıklarını hazırlayalım
+    const basliklar = columns.map((col) => ({
+      title: col.title,
+      dataIndex: col.dataIndex,
+      key: col.key,
+      visible: col.visible,
+      width: col.width || 150,
+      isDate: col.isDate || false,
+      isYear: col.isYear || false,
+      isHour: col.isHour || false,
+      isNumber: col.isNumber || false,
+      isFilter: col.isFilter || "",
+      isFilter1: col.isFilter1 || "",
+    }));
+
+    // Backend'in beklediği format
+    const payload = {
+      EskiRaporID: selectedRow?.key || null,
+      YeniRaporGrupID: values.reportGroupID || null,
       YeniRaporAdi: values.nameOfReport,
-      LokasyonID: filterValues.LokasyonID || "",
-      plakaID: filterValues.plakaID || "",
-      BaslamaTarih: filterValues.BaslamaTarih || null,
-      BitisTarih: filterValues.BitisTarih || null,
+      lokasyonIds: lokasyonIds,
+      aracIds: aracIds,
+      BaslamaTarih: baslamaTarih,
+      BitisTarih: bitisTarih,
       YeniRaporAciklama: values.raporAciklama,
-      Basliklar: columns,
+      Basliklar: basliklar,
     };
+
+    console.log("Request body:", payload);
+
     try {
-      const response = await AxiosInstance.post(`SaveNewReport`, body);
-      if (response.status_code === 200) {
-        message.success("Ekleme Başarılı");
-        setSaveModalVisible(false);
-      }
+      const response = await AxiosInstance.post(`Report/SaveReport`, payload);
+      console.log("Rapor kaydedildi:", response.data);
+      message.success("Rapor başarıyla kaydedildi!");
+      setSaveModalVisible(false);
+      form.resetFields();
     } catch (error) {
-      console.log("error", error);
-      message.error("Rapor kaydedilirken bir hata oluştu");
+      console.error("Rapor kaydedilirken bir hata oluştu:", error);
+      message.error("Rapor kaydedilirken bir hata oluştu!");
     }
   };
 
@@ -761,7 +926,7 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
           columns={styledColumns}
           dataSource={tableData}
           loading={reportLoading}
-          rowKey={(record) => (record.ID ? record.ID : JSON.stringify(record))}
+          rowKey="uniqueRowKey"
           pagination={{
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100"],

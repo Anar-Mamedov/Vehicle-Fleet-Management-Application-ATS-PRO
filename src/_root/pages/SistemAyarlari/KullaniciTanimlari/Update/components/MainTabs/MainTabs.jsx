@@ -262,7 +262,7 @@ export default function MainTabs({ modalOpen }) {
             <Controller
               name="sifre"
               control={control}
-              rules={{ required: t("alanBosBirakilamaz") }}
+              // rules={{ required: t("alanBosBirakilamaz") }}
               render={({ field }) => <Input {...field} status={errors.sifre ? "error" : ""} style={{ flex: 1 }} />}
             />
             {errors.sifre && <div style={{ color: "red", marginTop: "5px" }}>{errors.sifre.message}</div>}
