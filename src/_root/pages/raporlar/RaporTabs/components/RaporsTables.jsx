@@ -142,7 +142,7 @@ function RaporsTables({ tabKey, tabName, onRefreshParent }) {
           />
         </div>
 
-        <ContextMenu selectedRows={selectedCards} refreshTableData={refreshTableData} setSelectedCards={setSelectedCards} />
+        <ContextMenu selectedRows={selectedCards} refreshTableData={refreshTableData} setSelectedCards={setSelectedCards} raporGrupID={tabKey} />
       </div>
 
       <Spin spinning={loading}>

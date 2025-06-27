@@ -12,7 +12,7 @@ import OnayaGonder from "./components/OnayaGonder";
 
 const { Text, Link } = Typography;
 
-export default function ContextMenu({ selectedRows, refreshTableData, onayCheck, setSelectedCards }) {
+export default function ContextMenu({ selectedRows, refreshTableData, onayCheck, setSelectedCards, raporGrupID }) {
   const [visible, setVisible] = useState(false);
 
   const handleVisibleChange = (visible) => {
