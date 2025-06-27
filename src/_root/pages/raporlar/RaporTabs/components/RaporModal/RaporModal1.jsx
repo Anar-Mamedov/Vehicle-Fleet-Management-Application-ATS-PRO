@@ -14,6 +14,7 @@ import { useForm } from "antd/lib/form/Form";
 import RaporGrupSelectbox from "./RaporGrupSelectbox.jsx";
 import { t } from "i18next";
 import { useAppContext } from "../../../../../../AppContext.jsx";
+import { formatNumberWithLocale } from "../../../../../../hooks/FormattedNumber.jsx";
 
 dayjs.extend(customParseFormat);
 const { Text } = Typography;
@@ -805,7 +806,15 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
             textOverflow: "ellipsis",
           },
         }),
-        render: (text) => <span style={{ whiteSpace: "nowrap" }}>{text !== null && text !== undefined ? text : "\u00A0"}</span>,
+        render: (text, record) => {
+          // isNumber true olan kolonlarda sayı formatlaması yap
+          if (col.isNumber && text !== null && text !== undefined && text !== "") {
+            const formattedNumber = formatNumberWithLocale(text);
+            return <span style={{ whiteSpace: "nowrap" }}>{formattedNumber}</span>;
+          }
+          // Diğer durumlar için varsayılan render
+          return <span style={{ whiteSpace: "nowrap" }}>{text !== null && text !== undefined ? text : "\u00A0"}</span>;
+        },
       };
     });
   }, [visibleColumns, columnFilters, filterDropdownOpen]);
