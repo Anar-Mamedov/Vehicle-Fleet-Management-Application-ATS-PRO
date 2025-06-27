@@ -919,7 +919,6 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
   return (
     <>
       <Modal destroyOnClose centered title={selectedRow?.rprTanim} open={drawerVisible} onCancel={handleRecordModalClose} footer={null} width="90%" zIndex={1000}>
-        Modal1
         <div
           style={{
             marginBottom: "10px",
