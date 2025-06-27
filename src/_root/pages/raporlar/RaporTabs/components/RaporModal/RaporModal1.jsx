@@ -114,6 +114,11 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
 
   // ------------------ DATA FETCH ------------------
   const handleFilterSubmit = (values) => {
+    console.log("RaporModal1.jsx - handleFilterSubmit called with values:", values);
+
+    // Gelen değerleri filtersLabel state'ine de kaydet
+    setFiltersLabel(values);
+
     updateReportData({
       filters: [values],
       kullaniciRaporu: true,
@@ -835,21 +840,34 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
       values,
     });
 
-    // Filters boş olabilir, o yüzden varsayılan değerler tanımlayalım
-    const filterValues = filters && filters.length > 0 ? filters[0] : {};
+    // Önce güncel filtre değerlerini doğru şekilde alalım
+    let currentFilters = {};
 
-    console.log("FilterValues to be used:", filterValues);
-
-    // FiltersLabel'dan değerler alınabilir mi kontrol et
-    if (Object.keys(filtersLabel).length > 0) {
-      console.log("FiltersLabel available:", filtersLabel);
+    // Eğer filters context'te varsa ve güncel ise onu kullan
+    if (filters && filters.length > 0) {
+      currentFilters = filters[0];
+      console.log("Using filters from context:", currentFilters);
+    }
+    // Değilse filtersLabel'dan al (fallback)
+    else if (filtersLabel && Object.keys(filtersLabel).length > 0) {
+      currentFilters = {
+        LokasyonID: filtersLabel.LokasyonID,
+        plakaID: filtersLabel.plakaID,
+        BaslamaTarih: filtersLabel.BaslamaTarih,
+        BitisTarih: filtersLabel.BitisTarih,
+        LokasyonName: filtersLabel.LokasyonName,
+        plakaName: filtersLabel.plakaName,
+      };
+      console.log("Using filtersLabel as fallback:", currentFilters);
     }
 
+    console.log("Final currentFilters to be used:", currentFilters);
+
     // Backend'in beklediği format için değerleri hazırlayalım
-    const lokasyonIds = filterValues.LokasyonID || filtersLabel.LokasyonID || null;
-    const aracIds = filterValues.plakaID || filtersLabel.plakaID || null;
-    const baslamaTarih = filterValues.BaslamaTarih || filtersLabel.BaslamaTarih || null;
-    const bitisTarih = filterValues.BitisTarih || filtersLabel.BitisTarih || null;
+    const lokasyonIds = currentFilters.LokasyonID || null;
+    const aracIds = currentFilters.plakaID || null;
+    const baslamaTarih = currentFilters.BaslamaTarih || null;
+    const bitisTarih = currentFilters.BitisTarih || null;
 
     // Sütun başlıklarını hazırlayalım
     const basliklar = columns.map((col) => ({
@@ -896,6 +914,7 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
   return (
     <>
       <Modal destroyOnClose centered title={selectedRow?.rprTanim} open={drawerVisible} onCancel={handleRecordModalClose} footer={null} width="90%" zIndex={1000}>
+        Modal1
         <div
           style={{
             marginBottom: "10px",
@@ -921,7 +940,6 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
             </Button>
           </div>
         </div>
-
         <Table
           columns={styledColumns}
           dataSource={tableData}

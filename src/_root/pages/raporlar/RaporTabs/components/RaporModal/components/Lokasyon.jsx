@@ -68,9 +68,21 @@ const LocationFilter = ({ filtersLabel, setLokasyonID1, lokasyonID1 }) => {
             value={loading ? [] : selectedIds}
             onChange={(value) => {
               console.log("Lokasyon.jsx - Select onChange, new value:", value);
+
+              // Önce form değerlerini güncelle
               setValue("lokasyonID", value);
               setSelectedIds(value);
               field.onChange(value);
+
+              // Seçilen lokasyonların isimlerini de güncelle
+              const selectedNames = value
+                .map((id) => {
+                  const option = options.find((opt) => opt.lokasyonId.toString() === id);
+                  return option ? option.lokasyonTanim : "";
+                })
+                .filter((name) => name);
+
+              setValue("lokasyon", selectedNames);
 
               // Log current form values after update
               setTimeout(() => {

@@ -96,26 +96,29 @@ const Filters = memo(function Filters({ filtersLabel, onSubmit }) {
 
   // Memoize the handleSubmit function
   const handleSubmit = useCallback(() => {
+    // Form'dan güncel değerleri al
+    const currentFormValues = methods.getValues();
+
+    // Güncel filtre değerlerini oluştur
     const formValues = {
-      ...filterValues,
+      LokasyonID: Array.isArray(currentFormValues.lokasyonID) ? currentFormValues.lokasyonID.join(",") : currentFormValues.lokasyonID || "",
+      plakaID: Array.isArray(currentFormValues.plakaID) ? currentFormValues.plakaID.join(",") : currentFormValues.plakaID || "",
+      BaslamaTarih: currentFormValues.startDate ? dayjs(currentFormValues.startDate).format("YYYY-MM-DD") : null,
+      BitisTarih: currentFormValues.endDate ? dayjs(currentFormValues.endDate).format("YYYY-MM-DD") : null,
       // Form'dan seçilen metin değerlerini de ekliyoruz
-      LokasyonName: methods.getValues("lokasyon"),
-      plakaName: methods.getValues("plaka"),
+      LokasyonName: currentFormValues.lokasyon || "",
+      plakaName: currentFormValues.plaka || "",
     };
 
     console.log("Filters.jsx - Submitting form values:", formValues);
-    console.log("Filters.jsx - Current filterValues state:", filterValues);
-    console.log("Filters.jsx - Form values:", {
-      lokasyon: methods.getValues("lokasyon"),
-      lokasyonID: methods.getValues("lokasyonID"),
-      plaka: methods.getValues("plaka"),
-      plakaID: methods.getValues("plakaID"),
-      startDate: methods.getValues("startDate"),
-      endDate: methods.getValues("endDate"),
-    });
+    console.log("Filters.jsx - Current form values:", currentFormValues);
+    console.log("Filters.jsx - Previous filterValues state:", filterValues);
+
+    // FilterValues state'ini de güncelle
+    setFilterValues(formValues);
 
     onSubmit?.(formValues);
-  }, [filterValues, methods, onSubmit]);
+  }, [methods, onSubmit, filterValues]);
 
   return (
     <FormProvider {...methods}>
