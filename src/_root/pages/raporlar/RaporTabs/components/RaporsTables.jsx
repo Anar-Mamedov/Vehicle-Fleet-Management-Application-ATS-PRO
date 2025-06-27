@@ -8,7 +8,7 @@ import ContextMenu from "./ContextMenu/ContextMenu";
 
 const { Text } = Typography;
 
-function RaporsTables({ tabKey, tabName }) {
+function RaporsTables({ tabKey, tabName, onRefreshParent }) {
   const { setValue } = useFormContext();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,6 +91,14 @@ function RaporsTables({ tabKey, tabName }) {
   const refreshTableData = useCallback(() => {
     fetchEquipmentData();
   }, [tabKey]);
+
+  // Rapor kaydedildikten sonra hem local tabloyu hem de parent'ı yenile
+  const handleRefreshAfterSave = useCallback(() => {
+    refreshTableData(); // Local tabloyu yenile
+    if (onRefreshParent) {
+      onRefreshParent(); // Parent bileşendeki fetchData'yı çağır
+    }
+  }, [refreshTableData, onRefreshParent]);
 
   // Determine which data to display based on search
   const displayData = searchTerm ? filteredData : data;
@@ -200,7 +208,9 @@ function RaporsTables({ tabKey, tabName }) {
       </div>
 
       {/* Detail Modal */}
-      {drawer.visible && drawer.data && <RaporModal selectedRow={drawer.data} onDrawerClose={closeDrawer} drawerVisible={drawer.visible} onRefresh={refreshTableData} />}
+      {drawer.visible && drawer.data && (
+        <RaporModal selectedRow={drawer.data} onDrawerClose={closeDrawer} drawerVisible={drawer.visible} onRefresh={refreshTableData} onRefreshParent={handleRefreshAfterSave} />
+      )}
     </div>
   );
 }

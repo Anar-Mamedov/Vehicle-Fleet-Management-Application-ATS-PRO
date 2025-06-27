@@ -30,7 +30,7 @@ const arrayMove = (array, from, to) => {
 
 const pxToWch = (px) => Math.ceil(px / 7); // 1 wch ≈ 7px
 
-function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
+function RecordModal({ selectedRow, onDrawerClose, drawerVisible, onRefreshParent }) {
   // Context'ten rapor verilerini al
   const { reportData, updateReportData, reportLoading, setReportLoading } = useAppContext();
 
@@ -785,6 +785,11 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
       message.success("Rapor başarıyla kaydedildi!");
       setSaveModalVisible(false);
       form.resetFields();
+
+      // Başarılı kaydetme işleminden sonra parent'ı yenile
+      if (onRefreshParent) {
+        onRefreshParent();
+      }
     } catch (error) {
       console.error("Rapor kaydedilirken bir hata oluştu:", error);
       message.error("Rapor kaydedilirken bir hata oluştu!");

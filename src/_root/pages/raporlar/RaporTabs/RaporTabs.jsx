@@ -201,7 +201,7 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
             </div>
           </div>
         ),
-        children: <RaporsTables key={item.tbRaporGroupId} tabKey={item.tbRaporGroupId.toString()} tabName={item.rpgAciklama} />,
+        children: <RaporsTables key={item.tbRaporGroupId} tabKey={item.tbRaporGroupId.toString()} tabName={item.rpgAciklama} onRefreshParent={fetchData} />,
       }));
 
       // "Yeni Rapor Grubu Ekle" butonunu en son tab olarak ekle

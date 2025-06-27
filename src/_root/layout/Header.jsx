@@ -254,7 +254,7 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
                   </a>
                 </div>
               ),
-              duration: 0, // Sonsuz süre için 0 değeri kullanılır
+              duration: 4, // saniye sonra kapanır
               key: "reportNotification", // Aynı bildirim için benzersiz bir anahtar
               placement: "bottomLeft",
             });
@@ -342,6 +342,8 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
           onDrawerClose={() => setRaporModalVisible(false)}
           // Modal'a özel prop ekleyelim - yeni API isteği yapılmaması için
           dataAlreadyLoaded={true}
+          // Header'da rapor kaydetme işlemi için refresh fonksiyonu - boş bırakıyoruz
+          onRefreshParent={() => {}}
         />
       )}
     </Header>
