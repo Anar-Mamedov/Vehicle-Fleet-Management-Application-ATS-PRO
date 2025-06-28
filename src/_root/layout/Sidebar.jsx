@@ -319,13 +319,6 @@ const Sidebar = () => {
           key: "53",
           label: <Link to={`/kod-yonetimi`}>{t("kodYonetimi")}</Link>,
         },
-      ],
-    },
-    {
-      key: "54",
-      icon: <MdOutlineSystemUpdateAlt />,
-      label: t("aktarim"),
-      children: [
         {
           key: "55",
           label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
@@ -345,6 +338,10 @@ const Sidebar = () => {
         {
           key: "5asdasdasd8",
           label: <Link to={"/km-aktarim"}>{t("kmAktarim")}</Link>,
+        },
+        {
+          key: "5asdasdasd9",
+          label: <Link to={"/hgs-aktarim"}>{t("hgsAktarim")}</Link>,
         },
       ],
     },

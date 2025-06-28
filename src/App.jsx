@@ -93,6 +93,7 @@ import CezaAktarim from "./_root/pages/Aktarim/CezaAktarim.jsx";
 import KazaAktarim from "./_root/pages/Aktarim/KazaAktarim.jsx";
 import SurucuAktarim from "./_root/pages/Aktarim/SurucuAktarim.jsx";
 import KmAktarim from "./_root/pages/Aktarim/KmAktarim.jsx"
+import HgsAktarim from "./_root/pages/Aktarim/HgsAktarim.jsx"
 
 const App = () => {
   const [hasToken, setHasToken] = useState(false);
@@ -198,6 +199,7 @@ const App = () => {
         <Route path="/kaza-aktarim" element={< KazaAktarim />} />
         <Route path="/surucu-aktarim" element={< SurucuAktarim />} />
         <Route path="/km-aktarim" element={< KmAktarim />} />
+        <Route path="/hgs-aktarim" element={< HgsAktarim />} />
 
         <Route path="/deneme" element={<DenemeTable />} />
       </Route>
