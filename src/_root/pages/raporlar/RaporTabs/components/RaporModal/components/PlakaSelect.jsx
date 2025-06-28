@@ -68,9 +68,21 @@ const PlakaSelect = ({ filtersLabel }) => {
             value={loading ? [] : selectedIds}
             onChange={(value) => {
               console.log("PlakaSelect.jsx - Select onChange, new value:", value);
+
+              // Önce form değerlerini güncelle
               setValue("plakaID", value);
               setSelectedIds(value);
               field.onChange(value);
+
+              // Seçilen plakaların isimlerini de güncelle
+              const selectedNames = value
+                .map((id) => {
+                  const option = options.find((opt) => opt.aracId.toString() === id);
+                  return option ? `${option.plaka} - ${option.lokasyon}${option.surucu ? ` (${option.surucu})` : ""}` : "";
+                })
+                .filter((name) => name);
+
+              setValue("plaka", selectedNames);
 
               // Log current form values after update
               setTimeout(() => {

@@ -3,6 +3,7 @@ import { Button, Popover, Typography } from "antd";
 import { MoreOutlined } from "@ant-design/icons";
 import Sil from "./components/Sil";
 import Guncelle from "./components/Guncelle/Guncelle";
+import GrupSil from "./components/GrupSil";
 import Iptal from "./components/Iptal/Iptal";
 import Kapat from "./components/Kapat/Kapat";
 import Parametreler from "./components/Parametreler/Parametreler";
@@ -12,7 +13,7 @@ import OnayaGonder from "./components/OnayaGonder";
 
 const { Text, Link } = Typography;
 
-export default function ContextMenu({ selectedRows, refreshTableData, onayCheck, setSelectedCards }) {
+export default function ContextMenu({ selectedRows, refreshTableData, onayCheck, setSelectedCards, raporGrupID, onDeleteSuccess }) {
   const [visible, setVisible] = useState(false);
 
   const handleVisibleChange = (visible) => {
@@ -27,9 +28,9 @@ export default function ContextMenu({ selectedRows, refreshTableData, onayCheck,
 
   const content = (
     <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+      <GrupSil raporGrupID={raporGrupID} onDeleteSuccess={onDeleteSuccess} />
       {selectedRows.length >= 1 && <Sil selectedRows={selectedRows} setSelectedCards={setSelectedCards} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
       {selectedRows.length == 1 && <Guncelle selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
-
       {/* {selectedRows.length >= 1 && <Iptal selectedRows={selectedRows} refreshTableData={refreshTableData} iptalDisabled={iptalDisabled} />} */}
     </div>
   );

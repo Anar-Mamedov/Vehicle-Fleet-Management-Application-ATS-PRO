@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Tabs, Typography, Button, Modal, Input, message, Popconfirm } from "antd";
+import { Tabs, Typography, Button, Modal, Input, message } from "antd";
 import {
   ToolOutlined,
   FundProjectionScreenOutlined,
@@ -9,13 +9,12 @@ import {
   ApartmentOutlined,
   WalletOutlined,
   HomeOutlined,
-  QuestionCircleOutlined,
-  DeleteOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
 import { useFormContext } from "react-hook-form";
 import AxiosInstance from "../../../../api/http.jsx";
 import RaporsTables from "./components/RaporsTables.jsx";
+import GrupSil from "./components/ContextMenu/components/GrupSil.jsx";
 import { t } from "i18next";
 
 const { Text } = Typography;
@@ -110,29 +109,28 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
     }
   };
 
-  const handleDeleteGroup = async (groupId) => {
+  const handleDeleteSuccess = async (groupId) => {
     try {
-      const response = await AxiosInstance.get(`ReportGroup/DeleteReportGroupById?id=${Number(groupId)}`);
-      if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 204) {
-        message.success("Rapor grubu başarıyla silindi");
+      // Önce güncel veriyi al
+      const updatedResponse = await AxiosInstance.get(`ReportGroup/GetReportGroup?lan=${lan}`);
 
-        // Eğer silinen grup aktif tab ise, mevcut tab'lar arasından ilk geçerli tab'ı bul
-        if (activeTabKey === groupId.toString()) {
-          // Önce güncel veriyi al
-          const updatedResponse = await AxiosInstance.get(`ReportGroup/GetReportGroup?lan=${lan}`);
-          if (updatedResponse.data.length > 0) {
-            // İlk mevcut grup'un ID'sini al
-            setActiveTabKey(updatedResponse.data[0].tbRaporGroupId.toString());
-          }
+      // Eğer silinen grup aktif tab ise
+      if (activeTabKey === groupId.toString()) {
+        if (updatedResponse.data.length > 0) {
+          // İlk mevcut grup'un ID'sini al ve aktif tab olarak ayarla
+          setActiveTabKey(updatedResponse.data[0].tbRaporGroupId.toString());
+        } else {
+          // Hiç grup kalmadıysa "Rapor Grubu Ekle" tab'ını aktif yap
+          setActiveTabKey("add-group");
         }
-
-        // Grupları yeniden yükle
-        fetchData();
-      } else if (response.data.statusCode === 500) {
-        message.error(response.data.message);
       }
+
+      // Grupları yeniden yükle
+      fetchData();
     } catch (error) {
-      message.error("Rapor grubu silinirken bir hata oluştu");
+      console.error("Error handling delete success:", error);
+      // Hata durumunda da grupları yeniden yükle
+      fetchData();
     }
   };
 
@@ -171,37 +169,10 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
               >
                 {item.raporSayisi}
               </Text>
-              <Popconfirm
-                title="Rapor Grubu Silme"
-                description="Bu rapor grubunu silmek istediğinize emin misiniz?"
-                onConfirm={(e) => {
-                  e.stopPropagation();
-                  handleDeleteGroup(item.tbRaporGroupId);
-                }}
-                okText="Evet"
-                cancelText="Hayır"
-                icon={
-                  <QuestionCircleOutlined
-                    style={{
-                      color: "red",
-                    }}
-                  />
-                }
-              >
-                <DeleteOutlined
-                  style={{
-                    color: "#ff4d4f",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    padding: "4px",
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </Popconfirm>
             </div>
           </div>
         ),
-        children: <RaporsTables key={item.tbRaporGroupId} tabKey={item.tbRaporGroupId.toString()} tabName={item.rpgAciklama} />,
+        children: <RaporsTables key={item.tbRaporGroupId} tabKey={item.tbRaporGroupId.toString()} tabName={item.rpgAciklama} onDeleteSuccess={handleDeleteSuccess} />,
       }));
 
       // "Yeni Rapor Grubu Ekle" butonunu en son tab olarak ekle
@@ -226,6 +197,11 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
         ),
         children: <div style={{ padding: "20px", textAlign: "center" }}>Yeni rapor grubu eklemek için yukarıdaki butona tıklayın.</div>,
       });
+
+      // Eğer hiç grup yoksa "Rapor Grubu Ekle" tab'ını aktif yap
+      if (response.data.length === 0) {
+        setActiveTabKey("add-group");
+      }
 
       // set the items
       setItems(newItems);

@@ -8,7 +8,7 @@ import ContextMenu from "./ContextMenu/ContextMenu";
 
 const { Text } = Typography;
 
-function RaporsTables({ tabKey, tabName }) {
+function RaporsTables({ tabKey, tabName, onDeleteSuccess }) {
   const { setValue } = useFormContext();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -92,6 +92,11 @@ function RaporsTables({ tabKey, tabName }) {
     fetchEquipmentData();
   }, [tabKey]);
 
+  // Rapor kaydedildikten sonra local tabloyu yenile
+  const handleRefreshAfterSave = useCallback(() => {
+    refreshTableData(); // Local tabloyu yenile
+  }, [refreshTableData]);
+
   // Determine which data to display based on search
   const displayData = searchTerm ? filteredData : data;
 
@@ -134,7 +139,7 @@ function RaporsTables({ tabKey, tabName }) {
           />
         </div>
 
-        <ContextMenu selectedRows={selectedCards} refreshTableData={refreshTableData} setSelectedCards={setSelectedCards} />
+        <ContextMenu selectedRows={selectedCards} refreshTableData={refreshTableData} setSelectedCards={setSelectedCards} raporGrupID={tabKey} onDeleteSuccess={onDeleteSuccess} />
       </div>
 
       <Spin spinning={loading}>

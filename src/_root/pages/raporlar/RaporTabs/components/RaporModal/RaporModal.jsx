@@ -14,6 +14,7 @@ import { useForm } from "antd/lib/form/Form";
 import RaporGrupSelectbox from "./RaporGrupSelectbox.jsx";
 import { t } from "i18next";
 import { useAppContext } from "../../../../../../AppContext.jsx";
+import { formatNumberWithLocale } from "../../../../../../hooks/FormattedNumber.jsx";
 
 dayjs.extend(customParseFormat);
 const { Text } = Typography;
@@ -30,7 +31,7 @@ const arrayMove = (array, from, to) => {
 
 const pxToWch = (px) => Math.ceil(px / 7); // 1 wch ≈ 7px
 
-function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
+function RecordModal({ selectedRow, onDrawerClose, drawerVisible, onRefreshParent }) {
   // Context'ten rapor verilerini al
   const { reportData, updateReportData, reportLoading, setReportLoading } = useAppContext();
 
@@ -98,14 +99,19 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
 
   // Sorgula Düğmesine tıklandığında Modalı'ı kapat
 
-  useEffect(() => {
+  /*   useEffect(() => {
     if (kullaniciRaporu === true) {
       onDrawerClose();
     }
-  }, [kullaniciRaporu, onDrawerClose]);
+  }, [kullaniciRaporu, onDrawerClose]); */
 
   // ------------------ DATA FETCH ------------------
   const handleFilterSubmit = (values) => {
+    console.log("RaporModal.jsx - handleFilterSubmit called with values:", values);
+
+    // Gelen değerleri filtersLabel state'ine de kaydet
+    setFiltersLabel(values);
+
     updateReportData({
       filters: [values],
       kullaniciRaporu: true,
@@ -681,7 +687,15 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
             textOverflow: "ellipsis",
           },
         }),
-        render: (text) => <span style={{ whiteSpace: "nowrap" }}>{text !== null && text !== undefined ? text : "\u00A0"}</span>,
+        render: (text, record) => {
+          // isNumber true olan kolonlarda sayı formatlaması yap
+          if (col.isNumber && text !== null && text !== undefined && text !== "") {
+            const formattedNumber = formatNumberWithLocale(text);
+            return <span style={{ whiteSpace: "nowrap" }}>{formattedNumber}</span>;
+          }
+          // Diğer durumlar için varsayılan render
+          return <span style={{ whiteSpace: "nowrap" }}>{text !== null && text !== undefined ? text : "\u00A0"}</span>;
+        },
       };
     });
   }, [visibleColumns, columnFilters, filterDropdownOpen]);
@@ -695,6 +709,11 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
   };
 
   const onFinish = (values) => {
+    console.log("Form values:", values);
+    console.log("ReportData state:", reportData);
+    console.log("Filters:", filters);
+    console.log("FiltersLabel:", filtersLabel);
+    console.log("SelectedRow:", selectedRow);
     saveReport(values);
   };
   const onFinishFailed = (errorInfo) => {
@@ -702,29 +721,87 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
   };
 
   const saveReport = async (values) => {
-    // Filters boş olabilir, o yüzden varsayılan değerler tanımlayalım
-    const filterValues = filters && filters.length > 0 ? filters[0] : {};
+    console.log("Save Report - Current state:", {
+      reportData,
+      filters,
+      filtersLabel,
+      selectedRow,
+      values,
+    });
 
-    const body = {
-      EskiRaporID: selectedRow.key,
-      YeniRaporGrupID: values.reportID,
+    // Önce güncel filtre değerlerini doğru şekilde alalım
+    let currentFilters = {};
+
+    // Eğer filters context'te varsa ve güncel ise onu kullan
+    if (filters && filters.length > 0) {
+      currentFilters = filters[0];
+      console.log("Using filters from context:", currentFilters);
+    }
+    // Değilse filtersLabel'dan al (fallback)
+    else if (filtersLabel && Object.keys(filtersLabel).length > 0) {
+      currentFilters = {
+        LokasyonID: filtersLabel.LokasyonID,
+        plakaID: filtersLabel.plakaID,
+        BaslamaTarih: filtersLabel.BaslamaTarih,
+        BitisTarih: filtersLabel.BitisTarih,
+        LokasyonName: filtersLabel.LokasyonName,
+        plakaName: filtersLabel.plakaName,
+      };
+      console.log("Using filtersLabel as fallback:", currentFilters);
+    }
+
+    console.log("Final currentFilters to be used:", currentFilters);
+
+    // Backend'in beklediği format için değerleri hazırlayalım
+    const lokasyonIds = currentFilters.LokasyonID || null;
+    const aracIds = currentFilters.plakaID || null;
+    const baslamaTarih = currentFilters.BaslamaTarih || null;
+    const bitisTarih = currentFilters.BitisTarih || null;
+
+    // Sütun başlıklarını hazırlayalım
+    const basliklar = columns.map((col) => ({
+      title: col.title,
+      dataIndex: col.dataIndex,
+      key: col.key,
+      visible: col.visible,
+      width: col.width || 150,
+      isDate: col.isDate || false,
+      isYear: col.isYear || false,
+      isHour: col.isHour || false,
+      isNumber: col.isNumber || false,
+      isFilter: col.isFilter || "",
+      isFilter1: col.isFilter1 || "",
+    }));
+
+    // Backend'in beklediği format
+    const payload = {
+      EskiRaporID: selectedRow?.key || null,
+      YeniRaporGrupID: values.reportGroupID || null,
       YeniRaporAdi: values.nameOfReport,
-      LokasyonID: filterValues.LokasyonID || "",
-      plakaID: filterValues.plakaID || "",
-      BaslamaTarih: filterValues.BaslamaTarih || null,
-      BitisTarih: filterValues.BitisTarih || null,
+      lokasyonIds: lokasyonIds,
+      aracIds: aracIds,
+      BaslamaTarih: baslamaTarih,
+      BitisTarih: bitisTarih,
       YeniRaporAciklama: values.raporAciklama,
-      Basliklar: columns,
+      Basliklar: basliklar,
     };
+
+    console.log("Request body:", payload);
+
     try {
-      const response = await AxiosInstance.post(`SaveNewReport`, body);
-      if (response.status_code === 200) {
-        message.success("Ekleme Başarılı");
-        setSaveModalVisible(false);
+      const response = await AxiosInstance.post(`Report/SaveReport`, payload);
+      console.log("Rapor kaydedildi:", response.data);
+      message.success("Rapor başarıyla kaydedildi!");
+      setSaveModalVisible(false);
+      form.resetFields();
+
+      // Başarılı kaydetme işleminden sonra parent'ı yenile
+      if (onRefreshParent) {
+        onRefreshParent();
       }
     } catch (error) {
-      console.log("error", error);
-      message.error("Rapor kaydedilirken bir hata oluştu");
+      console.error("Rapor kaydedilirken bir hata oluştu:", error);
+      message.error("Rapor kaydedilirken bir hata oluştu!");
     }
   };
 
@@ -756,7 +833,6 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible }) {
             </Button>
           </div>
         </div>
-
         <Table
           columns={styledColumns}
           dataSource={tableData}

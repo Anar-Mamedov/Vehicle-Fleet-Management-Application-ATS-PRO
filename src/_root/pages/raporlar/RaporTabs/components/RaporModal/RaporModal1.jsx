@@ -14,6 +14,7 @@ import { useForm } from "antd/lib/form/Form";
 import RaporGrupSelectbox from "./RaporGrupSelectbox.jsx";
 import { t } from "i18next";
 import { useAppContext } from "../../../../../../AppContext.jsx";
+import { formatNumberWithLocale } from "../../../../../../hooks/FormattedNumber.jsx";
 
 dayjs.extend(customParseFormat);
 const { Text } = Typography;
@@ -30,7 +31,7 @@ const arrayMove = (array, from, to) => {
 
 const pxToWch = (px) => Math.ceil(px / 7); // 1 wch ≈ 7px
 
-function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoaded = false }) {
+function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoaded = false, onRefreshParent }) {
   // Context'ten rapor verilerini al
   const { reportData, updateReportData, reportLoading, setReportLoading } = useAppContext();
 
@@ -114,6 +115,11 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
 
   // ------------------ DATA FETCH ------------------
   const handleFilterSubmit = (values) => {
+    console.log("RaporModal1.jsx - handleFilterSubmit called with values:", values);
+
+    // Gelen değerleri filtersLabel state'ine de kaydet
+    setFiltersLabel(values);
+
     updateReportData({
       filters: [values],
       kullaniciRaporu: true,
@@ -800,7 +806,15 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
             textOverflow: "ellipsis",
           },
         }),
-        render: (text) => <span style={{ whiteSpace: "nowrap" }}>{text !== null && text !== undefined ? text : "\u00A0"}</span>,
+        render: (text, record) => {
+          // isNumber true olan kolonlarda sayı formatlaması yap
+          if (col.isNumber && text !== null && text !== undefined && text !== "") {
+            const formattedNumber = formatNumberWithLocale(text);
+            return <span style={{ whiteSpace: "nowrap" }}>{formattedNumber}</span>;
+          }
+          // Diğer durumlar için varsayılan render
+          return <span style={{ whiteSpace: "nowrap" }}>{text !== null && text !== undefined ? text : "\u00A0"}</span>;
+        },
       };
     });
   }, [visibleColumns, columnFilters, filterDropdownOpen]);
@@ -835,21 +849,34 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
       values,
     });
 
-    // Filters boş olabilir, o yüzden varsayılan değerler tanımlayalım
-    const filterValues = filters && filters.length > 0 ? filters[0] : {};
+    // Önce güncel filtre değerlerini doğru şekilde alalım
+    let currentFilters = {};
 
-    console.log("FilterValues to be used:", filterValues);
-
-    // FiltersLabel'dan değerler alınabilir mi kontrol et
-    if (Object.keys(filtersLabel).length > 0) {
-      console.log("FiltersLabel available:", filtersLabel);
+    // Eğer filters context'te varsa ve güncel ise onu kullan
+    if (filters && filters.length > 0) {
+      currentFilters = filters[0];
+      console.log("Using filters from context:", currentFilters);
+    }
+    // Değilse filtersLabel'dan al (fallback)
+    else if (filtersLabel && Object.keys(filtersLabel).length > 0) {
+      currentFilters = {
+        LokasyonID: filtersLabel.LokasyonID,
+        plakaID: filtersLabel.plakaID,
+        BaslamaTarih: filtersLabel.BaslamaTarih,
+        BitisTarih: filtersLabel.BitisTarih,
+        LokasyonName: filtersLabel.LokasyonName,
+        plakaName: filtersLabel.plakaName,
+      };
+      console.log("Using filtersLabel as fallback:", currentFilters);
     }
 
+    console.log("Final currentFilters to be used:", currentFilters);
+
     // Backend'in beklediği format için değerleri hazırlayalım
-    const lokasyonIds = filterValues.LokasyonID || filtersLabel.LokasyonID || null;
-    const aracIds = filterValues.plakaID || filtersLabel.plakaID || null;
-    const baslamaTarih = filterValues.BaslamaTarih || filtersLabel.BaslamaTarih || null;
-    const bitisTarih = filterValues.BitisTarih || filtersLabel.BitisTarih || null;
+    const lokasyonIds = currentFilters.LokasyonID || null;
+    const aracIds = currentFilters.plakaID || null;
+    const baslamaTarih = currentFilters.BaslamaTarih || null;
+    const bitisTarih = currentFilters.BitisTarih || null;
 
     // Sütun başlıklarını hazırlayalım
     const basliklar = columns.map((col) => ({
@@ -887,6 +914,11 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
       message.success("Rapor başarıyla kaydedildi!");
       setSaveModalVisible(false);
       form.resetFields();
+
+      // Başarılı kaydetme işleminden sonra parent'ı yenile
+      if (onRefreshParent) {
+        onRefreshParent();
+      }
     } catch (error) {
       console.error("Rapor kaydedilirken bir hata oluştu:", error);
       message.error("Rapor kaydedilirken bir hata oluştu!");
@@ -921,7 +953,6 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
             </Button>
           </div>
         </div>
-
         <Table
           columns={styledColumns}
           dataSource={tableData}
