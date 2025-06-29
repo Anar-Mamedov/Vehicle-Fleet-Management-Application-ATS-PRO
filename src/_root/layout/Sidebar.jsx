@@ -252,32 +252,32 @@ const Sidebar = () => {
       label: t("sistemTanimlari"),
       children: [
         {
-          key: "14",
-          label: <Link to={"/yakit-tanimlari"}>{t("tanimlar")}</Link>,
-        },
-        {
           key: "401",
           label: <Link to={"/lokasyon-tanimlari"}>{t("lokasyonlar")}</Link>,
         },
         {
           key: "40",
-          label: <Link to={"/firma-tanimlari"}>{t("firma")}</Link>,
+          label: <Link to={"/firma-tanimlari"}>{t("firmalar")}</Link>,
         },
         {
           key: "41",
-          label: <Link to={"/surucu-tanimlari"}>{t("surucu")}</Link>,
+          label: <Link to={"/surucu-tanimlari"}>{t("suruculer")}</Link>,
         },
         {
           key: "42",
-          label: <Link to={"/personel-tanimlari"}>{t("personel")}</Link>,
+          label: <Link to={"/personel-tanimlari"}>{t("personeller")}</Link>,
         },
         {
           key: "43",
           label: <Link to={"/servis-tanimlari"}>{t("servisTanimlari")}</Link>,
         },
         {
+          key: "14",
+          label: <Link to={"/yakit-tanimlari"}>{t("yakitTanimlari")}</Link>,
+        },
+        {
           key: "44",
-          label: <Link to={"/guzergah-tanimlari"}>{t("guzergah")}</Link>,
+          label: <Link to={"/guzergah-tanimlari"}>{t("guzergahlar")}</Link>,
         },
 
         {
@@ -290,7 +290,7 @@ const Sidebar = () => {
         },
         {
           key: "48",
-          label: <Link to={"/sehir-tanimlari"}>{t("sehirTanimlari")}</Link>,
+          label: <Link to={"/sehir-tanimlari"}>{t("sehirler")}</Link>,
         },
         {
           key: "49",
@@ -319,6 +319,13 @@ const Sidebar = () => {
           key: "53",
           label: <Link to={`/kod-yonetimi`}>{t("kodYonetimi")}</Link>,
         },
+      ],
+    },
+    {
+      key: "53874",
+      icon: <FaGears />,
+      label: t("aktarimlar"),
+      children: [
         {
           key: "55",
           label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
