@@ -319,36 +319,35 @@ const Sidebar = () => {
           key: "53",
           label: <Link to={`/kod-yonetimi`}>{t("kodYonetimi")}</Link>,
         },
-      ],
-    },
-    {
-      key: "53874",
-      icon: <FaGears />,
-      label: t("aktarimlar"),
-      children: [
         {
-          key: "55",
-          label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
-        },
-        {
-          key: "5asdasdasd5",
-          label: <Link to={"/ceza-aktarim"}>{t("cezaAktarim")}</Link>,
-        },
-        {
-          key: "5asdasdasd6",
-          label: <Link to={"/kaza-aktarim"}>{t("kazaAktarim")}</Link>,
-        },
-        {
-          key: "5asdasdasd7",
-          label: <Link to={"/surucu-aktarim"}>{t("surucuAktarim")}</Link>,
-        },
-        {
-          key: "5asdasdasd8",
-          label: <Link to={"/km-aktarim"}>{t("kmAktarim")}</Link>,
-        },
-        {
-          key: "5asdasdasd9",
-          label: <Link to={"/hgs-aktarim"}>{t("hgsAktarim")}</Link>,
+          key: "53874",
+          label: t("aktarimlar"),
+          children: [
+            {
+              key: "55",
+              label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
+            },
+            {
+              key: "5asdasdasd5",
+              label: <Link to={"/ceza-aktarim"}>{t("cezaAktarim")}</Link>,
+            },
+            {
+              key: "5asdasdasd6",
+              label: <Link to={"/kaza-aktarim"}>{t("kazaAktarim")}</Link>,
+            },
+            {
+              key: "5asdasdasd7",
+              label: <Link to={"/surucu-aktarim"}>{t("surucuAktarim")}</Link>,
+            },
+            {
+              key: "5asdasdasd8",
+              label: <Link to={"/km-aktarim"}>{t("kmAktarim")}</Link>,
+            },
+            {
+              key: "5asdasdasd9",
+              label: <Link to={"/hgs-aktarim"}>{t("hgsAktarim")}</Link>,
+            },
+          ],
         },
       ],
     },
@@ -359,40 +358,48 @@ const Sidebar = () => {
       for (const item of items) {
         // Check if this item matches the path
         if (item.label?.props?.to === path) {
-          return { menuKey: item.key, parentKey: null };
+          return { menuKey: item.key, parentKeys: [] };
         }
         // Check children if they exist
         if (item.children) {
           for (const child of item.children) {
             if (child.label?.props?.to === path) {
-              return { menuKey: child.key, parentKey: item.key };
+              return { menuKey: child.key, parentKeys: [item.key] };
+            }
+            // Check nested children (3rd level)
+            if (child.children) {
+              for (const grandChild of child.children) {
+                if (grandChild.label?.props?.to === path) {
+                  return { menuKey: grandChild.key, parentKeys: [item.key, child.key] };
+                }
+              }
             }
           }
         }
       }
       // If we're at root path, return dashboard
       if (path === "/") {
-        return { menuKey: "1", parentKey: null };
+        return { menuKey: "1", parentKeys: [] };
       }
-      return { menuKey: null, parentKey: null };
+      return { menuKey: null, parentKeys: [] };
     };
 
     return findInItems(location.pathname);
   };
 
-  const { menuKey, parentKey } = findActiveKeys();
+  const { menuKey, parentKeys } = findActiveKeys();
   const [selectedKey, setSelectedKey] = useState(menuKey || "1");
-  const [openKeys, setOpenKeys] = useState(parentKey ? [parentKey] : []);
+  const [openKeys, setOpenKeys] = useState(parentKeys || []);
 
   useEffect(() => {
-    const { menuKey, parentKey } = findActiveKeys();
+    const { menuKey, parentKeys } = findActiveKeys();
     if (menuKey) {
       setSelectedKey(menuKey);
       // Eğer ana sayfadaysa (/) tüm grupları kapat
       if (location.pathname === "/") {
         setOpenKeys([]);
-      } else if (parentKey) {
-        setOpenKeys([parentKey]);
+      } else if (parentKeys && parentKeys.length > 0) {
+        setOpenKeys(parentKeys);
       }
     } else {
       // Eğer menuKey bulunamazsa (geçersiz route vs.) tüm grupları kapat
@@ -425,23 +432,37 @@ const Sidebar = () => {
   };
 
   const onOpenChange = (keys) => {
-    // Eğer hiç açık menü yoksa veya son açılan menü kapandıysa
+    // Eğer hiç açık menü yoksa
     if (keys.length === 0) {
       setOpenKeys([]);
       return;
     }
 
-    // En son açılan/kapanan menü
-    const latestOpenKey = keys[keys.length - 1];
+    // İç içe menüler için kontrol - eğer parent-child ilişkisi varsa ikisini de aç
+    const hasNestedRelation = keys.some((key) => {
+      // sistemAyarari ve aktarimlar ilişkisi
+      if (key === "50" && keys.includes("53874")) return true;
+      if (key === "53874" && keys.includes("50")) return true;
+      return false;
+    });
 
-    // Eğer zaten açık olan menüye tıklandıysa (yani kapatma işlemi)
-    if (keys.length === 1 && keys[0] === openKeys[0]) {
-      setOpenKeys([]);
+    if (hasNestedRelation) {
+      setOpenKeys(keys);
       return;
     }
 
-    // Yeni bir menü açıldığında sadece onu aç, diğerlerini kapat
-    setOpenKeys([latestOpenKey]);
+    // Diğer durumlar için standart davranış
+    const latestOpenKey = keys[keys.length - 1];
+
+    // Ana menüler arasında geçiş yapılıyorsa sadece yeni olanı aç
+    const mainMenuKeys = ["2", "19", "ds897g6", "31", "2bskfa", "2v34789", "38", "39", "50"];
+    const isMainMenuSwitch = mainMenuKeys.includes(latestOpenKey) && openKeys.some((openKey) => mainMenuKeys.includes(openKey) && openKey !== latestOpenKey);
+
+    if (isMainMenuSwitch) {
+      setOpenKeys([latestOpenKey]);
+    } else {
+      setOpenKeys(keys);
+    }
   };
 
   return (
