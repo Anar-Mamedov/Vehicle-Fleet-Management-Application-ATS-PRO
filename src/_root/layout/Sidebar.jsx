@@ -431,6 +431,28 @@ const Sidebar = () => {
     });
   };
 
+  // Menü yapısından parent-child ilişkilerini dinamik olarak çıkartan fonksiyon
+  const getMenuRelations = () => {
+    const relations = {};
+    const mainMenuKeys = [];
+
+    items.forEach((item) => {
+      mainMenuKeys.push(item.key);
+      if (item.children) {
+        item.children.forEach((child) => {
+          relations[child.key] = item.key; // child -> parent
+          if (child.children) {
+            child.children.forEach((grandChild) => {
+              relations[grandChild.key] = child.key; // grandchild -> child
+            });
+          }
+        });
+      }
+    });
+
+    return { relations, mainMenuKeys };
+  };
+
   const onOpenChange = (keys) => {
     // Eğer hiç açık menü yoksa
     if (keys.length === 0) {
@@ -438,12 +460,12 @@ const Sidebar = () => {
       return;
     }
 
-    // İç içe menüler için kontrol - eğer parent-child ilişkisi varsa ikisini de aç
+    const { relations, mainMenuKeys } = getMenuRelations();
+
+    // İç içe menüler için kontrol - parent-child ilişkisi var mı?
     const hasNestedRelation = keys.some((key) => {
-      // sistemAyarari ve aktarimlar ilişkisi
-      if (key === "50" && keys.includes("53874")) return true;
-      if (key === "53874" && keys.includes("50")) return true;
-      return false;
+      const parentKey = relations[key];
+      return parentKey && keys.includes(parentKey);
     });
 
     if (hasNestedRelation) {
@@ -455,7 +477,6 @@ const Sidebar = () => {
     const latestOpenKey = keys[keys.length - 1];
 
     // Ana menüler arasında geçiş yapılıyorsa sadece yeni olanı aç
-    const mainMenuKeys = ["2", "19", "ds897g6", "31", "2bskfa", "2v34789", "38", "39", "50"];
     const isMainMenuSwitch = mainMenuKeys.includes(latestOpenKey) && openKeys.some((openKey) => mainMenuKeys.includes(openKey) && openKey !== latestOpenKey);
 
     if (isMainMenuSwitch) {
