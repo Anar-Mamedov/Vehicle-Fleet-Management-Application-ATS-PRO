@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -125,7 +125,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         setValue("cezaPuan", res?.data.cezaPuan);
         setValue("cezaTuru", res?.data.cezaTuru);
         setValue("cezaTuruKodId", res?.data.cezaTuruKodId);
-        setValue("gecikmeTutar", res?.data.gecikmeTutar);
         setValue("indirimOran", res?.data.indirimOran);
         setValue("lokasyon", res?.data.lokasyon);
         setValue("lokasyonId", res?.data.lokasyonId);
@@ -135,7 +134,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         setValue("surucuId", res?.data.surucuId);
         setValue("surucu", res?.data.surucuIsim);
         setValue("surucuOder", res?.data.surucuOder);
-        setValue("toplamTutar", res?.data.toplamTutar);
+        setValue("odenenTutar", res?.data.odenenTutar);
         setValue("tutar", res?.data.tutar);
         setValue("ozelAlan1", res?.data.ozelAlan1);
         setValue("ozelAlan2", res?.data.ozelAlan2);
@@ -190,8 +189,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       cezaTuruKodId: values.cezaTuruKodId || 0,
       tutar: values.tutar || 0,
       cezaPuan: values.cezaPuan || 0,
-      toplamTutar: values.toplamTutar || 0,
-      gecikmeTutar: values.gecikmeTutar || 0,
+      odenenTutar: values.odenenTutar || 0,
       surucuId: values.surucuId || 0,
       odemeTarih: dayjs(values.odemeTarih).format("YYYY-MM-DD"),
       odeme: values.odeme,

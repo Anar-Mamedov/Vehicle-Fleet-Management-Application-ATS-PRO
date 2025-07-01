@@ -134,10 +134,10 @@ const YakitTuketimi = () => {
 
       if (diff > 0) {
         // Moving forward
-        currentSetPointId = data[data.length - 1]?.siraNo || 0;
+        currentSetPointId = data[data.length - 1]?.aracId || 0;
       } else if (diff < 0) {
         // Moving backward
-        currentSetPointId = data[0]?.siraNo || 0;
+        currentSetPointId = data[0]?.aracId || 0;
       } else {
         currentSetPointId = 0;
       }
@@ -150,7 +150,7 @@ const YakitTuketimi = () => {
 
       const newData = response.data.list.map((item) => ({
         ...item,
-        key: item.siraNo, // Assign key directly from siraNo
+        key: item.aracId, // Assign key directly from aracId
       }));
 
       if (newData.length > 0) {
@@ -169,7 +169,6 @@ const YakitTuketimi = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Search handling
@@ -205,7 +204,6 @@ const YakitTuketimi = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
