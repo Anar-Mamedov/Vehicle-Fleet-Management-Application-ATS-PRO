@@ -160,12 +160,6 @@ const GeneralInfo = () => {
                 <NumberInput name="cezaPuan" />
               </div>
             </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("surucuOder")}</label>
-                <CheckboxInput name="surucuOder" />
-              </div>
-            </div>
           </div>
         </div>
         <div className="col-span-6 border p-20">
@@ -176,22 +170,11 @@ const GeneralInfo = () => {
                 <NumberInput name="tutar" />
               </div>
             </div>
+
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label>{t("erkenOdemeIndirimOran")}</label>
-                <NumberInput name="indirimOran" />
-              </div>
-            </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("gecikmeIndirimTutar")}</label>
-                <NumberInput name="gecikmeTutar" />
-              </div>
-            </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("toplamTutar")}</label>
-                <NumberInput name="toplamTutar" />
+                <label>{t("odenenTutar")}</label>
+                <NumberInput name="odenenTutar" />
               </div>
             </div>
           </div>
@@ -204,10 +187,16 @@ const GeneralInfo = () => {
                 <DateInput name="odemeTarih" />
               </div>
             </div>
-            <div className="col-span-6">
+            <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("odemeYapildi")}</label>
                 <CheckboxInput name="odeme" />
+              </div>
+            </div>
+            <div className="col-span-3">
+              <div className="flex flex-col gap-1">
+                <label>{t("surucuOder")}</label>
+                <CheckboxInput name="surucuOder" />
               </div>
             </div>
           </div>
