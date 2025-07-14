@@ -78,6 +78,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           // Form alanlarını set et
           setValue("tbHasarId", item.tbHasarId || undefined);
           setValue("hasarNo", item.hasarNo || undefined);
+          setValue("hasarNo1", item.hasarNo || undefined);
           setValue("hasarTipi", item.hasarTipi || undefined);
           setValue("hasarTipiID", item.hasarTipiKodId || undefined);
           setValue("hasarliBolge", item.hasarBolge || undefined);
@@ -126,22 +127,22 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
   const onSubmit = (data) => {
     // Form verilerini API'nin beklediği formata dönüştür
     const Body = {
-      tbHasarId: data.tbHasarId || null,
-      hasarNo: data.hasarNo || null,
-      aracId: data.plakaID || null,
-      surucuId: data.surucuID || null,
-      tarih: formatDateWithDayjs(data.tarih),
-      saat: formatTimeWithDayjs(data.saat),
-      olayYeriKodId: data.olayYeriID || null,
-      olayAniAciklamasi: data.aciklama || null,
-      hasarTipiKodId: data.hasarTipiID || null,
-      hasarBolgeKodId: data.hasarliBolgeID || null,
-      hasarBoyutuKodId: data.hasarBoyutuID || null,
-      lokasyonId: data.lokasyonID || null,
-      policeNo: data.policeNo || null,
-      aracKullanilir: data.aracKullanilabilir || null,
-      kazaYapanBaskaArac: data.kazayaKarisanBaskaAracVar || null,
-      polisRaporuVar: data.polisRaporuVar || null,
+      tbHasarId: data.tbHasarId || 0,
+      hasarNo: data.hasarNo || "",
+      aracId: data.plakaID || 0,
+      surucuId: data.surucuID || 0,
+      tarih: formatDateWithDayjs(data.tarih) || "",
+      saat: formatTimeWithDayjs(data.saat) || "",
+      olayYeriKodId: data.olayYeriID || 0,
+      olayAniAciklamasi: data.aciklama || "",
+      hasarTipiKodId: data.hasarTipiID || 0,
+      hasarBolgeKodId: data.hasarliBolgeID || 0,
+      hasarBoyutuKodId: data.hasarBoyutuID || 0,
+      lokasyonId: data.lokasyonID || 0,
+      policeNo: data.policeNo || "",
+      aracKullanilir: data.aracKullanilabilir || false,
+      kazaYapanBaskaArac: data.kazayaKarisanBaskaAracVar || false,
+      polisRaporuVar: data.polisRaporuVar || false,
     };
 
     // API'ye POST isteği gönder

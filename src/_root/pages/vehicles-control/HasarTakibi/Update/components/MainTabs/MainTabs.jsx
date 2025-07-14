@@ -501,6 +501,12 @@ export default function MainTabs({ modalOpen }) {
                 if (option && option.data) {
                   setValue("surucu", option.data.surucu);
                   setValue("surucuID", option.data.surucuId);
+                  setValue("marka", option.data.marka);
+                  setValue("model", option.data.model);
+                } else {
+                  // Plaka değeri silindiğinde marka ve model alanlarını temizle
+                  setValue("marka", null);
+                  setValue("model", null);
                 }
               }}
             />
