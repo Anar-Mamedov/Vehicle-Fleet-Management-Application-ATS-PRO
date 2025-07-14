@@ -252,32 +252,32 @@ const Sidebar = () => {
       label: t("sistemTanimlari"),
       children: [
         {
-          key: "14",
-          label: <Link to={"/yakit-tanimlari"}>{t("tanimlar")}</Link>,
-        },
-        {
           key: "401",
           label: <Link to={"/lokasyon-tanimlari"}>{t("lokasyonlar")}</Link>,
         },
         {
           key: "40",
-          label: <Link to={"/firma-tanimlari"}>{t("firma")}</Link>,
+          label: <Link to={"/firma-tanimlari"}>{t("firmalar")}</Link>,
         },
         {
           key: "41",
-          label: <Link to={"/surucu-tanimlari"}>{t("surucu")}</Link>,
+          label: <Link to={"/surucu-tanimlari"}>{t("suruculer")}</Link>,
         },
         {
           key: "42",
-          label: <Link to={"/personel-tanimlari"}>{t("personel")}</Link>,
+          label: <Link to={"/personel-tanimlari"}>{t("personeller")}</Link>,
         },
         {
           key: "43",
           label: <Link to={"/servis-tanimlari"}>{t("servisTanimlari")}</Link>,
         },
         {
+          key: "14",
+          label: <Link to={"/yakit-tanimlari"}>{t("yakitTanimlari")}</Link>,
+        },
+        {
           key: "44",
-          label: <Link to={"/guzergah-tanimlari"}>{t("guzergah")}</Link>,
+          label: <Link to={"/guzergah-tanimlari"}>{t("guzergahlar")}</Link>,
         },
 
         {
@@ -290,7 +290,7 @@ const Sidebar = () => {
         },
         {
           key: "48",
-          label: <Link to={"/sehir-tanimlari"}>{t("sehirTanimlari")}</Link>,
+          label: <Link to={"/sehir-tanimlari"}>{t("sehirler")}</Link>,
         },
         {
           key: "49",
@@ -321,28 +321,34 @@ const Sidebar = () => {
         },
         /*
         {
-          key: "55",
-          label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
-        },
-        {
-          key: "5asdasdasd5",
-          label: <Link to={"/ceza-aktarim"}>{t("cezaAktarim")}</Link>,
-        },
-        {
-          key: "5asdasdasd6",
-          label: <Link to={"/kaza-aktarim"}>{t("kazaAktarim")}</Link>,
-        },
-        {
-          key: "5asdasdasd7",
-          label: <Link to={"/surucu-aktarim"}>{t("surucuAktarim")}</Link>,
-        },
-        {
-          key: "5asdasdasd8",
-          label: <Link to={"/km-aktarim"}>{t("kmAktarim")}</Link>,
-        },
-        {
-          key: "5asdasdasd9",
-          label: <Link to={"/hgs-aktarim"}>{t("hgsAktarim")}</Link>,
+          key: "53874",
+          label: t("aktarimlar"),
+          children: [
+            {
+              key: "55",
+              label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
+            },
+            {
+              key: "5asdasdasd5",
+              label: <Link to={"/ceza-aktarim"}>{t("cezaAktarim")}</Link>,
+            },
+            {
+              key: "5asdasdasd6",
+              label: <Link to={"/kaza-aktarim"}>{t("kazaAktarim")}</Link>,
+            },
+            {
+              key: "5asdasdasd7",
+              label: <Link to={"/surucu-aktarim"}>{t("surucuAktarim")}</Link>,
+            },
+            {
+              key: "5asdasdasd8",
+              label: <Link to={"/km-aktarim"}>{t("kmAktarim")}</Link>,
+            },
+            {
+              key: "5asdasdasd9",
+              label: <Link to={"/hgs-aktarim"}>{t("hgsAktarim")}</Link>,
+            },
+          ],
         },
       */
       ],
@@ -354,40 +360,48 @@ const Sidebar = () => {
       for (const item of items) {
         // Check if this item matches the path
         if (item.label?.props?.to === path) {
-          return { menuKey: item.key, parentKey: null };
+          return { menuKey: item.key, parentKeys: [] };
         }
         // Check children if they exist
         if (item.children) {
           for (const child of item.children) {
             if (child.label?.props?.to === path) {
-              return { menuKey: child.key, parentKey: item.key };
+              return { menuKey: child.key, parentKeys: [item.key] };
+            }
+            // Check nested children (3rd level)
+            if (child.children) {
+              for (const grandChild of child.children) {
+                if (grandChild.label?.props?.to === path) {
+                  return { menuKey: grandChild.key, parentKeys: [item.key, child.key] };
+                }
+              }
             }
           }
         }
       }
       // If we're at root path, return dashboard
       if (path === "/") {
-        return { menuKey: "1", parentKey: null };
+        return { menuKey: "1", parentKeys: [] };
       }
-      return { menuKey: null, parentKey: null };
+      return { menuKey: null, parentKeys: [] };
     };
 
     return findInItems(location.pathname);
   };
 
-  const { menuKey, parentKey } = findActiveKeys();
+  const { menuKey, parentKeys } = findActiveKeys();
   const [selectedKey, setSelectedKey] = useState(menuKey || "1");
-  const [openKeys, setOpenKeys] = useState(parentKey ? [parentKey] : []);
+  const [openKeys, setOpenKeys] = useState(parentKeys || []);
 
   useEffect(() => {
-    const { menuKey, parentKey } = findActiveKeys();
+    const { menuKey, parentKeys } = findActiveKeys();
     if (menuKey) {
       setSelectedKey(menuKey);
       // Eğer ana sayfadaysa (/) tüm grupları kapat
       if (location.pathname === "/") {
         setOpenKeys([]);
-      } else if (parentKey) {
-        setOpenKeys([parentKey]);
+      } else if (parentKeys && parentKeys.length > 0) {
+        setOpenKeys(parentKeys);
       }
     } else {
       // Eğer menuKey bulunamazsa (geçersiz route vs.) tüm grupları kapat
@@ -419,24 +433,59 @@ const Sidebar = () => {
     });
   };
 
+  // Menü yapısından parent-child ilişkilerini dinamik olarak çıkartan fonksiyon
+  const getMenuRelations = () => {
+    const relations = {};
+    const mainMenuKeys = [];
+
+    items.forEach((item) => {
+      mainMenuKeys.push(item.key);
+      if (item.children) {
+        item.children.forEach((child) => {
+          relations[child.key] = item.key; // child -> parent
+          if (child.children) {
+            child.children.forEach((grandChild) => {
+              relations[grandChild.key] = child.key; // grandchild -> child
+            });
+          }
+        });
+      }
+    });
+
+    return { relations, mainMenuKeys };
+  };
+
   const onOpenChange = (keys) => {
-    // Eğer hiç açık menü yoksa veya son açılan menü kapandıysa
+    // Eğer hiç açık menü yoksa
     if (keys.length === 0) {
       setOpenKeys([]);
       return;
     }
 
-    // En son açılan/kapanan menü
-    const latestOpenKey = keys[keys.length - 1];
+    const { relations, mainMenuKeys } = getMenuRelations();
 
-    // Eğer zaten açık olan menüye tıklandıysa (yani kapatma işlemi)
-    if (keys.length === 1 && keys[0] === openKeys[0]) {
-      setOpenKeys([]);
+    // İç içe menüler için kontrol - parent-child ilişkisi var mı?
+    const hasNestedRelation = keys.some((key) => {
+      const parentKey = relations[key];
+      return parentKey && keys.includes(parentKey);
+    });
+
+    if (hasNestedRelation) {
+      setOpenKeys(keys);
       return;
     }
 
-    // Yeni bir menü açıldığında sadece onu aç, diğerlerini kapat
-    setOpenKeys([latestOpenKey]);
+    // Diğer durumlar için standart davranış
+    const latestOpenKey = keys[keys.length - 1];
+
+    // Ana menüler arasında geçiş yapılıyorsa sadece yeni olanı aç
+    const isMainMenuSwitch = mainMenuKeys.includes(latestOpenKey) && openKeys.some((openKey) => mainMenuKeys.includes(openKey) && openKey !== latestOpenKey);
+
+    if (isMainMenuSwitch) {
+      setOpenKeys([latestOpenKey]);
+    } else {
+      setOpenKeys(keys);
+    }
   };
 
   return (

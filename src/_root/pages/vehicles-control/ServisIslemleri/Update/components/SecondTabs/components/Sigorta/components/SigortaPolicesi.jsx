@@ -207,25 +207,42 @@ export default function SigortaPolicesi({ workshopSelectedId, onSubmit }) {
 
   const plakaID = watch("PlakaID");
 
-  const fetch = useCallback(() => {
-    setLoading(true);
-    const body = [plakaID];
+  const fetchData = useCallback(
+    (diff = 0, targetPage = 1) => {
+      setLoading(true);
 
-    AxiosInstance.post(`Insurance/GetInsuranceListByVehicleId?page=${pagination.current}&parameter=${searchTerm}`, body)
-      .then((response) => {
-        const { list, recordCount } = response.data;
-        const fetchedData = list.map((item) => ({
-          ...item,
-          key: item.siraNo,
-        }));
-        setData(fetchedData);
-        setPagination((prev) => ({
-          ...prev,
-          total: recordCount,
-        }));
-      })
-      .finally(() => setLoading(false));
-  }, [pagination.current, searchTerm, plakaID]);
+      let currentSetPointId = 0;
+
+      if (diff > 0) {
+        // Moving forward
+        currentSetPointId = data[data.length - 1]?.siraNo || 0;
+      } else if (diff < 0) {
+        // Moving backward
+        currentSetPointId = data[0]?.siraNo || 0;
+      } else {
+        currentSetPointId = 0;
+      }
+
+      const body = [plakaID];
+
+      AxiosInstance.post(`Insurance/GetInsuranceListByVehicleId?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, body)
+        .then((response) => {
+          const { list, recordCount } = response.data;
+          const fetchedData = list.map((item) => ({
+            ...item,
+            key: item.siraNo,
+          }));
+          setData(fetchedData);
+          setPagination((prev) => ({
+            ...prev,
+            total: recordCount,
+            current: targetPage,
+          }));
+        })
+        .finally(() => setLoading(false));
+    },
+    [searchTerm, plakaID, data]
+  );
 
   const resetModalState = () => {
     setSearchTerm(""); // Clear the search input value
@@ -243,7 +260,7 @@ export default function SigortaPolicesi({ workshopSelectedId, onSubmit }) {
     });
 
     if (!isModalVisible) {
-      fetch();
+      fetchData(0, 1);
     }
   };
 
@@ -265,7 +282,8 @@ export default function SigortaPolicesi({ workshopSelectedId, onSubmit }) {
   };
 
   const handleTableChange = (newPagination) => {
-    setPagination(newPagination);
+    const diff = newPagination.current - pagination.current;
+    fetchData(diff, newPagination.current);
   };
 
   useEffect(() => {
@@ -275,8 +293,7 @@ export default function SigortaPolicesi({ workshopSelectedId, onSubmit }) {
 
     const timeout = setTimeout(() => {
       if (searchTerm !== "") {
-        fetch(); // Trigger the API request based on your search logic
-        setPagination((prev) => ({ ...prev, current: 1 })); // Reset to page 1 when search term changes
+        fetchData(0, 1); // Reset to page 1 when search term changes
       }
     }, 2000);
 

@@ -8,19 +8,22 @@ import i18n from "./utils/i18n.js";
 import { FuelTankProvider } from "./context/fuelTankSlice.jsx";
 import { PlakaProvider } from "./context/plakaSlice.jsx";
 import { SelectProvider } from "./context/selectSlice.jsx";
+import { AppProvider } from "./AppContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   // <React.StrictMode>
   <I18nextProvider i18n={i18n}>
-    <SelectProvider>
-      <FuelTankProvider>
-        <PlakaProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </PlakaProvider>
-      </FuelTankProvider>
-    </SelectProvider>
+    <AppProvider>
+      <SelectProvider>
+        <FuelTankProvider>
+          <PlakaProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </PlakaProvider>
+        </FuelTankProvider>
+      </SelectProvider>
+    </AppProvider>
   </I18nextProvider>
   // </React.StrictMode>
 );
