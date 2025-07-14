@@ -34,7 +34,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth }) {
+export default function SurucuSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth }) {
   const {
     control,
     watch,
@@ -48,7 +48,7 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await AxiosInstance.get(`Vehicle/GetVehiclePlates`);
+      const response = await AxiosInstance.get(`Driver/GetDriverListForSelectInput`);
       if (response && response.data) {
         setOptions(response.data);
       }
@@ -80,7 +80,7 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
             status={errors[name1] ? "error" : ""}
             showSearch
             allowClear
-            placeholder="Plaka Seçiniz"
+            placeholder="Sürücü Seçiniz"
             optionFilterProp="children"
             filterOption={(input, option) => (option?.label ? option.label.toLowerCase().includes(input.toLowerCase()) : false)}
             onDropdownVisibleChange={(open) => {
@@ -89,9 +89,8 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
               }
             }}
             options={options.map((item) => ({
-              value: item.aracId,
-              label: item.plaka,
-              data: item, // Tam veriyi option'a ekle
+              value: item.surucuId,
+              label: item.isim,
             }))}
             onChange={(value, option) => {
               const numericValue = value ? Number(value) : null;

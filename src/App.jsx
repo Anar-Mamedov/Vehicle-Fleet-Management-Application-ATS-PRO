@@ -12,6 +12,7 @@ import Sigorta from "./_root/pages/vehicles-control/sigorta/Sigorta";
 import Kaza from "./_root/pages/vehicles-control/kaza/Kaza";
 import Harcama from "./_root/pages/vehicles-control/harcama/Harcama";
 import Ceza from "./_root/pages/vehicles-control/ceza/Ceza";
+import HasarTakibi from "./_root/pages/vehicles-control/HasarTakibi/HasarTakibi.jsx";
 import KmUpdate from "./_root/pages/vehicles-control/hizli-km/KmUpdate";
 import KiralikAraclar from "./_root/pages/vehicles-control/kiralikAraclar/KiralikAraclarTablo.jsx";
 // hgs islemleri
@@ -92,8 +93,8 @@ import AracAktarim from "./_root/pages/Aktarim/AracAktarim.jsx";
 import CezaAktarim from "./_root/pages/Aktarim/CezaAktarim.jsx";
 import KazaAktarim from "./_root/pages/Aktarim/KazaAktarim.jsx";
 import SurucuAktarim from "./_root/pages/Aktarim/SurucuAktarim.jsx";
-import KmAktarim from "./_root/pages/Aktarim/KmAktarim.jsx"
-import HgsAktarim from "./_root/pages/Aktarim/HgsAktarim.jsx"
+import KmAktarim from "./_root/pages/Aktarim/KmAktarim.jsx";
+import HgsAktarim from "./_root/pages/Aktarim/HgsAktarim.jsx";
 
 const App = () => {
   const [hasToken, setHasToken] = useState(false);
@@ -124,11 +125,12 @@ const App = () => {
         <Route index element={<Dashboard />} />
         {/* arac yonetimi */}
         <Route path="/araclar" element={<Vehicles />} />
-        <Route path="/kiralik-araclar" element={<KiralikAraclar/>} />
+        <Route path="/kiralik-araclar" element={<KiralikAraclar />} />
         <Route path="/hizli-km-guncelleme" element={<KmUpdate />} />
         <Route path="/yakit-islemleri" element={<Yakit />} />
         <Route path="/kod-yonetimi" element={<KodYonetimi />} />
         <Route path="/ceza-islemleri" element={<Ceza />} />
+        <Route path="/hasar-takibi" element={<HasarTakibi />} />
         <Route path="/sigorta-islemleri" element={<Sigorta />} />
         <Route path="/harcama-islemleri" element={<Harcama />} />
         <Route path="/kaza-islemleri" element={<Kaza />} />
@@ -194,12 +196,12 @@ const App = () => {
         <Route path="/unauthorized" element={<YetkisizIslem />} />
 
         {/* Aktarım */}
-        <Route path="/arac-aktarim" element={< AracAktarim />} />
-        <Route path="/ceza-aktarim" element={< CezaAktarim />} />
-        <Route path="/kaza-aktarim" element={< KazaAktarim />} />
-        <Route path="/surucu-aktarim" element={< SurucuAktarim />} />
-        <Route path="/km-aktarim" element={< KmAktarim />} />
-        <Route path="/hgs-aktarim" element={< HgsAktarim />} />
+        <Route path="/arac-aktarim" element={<AracAktarim />} />
+        <Route path="/ceza-aktarim" element={<CezaAktarim />} />
+        <Route path="/kaza-aktarim" element={<KazaAktarim />} />
+        <Route path="/surucu-aktarim" element={<SurucuAktarim />} />
+        <Route path="/km-aktarim" element={<KmAktarim />} />
+        <Route path="/hgs-aktarim" element={<HgsAktarim />} />
 
         <Route path="/deneme" element={<DenemeTable />} />
       </Route>
