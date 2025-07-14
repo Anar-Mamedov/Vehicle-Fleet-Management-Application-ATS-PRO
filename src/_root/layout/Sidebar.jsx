@@ -319,6 +319,7 @@ const Sidebar = () => {
           key: "53",
           label: <Link to={`/kod-yonetimi`}>{t("kodYonetimi")}</Link>,
         },
+        /*
         {
           key: "53874",
           label: t("aktarimlar"),
@@ -349,6 +350,7 @@ const Sidebar = () => {
             },
           ],
         },
+      */
       ],
     },
   ];
