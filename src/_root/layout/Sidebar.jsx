@@ -71,6 +71,10 @@ const Sidebar = () => {
           label: <Link to={"/ceza-islemleri"}>{t("cezalar")}</Link>,
         },
         {
+          key: "kj234h5b",
+          label: <Link to={"/hasar-takibi"}>{t("hasarTakibi")}</Link>,
+        },
+        {
           key: "48ashjd6",
           label: <Link to={"/kiralik-araclar"}>{t("kiralikAraclar")}</Link>,
         },
