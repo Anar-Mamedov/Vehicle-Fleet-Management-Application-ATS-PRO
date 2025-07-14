@@ -72,6 +72,9 @@ export default function MainTabs({ modalOpen }) {
   const [initialFisNo, setInitialFisNo] = useState("");
   const [isFisNoModified, setIsFisNoModified] = useState(false);
   const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
+  const [initialHasarNo, setInitialHasarNo] = useState("");
+  const [isHasarNoModified, setIsHasarNoModified] = useState(false);
+  const [hasarNoStatus, setHasarNoStatus] = useState(""); // "valid", "invalid", ""
 
   const handleMinusClick = () => {
     setValue("servisKodu", "");
@@ -235,6 +238,30 @@ export default function MainTabs({ modalOpen }) {
     }
   };
 
+  // Add validation function for hasarNo
+  const validateHasarNo = async (value) => {
+    if (!value) {
+      setHasarNoStatus("");
+      return;
+    }
+
+    try {
+      const response = await AxiosInstance.post("TableCodeItem/IsCodeItemExist", {
+        tableName: "HasarTakibi",
+        code: value,
+      });
+
+      if (response.data.status === false) {
+        setHasarNoStatus("valid");
+      } else {
+        setHasarNoStatus("invalid");
+      }
+    } catch (error) {
+      console.error("Error checking hasarNo validity:", error);
+      setHasarNoStatus("invalid");
+    }
+  };
+
   const handleYeniLokasyonPlusClick = () => {
     setIsLokasyonModalOpen(true);
   };
@@ -274,26 +301,41 @@ export default function MainTabs({ modalOpen }) {
             <Controller
               name="hasarNo"
               control={control}
-              rules={{ required: t("alanBosBirakilamaz") }}
+              rules={{
+                required: t("alanBosBirakilamaz"),
+                validate: () => {
+                  if (hasarNoStatus === "invalid") {
+                    return "Hasar numarası geçersizdir!";
+                  }
+                  return true;
+                },
+              }}
               render={({ field }) => (
                 <Input
                   {...field}
-                  status={errors["hasarNo"] ? "error" : ""}
-                  style={{ flex: 1 }}
+                  status={errors["hasarNo"] ? "error" : hasarNoStatus === "valid" ? "" : hasarNoStatus === "invalid" ? "error" : ""}
+                  style={{
+                    flex: 1,
+                    borderColor: hasarNoStatus === "valid" ? "#52c41a" : hasarNoStatus === "invalid" ? "#ff4d4f" : "",
+                  }}
                   onFocus={(e) => {
-                    setInitialFisNo(e.target.value);
-                    setIsFisNoModified(false);
+                    setInitialHasarNo(e.target.value);
+                    setIsHasarNoModified(false);
                   }}
                   onChange={(e) => {
                     field.onChange(e);
-                    if (e.target.value !== initialFisNo) {
-                      setIsFisNoModified(true);
+                    if (e.target.value !== initialHasarNo) {
+                      setIsHasarNoModified(true);
+                    }
+                    // Eğer kullanıcı değer giriyorsa status'u sıfırla
+                    if (hasarNoStatus !== "") {
+                      setHasarNoStatus("");
                     }
                   }}
                   onBlur={(e) => {
                     field.onBlur(e);
-                    if (isFisNoModified) {
-                      validateFisNo(e.target.value);
+                    if (isHasarNoModified && e.target.value !== initialHasarNo) {
+                      validateHasarNo(e.target.value);
                     }
                   }}
                 />
