@@ -91,6 +91,7 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
             options={options.map((item) => ({
               value: item.aracId,
               label: item.plaka,
+              data: item, // Tam veriyi option'a ekle
             }))}
             onChange={(value, option) => {
               const numericValue = value ? Number(value) : null;
