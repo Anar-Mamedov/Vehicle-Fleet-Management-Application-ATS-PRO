@@ -188,7 +188,7 @@ const HasarTakibi = () => {
           body.filters?.customfilter || {}
         );
 
-        const total = response.data.total_count;
+        const total = response.data.recordCount;
         setTotalCount(total);
         setCurrentPage(targetPage);
 
@@ -265,17 +265,17 @@ const HasarTakibi = () => {
   const initialColumns = useMemo(
     () => [
       {
-        title: t("fisNo"),
-        dataIndex: "fisNo",
-        key: "fisNo",
+        title: t("hasarNo"),
+        dataIndex: "hasarNo",
+        key: "hasarNo",
         width: 120,
         ellipsis: true,
         visible: true,
         render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
         sorter: (a, b) => {
-          if (a.fisNo === null) return -1;
-          if (b.fisNo === null) return 1;
-          return a.fisNo.localeCompare(b.fisNo);
+          if (a.hasarNo === null) return -1;
+          if (b.hasarNo === null) return 1;
+          return a.hasarNo.localeCompare(b.hasarNo);
         },
       },
       {
@@ -293,17 +293,18 @@ const HasarTakibi = () => {
         render: (text) => formatDate(text),
       },
       {
-        title: t("firmaTanimi"),
-        dataIndex: "firmaTanim",
-        key: "firmaTanim",
-        width: 190,
+        title: t("saat"),
+        dataIndex: "saat",
+        key: "saat",
+        width: 100,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
-          if (a.firmaTanim === null) return -1;
-          if (b.firmaTanim === null) return 1;
-          return a.firmaTanim.localeCompare(b.firmaTanim);
+          if (a.saat === null) return -1;
+          if (b.saat === null) return 1;
+          return a.saat.localeCompare(b.saat);
         },
+        render: (text) => formatTime(text),
       },
       {
         title: t("plaka"),
@@ -319,96 +320,162 @@ const HasarTakibi = () => {
         },
       },
       {
-        title: t("islemTipi"),
-        dataIndex: "islemTipi",
-        key: "islemTipi",
+        title: t("marka"),
+        dataIndex: "marka",
+        key: "marka",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.marka === null) return -1;
+          if (b.marka === null) return 1;
+          return a.marka.localeCompare(b.marka);
+        },
+      },
+      {
+        title: t("model"),
+        dataIndex: "model",
+        key: "model",
         width: 150,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
-          if (a.islemTipi === null) return -1;
-          if (b.islemTipi === null) return 1;
-          return a.islemTipi.localeCompare(b.islemTipi);
+          if (a.model === null) return -1;
+          if (b.model === null) return 1;
+          return a.model.localeCompare(b.model);
         },
       },
       {
-        title: t("girisDeposu"),
-        dataIndex: "girisDepo",
-        key: "girisDepo",
+        title: t("surucuAdi"),
+        dataIndex: "surucuAdi",
+        key: "surucuAdi",
+        width: 180,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.surucuAdi === null) return -1;
+          if (b.surucuAdi === null) return 1;
+          return a.surucuAdi.localeCompare(b.surucuAdi);
+        },
+      },
+      {
+        title: t("olayYeri"),
+        dataIndex: "olayYeri",
+        key: "olayYeri",
         width: 150,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
-          if (a.girisDepo === null) return -1;
-          if (b.girisDepo === null) return 1;
-          return a.girisDepo.localeCompare(b.girisDepo);
+          if (a.olayYeri === null) return -1;
+          if (b.olayYeri === null) return 1;
+          return a.olayYeri.localeCompare(b.olayYeri);
         },
       },
       {
-        title: t("cikisDeposu"),
-        dataIndex: "cikisDepo",
-        key: "cikisDepo",
+        title: t("hasarTipi"),
+        dataIndex: "hasarTipi",
+        key: "hasarTipi",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.hasarTipi === null) return -1;
+          if (b.hasarTipi === null) return 1;
+          return a.hasarTipi.localeCompare(b.hasarTipi);
+        },
+      },
+      {
+        title: t("hasarliBolge"),
+        dataIndex: "hasarBolge",
+        key: "hasarBolge",
+        width: 140,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.hasarBolge === null) return -1;
+          if (b.hasarBolge === null) return 1;
+          return a.hasarBolge.localeCompare(b.hasarBolge);
+        },
+      },
+      {
+        title: t("hasarBoyutu"),
+        dataIndex: "hasarBoyut",
+        key: "hasarBoyut",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.hasarBoyut === null) return -1;
+          if (b.hasarBoyut === null) return 1;
+          return a.hasarBoyut.localeCompare(b.hasarBoyut);
+        },
+      },
+      {
+        title: t("lokasyon"),
+        dataIndex: "lokasyon",
+        key: "lokasyon",
         width: 150,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
-          if (a.cikisDepo === null) return -1;
-          if (b.cikisDepo === null) return 1;
-          return a.cikisDepo.localeCompare(b.cikisDepo);
+          if (a.lokasyon === null) return -1;
+          if (b.lokasyon === null) return 1;
+          return a.lokasyon.localeCompare(b.lokasyon);
         },
       },
       {
-        title: t("araToplam"),
-        dataIndex: "araToplam",
-        key: "araToplam",
+        title: t("policeNo"),
+        dataIndex: "policeNo",
+        key: "policeNo",
         width: 120,
         ellipsis: true,
         visible: true,
-        render: (text, record) => (
-          <div className="">
-            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
-          </div>
-        ),
         sorter: (a, b) => {
-          if (a.araToplam === null) return -1;
-          if (b.araToplam === null) return 1;
-          return a.araToplam - b.araToplam;
+          if (a.policeNo === null) return -1;
+          if (b.policeNo === null) return 1;
+          return a.policeNo.localeCompare(b.policeNo);
         },
       },
       {
-        title: t("kdvToplam"),
-        dataIndex: "kdvToplam",
-        key: "kdvToplam",
-        width: 120,
+        title: t("aracKullanilabilir"),
+        dataIndex: "aracKullanilir",
+        key: "aracKullanilir",
+        width: 130,
         ellipsis: true,
         visible: true,
-        render: (text, record) => (
-          <div className="">
-            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
-          </div>
-        ),
+        render: (text) => <div style={{ textAlign: "center" }}>{text ? <CheckOutlined style={{ color: "#52c41a" }} /> : <CloseOutlined style={{ color: "#ff4d4f" }} />}</div>,
         sorter: (a, b) => {
-          if (a.kdvToplam === null) return -1;
-          if (b.kdvToplam === null) return 1;
-          return a.kdvToplam - b.kdvToplam;
+          if (a.aracKullanilir === null) return -1;
+          if (b.aracKullanilir === null) return 1;
+          return a.aracKullanilir - b.aracKullanilir;
         },
       },
       {
-        title: t("genelToplam"),
-        dataIndex: "genelToplam",
-        key: "genelToplam",
-        width: 120,
+        title: t("kazayaKarisanBaskaAracVar"),
+        dataIndex: "kazaYapanBaskaArac",
+        key: "kazaYapanBaskaArac",
+        width: 170,
         ellipsis: true,
         visible: true,
-        render: (text, record) => (
-          <div className="">
-            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
-          </div>
-        ),
+        render: (text) => <div style={{ textAlign: "center" }}>{text ? <CheckOutlined style={{ color: "#52c41a" }} /> : <CloseOutlined style={{ color: "#ff4d4f" }} />}</div>,
         sorter: (a, b) => {
-          if (a.genelToplam === null) return -1;
-          if (b.genelToplam === null) return 1;
-          return a.genelToplam - b.genelToplam;
+          if (a.kazaYapanBaskaArac === null) return -1;
+          if (b.kazaYapanBaskaArac === null) return 1;
+          return a.kazaYapanBaskaArac - b.kazaYapanBaskaArac;
+        },
+      },
+      {
+        title: t("polisRaporuVar"),
+        dataIndex: "polisRaporuVar",
+        key: "polisRaporuVar",
+        width: 140,
+        ellipsis: true,
+        visible: true,
+        render: (text) => <div style={{ textAlign: "center" }}>{text ? <CheckOutlined style={{ color: "#52c41a" }} /> : <CloseOutlined style={{ color: "#ff4d4f" }} />}</div>,
+        sorter: (a, b) => {
+          if (a.polisRaporuVar === null) return -1;
+          if (b.polisRaporuVar === null) return 1;
+          return a.polisRaporuVar - b.polisRaporuVar;
         },
       },
     ],

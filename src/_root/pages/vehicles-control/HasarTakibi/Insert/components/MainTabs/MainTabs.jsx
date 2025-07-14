@@ -59,7 +59,7 @@ const StyledDivMedia = styled.div`
   }
 `;
 
-export default function MainTabs({ modalOpen }) {
+export default function MainTabs({ modalOpen, onHasarNoValidationChange }) {
   const {
     control,
     watch,
@@ -72,6 +72,9 @@ export default function MainTabs({ modalOpen }) {
   const [initialFisNo, setInitialFisNo] = useState("");
   const [isFisNoModified, setIsFisNoModified] = useState(false);
   const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
+  const [initialHasarNo, setInitialHasarNo] = useState("");
+  const [isHasarNoModified, setIsHasarNoModified] = useState(false);
+  const [hasarNoValidationStatus, setHasarNoValidationStatus] = useState(null); // null, 'valid', 'invalid'
 
   const handleMinusClick = () => {
     setValue("servisKodu", "");
@@ -216,6 +219,35 @@ export default function MainTabs({ modalOpen }) {
 
   // tarih formatlamasını kullanıcının yerel tarih formatına göre ayarlayın sonu
 
+  // Add validation function for hasarNo
+  const validateHasarNo = async (value) => {
+    if (!value) {
+      setHasarNoValidationStatus(null);
+      onHasarNoValidationChange && onHasarNoValidationChange(null);
+      return;
+    }
+    try {
+      const response = await AxiosInstance.post("TableCodeItem/IsCodeItemExist", {
+        tableName: "FirmaTanimlari",
+        code: value,
+      });
+
+      if (response.data.status === false) {
+        setHasarNoValidationStatus("valid");
+        onHasarNoValidationChange && onHasarNoValidationChange("valid");
+      } else {
+        setHasarNoValidationStatus("invalid");
+        onHasarNoValidationChange && onHasarNoValidationChange("invalid");
+        message.error("Hasar numarası geçerli değildir!");
+      }
+    } catch (error) {
+      console.error("Error checking hasarNo validity:", error);
+      setHasarNoValidationStatus("invalid");
+      onHasarNoValidationChange && onHasarNoValidationChange("invalid");
+      message.error("Hasar numarası kontrolü sırasında hata oluştu!");
+    }
+  };
+
   // Add validation function for fisNo
   const validateFisNo = async (value) => {
     if (!value) return;
@@ -278,28 +310,36 @@ export default function MainTabs({ modalOpen }) {
               render={({ field }) => (
                 <Input
                   {...field}
-                  status={errors["hasarNo"] ? "error" : ""}
-                  style={{ flex: 1 }}
+                  status={errors["hasarNo"] ? "error" : hasarNoValidationStatus === "invalid" ? "error" : ""}
+                  style={{
+                    flex: 1,
+                    borderColor: hasarNoValidationStatus === "valid" ? "#52c41a" : hasarNoValidationStatus === "invalid" ? "#ff4d4f" : errors["hasarNo"] ? "#ff4d4f" : "",
+                  }}
                   onFocus={(e) => {
-                    setInitialFisNo(e.target.value);
-                    setIsFisNoModified(false);
+                    setInitialHasarNo(e.target.value);
+                    setIsHasarNoModified(false);
+                    setHasarNoValidationStatus(null);
+                    onHasarNoValidationChange && onHasarNoValidationChange(null);
                   }}
                   onChange={(e) => {
                     field.onChange(e);
-                    if (e.target.value !== initialFisNo) {
-                      setIsFisNoModified(true);
+                    if (e.target.value !== initialHasarNo) {
+                      setIsHasarNoModified(true);
                     }
+                    setHasarNoValidationStatus(null);
+                    onHasarNoValidationChange && onHasarNoValidationChange(null);
                   }}
                   onBlur={(e) => {
                     field.onBlur(e);
-                    if (isFisNoModified) {
-                      validateFisNo(e.target.value);
+                    if (isHasarNoModified) {
+                      validateHasarNo(e.target.value);
                     }
                   }}
                 />
               )}
             />
             {errors["hasarNo"] && <div style={{ color: "red", marginTop: "5px" }}>{errors["hasarNo"].message}</div>}
+            {hasarNoValidationStatus === "invalid" && <div style={{ color: "red", marginTop: "5px" }}>Hasar numarası geçerli değildir!</div>}
           </div>
         </div>
         <div
@@ -480,7 +520,10 @@ export default function MainTabs({ modalOpen }) {
             flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("plaka")}</Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
+            {t("plaka")}
+            <div style={{ color: "red" }}>*</div>
+          </Text>
           <div
             style={{
               display: "flex",
@@ -492,7 +535,7 @@ export default function MainTabs({ modalOpen }) {
           >
             <PlakaSelectBox
               name1="plaka"
-              isRequired={false}
+              isRequired={true}
               onChange={(value, option) => {
                 // Plaka seçildiğinde sürücü bilgilerini otomatik set et
                 if (option && option.data) {

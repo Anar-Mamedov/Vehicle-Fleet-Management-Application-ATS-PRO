@@ -5,10 +5,11 @@ import styled from "styled-components";
 import dayjs from "dayjs";
 import { t } from "i18next";
 import AxiosInstance from "../../../../../../../api/http";
-import FirmaSelectBox from "../../../../../../components/FirmaSelectBox";
 import PlakaSelectBox from "../../../../../../../_root/components/PlakaSelectbox";
+import SurucuSelectbox from "../../../../../../../_root/components/SurucuSelectbox";
+import TextInput from "../../../../../../../_root/components/form/inputs/TextInput";
+import CheckboxInput from "../../../../../../../_root/components/form/checkbox/CheckboxInput";
 import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
-import DepoSelectBox from "../../../../../../components/DepoSelectBox";
 import LokasyonTablo from "../../../../../../components/form/LokasyonTable";
 import ModalInput from "../../../../../../components/form/inputs/ModalInput";
 import { PlusOutlined } from "@ant-design/icons";
@@ -244,7 +245,7 @@ export default function MainTabs({ modalOpen }) {
 
   return (
     <div style={{ display: "flex", marginBottom: "20px", flexDirection: "row", gap: "10px", width: "100%" }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "350px" }}>
         <div
           style={{
             display: "flex",
@@ -258,7 +259,7 @@ export default function MainTabs({ modalOpen }) {
           }}
         >
           <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
-            {t("fisNo")}
+            {t("hasarNo")}
             <div style={{ color: "red" }}>*</div>
           </Text>
           <div
@@ -271,13 +272,13 @@ export default function MainTabs({ modalOpen }) {
             }}
           >
             <Controller
-              name="fisNo"
+              name="hasarNo"
               control={control}
               rules={{ required: t("alanBosBirakilamaz") }}
               render={({ field }) => (
                 <Input
                   {...field}
-                  status={errors["fisNo"] ? "error" : ""}
+                  status={errors["hasarNo"] ? "error" : ""}
                   style={{ flex: 1 }}
                   onFocus={(e) => {
                     setInitialFisNo(e.target.value);
@@ -298,7 +299,7 @@ export default function MainTabs({ modalOpen }) {
                 />
               )}
             />
-            {errors["fisNo"] && <div style={{ color: "red", marginTop: "5px" }}>{errors["fisNo"].message}</div>}
+            {errors["hasarNo"] && <div style={{ color: "red", marginTop: "5px" }}>{errors["hasarNo"].message}</div>}
           </div>
         </div>
         <div
@@ -313,7 +314,7 @@ export default function MainTabs({ modalOpen }) {
             flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("firma")}</Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarTipi")}</Text>
           <div
             style={{
               display: "flex",
@@ -323,7 +324,83 @@ export default function MainTabs({ modalOpen }) {
               maxWidth: "220px",
             }}
           >
-            <FirmaSelectBox name1="firma" isRequired={false} />
+            <KodIDSelectbox name1="hasarTipi" kodID={907} isRequired={false} />
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarliBolge")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <KodIDSelectbox name1="hasarliBolge" kodID={908} isRequired={false} />
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarBoyutu")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <KodIDSelectbox name1="hasarBoyutu" kodID={909} isRequired={false} />
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("olayYeri")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <KodIDSelectbox name1="olayYeri" kodID={906} isRequired={false} />
           </div>
         </div>
       </div>
@@ -403,7 +480,10 @@ export default function MainTabs({ modalOpen }) {
             flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("plaka")}</Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
+            {t("plaka")}
+            <div style={{ color: "red" }}>*</div>
+          </Text>
           <div
             style={{
               display: "flex",
@@ -413,11 +493,98 @@ export default function MainTabs({ modalOpen }) {
               maxWidth: "220px",
             }}
           >
-            <PlakaSelectBox name1="plaka" isRequired={false} />
+            <PlakaSelectBox
+              name1="plaka"
+              isRequired={true}
+              onChange={(value, option) => {
+                // Plaka seçildiğinde sürücü bilgilerini otomatik set et
+                if (option && option.data) {
+                  setValue("surucu", option.data.surucu);
+                  setValue("surucuID", option.data.surucuId);
+                }
+              }}
+            />
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("surucu")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <SurucuSelectbox name1="surucu" isRequired={false} />
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("marka")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <TextInput name="marka" isRequired={false} readonly={true} />
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("model")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <TextInput name="model" isRequired={false} readonly={true} />
           </div>
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "330px" }}>
         <div
           style={{
             display: "flex",
@@ -451,6 +618,7 @@ export default function MainTabs({ modalOpen }) {
             />
           </div>
         </div>
+
         <div
           style={{
             display: "flex",
@@ -463,7 +631,7 @@ export default function MainTabs({ modalOpen }) {
             flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("islemTipi")}</Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("policeNo")}</Text>
           <div
             style={{
               display: "flex",
@@ -473,38 +641,62 @@ export default function MainTabs({ modalOpen }) {
               maxWidth: "220px",
             }}
           >
-            <KodIDSelectbox name1="islemTipi" kodID={302} isRequired={false} />
+            <TextInput name="policeNo" isRequired={false} />
           </div>
         </div>
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "350px" }}>
+
         <div
           style={{
             display: "flex",
             flexWrap: "wrap",
             alignItems: "center",
             justifyContent: "space-between",
+            height: "32px",
             width: "100%",
             maxWidth: "400px",
             gap: "10px",
             flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
-            {t("girisDeposu")}
-            <div style={{ color: "red" }}>*</div>
-          </Text>
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
-              width: "100%",
-              maxWidth: "220px",
-            }}
-          >
-            <DepoSelectBox name1="girisDeposu" kodID={"MALZEME"} isRequired={true} />
-          </div>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("aracKullanilabilir")}</Text>
+
+          <CheckboxInput name="aracKullanilabilir" isRequired={false} />
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            height: "32px",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("kazayaKarisanBaskaAracVar")}</Text>
+
+          <CheckboxInput name="kazayaKarisanBaskaAracVar" isRequired={false} />
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            height: "32px",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("polisRaporuVar")}</Text>
+
+          <CheckboxInput name="polisRaporuVar" isRequired={false} />
         </div>
       </div>
     </div>

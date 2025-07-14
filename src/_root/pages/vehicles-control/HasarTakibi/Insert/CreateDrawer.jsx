@@ -13,12 +13,13 @@ import AxiosInstance from "../../../../../api/http.jsx";
 export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   const [open, setOpen] = useState(false);
   const [periyodikBakim, setPeriyodikBakim] = useState("");
+  const [hasarNoValidationStatus, setHasarNoValidationStatus] = useState(null);
 
   const getFisNo = async () => {
     try {
       const response = await AxiosInstance.get("Numbering/GetModuleCodeByCode", {
         params: {
-          code: "STOK_FIS_ALIS",
+          code: "HASAR_TAKIBI_NO",
         },
       });
       if (response.data) {
@@ -39,6 +40,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       getFisNo();
       setValue("tarih", dayjs());
       setValue("saat", dayjs());
+      setHasarNoValidationStatus(null); // Reset validation status
 
       // Reset the fisIcerigi with a timeout to avoid focus errors
       setTimeout(() => {
@@ -61,22 +63,28 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
         setTimeout(() => {
           methods.reset({
             hasarNo: null,
-            firma: null,
-            firmaID: null,
-            plaka: null,
-            plakaID: null,
+            hasarTipi: null,
+            hasarTipiID: null,
+            hasarliBolge: null,
+            hasarliBolgeID: null,
+            hasarBoyutu: null,
+            hasarBoyutuID: null,
+            olayYeri: null,
+            olayYeriID: null,
             tarih: null,
             saat: null,
-            islemTipi: null,
-            islemTipiID: null,
-            girisDeposu: null,
-            girisDeposuID: null,
+            plaka: null,
+            plakaID: null,
+            surucu: null,
+            surucuID: null,
+            marka: null,
+            model: null,
             lokasyon: null,
             lokasyonID: null,
-            totalAraToplam: null,
-            totalIndirim: null,
-            totalKdvToplam: null,
-            totalGenelToplam: null,
+            policeNo: null,
+            aracKullanilabilir: null,
+            kazayaKarisanBaskaAracVar: null,
+            polisRaporuVar: null,
             aciklama: null,
             ozelAlan1: null,
             ozelAlan2: null,
@@ -92,7 +100,6 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
             ozelAlan10ID: null,
             ozelAlan11: null,
             ozelAlan12: null,
-            fisIcerigi: [],
           });
         }, 100);
       },
@@ -108,22 +115,28 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   const methods = useForm({
     defaultValues: {
       hasarNo: null,
-      firma: null,
-      firmaID: null,
-      plaka: null,
-      plakaID: null,
+      hasarTipi: null,
+      hasarTipiID: null,
+      hasarliBolge: null,
+      hasarliBolgeID: null,
+      hasarBoyutu: null,
+      hasarBoyutuID: null,
+      olayYeri: null,
+      olayYeriID: null,
       tarih: null,
       saat: null,
-      islemTipi: null,
-      islemTipiID: null,
-      girisDeposu: null,
-      girisDeposuID: null,
+      plaka: null,
+      plakaID: null,
+      surucu: null,
+      surucuID: null,
+      marka: null,
+      model: null,
       lokasyon: null,
       lokasyonID: null,
-      totalAraToplam: null,
-      totalIndirim: null,
-      totalKdvToplam: null,
-      totalGenelToplam: null,
+      policeNo: null,
+      aracKullanilabilir: null,
+      kazayaKarisanBaskaAracVar: null,
+      polisRaporuVar: null,
       aciklama: null,
       ozelAlan1: null,
       ozelAlan2: null,
@@ -139,7 +152,6 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       ozelAlan10ID: null,
       ozelAlan11: null,
       ozelAlan12: null,
-      fisIcerigi: [],
     },
   });
 
@@ -157,68 +169,28 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
 
   //* export
   const onSubmit = (data) => {
+    // Hasar numarası validation kontrolü
+    if (hasarNoValidationStatus === "invalid") {
+      message.error("Hasar numarası geçerli değildir! Lütfen geçerli bir hasar numarası girin.");
+      return;
+    }
+
     const Body = {
       hasarNo: data.hasarNo,
-      // firma: data.firma,
-      firmaId: Number(data.firmaID),
-      // plaka: data.plaka,
-      aracId: Number(data.plakaID),
+      aracId: data.plakaID,
+      surucuId: data.surucuID,
       tarih: formatDateWithDayjs(data.tarih),
       saat: formatTimeWithDayjs(data.saat),
-      // islemTipi: data.islemTipi,
-      islemTipiKodId: Number(data.islemTipiID),
-      // girisDeposu: data.girisDeposu,
-      girisDepoSiraNo: Number(data.girisDeposuID),
-      // lokasyon: data.lokasyon,
-      lokasyonId: Number(data.lokasyonID),
-      araToplam: Number(data.totalAraToplam),
-      indirimliToplam: Number(data.totalIndirim),
-      kdvToplam: Number(data.totalKdvToplam),
-      genelToplam: Number(data.totalGenelToplam),
-      aciklama: data.aciklama,
-      ozelAlan1: data.ozelAlan1,
-      ozelAlan2: data.ozelAlan2,
-      ozelAlan3: data.ozelAlan3,
-      ozelAlan4: data.ozelAlan4,
-      ozelAlan5: data.ozelAlan5,
-      ozelAlan6: data.ozelAlan6,
-      ozelAlan7: data.ozelAlan7,
-      ozelAlan8: data.ozelAlan8,
-      ozelAlanKodId9: Number(data.ozelAlan9ID),
-      ozelAlanKodId10: Number(data.ozelAlan10ID),
-      ozelAlan11: Number(data.ozelAlan11),
-      ozelAlan12: Number(data.ozelAlan12),
-      gc: 1,
-      fisTip: "MALZEME",
-      materialMovements:
-        data.fisIcerigi?.map((item) => ({
-          tarih: formatDateWithDayjs(data.tarih),
-          firmaId: Number(data.firmaID),
-          girisDepoSiraNo: Number(data.girisDeposuID),
-          isPriceChanged: item.isPriceChanged || false,
-          // malzemeKodu: item.malzemeKodu,
-          // malzemeTanimi: item.malzemeTanimi,
-          // malzemeTipi: item.malzemeTipi,
-          malzemeId: Number(item.malzemeId),
-          // birim: item.birim,
-          birimKodId: Number(item.birimKodId),
-          miktar: Number(item.miktar),
-          fiyat: Number(item.fiyat),
-          araToplam: Number(item.araToplam),
-          indirimOran: Number(item.indirimOrani),
-          indirim: Number(item.indirimTutari),
-          kdvOran: Number(item.kdvOrani),
-          kdvDahilHaric: item.kdvDahilHaric,
-          kdvTutar: Number(item.kdvTutar),
-          toplam: Number(item.toplam),
-          // plaka: item.malzemePlaka,
-          mlzAracId: Number(item.malzemePlakaId),
-          // lokasyon: item.malzemeLokasyon,
-          lokasyonId: Number(item.malzemeLokasyonID),
-          aciklama: item.aciklama,
-          gc: 1,
-          fisTip: "MALZEME",
-        })) || [],
+      olayYeriKodId: data.olayYeriID,
+      olayAniAciklamasi: data.aciklama,
+      hasarTipiKodId: data.hasarTipiID,
+      hasarBolgeKodId: data.hasarliBolgeID,
+      hasarBoyutuKodId: data.hasarBoyutuID,
+      lokasyonId: data.lokasyonID,
+      policeNo: data.policeNo,
+      aracKullanilir: data.aracKullanilabilir,
+      kazaYapanBaskaArac: data.kazayaKarisanBaskaAracVar,
+      polisRaporuVar: data.polisRaporuVar,
     };
 
     AxiosInstance.post("DamageTracking/AddDamageTrackItem", Body)
@@ -237,22 +209,28 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
           setTimeout(() => {
             methods.reset({
               hasarNo: null,
-              firma: null,
-              firmaID: null,
-              plaka: null,
-              plakaID: null,
+              hasarTipi: null,
+              hasarTipiID: null,
+              hasarliBolge: null,
+              hasarliBolgeID: null,
+              hasarBoyutu: null,
+              hasarBoyutuID: null,
+              olayYeri: null,
+              olayYeriID: null,
               tarih: null,
               saat: null,
-              islemTipi: null,
-              islemTipiID: null,
-              girisDeposu: null,
-              girisDeposuID: null,
+              plaka: null,
+              plakaID: null,
+              surucu: null,
+              surucuID: null,
+              marka: null,
+              model: null,
               lokasyon: null,
               lokasyonID: null,
-              totalAraToplam: null,
-              totalIndirim: null,
-              totalKdvToplam: null,
-              totalGenelToplam: null,
+              policeNo: null,
+              aracKullanilabilir: null,
+              kazayaKarisanBaskaAracVar: null,
+              polisRaporuVar: null,
               aciklama: null,
               ozelAlan1: null,
               ozelAlan2: null,
@@ -268,7 +246,6 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
               ozelAlan10ID: null,
               ozelAlan11: null,
               ozelAlan12: null,
-              fisIcerigi: [],
             });
           }, 100);
         } else if (response.data.statusCode === 401) {
@@ -320,7 +297,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
           {t("ekle")}
         </Button>
         <Modal
-          width="1300px"
+          width="1050px"
           centered
           title={t("yeniHasarGirisi")}
           destroyOnClose
@@ -345,7 +322,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
         >
           <form onSubmit={methods.handleSubmit(onSubmit)}>
             <div>
-              <MainTabs modalOpen={open} />
+              <MainTabs modalOpen={open} onHasarNoValidationChange={setHasarNoValidationStatus} />
               <SecondTabs modalOpen={open} />
             </div>
           </form>
