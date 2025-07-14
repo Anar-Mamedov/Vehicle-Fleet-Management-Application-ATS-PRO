@@ -13,24 +13,26 @@ const BaslikEslemeModal = ({ visible, onClose, excelHeaders, dbHeaders, onSave }
   const [eslesmeler, setEslesmeler] = useState({});
 
   useEffect(() => {
-    const otomatikEslesmeler = {};
-    dbHeaders.slice(0, 6).forEach((dbHeader) => {
-      let maxSimilarity = 0;
-      let bestMatch = null;
-      excelHeaders.forEach((excelHeader) => {
-        const similarity = stringSimilarity(dbHeader, excelHeader);
-        if (similarity > maxSimilarity) {
-          maxSimilarity = similarity;
-          bestMatch = excelHeader;
-        }
-      });
-      if (bestMatch) {
-        otomatikEslesmeler[dbHeader] = bestMatch;
+  if (Object.keys(eslesmeler).length > 0) return; // daha önce eşleşme yapılmışsa tekrar yapma
+
+  const otomatikEslesmeler = {};
+  dbHeaders.forEach((dbHeader) => {
+    let maxSimilarity = 0;
+    let bestMatch = null;
+    excelHeaders.forEach((excelHeader) => {
+      const similarity = stringSimilarity(dbHeader, excelHeader);
+      if (similarity > maxSimilarity) {
+        maxSimilarity = similarity;
+        bestMatch = excelHeader;
       }
     });
+    if (bestMatch) {
+      otomatikEslesmeler[dbHeader] = bestMatch;
+    }
+  });
 
-    setEslesmeler(otomatikEslesmeler);
-  }, [dbHeaders, excelHeaders]);
+  setEslesmeler(otomatikEslesmeler);
+}, [dbHeaders, excelHeaders]);
 
   const handleEslesmeChange = (dbHeader, excelHeader) => {
     setEslesmeler((prev) => ({ ...prev, [dbHeader]: excelHeader }));
@@ -395,29 +397,32 @@ const AracAktarim = () => {
     }
 
     const hgsKayitlar = temizKayitlar.map((item) => ({
-      Plaka: String(item.PLAKA || "").trim(),
-      Tarih: toDateOnlyString(item.TARIH),
-      Surucu: item.SURUCU || null,
-      GirisZamani: toDateOnlyString(item.GIRIS_ZAMANI),
-      CikisZamani: toDateOnlyString(item.CIKIS_ZAMANI),
-      GirisYeri: item.GIRIS_YERI || null,
-      CikisYeri: item.CIKIS_YERI || null,
-      OdemeTuru: item.ODEME_TURU || null,
-      OdemeDurumu: item.ODEME_DURUMU || null,
-      GecisUcreti: item.GECIS_UCRETI != null ? String(item.GECIS_UCRETI) : null,
-      FisNo: item.FIS_NO || null,
-      GecisKategorisi: item.GECIS_KATEGORISI || null,
-      Guzergah: item.GUZERGAH || null,
-      Aciklama: item.ACIKLAMA || null,
-      HgsOzelAlan1: item.HGS_OZEL_ALAN_1 || null,
-      HgsOzelAlan2: item.HGS_OZEL_ALAN_2 || null,
-      HgsOzelAlan3: item.HGS_OZEL_ALAN_3 || null,
-      HgsOzelAlan4: item.HGS_OZEL_ALAN_4 || null,
-      HgsOzelAlan5: item.HGS_OZEL_ALAN_5 || null,
-      HgsOzelAlan6: item.HGS_OZEL_ALAN_6 || null,
-      HgsOzelAlan7: item.HGS_OZEL_ALAN_7 || null,
-      HgsOzelAlan8: item.HGS_OZEL_ALAN_8 || null,
-    }));
+  Plaka: String(item.PLAKA || "").trim(),
+  Tarih: toDateOnlyString(item.TARIH),
+  Surucu: item.SURUCU || null,
+  GirisZamani: toDateOnlyString(item.GIRIS_ZAMANI),
+  CikisZamani: toDateOnlyString(item.CIKIS_ZAMANI),
+  GirisSaat: item.GIRIS_SAAT || null,
+  CikisSaat: item.CIKIS_SAAT || null,
+  GirisYeri: item.GirisYeri != null ? String(item.GirisYeri) : null,
+  CikisYeri: item.CikisYeri != null ? String(item.CikisYeri) : null,
+  OdemeTuru: item.ODEME_TURU || null,
+  OdemeDurumu: item.ODEME_DURUMU || null,
+  GecisUcreti: item.GECIS_UCRETI != null ? String(item.GECIS_UCRETI) : null,
+  FisNo: item.FIS_NO != null ? String(item.FIS_NO) : null,
+  GecisKategorisi: item.GECIS_KATEGORISI || null,
+  Guzergah: item.GUZERGAH != null ? String(item.GUZERGAH) : null,
+  Otoyol: item.OTOYOL != null ? String(item.OTOYOL) : null,
+  Aciklama: item.ACIKLAMA || null,
+  HgsOzelAlan1: item.HGS_OZEL_ALAN_1 || null,
+  HgsOzelAlan2: item.HGS_OZEL_ALAN_2 || null,
+  HgsOzelAlan3: item.HGS_OZEL_ALAN_3 || null,
+  HgsOzelAlan4: item.HGS_OZEL_ALAN_4 || null,
+  HgsOzelAlan5: item.HGS_OZEL_ALAN_5 || null,
+  HgsOzelAlan6: item.HGS_OZEL_ALAN_6 || null,
+  HgsOzelAlan7: item.HGS_OZEL_ALAN_7 || null,
+  HgsOzelAlan8: item.HGS_OZEL_ALAN_8 || null,
+}));
 
     try {
       await httpAktarim.post("/api/HgsAktarimKayit/hgsaktar", hgsKayitlar);
@@ -434,7 +439,7 @@ const AracAktarim = () => {
   return (
     <>
       <div style={{ marginBottom: 15 }}>
-        <Button type="default" href="/file/ornek-hgs-sablonu.xlsx" download>
+        <Button type="default" href="/file/hgs-sablonu.xlsx" download>
           HGS Aktarım Şablonunu İndir
         </Button>
       </div>
