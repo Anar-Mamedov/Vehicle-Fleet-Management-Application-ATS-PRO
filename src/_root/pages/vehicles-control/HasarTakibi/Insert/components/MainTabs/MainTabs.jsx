@@ -342,6 +342,78 @@ export default function MainTabs({ modalOpen, onHasarNoValidationChange }) {
             {hasarNoValidationStatus === "invalid" && <div style={{ color: "red", marginTop: "5px" }}>Hasar numarası geçerli değildir!</div>}
           </div>
         </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
+            {t("plaka")}
+            <div style={{ color: "red" }}>*</div>
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <PlakaSelectBox
+              name1="plaka"
+              isRequired={true}
+              onChange={(value, option) => {
+                // Plaka seçildiğinde sürücü bilgilerini otomatik set et
+                if (option && option.data) {
+                  setValue("surucu", option.data.surucu);
+                  setValue("surucuID", option.data.surucuId);
+                  setValue("marka", option.data.marka);
+                  setValue("model", option.data.model);
+                } else {
+                  // Plaka değeri silindiğinde marka ve model alanlarını temizle
+                  setValue("marka", null);
+                  setValue("model", null);
+                }
+              }}
+            />
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("model")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <TextInput name="model" isRequired={false} readonly={true} />
+          </div>
+        </div>
+
         <div
           style={{
             display: "flex",
@@ -367,57 +439,7 @@ export default function MainTabs({ modalOpen, onHasarNoValidationChange }) {
             <KodIDSelectbox name1="hasarTipi" kodID={907} isRequired={false} />
           </div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarliBolge")}</Text>
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
-              width: "100%",
-              maxWidth: "220px",
-            }}
-          >
-            <KodIDSelectbox name1="hasarliBolge" kodID={908} isRequired={false} />
-          </div>
-        </div>
 
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarBoyutu")}</Text>
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
-              width: "100%",
-              maxWidth: "220px",
-            }}
-          >
-            <KodIDSelectbox name1="hasarBoyutu" kodID={909} isRequired={false} />
-          </div>
-        </div>
         <div
           style={{
             display: "flex",
@@ -444,7 +466,7 @@ export default function MainTabs({ modalOpen, onHasarNoValidationChange }) {
           </div>
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "350px" }}>
         <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
           <div
             style={{
@@ -508,75 +530,6 @@ export default function MainTabs({ modalOpen, onHasarNoValidationChange }) {
             </div>
           </div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
-            {t("plaka")}
-            <div style={{ color: "red" }}>*</div>
-          </Text>
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
-              width: "100%",
-              maxWidth: "220px",
-            }}
-          >
-            <PlakaSelectBox
-              name1="plaka"
-              isRequired={true}
-              onChange={(value, option) => {
-                // Plaka seçildiğinde sürücü bilgilerini otomatik set et
-                if (option && option.data) {
-                  setValue("surucu", option.data.surucu);
-                  setValue("surucuID", option.data.surucuId);
-                  setValue("marka", option.data.marka);
-                  setValue("model", option.data.model);
-                } else {
-                  // Plaka değeri silindiğinde marka ve model alanlarını temizle
-                  setValue("marka", null);
-                  setValue("model", null);
-                }
-              }}
-            />
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("surucu")}</Text>
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
-              width: "100%",
-              maxWidth: "220px",
-            }}
-          >
-            <SurucuSelectbox name1="surucu" isRequired={false} />
-          </div>
-        </div>
 
         <div
           style={{
@@ -616,7 +569,7 @@ export default function MainTabs({ modalOpen, onHasarNoValidationChange }) {
             flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("model")}</Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("surucu")}</Text>
           <div
             style={{
               display: "flex",
@@ -626,7 +579,59 @@ export default function MainTabs({ modalOpen, onHasarNoValidationChange }) {
               maxWidth: "220px",
             }}
           >
-            <TextInput name="model" isRequired={false} readonly={true} />
+            <SurucuSelectbox name1="surucu" isRequired={false} />
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarBoyutu")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <KodIDSelectbox name1="hasarBoyutu" kodID={909} isRequired={false} />
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarliBolge")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <KodIDSelectbox name1="hasarliBolge" kodID={908} isRequired={false} />
           </div>
         </div>
       </div>

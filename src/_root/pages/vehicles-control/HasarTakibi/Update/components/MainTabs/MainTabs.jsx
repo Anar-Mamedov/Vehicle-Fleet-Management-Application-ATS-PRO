@@ -356,7 +356,10 @@ export default function MainTabs({ modalOpen }) {
             flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarTipi")}</Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
+            {t("plaka")}
+            <div style={{ color: "red" }}>*</div>
+          </Text>
           <div
             style={{
               display: "flex",
@@ -366,32 +369,23 @@ export default function MainTabs({ modalOpen }) {
               maxWidth: "220px",
             }}
           >
-            <KodIDSelectbox name1="hasarTipi" kodID={907} isRequired={false} />
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            maxWidth: "400px",
-            gap: "10px",
-            flexDirection: "row",
-          }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarliBolge")}</Text>
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column wrap",
-              alignItems: "flex-start",
-              width: "100%",
-              maxWidth: "220px",
-            }}
-          >
-            <KodIDSelectbox name1="hasarliBolge" kodID={908} isRequired={false} />
+            <PlakaSelectBox
+              name1="plaka"
+              isRequired={true}
+              onChange={(value, option) => {
+                // Plaka seçildiğinde sürücü bilgilerini otomatik set et
+                if (option && option.data) {
+                  setValue("surucu", option.data.surucu);
+                  setValue("surucuID", option.data.surucuId);
+                  setValue("marka", option.data.marka);
+                  setValue("model", option.data.model);
+                } else {
+                  // Plaka değeri silindiğinde marka ve model alanlarını temizle
+                  setValue("marka", null);
+                  setValue("model", null);
+                }
+              }}
+            />
           </div>
         </div>
 
@@ -407,7 +401,7 @@ export default function MainTabs({ modalOpen }) {
             flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarBoyutu")}</Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("model")}</Text>
           <div
             style={{
               display: "flex",
@@ -417,9 +411,35 @@ export default function MainTabs({ modalOpen }) {
               maxWidth: "220px",
             }}
           >
-            <KodIDSelectbox name1="hasarBoyutu" kodID={909} isRequired={false} />
+            <TextInput name="model" isRequired={false} readonly={true} />
           </div>
         </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarTipi")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <KodIDSelectbox name1="hasarTipi" kodID={907} isRequired={false} />
+          </div>
+        </div>
+
         <div
           style={{
             display: "flex",
@@ -446,7 +466,7 @@ export default function MainTabs({ modalOpen }) {
           </div>
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "300px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "350px" }}>
         <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
           <div
             style={{
@@ -522,10 +542,7 @@ export default function MainTabs({ modalOpen }) {
             flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>
-            {t("plaka")}
-            <div style={{ color: "red" }}>*</div>
-          </Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("marka")}</Text>
           <div
             style={{
               display: "flex",
@@ -535,25 +552,10 @@ export default function MainTabs({ modalOpen }) {
               maxWidth: "220px",
             }}
           >
-            <PlakaSelectBox
-              name1="plaka"
-              isRequired={true}
-              onChange={(value, option) => {
-                // Plaka seçildiğinde sürücü bilgilerini otomatik set et
-                if (option && option.data) {
-                  setValue("surucu", option.data.surucu);
-                  setValue("surucuID", option.data.surucuId);
-                  setValue("marka", option.data.marka);
-                  setValue("model", option.data.model);
-                } else {
-                  // Plaka değeri silindiğinde marka ve model alanlarını temizle
-                  setValue("marka", null);
-                  setValue("model", null);
-                }
-              }}
-            />
+            <TextInput name="marka" isRequired={false} readonly={true} />
           </div>
         </div>
+
         <div
           style={{
             display: "flex",
@@ -592,7 +594,7 @@ export default function MainTabs({ modalOpen }) {
             flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("marka")}</Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarBoyutu")}</Text>
           <div
             style={{
               display: "flex",
@@ -602,7 +604,7 @@ export default function MainTabs({ modalOpen }) {
               maxWidth: "220px",
             }}
           >
-            <TextInput name="marka" isRequired={false} readonly={true} />
+            <KodIDSelectbox name1="hasarBoyutu" kodID={909} isRequired={false} />
           </div>
         </div>
 
@@ -618,7 +620,7 @@ export default function MainTabs({ modalOpen }) {
             flexDirection: "row",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("model")}</Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("hasarliBolge")}</Text>
           <div
             style={{
               display: "flex",
@@ -628,7 +630,7 @@ export default function MainTabs({ modalOpen }) {
               maxWidth: "220px",
             }}
           >
-            <TextInput name="model" isRequired={false} readonly={true} />
+            <KodIDSelectbox name1="hasarliBolge" kodID={908} isRequired={false} />
           </div>
         </div>
       </div>
