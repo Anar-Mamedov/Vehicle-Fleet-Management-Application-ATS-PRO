@@ -62,12 +62,12 @@ export default function SecondTabs({ refreshKey, fieldRequirements, modalOpen })
       children: <Sigorta fieldRequirements={fieldRequirements} />,
     },*/
 
-    {
+    /* {
       key: "5",
       label: "Özel Alanlar",
       // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
       children: <OzelAlanlar />,
-    },
+    }, */
     {
       key: "6",
       label: "Açıklama",

@@ -65,6 +65,19 @@ export default function SecondTabs({ refreshKey, fieldRequirements, modalOpen, s
     },*/
 
     {
+      key: "7",
+      label: "Resimler",
+      // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
+      children: <ResimUpload selectedRowID={selectedRowID} refGroup={"HASAR_TAKIP"} />,
+    },
+    {
+      key: "8",
+      label: "Dosyalar",
+      // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
+      children: <DosyaUpload selectedRowID={selectedRowID} refGroup={"HASAR_TAKIP"} />,
+    },
+
+    {
       key: "5",
       label: "Özel Alanlar",
       // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
@@ -79,18 +92,6 @@ export default function SecondTabs({ refreshKey, fieldRequirements, modalOpen, s
           <Controller name="aciklama" render={({ field }) => <TextArea {...field} rows={4} placeholder="Açıklama" style={{ width: "100%", resize: "none" }} />} />
         </div>
       ),
-    },
-    {
-      key: "7",
-      label: "Resimler",
-      // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
-      children: <ResimUpload selectedRowID={selectedRowID} refGroup={"HASAR_TAKIP"} />,
-    },
-    {
-      key: "8",
-      label: "Dosyalar",
-      // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
-      children: <DosyaUpload selectedRowID={selectedRowID} refGroup={"HASAR_TAKIP"} />,
     },
   ];
 
