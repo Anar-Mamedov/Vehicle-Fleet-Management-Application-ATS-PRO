@@ -102,6 +102,20 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("kazayaKarisanBaskaAracVar", item.kazaYapanBaskaArac || undefined);
           setValue("polisRaporuVar", item.polisRaporuVar || undefined);
           setValue("aciklama", item.olayAniAciklamasi || undefined);
+          setValue("ozelAlan1", item.ozelAlan1 || undefined);
+          setValue("ozelAlan2", item.ozelAlan2 || undefined);
+          setValue("ozelAlan3", item.ozelAlan3 || undefined);
+          setValue("ozelAlan4", item.ozelAlan4 || undefined);
+          setValue("ozelAlan5", item.ozelAlan5 || undefined);
+          setValue("ozelAlan6", item.ozelAlan6 || undefined);
+          setValue("ozelAlan7", item.ozelAlan7 || undefined);
+          setValue("ozelAlan8", item.ozelAlan8 || undefined);
+          setValue("ozelAlan9", item.ozelAlan9 || undefined);
+          setValue("ozelAlan9ID", item.ozelAlanKodId9 || undefined);
+          setValue("ozelAlan10", item.ozelAlan10 || undefined);
+          setValue("ozelAlan10ID", item.ozelAlanKodId10 || undefined);
+          setValue("ozelAlan11", item.ozelAlan11 || undefined);
+          setValue("ozelAlan12", item.ozelAlan12 || undefined);
 
           setLoading(false); // Yükleme tamamlandığında
         } catch (error) {
@@ -143,6 +157,18 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       aracKullanilir: data.aracKullanilabilir || false,
       kazaYapanBaskaArac: data.kazayaKarisanBaskaAracVar || false,
       polisRaporuVar: data.polisRaporuVar || false,
+      ozelAlan1: data.ozelAlan1 || "",
+      ozelAlan2: data.ozelAlan2 || "",
+      ozelAlan3: data.ozelAlan3 || "",
+      ozelAlan4: data.ozelAlan4 || "",
+      ozelAlan5: data.ozelAlan5 || "",
+      ozelAlan6: data.ozelAlan6 || "",
+      ozelAlan7: data.ozelAlan7 || "",
+      ozelAlan8: data.ozelAlan8 || "",
+      ozelAlanKodId9: data.ozelAlan9ID || 0,
+      ozelAlanKodId10: data.ozelAlan10ID || 0,
+      ozelAlan11: data.ozelAlan11 || 0,
+      ozelAlan12: data.ozelAlan12 || 0,
     };
 
     // API'ye POST isteği gönder
