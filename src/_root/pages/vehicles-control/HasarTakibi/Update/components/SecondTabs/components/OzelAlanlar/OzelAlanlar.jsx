@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Modal, Input, Button, Typography, message, InputNumber } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
 import AxiosInstance from "../../../../../../../../../api/http";
-import OzelAlan9 from "./components/OzelAlan9.jsx";
-import OzelAlan10 from "./components/OzelAlan10.jsx";
+import KodIDSelectbox from "../../../../../../../../components/KodIDSelectbox";
 
 const { Text } = Typography;
 
@@ -25,7 +24,7 @@ function OzelAlanlar(props) {
 
   const handleOk = async () => {
     try {
-      const response = await AxiosInstance.post(`/CustomField/AddCustomFieldTopic?form=SERVİS&topic=${inputValue}&field=${clickedField}`);
+      const response = await AxiosInstance.post(`/CustomField/AddCustomFieldTopic?form=HASAR_TAKIBI&topic=${inputValue}&field=${clickedField}`);
       setIsModalVisible(false);
       setInputValue("");
       if (response.data.statusCode === 200) {
@@ -45,7 +44,7 @@ function OzelAlanlar(props) {
 
   const nameOfField = async () => {
     try {
-      const response = await AxiosInstance.get(`CustomField/GetCustomFields?form=SERVİS`);
+      const response = await AxiosInstance.get(`CustomField/GetCustomFields?form=HASAR_TAKIBI`);
       setCustomFieldNames(response.data);
     } catch (error) {
       console.error("API request failed: ", error);
@@ -136,7 +135,7 @@ function OzelAlanlar(props) {
             {customFieldNames?.ozelAlan9}:
           </Text>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-            <OzelAlan9 />
+            <KodIDSelectbox name1="ozelAlan9" kodID={910} isRequired={false} />
           </div>
         </div>
 
@@ -145,7 +144,7 @@ function OzelAlanlar(props) {
             {customFieldNames?.ozelAlan10}:
           </Text>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-            <OzelAlan10 />
+            <KodIDSelectbox name1="ozelAlan10" kodID={911} isRequired={false} />
           </div>
         </div>
 

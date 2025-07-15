@@ -359,6 +359,57 @@ const HasarTakibi = () => {
         },
       },
       {
+        title: t("durum"),
+        dataIndex: "durum",
+        key: "durum",
+        width: 180,
+        ellipsis: true,
+        visible: true,
+        render: (text) => {
+          const getStatusColor = (status) => {
+            const trimmedStatus = status ? status.trim() : "";
+            switch (trimmedStatus) {
+              case "Yeni Kayıt":
+                return "blue";
+              case "İncelemede":
+                return "orange";
+              case "Ekspertize Yönlendirildi":
+                return "purple";
+              case "Ekspertiz Tamamlandı":
+                return "cyan";
+              case "Onarım Planlandı":
+                return "geekblue";
+              case "Onarımda":
+                return "volcano";
+              case "Sigorta Sürecinde":
+                return "gold";
+              case "Tahsilat Tamamlandı":
+                return "lime";
+              case "Kapatıldı":
+                return "green";
+              case "Reddedildi / Geçersiz":
+                return "red";
+              default:
+                return "default";
+            }
+          };
+
+          const trimmedText = text ? text.trim() : "";
+          return trimmedText ? (
+            <Tag color={getStatusColor(trimmedText)} style={{ fontWeight: 500 }}>
+              {trimmedText}
+            </Tag>
+          ) : (
+            ""
+          );
+        },
+        sorter: (a, b) => {
+          if (a.durum === null) return -1;
+          if (b.durum === null) return 1;
+          return a.durum.localeCompare(b.durum);
+        },
+      },
+      {
         title: t("olayYeri"),
         dataIndex: "olayYeri",
         key: "olayYeri",
