@@ -64,6 +64,7 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
   //   }
   // };
 
+  /*
   return (
     <div style={buttonStyle}>
       <Popconfirm
@@ -86,4 +87,5 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
       </Popconfirm>
     </div>
   );
+  */
 }

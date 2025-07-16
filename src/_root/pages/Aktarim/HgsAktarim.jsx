@@ -13,24 +13,26 @@ const BaslikEslemeModal = ({ visible, onClose, excelHeaders, dbHeaders, onSave }
   const [eslesmeler, setEslesmeler] = useState({});
 
   useEffect(() => {
-    const otomatikEslesmeler = {};
-    dbHeaders.slice(0, 6).forEach((dbHeader) => {
-      let maxSimilarity = 0;
-      let bestMatch = null;
-      excelHeaders.forEach((excelHeader) => {
-        const similarity = stringSimilarity(dbHeader, excelHeader);
-        if (similarity > maxSimilarity) {
-          maxSimilarity = similarity;
-          bestMatch = excelHeader;
-        }
-      });
-      if (bestMatch) {
-        otomatikEslesmeler[dbHeader] = bestMatch;
+  if (Object.keys(eslesmeler).length > 0) return; // daha önce eşleşme yapılmışsa tekrar yapma
+
+  const otomatikEslesmeler = {};
+  dbHeaders.forEach((dbHeader) => {
+    let maxSimilarity = 0;
+    let bestMatch = null;
+    excelHeaders.forEach((excelHeader) => {
+      const similarity = stringSimilarity(dbHeader, excelHeader);
+      if (similarity > maxSimilarity) {
+        maxSimilarity = similarity;
+        bestMatch = excelHeader;
       }
     });
+    if (bestMatch) {
+      otomatikEslesmeler[dbHeader] = bestMatch;
+    }
+  });
 
-    setEslesmeler(otomatikEslesmeler);
-  }, [dbHeaders, excelHeaders]);
+  setEslesmeler(otomatikEslesmeler);
+}, [dbHeaders, excelHeaders]);
 
   const handleEslesmeChange = (dbHeader, excelHeader) => {
     setEslesmeler((prev) => ({ ...prev, [dbHeader]: excelHeader }));
@@ -230,34 +232,80 @@ const AracAktarim = () => {
 
   // API kontrol işlemi
   const handleKontrolEt = async () => {
-
   try {
     const kontrolList = eslesmisVeriler
-      .filter((d) => d.TARIH) // sadece tarih zorunlu
-      .map((d) => {
-        // Tarih dönüştürme
-        const parseDate = (excelDateOrStr) => {
-          if (typeof excelDateOrStr === "number") {
-            return excelSerialToJSDate(excelDateOrStr).toISOString();
-          } else if (typeof excelDateOrStr === "string") {
-            const parsed = new Date(excelDateOrStr.replace(/(\d{2})\.(\d{2})\.(\d{4})/, "$2/$1/$3"));
-            return !isNaN(parsed.getTime()) ? parsed.toISOString() : null;
+  .filter((d) => d.TARIH && d.GIRIS_ZAMANI && d.CIKIS_ZAMANI)
+  .map((d) => {
+    let tarihStr = "";
+    if (typeof d.TARIH === "number") {
+      const tarihDate = excelSerialToJSDate(d.TARIH);
+      tarihStr = isNaN(tarihDate.getTime()) ? "" : tarihDate.toISOString().split("T")[0];
+    } else if (typeof d.TARIH === "string") {
+      const parsed = new Date(d.TARIH.replace(/(\d{2})\.(\d{2})\.(\d{4})/, "$2/$1/$3"));
+      tarihStr = !isNaN(parsed.getTime()) ? parsed.toISOString().split("T")[0] : "";
+    }
+
+    return {
+  Plaka: String(d.PLAKA || "").trim(),
+  Tarih: toDateOnlyString(d.TARIH),
+  GirisZamani: toDateOnlyString(d.GIRIS_ZAMANI),
+  CikisZamani: toDateOnlyString(d.CIKIS_ZAMANI),
+  GecisUcreti: String(d.GECIS_UCRETI ?? ""),
+  GirisSaat: typeof d.GIRIS_SAAT === "number" ? excelSerialToTimeString(d.GIRIS_SAAT) : (d.GIRIS_SAAT || "00:00:00"),
+  CikisSaat: typeof d.CIKIS_SAAT === "number" ? excelSerialToTimeString(d.CIKIS_SAAT) : (d.CIKIS_SAAT || "00:00:00"),
+};
+  });
+
+    if (kontrolList.length === 0) {
+      message.warning("Geçerli veriye sahip kayıt bulunamadı.");
+      return;
+    }
+
+    const response = await httpAktarim.post("/api/HgsAktarim/hgskontrol", kontrolList);
+
+    const merged = eslesmisVeriler.map((d) => {
+      const found = response.data.find(
+        (x) => x.plaka?.trim().toLowerCase() === (d.PLAKA || "").trim().toLowerCase()
+      );
+      const sonucMesajlari = found?.sonuc?.map((s) => s.message) || [];
+      return { ...d, Sonuc: sonucMesajlari };
+    });
+
+    const tik = merged.filter((item) => (item.Sonuc?.length ?? 0) === 0).length;
+    const carpi = merged.filter((item) => (item.Sonuc?.length ?? 0) > 0).length;
+
+    setTikSayisi(tik);
+    setCarpiSayisi(carpi);
+    setKontrolSonuclari(merged);
+
+    message.success("Kontrol tamamlandı.");
+  } catch (err) {
+    console.error("API hata:", err);
+    message.error("API kontrol hatası.");
+  }
+    try {
+      const kontrolList = eslesmisVeriler
+        .filter((d) => d.TARIH && d.GIRIS_ZAMANI && d.CIKIS_ZAMANI)
+        .map((d) => {
+          let tarihStr = "";
+          if (typeof d.TARIH === "number") {
+            const tarihDate = excelSerialToJSDate(d.TARIH);
+            tarihStr = isNaN(tarihDate.getTime()) ? "" : tarihDate.toISOString().split("T")[0];
+          } else if (typeof d.TARIH === "string") {
+            const parsed = new Date(d.TARIH.replace(/(\d{2})\.(\d{2})\.(\d{4})/, "$2/$1/$3"));
+            tarihStr = !isNaN(parsed.getTime()) ? parsed.toISOString().split("T")[0] : "";
           }
-          return null;
-        };
 
-        return {
-          Plaka: String(d.PLAKA || "").trim(),
-          Tarih: parseDate(d.TARIH),
-          Surucu: String(d.SURUCU || "").trim(),
-          GirisZamani: parseDate(d.GIRIS_ZAMANI),
-          CikisZamani: parseDate(d.CIKIS_ZAMANI),
-          GirisYeri: String(d.GIRIS_YERI || "").trim(),
-          CikisYeri: String(d.CIKIS_YERI || "").trim(),
-          GecisUcreti: String(d.GECIS_UCRETI ?? "").replace(",", "."),
-        };
-      });
-
+          return {
+            Plaka: String(d.PLAKA || "").trim(),
+            Tarih: toDateOnlyString(d.TARIH),
+            GirisZamani: toDateOnlyString(d.GIRIS_ZAMANI),
+            CikisZamani: toDateOnlyString(d.CIKIS_ZAMANI),
+            GecisUcreti: String(d.GECIS_UCRETI ?? ""),
+            GirisSaat: typeof d.GIRIS_SAAT === "number" ? excelSerialToTimeString(d.GIRIS_SAAT) : d.GIRIS_SAAT || "00:00:00",
+            CikisSaat: typeof d.CIKIS_SAAT === "number" ? excelSerialToTimeString(d.CIKIS_SAAT) : d.CIKIS_SAAT || "00:00:00",
+          };
+        });
 
       if (kontrolList.length === 0) {
         message.warning("Geçerli veriye sahip kayıt bulunamadı.");
@@ -349,29 +397,32 @@ const AracAktarim = () => {
     }
 
     const hgsKayitlar = temizKayitlar.map((item) => ({
-      Plaka: String(item.PLAKA || "").trim(),
-      Tarih: toDateOnlyString(item.TARIH),
-      Surucu: item.SURUCU || null,
-      GirisZamani: toDateOnlyString(item.GIRIS_ZAMANI),
-      CikisZamani: toDateOnlyString(item.CIKIS_ZAMANI),
-      GirisYeri: item.GIRIS_YERI || null,
-      CikisYeri: item.CIKIS_YERI || null,
-      OdemeTuru: item.ODEME_TURU || null,
-      OdemeDurumu: item.ODEME_DURUMU || null,
-      GecisUcreti: item.GECIS_UCRETI != null ? String(item.GECIS_UCRETI) : null,
-      FisNo: item.FIS_NO || null,
-      GecisKategorisi: item.GECIS_KATEGORISI || null,
-      Guzergah: item.GUZERGAH || null,
-      Aciklama: item.ACIKLAMA || null,
-      HgsOzelAlan1: item.HGS_OZEL_ALAN_1 || null,
-      HgsOzelAlan2: item.HGS_OZEL_ALAN_2 || null,
-      HgsOzelAlan3: item.HGS_OZEL_ALAN_3 || null,
-      HgsOzelAlan4: item.HGS_OZEL_ALAN_4 || null,
-      HgsOzelAlan5: item.HGS_OZEL_ALAN_5 || null,
-      HgsOzelAlan6: item.HGS_OZEL_ALAN_6 || null,
-      HgsOzelAlan7: item.HGS_OZEL_ALAN_7 || null,
-      HgsOzelAlan8: item.HGS_OZEL_ALAN_8 || null,
-    }));
+  Plaka: String(item.PLAKA || "").trim(),
+  Tarih: toDateOnlyString(item.TARIH),
+  Surucu: item.SURUCU || null,
+  GirisZamani: toDateOnlyString(item.GIRIS_ZAMANI),
+  CikisZamani: toDateOnlyString(item.CIKIS_ZAMANI),
+  GirisSaat: item.GIRIS_SAAT || null,
+  CikisSaat: item.CIKIS_SAAT || null,
+  GirisYeri: item.GirisYeri != null ? String(item.GirisYeri) : null,
+  CikisYeri: item.CikisYeri != null ? String(item.CikisYeri) : null,
+  OdemeTuru: item.ODEME_TURU || null,
+  OdemeDurumu: item.ODEME_DURUMU || null,
+  GecisUcreti: item.GECIS_UCRETI != null ? String(item.GECIS_UCRETI) : null,
+  FisNo: item.FIS_NO != null ? String(item.FIS_NO) : null,
+  GecisKategorisi: item.GECIS_KATEGORISI || null,
+  Guzergah: item.GUZERGAH != null ? String(item.GUZERGAH) : null,
+  Otoyol: item.OTOYOL != null ? String(item.OTOYOL) : null,
+  Aciklama: item.ACIKLAMA || null,
+  HgsOzelAlan1: item.HGS_OZEL_ALAN_1 || null,
+  HgsOzelAlan2: item.HGS_OZEL_ALAN_2 || null,
+  HgsOzelAlan3: item.HGS_OZEL_ALAN_3 || null,
+  HgsOzelAlan4: item.HGS_OZEL_ALAN_4 || null,
+  HgsOzelAlan5: item.HGS_OZEL_ALAN_5 || null,
+  HgsOzelAlan6: item.HGS_OZEL_ALAN_6 || null,
+  HgsOzelAlan7: item.HGS_OZEL_ALAN_7 || null,
+  HgsOzelAlan8: item.HGS_OZEL_ALAN_8 || null,
+}));
 
     try {
       await httpAktarim.post("/api/HgsAktarimKayit/hgsaktar", hgsKayitlar);
@@ -388,7 +439,7 @@ const AracAktarim = () => {
   return (
     <>
       <div style={{ marginBottom: 15 }}>
-        <Button type="default" href="/file/ornek-hgs-sablonu.xlsx" download>
+        <Button type="default" href="/file/hgs-sablonu.xlsx" download>
           HGS Aktarım Şablonunu İndir
         </Button>
       </div>
