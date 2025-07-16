@@ -232,6 +232,7 @@ const AracAktarim = () => {
 
   // API kontrol işlemi
   const handleKontrolEt = async () => {
+<<<<<<<<< Temporary merge branch 1
   try {
     const kontrolList = eslesmisVeriler
   .filter((d) => d.TARIH && d.GIRIS_ZAMANI && d.CIKIS_ZAMANI)
@@ -283,6 +284,8 @@ const AracAktarim = () => {
     console.error("API hata:", err);
     message.error("API kontrol hatası.");
   }
+};
+=========
     try {
       const kontrolList = eslesmisVeriler
         .filter((d) => d.TARIH && d.GIRIS_ZAMANI && d.CIKIS_ZAMANI)
