@@ -323,7 +323,7 @@ const HasarTakibi = () => {
         title: t("marka"),
         dataIndex: "marka",
         key: "marka",
-        width: 120,
+        width: 180,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
@@ -336,7 +336,7 @@ const HasarTakibi = () => {
         title: t("model"),
         dataIndex: "model",
         key: "model",
-        width: 150,
+        width: 250,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
@@ -387,7 +387,7 @@ const HasarTakibi = () => {
                 return "lime";
               case "Kapatıldı":
                 return "green";
-              case "Reddedildi / Geçersiz":
+              case "Reddedildi":
                 return "red";
               default:
                 return "default";
@@ -426,7 +426,7 @@ const HasarTakibi = () => {
         title: t("hasarTipi"),
         dataIndex: "hasarTipi",
         key: "hasarTipi",
-        width: 120,
+        width: 200,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
@@ -439,7 +439,7 @@ const HasarTakibi = () => {
         title: t("hasarliBolge"),
         dataIndex: "hasarBolge",
         key: "hasarBolge",
-        width: 140,
+        width: 160,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
@@ -452,7 +452,7 @@ const HasarTakibi = () => {
         title: t("hasarBoyutu"),
         dataIndex: "hasarBoyut",
         key: "hasarBoyut",
-        width: 120,
+        width: 190,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
@@ -465,7 +465,7 @@ const HasarTakibi = () => {
         title: t("lokasyon"),
         dataIndex: "lokasyon",
         key: "lokasyon",
-        width: 150,
+        width: 170,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
