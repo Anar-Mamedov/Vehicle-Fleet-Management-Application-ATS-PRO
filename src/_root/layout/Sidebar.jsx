@@ -17,7 +17,7 @@ import Ayarlar from "../pages/Ayarlar/Ayarlar";
 const { Text } = Typography;
 const { TextArea } = Input;
 
-const Sidebar = () => {
+const Sidebar = ({ collapsed }) => {
   const location = useLocation();
   const draggleRef = useRef(null);
 
@@ -503,7 +503,7 @@ const Sidebar = () => {
           <Link to="/" style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center", gap: "5px" }}>
             <img src="/images/logo_white.png" alt="ats logo" className="sidebar-logo" />
             <div style={{ marginBottom: "4px" }}>
-              <Text style={{ color: "#ffffff", marginBottom: "20px" }}>v. 1.7.3</Text>
+              <Text style={{ color: "#ffffff", marginBottom: "20px", fontSize: collapsed ? "10px" : "14px" }}>v. 1.7.3</Text>
             </div>
           </Link>
         </div>
