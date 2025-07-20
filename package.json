@@ -5,10 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-version.js && vite build",
-    "build:no-version": "vite build",
-    "generate:version": "node scripts/generate-version.js",
-    "version:reset": "node scripts/reset-version.js",
+    "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
