@@ -13,7 +13,7 @@ import { HiOutlineDocumentReport } from "react-icons/hi";
 import { t } from "i18next";
 import Draggable from "react-draggable";
 import Ayarlar from "../pages/Ayarlar/Ayarlar";
-import versionInfo from "../../../version.json";
+import versionConfig from "../../../version-config.json";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -505,7 +505,7 @@ const Sidebar = ({ collapsed }) => {
             <img src="/images/logo_white.png" alt="ats logo" className="sidebar-logo" />
             <div style={{ marginBottom: "4px" }}>
               <Text style={{ color: "#ffffff", marginBottom: "20px", fontSize: collapsed ? "10px" : "14px" }}>
-                v. {versionInfo.major}.{versionInfo.minor}.{versionInfo.patch}
+                v. {versionConfig.baseVersion.major}.{versionConfig.baseVersion.minor}.{versionConfig.baseVersion.patch}
               </Text>
             </div>
           </Link>
