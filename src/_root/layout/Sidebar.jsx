@@ -498,7 +498,7 @@ const Sidebar = () => {
   return (
     <>
       <div className="flex justify-center w-full py-20 text-center">
-        <Link to="/" style={{ display: "flex", flexDirection: "row", alignItems: "flex-end", justifyContent: "center", gap: "5px" }}>
+        <Link to="/" style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center", gap: "5px" }}>
           <img src="/images/logo_white.png" alt="ats logo" className="sidebar-logo" />
           <div style={{ marginBottom: "4px" }}>
             <Text style={{ color: "#ffffff", marginBottom: "20px" }}>v. 1.7.3</Text>
