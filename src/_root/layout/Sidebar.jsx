@@ -497,15 +497,22 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="flex justify-center w-full py-20 text-center">
-        <Link to="/" style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center", gap: "5px" }}>
-          <img src="/images/logo_white.png" alt="ats logo" className="sidebar-logo" />
-          <div style={{ marginBottom: "4px" }}>
-            <Text style={{ color: "#ffffff", marginBottom: "20px" }}>v. 1.7.3</Text>
-          </div>
-        </Link>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        {/* Logo kısmı - sabit */}
+        <div className="flex justify-center w-full py-20 text-center" style={{ flexShrink: 0 }}>
+          <Link to="/" style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center", gap: "5px" }}>
+            <img src="/images/logo_white.png" alt="ats logo" className="sidebar-logo" />
+            <div style={{ marginBottom: "4px" }}>
+              <Text style={{ color: "#ffffff", marginBottom: "20px" }}>v. 1.7.3</Text>
+            </div>
+          </Link>
+        </div>
+
+        {/* Menü kısmı - scroll olabilir */}
+        <div style={{ flex: 1, overflow: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }} className="sidebar-menu-container">
+          <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={items} />
+        </div>
       </div>
-      <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={items} />
       <Modal
         title={
           <div
