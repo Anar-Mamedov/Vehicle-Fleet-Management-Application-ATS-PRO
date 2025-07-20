@@ -8,16 +8,10 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Repository içeriğine yazma izni
-      actions: read # Actions'lara okuma izni
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          # Commit'leri geri itebilmek için token kullan
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -29,23 +23,8 @@ jobs:
           set -e
           npm ci
 
-      - name: Configure Git
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
-      - name: Increment version
-        run: npm run version:increment
-
-      - name: Commit version changes
-        run: |
-          git add version.json
-          if git diff --staged --quiet; then
-            echo "No version changes to commit"
-          else
-            git commit -m "🔖 Auto increment version [skip ci]"
-            git push
-          fi
+      - name: Generate build info
+        run: npm run generate:version
 
       - name: Build project
         env:
