@@ -42,16 +42,28 @@ export default function Bildirim({ reportResponse, setRaporModalVisible, updateR
   };
 
   const handleReportClick = (report) => {
-    // Benzersiz key'ler ekle
-    const dataWithUniqueKeys = report.list.map((item, index) => ({
-      ...item,
-      uniqueRowKey: item.ID ? `${item.ID}-${index}` : `row-${index}`,
-    }));
+    // Benzersiz ID'ler ve key'ler ekle
+    const dataWithUniqueKeys = report.list.map((item, index) => {
+      // Unique ID oluştur - timestamp + index kombinasyonu
+      const uniqueId = `${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
+      return {
+        ...item,
+        ID: uniqueId, // Orijinal ID'yi unique ID ile değiştir
+        originalID: item.ID, // Orijinal ID'yi sakla
+        uniqueRowKey: uniqueId,
+      };
+    });
 
-    const originalDataWithKeys = (report.originalData || report.list).map((item, index) => ({
-      ...item,
-      uniqueRowKey: item.ID ? `${item.ID}-${index}` : `row-${index}`,
-    }));
+    const originalDataWithKeys = (report.originalData || report.list).map((item, index) => {
+      // Unique ID oluştur - timestamp + index kombinasyonu
+      const uniqueId = `${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
+      return {
+        ...item,
+        ID: uniqueId, // Orijinal ID'yi unique ID ile değiştir
+        originalID: item.ID, // Orijinal ID'yi sakla
+        uniqueRowKey: uniqueId,
+      };
+    });
 
     // Update context with the selected report data
     updateReportData({
