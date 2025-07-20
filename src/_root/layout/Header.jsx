@@ -195,16 +195,28 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
         // Default filtreleri uygula
         const filteredList = Object.keys(defaultFilters).length > 0 ? applyDefaultFilters(defaultFilters, cols, list) : list;
 
-        // Benzersiz key'ler ekle
-        const dataWithUniqueKeys = filteredList.map((item, index) => ({
-          ...item,
-          uniqueRowKey: item.ID ? `${item.ID}-${index}` : `row-${index}`,
-        }));
+        // Benzersiz ID'ler ve key'ler ekle
+        const dataWithUniqueKeys = filteredList.map((item, index) => {
+          // Unique ID oluştur - timestamp + index kombinasyonu
+          const uniqueId = `${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
+          return {
+            ...item,
+            ID: uniqueId, // Orijinal ID'yi unique ID ile değiştir
+            originalID: item.ID, // Orijinal ID'yi sakla
+            uniqueRowKey: uniqueId,
+          };
+        });
 
-        const originalDataWithKeys = list.map((item, index) => ({
-          ...item,
-          uniqueRowKey: item.ID ? `${item.ID}-${index}` : `row-${index}`,
-        }));
+        const originalDataWithKeys = list.map((item, index) => {
+          // Unique ID oluştur - timestamp + index kombinasyonu
+          const uniqueId = `${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
+          return {
+            ...item,
+            ID: uniqueId, // Orijinal ID'yi unique ID ile değiştir
+            originalID: item.ID, // Orijinal ID'yi sakla
+            uniqueRowKey: uniqueId,
+          };
+        });
 
         // Context'teki verileri güncelle
         updateReportData({

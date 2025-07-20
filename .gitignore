@@ -24,4 +24,5 @@ dist-ssr
 *.sln
 *.sw?
 .cursorrules
+.cursor
 knowledge-base.md
