@@ -9,6 +9,7 @@
     "build:no-version": "vite build",
     "version:increment": "node scripts/increment-version.js",
     "generate:version": "node scripts/generate-version.js",
+    "version:reset": "node scripts/reset-version.js",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },

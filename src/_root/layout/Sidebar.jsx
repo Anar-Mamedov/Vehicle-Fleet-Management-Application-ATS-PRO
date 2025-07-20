@@ -510,6 +510,7 @@ const Sidebar = ({ collapsed }) => {
             </div>
           </Link>
         </div>
+
         {/* Menü kısmı - scroll olabilir */}
         <div style={{ flex: 1, overflow: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }} className="sidebar-menu-container">
           <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={items} />
