@@ -8,6 +8,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Repository içeriğine yazma izni
+      actions: read # Actions'lara okuma izni
 
     steps:
       - name: Checkout code
