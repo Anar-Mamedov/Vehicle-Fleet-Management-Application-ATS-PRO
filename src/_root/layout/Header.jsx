@@ -329,7 +329,7 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
               height: 32,
             }}
           />
-          <HomeOutlined />
+          {/* <HomeOutlined /> */}
           {/* <LanguageSelector /> */}
           <LanguageSelectbox />
           <CompanyLogo />
