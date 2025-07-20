@@ -36,6 +36,23 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
   // Context'ten rapor verileri için gerekli state ve fonksiyonları al
   const { reportData, updateReportData, setReportLoading } = useAppContext();
 
+  // Sidebar durumunu localStorage'dan oku ve başlangıçta ayarla
+  useEffect(() => {
+    const savedCollapsedState = localStorage.getItem("sidebar_collapsed");
+    if (savedCollapsedState !== null) {
+      const isCollapsed = savedCollapsedState === "true";
+      setCollapsed(isCollapsed);
+    }
+  }, [setCollapsed]);
+
+  // Sidebar durumunu değiştiren fonksiyon
+  const handleSidebarToggle = () => {
+    const newCollapsedState = !collapsed;
+    setCollapsed(newCollapsedState);
+    // localStorage'a kaydet
+    localStorage.setItem("sidebar_collapsed", newCollapsedState.toString());
+  };
+
   const getHatirlatici = async () => {
     try {
       setLoading(true);
@@ -322,7 +339,7 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={handleSidebarToggle}
             style={{
               fontSize: "16px",
               width: 32,
