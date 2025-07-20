@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, Divider, Modal, Button } from "antd";
+import { Menu, Divider, Modal, Button, Typography, Input } from "antd";
 import { PieChartOutlined, CarOutlined } from "@ant-design/icons";
 import { MdOutlineSystemUpdateAlt } from "react-icons/md";
 import { PiTireBold } from "react-icons/pi";
@@ -13,8 +13,12 @@ import { HiOutlineDocumentReport } from "react-icons/hi";
 import { t } from "i18next";
 import Draggable from "react-draggable";
 import Ayarlar from "../pages/Ayarlar/Ayarlar";
+import versionInfo from "../../../version.json";
 
-const Sidebar = () => {
+const { Text } = Typography;
+const { TextArea } = Input;
+
+const Sidebar = ({ collapsed }) => {
   const location = useLocation();
   const draggleRef = useRef(null);
 
@@ -494,12 +498,24 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="flex justify-center w-full py-20 text-center">
-        <Link to="/">
-          <img src="/images/logo_white.png" alt="ats logo" className="sidebar-logo" />
-        </Link>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        {/* Logo kısmı - sabit */}
+        <div className="flex justify-center w-full py-20 text-center" style={{ flexShrink: 0 }}>
+          <Link to="/" style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center", gap: "5px" }}>
+            <img src="/images/logo_white.png" alt="ats logo" className="sidebar-logo" />
+            <div style={{ marginBottom: "4px" }}>
+              <Text style={{ color: "#ffffff", marginBottom: "20px", fontSize: collapsed ? "10px" : "14px" }}>
+                v. {versionInfo.major}.{versionInfo.minor}.{versionInfo.patch}
+              </Text>
+            </div>
+          </Link>
+        </div>
+
+        {/* Menü kısmı - scroll olabilir */}
+        <div style={{ flex: 1, overflow: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }} className="sidebar-menu-container">
+          <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={items} />
+        </div>
       </div>
-      <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={items} />
       <Modal
         title={
           <div

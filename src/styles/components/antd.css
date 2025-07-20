@@ -98,12 +98,12 @@
   background-color: transparent !important;
 }
 
-.ant-menu-dark,
+/* .ant-menu-dark,
 .ant-menu-dark > .ant-menu,
 .ant-menu-dark.ant-menu-inline .ant-menu-sub.ant-menu-inline,
 .ant-menu-dark > .ant-menu.ant-menu-inline .ant-menu-sub.ant-menu-inline {
   background: transparent !important;
-}
+} */
 
 .ant-menu-dark .ant-menu-item-selected,
 .ant-menu-dark > .ant-menu .ant-menu-item-selected {

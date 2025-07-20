@@ -167,10 +167,35 @@
 }
 
 .ant-layout-sider {
-  overflow: auto;
+  overflow: hidden; /* Ana sider scroll'unu kapat, menü container'ı yönetsin */
+  scrollbar-width: none; /* Firefox için */
+  -ms-overflow-style: none; /* Internet Explorer ve Edge için */
 }
 
 .ant-layout-sider::-webkit-scrollbar {
+  width: 0px;
+  background-color: transparent;
+}
+
+.ant-layout-sider::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.ant-layout-sider::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+/* Sidebar menü container için scroll çubuğunu gizle */
+.sidebar-menu-container::-webkit-scrollbar {
+  width: 0px;
+  background-color: transparent;
+}
+
+.sidebar-menu-container::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.sidebar-menu-container::-webkit-scrollbar-thumb {
   background-color: transparent;
 }
 

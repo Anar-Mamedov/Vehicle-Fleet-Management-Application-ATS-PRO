@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Layout, theme } from "antd";
 import { getItemWithExpiration } from "../utils/expireToken";
@@ -27,7 +27,7 @@ const RootLayout = () => {
   return (
     <Layout style={{ height: "100vh", overflow: "hidden" }}>
       <Sider trigger={null} collapsible collapsed={collapsed}>
-        <Sidebar />
+        <Sidebar collapsed={collapsed} />
       </Sider>
       <Layout>
         <HeaderComp colorBgContainer={colorBgContainer} setCollapsed={setCollapsed} collapsed={collapsed} />
