@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, Divider, Modal, Button } from "antd";
+import { Menu, Divider, Modal, Button, Typography, Input } from "antd";
 import { PieChartOutlined, CarOutlined } from "@ant-design/icons";
 import { MdOutlineSystemUpdateAlt } from "react-icons/md";
 import { PiTireBold } from "react-icons/pi";
@@ -13,6 +13,9 @@ import { HiOutlineDocumentReport } from "react-icons/hi";
 import { t } from "i18next";
 import Draggable from "react-draggable";
 import Ayarlar from "../pages/Ayarlar/Ayarlar";
+
+const { Text } = Typography;
+const { TextArea } = Input;
 
 const Sidebar = () => {
   const location = useLocation();
@@ -495,8 +498,11 @@ const Sidebar = () => {
   return (
     <>
       <div className="flex justify-center w-full py-20 text-center">
-        <Link to="/">
+        <Link to="/" style={{ display: "flex", flexDirection: "row", alignItems: "flex-end", justifyContent: "center", gap: "5px" }}>
           <img src="/images/logo_white.png" alt="ats logo" className="sidebar-logo" />
+          <div style={{ marginBottom: "4px" }}>
+            <Text style={{ color: "#ffffff", marginBottom: "20px" }}>v. 1.7.3</Text>
+          </div>
         </Link>
       </div>
       <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={items} />
