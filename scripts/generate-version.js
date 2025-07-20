@@ -10,7 +10,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Dosya yolları
-const versionFilePath = path.join(__dirname, "../version.json");
 const versionConfigPath = path.join(__dirname, "../version-config.json");
 const buildInfoPath = path.join(__dirname, "../src/buildInfo.js");
 
@@ -119,8 +118,7 @@ export const BUILD_INFO = ${JSON.stringify(buildInfo, null, 2)};
 
   fs.writeFileSync(buildInfoPath, jsContent);
 
-  // Version.json'ı da güncelle (local kullanım için)
-  fs.writeFileSync(versionFilePath, JSON.stringify(version, null, 2));
+  // Artık version.json kullanmıyoruz, version-config.json yeterli
 
   console.log(`✅ Build info oluşturuldu:`);
   console.log(`   Versiyon: v. ${buildInfo.version}`);
