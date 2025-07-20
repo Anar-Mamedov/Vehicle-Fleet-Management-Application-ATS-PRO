@@ -23,9 +23,6 @@ jobs:
           set -e
           npm ci
 
-      - name: Generate build info
-        run: npm run generate:version
-
       - name: Build project
         env:
           VITE_APP_GEMINI: ${{ secrets.GEMINI_API_KEY }} # Use VITE_APP_GEMINI
@@ -40,7 +37,7 @@ jobs:
           VITE_VAKIFBANK_RESOURCE: ${{ secrets.VAKIFBANK_RESOURCE }}
         run: |
           set -e
-          npm run build:no-version
+          npm run build
 
       - name: Verify build output
         run: |
