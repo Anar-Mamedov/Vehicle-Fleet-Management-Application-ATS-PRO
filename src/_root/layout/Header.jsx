@@ -209,42 +209,22 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
           return filteredData;
         };
 
-        // Default filtreleri uygula
         const filteredList = Object.keys(defaultFilters).length > 0 ? applyDefaultFilters(defaultFilters, cols, list) : list;
 
-        // Benzersiz ID'ler ve key'ler ekle
-        const dataWithUniqueKeys = filteredList.map((item, index) => {
-          // Unique ID oluştur - timestamp + index kombinasyonu
-          const uniqueId = `${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
-          return {
-            ...item,
-            ID: uniqueId, // Orijinal ID'yi unique ID ile değiştir
-            originalID: item.ID, // Orijinal ID'yi sakla
-            uniqueRowKey: uniqueId,
-          };
-        });
-
-        const originalDataWithKeys = list.map((item, index) => {
-          // Unique ID oluştur - timestamp + index kombinasyonu
-          const uniqueId = `${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
-          return {
-            ...item,
-            ID: uniqueId, // Orijinal ID'yi unique ID ile değiştir
-            originalID: item.ID, // Orijinal ID'yi sakla
-            uniqueRowKey: uniqueId,
-          };
-        });
+        // API'den gelen veriyi olduğu gibi kullan
+        const dataWithKeys = filteredList;
+        const originalDataWithKeys = list;
 
         // Context'teki verileri güncelle
         updateReportData({
           initialColumns: cols,
           columns: cols,
-          tableData: dataWithUniqueKeys, // Benzersiz key'li filtrelenmiş veri
-          originalData: originalDataWithKeys, // Benzersiz key'li orijinal veri
+          tableData: dataWithKeys, // API'den gelen veri olduğu gibi
+          originalData: originalDataWithKeys, // API'den gelen orijinal veri olduğu gibi
           columnFilters: defaultFilters,
           filters: requestParams.reportFilters,
           reportName: requestParams.reportRow.rprTanim || requestParams.reportRow.key,
-          totalRecords: dataWithUniqueKeys.length,
+          totalRecords: dataWithKeys.length,
         });
 
         // requestParams nesnesindeki değerleri kullanarak, modal kapansa bile
@@ -253,13 +233,13 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
           try {
             const reportData = {
               headers: cols,
-              list: dataWithUniqueKeys, // Zaten benzersiz key'li veri
+              list: dataWithKeys, // API'den gelen veri olduğu gibi
               timestamp: new Date().toISOString(),
               filters: requestParams.reportFilters,
-              totalRecords: dataWithUniqueKeys.length,
+              totalRecords: dataWithKeys.length,
               reportName: requestParams.reportRow.rprTanim || requestParams.reportRow.key,
               columnFilters: defaultFilters,
-              originalData: originalDataWithKeys, // Benzersiz key'li orijinal veri
+              originalData: originalDataWithKeys, // API'den gelen orijinal veri olduğu gibi
             };
 
             // State'e kaydet
