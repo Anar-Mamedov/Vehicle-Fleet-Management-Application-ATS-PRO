@@ -1373,6 +1373,176 @@ const Yakit = ({ ayarlarData, customFields }) => {
       },
     },
 
+    {
+      title: t("anahtarKodu"),
+      dataIndex: "anahtarKodu",
+      key: "anahtarKodu",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.anahtarKodu === null) return -1;
+        if (b.anahtarKodu === null) return 1;
+        return a.anahtarKodu.localeCompare(b.anahtarKodu);
+      },
+    },
+
+    {
+      title: t("aciklama"),
+      dataIndex: "aciklama",
+      key: "aciklama",
+      width: 200,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.aciklama === null) return -1;
+        if (b.aciklama === null) return 1;
+        return a.aciklama.localeCompare(b.aciklama);
+      },
+    },
+
+    {
+      title: t("hgsNo"),
+      dataIndex: "hgsNo",
+      key: "hgsNo",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.hgsNo === null) return -1;
+        if (b.hgsNo === null) return 1;
+        return a.hgsNo.localeCompare(b.hgsNo);
+      },
+    },
+
+    {
+      title: t("ogsNo"),
+      dataIndex: "ogsNo",
+      key: "ogsNo",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ogsNo === null) return -1;
+        if (b.ogsNo === null) return 1;
+        return a.ogsNo.localeCompare(b.ogsNo);
+      },
+    },
+
+    {
+      title: t("sasiNo"),
+      dataIndex: "sasiNo",
+      key: "sasiNo",
+      width: 150,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.sasiNo === null) return -1;
+        if (b.sasiNo === null) return 1;
+        return a.sasiNo.localeCompare(b.sasiNo);
+      },
+    },
+
+    {
+      title: t("motorNo"),
+      dataIndex: "motorNo",
+      key: "motorNo",
+      width: 150,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.motorNo === null) return -1;
+        if (b.motorNo === null) return 1;
+        return a.motorNo.localeCompare(b.motorNo);
+      },
+    },
+
+    {
+      title: t("ruhsatSahibi"),
+      dataIndex: "ruhsatSahibi",
+      key: "ruhsatSahibi",
+      width: 150,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ruhsatSahibi === null) return -1;
+        if (b.ruhsatSahibi === null) return 1;
+        return a.ruhsatSahibi.localeCompare(b.ruhsatSahibi);
+      },
+    },
+
+    {
+      title: t("tts"),
+      dataIndex: "tts",
+      key: "tts",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.tts === null) return -1;
+        if (b.tts === null) return 1;
+        return a.tts.localeCompare(b.tts);
+      },
+    },
+
+    {
+      title: t("kiralamaYeri"),
+      dataIndex: "kiralamaYeri",
+      key: "kiralamaYeri",
+      width: 150,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.kiralamaYeri === null) return -1;
+        if (b.kiralamaYeri === null) return 1;
+        return a.kiralamaYeri.localeCompare(b.kiralamaYeri);
+      },
+    },
+
+    {
+      title: t("krediTutar"),
+      dataIndex: "krediTutar",
+      key: "krediTutar",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.krediTutar === null) return -1;
+        if (b.krediTutar === null) return 1;
+        // Check if values are numbers and sort numerically if they are
+        if (!isNaN(Number(a.krediTutar)) && !isNaN(Number(b.krediTutar))) {
+          return Number(a.krediTutar) - Number(b.krediTutar);
+        }
+        // Fall back to string comparison if not numbers
+        return String(a.krediTutar).localeCompare(String(b.krediTutar));
+      },
+    },
+
+    {
+      title: t("takografTarih"),
+      dataIndex: "takografTarih",
+      key: "takografTarih",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+      render: (text) => formatDate(text),
+      sorter: (a, b) => {
+        if (a.takografTarih === null) return -1;
+        if (b.takografTarih === null) return 1;
+        return a.takografTarih.localeCompare(b.takografTarih);
+      },
+    },
+
     // Add other columns as needed
   ];
 
