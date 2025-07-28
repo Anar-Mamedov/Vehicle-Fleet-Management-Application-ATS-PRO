@@ -295,6 +295,10 @@ UpdateModal.propTypes = {
   setUpdateModal: PropTypes.func,
   setStatus: PropTypes.func,
   id: PropTypes.number,
+  selectedRow: PropTypes.object,
+  onDrawerClose: PropTypes.func,
+  drawerVisible: PropTypes.bool,
+  onRefresh: PropTypes.func,
 };
 
 export default UpdateModal;

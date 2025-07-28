@@ -12,6 +12,7 @@ import styled from "styled-components";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
+import UpdateModal from "../../../pages/malzeme-depo/malzeme/UpdateModal";
 
 const { Text } = Typography;
 
@@ -126,6 +127,10 @@ const Stok = () => {
 
   const [selectedRows, setSelectedRows] = useState([]);
 
+  // UpdateModal için state'ler
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
+
   // API Data Fetching with diff and setPointId
   const fetchData = async (diff, targetPage) => {
     setLoading(true);
@@ -169,7 +174,6 @@ const Stok = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Search handling
@@ -198,14 +202,20 @@ const Stok = () => {
   };
 
   const onRowClick = (record) => {
-    setDrawer({ visible: true, data: record });
+    setSelectedMaterial(record);
+    setUpdateModalVisible(true);
+  };
+
+  const handleUpdateModalClose = () => {
+    setUpdateModalVisible(false);
+    setSelectedMaterial(null);
+    refreshTableData();
   };
 
   const refreshTableData = useCallback(() => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
@@ -546,6 +556,9 @@ const Stok = () => {
           </DndContext>
         </div>
       </Modal>
+
+      {/* UpdateModal */}
+      {selectedMaterial && <UpdateModal selectedRow={selectedMaterial} drawerVisible={updateModalVisible} onDrawerClose={handleUpdateModalClose} onRefresh={refreshTableData} />}
 
       {/* Toolbar */}
       <div
