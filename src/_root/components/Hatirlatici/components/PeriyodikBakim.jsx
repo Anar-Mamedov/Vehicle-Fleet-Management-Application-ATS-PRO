@@ -12,6 +12,7 @@ import styled from "styled-components";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
+import EditDrawer from "../../../pages/BakimVeOnarim/PeriyodikBakimlar/Update/EditDrawer";
 
 const { Text } = Typography;
 
@@ -125,6 +126,8 @@ const PeriyodikBakim = () => {
   const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
+  const [editDrawerVisible, setEditDrawerVisible] = useState(false);
+  const [selectedRowForEdit, setSelectedRowForEdit] = useState(null);
 
   // API Data Fetching with diff and setPointId
   const fetchData = async (diff, targetPage) => {
@@ -169,7 +172,6 @@ const PeriyodikBakim = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Search handling
@@ -198,14 +200,23 @@ const PeriyodikBakim = () => {
   };
 
   const onRowClick = (record) => {
-    setDrawer({ visible: true, data: record });
+    setSelectedRowForEdit(record);
+    setEditDrawerVisible(true);
+  };
+
+  const handleEditDrawerClose = () => {
+    setEditDrawerVisible(false);
+    setSelectedRowForEdit(null);
+  };
+
+  const handleRefresh = () => {
+    refreshTableData();
   };
 
   const refreshTableData = useCallback(() => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
@@ -699,6 +710,8 @@ const PeriyodikBakim = () => {
           scroll={{ y: "calc(100vh - 335px)" }}
         />
       </Spin>
+
+      <EditDrawer selectedRow={selectedRowForEdit} onDrawerClose={handleEditDrawerClose} drawerVisible={editDrawerVisible} onRefresh={handleRefresh} />
     </>
   );
 };

@@ -1,17 +1,16 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, message } from "antd";
+import { HolderOutlined, SearchOutlined, MenuOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Resizable } from "react-resizable";
 import "./ResizeStyle.css";
 import AxiosInstance from "../../../../api/http";
-import { useFormContext } from "react-hook-form";
 import styled from "styled-components";
-import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
+import UpdateModal from "../../../pages/vehicles-control/ceza/UpdateModal";
 
 const { Text } = Typography;
 
@@ -114,14 +113,10 @@ const CezaOdeme = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false); // Set initial loading state to false
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchTimeout, setSearchTimeout] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0); // Total data count
-  const [pageSize, setPageSize] = useState(10); // Page size
-  const [drawer, setDrawer] = useState({
-    visible: false,
-    data: null,
-  });
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
   const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
@@ -197,7 +192,8 @@ const CezaOdeme = () => {
   };
 
   const onRowClick = (record) => {
-    setDrawer({ visible: true, data: record });
+    setSelectedRow(record);
+    setDrawerVisible(true);
   };
 
   const refreshTableData = useCallback(() => {
@@ -298,47 +294,6 @@ const CezaOdeme = () => {
       day: "2-digit",
     });
     return formatter.format(new Date(date));
-  };
-
-  const formatTime = (time) => {
-    if (!time || time.trim() === "") return ""; // `trim` metodu ile baştaki ve sondaki boşlukları temizle
-
-    try {
-      // Saati ve dakikayı parçalara ayır, boşlukları temizle
-      const [hours, minutes] = time
-        .trim()
-        .split(":")
-        .map((part) => part.trim());
-
-      // Saat ve dakika değerlerinin geçerliliğini kontrol et
-      const hoursInt = parseInt(hours, 10);
-      const minutesInt = parseInt(minutes, 10);
-      if (isNaN(hoursInt) || isNaN(minutesInt) || hoursInt < 0 || hoursInt > 23 || minutesInt < 0 || minutesInt > 59) {
-        // throw new Error("Invalid time format"); // hata fırlatır ve uygulamanın çalışmasını durdurur
-        console.error("Invalid time format:", time);
-        // return time; // Hatalı formatı olduğu gibi döndür
-        return ""; // Hata durumunda boş bir string döndür
-      }
-
-      // Geçerli tarih ile birlikte bir Date nesnesi oluştur ve sadece saat ve dakika bilgilerini ayarla
-      const date = new Date();
-      date.setHours(hoursInt, minutesInt, 0);
-
-      // Kullanıcının lokal ayarlarına uygun olarak saat ve dakikayı formatla
-      // `hour12` seçeneğini belirtmeyerek Intl.DateTimeFormat'ın kullanıcının yerel ayarlarına göre otomatik seçim yapmasına izin ver
-      const formatter = new Intl.DateTimeFormat(navigator.language, {
-        hour: "numeric",
-        minute: "2-digit",
-        // hour12 seçeneği burada belirtilmiyor; böylece otomatik olarak kullanıcının sistem ayarlarına göre belirleniyor
-      });
-
-      // Formatlanmış saati döndür
-      return formatter.format(date);
-    } catch (error) {
-      console.error("Error formatting time:", error);
-      return ""; // Hata durumunda boş bir string döndür
-      // return time; // Hatalı formatı olduğu gibi döndür
-    }
   };
 
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için sonu
@@ -605,6 +560,18 @@ const CezaOdeme = () => {
           scroll={{ y: "calc(100vh - 335px)" }}
         />
       </Spin>
+
+      {/* UpdateModal */}
+      <UpdateModal
+        drawerVisible={drawerVisible}
+        onDrawerClose={() => {
+          setDrawerVisible(false);
+          setSelectedRow(null);
+        }}
+        selectedRow={selectedRow}
+        onRefresh={refreshTableData}
+        setStatus={() => {}}
+      />
     </>
   );
 };

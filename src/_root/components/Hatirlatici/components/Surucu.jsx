@@ -12,6 +12,7 @@ import styled from "styled-components";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
+import UpdateModal from "../../../pages/sistem-tanimlari/surucu/UpdateModal";
 
 const { Text } = Typography;
 
@@ -125,6 +126,8 @@ const Surucu = () => {
   const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
 
   // API Data Fetching with diff and setPointId
   const fetchData = async (diff, targetPage) => {
@@ -169,7 +172,6 @@ const Surucu = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Search handling
@@ -198,14 +200,20 @@ const Surucu = () => {
   };
 
   const onRowClick = (record) => {
-    setDrawer({ visible: true, data: record });
+    setSelectedDriver(record);
+    setUpdateModalVisible(true);
+  };
+
+  const handleUpdateModalClose = () => {
+    setUpdateModalVisible(false);
+    setSelectedDriver(null);
+    refreshTableData(); // Tabloyu yenile
   };
 
   const refreshTableData = useCallback(() => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
@@ -367,9 +375,9 @@ const Surucu = () => {
 
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
-    const savedOrder = localStorage.getItem("columnOrderSurucu");
-    const savedVisibility = localStorage.getItem("columnVisibilitySurucu");
-    const savedWidths = localStorage.getItem("columnWidthsSurucu");
+    const savedOrder = localStorage.getItem("columnOrderSurucuHatirlatici");
+    const savedVisibility = localStorage.getItem("columnVisibilitySurucuHatirlatici");
+    const savedWidths = localStorage.getItem("columnWidthsSurucuHatirlatici");
 
     let order = savedOrder ? JSON.parse(savedOrder) : [];
     let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
@@ -387,9 +395,9 @@ const Surucu = () => {
       }
     });
 
-    localStorage.setItem("columnOrderSurucu", JSON.stringify(order));
-    localStorage.setItem("columnVisibilitySurucu", JSON.stringify(visibility));
-    localStorage.setItem("columnWidthsSurucu", JSON.stringify(widths));
+    localStorage.setItem("columnOrderSurucuHatirlatici", JSON.stringify(order));
+    localStorage.setItem("columnVisibilitySurucuHatirlatici", JSON.stringify(visibility));
+    localStorage.setItem("columnWidthsSurucuHatirlatici", JSON.stringify(widths));
 
     return order.map((key) => {
       const column = initialColumns.find((col) => col.key === key);
@@ -399,9 +407,9 @@ const Surucu = () => {
 
   // Save columns to localStorage
   useEffect(() => {
-    localStorage.setItem("columnOrderSurucu", JSON.stringify(columns.map((col) => col.key)));
+    localStorage.setItem("columnOrderSurucuHatirlatici", JSON.stringify(columns.map((col) => col.key)));
     localStorage.setItem(
-      "columnVisibilitySurucu",
+      "columnVisibilitySurucuHatirlatici",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -413,7 +421,7 @@ const Surucu = () => {
       )
     );
     localStorage.setItem(
-      "columnWidthsSurucu",
+      "columnWidthsSurucuHatirlatici",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -478,9 +486,9 @@ const Surucu = () => {
 
   // Reset columns
   const resetColumns = () => {
-    localStorage.removeItem("columnOrderSurucu");
-    localStorage.removeItem("columnVisibilitySurucu");
-    localStorage.removeItem("columnWidthsSurucu");
+    localStorage.removeItem("columnOrderSurucuHatirlatici");
+    localStorage.removeItem("columnVisibilitySurucuHatirlatici");
+    localStorage.removeItem("columnWidthsSurucuHatirlatici");
     window.location.reload();
   };
 
@@ -569,6 +577,20 @@ const Surucu = () => {
           </DndContext>
         </div>
       </Modal>
+
+      {/* UpdateModal */}
+      {selectedDriver && (
+        <UpdateModal
+          updateModal={updateModalVisible}
+          setUpdateModal={setUpdateModalVisible}
+          setStatus={() => {}}
+          id={selectedDriver.surucuId}
+          selectedRow={selectedDriver}
+          onDrawerClose={handleUpdateModalClose}
+          drawerVisible={updateModalVisible}
+          onRefresh={refreshTableData}
+        />
+      )}
 
       {/* Toolbar */}
       <div

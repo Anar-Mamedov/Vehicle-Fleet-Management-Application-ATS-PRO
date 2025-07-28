@@ -10,6 +10,8 @@ import AxiosInstance from "../../../../api/http";
 import { useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
+import UpdateModal from "../../../pages/vehicles-control/sigorta/UpdateModal";
+import { PlakaProvider } from "../../../../context/plakaSlice";
 
 const { Text } = Typography;
 
@@ -141,6 +143,10 @@ const Sigorta = () => {
   // edit drawer için son
 
   const [selectedRows, setSelectedRows] = useState([]);
+
+  // UpdateModal için state'ler
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [selectedRowForUpdate, setSelectedRowForUpdate] = useState(null);
 
   function hexToRGBA(hex, opacity) {
     // hex veya opacity null ise hata döndür
@@ -572,7 +578,8 @@ const Sigorta = () => {
   // };
 
   const onRowClick = (record) => {
-    setDrawer({ visible: true, data: record });
+    setSelectedRowForUpdate(record);
+    setUpdateModalVisible(true);
   };
 
   const refreshTableData = useCallback(() => {
@@ -871,6 +878,24 @@ const Sigorta = () => {
           rowClassName={(record) => (record.IST_DURUM_ID === 0 ? "boldRow" : "")}
         />
       </Spin>
+
+      {/* UpdateModal bileşeni */}
+      <PlakaProvider>
+        <UpdateModal
+          updateModal={updateModalVisible}
+          setUpdateModal={setUpdateModalVisible}
+          id={selectedRowForUpdate?.siraNo}
+          setStatus={() => {}}
+          selectedRow={selectedRowForUpdate ? { ...selectedRowForUpdate, key: selectedRowForUpdate.siraNo } : null}
+          onDrawerClose={() => {
+            setUpdateModalVisible(false);
+            setSelectedRowForUpdate(null);
+            refreshTableData();
+          }}
+          drawerVisible={updateModalVisible}
+          onRefresh={refreshTableData}
+        />
+      </PlakaProvider>
     </>
   );
 };
