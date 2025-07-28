@@ -12,6 +12,7 @@ import styled from "styled-components";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
+import DetailUpdate from "../../../pages/vehicles-control/vehicle-detail/DetailUpdate";
 
 const { Text } = Typography;
 
@@ -126,6 +127,12 @@ const Sozlesme = () => {
 
   const [selectedRows, setSelectedRows] = useState([]);
 
+  // DetailUpdate modal state
+  const [detailUpdateModal, setDetailUpdateModal] = useState({
+    isOpen: false,
+    selectedId: null,
+  });
+
   // API Data Fetching with diff and setPointId
   const fetchData = async (diff, targetPage) => {
     setLoading(true);
@@ -169,7 +176,6 @@ const Sozlesme = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Search handling
@@ -198,14 +204,29 @@ const Sozlesme = () => {
   };
 
   const onRowClick = (record) => {
-    setDrawer({ visible: true, data: record });
+    // Open DetailUpdate modal with the vehicle's aracId
+    setDetailUpdateModal({
+      isOpen: true,
+      selectedId: record.aracId,
+    });
+  };
+
+  const handleDetailUpdateClose = () => {
+    setDetailUpdateModal({
+      isOpen: false,
+      selectedId: null,
+    });
+  };
+
+  const handleDetailUpdateSuccess = () => {
+    // Refresh table data after successful update
+    refreshTableData();
   };
 
   const refreshTableData = useCallback(() => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Columns definition (adjust as needed)
@@ -511,6 +532,15 @@ const Sozlesme = () => {
 
   return (
     <>
+      {/* DetailUpdate Modal */}
+      <DetailUpdate
+        isOpen={detailUpdateModal.isOpen}
+        onClose={handleDetailUpdateClose}
+        selectedId={detailUpdateModal.selectedId}
+        onSuccess={handleDetailUpdateSuccess}
+        selectedRows1={selectedRows}
+      />
+
       {/* Modal for managing columns */}
       <Modal title="Sütunları Yönet" centered width={800} open={isModalVisible} onOk={() => setIsModalVisible(false)} onCancel={() => setIsModalVisible(false)}>
         <Text style={{ marginBottom: "15px" }}>Aşağıdaki Ekranlardan Sütunları Göster / Gizle ve Sıralamalarını Ayarlayabilirsiniz.</Text>
