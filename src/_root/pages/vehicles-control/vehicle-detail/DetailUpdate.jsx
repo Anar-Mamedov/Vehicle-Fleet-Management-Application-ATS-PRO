@@ -32,6 +32,7 @@ import ResimUpload from "./Resim/ResimUpload";
 import DosyaUpload from "./Dosya/DosyaUpload";
 import DurumTarihcesi from "./DurumTarihce/DurumTarihcesi";
 import Textarea from "../../../components/form/inputs/Textarea";
+import KodIDSelectbox from "../../../components/form/selects/KodIDSelectbox";
 const { Text } = Typography;
 
 const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 }) => {
@@ -157,8 +158,8 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
 
   const defaultValues = {
     plaka: "",
-    aracTip: "",
-    aracTipId: 0,
+    aracTipID: 0,
+    aracTip: undefined,
     guncelKm: 0,
     markaId: null,
     modelId: 0,
@@ -172,7 +173,8 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     durumID: 0,
     durum: undefined,
     AracCinsiKodId: 0,
-    aracRenkId: 0,
+    renkID: 0,
+    renk: undefined,
     lokasyonId: 0,
     mulkiyet: null,
     mulkiyetID: null,
@@ -264,7 +266,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setAracId(res?.data.aracId);
         setGuncelKmTarih(res?.data.sonKmGuncellemeTarih);
         setValue("guncelKm", res?.data.guncelKm);
-        setValue("aracTipId", res?.data.aracTipId ? res?.data.aracTipId : null);
+        setValue("aracTipID", res?.data.aracTipId ? res?.data.aracTipId : null);
         setValue("aracTip", res?.data.aracTip);
         setValue("bagliAracId", res?.data.bagliAracId);
         setValue("bagliArac", res?.data.bagliAracPlaka);
@@ -288,7 +290,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setValue("lokasyon", res?.data.lokasyon);
         setValue("yakitTipId", res?.data.yakitTipId ? res?.data.yakitTipId : null);
         setValue("yakitTip", res?.data.yakitTip);
-        setValue("aracRenkId", res?.data.aracRenkId ? res?.data.aracRenkId : null);
+        setValue("renkID", res?.data.aracRenkId ? res?.data.aracRenkId : null);
         setValue("renk", res?.data.renk);
         setValue("yil", res?.data.yil ? dayjs().year(res?.data.yil) : null);
         setValue("vitesTipiID", res.data.vitesTipiKodId);
@@ -366,13 +368,13 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       anahtarKodu: values.anahtarKodu,
       aciklama: values.aciklama,
       yil: values.yil ? dayjs(values.yil).year() : 0,
-      aracTipId: values.aracTipId || 0,
+      aracTipId: values.aracTipID || 0,
       guncelKm: values.guncelKm ? values.guncelKm : 0,
       kullanimAmaciKodId: values.kullanimAmaciID || 0,
       markaId: values.markaId || 0,
       modelId: values.modelId || 0,
       aracGrubuId: values.aracGrubuID || 0,
-      aracRenkId: values.aracRenkId || 0,
+      aracRenkId: values.renkID || 0,
       AracCinsiKodId: values.aracCinsiKodId || 0,
       lokasyonId: values.lokasyonId || 0,
       departmanId: values.departmanID || 0,
@@ -692,7 +694,8 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                     <label>
                       {t("aracTip")} <span className="text-danger">*</span>
                     </label>
-                    <CodeControl name="aracTip" codeName="aracTipId" id={100} required={true} />
+                    {/* <CodeControl name="aracTip" codeName="aracTipId" id={100} required={true} /> */}
+                    <KodIDSelectbox name1="aracTip" kodID={100} isRequired={true} />
                   </div>
                 </div>
                 <div className="col-span-4">
@@ -771,7 +774,8 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label htmlFor="aracRenkId">{t("renk")}</label>
-                    <CodeControl name="renk" codeName="aracRenkId" id={111} />
+                    {/* <CodeControl name="renk" codeName="aracRenkId" id={111} /> */}
+                    <KodIDSelectbox name1="renk" kodID={111} isRequired={false} />
                   </div>
                 </div>
               </div>

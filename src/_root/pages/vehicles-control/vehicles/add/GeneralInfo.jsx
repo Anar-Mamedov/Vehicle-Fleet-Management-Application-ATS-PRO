@@ -10,6 +10,7 @@ import Model from "../../../../components/form/selects/Model";
 import Driver from "../../../../components/form/selects/Driver";
 import MaterialType from "../../../../components/form/selects/MaterialType";
 import DateInput from "../../../../components/form/date/DateInput";
+import KodIDSelectbox from "../../../../components/form/selects/KodIDSelectbox";
 
 const GeneralInfo = ({ isValid }) => {
   const validateStyle = {
@@ -34,7 +35,8 @@ const GeneralInfo = ({ isValid }) => {
                 <label>
                   {t("aracTip")} <span className="text-danger">*</span>
                 </label>
-                <CodeControl name="aracTip" codeName="aracTipId" id={100} required={true} />
+                {/* <CodeControl name="aracTip" codeName="aracTipId" id={100} required={true} /> */}
+                <KodIDSelectbox name1="aracTip" kodID={100} isRequired={true} />
               </div>
             </div>
             <div className="col-span-4">
@@ -84,19 +86,22 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("aracGrup")}</label>
-                <CodeControl name="grup" codeName="aracGrubuId" id={101} />
+                {/* <CodeControl name="grup" codeName="aracGrubuId" id={101} /> */}
+                <KodIDSelectbox name1="aracGrubu" kodID={101} isRequired={false} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("aracCinsi")}</label>
-                <CodeControl name="AracCinsi" codeName="AracCinsiKodId" id={107} />
+                {/* <CodeControl name="AracCinsi" codeName="AracCinsiKodId" id={107} /> */}
+                <KodIDSelectbox name1="aracCinsi" kodID={107} isRequired={false} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("renk")}</label>
-                <CodeControl name="renk" codeName="aracRenkId" id={111} />
+                {/* <CodeControl name="renk" codeName="aracRenkId" id={111} /> */}
+                <KodIDSelectbox name1="renk" kodID={111} isRequired={false} />
               </div>
             </div>
             {/* <div className="col-span-4">
@@ -108,7 +113,8 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("departman")}</label>
-                <CodeControl name="departman" codeName="departmanId" id={200} />
+                {/* <CodeControl name="departman" codeName="departmanId" id={200} /> */}
+                <KodIDSelectbox name1="departman" kodID={200} isRequired={false} />
               </div>
             </div>
             <div className="col-span-4">
