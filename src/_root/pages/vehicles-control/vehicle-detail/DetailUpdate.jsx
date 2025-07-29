@@ -163,13 +163,20 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     markaId: null,
     modelId: 0,
     yil: null,
-    aracGrubuId: 0,
+    aracGrubuID: 0,
+    aracGrubu: undefined,
+    kullanimAmaciID: 0,
+    kullanimAmaci: undefined,
+    yedekAnahtarID: 0,
+    yedekAnahtar: undefined,
+    durumID: 0,
+    durum: undefined,
     AracCinsiKodId: 0,
     aracRenkId: 0,
     lokasyonId: 0,
     mulkiyet: null,
     mulkiyetID: null,
-    departmanId: 0,
+    departmanID: 0,
     surucuId: 0,
     yakitTipId: 0,
     utts: "",
@@ -272,9 +279,9 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setValue("modelId", res?.data.modelId ? res?.data.modelId : null);
         setValue("surucuId", res?.data.surucuId ? res?.data.surucuId : null);
         setValue("surucu", res?.data.surucu);
-        setValue("kullanimAmaciKodId", res?.data.kullanimAmaciKodId);
+        setValue("kullanimAmaciID", res?.data.kullanimAmaciKodId);
         setValue("kullanimAmaci", res?.data.kullanimAmaci);
-        setValue("yedekAnahtarId", res?.data.yedekAnahtarId);
+        setValue("yedekAnahtarID", res?.data.yedekAnahtarKodId);
         setValue("yedekAnahtar", res?.data.yedekAnahtar);
         setValue("anahtarKodu", res?.data.anahtarKodu);
         setValue("lokasyonId", res?.data.lokasyonId ? res?.data.lokasyonId : null);
@@ -287,12 +294,12 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setValue("vitesTipiID", res.data.vitesTipiKodId);
         setValue("vitesTipi", res.data.vitesTipi);
         setValue("aciklama", res?.data.aciklama);
-        setValue("aracGrubuId", res?.data.aracGrubuId ? res?.data.aracGrubuId : null);
-        setValue("grup", res?.data.grup);
-        setValue("departmanId", res?.data.departmanId ? res?.data.departmanId : null);
+        setValue("aracGrubuID", res?.data.aracGrubuId ? res?.data.aracGrubuId : null);
+        setValue("aracGrubu", res?.data.grup);
+        setValue("departmanID", res?.data.departmanId ? res?.data.departmanId : null);
         setValue("departman", res?.data.departman);
         setValue("havuzGrup", res?.data.havuzGrup);
-        setValue("durumKodId", res?.data.durumKodId ? res?.data.durumKodId : null);
+        setValue("durumID", res?.data.durumKodId ? res?.data.durumKodId : null);
         setValue("durum", res?.data.durum);
         setValue("tts", res?.data.tts);
         setValue("utts", res?.data.utts);
@@ -361,18 +368,18 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       yil: values.yil ? dayjs(values.yil).year() : 0,
       aracTipId: values.aracTipId || 0,
       guncelKm: values.guncelKm ? values.guncelKm : 0,
-      kullanimAmaciKodId: values.kullanimAmaciKodId || 0,
+      kullanimAmaciKodId: values.kullanimAmaciID || 0,
       markaId: values.markaId || 0,
       modelId: values.modelId || 0,
-      aracGrubuId: values.aracGrubuId || 0,
+      aracGrubuId: values.aracGrubuID || 0,
       aracRenkId: values.aracRenkId || 0,
       AracCinsiKodId: values.aracCinsiKodId || 0,
       lokasyonId: values.lokasyonId || 0,
-      departmanId: values.departmanId || 0,
+      departmanId: values.departmanID || 0,
       surucuId: values.surucuId || 0,
       bagliAracId: values.bagliAracId || 0,
       vitesTipiKodId: values.vitesTipiID,
-      yedekAnahtarKodId: values.yedekAnahtarKodId || 0,
+      yedekAnahtarKodId: values.yedekAnahtarID || 0,
       hgsNo: values.hgsNo,
       muayeneTarih: values?.muayeneTarih ? dayjs(values?.muayeneTarih).format("YYYY-MM-DD") : null,
       egzosTarih: values?.egzosTarih ? dayjs(values?.egzosTarih).format("YYYY-MM-DD") : null,
@@ -383,7 +390,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       tts: values.tts,
       utts: values.utts,
       aracMulkiyetKodId: values.mulkiyetID || 0,
-      durumKodId: values.durumKodId || 0,
+      durumKodId: values.durumID || 0,
       DepoBataryaKapasitesi: Number(values.DepoBataryaKapasitesi), // name i alborzdan al
       tamDepoSarjIleMenzil: Number(values.tamDepoSarjIleMenzil), // namei alborzdan al
       yakitUyari: true,

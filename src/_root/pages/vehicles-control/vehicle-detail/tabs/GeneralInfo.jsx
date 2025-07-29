@@ -68,13 +68,15 @@ const GeneralInfo = () => {
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
                   <label htmlFor="departmanId">{t("departman")}</label>
-                  <CodeControl name="departman" codeName="departmanId" id={200} />
+                  {/* <CodeControl name="departman" codeName="departmanId" id={200} /> */}
+                  <KodIDSelectbox name1="departman" kodID={200} isRequired={false} />
                 </div>
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
                   <label htmlFor="aracGrubuId">{t("aracGrup")}</label>
-                  <CodeControl name="grup" codeName="aracGrubuId" id={101} />
+                  {/* <CodeControl name="grup" codeName="aracGrubuId" id={101} /> */}
+                  <KodIDSelectbox name1="aracGrubu" kodID={101} isRequired={false} />
                 </div>
               </div>
               <div className="col-span-4">
@@ -132,7 +134,8 @@ const GeneralInfo = () => {
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
                   <label>{t("kullanimAmaci")}</label>
-                  <CodeControl name="kullanimAmaci" codeName="kullanimAmaciKodId" id={887} />
+                  {/* <CodeControl name="kullanimAmaci" codeName="kullanimAmaciKodId" id={887} /> */}
+                  <KodIDSelectbox name1="kullanimAmaci" kodID={887} isRequired={false} />
                 </div>
               </div>
               <div className="col-span-4">
@@ -189,13 +192,15 @@ const GeneralInfo = () => {
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
                   <label>{t("yedekAnahtar")}</label>
-                  <CodeControl name="yedekAnahtar" codeName="yedekAnahtarKodId" id={888} />
+                  {/* <CodeControl name="yedekAnahtar" codeName="yedekAnahtarKodId" id={888} /> */}
+                  <KodIDSelectbox name1="yedekAnahtar" kodID={888} isRequired={false} />
                 </div>
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
                   <label>{t("durum")}</label>
-                  <CodeControl name="durum" codeName="durumKodId" id={122} />
+                  {/* <CodeControl name="durum" codeName="durumKodId" id={122} /> */}
+                  <KodIDSelectbox name1="durum" kodID={122} isRequired={false} />
                 </div>
               </div>
             </div>
