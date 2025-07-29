@@ -270,6 +270,20 @@ const Yakit = () => {
         return a.firmaTipi.localeCompare(b.firmaTipi);
       },
     },
+    {
+      title: t("lokasyon"),
+      dataIndex: "lokasyon",
+      key: "lokasyon",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.lokasyon === null) return -1;
+        if (b.lokasyon === null) return 1;
+        return a.lokasyon.localeCompare(b.lokasyon);
+      },
+    },
 
     {
       title: `${t("telefon")} 1`,
@@ -307,7 +321,7 @@ const Yakit = () => {
       key: "borc",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.borc === null) return -1;
@@ -322,7 +336,7 @@ const Yakit = () => {
       key: "alacak",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.alacak === null) return -1;
@@ -337,7 +351,7 @@ const Yakit = () => {
       key: "bakiye",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.bakiye === null) return -1;
@@ -352,7 +366,7 @@ const Yakit = () => {
       key: "adres_1",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.adres_1 === null) return -1;
@@ -382,7 +396,7 @@ const Yakit = () => {
       key: "ilce",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.ilce === null) return -1;
@@ -412,7 +426,7 @@ const Yakit = () => {
       key: "email",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.email === null) return -1;
@@ -427,7 +441,7 @@ const Yakit = () => {
       key: "web",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.web === null) return -1;
@@ -442,7 +456,7 @@ const Yakit = () => {
       key: "ilgili_1",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.ilgili_1 === null) return -1;
@@ -457,7 +471,7 @@ const Yakit = () => {
       key: "ilgili_2",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.ilgili_2 === null) return -1;
@@ -472,7 +486,7 @@ const Yakit = () => {
       key: "fax",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.fax === null) return -1;
@@ -487,7 +501,7 @@ const Yakit = () => {
       key: "gsm",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.gsm === null) return -1;
