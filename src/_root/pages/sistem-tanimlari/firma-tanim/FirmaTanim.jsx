@@ -145,7 +145,7 @@ const Yakit = () => {
         currentSetPointId = 0;
       }
 
-      const response = await AxiosInstance.get(`Company/GetCompaniesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
+      const response = await AxiosInstance.post(`Company/GetCompaniesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
 
       const total = response.data.recordCount;
       setTotalCount(total);
