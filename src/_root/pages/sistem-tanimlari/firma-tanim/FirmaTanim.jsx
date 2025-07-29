@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip } from "antd";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select } from "antd";
 import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -125,6 +125,7 @@ const Yakit = () => {
     visible: false,
     data: null,
   });
+  const [statusFilter, setStatusFilter] = useState("all"); // Status filter state
   const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
@@ -145,7 +146,15 @@ const Yakit = () => {
         currentSetPointId = 0;
       }
 
-      const response = await AxiosInstance.post(`Company/GetCompaniesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
+      // Status parametresini payload'a ekle
+      let requestPayload = {};
+      if (statusFilter === "active") {
+        requestPayload.status = 1;
+      } else if (statusFilter === "passive") {
+        requestPayload.status = 0;
+      }
+
+      const response = await AxiosInstance.post(`Company/GetCompaniesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, requestPayload);
 
       const total = response.data.recordCount;
       setTotalCount(total);
@@ -172,7 +181,7 @@ const Yakit = () => {
 
   useEffect(() => {
     fetchData(0, 1);
-  }, []);
+  }, [statusFilter]); // statusFilter değiştiğinde de fetchData çağrılacak
 
   // Search handling
   // Define handleSearch function
@@ -208,6 +217,13 @@ const Yakit = () => {
     setSelectedRows([]);
     fetchData(0, 1);
   }, []);
+
+  // Status filter options
+  const statusOptions = [
+    { label: "Tümü", value: "all" },
+    { label: "Aktif", value: "active" },
+    { label: "Pasif", value: "passive" },
+  ];
 
   // Columns definition (adjust as needed)
   const initialColumns = [
@@ -796,6 +812,7 @@ const Yakit = () => {
             // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
             suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
           />
+          <Select style={{ width: "150px" }} placeholder="Durum Seçin" value={statusFilter} onChange={(value) => setStatusFilter(value)} options={statusOptions} />
           {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
           {/* Other toolbar components */}
         </div>
