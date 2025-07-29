@@ -18,14 +18,14 @@ export default function Filters({ onChange, durumValue, onClearDurum }) {
     durumlar: {},
     customfilter: {},
     aracId: "",
-    markaId: "",
-    modelId: "",
+    markaIds: [],
+    modelIds: [],
     lokasyonId: null,
   });
 
-  const [aracTipId, setAracTipId] = React.useState("");
-  const [markaId, setMarkaId] = React.useState("");
-  const [modelId, setModelId] = React.useState("");
+  const [aracTipIds, setAracTipIds] = React.useState([]);
+  const [markaIds, setMarkaIds] = React.useState([]);
+  const [modelIds, setModelIds] = React.useState([]);
   const [lokasyonId, setLokasyonId] = React.useState(null);
   const [customFilterValues, setCustomFilterValues] = React.useState({});
 
@@ -33,10 +33,24 @@ export default function Filters({ onChange, durumValue, onClearDurum }) {
     // Create an object with only the currently selected values from the main filters
     const mainFilterValues = {};
 
-    if (aracTipId) mainFilterValues.aracTipId = aracTipId;
-    if (markaId) mainFilterValues.markaId = markaId;
-    if (modelId) mainFilterValues.modelId = modelId;
-    if (lokasyonId?.locationId) mainFilterValues.lokasyonId = lokasyonId.locationId;
+    if (aracTipIds) mainFilterValues.aracTipIds = aracTipIds;
+    if (markaIds) mainFilterValues.markaIds = markaIds;
+    if (modelIds) mainFilterValues.modelIds = modelIds;
+    if (lokasyonId) {
+      // Multi-select modunda lokasyonId bir array olacak
+      if (Array.isArray(lokasyonId)) {
+        // Array'den locationId'leri al
+        const locationIds = lokasyonId.map((item) => item.locationId).filter(Boolean);
+        if (locationIds.length > 0) {
+          mainFilterValues.lokasyonIds = locationIds;
+        }
+      } else {
+        // Single-select modunda tek obje
+        if (lokasyonId.locationId) {
+          mainFilterValues.lokasyonId = lokasyonId.locationId;
+        }
+      }
+    }
 
     // Check if there are any filter values
     const hasFilterValues = Object.keys(mainFilterValues).length > 0 || Object.keys(customFilterValues).length > 0;
@@ -74,10 +88,24 @@ export default function Filters({ onChange, durumValue, onClearDurum }) {
     // Create an object with only the currently selected values from the main filters
     const mainFilterValues = {};
 
-    if (aracTipId) mainFilterValues.aracTipId = aracTipId;
-    if (markaId) mainFilterValues.markaId = markaId;
-    if (modelId) mainFilterValues.modelId = modelId;
-    if (lokasyonId?.locationId) mainFilterValues.lokasyonId = lokasyonId.locationId;
+    if (aracTipIds) mainFilterValues.aracTipIds = aracTipIds;
+    if (markaIds) mainFilterValues.markaIds = markaIds;
+    if (modelIds) mainFilterValues.modelIds = modelIds;
+    if (lokasyonId) {
+      // Multi-select modunda lokasyonId bir array olacak
+      if (Array.isArray(lokasyonId)) {
+        // Array'den locationId'leri al
+        const locationIds = lokasyonId.map((item) => item.locationId).filter(Boolean);
+        if (locationIds.length > 0) {
+          mainFilterValues.lokasyonIds = locationIds;
+        }
+      } else {
+        // Single-select modunda tek obje
+        if (lokasyonId.locationId) {
+          mainFilterValues.lokasyonId = lokasyonId.locationId;
+        }
+      }
+    }
 
     // Check if there are any filter values
     const hasFilterValues = Object.keys(newFilters).length > 0 || Object.keys(mainFilterValues).length > 0;
@@ -111,20 +139,21 @@ export default function Filters({ onChange, durumValue, onClearDurum }) {
           addHide={true}
           kodID={100}
           isRequired={false}
-          onChange={setAracTipId}
+          onChange={setAracTipIds}
           inputWidth="100px"
           dropdownWidth="300px"
           placeholder={t("aracTip")}
+          multiSelect={true}
         />
       </div>
       <div style={{ display: "flex", gap: "10px" }}>
-        <MarkaSelectbox name1={"marka"} isRequired={false} onChange={setMarkaId} dropdownWidth="300px" inputWidth="100px" />
+        <MarkaSelectbox name1={"marka"} isRequired={false} onChange={setMarkaIds} dropdownWidth="300px" inputWidth="100px" multiSelect={true} />
       </div>
       <div style={{ display: "flex", gap: "10px" }}>
-        <ModelSelectbox name1={"model"} isRequired={false} onChange={setModelId} dropdownWidth="300px" inputWidth="100px" markaId={markaId} />
+        <ModelSelectbox name1={"model"} isRequired={false} onChange={setModelIds} dropdownWidth="300px" inputWidth="100px" markaId={markaIds} multiSelect={true} />
       </div>
       <div style={{ display: "flex", gap: "10px", width: "100px" }}>
-        <LokasyonTable onSubmit={setLokasyonId} />
+        <LokasyonTable onSubmit={setLokasyonId} multiSelect={true} />
       </div>
 
       {/* <TypeFilter onSubmit={(newFilters) => setFilters((state) => ({ ...state, isemritipleri: newFilters }))} /> */}

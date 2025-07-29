@@ -7,7 +7,7 @@ import { Controller, useForm, FormProvider } from "react-hook-form";
 
 const { Search } = Input;
 
-export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUserId, setRefreshKey }) {
+export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUserId, setRefreshKey, multiSelect = false }) {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false);
   const [treeData, setTreeData] = useState([]);
@@ -138,6 +138,18 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
     return null;
   };
 
+  // Ağaç yapısında birden fazla öğeyi bulma fonksiyonu
+  const findItemsInTree = (keys, tree) => {
+    const foundItems = [];
+    for (const key of keys) {
+      const item = findItemInTree(key, tree);
+      if (item) {
+        foundItems.push(item);
+      }
+    }
+    return foundItems;
+  };
+
   // Modal açma fonksiyonu
   const handleModalOpen = () => {
     setIsModalVisible(true);
@@ -150,27 +162,50 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
 
   // Modal onaylama fonksiyonu
   const handleModalOk = () => {
-    const selectedData = findItemInTree(selectedRowKeys[0], treeData);
-    if (selectedData) {
-      onSubmit && onSubmit(selectedData); // This should handle both parents and children
-      methods.setValue("lokasyon", selectedData.location);
+    if (multiSelect) {
+      // Multi-select modunda seçili tüm öğeleri gönder
+      const selectedData = findItemsInTree(selectedRowKeys, treeData);
+      if (selectedData.length > 0) {
+        onSubmit && onSubmit(selectedData);
+        const locationNames = selectedData.map((item) => item.location).join(", ");
+        methods.setValue("lokasyon", locationNames);
+      }
+    } else {
+      // Single-select modunda sadece ilk seçili öğeyi gönder
+      const selectedData = findItemInTree(selectedRowKeys[0], treeData);
+      if (selectedData) {
+        onSubmit && onSubmit(selectedData);
+        methods.setValue("lokasyon", selectedData.location);
+      }
     }
     setIsModalVisible(false);
   };
 
   // Seçili satır anahtarlarını ayarlama
   useEffect(() => {
-    setSelectedRowKeys(workshopSelectedId ? [workshopSelectedId] : []);
-  }, [workshopSelectedId]);
+    if (multiSelect) {
+      // Multi-select modunda workshopSelectedId array olarak gelmeli
+      setSelectedRowKeys(Array.isArray(workshopSelectedId) ? workshopSelectedId : []);
+    } else {
+      // Single-select modunda tek değer
+      setSelectedRowKeys(workshopSelectedId ? [workshopSelectedId] : []);
+    }
+  }, [workshopSelectedId, multiSelect]);
 
   // Satır seçimi değiştiğinde çağrılan fonksiyon
   const onRowSelectChange = (selectedKeys) => {
-    setSelectedRowKeys(selectedKeys.length ? [selectedKeys[0]] : []);
+    if (multiSelect) {
+      // Multi-select modunda tüm seçili anahtarları sakla
+      setSelectedRowKeys(selectedKeys);
+    } else {
+      // Single-select modunda sadece son seçili anahtarı sakla
+      setSelectedRowKeys(selectedKeys.length ? [selectedKeys[selectedKeys.length - 1]] : []);
+    }
   };
 
   // Satır seçimi ayarları
   const rowSelection = {
-    type: "radio",
+    type: multiSelect ? "checkbox" : "radio",
     selectedRowKeys,
     onChange: onRowSelectChange,
   };
@@ -192,7 +227,7 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
               <Input
                 {...field}
                 status={error ? "error" : ""}
-                placeholder={t("lokasyonSec")}
+                placeholder={multiSelect ? t("lokasyonlarSec") : t("lokasyonSec")}
                 readOnly={true}
                 suffix={
                   field.value ? (
@@ -207,7 +242,7 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
           )}
         />
 
-        <Modal width="1200px" title={t("lokasyon")} open={isModalVisible} onOk={handleModalOk} onCancel={handleModalClose}>
+        <Modal width="1200px" title={multiSelect ? t("lokasyonlar") : t("lokasyon")} open={isModalVisible} onOk={handleModalOk} onCancel={handleModalClose}>
           <Search
             style={{ width: "250px", marginBottom: "10px" }}
             placeholder={t("aramaYap")}

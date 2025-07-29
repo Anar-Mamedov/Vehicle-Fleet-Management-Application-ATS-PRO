@@ -34,7 +34,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function ModelSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth, markaId }) {
+export default function ModelSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth, markaId, multiSelect = false }) {
   const {
     control,
     watch,
@@ -45,9 +45,17 @@ export default function ModelSelectbox({ name1, isRequired, onChange, inputWidth
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Clear model selection when markaId becomes null/undefined
+  // Check if markaId is valid (not null, undefined, empty array, or empty string)
+  const isMarkaIdValid = () => {
+    if (Array.isArray(markaId)) {
+      return markaId.length > 0 && markaId.some((id) => id != null && id !== "");
+    }
+    return markaId != null && markaId !== "";
+  };
+
+  // Clear model selection when markaId becomes invalid
   useEffect(() => {
-    if (!markaId) {
+    if (!isMarkaIdValid()) {
       setValue(name1, null);
       setValue(`${name1}ID`, null);
       if (onChange) {
@@ -59,7 +67,9 @@ export default function ModelSelectbox({ name1, isRequired, onChange, inputWidth
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await AxiosInstance.get(`Model/GetModelListByMarkId?markId=${markaId}`);
+      // If markaId is an array, use the first valid ID
+      const markId = Array.isArray(markaId) ? markaId : [markaId];
+      const response = await AxiosInstance.get(`Model/GetModelListByMarkId?markId=${markId}`);
       if (response && response.data) {
         setOptions(response.data);
       }
@@ -89,7 +99,8 @@ export default function ModelSelectbox({ name1, isRequired, onChange, inputWidth
           <StyledSelect
             {...field}
             status={errors[name1] ? "error" : ""}
-            disabled={!markaId}
+            mode={multiSelect ? "multiple" : undefined}
+            disabled={!isMarkaIdValid()}
             showSearch
             allowClear
             placeholder="Model Seçiniz"
@@ -105,11 +116,33 @@ export default function ModelSelectbox({ name1, isRequired, onChange, inputWidth
               label: item.modelDef,
             }))}
             onChange={(value, option) => {
-              setValue(name1, option?.label || null);
-              setValue(`${name1}ID`, value);
-              field.onChange(option?.label || null);
-              if (onChange) {
-                onChange(value, option);
+              if (multiSelect) {
+                // Multi-select için array değerlerini handle et
+                const selectedLabels = Array.isArray(value)
+                  ? value
+                      .map((val) => {
+                        const selectedOption = options.find((opt) => opt.siraNo === val);
+                        return selectedOption ? selectedOption.modelDef : null;
+                      })
+                      .filter(Boolean)
+                  : [];
+
+                setValue(name1, selectedLabels);
+                setValue(`${name1}ID`, value);
+                field.onChange(value); // Multi-select'te value array olarak gelir
+
+                if (onChange) {
+                  onChange(value, option);
+                }
+              } else {
+                // Single select için mevcut mantık
+                setValue(name1, option?.label || null);
+                setValue(`${name1}ID`, value);
+                field.onChange(option?.label || null);
+
+                if (onChange) {
+                  onChange(value, option);
+                }
               }
             }}
             style={{ width: inputWidth }}

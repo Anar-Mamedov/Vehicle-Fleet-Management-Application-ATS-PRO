@@ -45,5 +45,8 @@
   "forgotPassword": "Пароль забыли",
   "login": "Войти",
   "username": "Имя пользователя",
-  "password": "Пароль"
+  "password": "Пароль",
+  "lokasyon": "Местоположение",
+  "lokasyonSec": "Выбрать Местоположение",
+  "lokasyonlarSec": "Выбрать Местоположения"
 }

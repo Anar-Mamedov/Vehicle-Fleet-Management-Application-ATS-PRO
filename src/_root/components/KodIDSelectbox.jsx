@@ -35,7 +35,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, placeholder, inputWidth, dropdownWidth, addHide = false }) {
+export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, placeholder, inputWidth, dropdownWidth, addHide = false, multiSelect = false }) {
   const {
     control,
     watch,
@@ -128,6 +128,7 @@ export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, pla
             {...field}
             status={errors[name1] ? "error" : ""}
             key={selectKey}
+            mode={multiSelect ? "multiple" : undefined}
             // style={{ maxWidth: "300px", width: "100%" }}
             showSearch
             allowClear
@@ -171,12 +172,18 @@ export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, pla
               label: item.codeText, // Display the name in the dropdown
             }))}
             onChange={(value, option) => {
-              const numericValue = value ? Number(value) : null;
-              setValue(name1, option?.label || null);
-              setValue(`${name1}ID`, numericValue);
-              field.onChange(option?.label || null);
+              // const numericValue = value ? Number(value) : null;
+              if (multiSelect) {
+                setValue(name1, option?.label || null);
+                setValue(`${name1}ID`, value);
+                field.onChange(value);
+              } else {
+                setValue(name1, option?.label || null);
+                setValue(`${name1}ID`, value);
+                field.onChange(option?.label || null);
+              }
               if (onChange) {
-                onChange(numericValue, option);
+                onChange(value, option);
               }
             }}
             style={{ width: inputWidth }}

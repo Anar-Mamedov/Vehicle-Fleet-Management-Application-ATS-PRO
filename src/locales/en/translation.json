@@ -34,6 +34,8 @@
   "ozelAlanlar": "Custom Fields",
   "plaka": "Plate",
   "lokasyon": "Location",
+  "lokasyonSec": "Select Location",
+  "lokasyonlarSec": "Select Locations",
   "mulkiyet": "Ownership",
   "departman": "Department",
   "surucu": "Driver",
