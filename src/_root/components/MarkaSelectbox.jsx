@@ -34,7 +34,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function MarkaSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth }) {
+export default function MarkaSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth, multiSelect = false }) {
   const {
     control,
     watch,
@@ -78,6 +78,7 @@ export default function MarkaSelectbox({ name1, isRequired, onChange, inputWidth
           <StyledSelect
             {...field}
             status={errors[name1] ? "error" : ""}
+            mode={multiSelect ? "multiple" : undefined}
             showSearch
             allowClear
             placeholder="Marka Seçiniz"
@@ -92,12 +93,35 @@ export default function MarkaSelectbox({ name1, isRequired, onChange, inputWidth
               value: item.siraNo,
               label: item.marka,
             }))}
+            value={multiSelect ? (Array.isArray(field.value) ? field.value : []) : field.value}
             onChange={(value, option) => {
-              setValue(name1, option?.label || null);
-              setValue(`${name1}ID`, value);
-              field.onChange(option?.label || null);
-              if (onChange) {
-                onChange(value, option);
+              if (multiSelect) {
+                // Multi-select için array değerlerini handle et
+                const selectedLabels = Array.isArray(value)
+                  ? value
+                      .map((val) => {
+                        const selectedOption = options.find((opt) => opt.siraNo === val);
+                        return selectedOption ? selectedOption.marka : null;
+                      })
+                      .filter(Boolean)
+                  : [];
+
+                setValue(name1, selectedLabels);
+                setValue(`${name1}ID`, value);
+                field.onChange(value); // Multi-select'te value array olarak gelir
+
+                if (onChange) {
+                  onChange(value, option);
+                }
+              } else {
+                // Single select için mevcut mantık
+                setValue(name1, option?.label || null);
+                setValue(`${name1}ID`, value);
+                field.onChange(option?.label || null);
+
+                if (onChange) {
+                  onChange(value, option);
+                }
               }
             }}
             style={{ width: inputWidth }}
