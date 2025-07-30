@@ -125,7 +125,7 @@ const Yakit = () => {
     visible: false,
     data: null,
   });
-  const [statusFilter, setStatusFilter] = useState("all"); // Status filter state
+  const [statusFilter, setStatusFilter] = useState("active"); // Status filter state
   const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
