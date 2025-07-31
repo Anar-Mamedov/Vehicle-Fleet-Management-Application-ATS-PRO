@@ -142,17 +142,20 @@ export default function KodIDSelectbox({ name1, kodID, isRequired }) {
                     margin: "8px 0",
                   }}
                 />
-                <Space
+                <div
                   style={{
                     padding: "0 8px 4px",
                     width: "100%",
+                    display: "flex",
+                    gap: "8px",
+                    alignItems: "center",
                   }}
                 >
-                  <Input style={{ width: "100%" }} placeholder="" ref={inputRef} value={name} onChange={onNameChange} />
+                  <Input style={{ flex: 1 }} placeholder="" ref={inputRef} value={name} onChange={onNameChange} />
                   <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
                     Ekle
                   </Button>
-                </Space>
+                </div>
               </Spin>
             )}
             options={options.map((item) => ({

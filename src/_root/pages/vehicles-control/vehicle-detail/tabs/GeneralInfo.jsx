@@ -322,7 +322,7 @@ const GeneralInfo = () => {
                   <NumberInput name="gerceklesen" />
                 </div>
               </div>*/}
-              <div className="col-span-12">
+              <div className="col-span-6">
                 <div className="flex flex-row gap-1 justify-between">
                   <label>{t("uyari")}</label>
                   <CheckboxInput name="uyari" />
