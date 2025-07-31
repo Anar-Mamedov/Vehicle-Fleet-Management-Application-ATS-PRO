@@ -28,7 +28,7 @@ const PersonalFields = ({ personalProps }) => {
       const apiData = res.data;
       const updatedFields = fields.map((field) => {
         const apiFieldName = field.label;
-        if (apiData.hasOwnProperty(apiFieldName)) {
+        if (Object.prototype.hasOwnProperty.call(apiData, apiFieldName)) {
           return {
             ...field,
             value: apiData[apiFieldName],
@@ -113,7 +113,7 @@ const PersonalFields = ({ personalProps }) => {
                     showSearch
                     allowClear
                     optionFilterProp="children"
-                    filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input)}
+                    filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
                     filterSort={(optionA, optionB) => (optionA?.label.toLowerCase() ?? "").toLowerCase().localeCompare((optionB?.label ?? "").toLowerCase())}
                     options={data.map((item) => ({
                       label: item.codeText,
