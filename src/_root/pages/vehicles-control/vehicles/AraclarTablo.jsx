@@ -844,6 +844,21 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
+      title: t("lokasyonTumYol"),
+      dataIndex: "lokasyonTumYol",
+      key: "lokasyonTumYol",
+      width: 250,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.lokasyonTumYol === null) return -1;
+        if (b.lokasyonTumYol === null) return 1;
+        return a.lokasyonTumYol.localeCompare(b.lokasyonTumYol);
+      },
+    },
+
+    {
       title: t("aracDurum"),
       dataIndex: "aracDurum",
       key: "aracDurum",
