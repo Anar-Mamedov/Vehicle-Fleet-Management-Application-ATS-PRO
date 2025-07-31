@@ -3,7 +3,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
-import { Button, message, Modal } from "antd";
+import { Button, message, Modal, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../../context/plakaSlice";
 import { AddLokasyonTransferService } from "../../../../../../../api/services/vehicles/vehicles/services";
@@ -17,6 +17,8 @@ import TimeInput from "../../../../../../components/form/date/TimeInput";
 // import Tutanak from "./Tutanak";
 import ModalInput from "../../../../../../components/form/inputs/ModalInput";
 import LokasyonTablo from "../../../../../../components/form/LokasyonTable";
+
+const { Text } = Typography;
 
 const AddModal = ({ setStatus, isModalOpen, setIsModalOpen, lokasyon, lokasyonId, onYeniLokasyonUpdated, guncelKm }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -61,6 +63,9 @@ const AddModal = ({ setStatus, isModalOpen, setIsModalOpen, lokasyon, lokasyonId
       aracKm: values.km || 0,
       bulunduguLokasyonId: Number(values.eskiLokasyonId),
       transferEdilenLokasyonId: values.yeniLokasyonID,
+
+      // talepEdilenNesne: "34ABC123 → İstanbul"
+      talepEdilenNesne: `${plaka} → ${values.yeniLokasyon}`,
 
       // surucuTeslimAlanId: values.surucuTeslimAlanId || -1,
       // surucuTeslimEdenId: values.surucuTeslimEdenId || -1,
