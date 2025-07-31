@@ -181,6 +181,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     departmanID: 0,
     surucuId: 0,
     yakitTipId: 0,
+    uyari: false,
     utts: "",
     tts: "",
     muayeneTarih: "",
@@ -327,7 +328,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setValue("ozelAlan10", res?.data.ozelAlan10);
         setValue("ozelAlan11", res?.data.ozelAlan11);
         setValue("ozelAlan12", res?.data.ozelAlan12);
-        setValue("uyari", res?.data.yakitUyari);
+        setValue("uyari", res?.data.uyar);
         setUrls([...urls, res.data.defPhotoInfo]);
         setPhotoCount(res.data.resimSayisi);
         setFileCount(res.data.dokumanSayisi);
@@ -395,7 +396,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       durumKodId: values.durumID || 0,
       DepoBataryaKapasitesi: Number(values.DepoBataryaKapasitesi), // name i alborzdan al
       tamDepoSarjIleMenzil: Number(values.tamDepoSarjIleMenzil), // namei alborzdan al
-      yakitUyari: true,
+      uyar: values.uyari,
       havuzGrup: values.havuzGrup,
       onGorulenMin: values.onGorulenMin,
       onGorulen: values.onGorulen,

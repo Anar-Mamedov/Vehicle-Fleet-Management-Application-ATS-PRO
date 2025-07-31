@@ -145,9 +145,10 @@ export default function KodIDSelectbox({ name1, kodID, isRequired }) {
                 <Space
                   style={{
                     padding: "0 8px 4px",
+                    width: "100%",
                   }}
                 >
-                  <Input placeholder="" ref={inputRef} value={name} onChange={onNameChange} />
+                  <Input style={{ width: "100%" }} placeholder="" ref={inputRef} value={name} onChange={onNameChange} />
                   <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
                     Ekle
                   </Button>

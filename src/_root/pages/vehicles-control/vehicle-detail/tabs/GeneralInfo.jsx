@@ -302,7 +302,7 @@ const GeneralInfo = () => {
                 </Tooltip>
               </label>
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-1">
               <div className="col-span-6 mt-10">
                 <div className="flex flex-col gap-1">
                   <label>{t("minYakitTuketimi")}</label>
@@ -321,13 +321,13 @@ const GeneralInfo = () => {
                   <label>{t("gercekYakitTuketimi")}</label>
                   <NumberInput name="gerceklesen" />
                 </div>
-              </div>
-              <div className="col-span-6">
-                <div className="flex flex-col gap-1">
+              </div>*/}
+              <div className="col-span-12">
+                <div className="flex flex-row gap-1 justify-between">
                   <label>{t("uyari")}</label>
                   <CheckboxInput name="uyari" />
                 </div>
-              </div> */}
+              </div>
             </div>
           </div>
         </div>
