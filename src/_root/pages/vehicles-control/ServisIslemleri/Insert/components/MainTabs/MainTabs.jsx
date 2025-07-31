@@ -3,7 +3,7 @@ import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row,
 import { Controller, useFormContext } from "react-hook-form";
 import ServisKoduTablo from "./components/ServisKoduTablo.jsx";
 import styled from "styled-components";
-import Plaka from "./components/Plaka.jsx";
+import PlakaSelectBox from "../../../../../../../_root/components/PlakaSelectbox";
 import Surucu from "./components/Surucu.jsx";
 import ServisNedeni from "./components/ServisNedeni.jsx";
 import dayjs from "dayjs";
@@ -220,7 +220,31 @@ export default function MainTabs({ modalOpen }) {
           <div style={{ width: "100%", maxWidth: "450px" }}>
             <StyledDivBottomLine style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
               <Text style={{ fontSize: "14px", fontWeight: "600" }}>Plaka:</Text>
-              <Plaka />
+              <div
+                style={{
+                  display: "flex",
+                  flexFlow: "column wrap",
+                  alignItems: "flex-start",
+                  width: "100%",
+                  maxWidth: "300px",
+                }}
+              >
+                <PlakaSelectBox
+                  name1="Plaka"
+                  isRequired={true}
+                  onChange={(value, option) => {
+                    // Plaka seçildiğinde sürücü bilgilerini otomatik set et
+                    if (option && option.data) {
+                      setValue("Surucu", option.data.surucu);
+                      setValue("SurucuID", option.data.surucuId);
+                    } else {
+                      // Plaka değeri silindiğinde marka ve model alanlarını temizle
+                      setValue("Surucu", null);
+                      setValue("SurucuID", null);
+                    }
+                  }}
+                />
+              </div>
             </StyledDivBottomLine>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px" }}>

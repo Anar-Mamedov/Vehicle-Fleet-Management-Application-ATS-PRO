@@ -13,6 +13,7 @@ import TimeInput from "../../../../components/form/date/TimeInput";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
 import CodeControl from "../../../../components/form/selects/CodeControl";
+import KodIDSelectbox from "../../../../components/form/selects/KodIDSelectbox";
 import CezaMaddesiTable from "./CezaMaddesi";
 
 dayjs.locale("tr");
@@ -133,7 +134,8 @@ const GeneralInfo = () => {
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("cezaTuru")}</label>
-                <CodeControl name="cezaTuru" codeName="cezaTuruKodId" id={400} />
+                {/* <CodeControl name="cezaTuru" codeName="cezaTuruKodId" id={400} /> */}
+                <KodIDSelectbox name1="cezaTuru" kodID={400} isRequired={false} />
               </div>
             </div>
             <div className="col-span-6">

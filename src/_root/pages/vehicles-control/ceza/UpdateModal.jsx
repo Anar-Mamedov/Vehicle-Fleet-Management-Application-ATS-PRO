@@ -124,7 +124,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         setValue("cezaMaddesi", res?.data.cezaMaddesi);
         setValue("cezaPuan", res?.data.cezaPuan);
         setValue("cezaTuru", res?.data.cezaTuru);
-        setValue("cezaTuruKodId", res?.data.cezaTuruKodId);
+        setValue("cezaTuruID", res?.data.cezaTuruKodId);
         setValue("indirimOran", res?.data.indirimOran);
         setValue("lokasyon", res?.data.lokasyon);
         setValue("lokasyonId", res?.data.lokasyonId);
@@ -186,7 +186,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       siraNo: selectedRow?.key,
       tarih: dayjs(values.tarih).format("YYYY-MM-DD"),
       saat: dayjs(values.saat).format("HH:mm:ss"),
-      cezaTuruKodId: values.cezaTuruKodId || 0,
+      cezaTuruKodId: values.cezaTuruID || 0,
       tutar: values.tutar || 0,
       cezaPuan: values.cezaPuan || 0,
       odenenTutar: values.odenenTutar || 0,
