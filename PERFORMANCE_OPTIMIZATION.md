@@ -188,7 +188,7 @@ npm run test:coverage
 - Service Worker sadece HTTPS'de çalışır
 - Cache temizleme için `clearCache()` fonksiyonunu kullanın
 - Performance hook'u sadece development'ta çalışır
-- Bundle analizi için `vite-plugin-analyzer` kullanın
+- Bundle analizi için `rollup-plugin-visualizer` kullanın
 
 ## 🎯 Sonraki Adımlar
 
