@@ -2,13 +2,14 @@ import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "
 import { useFormContext } from "react-hook-form";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider, Switch } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined, SettingOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Resizable } from "react-resizable";
 import "./ResizeStyle.css";
 import AxiosInstance from "../../../../../api/http";
+import Onaylayicilar from "./components/Onaylayicilar";
 import { FormProvider, useForm } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -132,6 +133,11 @@ const Onaylar = () => {
   const [totalCount, setTotalCount] = useState(0); // Total data count
   const [pageSize, setPageSize] = useState(10); // Page size
   const [drawer, setDrawer] = useState({
+    visible: false,
+    data: null,
+  });
+
+  const [rulesModal, setRulesModal] = useState({
     visible: false,
     data: null,
   });
@@ -301,6 +307,19 @@ const Onaylar = () => {
           if (b.onayAktif === null) return 1;
           return a.onayAktif - b.onayAktif;
         },
+      },
+      {
+        title: t("kurallar"),
+        dataIndex: "kurallar",
+        key: "kurallar",
+        width: 100,
+        ellipsis: true,
+        visible: true,
+        render: (text, record) => (
+          <div style={{ textAlign: "center" }}>
+            <Button type="text" icon={<SettingOutlined />} onClick={() => setRulesModal({ visible: true, data: record })} style={{ color: "#1890ff" }} />
+          </div>
+        ),
       },
     ],
     []
@@ -616,6 +635,19 @@ const Onaylar = () => {
                 scroll={{ y: "calc(100vh - 335px)" }}
               />
             </Spin>
+
+            {/* Kurallar Modal */}
+            <Modal
+              title={t("onaylayicilar")}
+              centered
+              width={800}
+              open={rulesModal.visible}
+              onOk={() => setRulesModal({ ...rulesModal, visible: false })}
+              onCancel={() => setRulesModal({ ...rulesModal, visible: false })}
+              footer={null}
+            >
+              <Onaylayicilar data={rulesModal.data} siraNo={rulesModal.data?.siraNo} tanim={rulesModal.data?.tanim} />
+            </Modal>
           </div>
         </FormProvider>
       </ConfigProvider>
