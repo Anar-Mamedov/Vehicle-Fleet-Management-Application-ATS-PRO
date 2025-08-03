@@ -536,5 +536,11 @@
   "lastikTanimlari": "Təkər Təsvirləri",
   "aksTanimlari": "AKS Təsvirləri",
   "lastikEnvanteri": "Təkər İnventarları",
-  "lastikYonetimi": "Təkər İdarəçiliyi"
+  "lastikYonetimi": "Təkər İdarəçiliyi",
+  "soyAd": "Soyad",
+  "durum": "Vəziyyət",
+  "yeniOnaylayiciEkle": "Yeni Təsdiq Edən Əlavə Et",
+  "onaylayiciAdi": "Təsdiq Edən Adı",
+  "pozisyon": "Vəzifə",
+  "siraNo": "Sıra No"
 }
