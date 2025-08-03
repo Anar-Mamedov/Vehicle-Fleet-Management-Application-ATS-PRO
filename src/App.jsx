@@ -1,7 +1,5 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { ConfigProvider } from "antd";
-import trTR from "antd/locale/tr_TR";
 import { getItemWithExpiration } from "./utils/expireToken";
 import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
@@ -139,537 +137,535 @@ const App = () => {
   }, [navigate, location.pathname]);
 
   return (
-    <ConfigProvider locale={trTR}>
-      <Routes>
-        <Route path="/" element={<RootLayout />}>
-          <Route index element={<Dashboard />} />
-          {/* Lazy loaded routes - wrapped with Suspense */}
-          <Route
-            path="/araclar"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Vehicles />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/kiralik-araclar"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <KiralikAraclar />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/hizli-km-guncelleme"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <KmUpdate />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/yakit-islemleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Yakit />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/kod-yonetimi"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <KodYonetimi />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/ceza-islemleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Ceza />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/hasar-takibi"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <HasarTakibi />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/sigorta-islemleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Sigorta />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/harcama-islemleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Harcama />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/kaza-islemleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Kaza />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/sefer-islemleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Sefer />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/servis-islemleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <ServisIslemleri />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/ekspertizler"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Ekspertizler />
-              </Suspense>
-            }
-          />
-          {/* yakit yonetimi */}
-          <Route
-            path="/yakit-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <YakitTanimlar />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/yakit-giris-fisleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <YakitGirisFisleri />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/yakit-cikis-fisleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <YakitCikisFisleri />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/yakit-transferler"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <YakitTransferler />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/yakit-hareketleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <YakitHaraketleri />
-              </Suspense>
-            }
-          />
-          {/* malzeme depo */}
-          <Route
-            path="/malzeme-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Malzemeler />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/giris-fisleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <GirisFisleri />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/giris-fisleri1"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <GirisFisleri1 />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/cikis-fisleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <CikisFisleri />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/cikis-fisleri1"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <CikisFisleri1 />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/transferler"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Transferler />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/transferler1"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Transferler1 />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/lokasyon-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <LokasyonTanimlari />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/malzeme-depo-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <MalzemeDepoTanimlari />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/malzeme-hareketleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <MalzemeHareketler />
-              </Suspense>
-            }
-          />
-
-          <Route
-            path="/ayarlar"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Settings />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/hareketler"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Hareketler />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/arac-marka-ve-model"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <MarkaList />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/sehir-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Sehirler />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/guzergah-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Guzergah />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/is-kartlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <IsKartlari />
-              </Suspense>
-            }
-          />
-
-          {/* Lastik Yonetimi */}
-          <Route
-            path="/lastik-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <LastikTanim />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/axle"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Axle />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/lastik-islemleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <LastikIslemleri />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/lastik-envanteri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <LastikEnvanteri />
-              </Suspense>
-            }
-          />
-
-          <Route
-            path="/ceza-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <CezaTanim />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/servis-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <ServisTanim />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/firma-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <FirmaTanim />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/personel-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <PersonelTanim />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/hgs-gecis-ucretleri"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <HgsGecisUcretleri />
-              </Suspense>
-            }
-          />
-          {/* hgs islemleri */}
-          <Route
-            path="/hgs-islem-takibi"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <HgsİslemTakibi />
-              </Suspense>
-            }
-          />
-          {/*Analızlar*/}
-          <Route
-            path="/fuel-analysis"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <YakitTuketimAnalizi />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/performance-analysis"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <PerformansAnalizi />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/cost-analysis"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <MaliyetAnalizi />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/material-consumption-analysis"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <MalzemeTuketimAnalizi />
-              </Suspense>
-            }
-          />
-
-          {/* Bakım ve Onarım */}
-          <Route
-            path="/Periodic-Maintenance"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <PeriyordikBakimlar />
-              </Suspense>
-            }
-          />
-
-          <Route
-            path="/surucu-tanimlari"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Suruculer />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/raporlar"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Raporlar />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/hazirlaniyor"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <Hazirlaniyor />
-              </Suspense>
-            }
-          />
-
-          {/* Sistem Ayarlari */}
-          <Route
-            path="/user_definitions"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <KullaniciTanimlari />
-              </Suspense>
-            }
-          />
-
-          {/* Profil Düzenleme */}
-          <Route
-            path="/edit_profile"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <ProfiliDuzenleTabs />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/unauthorized"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <YetkisizIslem />
-              </Suspense>
-            }
-          />
-
-          {/* Aktarım */}
-          <Route
-            path="/arac-aktarim"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <AracAktarim />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/ceza-aktarim"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <CezaAktarim />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/kaza-aktarim"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <KazaAktarim />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/surucu-aktarim"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <SurucuAktarim />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/km-aktarim"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <KmAktarim />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/hgs-aktarim"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <HgsAktarim />
-              </Suspense>
-            }
-          />
-
-          <Route
-            path="/deneme"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <DenemeTable />
-              </Suspense>
-            }
-          />
-        </Route>
-        {hasToken && <Route path="/login" element={<AuthLayout />} />}
+    <Routes>
+      <Route path="/" element={<RootLayout />}>
+        <Route index element={<Dashboard />} />
+        {/* Lazy loaded routes - wrapped with Suspense */}
         <Route
-          path="/CompanyKeyPage"
+          path="/araclar"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <CompanyKeyPage />
+              <Vehicles />
             </Suspense>
           }
         />
-      </Routes>
-    </ConfigProvider>
+        <Route
+          path="/kiralik-araclar"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <KiralikAraclar />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/hizli-km-guncelleme"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <KmUpdate />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/yakit-islemleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Yakit />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/kod-yonetimi"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <KodYonetimi />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/ceza-islemleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Ceza />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/hasar-takibi"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <HasarTakibi />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/sigorta-islemleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Sigorta />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/harcama-islemleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Harcama />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/kaza-islemleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Kaza />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/sefer-islemleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Sefer />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/servis-islemleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ServisIslemleri />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/ekspertizler"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Ekspertizler />
+            </Suspense>
+          }
+        />
+        {/* yakit yonetimi */}
+        <Route
+          path="/yakit-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <YakitTanimlar />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/yakit-giris-fisleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <YakitGirisFisleri />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/yakit-cikis-fisleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <YakitCikisFisleri />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/yakit-transferler"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <YakitTransferler />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/yakit-hareketleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <YakitHaraketleri />
+            </Suspense>
+          }
+        />
+        {/* malzeme depo */}
+        <Route
+          path="/malzeme-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Malzemeler />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/giris-fisleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <GirisFisleri />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/giris-fisleri1"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <GirisFisleri1 />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/cikis-fisleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <CikisFisleri />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/cikis-fisleri1"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <CikisFisleri1 />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/transferler"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Transferler />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/transferler1"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Transferler1 />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/lokasyon-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <LokasyonTanimlari />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/malzeme-depo-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <MalzemeDepoTanimlari />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/malzeme-hareketleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <MalzemeHareketler />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/ayarlar"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Settings />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/hareketler"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Hareketler />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/arac-marka-ve-model"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <MarkaList />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/sehir-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Sehirler />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/guzergah-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Guzergah />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/is-kartlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <IsKartlari />
+            </Suspense>
+          }
+        />
+
+        {/* Lastik Yonetimi */}
+        <Route
+          path="/lastik-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <LastikTanim />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/axle"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Axle />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/lastik-islemleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <LastikIslemleri />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/lastik-envanteri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <LastikEnvanteri />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/ceza-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <CezaTanim />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/servis-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ServisTanim />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/firma-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <FirmaTanim />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/personel-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PersonelTanim />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/hgs-gecis-ucretleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <HgsGecisUcretleri />
+            </Suspense>
+          }
+        />
+        {/* hgs islemleri */}
+        <Route
+          path="/hgs-islem-takibi"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <HgsİslemTakibi />
+            </Suspense>
+          }
+        />
+        {/*Analızlar*/}
+        <Route
+          path="/fuel-analysis"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <YakitTuketimAnalizi />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/performance-analysis"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PerformansAnalizi />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/cost-analysis"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <MaliyetAnalizi />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/material-consumption-analysis"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <MalzemeTuketimAnalizi />
+            </Suspense>
+          }
+        />
+
+        {/* Bakım ve Onarım */}
+        <Route
+          path="/Periodic-Maintenance"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <PeriyordikBakimlar />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/surucu-tanimlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Suruculer />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/raporlar"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Raporlar />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/hazirlaniyor"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Hazirlaniyor />
+            </Suspense>
+          }
+        />
+
+        {/* Sistem Ayarlari */}
+        <Route
+          path="/user_definitions"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <KullaniciTanimlari />
+            </Suspense>
+          }
+        />
+
+        {/* Profil Düzenleme */}
+        <Route
+          path="/edit_profile"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ProfiliDuzenleTabs />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/unauthorized"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <YetkisizIslem />
+            </Suspense>
+          }
+        />
+
+        {/* Aktarım */}
+        <Route
+          path="/arac-aktarim"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <AracAktarim />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/ceza-aktarim"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <CezaAktarim />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/kaza-aktarim"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <KazaAktarim />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/surucu-aktarim"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <SurucuAktarim />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/km-aktarim"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <KmAktarim />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/hgs-aktarim"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <HgsAktarim />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/deneme"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <DenemeTable />
+            </Suspense>
+          }
+        />
+      </Route>
+      {hasToken && <Route path="/login" element={<AuthLayout />} />}
+      <Route
+        path="/CompanyKeyPage"
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <CompanyKeyPage />
+          </Suspense>
+        }
+      />
+    </Routes>
   );
 };
 

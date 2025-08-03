@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import { GridStack } from "gridstack";
 import "gridstack/dist/gridstack.css";
 import { Button, Checkbox, Popover, Typography, Switch, Tooltip, ConfigProvider } from "antd";
@@ -9,51 +9,33 @@ import { I18nextProvider } from "react-i18next";
 import i18n from "../../../utils/i18n.js";
 import trTR from "antd/lib/locale/tr_TR";
 import { useForm, FormProvider } from "react-hook-form";
+import Component3 from "./components/Component3.jsx";
+import Component2 from "./components/Component2.jsx";
+import Component1 from "./components/Component1.jsx";
+import Component4 from "./components/Component4.jsx";
+import Component5 from "./components/Component5.jsx";
+import Component6 from "./components/Component6.jsx";
+import LokasyonBazindaIsTalepleri from "./components/LokasyonBazindaIsTalepleri.jsx";
+import IsEmirleriOzetTablosu from "./components/IsEmirleriOzetTablosu.jsx";
+import ArizaliMakineler from "./components/ArizaliMakineler.jsx";
+import MakineTiplerineGore from "./components/MakineTiplerineGore.jsx";
+import TamamlanmaOranlari from "./components/TamamlanmaOranlari.jsx";
+import AylikBakimMaliyetleri from "./components/AylikBakimMaliyetleri.jsx";
+import AylikAracBakimMaliyetleri from "./components/AylikAracBakimMaliyetleri.jsx";
+import KatedilenMesafeler from "./components/KatedilenMesafeler.jsx";
+import IsEmriZamanDagilimi from "./components/IsEmriZamanDagilimi.jsx";
+import PersonelBazindaIsGucu from "./components/PersonelBazindaIsGucu.jsx";
+import ToplamHarcananIsGucu from "./components/ToplamHarcananIsGucu.jsx";
+import AylikMaliyetler from "./components/AylikMaliyetler.jsx";
+import AylikKM from "./components/AylikKM.jsx";
+import CustomDashboards from "./components/CustomDashboards.jsx";
+import PersonelKPITablosu from "./components/PersonelKPITablosu.jsx";
+import IsEmriTipleri from "./components/IsEmriTipleri.jsx";
+import IsTalebiTipleri from "./components/IsTalebiTipleri.jsx";
+import ServisIslemleriDurumlari from "./components/ServisIslemleriDurumlari.jsx";
 import { createRoot } from "react-dom/client";
 
 import "./custom-gridstack.css"; // Add this line to import your custom CSS
-
-// Lazy loading for dashboard components
-const Component3 = lazy(() => import("./components/Component3.jsx"));
-const Component2 = lazy(() => import("./components/Component2.jsx"));
-const Component1 = lazy(() => import("./components/Component1.jsx"));
-const Component4 = lazy(() => import("./components/Component4.jsx"));
-const Component5 = lazy(() => import("./components/Component5.jsx"));
-const Component6 = lazy(() => import("./components/Component6.jsx"));
-const LokasyonBazindaIsTalepleri = lazy(() => import("./components/LokasyonBazindaIsTalepleri.jsx"));
-const IsEmirleriOzetTablosu = lazy(() => import("./components/IsEmirleriOzetTablosu.jsx"));
-const ArizaliMakineler = lazy(() => import("./components/ArizaliMakineler.jsx"));
-const MakineTiplerineGore = lazy(() => import("./components/MakineTiplerineGore.jsx"));
-const TamamlanmaOranlari = lazy(() => import("./components/TamamlanmaOranlari.jsx"));
-const AylikBakimMaliyetleri = lazy(() => import("./components/AylikBakimMaliyetleri.jsx"));
-const AylikAracBakimMaliyetleri = lazy(() => import("./components/AylikAracBakimMaliyetleri.jsx"));
-const KatedilenMesafeler = lazy(() => import("./components/KatedilenMesafeler.jsx"));
-const IsEmriZamanDagilimi = lazy(() => import("./components/IsEmriZamanDagilimi.jsx"));
-const PersonelBazindaIsGucu = lazy(() => import("./components/PersonelBazindaIsGucu.jsx"));
-const ToplamHarcananIsGucu = lazy(() => import("./components/ToplamHarcananIsGucu.jsx"));
-const AylikMaliyetler = lazy(() => import("./components/AylikMaliyetler.jsx"));
-const AylikKM = lazy(() => import("./components/AylikKM.jsx"));
-const CustomDashboards = lazy(() => import("./components/CustomDashboards.jsx"));
-const PersonelKPITablosu = lazy(() => import("./components/PersonelKPITablosu.jsx"));
-const IsEmriTipleri = lazy(() => import("./components/IsEmriTipleri.jsx"));
-const IsTalebiTipleri = lazy(() => import("./components/IsTalebiTipleri.jsx"));
-const ServisIslemleriDurumlari = lazy(() => import("./components/ServisIslemleriDurumlari.jsx"));
-
-// Loading component for dashboard widgets
-const WidgetLoading = () => (
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "200px",
-      fontSize: "14px",
-      color: "#666",
-    }}
-  >
-    Yükleniyor...
-  </div>
-);
 
 const { Text } = Typography;
 
