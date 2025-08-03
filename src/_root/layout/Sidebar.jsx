@@ -328,6 +328,16 @@ const Sidebar = ({ collapsed }) => {
           label: <Link to={`/kod-yonetimi`}>{t("kodYonetimi")}</Link>,
         },
         {
+          key: "54",
+          label: t("onaylar"),
+          children: [
+            {
+              key: "541",
+              label: <Link to={`/onayAyarlari`}>{t("onayAyarlari")}</Link>,
+            },
+          ],
+        },
+        {
           key: "53874",
           label: t("aktarimlar"),
           children: [

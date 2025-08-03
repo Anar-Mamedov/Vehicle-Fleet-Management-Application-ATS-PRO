@@ -78,6 +78,7 @@ const MalzemeTuketimAnalizi = lazy(() => import("./_root/pages/Analizler/Malzeme
 
 // sistem Ayarlari
 const KullaniciTanimlari = lazy(() => import("./_root/pages/SistemAyarlari/KullaniciTanimlari/KullaniciTanimlari.jsx"));
+const Onaylar = lazy(() => import("./_root/pages/SistemAyarlari/Onaylar/Onaylar.jsx"));
 
 // Profil Duzenleme
 const ProfiliDuzenleTabs = lazy(() => import("./_root/pages/KullaniciProfil/components/ProfiliDuzenle/ProfiliDuzenleTabs.jsx"));
@@ -575,6 +576,14 @@ const App = () => {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <KullaniciTanimlari />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/onayAyarlari"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Onaylar />
             </Suspense>
           }
         />
