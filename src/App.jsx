@@ -580,7 +580,7 @@ const App = () => {
           }
         />
         <Route
-          path="/onaylar"
+          path="/onayAyarlari"
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <Onaylar />
