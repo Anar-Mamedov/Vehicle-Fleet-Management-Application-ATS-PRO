@@ -57,3 +57,146 @@ ul {
   margin: 8px 0;
   border-top: 1px solid #e8e8e8;
 }
+
+/* CSS Optimizasyonları */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
+
+/* Critical CSS - İlk yükleme için kritik stiller */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    "Roboto",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+}
+
+/* Loading animasyonu */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Lazy loading için placeholder */
+.lazy-placeholder {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Performans için will-change */
+.ant-table-wrapper {
+  will-change: transform;
+}
+
+.ant-modal-content {
+  will-change: transform;
+}
+
+/* Font display swap için */
+@font-face {
+  font-family: "Roboto";
+  font-display: swap;
+}
+
+/* Critical rendering path optimizasyonu */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Antd override'ları için performans optimizasyonu */
+.ant-layout {
+  min-height: 100vh;
+}
+
+.ant-layout-content {
+  flex: 1;
+  overflow: auto;
+}
+
+/* GridStack performans optimizasyonu */
+.grid-stack-item {
+  will-change: transform;
+}
+
+.grid-stack-item.ui-draggable-dragging {
+  will-change: transform;
+}
+
+/* Dashboard widget optimizasyonları */
+.dashboard-widget {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.dashboard-widget-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+/* Responsive optimizasyonlar */
+@media (max-width: 768px) {
+  .ant-layout-content {
+    padding: 8px 12px;
+  }
+
+  .dashboard-widget {
+    margin-bottom: 12px;
+  }
+}
+
+/* Print optimizasyonu */
+@media print {
+  .ant-layout-header,
+  .ant-layout-sider,
+  .ant-layout-footer {
+    display: none !important;
+  }
+
+  .ant-layout-content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
