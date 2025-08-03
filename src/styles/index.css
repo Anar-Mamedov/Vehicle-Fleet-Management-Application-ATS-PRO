@@ -1,3 +1,6 @@
+/* CSS Optimizasyonları */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
+
 @import url(./variables.css);
 
 @import url(./components/grid.css);
@@ -57,9 +60,6 @@ ul {
   margin: 8px 0;
   border-top: 1px solid #e8e8e8;
 }
-
-/* CSS Optimizasyonları */
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
 
 /* Critical CSS - İlk yükleme için kritik stiller */
 * {
