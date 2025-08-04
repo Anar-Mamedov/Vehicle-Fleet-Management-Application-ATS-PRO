@@ -849,7 +849,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
       key: "lokasyonTumYol",
       width: 250,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false, // Varsayılan olarak açık
 
       sorter: (a, b) => {
         if (a.lokasyonTumYol === null) return -1;
