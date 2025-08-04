@@ -201,9 +201,7 @@ function Onaylayicilar({ data, siraNo, tanim }) {
 
     try {
       const approverIds = selectedApprovers.map((approver) => approver.siraNo);
-      await AxiosInstance.delete("Approver/DeleteApprovers", {
-        data: { approverIds, approvalTypeId: data.onayTipId },
-      });
+      await AxiosInstance.post("Approver/DeleteApproverByIds", approverIds);
 
       message.success(`${selectedApprovers.length} onaylayıcı başarıyla silindi`);
       setSelectedApproverKeys([]);
@@ -251,7 +249,7 @@ function Onaylayicilar({ data, siraNo, tanim }) {
           <Space>
             {selectedApprovers.length > 0 && (
               <Button danger onClick={handleDeleteApprovers} disabled={selectedApprovers.length === 0}>
-                Seçili Olanları Sil ({selectedApprovers.length})
+                Sil ({selectedApprovers.length})
               </Button>
             )}
             <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
