@@ -153,7 +153,19 @@ const OnaylamaIslemleri = () => {
     async (diff, targetPage) => {
       setLoading(true);
       try {
-        const response = await AxiosInstance.get(`ApprovalSettings/GetApprovalSettingsList`);
+        let currentSetPointId = 0;
+
+        if (diff > 0) {
+          // Moving forward
+          currentSetPointId = data[data.length - 1]?.siraNo || 0;
+        } else if (diff < 0) {
+          // Moving backward
+          currentSetPointId = data[0]?.siraNo || 0;
+        } else {
+          currentSetPointId = 0;
+        }
+
+        const response = await AxiosInstance.post(`Approval/GetApprovalRecords?setPointId=${currentSetPointId}&diff=${diff}`);
 
         const newData = response.data.map((item) => ({
           ...item,
@@ -214,7 +226,8 @@ const OnaylamaIslemleri = () => {
   }, [searchTerm, data]);
 
   const handleTableChange = (page) => {
-    setCurrentPage(page);
+    const diff = page - currentPage;
+    fetchData(diff, page);
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
