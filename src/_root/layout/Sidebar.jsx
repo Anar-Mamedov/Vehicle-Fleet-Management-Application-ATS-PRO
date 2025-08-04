@@ -105,10 +105,10 @@ const Sidebar = ({ collapsed }) => {
           key: "20",
           label: <Link to={"/Periodic-Maintenance"}>{t("periyodikBakimlar")}</Link>,
         },
-        {
+        /*  {
           key: "22",
           label: <Link to={"/sefer-islemleri"}>{t("randevuTakibi")}</Link>,
-        },
+        }, */
         /* {
           key: "24",
           label: <Link to={"/malzeme-tanimlari"}>{t("atolyeTanimlari")}</Link>,
@@ -337,11 +337,11 @@ const Sidebar = ({ collapsed }) => {
             },
           ],
         },
-        {
+        /*{
           key: "53874",
           label: t("aktarimlar"),
           children: [
-            /*
+            
             {
               key: "55",
               label: <Link to={"/arac-aktarim"}>{t("aracAktarim")}</Link>,
@@ -362,13 +362,13 @@ const Sidebar = ({ collapsed }) => {
               key: "5asdasdasd8",
               label: <Link to={"/km-aktarim"}>{t("kmAktarim")}</Link>,
             },
-            */
+            
             {
               key: "5asdasdasd9",
               label: <Link to={"/hgs-aktarim"}>{t("hgsAktarim")}</Link>,
             },
           ],
-        },
+        },*/
       ],
     },
   ];
