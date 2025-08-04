@@ -79,6 +79,16 @@ function Maliyetler(props) {
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "200px", maxWidth: "200px" }}>
+        <Text>İndirim:</Text>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "100px", minWidth: "100px", gap: "10px", width: "100%" }}>
+          <Controller
+            name="eksiUcreti"
+            control={control}
+            render={({ field }) => <InputNumber {...field} decimalSeparator={decimalSeparator} formatter={formatter} parser={parser} style={{ flex: 1 }} />}
+          />
+        </div>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "200px", maxWidth: "200px" }}>
         <Text>Diğer:</Text>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "100px", minWidth: "100px", gap: "10px", width: "100%" }}>
           <Controller
@@ -89,16 +99,6 @@ function Maliyetler(props) {
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "200px", maxWidth: "200px" }}>
-        <Text>Yuvarlama:</Text>
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "100px", minWidth: "100px", gap: "10px", width: "100%" }}>
-          <Controller
-            name="eksiUcreti"
-            control={control}
-            render={({ field }) => <InputNumber {...field} decimalSeparator={decimalSeparator} formatter={formatter} parser={parser} style={{ flex: 1 }} />}
-          />
-        </div>
-      </div>
       <Divider style={{ margin: "8px 0" }} />
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "200px", maxWidth: "200px" }}>
         <Text>Toplam:</Text>
