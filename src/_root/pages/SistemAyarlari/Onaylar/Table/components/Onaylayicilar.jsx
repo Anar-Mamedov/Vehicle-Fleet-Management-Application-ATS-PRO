@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table, Button, Input, Space, message, Modal } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { t } from "i18next";
@@ -77,6 +77,51 @@ function Onaylayicilar({ data, siraNo, tanim }) {
     }
   };
 
+  // Ana tablo verilerini getir
+  const fetchApprovers = async () => {
+    try {
+      setLoading(true);
+      const response = await AxiosInstance.get(`Approver/GetApprovers?approvalTypeId=${data.onayTipId}`);
+      if (response.data) {
+        const formattedData = response.data.map((item) => ({
+          ...item,
+          id: item.siraNo, // API'den gelen siraNo'yu id olarak kullan
+        }));
+        setTableData(formattedData);
+      }
+    } catch (error) {
+      console.error("Onaylayıcı listesi yüklenirken hata:", error);
+      message.error("Onaylayıcı listesi yüklenirken hata oluştu");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Component mount olduğunda verileri getir
+  useEffect(() => {
+    if (data && data.onayTipId) {
+      fetchApprovers();
+    }
+  }, [data]);
+
+  // tableData değiştiğinde filteredTableData'yı güncelle
+  useEffect(() => {
+    setFilteredTableData(tableData);
+  }, [tableData]);
+
+  // Onaylayıcı arama fonksiyonu
+  const [filteredTableData, setFilteredTableData] = useState([]);
+
+  const handleApproverSearch = (value) => {
+    if (!value || value.trim() === "") {
+      setFilteredTableData(tableData);
+      return;
+    }
+
+    const filteredData = tableData.filter((item) => item.isim?.toLowerCase().includes(value.toLowerCase()) || item.siraNo?.toString().includes(value));
+    setFilteredTableData(filteredData);
+  };
+
   // Modal açma
   const showModal = () => {
     setIsModalVisible(true);
@@ -104,14 +149,14 @@ function Onaylayicilar({ data, siraNo, tanim }) {
   };
 
   // Seçili kullanıcıları onaylayıcı olarak ekle
-  const handleAddApprovers = () => {
+  const handleAddApprovers = async () => {
     if (selectedUsers.length === 0) {
       message.warning("Lütfen en az bir kullanıcı seçin");
       return;
     }
 
     // Mevcut kullanıcı ID'lerini kontrol et (duplicate önleme)
-    const existingUserIds = tableData.map((item) => item.kullaniciId);
+    const existingUserIds = tableData.flatMap((item) => item.kullaniciIds || []);
     const newUsers = selectedUsers.filter((user) => !existingUserIds.includes(user.siraNo));
 
     if (newUsers.length === 0) {
@@ -119,20 +164,25 @@ function Onaylayicilar({ data, siraNo, tanim }) {
       return;
     }
 
-    // Seçili kullanıcıları onaylayıcı listesine ekle
-    const newApprovers = newUsers.map((user, index) => ({
-      id: `approver_${Date.now()}_${index}`, // Unique ID for rowKey
-      siraNo: tableData.length + index + 1,
-      onaylayiciAdi: `${user.isim} ${user.soyAd}`.trim(),
-      pozisyon: user.kullaniciKod,
-      departman: user.email || "-",
-      durum: "Aktif",
-      kullaniciId: user.siraNo,
-    }));
+    try {
+      // API'ye yeni onaylayıcıları gönder - yeni format
+      const kullaniciIds = newUsers.map((user) => user.siraNo);
+      const requestData = {
+        kullaniciIds: kullaniciIds,
+        onayTipId: data.onayTipId,
+      };
 
-    setTableData([...tableData, ...newApprovers]);
-    message.success(`${newUsers.length} kullanıcı onaylayıcı olarak eklendi`);
-    handleModalCancel();
+      await AxiosInstance.post("Approver/AddApprover", requestData);
+
+      message.success(`${newUsers.length} kullanıcı onaylayıcı olarak eklendi`);
+      handleModalCancel();
+
+      // Tabloyu yenile
+      fetchApprovers();
+    } catch (error) {
+      console.error("Onaylayıcı eklenirken hata:", error);
+      message.error("Onaylayıcı eklenirken hata oluştu");
+    }
   };
 
   // Kullanıcı tablosu için row selection
@@ -140,6 +190,29 @@ function Onaylayicilar({ data, siraNo, tanim }) {
     type: "checkbox",
     selectedRowKeys: selectedUserKeys,
     onChange: onUserSelectChange,
+  };
+
+  // Onaylayıcı silme işlemi
+  const handleDeleteApprovers = async () => {
+    if (selectedApprovers.length === 0) {
+      message.warning("Lütfen silinecek onaylayıcıları seçin");
+      return;
+    }
+
+    try {
+      const approverIds = selectedApprovers.map((approver) => approver.siraNo);
+      await AxiosInstance.post("Approver/DeleteApproverByIds", approverIds);
+
+      message.success(`${selectedApprovers.length} onaylayıcı başarıyla silindi`);
+      setSelectedApproverKeys([]);
+      setSelectedApprovers([]);
+
+      // Tabloyu yenile
+      fetchApprovers();
+    } catch (error) {
+      console.error("Onaylayıcı silinirken hata:", error);
+      message.error("Onaylayıcı silinirken hata oluştu");
+    }
   };
 
   // Ana tablo için row selection
@@ -152,32 +225,19 @@ function Onaylayicilar({ data, siraNo, tanim }) {
     },
   };
 
-  // Örnek sütun tanımları
+  // Ana tablo sütun tanımları
   const columns = [
     {
-      title: t("onaylayiciAdi"),
-      dataIndex: "onaylayiciAdi",
-      key: "onaylayiciAdi",
-      width: 200,
-    },
-    {
-      title: t("pozisyon"),
-      dataIndex: "pozisyon",
-      key: "pozisyon",
-      width: 150,
-    },
-    {
-      title: t("departman"),
-      dataIndex: "departman",
-      key: "departman",
-      width: 150,
-    },
-    {
-      title: t("durum"),
-      dataIndex: "durum",
-      key: "durum",
+      title: t("siraNo"),
+      dataIndex: "siraNo",
+      key: "siraNo",
       width: 100,
-      render: (text) => <span style={{ color: text === "Aktif" ? "#52c41a" : "#ff4d4f" }}>{text}</span>,
+    },
+    {
+      title: t("isim"),
+      dataIndex: "isim",
+      key: "isim",
+      width: 200,
     },
   ];
 
@@ -185,16 +245,23 @@ function Onaylayicilar({ data, siraNo, tanim }) {
     <div>
       <div style={{ marginBottom: 16 }}>
         <Space style={{ display: "flex", justifyContent: "space-between" }}>
-          <Input.Search placeholder="Onaylayıcı ara..." style={{ width: 300 }} />
-          <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-            {t("yeniOnaylayiciEkle")}
-          </Button>
+          <Input.Search placeholder="Onaylayıcı ara..." style={{ width: 300 }} onSearch={handleApproverSearch} allowClear />
+          <Space>
+            {selectedApprovers.length > 0 && (
+              <Button danger onClick={handleDeleteApprovers} disabled={selectedApprovers.length === 0}>
+                Sil ({selectedApprovers.length})
+              </Button>
+            )}
+            <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+              {t("yeniOnaylayiciEkle")}
+            </Button>
+          </Space>
         </Space>
       </div>
 
       <Table
         columns={columns}
-        dataSource={tableData}
+        dataSource={filteredTableData}
         loading={loading}
         rowKey="id"
         rowSelection={approverRowSelection}
