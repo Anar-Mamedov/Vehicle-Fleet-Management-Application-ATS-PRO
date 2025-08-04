@@ -335,6 +335,10 @@ const Sidebar = ({ collapsed }) => {
               key: "541",
               label: <Link to={`/onayAyarlari`}>{t("onayAyarlari")}</Link>,
             },
+            {
+              key: "542",
+              label: <Link to={`/onaylama-islemleri`}>{t("onaylamaIslemleri")}</Link>,
+            },
           ],
         },
         /*{
