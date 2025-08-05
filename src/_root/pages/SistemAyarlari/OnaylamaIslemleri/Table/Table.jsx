@@ -188,8 +188,8 @@ const OnaylamaIslemleri = () => {
         setLoading(false);
       }
     },
-    [searchTerm, body.filters, data]
-  ); // Added data to dependencies
+    [searchTerm, body.filters]
+  ); // Removed data from dependencies to prevent infinite loop
 
   // Initial data fetch - only run once on mount
   useEffect(() => {
@@ -204,16 +204,14 @@ const OnaylamaIslemleri = () => {
     }
   }, [body, fetchData]);
 
-  // Search term değiştiğinde server-side arama
-  useEffect(() => {
-    if (searchTerm !== undefined) {
-      fetchData(0, 1);
-    }
-  }, [searchTerm]);
-
   const handleTableChange = (page) => {
     const diff = page - currentPage;
     fetchData(diff, page);
+  };
+
+  // Manuel arama fonksiyonu
+  const handleSearch = () => {
+    fetchData(0, 1);
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
@@ -668,13 +666,13 @@ const OnaylamaIslemleri = () => {
               <StyledButton onClick={() => setIsModalVisible(true)}>
                 <MenuOutlined />
               </StyledButton>
-              <Input
+              <Input.Search
                 style={{ width: "250px" }}
-                type="text"
                 placeholder="Arama yap..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                suffix={<SearchOutlined style={{ color: "#0091ff" }} />}
+                onSearch={handleSearch}
+                enterButton
               />
 
               {/*  <Filters onChange={handleBodyChange} /> */}
