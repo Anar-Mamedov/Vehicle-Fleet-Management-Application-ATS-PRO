@@ -9,6 +9,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Resizable } from "react-resizable";
 import "./ResizeStyle.css";
 import AxiosInstance from "../../../../../api/http";
+import DetailUpdate from "../../../vehicles-control/vehicle-detail/DetailUpdate";
 
 import { FormProvider, useForm } from "react-hook-form";
 import styled from "styled-components";
@@ -135,6 +136,10 @@ const OnaylamaIslemleri = () => {
     visible: false,
     data: null,
   });
+
+  // DetailUpdate modal state'leri
+  const [isDetailUpdateModalOpen, setIsDetailUpdateModalOpen] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState(null);
 
   const navigate = useNavigate();
 
@@ -295,9 +300,33 @@ const OnaylamaIslemleri = () => {
         width: 150,
         ellipsis: true,
         visible: true,
-        render: (text) => {
+        render: (text, record) => {
           const translation = t(text);
-          return translation !== text ? translation : text;
+          const displayText = translation !== text ? translation : text;
+
+          // Eğer islemTipi "lokasyonTransferi" ise tıklanabilir yap
+          if (text === "lokasyonTransferi") {
+            return (
+              <span
+                style={{
+                  color: "#1890ff",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (record.kayitId) {
+                    setSelectedVehicleId(record.kayitId);
+                    setIsDetailUpdateModalOpen(true);
+                  }
+                }}
+              >
+                {displayText}
+              </span>
+            );
+          }
+
+          return displayText;
         },
         sorter: (a, b) => {
           if (a.islemTipi === null) return -1;
@@ -715,6 +744,20 @@ const OnaylamaIslemleri = () => {
           </div>
         </FormProvider>
       </ConfigProvider>
+
+      {/* DetailUpdate Modal */}
+      <DetailUpdate
+        isOpen={isDetailUpdateModalOpen}
+        onClose={() => {
+          setIsDetailUpdateModalOpen(false);
+          setSelectedVehicleId(null);
+        }}
+        selectedId={selectedVehicleId}
+        onSuccess={() => {
+          refreshTableData();
+        }}
+        selectedRows1={selectedRows}
+      />
     </div>
   );
 };
