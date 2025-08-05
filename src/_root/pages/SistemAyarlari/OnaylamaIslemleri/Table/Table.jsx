@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "react";
 import { useFormContext } from "react-hook-form";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider, Switch } from "antd";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider, Switch, Select } from "antd";
 import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -145,9 +145,14 @@ const OnaylamaIslemleri = () => {
 
   const [selectedRows, setSelectedRows] = useState([]);
 
+  // Durum filtresi state'i
+  const [statusFilter, setStatusFilter] = useState("bekliyor");
+
   const [body, setBody] = useState({
     keyword: "",
-    filters: {},
+    filters: {
+      ApprovalStatus: "bekliyor",
+    },
   });
 
   const prevBodyRef = useRef(body);
@@ -169,7 +174,7 @@ const OnaylamaIslemleri = () => {
           currentSetPointId = 0;
         }
 
-        const response = await AxiosInstance.post(`Approval/GetApprovalRecords?setPointId=${currentSetPointId}&diff=${diff}&parameter=${searchTerm}`);
+        const response = await AxiosInstance.post(`Approval/GetApprovalRecords?setPointId=${currentSetPointId}&diff=${diff}&parameter=${searchTerm}`, body.filters);
 
         const newData = response.data.list.map((item) => ({
           ...item,
@@ -217,6 +222,17 @@ const OnaylamaIslemleri = () => {
   // Manuel arama fonksiyonu
   const handleSearch = () => {
     fetchData(0, 1);
+  };
+
+  // Durum filtresi değiştiğinde çağrılan fonksiyon
+  const handleStatusFilterChange = (value) => {
+    setStatusFilter(value);
+    setBody((prev) => ({
+      ...prev,
+      filters: {
+        ApprovalStatus: value,
+      },
+    }));
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
@@ -335,7 +351,7 @@ const OnaylamaIslemleri = () => {
         },
       },
       {
-        title: t("talepEdilenNesne"),
+        title: t("talepEdilenOnay"),
         dataIndex: "talepEdilenNesne",
         key: "talepEdilenNesne",
         width: 200,
@@ -695,6 +711,7 @@ const OnaylamaIslemleri = () => {
               <StyledButton onClick={() => setIsModalVisible(true)}>
                 <MenuOutlined />
               </StyledButton>
+
               <Input.Search
                 style={{ width: "250px" }}
                 placeholder="Arama yap..."
@@ -702,6 +719,18 @@ const OnaylamaIslemleri = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onSearch={handleSearch}
                 enterButton
+              />
+
+              <Select
+                style={{ width: "150px" }}
+                placeholder={t("durum")}
+                value={statusFilter}
+                onChange={handleStatusFilterChange}
+                options={[
+                  { value: "bekliyor", label: t("bekliyor") },
+                  { value: "onaylandi", label: t("onaylandi") },
+                  { value: "onaylanmadi", label: t("onaylanmadi") },
+                ]}
               />
 
               {/*  <Filters onChange={handleBodyChange} /> */}

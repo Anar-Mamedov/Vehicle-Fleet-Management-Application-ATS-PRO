@@ -15,7 +15,9 @@ import Sozlesme from "./components/Sozlesme";
 import Egzoz from "./components/Egzoz";
 import PeriyodikBakim from "./components/PeriyodikBakim";
 import Takograf from "./components/Takograf";
+import OnayIslemleri from "../../pages/SistemAyarlari/OnaylamaIslemleri/OnaylamaIslemleri";
 import { FormProvider, useForm } from "react-hook-form";
+import { t } from "i18next";
 
 const { Text } = Typography;
 
@@ -349,6 +351,22 @@ const Hatirlatici = ({ data, getHatirlatici, loading, data1, getHatirlatici1 }) 
               }}
             >
               {data?.aracTakografHatirlaticiSayisi}
+            </Text>
+          </Row>
+          <Row onClick={() => handleRowClick(t("bekleyenOnay"), <OnayIslemleri />)}>
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px" }}>
+              <Indicator style={{ backgroundColor: "#0e8ca8" }} />
+              <Text>{t("bekleyenOnay")}</Text>
+            </div>
+            <Text
+              style={{
+                borderRadius: "8px 8px 8px 8px",
+                padding: "1px 7px",
+                backgroundColor: "rgba(14, 119, 168, 0.35)",
+                color: "#0e8ca8",
+              }}
+            >
+              {data?.onayBekleyenler}
             </Text>
           </Row>
         </div>
