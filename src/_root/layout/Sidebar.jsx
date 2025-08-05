@@ -332,12 +332,12 @@ const Sidebar = ({ collapsed }) => {
           label: t("onaylar"),
           children: [
             {
-              key: "541",
-              label: <Link to={`/onayAyarlari`}>{t("onayAyarlari")}</Link>,
+              key: "542",
+              label: <Link to={`/onaylama-islemleri`}>{t("onayIslemleri")}</Link>,
             },
             {
-              key: "542",
-              label: <Link to={`/onaylama-islemleri`}>{t("onaylamaIslemleri")}</Link>,
+              key: "541",
+              label: <Link to={`/onayAyarlari`}>{t("onayAyarlari")}</Link>,
             },
           ],
         },
