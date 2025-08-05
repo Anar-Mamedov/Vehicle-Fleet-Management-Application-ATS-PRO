@@ -382,7 +382,7 @@ const Hatirlatici = ({ data, getHatirlatici, loading, data1, getHatirlatici1 }) 
             <Button type="succes" shape="circle" icon={<FaRegCalendarAlt style={{ fontSize: "20px" }} />}></Button>
           </Badge>
         </Popover>
-        <Modal title={modalTitle} destroyOnClose open={modalVisible} onCancel={() => setModalVisible(false)} footer={null} width="90%">
+        <Modal title={modalTitle} destroyOnClose centered open={modalVisible} onCancel={() => setModalVisible(false)} footer={null} width="90%">
           {modalContent}
         </Modal>
       </FormProvider>
