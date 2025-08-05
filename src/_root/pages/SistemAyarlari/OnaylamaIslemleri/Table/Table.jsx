@@ -240,6 +240,36 @@ const OnaylamaIslemleri = () => {
     fetchData(0, 1);
   }, [fetchData]);
 
+  // Onaylama fonksiyonu
+  const handleApprove = useCallback(
+    async (record) => {
+      try {
+        await AxiosInstance.get(`Approval/GrantApproval?id=${record.siraNo}`);
+        message.success(t("onaylamaBasarili"));
+        refreshTableData();
+      } catch (error) {
+        console.error("Error approving record:", error);
+        message.error(t("hataOlustu"));
+      }
+    },
+    [refreshTableData]
+  );
+
+  // Reddetme fonksiyonu
+  const handleReject = useCallback(
+    async (record) => {
+      try {
+        await AxiosInstance.get(`Approval/RejectApproval?id=${record.siraNo}`);
+        message.success(t("reddetmeBasarili"));
+        refreshTableData();
+      } catch (error) {
+        console.error("Error rejecting record:", error);
+        message.error(t("hataOlustu"));
+      }
+    },
+    [refreshTableData]
+  );
+
   // Columns definition (adjust as needed)
   const initialColumns = useMemo(
     () => [
@@ -317,7 +347,7 @@ const OnaylamaIslemleri = () => {
                 return "orange";
               case "onaylandi":
                 return "green";
-              case "reddedildi":
+              case "onaylanmadi":
                 return "red";
               default:
                 return "default";
@@ -345,6 +375,29 @@ const OnaylamaIslemleri = () => {
           if (a.talepTarih === null) return -1;
           if (b.talepTarih === null) return 1;
           return new Date(a.talepTarih) - new Date(b.talepTarih);
+        },
+      },
+      {
+        title: t("islemler"),
+        key: "islemler",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        render: (_, record) => {
+          // Sadece "bekliyor" durumundaki kayıtlar için butonları göster
+          if (record.durum === "bekliyor") {
+            return (
+              <div style={{ display: "flex", gap: "8px" }}>
+                <Button type="primary" size="small" onClick={() => handleApprove(record)}>
+                  {t("onayla")}
+                </Button>
+                <Button danger size="small" onClick={() => handleReject(record)}>
+                  {t("reddet")}
+                </Button>
+              </div>
+            );
+          }
+          return "-";
         },
       },
     ],
