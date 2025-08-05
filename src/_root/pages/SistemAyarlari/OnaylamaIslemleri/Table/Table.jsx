@@ -13,12 +13,12 @@ import DetailUpdate from "../../../vehicles-control/vehicle-detail/DetailUpdate"
 
 import { FormProvider, useForm } from "react-hook-form";
 import styled from "styled-components";
-import dayjs from "dayjs";
 import { t } from "i18next";
 import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
+import FormattedDate from "../../../../components/FormattedDate";
 
 const localeMap = {
   tr: trTR,
@@ -412,7 +412,7 @@ const OnaylamaIslemleri = () => {
         ellipsis: true,
         visible: true,
         render: (text) => {
-          return text ? dayjs(text).format("DD.MM.YYYY") : "-";
+          return <FormattedDate date={text} />;
         },
         sorter: (a, b) => {
           if (a.talepTarih === null) return -1;
@@ -441,7 +441,7 @@ const OnaylamaIslemleri = () => {
         ellipsis: true,
         visible: true,
         render: (text) => {
-          return text ? dayjs(text).format("DD.MM.YYYY") : "-";
+          return <FormattedDate date={text} />;
         },
         sorter: (a, b) => {
           if (a.onaylamaTarih === null) return -1;
