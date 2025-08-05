@@ -124,7 +124,6 @@ const OnaylamaIslemleri = () => {
   const formMethods = useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false); // Set initial loading state to false
   const [searchTerm, setSearchTerm] = useState("");
@@ -165,24 +164,22 @@ const OnaylamaIslemleri = () => {
           currentSetPointId = 0;
         }
 
-        const response = await AxiosInstance.post(`Approval/GetApprovalRecords?setPointId=${currentSetPointId}&diff=${diff}`);
+        const response = await AxiosInstance.post(`Approval/GetApprovalRecords?setPointId=${currentSetPointId}&diff=${diff}&parameter=${searchTerm}`);
 
-        const newData = response.data.map((item) => ({
+        const newData = response.data.list.map((item) => ({
           ...item,
           key: item.siraNo,
         }));
 
-        const total = newData.length;
+        const total = response.data.recordCount;
         setTotalCount(total);
-        setCurrentPage(targetPage);
+        setCurrentPage(response.data.page);
 
         if (newData.length > 0) {
           setData(newData);
-          setFilteredData(newData);
         } else {
           message.warning(t("kayitBulunamadi"));
           setData([]);
-          setFilteredData([]);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -207,23 +204,12 @@ const OnaylamaIslemleri = () => {
     }
   }, [body, fetchData]);
 
-  // Search term değiştiğinde otomatik arama
+  // Search term değiştiğinde server-side arama
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredData(data);
-      setTotalCount(data.length);
-      return;
+    if (searchTerm !== undefined) {
+      fetchData(0, 1);
     }
-
-    const filtered = data.filter((item) => {
-      const searchLower = searchTerm.toLowerCase();
-      return (item.tanim && item.tanim.toLowerCase().includes(searchLower)) || (item.siraNo && item.siraNo.toString().includes(searchLower));
-    });
-
-    setFilteredData(filtered);
-    setTotalCount(filtered.length);
-    setCurrentPage(1);
-  }, [searchTerm, data]);
+  }, [searchTerm]);
 
   const handleTableChange = (page) => {
     const diff = page - currentPage;
@@ -254,67 +240,111 @@ const OnaylamaIslemleri = () => {
     fetchData(0, 1);
   }, [fetchData]);
 
-  // Switch değişikliği için fonksiyon
-  const handleSwitchChange = useCallback(
-    async (checked, record) => {
-      try {
-        const body = {
-          siraNo: record.siraNo,
-          tanim: record.tanim,
-          onayAktif: checked,
-        };
-
-        await AxiosInstance.post("ApprovalSettings/UpdateApprovalSettingsStatus", body);
-
-        message.success(t("guncellemeBasarili"));
-
-        // Tabloyu yenile
-        refreshTableData();
-      } catch (error) {
-        console.error("Error updating approval status:", error);
-        message.error(t("hataOlustu"));
-      }
-    },
-    [refreshTableData]
-  );
-
   // Columns definition (adjust as needed)
   const initialColumns = useMemo(
     () => [
       {
-        title: t("tanim"),
-        dataIndex: "tanim",
-        key: "tanim",
-        width: 200,
+        title: t("modul"),
+        dataIndex: "modul",
+        key: "modul",
+        width: 150,
         ellipsis: true,
         visible: true,
         render: (text) => {
-          // Dil dosyasından çeviriyi al, yoksa orijinal metni göster
           const translation = t(text);
           return translation !== text ? translation : text;
         },
         sorter: (a, b) => {
-          if (a.tanim === null) return -1;
-          if (b.tanim === null) return 1;
-          return a.tanim.localeCompare(b.tanim);
+          if (a.modul === null) return -1;
+          if (b.modul === null) return 1;
+          return a.modul.localeCompare(b.modul);
         },
       },
       {
-        title: t("onayDurumu"),
-        dataIndex: "onayAktif",
-        key: "onayAktif",
+        title: t("islemTipi"),
+        dataIndex: "islemTipi",
+        key: "islemTipi",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        render: (text) => {
+          const translation = t(text);
+          return translation !== text ? translation : text;
+        },
+        sorter: (a, b) => {
+          if (a.islemTipi === null) return -1;
+          if (b.islemTipi === null) return 1;
+          return a.islemTipi.localeCompare(b.islemTipi);
+        },
+      },
+      {
+        title: t("talepEdilenNesne"),
+        dataIndex: "talepEdilenNesne",
+        key: "talepEdilenNesne",
+        width: 200,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.talepEdilenNesne === null) return -1;
+          if (b.talepEdilenNesne === null) return 1;
+          return a.talepEdilenNesne.localeCompare(b.talepEdilenNesne);
+        },
+      },
+      {
+        title: t("talepEden"),
+        dataIndex: "talepEden",
+        key: "talepEden",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.talepEden === null) return -1;
+          if (b.talepEden === null) return 1;
+          return a.talepEden.localeCompare(b.talepEden);
+        },
+      },
+      {
+        title: t("durum"),
+        dataIndex: "durum",
+        key: "durum",
         width: 120,
         ellipsis: true,
         visible: true,
-        render: (text, record) => (
-          <div style={{ textAlign: "center" }}>
-            <Switch checked={text} onChange={(checked) => handleSwitchChange(checked, record)} size="small" />
-          </div>
-        ),
+        render: (text) => {
+          const getStatusColor = (status) => {
+            switch (status) {
+              case "bekliyor":
+                return "orange";
+              case "onaylandi":
+                return "green";
+              case "reddedildi":
+                return "red";
+              default:
+                return "default";
+            }
+          };
+          return <Tag color={getStatusColor(text)}>{t(text)}</Tag>;
+        },
         sorter: (a, b) => {
-          if (a.onayAktif === null) return -1;
-          if (b.onayAktif === null) return 1;
-          return a.onayAktif - b.onayAktif;
+          if (a.durum === null) return -1;
+          if (b.durum === null) return 1;
+          return a.durum.localeCompare(b.durum);
+        },
+      },
+      {
+        title: t("talepTarihi"),
+        dataIndex: "talepTarih",
+        key: "talepTarih",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        render: (text) => {
+          return text ? dayjs(text).format("DD.MM.YYYY") : "-";
+        },
+        sorter: (a, b) => {
+          if (a.talepTarih === null) return -1;
+          if (b.talepTarih === null) return 1;
+          return new Date(a.talepTarih) - new Date(b.talepTarih);
         },
       },
     ],
@@ -618,7 +648,7 @@ const OnaylamaIslemleri = () => {
                 components={components}
                 rowSelection={rowSelection}
                 columns={filteredColumns}
-                dataSource={filteredData}
+                dataSource={data}
                 pagination={{
                   current: currentPage,
                   total: totalCount,
