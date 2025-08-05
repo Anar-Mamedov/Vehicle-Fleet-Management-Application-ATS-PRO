@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import { MenuOutlined, LoadingOutlined } from "@ant-design/icons";
-import { Button, Input, Modal, Popover, Spin, Table } from "antd";
+import { Button, Input, Modal, Popover, Spin, Table, Tag } from "antd";
 import DragAndDropContext from "../../../../../../components/drag-drop-table/DragAndDropContext";
 import SortableHeaderCell from "../../../../../../components/drag-drop-table/SortableHeaderCell";
 import { GetVehicleLocationService } from "../../../../../../../api/services/vehicles/vehicles/services";
@@ -91,6 +91,34 @@ const Surucu = ({ visible, onClose, id, selectedRowsData, refreshVehicleData }) 
       title: t("aracKm"),
       dataIndex: "aracKm",
       key: "aracKm_column",
+    },
+    {
+      title: t("durum"),
+      dataIndex: "onayDurumu",
+      key: "onayDurumu",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      render: (text) => {
+        const getStatusColor = (status) => {
+          switch (status) {
+            case "bekliyor":
+              return "orange";
+            case "onaylandi":
+              return "green";
+            case "onaylanmadi":
+              return "red";
+            default:
+              return "default";
+          }
+        };
+        return <Tag color={getStatusColor(text)}>{t(text)}</Tag>;
+      },
+      sorter: (a, b) => {
+        if (a.onayDurumu === null) return -1;
+        if (b.onayDurumu === null) return 1;
+        return a.onayDurumu.localeCompare(b.onayDurumu);
+      },
     },
     {
       title: t("aciklama"),
