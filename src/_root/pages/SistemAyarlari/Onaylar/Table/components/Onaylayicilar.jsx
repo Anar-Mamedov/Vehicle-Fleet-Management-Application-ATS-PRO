@@ -231,7 +231,7 @@ function Onaylayicilar({ data, siraNo, tanim }) {
       title: t("siraNo"),
       dataIndex: "siraNo",
       key: "siraNo",
-      width: 100,
+      width: 40,
     },
     {
       title: t("isim"),

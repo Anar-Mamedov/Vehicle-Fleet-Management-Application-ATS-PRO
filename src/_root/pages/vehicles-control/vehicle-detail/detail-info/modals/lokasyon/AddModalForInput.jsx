@@ -80,6 +80,12 @@ const AddModal = ({ setStatus, isModalOpen, setIsModalOpen, lokasyon, lokasyonId
         setIsModalOpen(false);
         setStatus(true);
         reset();
+      } else if (res?.data.statusCode === 206) {
+        message.warning(t("onayaGonderildi"));
+        setIsModalOpen(false);
+        reset();
+      } else if (res?.data.statusCode === 409) {
+        message.error(t("buKayitOnayBekliyorIslemTekrarYapilamaz"));
       }
     } finally {
       setIsLoading(false);
