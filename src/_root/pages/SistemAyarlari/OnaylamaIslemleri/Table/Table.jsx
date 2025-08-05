@@ -426,7 +426,7 @@ const OnaylamaIslemleri = () => {
         key: "onaylayan",
         width: 150,
         ellipsis: true,
-        visible: true,
+        visible: false,
         sorter: (a, b) => {
           if (a.onaylayan === null) return -1;
           if (b.onaylayan === null) return 1;
@@ -439,7 +439,7 @@ const OnaylamaIslemleri = () => {
         key: "onaylamaTarih",
         width: 150,
         ellipsis: true,
-        visible: true,
+        visible: false,
         render: (text) => {
           return <FormattedDate date={text} />;
         },
@@ -756,7 +756,8 @@ const OnaylamaIslemleri = () => {
                 value={statusFilter}
                 onChange={handleStatusFilterChange}
                 options={[
-                  { value: "bekliyor", label: t("bekliyor") },
+                  { value: "", label: t("tümü") },
+                  { value: "bekliyor", label: t("onayBekliyor") },
                   { value: "onaylandi", label: t("onaylandi") },
                   { value: "onaylanmadi", label: t("onaylanmadi") },
                 ]}
