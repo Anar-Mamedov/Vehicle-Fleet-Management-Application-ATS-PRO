@@ -421,6 +421,35 @@ const OnaylamaIslemleri = () => {
         },
       },
       {
+        title: t("onaylayan"),
+        dataIndex: "onaylayan",
+        key: "onaylayan",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.onaylayan === null) return -1;
+          if (b.onaylayan === null) return 1;
+          return a.onaylayan.localeCompare(b.onaylayan);
+        },
+      },
+      {
+        title: t("onaylamaTarihi"),
+        dataIndex: "onaylamaTarih",
+        key: "onaylamaTarih",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        render: (text) => {
+          return text ? dayjs(text).format("DD.MM.YYYY") : "-";
+        },
+        sorter: (a, b) => {
+          if (a.onaylamaTarih === null) return -1;
+          if (b.onaylamaTarih === null) return 1;
+          return new Date(a.onaylamaTarih) - new Date(b.onaylamaTarih);
+        },
+      },
+      {
         title: t("islemler"),
         key: "islemler",
         width: 150,
