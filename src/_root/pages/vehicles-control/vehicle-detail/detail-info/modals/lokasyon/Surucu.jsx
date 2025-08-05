@@ -11,6 +11,7 @@ import { PlakaContext } from "../../../../../../../context/plakaSlice";
 import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
 import Content from "../../../../../../components/drag-drop-table/DraggableCheckbox";
+import FormattedDate from "../../../../../../components/FormattedDate";
 
 const Surucu = ({ visible, onClose, id, selectedRowsData, refreshVehicleData }) => {
   const { printData } = useContext(PlakaContext);
@@ -118,6 +119,35 @@ const Surucu = ({ visible, onClose, id, selectedRowsData, refreshVehicleData }) 
         if (a.onayDurumu === null) return -1;
         if (b.onayDurumu === null) return 1;
         return a.onayDurumu.localeCompare(b.onayDurumu);
+      },
+    },
+    {
+      title: t("onaylayan"),
+      dataIndex: "onaylayan",
+      key: "onaylayan",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.onaylayan === null) return -1;
+        if (b.onaylayan === null) return 1;
+        return a.onaylayan.localeCompare(b.onaylayan);
+      },
+    },
+    {
+      title: t("onaylamaTarihi"),
+      dataIndex: "onaylamaTarih",
+      key: "onaylamaTarih",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      render: (text) => {
+        return <FormattedDate date={text} />;
+      },
+      sorter: (a, b) => {
+        if (a.onaylamaTarih === null) return -1;
+        if (b.onaylamaTarih === null) return 1;
+        return new Date(a.onaylamaTarih) - new Date(b.onaylamaTarih);
       },
     },
     {

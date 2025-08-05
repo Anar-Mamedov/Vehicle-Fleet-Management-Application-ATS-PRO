@@ -13,12 +13,12 @@ import DetailUpdate from "../../../vehicles-control/vehicle-detail/DetailUpdate"
 
 import { FormProvider, useForm } from "react-hook-form";
 import styled from "styled-components";
-import dayjs from "dayjs";
 import { t } from "i18next";
 import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
+import FormattedDate from "../../../../components/FormattedDate";
 
 const localeMap = {
   tr: trTR,
@@ -412,12 +412,41 @@ const OnaylamaIslemleri = () => {
         ellipsis: true,
         visible: true,
         render: (text) => {
-          return text ? dayjs(text).format("DD.MM.YYYY") : "-";
+          return <FormattedDate date={text} />;
         },
         sorter: (a, b) => {
           if (a.talepTarih === null) return -1;
           if (b.talepTarih === null) return 1;
           return new Date(a.talepTarih) - new Date(b.talepTarih);
+        },
+      },
+      {
+        title: t("onaylayan"),
+        dataIndex: "onaylayan",
+        key: "onaylayan",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.onaylayan === null) return -1;
+          if (b.onaylayan === null) return 1;
+          return a.onaylayan.localeCompare(b.onaylayan);
+        },
+      },
+      {
+        title: t("onaylamaTarihi"),
+        dataIndex: "onaylamaTarih",
+        key: "onaylamaTarih",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        render: (text) => {
+          return <FormattedDate date={text} />;
+        },
+        sorter: (a, b) => {
+          if (a.onaylamaTarih === null) return -1;
+          if (b.onaylamaTarih === null) return 1;
+          return new Date(a.onaylamaTarih) - new Date(b.onaylamaTarih);
         },
       },
       {
