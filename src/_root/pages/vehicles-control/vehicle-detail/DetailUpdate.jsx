@@ -377,7 +377,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       aracGrubuId: values.aracGrubuID || 0,
       aracRenkId: values.renkID || 0,
       AracCinsiKodId: values.aracCinsiKodId || 0,
-      lokasyonId: values.lokasyonId || 0,
+      /* lokasyonId: values.lokasyonId || 0, */
       departmanId: values.departmanID || 0,
       surucuId: values.surucuId || 0,
       bagliAracId: values.bagliAracId || 0,
