@@ -353,10 +353,10 @@ const Hatirlatici = ({ data, getHatirlatici, loading, data1, getHatirlatici1 }) 
               {data?.aracTakografHatirlaticiSayisi}
             </Text>
           </Row>
-          <Row onClick={() => handleRowClick(t("bekleyenOnay"), <OnayIslemleri />)}>
+          <Row onClick={() => handleRowClick(t("bekleyenOnaylar"), <OnayIslemleri />)}>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px" }}>
               <Indicator style={{ backgroundColor: "#0e8ca8" }} />
-              <Text>{t("bekleyenOnay")}</Text>
+              <Text>{t("bekleyenOnaylar")}</Text>
             </div>
             <Text
               style={{
