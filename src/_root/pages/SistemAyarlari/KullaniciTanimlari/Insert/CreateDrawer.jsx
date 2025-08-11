@@ -71,7 +71,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       email: data.mail,
       telefon: data.telefonNo,
       paraf: data.paraf,
-      kullaniciRengi: data.color.toHexString(),
+      kullaniciRengi: data.color ? (typeof data.color === "string" ? data.color : data.color.toHexString()) : "#ffffff",
     };
 
     // AxiosInstance.post("/api/endpoint", { Body }).then((response) => {
