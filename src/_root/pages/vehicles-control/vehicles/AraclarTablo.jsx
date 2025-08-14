@@ -1026,7 +1026,35 @@ const Yakit = ({ ayarlarData, customFields }) => {
       },
 
       visible: true, // Varsayılan olarak açık
-      render: (text) => formatDate(text),
+      render: (text) => {
+        if (!ayarlarData) {
+          return null; // Eğer ayarlarData henüz yüklenmediyse hiçbir şey render etme
+        }
+
+        const today = dayjs(); // Sistem tarihini al
+        const date = dayjs(text); // Sütundaki tarihi al
+        const difference = date.diff(today, "day"); // İki tarih arasındaki gün farkı
+
+        // 3 id'li ayarı bul
+        const ayar = ayarlarData.find((item) => item.hatirlaticiAyarId === 7);
+
+        let backgroundColor = "";
+
+        if (ayar) {
+          // Eğer ayar bulunduysa
+          if (difference > ayar.uyariSuresi) {
+            backgroundColor = "";
+          } else if (difference <= ayar.uyariSuresi && difference >= ayar.kritikSure) {
+            backgroundColor = "#31c637";
+          } else if (difference < ayar.kritikSure && difference >= 0) {
+            backgroundColor = "yellow";
+          } else if (difference < 0) {
+            backgroundColor = "#ff4646";
+          }
+        }
+
+        return <div style={{ backgroundColor, padding: "5px", display: "flex", alignItems: "center", justifyContent: "center" }}>{formatDate(text)}</div>;
+      },
     },
 
     {
