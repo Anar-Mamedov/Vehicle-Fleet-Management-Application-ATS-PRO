@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Spin, Typography, Button, Popover, Tour, Modal } from "antd";
 import { MoreOutlined, PrinterOutlined } from "@ant-design/icons";
@@ -8,6 +8,8 @@ import dayjs from "dayjs";
 import { t } from "i18next";
 import chroma from "chroma-js";
 import styled from "styled-components";
+import html2pdf from "html2pdf.js";
+import PropTypes from "prop-types";
 
 const { Text } = Typography;
 
@@ -24,9 +26,7 @@ function BolgelereGoreToplamMiktarDagilimi() {
   const [data, setData] = useState([]);
   const [visibleSeries, setVisibleSeries] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const {watch, setValue  } = useFormContext();
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalContent, setModalContent] = useState("");
+  const { watch } = useFormContext();
   const [open, setOpen] = useState(false);
   const ref1 = useRef(null);
   const [isExpandedModalVisible, setIsExpandedModalVisible] = useState(false); // Expanded modal visibility state
@@ -41,7 +41,7 @@ function BolgelereGoreToplamMiktarDagilimi() {
   const startYear = baslangicTarihi ? dayjs(baslangicTarihi).year() : null;
   const endYear = bitisTarihi ? dayjs(bitisTarihi).year() : null;
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     const body = {
       plaka: plakaValues || "",
@@ -59,13 +59,13 @@ function BolgelereGoreToplamMiktarDagilimi() {
 
       // Transform the data to include color
       const transformedData = [
-        {name: t("satinAlmaMaliyeti"), value: response.data.satinAlmaMaliyeti},
-        {name: t("yakitMaliyeti"), value: response.data.yakitMaliyeti},
-        {name: t("sigortaMaliyeti"), value: response.data.sigortaMaliyeti},
-        {name: t("harcamaMaliyeti"), value: response.data.harcamaMaliyeti},
-        {name: t("bakimOnarimMaliyeti"), value: response.data.bakimOnarimMaliyeti},
-        {name: t("lastikMaliyeti"), value: response.data.lastikMaliyeti},
-      ]
+        { name: t("satinAlmaMaliyeti"), value: response.data.satinAlmaMaliyeti },
+        { name: t("yakitMaliyeti"), value: response.data.yakitMaliyeti },
+        { name: t("sigortaMaliyeti"), value: response.data.sigortaMaliyeti },
+        { name: t("harcamaMaliyeti"), value: response.data.harcamaMaliyeti },
+        { name: t("bakimOnarimMaliyeti"), value: response.data.bakimOnarimMaliyeti },
+        { name: t("lastikMaliyeti"), value: response.data.lastikMaliyeti },
+      ];
 
       // Generate colors
       const colors = generateColors(transformedData.length);
@@ -85,7 +85,7 @@ function BolgelereGoreToplamMiktarDagilimi() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [plakaValues, aracTipiValues, lokasyonId, departmanValues, baslangicTarihi, bitisTarihi, startYear, endYear]);
 
   // Generate colors using chroma.js
   const generateColors = (dataLength) => {
@@ -95,7 +95,7 @@ function BolgelereGoreToplamMiktarDagilimi() {
 
   useEffect(() => {
     fetchData();
-  }, [lokasyonId, plakaValues, aracTipiValues, departmanValues, baslangicTarihi, bitisTarihi]);
+  }, [fetchData]);
 
   useEffect(() => {
     setVisibleSeries(data.reduce((acc, item) => ({ ...acc, [item.name]: true }), {}));
@@ -140,41 +140,63 @@ function BolgelereGoreToplamMiktarDagilimi() {
           margin: 0,
         }}
       >
-        <li
-          style={{
-            cursor: "pointer",
-            color: Object.values(visibleSeries).every((value) => value) ? "black" : "gray",
-          }}
-          onClick={handleToggleAll}
-        >
-          Tümü
-        </li>
-        {payload.map((entry, index) => (
-          <li
-            key={`item-${index}`}
+        <li>
+          <button
+            type="button"
+            onClick={handleToggleAll}
             style={{
               cursor: "pointer",
-              color: visibleSeries[entry.value] ? entry.color : "gray",
+              color: Object.values(visibleSeries).every((value) => value) ? "black" : "gray",
+              background: "transparent",
+              border: "none",
+              padding: 0,
             }}
-            onClick={() => handleLegendClick(entry.value)}
           >
-            <span
+            Tümü
+          </button>
+        </li>
+        {payload.map((entry, index) => (
+          <li key={`item-${index}`}>
+            <button
+              type="button"
+              onClick={() => handleLegendClick(entry.value)}
               style={{
-                display: "inline-block",
-                width: "10px",
-                height: "10px",
-                backgroundColor: visibleSeries[entry.value] ? entry.color : "gray",
-                marginRight: "5px",
+                cursor: "pointer",
+                color: visibleSeries[entry.value] ? entry.color : "gray",
+                background: "transparent",
+                border: "none",
+                padding: 0,
+                display: "flex",
+                alignItems: "center",
               }}
-            ></span>
-            {entry.value}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "10px",
+                  height: "10px",
+                  backgroundColor: visibleSeries[entry.value] ? entry.color : "gray",
+                  marginRight: "5px",
+                }}
+              ></span>
+              {entry.value}
+            </button>
           </li>
         ))}
       </ul>
     );
   };
 
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+  CustomLegend.propTypes = {
+    payload: PropTypes.arrayOf(
+      PropTypes.shape({
+        value: PropTypes.string.isRequired,
+        color: PropTypes.string.isRequired,
+      })
+    ).isRequired,
+  };
+
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -185,20 +207,6 @@ function BolgelereGoreToplamMiktarDagilimi() {
         {`${(percent * 100).toFixed(0)}%`}
       </text>
     );
-  };
-
-  const showModal = (content) => {
-    setModalContent(content);
-    setIsModalVisible(true);
-  };
-
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    // reset();
   };
 
   // Custom Tooltip function
@@ -223,90 +231,85 @@ function BolgelereGoreToplamMiktarDagilimi() {
     return null;
   };
 
+  CustomTooltip.propTypes = {
+    active: PropTypes.bool,
+    payload: PropTypes.arrayOf(
+      PropTypes.shape({
+        value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+        name: PropTypes.string,
+      })
+    ),
+  };
+
   // Sayıyı formata dönüştüren fonksiyon
   function formatNumber(value) {
-    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return Number(value).toLocaleString("tr-TR");
   }
 
   const downloadPDF = () => {
-      const element = document.getElementById("toplam-is-gucu");
-      const opt = {
-        margin: 10,
-        filename: "toplam-is-gucu.pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-      };
-  
-      html2pdf().set(opt).from(element).save();
+    const element = document.getElementById("toplam-is-gucu");
+    const opt = {
+      margin: 10,
+      filename: "toplam-is-gucu.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
     };
 
-  useEffect(() => {
-      if (isModalVisible === true) {
-        setValue("satinAlmaMaliyeti", null);
-        setValue("yakitMaliyeti", null);
-        setValue("sigortaMaliyeti", null);
-        setValue("harcamaMaliyeti", null);
-        setValue("bakimOnarimMaliyeti", null);
-        setValue("lastikMaliyeti", null);
-        // reset({
-        //   baslamaTarihiToplamIsGucu: undefined,
-        //   bitisTarihiToplamIsGucu: undefined,
-        //   aySecimiToplamIsGucu: undefined,
-        //   yilSecimiToplamIsGucu: undefined,
-        // });
-      }
-    }, [isModalVisible]);
-  
-    const content = (
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <div style={{ cursor: "pointer" }} onClick={() => setIsExpandedModalVisible(true)}>
-          Büyüt
+    html2pdf().set(opt).from(element).save();
+  };
+
+  // Removed unused modal visibility effect
+
+  const content = (
+    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <button type="button" style={{ cursor: "pointer", background: "transparent", border: "none", padding: 0, textAlign: "left" }} onClick={() => setIsExpandedModalVisible(true)}>
+        Büyüt
+      </button>
+      <button type="button" style={{ cursor: "pointer", background: "transparent", border: "none", padding: 0, textAlign: "left" }} onClick={() => setOpen(true)}>
+        Bilgi
+      </button>
+    </div>
+  );
+
+  const steps = [
+    {
+      title: "Bilgi",
+      description: (
+        <div
+          style={{
+            overflow: "auto",
+            height: "100%",
+            maxHeight: "200px",
+          }}
+        >
+          <p>
+            Belirli bir süre zarfında tüm çalışanlar tarafından harcanan iş gücü toplamının atölyelere dağılımını ifade eder. Bu kavram, genellikle aşağıdaki amaçlar için
+            kullanılır:
+          </p>
+          <ol>
+            <li>
+              <strong>Genel Verimlilik Analizi</strong>: Organizasyonun genel verimliliğini değerlendirmek için.
+            </li>
+            <li>
+              <strong>Proje ve Görev Takibi</strong>: Bir proje veya görev için harcanan toplam zamanı ve çabayı belirlemek için.
+            </li>
+            <li>
+              <strong>Maliyet Kontrolü</strong>: İş gücü maliyetlerini kontrol etmek ve bütçelendirme yapmak için.
+            </li>
+            <li>
+              <strong>Kaynak Yönetimi</strong>: Kaynakların etkin kullanımını planlamak ve optimize etmek için.
+            </li>
+            <li>
+              <strong>İş Yükü Dağılımı</strong>: Çalışanlar arasındaki iş yükü dağılımını değerlendirmek ve dengelemek için.
+            </li>
+          </ol>
         </div>
-        <div style={{ cursor: "pointer" }} onClick={() => setOpen(true)}>
-          Bilgi
-        </div>
-      </div>
-    );
-  
-    const steps = [
-      {
-        title: "Bilgi",
-        description: (
-          <div
-            style={{
-              overflow: "auto",
-              height: "100%",
-              maxHeight: "200px",
-            }}
-          >
-            <p>
-              Belirli bir süre zarfında tüm çalışanlar tarafından harcanan iş gücü toplamının atölyelere dağılımını ifade eder. Bu kavram, genellikle aşağıdaki amaçlar için
-              kullanılır:
-            </p>
-            <ol>
-              <li>
-                <strong>Genel Verimlilik Analizi</strong>: Organizasyonun genel verimliliğini değerlendirmek için.
-              </li>
-              <li>
-                <strong>Proje ve Görev Takibi</strong>: Bir proje veya görev için harcanan toplam zamanı ve çabayı belirlemek için.
-              </li>
-              <li>
-                <strong>Maliyet Kontrolü</strong>: İş gücü maliyetlerini kontrol etmek ve bütçelendirme yapmak için.
-              </li>
-              <li>
-                <strong>Kaynak Yönetimi</strong>: Kaynakların etkin kullanımını planlamak ve optimize etmek için.
-              </li>
-              <li>
-                <strong>İş Yükü Dağılımı</strong>: Çalışanlar arasındaki iş yükü dağılımını değerlendirmek ve dengelemek için.
-              </li>
-            </ol>
-          </div>
-        ),
-  
-        target: () => ref1.current,
-      },
-    ];
+      ),
+
+      target: () => ref1.current,
+    },
+  ];
 
   return (
     <div
@@ -434,7 +437,7 @@ function BolgelereGoreToplamMiktarDagilimi() {
                 textOverflow: "ellipsis",
                 maxWidth: "calc(100% - 50px)",
               }}
-              title={`Toplam Harcanan İş Gücü (${startYear ? formatDate(startYear) : ""} - ${bitisTarihi ? formatDate(bitisTarihi) : ""})`}
+              title={`Toplam Harcanan İş Gücü (${startYear ?? ""} - ${endYear ?? ""})`}
             >
               Araç Filosu (Araç Tipleri)
               {` ${startYear}`}
@@ -476,7 +479,7 @@ function BolgelereGoreToplamMiktarDagilimi() {
                   ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />
-              <Legend content={<CustomLegend payload={data.map((entry, index) => ({ value: entry.name, color: entry.color }))} />} />
+              <Legend content={<CustomLegend payload={data.map((entry) => ({ value: entry.name, color: entry.color }))} />} />
             </PieChart>
           </StyledResponsiveContainer>
         </div>
