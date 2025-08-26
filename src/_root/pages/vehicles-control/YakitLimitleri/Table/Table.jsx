@@ -315,6 +315,7 @@ const YakitLimitleri = () => {
         width: 150,
         ellipsis: true,
         visible: true,
+        render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
         sorter: (a, b) => {
           if (a.surucuIsim === null) return -1;
           if (b.surucuIsim === null) return 1;
