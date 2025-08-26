@@ -15,6 +15,7 @@ const Kaza = lazy(() => import("./_root/pages/vehicles-control/kaza/Kaza"));
 const Harcama = lazy(() => import("./_root/pages/vehicles-control/harcama/Harcama"));
 const Ceza = lazy(() => import("./_root/pages/vehicles-control/ceza/Ceza"));
 const HasarTakibi = lazy(() => import("./_root/pages/vehicles-control/HasarTakibi/HasarTakibi.jsx"));
+const YakitLimitleri = lazy(() => import("./_root/pages/vehicles-control/YakitLimitleri/YakitLimitleri.jsx"));
 const KmUpdate = lazy(() => import("./_root/pages/vehicles-control/hizli-km/KmUpdate"));
 const KiralikAraclar = lazy(() => import("./_root/pages/vehicles-control/kiralikAraclar/KiralikAraclarTablo.jsx"));
 
@@ -196,6 +197,14 @@ const App = () => {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <HasarTakibi />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/yakit-limitleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <YakitLimitleri />
             </Suspense>
           }
         />
