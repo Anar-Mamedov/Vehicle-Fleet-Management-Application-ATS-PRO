@@ -3,8 +3,8 @@ import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateDrawer from "../Insert/CreateDrawer";
 import EditDrawer from "../Update/EditDrawer";
 import Filters from "./filter/Filters";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, ConfigProvider } from "antd";
+import { HolderOutlined, SearchOutlined, MenuOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -399,13 +399,13 @@ const YakitLimitleri = () => {
           const usagePercent = limit > 0 ? (used / limit) * 100 : used > 0 ? 101 : 0;
 
           let color = "green"; // Normal
-          let label = "Normal";
+          let label = t("normal");
           if (usagePercent > 100) {
             color = "red"; // Aşıldı
-            label = "Aşıldı";
+            label = t("asildi");
           } else if (usagePercent >= 80) {
             color = "orange"; // Uyarı
-            label = "Uyarı";
+            label = t("uyari");
           }
 
           const pctText = Math.round(usagePercent);
@@ -794,7 +794,7 @@ const YakitLimitleri = () => {
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
 
-              <Filters onChange={handleBodyChange} />
+              {/* <Filters onChange={handleBodyChange} /> */}
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
             </div>
