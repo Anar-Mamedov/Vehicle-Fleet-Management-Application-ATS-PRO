@@ -1,11 +1,8 @@
 import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "react";
-import { useFormContext } from "react-hook-form";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateDrawer from "../Insert/CreateDrawer";
 import EditDrawer from "../Update/EditDrawer";
 import Filters from "./filter/Filters";
-import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
-import { Routes, Route, useNavigate } from "react-router-dom";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider } from "antd";
 import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
@@ -147,17 +144,14 @@ const YakitLimitleri = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false); // Set initial loading state to false
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchTimeout, setSearchTimeout] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0); // Total data count
-  const [pageSize, setPageSize] = useState(10); // Page size
   const [localeDateFormat, setLocaleDateFormat] = useState("MM/DD/YYYY");
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm");
   const [drawer, setDrawer] = useState({
     visible: false,
     data: null,
   });
-  const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
 
@@ -167,6 +161,39 @@ const YakitLimitleri = () => {
   });
 
   const prevBodyRef = useRef(body);
+  const hasFetchedRef = useRef(false);
+
+  // Mevcut hafta/ay/yıl başlangıç-bitiş aralıklarını ISO formatında döndür
+  const buildPeriodRanges = useCallback(() => {
+    const now = new Date();
+
+    // UTC bileşenlerini kullan
+    const year = now.getUTCFullYear();
+    const month = now.getUTCMonth();
+    const date = now.getUTCDate();
+
+    // Yıl (UTC)
+    const startOfYear = new Date(Date.UTC(year, 0, 1, 0, 0, 0, 0));
+    const endOfYear = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
+
+    // Ay (UTC)
+    const startOfMonth = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
+    const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
+
+    // Hafta (UTC, Pazartesi başlangıç)
+    const dayOfWeekUTC = (now.getUTCDay() + 6) % 7; // Pazartesi=0
+    const startOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC, 0, 0, 0, 0));
+    const endOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC + 6, 23, 59, 59, 999));
+
+    return {
+      haftalikBaslangicTarih: startOfWeek.toISOString(),
+      haftalikBitisTarih: endOfWeek.toISOString(),
+      aylikBaslangicTarih: startOfMonth.toISOString(),
+      aylikBitisTarih: endOfMonth.toISOString(),
+      yillikBaslangicTarih: startOfYear.toISOString(),
+      yillikBitisTarih: endOfYear.toISOString(),
+    };
+  }, []);
 
   // API call - memoized with useCallback to prevent recreation on every render
   const fetchData = useCallback(
@@ -177,24 +204,24 @@ const YakitLimitleri = () => {
 
         if (diff > 0) {
           // Moving forward
-          currentSetPointId = data[data.length - 1]?.mlzFisId || 0;
+          currentSetPointId = data[data.length - 1]?.siraNo || 0;
         } else if (diff < 0) {
           // Moving backward
-          currentSetPointId = data[0]?.mlzFisId || 0;
+          currentSetPointId = data[0]?.siraNo || 0;
         }
 
-        const response = await AxiosInstance.post(
-          `FuelLimit/GetFuelLimitList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
-          body.filters?.customfilter || {}
-        );
+        const response = await AxiosInstance.post(`FuelLimit/GetFuelLimitList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, {
+          ...(body.filters?.customfilter || {}),
+          ...buildPeriodRanges(),
+        });
 
-        const total = response.data.total_count;
+        const total = response.data.recordCount;
         setTotalCount(total);
         setCurrentPage(targetPage);
 
-        const newData = response.data.materialList.map((item) => ({
+        const newData = response.data.list.map((item) => ({
           ...item,
-          key: item.mlzFisId,
+          key: item.siraNo,
         }));
 
         if (newData.length > 0) {
@@ -210,13 +237,16 @@ const YakitLimitleri = () => {
         setLoading(false);
       }
     },
-    [searchTerm, body.filters, data]
+    [searchTerm, body.filters, data, buildPeriodRanges]
   ); // Added data to dependencies
 
   // Initial data fetch - only run once on mount
   useEffect(() => {
-    fetchData(0, 1);
-  }, []); // Use empty dependency array for initial load only
+    if (!hasFetchedRef.current) {
+      hasFetchedRef.current = true;
+      fetchData(0, 1);
+    }
+  }, [fetchData]);
 
   // Watch for body state changes
   useEffect(() => {
@@ -265,53 +295,13 @@ const YakitLimitleri = () => {
   const initialColumns = useMemo(
     () => [
       {
-        title: t("fisNo"),
-        dataIndex: "fisNo",
-        key: "fisNo",
-        width: 120,
-        ellipsis: true,
-        visible: true,
-        render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
-        sorter: (a, b) => {
-          if (a.fisNo === null) return -1;
-          if (b.fisNo === null) return 1;
-          return a.fisNo.localeCompare(b.fisNo);
-        },
-      },
-      {
-        title: t("tarih"),
-        dataIndex: "tarih",
-        key: "tarih",
-        width: 110,
-        ellipsis: true,
-        visible: true,
-        sorter: (a, b) => {
-          if (a.tarih === null) return -1;
-          if (b.tarih === null) return 1;
-          return a.tarih.localeCompare(b.tarih);
-        },
-        render: (text) => formatDate(text),
-      },
-      {
-        title: t("firmaTanimi"),
-        dataIndex: "firmaTanim",
-        key: "firmaTanim",
-        width: 190,
-        ellipsis: true,
-        visible: true,
-        sorter: (a, b) => {
-          if (a.firmaTanim === null) return -1;
-          if (b.firmaTanim === null) return 1;
-          return a.firmaTanim.localeCompare(b.firmaTanim);
-        },
-      },
-      {
         title: t("plaka"),
         dataIndex: "plaka",
         key: "plaka",
         width: 120,
         ellipsis: true,
         visible: true,
+        render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
         sorter: (a, b) => {
           if (a.plaka === null) return -1;
           if (b.plaka === null) return 1;
@@ -319,96 +309,116 @@ const YakitLimitleri = () => {
         },
       },
       {
-        title: t("islemTipi"),
-        dataIndex: "islemTipi",
-        key: "islemTipi",
+        title: t("surucu"),
+        dataIndex: "surucuIsim",
+        key: "surucuIsim",
         width: 150,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
-          if (a.islemTipi === null) return -1;
-          if (b.islemTipi === null) return 1;
-          return a.islemTipi.localeCompare(b.islemTipi);
+          if (a.surucuIsim === null) return -1;
+          if (b.surucuIsim === null) return 1;
+          return a.surucuIsim.localeCompare(b.surucuIsim);
         },
       },
+
       {
-        title: t("girisDeposu"),
-        dataIndex: "girisDepo",
-        key: "girisDepo",
+        title: t("limitTipi"),
+        dataIndex: "limitTipi",
+        key: "limitTipi",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.limitTipi === null) return -1;
+          if (b.limitTipi === null) return 1;
+          return a.limitTipi.localeCompare(b.limitTipi);
+        },
+        render: (text) => {
+          return t(text);
+        },
+      },
+
+      {
+        title: t("limitMiktari"),
+        dataIndex: "limit",
+        key: "limit",
+        width: 110,
+        ellipsis: true,
+        visible: true,
+        render: (text, record) => {
+          const limit = Number(record?.limit ?? 0);
+          const toplam = Number(record?.toplamYakitMiktari ?? 0);
+          const kalan = limit - toplam;
+          return <span>{Number.isFinite(kalan) ? kalan : 0}</span>;
+        },
+        sorter: (a, b) => {
+          const aVal = Number(a?.limit ?? 0) - Number(a?.toplamYakitMiktari ?? 0);
+          const bVal = Number(b?.limit ?? 0) - Number(b?.toplamYakitMiktari ?? 0);
+          return aVal - bVal;
+        },
+      },
+
+      {
+        title: t("tarih"),
+        dataIndex: "tarih",
+        key: "tarih",
         width: 150,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
-          if (a.girisDepo === null) return -1;
-          if (b.girisDepo === null) return 1;
-          return a.girisDepo.localeCompare(b.girisDepo);
+          if (a.tarih === null) return -1;
+          if (b.tarih === null) return 1;
+          return a.tarih.localeCompare(b.tarih);
+        },
+        render: (text, record) => {
+          const ranges = buildPeriodRanges();
+          if (record?.limitTipi === "haftalik") {
+            return `${formatDateFromISODateOnly(ranges.haftalikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.haftalikBitisTarih)}`;
+          }
+          if (record?.limitTipi === "aylik") {
+            return `${formatDateFromISODateOnly(ranges.aylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.aylikBitisTarih)}`;
+          }
+          if (record?.limitTipi === "yillik") {
+            return `${formatDateFromISODateOnly(ranges.yillikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.yillikBitisTarih)}`;
+          }
+          return formatDate(text);
         },
       },
+
       {
-        title: t("cikisDeposu"),
-        dataIndex: "cikisDepo",
-        key: "cikisDepo",
+        title: t("durum"),
+        dataIndex: "durum",
+        key: "durum",
         width: 150,
         ellipsis: true,
         visible: true,
-        sorter: (a, b) => {
-          if (a.cikisDepo === null) return -1;
-          if (b.cikisDepo === null) return 1;
-          return a.cikisDepo.localeCompare(b.cikisDepo);
+        render: (_, record) => {
+          const limit = Number(record?.limit ?? 0);
+          const used = Number(record?.toplamYakitMiktari ?? 0);
+          const usagePercent = limit > 0 ? (used / limit) * 100 : used > 0 ? 101 : 0;
+
+          let color = "green"; // Normal
+          let label = "Normal";
+          if (usagePercent > 100) {
+            color = "red"; // Aşıldı
+            label = "Aşıldı";
+          } else if (usagePercent >= 80) {
+            color = "orange"; // Uyarı
+            label = "Uyarı";
+          }
+
+          const pctText = Math.round(usagePercent);
+          return <Tag color={color}>{`${label} (%${pctText})`}</Tag>;
         },
-      },
-      {
-        title: t("araToplam"),
-        dataIndex: "araToplam",
-        key: "araToplam",
-        width: 120,
-        ellipsis: true,
-        visible: true,
-        render: (text, record) => (
-          <div className="">
-            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
-          </div>
-        ),
         sorter: (a, b) => {
-          if (a.araToplam === null) return -1;
-          if (b.araToplam === null) return 1;
-          return a.araToplam - b.araToplam;
-        },
-      },
-      {
-        title: t("kdvToplam"),
-        dataIndex: "kdvToplam",
-        key: "kdvToplam",
-        width: 120,
-        ellipsis: true,
-        visible: true,
-        render: (text, record) => (
-          <div className="">
-            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
-          </div>
-        ),
-        sorter: (a, b) => {
-          if (a.kdvToplam === null) return -1;
-          if (b.kdvToplam === null) return 1;
-          return a.kdvToplam - b.kdvToplam;
-        },
-      },
-      {
-        title: t("genelToplam"),
-        dataIndex: "genelToplam",
-        key: "genelToplam",
-        width: 120,
-        ellipsis: true,
-        visible: true,
-        render: (text, record) => (
-          <div className="">
-            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
-          </div>
-        ),
-        sorter: (a, b) => {
-          if (a.genelToplam === null) return -1;
-          if (b.genelToplam === null) return 1;
-          return a.genelToplam - b.genelToplam;
+          const limitA = Number(a?.limit ?? 0);
+          const usedA = Number(a?.toplamYakitMiktari ?? 0);
+          const limitB = Number(b?.limit ?? 0);
+          const usedB = Number(b?.toplamYakitMiktari ?? 0);
+          const pctA = limitA > 0 ? usedA / limitA : usedA > 0 ? Number.POSITIVE_INFINITY : 0;
+          const pctB = limitB > 0 ? usedB / limitB : usedB > 0 ? Number.POSITIVE_INFINITY : 0;
+          return pctA - pctB;
         },
       },
     ],
@@ -442,6 +452,23 @@ const YakitLimitleri = () => {
     });
     return formatter.format(new Date(date));
   }, []);
+
+  // ISO tarihlerin sadece tarih kısmını (YYYY-MM-DD) alıp yerel tarihe göre formatlar
+  const formatDateFromISODateOnly = useCallback(
+    (isoString) => {
+      if (!isoString) return "";
+      const datePart = typeof isoString === "string" ? isoString.slice(0, 10) : ""; // YYYY-MM-DD
+      if (!datePart) return "";
+      const [yearStr, monthStr, dayStr] = datePart.split("-");
+      const year = parseInt(yearStr, 10);
+      const month = parseInt(monthStr, 10);
+      const day = parseInt(dayStr, 10);
+      if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) return "";
+      const localDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+      return formatDate(localDate);
+    },
+    [formatDate]
+  );
 
   const formatTime = (time) => {
     if (!time || time.trim() === "") return ""; // `trim` metodu ile baştaki ve sondaki boşlukları temizle
