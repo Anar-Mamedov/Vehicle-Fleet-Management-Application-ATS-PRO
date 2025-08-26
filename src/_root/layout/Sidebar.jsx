@@ -79,6 +79,10 @@ const Sidebar = ({ collapsed }) => {
           label: <Link to={"/hasar-takibi"}>{t("hasarTakibi")}</Link>,
         },
         {
+          key: "3jkh45",
+          label: <Link to={"/yakit-limitleri"}>{t("yakitLimitleri")}</Link>,
+        },
+        {
           key: "48ashjd6",
           label: <Link to={"/kiralik-araclar"}>{t("kiralikAraclar")}</Link>,
         },

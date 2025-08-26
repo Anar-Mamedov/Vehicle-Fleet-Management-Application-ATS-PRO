@@ -378,13 +378,14 @@
   "aracSorumlusu": "Vehicle Manager",
   "egzozEmisyon": "Exhaust Emission",
   "uyari": "Warning",
+  "normal": "Normal",
+  "asildi": "Exceeded",
   "yakitTuketimKontrol": "Fuel Consumption Control",
   "minYakitTuketimi": "Min. Fuel Consumption",
   "maxYakitTuketimi": "Max. Fuel Consumption",
   "gercekYakitTuketimi": "Actual Fuel Consumption",
   "tts": "TTS",
   "proje": "Project",
-  "durum": "Status",
   "kullanimAmaci": "Purpose of Use",
   "havuz": "Pool",
   "aracMaliyetlerineEkle": "Add to Vehicle Costs",
@@ -1037,6 +1038,5 @@
   "durum": "Status",
   "yeniOnaylayiciEkle": "Add New Approver",
   "onaylayiciAdi": "Approver Name",
-  "pozisyon": "Position",
-  "siraNo": "Sequence No"
+  "pozisyon": "Position"
 }
