@@ -85,8 +85,7 @@ const Hatirlatici = ({ data, getHatirlatici, loading, data1, getHatirlatici1 }) 
       }
       return 0;
     };
-
-    return sumDataValues(data) + sumDataValues(data1);
+    return sumDataValues(data) /*  + sumDataValues(data1) */;
   })();
 
   const content = (
