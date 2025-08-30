@@ -1,22 +1,62 @@
 import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, Divider, Modal, Button, Typography, Input } from "antd";
+import { Menu, Modal, Typography, Input } from "antd";
 import { PieChartOutlined, CarOutlined } from "@ant-design/icons";
 import { MdOutlineSystemUpdateAlt } from "react-icons/md";
-import { PiTireBold } from "react-icons/pi";
 import { LuWarehouse } from "react-icons/lu";
 import { FaGears } from "react-icons/fa6";
-import { BsFuelPump } from "react-icons/bs";
 import { GiAutoRepair } from "react-icons/gi";
 import { HiOutlineDocumentReport } from "react-icons/hi";
-import { t } from "i18next";
+import i18n, { t } from "i18next";
 import Draggable from "react-draggable";
 import Ayarlar from "../pages/Ayarlar/Ayarlar";
 import versionData from "../../version.json";
 
+import PropTypes from "prop-types";
 const { Text } = Typography;
-const { TextArea } = Input;
+
+// Label içeriğinden düz metin çıkarır
+const getItemLabelText = (label) => {
+  if (typeof label === "string") {
+    return label;
+  }
+  if (React.isValidElement(label)) {
+    const children = label.props?.children;
+    if (typeof children === "string") return children;
+    if (Array.isArray(children)) {
+      return children.filter((c) => typeof c === "string").join(" ");
+    }
+  }
+  return "";
+};
+
+// Menü öğelerini arama terimine göre filtreler
+const filterMenuItems = (menuItems, term) => {
+  if (!term) return menuItems;
+  const lower = term.toLowerCase();
+
+  const recurse = (item) => {
+    const labelText = getItemLabelText(item.label).toLowerCase();
+    let matched = labelText.includes(lower);
+
+    const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+    const newItem = { ...item };
+    if (hasChildren) {
+      const filteredChildren = item.children.map(recurse).filter(Boolean);
+      if (filteredChildren.length > 0) {
+        newItem.children = filteredChildren;
+        matched = true;
+      } else {
+        delete newItem.children;
+      }
+    }
+
+    return matched ? newItem : null;
+  };
+
+  return menuItems.map(recurse).filter(Boolean);
+};
 
 const Sidebar = ({ collapsed }) => {
   const location = useLocation();
@@ -30,179 +70,181 @@ const Sidebar = ({ collapsed }) => {
     bottom: 0,
     right: 0,
   });
+  const [searchValue, setSearchValue] = useState("");
 
-  const showModal = () => {
+  const showModal = React.useCallback(() => {
     setOpen(true);
-  };
+  }, []);
 
-  const items = [
-    {
-      key: "1",
-      icon: <PieChartOutlined />,
-      label: <Link to={"/"}>{t("dashboard")}</Link>,
-    },
-    {
-      key: "2",
-      icon: <CarOutlined />,
-      label: t("aracYonetimi"),
-      children: [
-        {
-          key: "3",
-          label: <Link to={"/araclar"}>{t("araclar")}</Link>,
-        },
-        {
-          key: "4",
-          label: <Link to={"/yakit-islemleri"}>{t("yakitIslemleri")}</Link>,
-        },
-        {
-          key: "6",
-          label: <Link to={"/sefer-islemleri"}>{t("seferler")}</Link>,
-        },
-        {
-          key: "7",
-          label: <Link to={"/sigorta-islemleri"}>{t("sigortalar")}</Link>,
-        },
-        {
-          key: "8",
-          label: <Link to={"/harcama-islemleri"}>{t("harcamalar")}</Link>,
-        },
-        {
-          key: "9",
-          label: <Link to={"/kaza-islemleri"}>{t("kazalar")}</Link>,
-        },
-        {
-          key: "10",
-          label: <Link to={"/ceza-islemleri"}>{t("cezalar")}</Link>,
-        },
-        {
-          key: "kj234h5b",
-          label: <Link to={"/hasar-takibi"}>{t("hasarTakibi")}</Link>,
-        },
-        {
-          key: "3jkh45",
-          label: <Link to={"/yakit-limitleri"}>{t("yakitLimitleri")}</Link>,
-        },
-        {
-          key: "48ashjd6",
-          label: <Link to={"/kiralik-araclar"}>{t("kiralikAraclar")}</Link>,
-        },
-        {
-          key: "121",
-          label: <Link to={"/ekspertizler"}>{t("ekspertizler")}</Link>,
-        },
-        {
-          key: "12",
-          label: <Link to={"/hizli-km-guncelleme"}>{t("hizliKmGuncelleme")}</Link>,
-        },
-      ],
-    },
-    {
-      key: "19",
-      icon: <GiAutoRepair />,
-      label: t("bakim&Onarim"),
-      children: [
-        {
-          key: "21",
-          label: <Link to={"/servis-islemleri"}>{t("servisIslemleri")}</Link>,
-        },
-        {
-          key: "20",
-          label: <Link to={"/Periodic-Maintenance"}>{t("periyodikBakimlar")}</Link>,
-        },
-        /*  {
+  const items = React.useMemo(
+    () => [
+      {
+        key: "1",
+        icon: <PieChartOutlined />,
+        label: <Link to={"/"}>{t("dashboard")}</Link>,
+      },
+      {
+        key: "2",
+        icon: <CarOutlined />,
+        label: t("aracYonetimi"),
+        children: [
+          {
+            key: "3",
+            label: <Link to={"/araclar"}>{t("araclar")}</Link>,
+          },
+          {
+            key: "4",
+            label: <Link to={"/yakit-islemleri"}>{t("yakitIslemleri")}</Link>,
+          },
+          {
+            key: "6",
+            label: <Link to={"/sefer-islemleri"}>{t("seferler")}</Link>,
+          },
+          {
+            key: "7",
+            label: <Link to={"/sigorta-islemleri"}>{t("sigortalar")}</Link>,
+          },
+          {
+            key: "8",
+            label: <Link to={"/harcama-islemleri"}>{t("harcamalar")}</Link>,
+          },
+          {
+            key: "9",
+            label: <Link to={"/kaza-islemleri"}>{t("kazalar")}</Link>,
+          },
+          {
+            key: "10",
+            label: <Link to={"/ceza-islemleri"}>{t("cezalar")}</Link>,
+          },
+          {
+            key: "kj234h5b",
+            label: <Link to={"/hasar-takibi"}>{t("hasarTakibi")}</Link>,
+          },
+          {
+            key: "3jkh45",
+            label: <Link to={"/yakit-limitleri"}>{t("yakitLimitleri")}</Link>,
+          },
+          {
+            key: "48ashjd6",
+            label: <Link to={"/kiralik-araclar"}>{t("kiralikAraclar")}</Link>,
+          },
+          {
+            key: "121",
+            label: <Link to={"/ekspertizler"}>{t("ekspertizler")}</Link>,
+          },
+          {
+            key: "12",
+            label: <Link to={"/hizli-km-guncelleme"}>{t("hizliKmGuncelleme")}</Link>,
+          },
+        ],
+      },
+      {
+        key: "19",
+        icon: <GiAutoRepair />,
+        label: t("bakim&Onarim"),
+        children: [
+          {
+            key: "21",
+            label: <Link to={"/servis-islemleri"}>{t("servisIslemleri")}</Link>,
+          },
+          {
+            key: "20",
+            label: <Link to={"/Periodic-Maintenance"}>{t("periyodikBakimlar")}</Link>,
+          },
+          /*  {
           key: "22",
           label: <Link to={"/sefer-islemleri"}>{t("randevuTakibi")}</Link>,
         }, */
-        /* {
+          /* {
           key: "24",
           label: <Link to={"/malzeme-tanimlari"}>{t("atolyeTanimlari")}</Link>,
         }, */
-      ],
-    },
-    {
-      key: "ds897g6",
-      icon: <FaGears />,
-      label: t("lastikYonetimi"),
-      children: [
-        {
-          key: "365df3",
-          label: <Link to={"/lastik-islemleri"}>{t("lastikIslemleri")}</Link>,
-        },
-        {
-          key: "4jk3l56",
-          label: <Link to={"/lastik-envanteri"}>{t("lastikEnvanteri")}</Link>,
-        },
-        {
-          key: "45",
-          label: <Link to={"/lastik-tanimlari"}>{t("lastikTanimlari")}</Link>,
-        },
-        {
-          key: "3653",
-          label: <Link to={"/axle"}>{t("aksTanimlari")}</Link>,
-        },
-      ],
-    },
-    {
-      key: "31",
-      icon: <LuWarehouse />,
-      label: t("malzemeDepo"),
-      children: [
-        {
-          key: "32",
-          label: <Link to={"/malzeme-tanimlari"}>{t("malzemeTanimlari")}</Link>,
-        },
-        {
-          key: "3j2h4b5kj2h34",
-          label: <Link to={"/giris-fisleri"}>{t("girisFisleri")}</Link>,
-        },
-        /*  {
+        ],
+      },
+      {
+        key: "ds897g6",
+        icon: <FaGears />,
+        label: t("lastikYonetimi"),
+        children: [
+          {
+            key: "365df3",
+            label: <Link to={"/lastik-islemleri"}>{t("lastikIslemleri")}</Link>,
+          },
+          {
+            key: "4jk3l56",
+            label: <Link to={"/lastik-envanteri"}>{t("lastikEnvanteri")}</Link>,
+          },
+          {
+            key: "45",
+            label: <Link to={"/lastik-tanimlari"}>{t("lastikTanimlari")}</Link>,
+          },
+          {
+            key: "3653",
+            label: <Link to={"/axle"}>{t("aksTanimlari")}</Link>,
+          },
+        ],
+      },
+      {
+        key: "31",
+        icon: <LuWarehouse />,
+        label: t("malzemeDepo"),
+        children: [
+          {
+            key: "32",
+            label: <Link to={"/malzeme-tanimlari"}>{t("malzemeTanimlari")}</Link>,
+          },
+          {
+            key: "3j2h4b5kj2h34",
+            label: <Link to={"/giris-fisleri"}>{t("girisFisleri")}</Link>,
+          },
+          /*  {
           key: "33",
           label: <Link to={"/giris-fisleri1"}>{t("Giris Fisleri Eski")}</Link>,
         }, */
-        {
-          key: "34",
-          label: <Link to={"/cikis-fisleri"}>{t("cikisFisleri")}</Link>,
-        },
-        /* {
+          {
+            key: "34",
+            label: <Link to={"/cikis-fisleri"}>{t("cikisFisleri")}</Link>,
+          },
+          /* {
           key: "341",
           label: <Link to={"/cikis-fisleri1"}>{t("Cikis Fisleri Eski")}</Link>,
         }, */
-        {
-          key: "35",
-          label: <Link to={"/transferler"}>{t("transferFisleri")}</Link>,
-        },
-        /*  {
+          {
+            key: "35",
+            label: <Link to={"/transferler"}>{t("transferFisleri")}</Link>,
+          },
+          /*  {
           key: "351",
           label: <Link to={"/transferler1"}>{t("Transferler Eski")}</Link>,
         }, */
-        /* {
+          /* {
           key: "36",
           label: <Link to={"/hazirlaniyor"}>{t("talepler")}</Link>,
         }, */
-        {
-          key: "373b24kj5hb",
-          label: <Link to={"/malzeme-hareketleri"}>{t("malzemeHareketleri")}</Link>,
-        },
-        /*  {
+          {
+            key: "373b24kj5hb",
+            label: <Link to={"/malzeme-hareketleri"}>{t("malzemeHareketleri")}</Link>,
+          },
+          /*  {
           key: "37",
           label: <Link to={"/hareketler"}>{t("Malzeme Hareketleri Eski")}</Link>,
         }, */
-        {
-          key: "837",
-          label: <Link to={"/malzeme-depo-tanimlari"}>{t("malzemeDepoTanimlari")}</Link>,
-        },
-        {
-          key: "3jb4m5j3b5",
-          label: <Link to={"/material-consumption-analysis"}>{t("malzemeTuketimAnalizi")}</Link>,
-        },
-      ],
-    },
-    {
-      key: "2bskfa",
-      icon: <HiOutlineDocumentReport />,
-      label: <Link to={"/hgs-islem-takibi"}>{t("hgsIslemleri")}</Link>,
-    },
-    /* {
+          {
+            key: "837",
+            label: <Link to={"/malzeme-depo-tanimlari"}>{t("malzemeDepoTanimlari")}</Link>,
+          },
+          {
+            key: "3jb4m5j3b5",
+            label: <Link to={"/material-consumption-analysis"}>{t("malzemeTuketimAnalizi")}</Link>,
+          },
+        ],
+      },
+      {
+        key: "2bskfa",
+        icon: <HiOutlineDocumentReport />,
+        label: <Link to={"/hgs-islem-takibi"}>{t("hgsIslemleri")}</Link>,
+      },
+      /* {
       key: "13",
       icon: <BsFuelPump />,
       label: t("yakitYonetimi"),
@@ -234,118 +276,122 @@ const Sidebar = ({ collapsed }) => {
       ],
     }, */
 
-    {
-      key: "2v34789",
-      icon: <FaGears />,
-      label: t("analizler"),
-      children: [
-        {
-          key: "2980345df",
-          label: <Link to={"/fuel-analysis"}>{t("yakitTuketimAnalizleri")}</Link>,
-        },
-        {
-          key: "3j4h5v34",
-          label: <Link to={"/performance-analysis"}>{t("performansAnalizleri")}</Link>,
-        },
-        {
-          key: "3jh4b5j3h5",
-          label: <Link to={"/cost-analysis"}>{t("maliyetAnalizleri")}</Link>,
-        },
-      ],
-    },
-    {
-      key: "38",
-      icon: <HiOutlineDocumentReport />,
-      label: <Link to={"/raporlar"}>{t("raporlar")}</Link>,
-    },
-    {
-      key: "39",
-      icon: <MdOutlineSystemUpdateAlt />,
-      label: t("sistemTanimlari"),
-      children: [
-        {
-          key: "401",
-          label: <Link to={"/lokasyon-tanimlari"}>{t("lokasyonlar")}</Link>,
-        },
-        {
-          key: "40",
-          label: <Link to={"/firma-tanimlari"}>{t("firmalar")}</Link>,
-        },
-        {
-          key: "41",
-          label: <Link to={"/surucu-tanimlari"}>{t("suruculer")}</Link>,
-        },
-        {
-          key: "42",
-          label: <Link to={"/personel-tanimlari"}>{t("personeller")}</Link>,
-        },
-        {
-          key: "43",
-          label: <Link to={"/servis-tanimlari"}>{t("servisTanimlari")}</Link>,
-        },
-        {
-          key: "14",
-          label: <Link to={"/yakit-tanimlari"}>{t("yakitTanimlari")}</Link>,
-        },
-        {
-          key: "44",
-          label: <Link to={"/guzergah-tanimlari"}>{t("guzergahlar")}</Link>,
-        },
+      {
+        key: "2v34789",
+        icon: <FaGears />,
+        label: t("analizler"),
+        children: [
+          {
+            key: "2980345df",
+            label: <Link to={"/fuel-analysis"}>{t("yakitTuketimAnalizleri")}</Link>,
+          },
+          {
+            key: "3j4h5v34",
+            label: <Link to={"/performance-analysis"}>{t("performansAnalizleri")}</Link>,
+          },
+          {
+            key: "3jh4b5j3h5",
+            label: <Link to={"/cost-analysis"}>{t("maliyetAnalizleri")}</Link>,
+          },
+        ],
+      },
+      {
+        key: "38",
+        icon: <HiOutlineDocumentReport />,
+        label: <Link to={"/raporlar"}>{t("raporlar")}</Link>,
+      },
+      {
+        key: "39",
+        icon: <MdOutlineSystemUpdateAlt />,
+        label: t("sistemTanimlari"),
+        children: [
+          {
+            key: "401",
+            label: <Link to={"/lokasyon-tanimlari"}>{t("lokasyonlar")}</Link>,
+          },
+          {
+            key: "40",
+            label: <Link to={"/firma-tanimlari"}>{t("firmalar")}</Link>,
+          },
+          {
+            key: "41",
+            label: <Link to={"/surucu-tanimlari"}>{t("suruculer")}</Link>,
+          },
+          {
+            key: "42",
+            label: <Link to={"/personel-tanimlari"}>{t("personeller")}</Link>,
+          },
+          {
+            key: "43",
+            label: <Link to={"/servis-tanimlari"}>{t("servisTanimlari")}</Link>,
+          },
+          {
+            key: "14",
+            label: <Link to={"/yakit-tanimlari"}>{t("yakitTanimlari")}</Link>,
+          },
+          {
+            key: "44",
+            label: <Link to={"/guzergah-tanimlari"}>{t("guzergahlar")}</Link>,
+          },
 
-        {
-          key: "46",
-          label: <Link to={"/ceza-tanimlari"}>{t("cezaTanimlari")}</Link>,
-        },
-        {
-          key: "47",
-          label: <Link to={"/arac-marka-ve-model"}>{t("markaModel")}</Link>,
-        },
-        {
-          key: "48",
-          label: <Link to={"/sehir-tanimlari"}>{t("sehirler")}</Link>,
-        },
-        {
-          key: "49",
-          label: <Link to={"/is-kartlari"}>{t("isKartlari")}</Link>,
-        },
-        {
-          key: "798asd5fasd",
-          label: <Link to={"/hgs-gecis-ucretleri"}>{t("hgsGecisUcretleri")}</Link>,
-        },
-      ],
-    },
-    {
-      key: "50",
-      icon: <FaGears />,
-      label: t("sistemAyarari"),
-      children: [
-        {
-          key: "51",
-          label: <div onClick={showModal}>{t("ayarlar")}</div>,
-        },
-        {
-          key: "52",
-          label: <Link to={`/user_definitions`}>{t("kullaniciTanimlari")}</Link>,
-        },
-        {
-          key: "53",
-          label: <Link to={`/kod-yonetimi`}>{t("kodYonetimi")}</Link>,
-        },
-        {
-          key: "54",
-          label: t("onaylar"),
-          children: [
-            {
-              key: "542",
-              label: <Link to={`/onaylama-islemleri`}>{t("onayIslemleri")}</Link>,
-            },
-            {
-              key: "541",
-              label: <Link to={`/onayAyarlari`}>{t("onayAyarlari")}</Link>,
-            },
-          ],
-        },
-        /*{
+          {
+            key: "46",
+            label: <Link to={"/ceza-tanimlari"}>{t("cezaTanimlari")}</Link>,
+          },
+          {
+            key: "47",
+            label: <Link to={"/arac-marka-ve-model"}>{t("markaModel")}</Link>,
+          },
+          {
+            key: "48",
+            label: <Link to={"/sehir-tanimlari"}>{t("sehirler")}</Link>,
+          },
+          {
+            key: "49",
+            label: <Link to={"/is-kartlari"}>{t("isKartlari")}</Link>,
+          },
+          {
+            key: "798asd5fasd",
+            label: <Link to={"/hgs-gecis-ucretleri"}>{t("hgsGecisUcretleri")}</Link>,
+          },
+        ],
+      },
+      {
+        key: "50",
+        icon: <FaGears />,
+        label: t("sistemAyarari"),
+        children: [
+          {
+            key: "51",
+            label: (
+              <button type="button" onClick={showModal} style={{ background: "transparent", border: 0, padding: 0, color: "inherit", cursor: "pointer" }}>
+                {t("ayarlar")}
+              </button>
+            ),
+          },
+          {
+            key: "52",
+            label: <Link to={`/user_definitions`}>{t("kullaniciTanimlari")}</Link>,
+          },
+          {
+            key: "53",
+            label: <Link to={`/kod-yonetimi`}>{t("kodYonetimi")}</Link>,
+          },
+          {
+            key: "54",
+            label: t("onaylar"),
+            children: [
+              {
+                key: "542",
+                label: <Link to={`/onaylama-islemleri`}>{t("onayIslemleri")}</Link>,
+              },
+              {
+                key: "541",
+                label: <Link to={`/onayAyarlari`}>{t("onayAyarlari")}</Link>,
+              },
+            ],
+          },
+          /*{
           key: "53874",
           label: t("aktarimlar"),
           children: [
@@ -377,11 +423,15 @@ const Sidebar = ({ collapsed }) => {
             },
           ],
         },*/
-      ],
-    },
-  ];
+        ],
+      },
+    ],
+    [i18n.language, showModal]
+  );
 
-  const findActiveKeys = () => {
+  const visibleItems = React.useMemo(() => filterMenuItems(items, searchValue.trim()), [items, searchValue]);
+
+  const findActiveKeys = React.useCallback(() => {
     const findInItems = (path) => {
       for (const item of items) {
         // Check if this item matches the path
@@ -413,7 +463,7 @@ const Sidebar = ({ collapsed }) => {
     };
 
     return findInItems(location.pathname);
-  };
+  }, [items, location.pathname]);
 
   const { menuKey, parentKeys } = findActiveKeys();
   const [selectedKey, setSelectedKey] = useState(menuKey || "1");
@@ -433,7 +483,7 @@ const Sidebar = ({ collapsed }) => {
       // Eğer menuKey bulunamazsa (geçersiz route vs.) tüm grupları kapat
       setOpenKeys([]);
     }
-  }, [location.pathname]);
+  }, [findActiveKeys, location.pathname]);
 
   const handleOk = (e) => {
     console.log(e);
@@ -529,7 +579,10 @@ const Sidebar = ({ collapsed }) => {
 
         {/* Menü kısmı - scroll olabilir */}
         <div style={{ flex: 1, overflow: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }} className="sidebar-menu-container">
-          <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={items} />
+          <div style={{ padding: "8px 12px" }}>
+            <Input size="small" allowClear placeholder={t("menuSearch")} value={searchValue || null} onChange={(e) => setSearchValue(e.target.value)} />
+          </div>
+          <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={visibleItems} />
         </div>
       </div>
       <Modal
@@ -539,6 +592,8 @@ const Sidebar = ({ collapsed }) => {
               width: "100%",
               cursor: "move",
             }}
+            role="button"
+            tabIndex={0}
             onMouseOver={() => {
               if (disabled) {
                 setDisabled(false);
@@ -547,8 +602,15 @@ const Sidebar = ({ collapsed }) => {
             onMouseOut={() => {
               setDisabled(true);
             }}
-            onFocus={() => {}}
-            onBlur={() => {}}
+            onFocus={() => {
+              setDisabled(false);
+            }}
+            onBlur={() => {
+              setDisabled(true);
+            }}
+            onKeyDown={() => {
+              setDisabled(false);
+            }}
           >
             <div style={{ fontSize: "20px" }}>{t("ayarlar")}</div>
           </div>
@@ -572,3 +634,7 @@ const Sidebar = ({ collapsed }) => {
 };
 
 export default Sidebar;
+
+Sidebar.propTypes = {
+  collapsed: PropTypes.bool,
+};
