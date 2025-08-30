@@ -58,6 +58,47 @@ const filterMenuItems = (menuItems, term) => {
   return menuItems.map(recurse).filter(Boolean);
 };
 
+// Menü gruplarına (children içeren) görünür alt menü sayısını ekler
+const addCountBadges = (menuItems) => {
+  if (!Array.isArray(menuItems)) return menuItems;
+
+  return menuItems.map((item) => {
+    const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+    if (!hasChildren) return { ...item };
+
+    const childrenWithBadges = addCountBadges(item.children);
+    const count = childrenWithBadges.length;
+
+    const badgeStyle = {
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minWidth: 18,
+      height: 18,
+      padding: "0 4px",
+      fontSize: 12,
+      lineHeight: 1,
+      color: "#fff",
+      backgroundColor: "#1677ff",
+      borderRadius: 9,
+      marginLeft: 8,
+    };
+
+    const labelText = getItemLabelText(item.label) || item.label;
+
+    return {
+      ...item,
+      children: childrenWithBadges,
+      label: (
+        <span style={{ display: "flex", alignItems: "center", width: "100%" }}>
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{labelText}</span>
+          <span style={badgeStyle}>{count}</span>
+        </span>
+      ),
+    };
+  });
+};
+
 const Sidebar = ({ collapsed }) => {
   const location = useLocation();
   const draggleRef = useRef(null);
@@ -430,6 +471,7 @@ const Sidebar = ({ collapsed }) => {
   );
 
   const visibleItems = React.useMemo(() => filterMenuItems(items, searchValue.trim()), [items, searchValue]);
+  const countedItems = React.useMemo(() => addCountBadges(visibleItems), [visibleItems]);
 
   const findActiveKeys = React.useCallback(() => {
     const findInItems = (path) => {
@@ -582,7 +624,7 @@ const Sidebar = ({ collapsed }) => {
           <div style={{ padding: "8px 12px" }}>
             <Input size="small" allowClear placeholder={t("menuSearch")} value={searchValue || null} onChange={(e) => setSearchValue(e.target.value)} />
           </div>
-          <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={visibleItems} />
+          <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={countedItems} />
         </div>
       </div>
       <Modal
