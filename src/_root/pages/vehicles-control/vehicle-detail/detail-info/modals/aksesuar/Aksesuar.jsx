@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
@@ -10,6 +10,7 @@ import { GetAccListByVehicleIdService } from "../../../../../../../api/services/
 import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
 import Content from "../../../../../../components/drag-drop-table/DraggableCheckbox";
+import ContextMenu from "./components/ContextMenu/ContextMenu";
 
 const Aksesuar = ({ visible, onClose, id }) => {
   const [dataSource, setDataSource] = useState([]);
@@ -26,6 +27,9 @@ const Aksesuar = ({ visible, onClose, id }) => {
   const [openRowHeader, setOpenRowHeader] = useState(false);
   const [updateModal, setUpdateModal] = useState(false);
   const [accId, setAccId] = useState(0);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const baseColumns = [
     {
@@ -88,21 +92,23 @@ const Aksesuar = ({ visible, onClose, id }) => {
     const fetchData = async () => {
       setLoading(true);
       setIsInitialLoading(true);
-      const res = await GetAccListByVehicleIdService(id, search, tableParams.pagination.current);
+      const res = await GetAccListByVehicleIdService(id, search, currentPage);
       setLoading(false);
       setIsInitialLoading(false);
-      setDataSource(res?.data.list);
+      const list = Array.isArray(res?.data.list) ? res.data.list.map((item) => ({ ...item, key: item.siraNo })) : [];
+      setDataSource(list);
       setTableParams((prevTableParams) => ({
         ...prevTableParams,
         pagination: {
           ...prevTableParams.pagination,
+          current: currentPage,
           total: res?.data.recordCount,
         },
       }));
     };
 
     fetchData();
-  }, [search, tableParams.pagination.current, status]);
+  }, [id, search, currentPage, status]);
 
   const handleTableChange = (pagination, filters, sorter) => {
     setLoading(true);
@@ -115,6 +121,7 @@ const Aksesuar = ({ visible, onClose, id }) => {
     if (pagination.pageSize !== tableParams.pagination?.pageSize) {
       setDataSource([]);
     }
+    setCurrentPage(pagination.current);
   };
 
   const newColumns = columns.map((col) => ({
@@ -147,6 +154,25 @@ const Aksesuar = ({ visible, onClose, id }) => {
   // Custom loading icon
   const customIcon = <LoadingOutlined style={{ fontSize: 36 }} className="text-primary" spin />;
 
+  const refreshTableData = async () => {
+    setLoading(true);
+    try {
+      const res = await GetAccListByVehicleIdService(id, search, currentPage);
+      const list = Array.isArray(res?.data.list) ? res.data.list.map((item) => ({ ...item, key: item.siraNo })) : [];
+      setDataSource(list);
+      setTableParams((prevTableParams) => ({
+        ...prevTableParams,
+        pagination: {
+          ...prevTableParams.pagination,
+          current: currentPage,
+          total: res?.data.recordCount,
+        },
+      }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Modal title={t("aksesuarBilgiler")} open={visible} onCancel={onClose} maskClosable={false} footer={footer} width={1200}>
       <div className="flex justify-between align-center">
@@ -158,6 +184,7 @@ const Aksesuar = ({ visible, onClose, id }) => {
           </Popover>
           <Input placeholder={t("arama")} onChange={(e) => setSearch(e.target.value)} />
           <AddModal setStatus={setStatus} />
+          <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
         </div>
       </div>
       <UpdateModal updateModal={updateModal} setUpdateModal={setUpdateModal} setStatus={setStatus} status={status} id={accId} />
@@ -167,6 +194,14 @@ const Aksesuar = ({ visible, onClose, id }) => {
             <Table
               columns={newColumns}
               dataSource={dataSource}
+              rowSelection={{
+                type: "checkbox",
+                selectedRowKeys,
+                onChange: (keys, rows) => {
+                  setSelectedRowKeys(keys);
+                  setSelectedRows(rows);
+                },
+              }}
               pagination={{
                 ...tableParams.pagination,
                 showTotal: (total) => (
