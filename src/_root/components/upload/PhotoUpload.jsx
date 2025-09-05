@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { DownloadPhotoByIdService } from "../../../api/services/upload/services";
 import { InboxOutlined, UserOutlined, LoadingOutlined } from "@ant-design/icons";

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import PropTypes from "prop-types";
 import { Image, Spin, Upload, message, Button, Popconfirm } from "antd";
 import { InboxOutlined, UserOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useFormContext } from "react-hook-form";
 import AxiosInstance from "../../../api/http";
 
-const ResimUpload = ({ selectedRowID, setPhotoUploaded, setPhotoCount, refGroup }) => {
+const ResimUpload = ({ selectedRowID, setPhotoUploaded, setPhotoCount, refGroup, isForDefault = false }) => {
   const { watch } = useFormContext();
   const [imageUrls, setImageUrls] = useState([]);
   const [resimData, setResimData] = useState([]); // Store the full image data including IDs
@@ -16,7 +17,7 @@ const ResimUpload = ({ selectedRowID, setPhotoUploaded, setPhotoCount, refGroup 
   // Watch the 'kapali' field from the form
   const kapali = watch("kapali"); // Assuming 'kapali' is the name of the field in your form
 
-  const fetchResimIds = async () => {
+  const fetchResimIds = useCallback(async () => {
     try {
       setLoadingImages(true);
 
@@ -47,13 +48,13 @@ const ResimUpload = ({ selectedRowID, setPhotoUploaded, setPhotoCount, refGroup 
     } finally {
       setLoadingImages(false);
     }
-  };
+  }, [selectedRowID, refGroup, isForDefault]);
 
   useEffect(() => {
     if (selectedRowID) {
       fetchResimIds();
     }
-  }, [selectedRowID, refreshImages]); // refreshImages değişikliklerini de takip eder
+  }, [selectedRowID, refreshImages, fetchResimIds]); // refreshImages değişikliklerini de takip eder
 
   const handleDeletePhoto = async (index) => {
     try {
@@ -90,7 +91,7 @@ const ResimUpload = ({ selectedRowID, setPhotoUploaded, setPhotoCount, refGroup 
     beforeUpload: (file) => {
       const formData = new FormData();
       formData.append("images", file);
-      AxiosInstance.post(`Photo/UploadPhoto?refId=${selectedRowID}&refGroup=${refGroup}`, formData, {
+      AxiosInstance.post(`Photo/UploadPhoto?refId=${selectedRowID}&refGroup=${refGroup}${isForDefault ? "&isForDefault=true" : ""}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -188,6 +189,14 @@ const ResimUpload = ({ selectedRowID, setPhotoUploaded, setPhotoCount, refGroup 
       </Upload.Dragger>
     </div>
   );
+};
+
+ResimUpload.propTypes = {
+  selectedRowID: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  setPhotoUploaded: PropTypes.func,
+  setPhotoCount: PropTypes.func,
+  refGroup: PropTypes.string,
+  isForDefault: PropTypes.bool,
 };
 
 export default ResimUpload;

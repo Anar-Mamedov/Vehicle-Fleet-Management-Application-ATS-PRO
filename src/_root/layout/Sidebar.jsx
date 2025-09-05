@@ -624,7 +624,7 @@ const Sidebar = ({ collapsed }) => {
           <div style={{ padding: "8px 12px" }}>
             <Input size="small" allowClear placeholder={t("menuSearch")} value={searchValue || null} onChange={(e) => setSearchValue(e.target.value)} />
           </div>
-          <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={countedItems} />
+          <Menu mode="inline" theme="dark" openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} /* items={countedItems} */ items={visibleItems} />
         </div>
       </div>
       <Modal

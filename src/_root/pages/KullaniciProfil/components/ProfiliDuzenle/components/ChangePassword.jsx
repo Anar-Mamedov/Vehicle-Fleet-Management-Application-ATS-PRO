@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Input, Typography, Form, message, Progress } from "antd";
 import { useForm, Controller } from "react-hook-form";
 import AxiosInstance from "../../../../../../api/http.jsx";
+import PropTypes from "prop-types";
 
 const { Text } = Typography;
 
@@ -17,8 +18,35 @@ function ChangePassword({ userData }) {
   const [isStrongPasswordRequired, setIsStrongPasswordRequired] = useState(false);
 
   useEffect(() => {
-    setIsStrongPasswordRequired(userData?.gucluSifreAktif);
-  }, []);
+    let isMounted = true;
+
+    const fetchStrongPasswordSetting = async () => {
+      try {
+        const response = await AxiosInstance.get(`CommonSettings/GetSettingByType?type=5`);
+        const item = response?.data;
+        if (!isMounted) return;
+        if (typeof item === "boolean") {
+          setIsStrongPasswordRequired(item);
+        } else if (typeof item?.gucluSifreAktif !== "undefined") {
+          setIsStrongPasswordRequired(Boolean(item.gucluSifreAktif));
+        } else if (typeof userData?.gucluSifreAktif !== "undefined") {
+          setIsStrongPasswordRequired(Boolean(userData.gucluSifreAktif));
+        } else {
+          setIsStrongPasswordRequired(false);
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        console.error("ChangePassword: fetching strong password setting failed:", error);
+        setIsStrongPasswordRequired(Boolean(userData?.gucluSifreAktif));
+      }
+    };
+
+    fetchStrongPasswordSetting();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [userData?.gucluSifreAktif]);
 
   const calculatePasswordStrength = (password) => {
     let strength = 0;
@@ -33,8 +61,8 @@ function ChangePassword({ userData }) {
   const newPassword = watch("newPassword");
 
   useEffect(() => {
-    setPasswordStrength(calculatePasswordStrength(watch("newPassword")));
-  }, [watch("newPassword")]);
+    setPasswordStrength(calculatePasswordStrength(newPassword || ""));
+  }, [newPassword]);
 
   const onSubmit = async (data) => {
     if (data.newPassword !== data.confirmPassword) {
@@ -61,9 +89,17 @@ function ChangePassword({ userData }) {
         message.error("Eski Şifrenizi Yanlış Girdiniz.");
       }
     } catch (error) {
+      console.error("ChangePassword: password change failed:", error);
       message.error("Error changing password");
     }
   };
+
+  let progressStatus = "exception";
+  if (passwordStrength >= 100) {
+    progressStatus = "success";
+  } else if (passwordStrength >= 50) {
+    progressStatus = "active";
+  }
 
   return (
     <Form onFinish={handleSubmit(onSubmit)}>
@@ -103,7 +139,7 @@ function ChangePassword({ userData }) {
             control={control}
             defaultValue=""
             rules={{
-              required: isStrongPasswordRequired ? "Alan boş bırakılamaz" : "Alan boş bırakılamaz",
+              required: "Alan boş bırakılamaz",
               validate: (value) => {
                 if (value === watch("oldPassword")) {
                   return "Yeni şifre, eski şifreyle aynı olamaz.";
@@ -112,11 +148,12 @@ function ChangePassword({ userData }) {
                   const hasUpperCase = /[A-Z]/.test(value);
                   const hasLowerCase = /[a-z]/.test(value);
                   const hasNumber = /\d/.test(value);
-                  const hasSpecialChar = /[^A-Za-z0-9 `!@$%^*()_+\-={};"|,.<>?~/':§]/.test(value);
                   const hasMinLength = value.length >= 8;
+                  const allowedSpecials = " `!@$%^*()_+-={};\"|,.<>?~/' :§";
+                  const hasOnlyAllowedChars = [...value].every((ch) => /[A-Za-z0-9]/.test(ch) || allowedSpecials.includes(ch));
                   return (
-                    (hasUpperCase && hasLowerCase && hasNumber && !hasSpecialChar && hasMinLength) ||
-                    "Şifreniz en az 8 karakter uzunluğunda olmalı, büyük ve küçük harfler, rakam ve belirtilen özel karakterler ( `!@$%^*()_+\\-={};\"|,.<>?~/':§) dışında herhangi bir özel karakter içermemelidir."
+                    (hasUpperCase && hasLowerCase && hasNumber && hasOnlyAllowedChars && hasMinLength) ||
+                    "Şifreniz en az 8 karakter uzunluğunda olmalı, büyük ve küçük harfler, rakam ve belirtilen özel karakterler ( `!@$%^*()_+-={};\"|,.<>?~/' :§) dışında herhangi bir özel karakter içermemelidir."
                   );
                 } else {
                   return true; // GUCLENDIRILMIS_SIFRE_KULLAN false ise, her türlü şifreyi kabul eder
@@ -159,7 +196,7 @@ function ChangePassword({ userData }) {
               )}
             />
           </Form.Item>
-          {newPassword && <Progress percent={passwordStrength} status={passwordStrength < 50 ? "exception" : passwordStrength < 100 ? "active" : "success"} />}
+          {newPassword ? <Progress percent={passwordStrength} status={progressStatus} /> : null}
           <Button type="primary" htmlType="submit">
             Uygula
           </Button>
@@ -170,3 +207,10 @@ function ChangePassword({ userData }) {
 }
 
 export default ChangePassword;
+
+ChangePassword.propTypes = {
+  userData: PropTypes.shape({
+    siraNo: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    gucluSifreAktif: PropTypes.bool,
+  }),
+};
