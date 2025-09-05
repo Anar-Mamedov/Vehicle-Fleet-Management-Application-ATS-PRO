@@ -13,9 +13,9 @@ function SifreAyarlari() {
     const fetchData = async () => {
       try {
         const response = await AxiosInstance.get(`CommonSettings/GetSettingByType?type=5`);
-        const item = response?.data;
-        if (isMounted && item) {
-          setIsStrongPasswordRequired(Boolean(item?.gucluSifreAktif));
+        const item = response?.data ?? response;
+        if (isMounted) {
+          setIsStrongPasswordRequired(Boolean(item));
         }
       } catch (error) {
         console.error("SifreAyarlari: Ayar verisi çekilirken hata oluştu:", error);
@@ -42,6 +42,13 @@ function SifreAyarlari() {
 
       if (response?.data?.statusCode === 200 || response?.data?.statusCode === 201 || response?.data?.statusCode === 202) {
         message.success(t("guncellemeBasarili") || "Güncelleme Başarılı.");
+        try {
+          const refetch = await AxiosInstance.get(`CommonSettings/GetSettingByType?type=5`);
+          const latestValue = refetch?.data ?? refetch;
+          setIsStrongPasswordRequired(Boolean(latestValue));
+        } catch (refetchError) {
+          console.error("SifreAyarlari: Güncelleme sonrası veri çekme hatası:", refetchError);
+        }
       } else if (response?.data?.statusCode === 401) {
         message.error(t("yetkiYok") || "Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
       } else {
