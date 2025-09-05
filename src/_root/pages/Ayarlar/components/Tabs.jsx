@@ -10,6 +10,7 @@ import StokIslemleri from "./StokIslemleri/StokIslemleri";
 import OtomatikKodlar from "./OtomatikKodlar/OtomatikKodlar";
 import YakitIslemleri from "./YakitIslemleri/YakitIslemleri";
 import TabloAyarlari from "./TabloAyarlari/TabloAyarlari";
+import SifreAyarlari from "./SifreAyarlari/SifreAyarlari";
 const StyledTabs = styled(Tabs)`
   .ant-tabs-tab-active {
     background-color: #e6f7ff; /* Soluk mavi arka plan */
@@ -95,6 +96,16 @@ function AyarlarTabs() {
         </div>
       ),
       children: activeKey === "7" && <TabloAyarlari />,
+    },
+    {
+      key: "8",
+      label: (
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+          <ToolOutlined />
+          <div style={{ paddingTop: "2px" }}>{t("sifreAyarlari")}</div>
+        </div>
+      ),
+      children: activeKey === "8" && <SifreAyarlari />,
     },
   ];
 

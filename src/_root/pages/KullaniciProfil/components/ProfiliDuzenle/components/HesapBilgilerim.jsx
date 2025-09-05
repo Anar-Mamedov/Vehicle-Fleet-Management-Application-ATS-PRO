@@ -1,68 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import PropTypes from "prop-types";
 import { Avatar, Spin, Typography, Image, Button, Modal, message } from "antd";
-import { Controller, useFormContext } from "react-hook-form";
 import { UserOutlined, EditOutlined, PictureOutlined } from "@ant-design/icons";
 import AxiosInstance from "../../../../../../api/http.jsx";
 /* import HesapBilgileriDuzenle from "../../HesapBilgileriDuzenle.jsx"; */
-/* import ResimUpload from "./Resim/ResimUpload.jsx"; // AppContext'i import edin */
+import ResimUpload from "../../../../../components/Resim/ResimUpload.jsx";
 import { TiDelete } from "react-icons/ti";
 const { Text } = Typography;
 
 function HesapBilgilerim({ userData }) {
-  const {
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useFormContext();
   const [imageUrl, setImageUrl] = useState(null); // Resim URL'sini saklamak için state tanımlayın
   const [loadingImage, setLoadingImage] = useState(false); // Yükleme durumu için yeni bir state
-  const [isModalVisible, setIsModalVisible] = useState(false); // Modal'ın görünürlüğünü kontrol etmek için state
+  const [, setIsModalVisible] = useState(false); // Modal'ın görünürlüğünü kontrol etmek için state
   const [isModalVisible1, setIsModalVisible1] = useState(false); // Modal'ın görünürlüğünü kontrol etmek için state
 
-  const userName = watch("userName");
+  // Profil güncelleme gövdesi gerekirse oluşturulabilir; şu an silme akışında kullanılmıyor
 
-  const Body = {
-    PRS_ISIM: userData?.PRS_ISIM,
-    KLL_KOD: userData?.KLL_KOD,
-    KLL_TANIM: userData?.KLL_TANIM,
-    PRS_EMAIL: userData?.PRS_EMAIL,
-    PRS_TELEFON: userData?.PRS_TELEFON,
-    PRS_DAHILI: userData?.PRS_DAHILI,
-    PRS_ADRES: userData?.PRS_ADRES,
-    PRS_ACIKLAMA: userData?.PRS_ACIKLAMA,
-    KLL_AKTIF: userData?.KLL_AKTIF,
-    PRS_UNVAN: userData?.PRS_UNVAN,
-    PRS_GSM: userData?.PRS_GSM,
-    PRS_RESIM_ID: "",
-    KLL_PERSONEL_ID: userData?.KLL_PERSONEL_ID,
-    KLL_NEW_USER: userData?.KLL_NEW_USER,
-    KLL_DEGISTIRME_TARIH: userData?.KLL_DEGISTIRME_TARIH,
-  };
-
-  const deletePicture = () => {
-    if (userData?.PRS_RESIM_ID) {
-      AxiosInstance.post(`UpdateKullaniciProfile`, Body)
-        .then((response) => {
-          console.log("Data sent successfully:", response);
-          if (response.status_code === 200 || response.status_code === 201) {
-            message.success("Güncelleme Başarılı.");
-            /* setIsButtonClicked((prev) => !prev); // Başarılı yüklemeden sonra resim listesini yenile */
-            setImageUrl(null);
-          } else if (response.data.statusCode === 401) {
-            message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
-          } else {
-            message.error("Güncelleme Başarısız Oldu.");
-          }
-        })
-        .catch((error) => {
-          // Handle errors here, e.g.:
-          console.error("Error sending data:", error);
-          message.error("Başarısız Olundu.");
-        });
-      console.log({ Body });
-    }
-  };
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // const deletePicture1 = async () => {
   //   if (userData?.PRS_RESIM_ID) {
@@ -78,37 +32,92 @@ function HesapBilgilerim({ userData }) {
   //   }
   // };
 
-  useEffect(() => {
-    // userData.userResimID değeri gelene kadar bekler
-    if (userData?.PRS_RESIM_ID !== undefined) {
-      const fetchImage = async () => {
-        try {
-          setLoadingImage(true); // Resim yüklenmeye başladığında loadingImage'i true yap
-          // responseType olarak 'blob' seçilir.
-          const response = await AxiosInstance.get(`ResimGetirById?id=${userData?.PRS_RESIM_ID}`, {
-            responseType: "blob",
-          });
-          // Yanıttaki blob verisi bir URL'ye dönüştürülür.
-          const imageBlob = response;
-          const imageObjectURL = URL.createObjectURL(imageBlob);
-          setImageUrl(imageObjectURL);
-        } catch (error) {
-          console.error("Error fetching image:", error);
-        } finally {
-          setLoadingImage(false); // Resim yüklendikten sonra veya hata durumunda loadingImage'i false yap
-        }
-      };
+  const lastObjectUrlRef = useRef(null);
 
-      fetchImage();
+  const fetchUserPhoto = useCallback(async () => {
+    try {
+      setLoadingImage(true);
+      if (!userData?.siraNo) {
+        setImageUrl(null);
+        return;
+      }
+      const listResponse = await AxiosInstance.get(`Photo/GetPhotosByRefGroup?refId=${userData.siraNo}&refGroup=user`);
+      const resimListesi = Array.isArray(listResponse?.data) ? listResponse.data : [];
 
-      // Component unmount olduğunda veya resim değiştiğinde oluşturulan URL iptal edilir.
-      return () => {
-        if (imageUrl) {
-          URL.revokeObjectURL(imageUrl);
-        }
-      };
+      if (resimListesi.length === 0) {
+        setImageUrl(null);
+        return;
+      }
+
+      const tercihEdilen = resimListesi.find((r) => r.isDefault) || resimListesi[0];
+
+      const downloadResponse = await AxiosInstance.post(
+        `Photo/DownloadPhotoById`,
+        {
+          photoId: tercihEdilen.tbResimId,
+          extension: tercihEdilen.rsmUzanti,
+          fileName: tercihEdilen.rsmAd,
+        },
+        { responseType: "blob" }
+      );
+
+      if (lastObjectUrlRef.current) {
+        URL.revokeObjectURL(lastObjectUrlRef.current);
+        lastObjectUrlRef.current = null;
+      }
+
+      const objectUrl = URL.createObjectURL(downloadResponse.data);
+      lastObjectUrlRef.current = objectUrl;
+      setImageUrl(objectUrl);
+    } catch (error) {
+      console.error("Kullanıcı fotoğrafı yüklenirken hata oluştu:", error);
+      setImageUrl(null);
+    } finally {
+      setLoadingImage(false);
     }
-  }, [userData?.PRS_RESIM_ID]); // Dependency array'e imageUrl eklenir.
+  }, [userData?.siraNo]);
+
+  useEffect(() => {
+    fetchUserPhoto();
+    return () => {
+      if (lastObjectUrlRef.current) {
+        URL.revokeObjectURL(lastObjectUrlRef.current);
+        lastObjectUrlRef.current = null;
+      }
+    };
+  }, [fetchUserPhoto]);
+
+  const handleDeleteUserPhoto = useCallback(async () => {
+    if (!userData?.siraNo) return;
+    try {
+      setIsDeleting(true);
+      const listResponse = await AxiosInstance.get(`Photo/GetPhotosByRefGroup?refId=${userData.siraNo}&refGroup=user`);
+      const resimListesi = Array.isArray(listResponse?.data) ? listResponse.data : [];
+      if (resimListesi.length === 0) {
+        message.info("Silinecek fotoğraf bulunamadı.");
+        return;
+      }
+
+      const tercihEdilen = resimListesi.find((r) => r.isDefault) || resimListesi[0];
+      const response = await AxiosInstance.get(`Photo/DeletePhotoById?id=${tercihEdilen.tbResimId}`);
+      if (response && response.data && response.data.success === false) {
+        throw new Error(response.data.message || "Silme işlemi başarısız oldu");
+      }
+
+      message.success("Fotoğraf başarıyla silindi.");
+      await fetchUserPhoto();
+      window.dispatchEvent(
+        new CustomEvent("user-photo-updated", {
+          detail: { userId: userData?.siraNo, at: Date.now() },
+        })
+      );
+    } catch (error) {
+      console.error("Fotoğraf silinirken bir hata oluştu:", error);
+      message.error(error.message || "Fotoğraf silinirken bir hata oluştu.");
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [userData?.siraNo, fetchUserPhoto]);
 
   // useEffect(() => {
   //   setValue("userName", "Kullanıcı Adı");
@@ -152,7 +161,13 @@ function HesapBilgilerim({ userData }) {
                   height={84}
                   src={imageUrl}
                   placeholder={loadingImage ? <Spin /> : <UserOutlined />}
-                  style={{ borderRadius: "50%", minWidth: "84px" }} // Resmi yuvarlak yap
+                  style={{
+                    width: "84px",
+                    height: "84px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
                 />
               </Image.PreviewGroup>
             ) : (
@@ -180,18 +195,21 @@ function HesapBilgilerim({ userData }) {
               onClick={uploadPhoto}
             />
 
-            <TiDelete
-              style={{
-                fontSize: "35px",
-                position: "absolute",
-                top: "-8px",
-                right: "-8px",
-                cursor: "pointer",
-                color: "red",
-                dropShadow: "2px 2px 5px rgba(0,0,0,0.9)",
-              }}
-              onClick={deletePicture}
-            />
+            {imageUrl && (
+              <TiDelete
+                style={{
+                  fontSize: "35px",
+                  position: "absolute",
+                  top: "-8px",
+                  right: "-8px",
+                  cursor: isDeleting ? "not-allowed" : "pointer",
+                  color: isDeleting ? "#aaa" : "red",
+                  dropShadow: "2px 2px 5px rgba(0,0,0,0.9)",
+                }}
+                onClick={isDeleting ? undefined : handleDeleteUserPhoto}
+                title={isDeleting ? "Siliniyor..." : "Fotoğrafı sil"}
+              />
+            )}
           </div>
 
           <div
@@ -289,11 +307,55 @@ function HesapBilgilerim({ userData }) {
         }}
       /> */}
 
-      <Modal title="Resim Yükle" centered open={isModalVisible1} onOk={() => setIsModalVisible1(false)} onCancel={() => setIsModalVisible1(false)} width={800}>
-        {/* <ResimUpload /> */}
+      <Modal
+        title="Resim Yükle"
+        centered
+        open={isModalVisible1}
+        onOk={() => setIsModalVisible1(false)}
+        onCancel={() => setIsModalVisible1(false)}
+        destroyOnClose
+        afterOpenChange={(open) => {
+          if (!open) {
+            fetchUserPhoto();
+            window.dispatchEvent(
+              new CustomEvent("user-photo-updated", {
+                detail: { userId: userData?.siraNo, at: Date.now() },
+              })
+            );
+          }
+        }}
+        width={800}
+      >
+        <ResimUpload selectedRowID={userData?.siraNo} setPhotoUploaded={() => {}} setPhotoCount={() => {}} refGroup="user" isForDefault={true} />
       </Modal>
     </div>
   );
 }
 
 export default HesapBilgilerim;
+
+HesapBilgilerim.propTypes = {
+  userData: PropTypes.shape({
+    siraNo: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    PRS_RESIM_ID: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    PRS_ISIM: PropTypes.string,
+    KLL_KOD: PropTypes.string,
+    KLL_TANIM: PropTypes.string,
+    PRS_EMAIL: PropTypes.string,
+    PRS_TELEFON: PropTypes.string,
+    PRS_DAHILI: PropTypes.string,
+    PRS_ADRES: PropTypes.string,
+    PRS_ACIKLAMA: PropTypes.string,
+    KLL_AKTIF: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
+    PRS_UNVAN: PropTypes.string,
+    PRS_GSM: PropTypes.string,
+    KLL_PERSONEL_ID: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    KLL_NEW_USER: PropTypes.bool,
+    KLL_DEGISTIRME_TARIH: PropTypes.string,
+    isim: PropTypes.string,
+    soyAd: PropTypes.string,
+    kullaniciKod: PropTypes.string,
+    email: PropTypes.string,
+    telefon: PropTypes.string,
+  }),
+};
