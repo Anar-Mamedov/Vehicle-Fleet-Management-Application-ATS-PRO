@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Space, message, InputNumber, Input, DatePicker, Button, Modal, Checkbox } from "antd";
+import PropTypes from "prop-types";
+import { Typography, message, InputNumber, Input, DatePicker, Button, Modal, Checkbox } from "antd";
 import AxleListSelect from "./AxleListSelect";
 import PositionListSelect from "./PositionListSelect";
 import KodIDSelectbox from "../../../../../../../components/KodIDSelectbox";
@@ -8,7 +9,7 @@ import AxiosInstance from "../../../../../../../../api/http";
 import LastikMarka from "../../../../../../../components/LastikMarka";
 import LastikModel from "../../../../../../../components/LastikModel";
 import { t } from "i18next";
-import { Controller, useFormContext, FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import dayjs from "dayjs";
 import locale from "antd/es/date-picker/locale/tr_TR";
 import enLocale from "antd/es/date-picker/locale/en_US";
@@ -42,6 +43,7 @@ const { TextArea } = Input;
 
 export default function LastikTak({ aracId, wheelInfo, axleList, positionList, shouldOpenModal, onModalClose, showAddButton = true, refreshList, selectedAracDetay }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [occupiedPositionsMap, setOccupiedPositionsMap] = useState({});
 
   const methods = useForm({
     defaultValues: {
@@ -69,15 +71,9 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     mode: "onChange",
   });
 
-  const {
-    control,
-    formState: { errors },
-    setValue,
-    reset,
-    watch,
-  } = methods;
+  const { control, setValue, watch } = methods;
 
-  const fetchNewSerialNumber = async () => {
+  const fetchNewSerialNumber = React.useCallback(async () => {
     try {
       const response = await AxiosInstance.get("Numbering/GetModuleCodeByCode?code=LASTIK_SERI_NO");
       if (response.data) {
@@ -87,7 +83,31 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
       console.error("Error fetching serial number:", error);
       message.error(t("seriNoGetirilemedi"));
     }
-  };
+  }, [setValue]);
+
+  const fetchInstalledTiresMapping = React.useCallback(async () => {
+    try {
+      if (!aracId) return;
+      const response = await AxiosInstance.get(`TyreOperation/GetInstalledTyresByVid?vId=${aracId}`);
+      if (response?.data) {
+        const tiresArray = Array.isArray(response.data) ? response.data : [response.data];
+        const positionMap = tiresArray.reduce((acc, tire) => {
+          if (tire.aksPozisyon && tire.pozisyonNo) {
+            if (!acc[tire.aksPozisyon]) {
+              acc[tire.aksPozisyon] = [];
+            }
+            if (!acc[tire.aksPozisyon].includes(tire.pozisyonNo)) {
+              acc[tire.aksPozisyon].push(tire.pozisyonNo);
+            }
+          }
+          return acc;
+        }, {});
+        setOccupiedPositionsMap(positionMap);
+      }
+    } catch (error) {
+      console.error("Error fetching installed tires:", error);
+    }
+  }, [aracId]);
 
   // Listen for external modal trigger
   useEffect(() => {
@@ -95,16 +115,18 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
       setIsModalOpen(true);
       fetchNewSerialNumber();
       setValue("montajTarihi", dayjs().format("YYYY-MM-DD"));
-      setValue("montajKm", selectedAracDetay.guncelKm);
+      setValue("montajKm", selectedAracDetay?.guncelKm ?? 0);
+      fetchInstalledTiresMapping();
     }
-  }, [shouldOpenModal]);
+  }, [shouldOpenModal, fetchNewSerialNumber, fetchInstalledTiresMapping, selectedAracDetay?.guncelKm, setValue]);
 
   const handleOpenModal = async () => {
     setIsModalOpen(true);
     fetchNewSerialNumber();
     setValue("montajTarihi", dayjs().format("YYYY-MM-DD"));
-    setValue("montajKm", selectedAracDetay.guncelKm);
+    setValue("montajKm", selectedAracDetay?.guncelKm ?? 0);
     setValue("tumBosAkslaraTak", false);
+    fetchInstalledTiresMapping();
   };
 
   const handleCloseModal = () => {
@@ -113,6 +135,36 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     if (onModalClose) {
       onModalClose();
     }
+  };
+
+  const getPositionsByAxleName = (axleName) => {
+    if (!axleName || !positionList) return [];
+    if (axleName === "onAks") {
+      return positionList[0] || [];
+    }
+    if (axleName === "arkaAks") {
+      return positionList[positionList.length - 1] || [];
+    }
+    const axleNumber = parseInt(String(axleName).replace("ortaAks", ""));
+    if (!isNaN(axleNumber)) {
+      return positionList[axleNumber] || [];
+    }
+    return [];
+  };
+
+  const computeEmptyPositions = () => {
+    if (!Array.isArray(axleList) || axleList.length === 0) return [];
+    const result = [];
+    axleList.forEach((axleName) => {
+      const allPositions = getPositionsByAxleName(axleName);
+      const occupied = occupiedPositionsMap[axleName] || [];
+      allPositions
+        .filter((p) => !occupied.includes(p))
+        .forEach((pozisyonNo) => {
+          result.push({ aksPozisyon: axleName, pozisyonNo });
+        });
+    });
+    return result;
   };
 
   useEffect(() => {
@@ -132,30 +184,63 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     return formattedTime.isValid() ? formattedTime.format("HH:mm:ss") : "";
   };
 
-  const createRequestBody = (data) => ({
-    seriNo: data.siraNo,
-    aracId: aracId,
-    lastikSiraNo: data.lastikID,
-    aksPozisyon: data.selectedAxle,
-    pozisyonNo: data.selectedPosition,
-    tahminiOmurKm: data.lastikOmru,
-    ebatKodId: Number(data.lastikEbatID),
-    tipKodId: Number(data.lastikTipID),
-    lastikModelId: Number(data.modelID),
-    lastikMarkaId: Number(data.markaID),
-    disDerinligi: data.disDerinligi,
-    basinc: data.basinc,
-    aciklama: data.lastikAciklama,
-    takildigiKm: data.montajKm,
-    takilmaTarih: data.montajTarihi,
-    // tumBosAkslaraTak: data.tumBosAkslaraTak,
-    durumId: 1,
-    islemTipId: 1,
-  });
+  const createRequestBody = (data) => {
+    const isBulk = !!data.tumBosAkslaraTak;
+    if (isBulk) {
+      const emptyPositions = computeEmptyPositions();
+      if (!emptyPositions.length) {
+        message.info(t("bosPozisyonYok") || "Boş pozisyon bulunamadı.");
+        return null;
+      }
+      return {
+        seriNo: data.siraNo,
+        aracId: aracId,
+        lastikSiraNo: data.lastikID,
+        aksPozisyon: emptyPositions.map((x) => x.aksPozisyon),
+        pozisyonNo: emptyPositions.map((x) => x.pozisyonNo),
+        tahminiOmurKm: data.lastikOmru,
+        ebatKodId: Number(data.lastikEbatID),
+        tipKodId: Number(data.lastikTipID),
+        lastikModelId: Number(data.modelID),
+        lastikMarkaId: Number(data.markaID),
+        disDerinligi: data.disDerinligi,
+        basinc: data.basinc,
+        aciklama: data.lastikAciklama,
+        takildigiKm: data.montajKm,
+        takilmaTarih: data.montajTarihi,
+        tumBosAkslaraTak: true,
+        durumId: 1,
+        islemTipId: 1,
+      };
+    }
+
+    return {
+      seriNo: data.siraNo,
+      aracId: aracId,
+      lastikSiraNo: data.lastikID,
+      aksPozisyon: data.selectedAxle,
+      pozisyonNo: data.selectedPosition,
+      tahminiOmurKm: data.lastikOmru,
+      ebatKodId: Number(data.lastikEbatID),
+      tipKodId: Number(data.lastikTipID),
+      lastikModelId: Number(data.modelID),
+      lastikMarkaId: Number(data.markaID),
+      disDerinligi: data.disDerinligi,
+      basinc: data.basinc,
+      aciklama: data.lastikAciklama,
+      takildigiKm: data.montajKm,
+      takilmaTarih: data.montajTarihi,
+      // tumBosAkslaraTak: data.tumBosAkslaraTak,
+      durumId: 1,
+      islemTipId: 1,
+    };
+  };
 
   const handleApiCall = async (data) => {
     try {
-      const response = await AxiosInstance.post("TyreOperation/AddTyreOperation", createRequestBody(data));
+      const payload = createRequestBody(data);
+      if (!payload) return false;
+      const response = await AxiosInstance.post("TyreOperation/AddTyreOperation", payload);
 
       if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202) {
         message.success("Güncelleme Başarılı.");
@@ -443,25 +528,29 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                     </div>
                   </div> */}
 
-                  <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
-                    <Text>
-                      {t("axle")}
-                      <span style={{ color: "red" }}>*</span>
-                    </Text>
-                    <div style={{ width: "250px" }}>
-                      <AxleListSelect axleList={axleList} />
-                    </div>
-                  </div>
+                  {!tumBosAkslaraTak && (
+                    <>
+                      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
+                        <Text>
+                          {t("axle")}
+                          <span style={{ color: "red" }}>*</span>
+                        </Text>
+                        <div style={{ width: "250px" }}>
+                          <AxleListSelect axleList={axleList} />
+                        </div>
+                      </div>
 
-                  <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
-                    <Text>
-                      {t("position")}
-                      <span style={{ color: "red" }}>*</span>
-                    </Text>
-                    <div style={{ width: "250px" }}>
-                      <PositionListSelect positionList={positionList} />
-                    </div>
-                  </div>
+                      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
+                        <Text>
+                          {t("position")}
+                          <span style={{ color: "red" }}>*</span>
+                        </Text>
+                        <div style={{ width: "250px" }}>
+                          <PositionListSelect positionList={positionList} />
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
                     <Text>{t("montajKm")}</Text>
@@ -555,3 +644,21 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
     </>
   );
 }
+
+LastikTak.propTypes = {
+  aracId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  wheelInfo: PropTypes.shape({
+    axlePosition: PropTypes.string,
+    wheelPosition: PropTypes.string,
+  }),
+  axleList: PropTypes.arrayOf(PropTypes.string).isRequired,
+  positionList: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
+  shouldOpenModal: PropTypes.bool,
+  onModalClose: PropTypes.func,
+  showAddButton: PropTypes.bool,
+  refreshList: PropTypes.func,
+  selectedAracDetay: PropTypes.shape({
+    guncelKm: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    plaka: PropTypes.string,
+  }).isRequired,
+};

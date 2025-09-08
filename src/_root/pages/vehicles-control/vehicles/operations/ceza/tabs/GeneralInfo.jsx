@@ -23,17 +23,31 @@ const GeneralInfo = () => {
   const [madde, setMadde] = useState(false);
   const [modalKey, setModalKey] = useState(0);
 
+  const tutar = watch("tutar");
+  const indirimOran = watch("indirimOran");
+  const gecikmeTutar = watch("gecikmeTutar");
+  const tebligTarih = watch("tebligTarih");
+
   useEffect(() => {
-    if (watch("tutar") && watch("indirimOran")) {
-      const toplam = watch("tutar") - watch("indirimOran");
+    if (tutar && indirimOran) {
+      const toplam = tutar - indirimOran;
       setValue("toplamTutar", toplam);
     }
 
-    if (watch("tutar") && watch("gecikmeTutar")) {
-      const toplam = watch("tutar") + watch("gecikmeTutar");
+    if (tutar && gecikmeTutar) {
+      const toplam = tutar + gecikmeTutar;
       setValue("toplamTutar", toplam);
     }
-  }, [watch("tutar"), watch("gecikmeTutar"), watch("indirimOran")]);
+  }, [tutar, gecikmeTutar, indirimOran, setValue]);
+
+  useEffect(() => {
+    if (tebligTarih) {
+      const odemeTarih = dayjs(tebligTarih).add(30, "day");
+      setValue("odemeTarih", odemeTarih);
+    } else {
+      setValue("odemeTarih", null);
+    }
+  }, [tebligTarih, setValue]);
 
   const handleOpen = () => {
     setModalKey((prevKey) => prevKey + 1);
@@ -47,6 +61,7 @@ const GeneralInfo = () => {
       onClick={() => {
         setValue("cezaMaddesi", madde[0].madde);
         setValue("cezaMaddesiId", madde[0].siraNo);
+        setValue("tutar", madde[0].tutar);
         setOpen(false);
       }}
     >

@@ -695,6 +695,7 @@ const Yakit = () => {
               showSizeChanger: false,
               showQuickJumper: true,
               onChange: handleTableChange,
+              showTotal: (total) => `Toplam ${total}`,
             }}
             scroll={{ y: "calc(100vh - 335px)" }}
           />
