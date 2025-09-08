@@ -29,6 +29,7 @@ import Aksesuar from "./modals/aksesuar/Aksesuar";
 import Surucu from "./modals/surucu/Surucu";
 import Lokasyonlar from "./modals/lokasyon/Surucu";
 // import Lastik from "./modals/lastik/Lastik";
+import AksYapilandirma from "../../../LastikYonetimi/LastikIslemleri/Update/EditDrawer.jsx";
 
 const DetailInfo = ({ id, refreshVehicleData }) => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -141,9 +142,7 @@ const DetailInfo = ({ id, refreshVehicleData }) => {
       case "10":
         return <Kapasite visible={selectedItem === "10"} onClose={() => setSelectedItem(null)} id={id} />;
       case "11":
-        // Lastik component is not defined, so we'll return null for now
-        // return <Lastik visible={selectedItem === "11"} onClose={() => setSelectedItem(null)} id={id} />;
-        return null;
+        return <AksYapilandirma visible={selectedItem === "11"} onClose={() => setSelectedItem(null)} id={id} />;
       case "12":
         return <Satis visible={selectedItem === "12"} onClose={() => setSelectedItem(null)} id={id} />;
       case "13":
