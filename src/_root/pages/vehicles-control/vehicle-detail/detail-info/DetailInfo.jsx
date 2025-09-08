@@ -6,7 +6,6 @@ import {
   UserOutlined,
   IdcardOutlined,
   CarOutlined,
-  ApartmentOutlined,
   ApiOutlined,
   BranchesOutlined,
   CreditCardOutlined,
@@ -31,7 +30,7 @@ import Lokasyonlar from "./modals/lokasyon/Surucu";
 // import Lastik from "./modals/lastik/Lastik";
 import AksYapilandirma from "../../../LastikYonetimi/LastikIslemleri/Update/EditDrawer.jsx";
 
-const DetailInfo = ({ id, refreshVehicleData }) => {
+const DetailInfo = ({ id, refreshVehicleData, selectedRowsData }) => {
   const [selectedItem, setSelectedItem] = useState(null);
 
   const items = [
@@ -142,7 +141,14 @@ const DetailInfo = ({ id, refreshVehicleData }) => {
       case "10":
         return <Kapasite visible={selectedItem === "10"} onClose={() => setSelectedItem(null)} id={id} />;
       case "11":
-        return <AksYapilandirma visible={selectedItem === "11"} onClose={() => setSelectedItem(null)} id={id} />;
+        return (
+          <AksYapilandirma
+            drawerVisible={selectedItem === "11"}
+            onDrawerClose={() => setSelectedItem(null)}
+            selectedRow={{ aracId: selectedRowsData[0].key, aksId: selectedRowsData[0].aksId, plaka: selectedRowsData[0].plaka, marka: selectedRowsData[0].marka }}
+            onRefresh={refreshVehicleData}
+          />
+        );
       case "12":
         return <Satis visible={selectedItem === "12"} onClose={() => setSelectedItem(null)} id={id} />;
       case "13":

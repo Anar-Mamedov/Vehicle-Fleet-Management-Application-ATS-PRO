@@ -785,7 +785,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         </div>
 
         <div className="content relative">
-          <DetailInfo id={String(selectedId)} refreshVehicleData={refreshVehicleData} />
+          <DetailInfo id={String(selectedId)} refreshVehicleData={refreshVehicleData} selectedRowsData={selectedRows1} />
           <Tabs activeKey={activeKey} onChange={setActiveKey} items={items} />
         </div>
       </FormProvider>
