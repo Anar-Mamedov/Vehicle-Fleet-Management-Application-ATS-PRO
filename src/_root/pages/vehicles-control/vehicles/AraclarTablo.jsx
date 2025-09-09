@@ -14,6 +14,8 @@ import {
   FileExcelOutlined,
 } from "@ant-design/icons";
 import { FaExclamation, FaCheck, FaTimes } from "react-icons/fa";
+import { FcPicture } from "react-icons/fc";
+import { FaFileInvoice } from "react-icons/fa6";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -797,6 +799,42 @@ const Yakit = ({ ayarlarData, customFields }) => {
         if (b.aracTip === null) return 1;
         return a.aracTip.localeCompare(b.aracTip);
       },
+    },
+
+    {
+      title: t("resimVar"),
+      dataIndex: "resimVar",
+      key: "resimVar",
+      width: 80,
+      ellipsis: true,
+      visible: false,
+      align: "center",
+      render: (value) =>
+        value ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+            <FcPicture size={24} />
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} />
+        ),
+    },
+
+    {
+      title: t("dosyaVar"),
+      dataIndex: "dosyaVar",
+      key: "dosyaVar",
+      width: 80,
+      ellipsis: true,
+      visible: false,
+      align: "center",
+      render: (value) =>
+        value ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+            <FaFileInvoice size={24} />
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} />
+        ),
     },
 
     {
