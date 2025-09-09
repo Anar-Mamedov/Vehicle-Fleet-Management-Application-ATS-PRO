@@ -6,8 +6,21 @@ import EditDrawer from "../Update/EditDrawer.jsx";
 import Filters from "./filter/Filters.jsx";
 import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, message, Tooltip, ConfigProvider } from "antd";
+import {
+  HolderOutlined,
+  SearchOutlined,
+  MenuOutlined,
+  HomeOutlined,
+  ArrowDownOutlined,
+  ArrowUpOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  DashboardOutlined,
+  CheckCircleFilled,
+  WarningFilled,
+  CloseCircleFilled,
+} from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -361,6 +374,72 @@ const LastikEnvanteri = () => {
     },
 
     {
+      title: t("lastikOmru"),
+      dataIndex: "lastikOmru",
+      key: "lastikOmru",
+      width: 300,
+      ellipsis: true,
+      visible: true,
+      render: (_, record) => {
+        const percent = calculateTireUsagePercentage(record);
+        const status = getTireStatus(percent);
+        const used = (record?.guncelKm ?? 0) - (record?.takildigiKm ?? 0) + (record?.kullanimSuresi ?? 0);
+        const total = record?.tahminiOmurKm ?? 0;
+        const remaining = calculateRemainingLifespan(record);
+
+        return (
+          <div style={{ position: "relative" }}>
+            <LifespanSection>
+              <ProgressBackground $percent={percent} $status={status} />
+              <LifespanHeader>
+                <LifespanTitle>
+                  <DashboardOutlined style={{ fontSize: "12px" }} />
+                  {t("lastikOmru")}
+                </LifespanTitle>
+                <LifespanHeaderRight>
+                  <LifespanValue $status={status}>
+                    {percent > 40 ? (
+                      <CheckCircleFilled style={{ fontSize: "12px" }} />
+                    ) : percent > 15 ? (
+                      <WarningFilled style={{ fontSize: "12px" }} />
+                    ) : (
+                      <CloseCircleFilled style={{ fontSize: "12px" }} />
+                    )}
+                    {Math.round(percent)}%
+                  </LifespanValue>
+                  {record?.tahminiOmurKm ? <StatusBadge $status={status}>{getTireStatusText(percent)}</StatusBadge> : null}
+                </LifespanHeaderRight>
+              </LifespanHeader>
+              <Tooltip
+                title={
+                  <TooltipContent>
+                    <TooltipRow>
+                      <TooltipLabel>{t("kullanilan")}:</TooltipLabel>
+                      <TooltipValue>{formatKm(used)} km</TooltipValue>
+                    </TooltipRow>
+                    <TooltipRow>
+                      <TooltipLabel>{t("toplam")}:</TooltipLabel>
+                      <TooltipValue>{formatKm(total)} km</TooltipValue>
+                    </TooltipRow>
+                    <TooltipRow $noBorder>
+                      <TooltipLabel>{t("kalan")}:</TooltipLabel>
+                      <TooltipHighlight $status={status}>{formatKm(remaining)} km</TooltipHighlight>
+                    </TooltipRow>
+                  </TooltipContent>
+                }
+                placement="top"
+                color="#333"
+              >
+                <div style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0, zIndex: 3 }} />
+              </Tooltip>
+            </LifespanSection>
+          </div>
+        );
+      },
+      sorter: (a, b) => calculateTireUsagePercentage(a) - calculateTireUsagePercentage(b),
+    },
+
+    {
       title: t("ebat"),
       dataIndex: "ebat",
       key: "ebat",
@@ -524,6 +603,157 @@ const LastikEnvanteri = () => {
   };
 
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için sonu
+
+  // Lastik ömrü hesaplamaları (TakiliLastikListesi.jsx ile aynı mantık)
+  const calculateTireUsagePercentage = (record) => {
+    if (!record || !record.tahminiOmurKm) return 100;
+
+    const currentKm = record.guncelKm ?? 0;
+    const installedKm = record.takildigiKm ?? 0;
+    const previousUsage = record.kullanimSuresi ?? 0;
+
+    const usedLifespan = currentKm - installedKm + previousUsage;
+    const remainingPercentage = 100 - (usedLifespan / record.tahminiOmurKm) * 100;
+    return Math.min(Math.max(0, remainingPercentage), 100);
+  };
+
+  const calculateRemainingLifespan = (record) => {
+    if (!record || !record.tahminiOmurKm) return 0;
+    const currentKm = record.guncelKm ?? 0;
+    const installedKm = record.takildigiKm ?? 0;
+    const previousUsage = record.kullanimSuresi ?? 0;
+    const usedLifespan = currentKm - installedKm + previousUsage;
+    return Math.max(0, record.tahminiOmurKm - usedLifespan);
+  };
+
+  const getTireStatus = (percentage) => {
+    if (percentage > 40) return "success";
+    if (percentage > 15) return "warning";
+    return "exception";
+  };
+
+  const getTireStatusText = (percentage) => {
+    if (percentage > 40) return t("iyi");
+    if (percentage > 15) return t("orta");
+    return t("kritik");
+  };
+
+  const formatKm = (km) => {
+    if (km === undefined || km === null) return "0";
+    return km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  // TakiliLastikListesi.jsx ile aynı görsel tasarım
+  const LifespanSection = styled.div`
+    width: 100%;
+    padding: 6px 12px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+
+    &:hover {
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      transform: translateY(-1px);
+    }
+  `;
+
+  const LifespanHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  `;
+
+  const LifespanHeaderRight = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  `;
+
+  const LifespanTitle = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #666;
+    font-weight: 500;
+  `;
+
+  const LifespanValue = styled.div`
+    font-size: 12px;
+    font-weight: 600;
+    color: ${(props) => (props.$status === "success" ? "#52c41a" : props.$status === "warning" ? "#faad14" : "#f5222d")};
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  `;
+
+  const StatusBadge = styled.span`
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 500;
+    color: white;
+    background-color: ${(props) => (props.$status === "success" ? "#52c41a" : props.$status === "warning" ? "#faad14" : "#f5222d")};
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  `;
+
+  const ProgressBackground = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: ${(props) => props.$percent}%;
+    height: 100%;
+    background: ${(props) =>
+      props.$status === "success"
+        ? "linear-gradient(90deg, rgba(82, 196, 26, 0.08), rgba(82, 196, 26, 0.15))"
+        : props.$status === "warning"
+          ? "linear-gradient(90deg, rgba(250, 173, 20, 0.08), rgba(250, 173, 20, 0.15))"
+          : "linear-gradient(90deg, rgba(245, 34, 45, 0.08), rgba(245, 34, 45, 0.15))"};
+    transition: width 0.5s ease;
+    z-index: 1;
+    border-radius: 0 5px 5px 0;
+  `;
+
+  const TooltipContent = styled.div`
+    padding: 4px 0;
+  `;
+
+  const TooltipRow = styled.div`
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: ${(props) => (props.$noBorder ? "none" : "1px dashed rgba(255, 255, 255, 0.2)")};
+
+    &:last-child {
+      border-bottom: none;
+    }
+  `;
+
+  const TooltipLabel = styled.span`
+    margin-right: 12px;
+    opacity: 0.8;
+  `;
+
+  const TooltipValue = styled.span`
+    font-weight: 500;
+  `;
+
+  const TooltipHighlight = styled.span`
+    color: ${(props) => (props.$status === "success" ? "#52c41a" : props.$status === "warning" ? "#faad14" : "#f5222d")};
+    font-weight: 600;
+  `;
 
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
