@@ -1,3 +1,4 @@
+import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { t } from "i18next";
 import { Select } from "antd";
@@ -15,12 +16,7 @@ const KimlikBilgiler = () => {
           <TextInput name="tcKimlikNo" />
         </div>
       </div>
-      <div className="col-span-3">
-        <div className="flex flex-col gap-1">
-          <label>{t("surucuIsmi")}</label>
-          <TextInput name="isim" />
-        </div>
-      </div>
+
       <div className="col-span-3">
         <div className="flex flex-col gap-1">
           <label>{t("seriNo")}</label>

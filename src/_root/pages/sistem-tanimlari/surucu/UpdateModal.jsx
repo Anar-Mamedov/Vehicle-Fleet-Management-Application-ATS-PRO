@@ -361,7 +361,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
   ];
 
   return (
-    <Modal title={t("surucuGuncelle")} open={drawerVisible} onCancel={() => onDrawerClose()} maskClosable={false} footer={footer} width={1200}>
+    <Modal title={`${watch("isim")} - ${t("guncellemeEkrani")}`} open={drawerVisible} onCancel={() => onDrawerClose()} maskClosable={false} footer={footer} width={1200}>
       <FormProvider {...methods}>
         <form>
           <Tabs defaultActiveKey="1" items={items} />
