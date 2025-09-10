@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
@@ -78,7 +78,7 @@ const Satinalma = ({ visible, onClose, id }) => {
       amortismanOmur: values.amortismanOmur,
       krediTutar: values.krediKiralama ? values.krediTutar || 0 : 0,
       krediAylikOdeme: values.krediKiralama ? values.krediAylikOdeme || 0 : 0,
-      saFirmaId: values.saFirmaId || -1,
+      saFirmaId: values.saFirmaId || 0,
       krediSure: values.krediKiralama ? values.krediSure || 0 : 0,
       saAdres: values.saAdres,
       saSehirIl: values.saSehirIl,
@@ -87,7 +87,7 @@ const Satinalma = ({ visible, onClose, id }) => {
       krediIlgili: values.krediKiralama ? values.krediIlgili : "",
       krediKiralama: values.krediKiralama ? values.krediKiralama : false,
       krediUyar: values.krediKiralama ? values.krediUyar : false,
-      kiralamaFirmaId: values.krediKiralama ? values.kiralamaFirmaId || -1 : -1,
+      kiralamaFirmaId: values.krediKiralama ? (values.kiralamaFirmaId ? values.kiralamaFirmaId : 0) : 0,
       krediHesapNo: values.krediKiralama ? values.krediHesapNo : "",
     };
 
