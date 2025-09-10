@@ -802,7 +802,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
-      title: t("resimVar"),
+      title: <FcPicture />,
       dataIndex: "resimVar",
       key: "resimVar",
       width: 80,
@@ -820,7 +820,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
-      title: t("dosyaVar"),
+      title: <FaFileInvoice />,
       dataIndex: "dosyaVar",
       key: "dosyaVar",
       width: 80,
