@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import { message, Upload } from "antd";
@@ -92,6 +92,12 @@ const GeneralInfoUpdate = ({ isValid, setImages, urls }) => {
               <div className="flex flex-col gap-1">
                 <label>{t("aktif")}</label>
                 <CheckboxInput name="aktif" />
+              </div>
+            </div>
+            <div className="col-span-4">
+              <div className="flex flex-col gap-1">
+                <label>{t("surucuIsmi")}</label>
+                <TextInput name="isim" />
               </div>
             </div>
             <div className="col-span-4">
