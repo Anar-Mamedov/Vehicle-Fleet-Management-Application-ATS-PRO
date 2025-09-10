@@ -273,7 +273,7 @@ const KmCell = ({ record, text, refreshTableData }) => {
 
     try {
       const date = dayjs(dateString);
-      return date.format("DD.MM.YYYY HH:mm");
+      return date.format("DD.MM.YYYY");
     } catch (error) {
       console.error("Error formatting date:", error);
       return dateString;
@@ -283,7 +283,10 @@ const KmCell = ({ record, text, refreshTableData }) => {
   // Popover content showing last update date
   const popoverContent = (
     <div>
-      <p>Son Güncelleme: {formatDate(record.sonKmGuncellemeTarih)}</p>
+      <p>
+        Son Güncelleme: {formatDate(record.sonKmGuncellemeTarih)}
+        {record.kmLogSaat ? ` ${record.kmLogSaat}` : ""}
+      </p>
     </div>
   );
 
