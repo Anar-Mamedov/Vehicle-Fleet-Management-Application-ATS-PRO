@@ -885,7 +885,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
-      title: t("lokasyonTumYol"),
+      title: t("tumLokasyon"),
       dataIndex: "lokasyonTumYol",
       key: "lokasyonTumYol",
       width: 250,
@@ -937,7 +937,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
-      title: t("yil"),
+      title: t("modelYili"),
       dataIndex: "yil",
       key: "yil",
       width: 130,
