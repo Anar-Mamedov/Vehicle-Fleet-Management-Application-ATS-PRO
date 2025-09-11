@@ -11,6 +11,8 @@ import GeneralInfo from "./tabs/GeneralInfo";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import FileUpload from "../../../components/upload/FileUpload";
 import PhotoUpload from "../../../components/upload/PhotoUpload";
+import ResimUpload from "../../../components/Resim/ResimUpload";
+import DosyaUpload from "../../../components/Dosya/DosyaUpload";
 import dayjs from "dayjs";
 
 const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
@@ -252,7 +254,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       label: t("ozelAlanlar"),
       children: <PersonalFields personalProps={personalProps} />,
     },
-    {
+    /* {
       key: "3",
       label: `[${imageUrls.length}] ${t("resimler")}`,
       children: <PhotoUpload imageUrls={imageUrls} loadingImages={loadingImages} setImages={setImages} />,
@@ -261,6 +263,16 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       key: "4",
       label: `[${filesUrl.length}] ${t("ekliBelgeler")}`,
       children: <FileUpload filesUrl={filesUrl} loadingFiles={loadingFiles} setFiles={setFiles} />,
+    }, */
+    {
+      key: "5",
+      label: `[${imageUrls.length}] ${t("resimler")}`,
+      children: <ResimUpload selectedRowID={selectedRow?.key} refGroup={"CEZA"} />,
+    },
+    {
+      key: "6",
+      label: `[${filesUrl.length}] ${t("ekliBelgeler")}`,
+      children: <DosyaUpload selectedRowID={selectedRow?.key} refGroup={"CEZA"} />,
     },
   ];
 
