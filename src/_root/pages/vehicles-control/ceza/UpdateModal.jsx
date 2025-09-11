@@ -122,6 +122,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         setValue("bankaHesap", res?.data.bankaHesap);
         setValue("belgeNo", res?.data.belgeNo);
         setValue("cezaMaddesi", res?.data.cezaMaddesi);
+        setValue("cezaMaddesiId", res?.data.cezaMaddesiId);
         setValue("cezaPuan", res?.data.cezaPuan);
         setValue("cezaTuru", res?.data.cezaTuru);
         setValue("cezaTuruID", res?.data.cezaTuruKodId);
