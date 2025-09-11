@@ -313,6 +313,23 @@ const PeriyodikBakim = () => {
     },
 
     {
+      title: "Kalan Gün",
+      dataIndex: "kalanGun",
+      key: "kalanGun",
+      width: 110,
+      ellipsis: true,
+      visible: true,
+      render: (_, record) => renderRemainingValue(calculateRemainingDays(record.hedefTarih)),
+      sorter: (a, b) => {
+        const aVal = calculateRemainingDays(a.hedefTarih);
+        const bVal = calculateRemainingDays(b.hedefTarih);
+        if (aVal === null) return -1;
+        if (bVal === null) return 1;
+        return aVal - bVal;
+      },
+    },
+
+    {
       title: t("herTarih"),
       dataIndex: "herTarih",
       key: "herTarih",
@@ -340,6 +357,23 @@ const PeriyodikBakim = () => {
         if (a.hedefKm === null) return -1;
         if (b.hedefKm === null) return 1;
         return a.hedefKm - b.hedefKm;
+      },
+    },
+
+    {
+      title: "Kalan KM",
+      dataIndex: "kalanKm",
+      key: "kalanKm",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      render: (_, record) => renderRemainingValue(calculateRemainingKm(record.hedefKm, record.currentKm)),
+      sorter: (a, b) => {
+        const aVal = calculateRemainingKm(a.hedefKm, a.currentKm);
+        const bVal = calculateRemainingKm(b.hedefKm, b.currentKm);
+        if (aVal === null) return -1;
+        if (bVal === null) return 1;
+        return aVal - bVal;
       },
     },
 
@@ -447,6 +481,36 @@ const PeriyodikBakim = () => {
   };
 
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için sonu
+
+  // Kalan gün ve kalan km hesaplama yardımcıları
+  const calculateRemainingDays = (targetDate) => {
+    if (!targetDate) return null;
+    try {
+      const today = dayjs().startOf("day");
+      const target = dayjs(targetDate).startOf("day");
+      return target.diff(today, "day");
+    } catch (error) {
+      console.error("Error calculating remaining days:", error);
+      return null;
+    }
+  };
+
+  const calculateRemainingKm = (hedefKm, currentKm) => {
+    if (hedefKm === null || hedefKm === undefined || currentKm === null || currentKm === undefined) return null;
+    const diff = Number(hedefKm) - Number(currentKm);
+    if (Number.isNaN(diff)) return null;
+    return diff;
+  };
+
+  const renderRemainingValue = (value) => {
+    if (value === null || value === undefined) return "";
+    const numeric = Number(value);
+    if (Number.isNaN(numeric)) return "";
+    if (numeric < 0) {
+      return <Text style={{ color: "red" }}>({Math.abs(numeric)})</Text>;
+    }
+    return numeric;
+  };
 
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
