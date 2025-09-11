@@ -264,6 +264,39 @@ const Ceza = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Amount formatting based on app language stored in localStorage 'i18nextLng'
+  const formatAmount = (value) => {
+    if (value === null || value === undefined || value === "") return "";
+
+    let num = Number(value);
+    if (Number.isNaN(num) && typeof value === "string") {
+      const raw = value.replace(/\s/g, "");
+      let normalized;
+      if (raw.includes(",") && !raw.includes(".")) {
+        normalized = raw.replace(/\./g, "").replace(",", ".");
+      } else {
+        normalized = raw.replace(/,/g, "");
+      }
+      num = Number(normalized);
+    }
+    if (Number.isNaN(num)) return "";
+
+    const lang = localStorage.getItem("i18nextLng") || "en";
+    const langToLocale = {
+      tr: "tr-TR",
+      en: "en-US",
+      ru: "ru-RU",
+      az: "az-AZ",
+    };
+    const locale = langToLocale[lang] || "en-US";
+
+    return new Intl.NumberFormat(locale, {
+      style: "decimal",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(num);
+  };
+
   // Columns definition (adjust as needed)
   const initialColumns = [
     {
@@ -332,6 +365,7 @@ const Ceza = () => {
       width: 110,
       ellipsis: true,
       visible: true,
+      render: (value) => formatAmount(value),
       sorter: (a, b) => {
         if (a.tutar === null) return -1;
         if (b.tutar === null) return 1;

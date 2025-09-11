@@ -108,7 +108,7 @@ const GeneralInfo = () => {
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="yil">{t("yil")}</label>
+                  <label htmlFor="yil">{t("modelYili")}</label>
                   <DatePickerSelectYear name="yil" />
                 </div>
               </div>

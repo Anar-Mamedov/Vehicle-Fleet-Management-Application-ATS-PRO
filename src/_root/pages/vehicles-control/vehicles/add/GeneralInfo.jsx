@@ -79,7 +79,7 @@ const GeneralInfo = ({ isValid }) => {
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
-                <label>{t("yil")}</label>
+                <label>{t("modelYili")}</label>
                 <NumberInput name="yil" />
               </div>
             </div>
