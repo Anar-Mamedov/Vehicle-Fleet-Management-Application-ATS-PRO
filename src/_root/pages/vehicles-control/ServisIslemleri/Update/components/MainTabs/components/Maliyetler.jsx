@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { Modal, InputNumber, Typography, Divider } from "antd";
+import { InputNumber, Typography, Divider } from "antd";
 
-const { Text, Link } = Typography;
-const { TextArea } = InputNumber;
+const { Text } = Typography;
 
-function Maliyetler(props) {
-  const {
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useFormContext();
+function Maliyetler() {
+  const { control, watch, setValue } = useFormContext();
 
   const [decimalSeparator, setDecimalSeparator] = useState(".");
 
@@ -42,9 +36,14 @@ function Maliyetler(props) {
   const eksiUcreti = watch("eksiUcreti") || 0;
 
   useEffect(() => {
-    const toplamUcret = iscilikUcreti + malzemeUcreti + digerUcreti + kdvUcreti - eksiUcreti;
-    setValue("toplamUcret", toplamUcret);
-  }, [iscilikUcreti, malzemeUcreti, digerUcreti, kdvUcreti, eksiUcreti]);
+    // Guard against floating point precision issues (e.g., 0.1 + 0.2)
+    const rawToplamUcret = Number(iscilikUcreti || 0) + Number(malzemeUcreti || 0) + Number(digerUcreti || 0) + Number(kdvUcreti || 0) - Number(eksiUcreti || 0);
+
+    const factor = 100; // 2 decimal places
+    const roundedToplamUcret = Math.round((rawToplamUcret + Number.EPSILON) * factor) / factor;
+
+    setValue("toplamUcret", roundedToplamUcret);
+  }, [iscilikUcreti, malzemeUcreti, digerUcreti, kdvUcreti, eksiUcreti, setValue]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
@@ -106,7 +105,7 @@ function Maliyetler(props) {
           <Controller
             name="toplamUcret"
             control={control}
-            render={({ field }) => <InputNumber {...field} decimalSeparator={decimalSeparator} formatter={formatter} parser={parser} disabled style={{ flex: 1 }} />}
+            render={({ field }) => <InputNumber {...field} decimalSeparator={decimalSeparator} formatter={formatter} parser={parser} precision={2} disabled style={{ flex: 1 }} />}
           />
         </div>
       </div>
