@@ -14,8 +14,8 @@ import {
   FileExcelOutlined,
 } from "@ant-design/icons";
 import { FaExclamation, FaCheck, FaTimes } from "react-icons/fa";
-import { FcPicture } from "react-icons/fc";
-import { FaFileInvoice } from "react-icons/fa6";
+import { FcImageFile } from "react-icons/fc";
+import { VscAttach } from "react-icons/vsc";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -805,7 +805,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
-      title: <FcPicture />,
+      title: <FcImageFile />,
       dataIndex: "resimVar",
       key: "resimVar",
       width: 80,
@@ -815,7 +815,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
       render: (value) =>
         value ? (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
-            <FcPicture size={24} />
+            <FcImageFile size={24} />
           </div>
         ) : (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} />
@@ -823,7 +823,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
-      title: <FaFileInvoice />,
+      title: <VscAttach />,
       dataIndex: "dosyaVar",
       key: "dosyaVar",
       width: 80,
@@ -833,7 +833,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
       render: (value) =>
         value ? (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
-            <FaFileInvoice size={24} />
+            <VscAttach size={24} />
           </div>
         ) : (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} />
