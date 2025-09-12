@@ -122,6 +122,8 @@ export default function CustomFilter({ onSubmit }) {
       filterData.bitisTarih = endDate.format("YYYY-MM-DD");
     }
 
+    // payment status removed from drawer; handled outside
+
     console.log(filterData);
     // You can now submit or process the filterData object as needed.
     onSubmit(filterData);
@@ -224,6 +226,7 @@ export default function CustomFilter({ onSubmit }) {
             <DatePicker style={{ width: "100%" }} placeholder="Bitiş Tarihi" value={endDate} onChange={setEndDate} locale={dayjs.locale("tr")} />
           </div>
         </div>
+
         {rows.map((row) => (
           <Row
             key={row.id}
