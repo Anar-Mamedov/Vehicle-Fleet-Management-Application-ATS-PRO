@@ -298,6 +298,7 @@ const Ceza = () => {
   };
 
   // Columns definition (adjust as needed)
+  const normalizePaid = (val) => val === true || val === "true" || val === 1;
   const initialColumns = [
     {
       title: t("plaka"),
@@ -311,6 +312,25 @@ const Ceza = () => {
         if (a.plaka === null) return -1;
         if (b.plaka === null) return 1;
         return a.plaka.localeCompare(b.plaka);
+      },
+    },
+
+    {
+      title: t("odendi"),
+      dataIndex: "odeme",
+      key: "odeme",
+      width: 85,
+      ellipsis: true,
+      visible: true,
+      render: (value) => {
+        if (value === null || value === undefined) return "";
+        const isPaid = normalizePaid(value);
+        return isPaid ? <CheckOutlined style={{ color: "#52c41a" }} /> : <CloseOutlined style={{ color: "#ff4d4f" }} />;
+      },
+      sorter: (a, b) => {
+        const valA = Number(normalizePaid(a.odeme));
+        const valB = Number(normalizePaid(b.odeme));
+        return valA - valB;
       },
     },
 
