@@ -304,7 +304,7 @@ const Ceza = () => {
       title: t("plaka"),
       dataIndex: "plaka",
       key: "plaka",
-      width: 120,
+      width: 130,
       ellipsis: true,
       visible: true,
       render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
@@ -312,25 +312,6 @@ const Ceza = () => {
         if (a.plaka === null) return -1;
         if (b.plaka === null) return 1;
         return a.plaka.localeCompare(b.plaka);
-      },
-    },
-
-    {
-      title: t("odendi"),
-      dataIndex: "odeme",
-      key: "odeme",
-      width: 85,
-      ellipsis: true,
-      visible: true,
-      render: (value) => {
-        if (value === null || value === undefined) return "";
-        const isPaid = normalizePaid(value);
-        return isPaid ? <CheckOutlined style={{ color: "#52c41a" }} /> : <CloseOutlined style={{ color: "#ff4d4f" }} />;
-      },
-      sorter: (a, b) => {
-        const valA = Number(normalizePaid(a.odeme));
-        const valB = Number(normalizePaid(b.odeme));
-        return valA - valB;
       },
     },
 
@@ -353,7 +334,7 @@ const Ceza = () => {
       title: t("saat"),
       dataIndex: "saat",
       key: "saat",
-      width: 110,
+      width: 82,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
       sorter: (a, b) => {
@@ -368,7 +349,7 @@ const Ceza = () => {
       title: t("cezaTuru"),
       dataIndex: "cezaTuru",
       key: "cezaTuru",
-      width: 110,
+      width: 250,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
@@ -400,7 +381,7 @@ const Ceza = () => {
       title: t("cezaPuan"),
       dataIndex: "cezaPuan",
       key: "cezaPuan",
-      width: 110,
+      width: 120,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
@@ -417,7 +398,7 @@ const Ceza = () => {
       title: t("surucu"),
       dataIndex: "surucuIsim",
       key: "surucuIsim",
-      width: 110,
+      width: 200,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
@@ -428,18 +409,22 @@ const Ceza = () => {
     },
 
     {
-      title: t("odemeTarihi"),
-      dataIndex: "odemeTarih",
-      key: "odemeTarih",
-      width: 110,
+      title: t("odendi"),
+      dataIndex: "odeme",
+      key: "odeme",
+      width: 99,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-      sorter: (a, b) => {
-        if (a.odemeTarih === null) return -1;
-        if (b.odemeTarih === null) return 1;
-        return a.odemeTarih.localeCompare(b.odemeTarih);
+      visible: true,
+      render: (value) => {
+        if (value === null || value === undefined) return "";
+        const isPaid = normalizePaid(value);
+        return isPaid ? <CheckOutlined style={{ color: "#52c41a" }} /> : <CloseOutlined style={{ color: "#ff4d4f" }} />;
       },
-      render: (text) => formatDate(text),
+      sorter: (a, b) => {
+        const valA = Number(normalizePaid(a.odeme));
+        const valB = Number(normalizePaid(b.odeme));
+        return valA - valB;
+      },
     },
 
     {
@@ -458,10 +443,25 @@ const Ceza = () => {
     },
 
     {
+      title: t("odemeTarihi"),
+      dataIndex: "odemeTarih",
+      key: "odemeTarih",
+      width: 110,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+      sorter: (a, b) => {
+        if (a.odemeTarih === null) return -1;
+        if (b.odemeTarih === null) return 1;
+        return a.odemeTarih.localeCompare(b.odemeTarih);
+      },
+      render: (text) => formatDate(text),
+    },
+
+    {
       title: t("cezaMaddesi"),
       dataIndex: "cezaMaddesi",
       key: "cezaMaddesi",
-      width: 110,
+      width: 145,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
@@ -475,7 +475,7 @@ const Ceza = () => {
       title: t("aciklama"),
       dataIndex: "aciklama",
       key: "aciklama",
-      width: 110,
+      width: 210,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
