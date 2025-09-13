@@ -203,6 +203,21 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
     }
   };
 
+  // Async API polling helpers for long-running AI jobs
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const pollJobResult = async (jobId, { maxMs = 120000, intervalMs = 2000 } = {}) => {
+    const start = Date.now();
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const elapsed = Date.now() - start;
+      if (elapsed > maxMs) throw new Error("AI job timeout");
+      const { data: job } = await axios.get(`https://ai-chat-anar.vercel.app/ai/jobs/${jobId}`);
+      if (job?.status === "done") return job.result;
+      if (job?.status === "error") throw new Error(job?.error || "AI job failed");
+      await sleep(intervalMs);
+    }
+  };
+
   const handleFileChange = (event) => {
     const selectedFile = event.target.files && event.target.files[0];
     if (!selectedFile) return;
@@ -231,15 +246,27 @@ sikayetler: "",
 aciklama: ""
 }`
         );
-        form.append("model", "gemini-2.0-flash");
+        form.append("model", "gemini-2.5-flash");
         form.append("enableWebSearch", "false");
         form.append("file", selectedFile);
 
         try {
-          const { data } = await axios.post("https://ai-chat-anar.vercel.app/ai/execute", form, {
+          const { data } = await axios.post("https://ai-chat-anar.vercel.app/ai/execute/async", form, {
             headers: { "Content-Type": "multipart/form-data" },
           });
-          message.success("Dosya başarıyla gönderildi.");
+          message.success("Dosya yüklendi, işleniyor...");
+
+          let resultText = null;
+          if (typeof data?.result === "string") {
+            resultText = data.result;
+          } else if (data?.jobId) {
+            resultText = await pollJobResult(data.jobId, {
+              maxMs: 120000,
+              intervalMs: 2000,
+            });
+          } else {
+            throw new Error("Beklenmeyen API yanıtı");
+          }
 
           // Gelen yanıttan JSON'u çıkar ve form alanlarına set et
           const extractJson = (resultStr) => {
@@ -254,7 +281,7 @@ aciklama: ""
             }
           };
 
-          const parsed = extractJson(data?.result);
+          const parsed = extractJson(resultText);
           if (parsed && typeof parsed === "object") {
             const parseToDayjs = (value) => {
               if (!value) return null;
@@ -270,6 +297,9 @@ aciklama: ""
                 "YYYY/MM/DD",
                 "DD/MM/YYYY",
                 "MM/DD/YYYY",
+                "DD.MM.YYYY",
+                "DD.MM.YYYY HH:mm",
+                "DD.MM.YYYY HH:mm:ss",
               ];
               for (let i = 0; i < formats.length; i += 1) {
                 const candidate = dayjs(value, formats[i], true);
@@ -281,15 +311,39 @@ aciklama: ""
 
             const fieldMappings = [
               { key: "Plaka", field: "Plaka", normalize: (v) => v ?? null },
-              { key: "servisKodu", field: "servisKodu", normalize: (v) => v ?? "" },
-              { key: "servisTanimi", field: "servisTanimi", normalize: (v) => v ?? "" },
+              {
+                key: "servisKodu",
+                field: "servisKodu",
+                normalize: (v) => v ?? "",
+              },
+              {
+                key: "servisTanimi",
+                field: "servisTanimi",
+                normalize: (v) => v ?? "",
+              },
               { key: "Surucu", field: "Surucu", normalize: (v) => v ?? null },
-              { key: "servisNedeni", field: "servisNedeni", normalize: (v) => v ?? null },
-              { key: "yetkiliServis", field: "islemiYapan1", normalize: (v) => v ?? "" },
+              {
+                key: "servisNedeni",
+                field: "servisNedeni",
+                normalize: (v) => v ?? null,
+              },
+              {
+                key: "yetkiliServis",
+                field: "islemiYapan1",
+                normalize: (v) => v ?? "",
+              },
               { key: "faturaNo", field: "faturaNo", normalize: (v) => v ?? "" },
-              { key: "faturaTarihi", field: "faturaTarihi", normalize: parseToDayjs },
+              {
+                key: "faturaTarihi",
+                field: "faturaTarihi",
+                normalize: parseToDayjs,
+              },
               { key: "onay", field: "onay", normalize: (v) => v ?? null },
-              { key: "sikayetler", field: "sikayetler", normalize: (v) => v ?? "" },
+              {
+                key: "sikayetler",
+                field: "sikayetler",
+                normalize: (v) => v ?? "",
+              },
               { key: "aciklama", field: "aciklama", normalize: (v) => v ?? "" },
             ];
 
@@ -350,10 +404,28 @@ aciklama: ""
           width="1300px"
           centered
           title={
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, width: "100%", paddingRight: 30 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 8,
+                width: "100%",
+                paddingRight: 30,
+              }}
+            >
               <span>{`Yeni Servis Girişi ${periyodikBakim}`}</span>
               <div>
-                <Button size="small" icon={<UploadOutlined />} onClick={handleUploadButtonClick} style={{ backgroundColor: "#722ed1", borderColor: "#722ed1", color: "#ffffff" }}>
+                <Button
+                  size="small"
+                  icon={<UploadOutlined />}
+                  onClick={handleUploadButtonClick}
+                  style={{
+                    backgroundColor: "#722ed1",
+                    borderColor: "#722ed1",
+                    color: "#ffffff",
+                  }}
+                >
                   OCR
                 </Button>
                 <input ref={fileInputRef} type="file" accept="application/pdf,image/*" style={{ display: "none" }} onChange={handleFileChange} />
