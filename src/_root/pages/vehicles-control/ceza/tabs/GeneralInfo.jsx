@@ -154,6 +154,12 @@ const GeneralInfo = () => {
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
+                <label>{t("cezaBeyanTuru")}</label>
+                <KodIDSelectbox name1="cezaBeyanTuru" kodID={912} isRequired={false} />
+              </div>
+            </div>
+            <div className="col-span-6">
+              <div className="flex flex-col gap-1">
                 <label>{t("belgeNo")}</label>
                 <TextInput name="belgeNo" />
               </div>

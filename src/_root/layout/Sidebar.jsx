@@ -139,7 +139,7 @@ const Sidebar = ({ collapsed }) => {
           },
           {
             key: "6",
-            label: <Link to={"/sefer-islemleri"}>{t("seferler")}</Link>,
+            label: <Link to={"/sefer-islemleri"}>{t("gorevTakibi")}</Link>,
           },
           {
             key: "7",

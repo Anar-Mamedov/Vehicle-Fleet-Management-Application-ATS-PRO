@@ -1593,6 +1593,81 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
+      title: t("vitesTipi"),
+      dataIndex: "vitesTipi",
+      key: "vitesTipi",
+      width: 150,
+      ellipsis: true,
+      visible: false, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.vitesTipi === null) return -1;
+        if (b.vitesTipi === null) return 1;
+        return a.vitesTipi.localeCompare(b.vitesTipi);
+      },
+    },
+
+    {
+      title: t("yedekAnahtar"),
+      dataIndex: "yedekAnahtar",
+      key: "yedekAnahtar",
+      width: 150,
+      ellipsis: true,
+      visible: false, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.yedekAnahtar === null) return -1;
+        if (b.yedekAnahtar === null) return 1;
+        return a.yedekAnahtar.localeCompare(b.yedekAnahtar);
+      },
+    },
+
+    {
+      title: t("aracMulkiyet"),
+      dataIndex: "aracMulkiyet",
+      key: "aracMulkiyet",
+      width: 150,
+      ellipsis: true,
+      visible: false, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.aracMulkiyet === null) return -1;
+        if (b.aracMulkiyet === null) return 1;
+        return a.aracMulkiyet.localeCompare(b.aracMulkiyet);
+      },
+    },
+
+    {
+      title: t("durum"),
+      dataIndex: "durum",
+      key: "durum",
+      width: 150,
+      ellipsis: true,
+      visible: false, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.durum === null) return -1;
+        if (b.durum === null) return 1;
+        return a.durum.localeCompare(b.durum);
+      },
+    },
+
+    {
+      title: t("kullanimAmaci"),
+      dataIndex: "kullanimAmaci",
+      key: "kullanimAmaci",
+      width: 150,
+      ellipsis: true,
+      visible: false, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.kullanimAmaci === null) return -1;
+        if (b.kullanimAmaci === null) return 1;
+        return a.kullanimAmaci.localeCompare(b.kullanimAmaci);
+      },
+    },
+
+    {
       title: t("krediTutar"),
       dataIndex: "krediTutar",
       key: "krediTutar",

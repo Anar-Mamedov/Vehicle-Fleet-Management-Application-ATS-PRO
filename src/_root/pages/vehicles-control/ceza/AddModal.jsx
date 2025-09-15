@@ -113,6 +113,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       tarih: dayjs(values.tarih).format("YYYY-MM-DD"),
       saat: dayjs(values.saat).format("HH:mm:ss"),
       cezaTuruKodId: values.cezaTuruID || 0,
+      cezaBeyanTuruKodId: values.cezaBeyanTuruID || 0,
       tutar: values.tutar || 0,
       cezaPuan: values.cezaPuan || 0,
       odenenTutar: values.odenenTutar || 0,
