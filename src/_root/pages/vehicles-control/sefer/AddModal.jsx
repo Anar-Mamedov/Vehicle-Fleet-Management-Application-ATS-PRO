@@ -259,7 +259,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
         <PlusOutlined /> {t("ekle")}
       </Button>
       <Modal
-        title={t("yeniSeferGirisi")}
+        title={t("yeniGorevGirisi")}
         open={isOpen}
         destroyOnClose={true}
         onCancel={() => {

@@ -61,7 +61,7 @@ const GeneralInfo = ({ isValid }) => {
             </div>
             <div className="col-span-12">
               <div className="flex flex-col gap-1">
-                <label>{t("seferNo")}</label>
+                <label>{t("gorevNo")}</label>
                 <TextInput name="seferNo" style={validateStyle} />
               </div>
             </div>
@@ -154,13 +154,13 @@ const GeneralInfo = ({ isValid }) => {
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label>{t("seferTip")}</label>
+                <label>{t("gorevTip")}</label>
                 <CodeControl name="seferTip" codeName="seferTipKodId" id={120} />
               </div>
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label>{t("seferDurum")}</label>
+                <label>{t("gorevDurum")}</label>
                 <CodeControl name="seferDurum" codeName="seferDurumKodId" id={121} />
               </div>
             </div>

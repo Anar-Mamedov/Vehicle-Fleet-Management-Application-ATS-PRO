@@ -472,6 +472,20 @@ const Ceza = () => {
     },
 
     {
+      title: t("cezaBeyanTuru"),
+      dataIndex: "cezaBeyanTuru",
+      key: "cezaBeyanTuru",
+      width: 145,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.cezaBeyanTuru === null) return -1;
+        if (b.cezaBeyanTuru === null) return 1;
+        return a.cezaBeyanTuru.localeCompare(b.cezaBeyanTuru);
+      },
+    },
+
+    {
       title: t("aciklama"),
       dataIndex: "aciklama",
       key: "aciklama",
