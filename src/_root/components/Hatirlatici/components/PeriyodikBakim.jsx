@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 import EditDrawer from "../../../pages/BakimVeOnarim/PeriyodikBakimlar/Update/EditDrawer";
+import FormattedNumber, { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
 
@@ -285,7 +286,7 @@ const PeriyodikBakim = () => {
       title: t("surucu"),
       dataIndex: "surucu",
       key: "surucu",
-      width: 130,
+      width: 190,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
 
@@ -312,6 +313,70 @@ const PeriyodikBakim = () => {
       render: (text) => formatDate(text),
     },
 
+    /* {
+      title: t("herTarih"),
+      dataIndex: "herTarih",
+      key: "herTarih",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+      render: (text, record) => {
+        return record.herTarih ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />;
+      },
+      sorter: (a, b) => {
+        const aValue = a.herTarih === true ? 1 : 0;
+        const bValue = b.herTarih === true ? 1 : 0;
+        return bValue - aValue;
+      },
+    }, */
+
+    {
+      title: t("hedefKm"),
+      dataIndex: "hedefKm",
+      key: "hedefKm",
+      width: 120,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+      render: (value) => <FormattedNumber num={value} minimumFractionDigits={0} maximumFractionDigits={0} />,
+      sorter: (a, b) => {
+        if (a.hedefKm === null) return -1;
+        if (b.hedefKm === null) return 1;
+        return a.hedefKm - b.hedefKm;
+      },
+    },
+
+    /* {
+      title: t("herKm"),
+      dataIndex: "herKm",
+      key: "herKm",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+      render: (text, record) => {
+        return record.herKm ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />;
+      },
+      sorter: (a, b) => {
+        const aValue = a.herKm === true ? 1 : 0;
+        const bValue = b.herKm === true ? 1 : 0;
+        return bValue - aValue;
+      },
+    }, */
+
+    {
+      title: t("guncelKm"),
+      dataIndex: "currentKm",
+      key: "currentKm",
+      width: 120,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+      render: (value) => <FormattedNumber num={value} minimumFractionDigits={0} maximumFractionDigits={0} />,
+      sorter: (a, b) => {
+        if (a.currentKm === null) return -1;
+        if (b.currentKm === null) return 1;
+        return a.currentKm - b.currentKm;
+      },
+    },
+
     {
       title: "Kalan Gün",
       dataIndex: "kalanGun",
@@ -330,37 +395,6 @@ const PeriyodikBakim = () => {
     },
 
     {
-      title: t("herTarih"),
-      dataIndex: "herTarih",
-      key: "herTarih",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-      render: (text, record) => {
-        return record.herTarih ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />;
-      },
-      sorter: (a, b) => {
-        const aValue = a.herTarih === true ? 1 : 0;
-        const bValue = b.herTarih === true ? 1 : 0;
-        return bValue - aValue;
-      },
-    },
-
-    {
-      title: t("hedefKm"),
-      dataIndex: "hedefKm",
-      key: "hedefKm",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-      sorter: (a, b) => {
-        if (a.hedefKm === null) return -1;
-        if (b.hedefKm === null) return 1;
-        return a.hedefKm - b.hedefKm;
-      },
-    },
-
-    {
       title: "Kalan KM",
       dataIndex: "kalanKm",
       key: "kalanKm",
@@ -374,37 +408,6 @@ const PeriyodikBakim = () => {
         if (aVal === null) return -1;
         if (bVal === null) return 1;
         return aVal - bVal;
-      },
-    },
-
-    {
-      title: t("herKm"),
-      dataIndex: "herKm",
-      key: "herKm",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-      render: (text, record) => {
-        return record.herKm ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />;
-      },
-      sorter: (a, b) => {
-        const aValue = a.herKm === true ? 1 : 0;
-        const bValue = b.herKm === true ? 1 : 0;
-        return bValue - aValue;
-      },
-    },
-
-    {
-      title: t("suankiKM"),
-      dataIndex: "currentKm",
-      key: "currentKm",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-      sorter: (a, b) => {
-        if (a.currentKm === null) return -1;
-        if (b.currentKm === null) return 1;
-        return a.currentKm - b.currentKm;
       },
     },
 
@@ -507,9 +510,10 @@ const PeriyodikBakim = () => {
     const numeric = Number(value);
     if (Number.isNaN(numeric)) return "";
     if (numeric < 0) {
-      return <Text style={{ color: "red" }}>({Math.abs(numeric)})</Text>;
+      const formattedAbs = formatNumberWithLocale(Math.abs(numeric), 0, 0);
+      return <Text style={{ color: "red" }}>({formattedAbs})</Text>;
     }
-    return numeric;
+    return formatNumberWithLocale(numeric, 0, 0);
   };
 
   // Manage columns from localStorage or default
