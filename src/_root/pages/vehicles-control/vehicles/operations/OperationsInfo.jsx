@@ -1,30 +1,26 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import { Button, Dropdown, Space } from "antd";
-import { DownOutlined, DeleteOutlined } from "@ant-design/icons";
+import { DownOutlined } from "@ant-design/icons";
 import { FaWrench, FaGear, FaBuildingShield, FaTruckFast } from "react-icons/fa6";
 import { FaFire, FaWallet, FaCarCrash } from "react-icons/fa";
-import { MdFormatListBulleted, MdHealthAndSafety, MdSettingsInputComponent } from "react-icons/md";
-import { PlakaContext } from "../../../../../context/plakaSlice";
+import { MdHealthAndSafety, MdSettingsInputComponent } from "react-icons/md";
 import Yakit from "./yakit/Yakit";
 import Ceza from "./ceza/Ceza";
 import Harcama from "./harcama/Harcama";
 import Sefer from "./sefer/Sefer";
 import Kaza from "./kaza/Kaza";
 import Sigorta from "./sigorta/Sigorta";
-import Lastik from "./lastik/Lastik";
 import Bakim from "./bakim/Bakim";
 import KmTakibi from "./KmTakibi/KmTakibi.jsx";
 import PeryodikBakimlar from "./PeryodikBakimlar/PeryodikBakimlar.jsx";
 import Servisler from "./Servisler/Servisler";
 import Surucu from "../../vehicle-detail/detail-info/modals/surucu/Surucu.jsx";
-import Sil from "./Sil/Sil.jsx";
 import Ekspertiz from "../../vehicle-detail/detail-info/modals/ekspertiz/Ekspertiz";
 import AksYapilandirma from "../../../LastikYonetimi/LastikIslemleri/Update/EditDrawer.jsx";
 
-const OperationsInfo = ({ ids, selectedRowsData, onRefresh }) => {
-  const { setPlaka } = useContext(PlakaContext);
+const OperationsInfo = ({ ids, selectedRowsData }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [drawer, setDrawer] = useState({ visible: false, data: null });
 
@@ -231,7 +227,7 @@ const OperationsInfo = ({ ids, selectedRowsData, onRefresh }) => {
               setSelectedItem(null);
             }}
             drawerVisible={drawer.visible}
-            onRefresh={onRefresh}
+            onRefresh={() => {}}
           />
         ) : null;
       case "9":

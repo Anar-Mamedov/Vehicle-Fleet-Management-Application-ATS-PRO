@@ -210,22 +210,34 @@ const Ceza = () => {
   }
 
   // API Data Fetching with diff and setPointId
-  const fetchData = async (diff, targetPage) => {
+  const lastRequestRef = useRef(null);
+
+  const fetchData = async (diff, targetPage, options = {}) => {
     setLoading(true);
     try {
+      const { overrideAnchorId } = options;
       let currentSetPointId = 0;
 
       if (diff > 0) {
         // Moving forward
-        currentSetPointId = data[data.length - 1]?.aracId || 0;
+        currentSetPointId = overrideAnchorId ?? (data[data.length - 1]?.aracId || 0);
       } else if (diff < 0) {
         // Moving backward
-        currentSetPointId = data[0]?.aracId || 0;
+        currentSetPointId = overrideAnchorId ?? (data[0]?.aracId || 0);
       } else {
         currentSetPointId = 0;
       }
 
       // Determine what to send for customfilters
+
+      // Cache the exact request so we can replay it later for refreshes
+      lastRequestRef.current = {
+        diff,
+        setPointId: currentSetPointId,
+        page: targetPage,
+        parameter: searchTerm,
+        customfilter: body.filters?.customfilter || {},
+      };
 
       const response = await AxiosInstance.post(
         `TyreOperation/GetTyreOperations?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
@@ -247,8 +259,43 @@ const Ceza = () => {
         message.warning(t("kayitBulunamadi"));
         setData([]);
       }
+
+      // No additional anchor bookkeeping needed; we replay the exact last request on refresh
     } catch (error) {
       console.error("Error fetching data:", error);
+      message.error(t("hataOlustu"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDataExact = async () => {
+    const last = lastRequestRef.current;
+    if (!last) {
+      return fetchData(0, 1);
+    }
+    const { diff, setPointId, page, parameter, customfilter } = last;
+    setLoading(true);
+    try {
+      const response = await AxiosInstance.post(`TyreOperation/GetTyreOperations?diff=${diff}&setPointId=${setPointId}&parameter=${parameter}`, customfilter || {});
+
+      const total = response.data.vehicleCount;
+      setTotalCount(total);
+      setCurrentPage(page);
+
+      const newData = response.data.vehicleList.map((item) => ({
+        ...item,
+        key: item.aracId,
+      }));
+
+      if (newData.length > 0) {
+        setData(newData);
+      } else {
+        message.warning(t("kayitBulunamadi"));
+        setData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching data (exact):", error);
       message.error(t("hataOlustu"));
     } finally {
       setLoading(false);
@@ -300,7 +347,7 @@ const Ceza = () => {
   const refreshTableData = useCallback(() => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
-    fetchData(0, 1);
+    fetchDataExact();
   }, []);
 
   // Columns definition (adjust as needed)
