@@ -628,7 +628,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       visible: true,
       render: (text, record) => <Checkbox checked={record.demirBas} readOnly />,
     },
-    {
+    /* {
       title: t("degistirme"),
       dataIndex: "degistirme",
       key: "degistirme",
@@ -645,7 +645,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       ellipsis: true,
       visible: true,
       render: (text) => <p className="text-success">{text}</p>,
-    },
+    }, */
     {
       title: t("aciklama"),
       dataIndex: "aciklama",
