@@ -811,6 +811,51 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
     },
 
     {
+      title: t("marka"),
+      dataIndex: "marka",
+      key: "marka",
+      width: 130,
+      ellipsis: true,
+      visible: false, // Varsayılan olarak gizli
+
+      sorter: (a, b) => {
+        if (a.marka === null || a.marka === undefined) return -1;
+        if (b.marka === null || b.marka === undefined) return 1;
+        return String(a.marka).localeCompare(String(b.marka));
+      },
+    },
+
+    {
+      title: t("model"),
+      dataIndex: "model",
+      key: "model",
+      width: 130,
+      ellipsis: true,
+      visible: false, // Varsayılan olarak gizli
+
+      sorter: (a, b) => {
+        if (a.model === null || a.model === undefined) return -1;
+        if (b.model === null || b.model === undefined) return 1;
+        return String(a.model).localeCompare(String(b.model));
+      },
+    },
+
+    {
+      title: t("aracTip"),
+      dataIndex: "aracTip",
+      key: "aracTip",
+      width: 130,
+      ellipsis: true,
+      visible: false, // Varsayılan olarak gizli
+
+      sorter: (a, b) => {
+        if (a.aracTip === null || a.aracTip === undefined) return -1;
+        if (b.aracTip === null || b.aracTip === undefined) return 1;
+        return String(a.aracTip).localeCompare(String(b.aracTip));
+      },
+    },
+
+    {
       title: t("aciklama"),
       dataIndex: "aciklama",
       key: "aciklama",
