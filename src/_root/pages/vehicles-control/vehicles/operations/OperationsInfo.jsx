@@ -3,9 +3,9 @@ import PropTypes from "prop-types";
 import { t } from "i18next";
 import { Button, Dropdown, Space } from "antd";
 import { DownOutlined } from "@ant-design/icons";
-import { FaWrench, FaGear, FaBuildingShield, FaTruckFast } from "react-icons/fa6";
+import { FaWrench, FaGear, FaBuildingShield } from "react-icons/fa6";
 import { FaFire, FaWallet, FaCarCrash } from "react-icons/fa";
-import { MdHealthAndSafety, MdSettingsInputComponent } from "react-icons/md";
+import { MdHealthAndSafety, MdHandyman, MdAutorenew, MdSwitchAccount, MdFactCheck, MdSpeed, MdRoute } from "react-icons/md";
 import Yakit from "./yakit/Yakit";
 import Ceza from "./ceza/Ceza";
 import Harcama from "./harcama/Harcama";
@@ -77,34 +77,34 @@ const OperationsInfo = ({ ids, selectedRowsData }) => {
     {
       label: t("kmTakibi"),
       key: "9",
-      icon: <FaTruckFast className="text-info" />,
+      icon: <MdSpeed className="text-info" />,
     },
     {
       label: t("seferler"),
       key: "10",
-      icon: <FaTruckFast className="text-info" />,
+      icon: <MdRoute className="text-info" />,
     },
     {
       label: t("degisenParcalar"),
       key: "11",
-      icon: <MdSettingsInputComponent className="text-info" />,
+      icon: <MdHandyman className="text-info" />,
     },
     {
       label: t("periyodikBakimlar"),
       key: "12",
-      icon: <MdSettingsInputComponent className="text-info" />,
+      icon: <MdAutorenew className="text-info" />,
     },
     ...(ids.length <= 1
       ? [
           {
             label: t("surucuDegisiklikleri"),
             key: "13",
-            icon: <MdSettingsInputComponent className="text-info" />,
+            icon: <MdSwitchAccount className="text-info" />,
           },
           {
             label: t("ekspertiz"),
             key: "15",
-            icon: <MdSettingsInputComponent className="text-info" />,
+            icon: <MdFactCheck className="text-info" />,
           },
         ]
       : []),
