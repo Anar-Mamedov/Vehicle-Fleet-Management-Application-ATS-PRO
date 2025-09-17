@@ -183,7 +183,7 @@ const HasarTakibi = () => {
           currentSetPointId = data[0]?.tbHasarId || 0;
         }
 
-        const response = await AxiosInstance.get(
+        const response = await AxiosInstance.post(
           `DamageTracking/GetDamageList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
           body.filters?.customfilter || {}
         );
