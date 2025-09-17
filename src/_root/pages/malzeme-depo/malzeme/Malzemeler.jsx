@@ -301,7 +301,11 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       width: 120,
       ellipsis: true,
       visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+      render: (text, record) => (
+        <Button style={{ padding: "0px", height: "0px" }} type="link" onClick={() => onRowClick(record)}>
+          {text}
+        </Button>
+      ),
       sorter: (a, b) => {
         if (a.malzemeKod === null) return -1;
         if (b.malzemeKod === null) return 1;
@@ -342,7 +346,9 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       ellipsis: true,
       visible: true,
       render: (text, record) => (
-        <a
+        <Button
+          style={{ padding: "0px", height: "0px" }}
+          type="link"
           onClick={() => {
             // Create a temporary div to render MalzemeDepoDagilimi
             const tempDiv = document.createElement("div");
@@ -383,7 +389,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
           }}
         >
           {text}
-        </a>
+        </Button>
       ),
       sorter: (a, b) => {
         if (a.stokMiktar === null) return -1;
