@@ -61,6 +61,8 @@ const StyledTabs = styled(Tabs)`
 
 //styled components end
 export default function MainTabs({ aracID }) {
+  const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
+  const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
   const [latestUsageInfo, setLatestUsageInfo] = useState(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [historyData, setHistoryData] = useState([]);
@@ -131,12 +133,62 @@ export default function MainTabs({ aracID }) {
   };
 
   // formatTime helper kullanılmıyor
+  const formatTime = (time) => {
+    if (!time || time.trim() === "") return ""; // `trim` metodu ile baştaki ve sondaki boşlukları temizle
 
+    try {
+      // Saati ve dakikayı parçalara ayır, boşlukları temizle
+      const [hours, minutes] = time
+        .trim()
+        .split(":")
+        .map((part) => part.trim());
+
+      // Saat ve dakika değerlerinin geçerliliğini kontrol et
+      const hoursInt = parseInt(hours, 10);
+      const minutesInt = parseInt(minutes, 10);
+      if (isNaN(hoursInt) || isNaN(minutesInt) || hoursInt < 0 || hoursInt > 23 || minutesInt < 0 || minutesInt > 59) {
+        throw new Error("Invalid time format");
+      }
+
+      // Geçerli tarih ile birlikte bir Date nesnesi oluştur ve sadece saat ve dakika bilgilerini ayarla
+      const date = new Date();
+      date.setHours(hoursInt, minutesInt, 0);
+
+      // Kullanıcının lokal ayarlarına uygun olarak saat ve dakikayı formatla
+      // `hour12` seçeneğini belirtmeyerek Intl.DateTimeFormat'ın kullanıcının yerel ayarlarına göre otomatik seçim yapmasına izin ver
+      const formatter = new Intl.DateTimeFormat(navigator.language, {
+        hour: "numeric",
+        minute: "2-digit",
+        // hour12 seçeneği burada belirtilmiyor; böylece otomatik olarak kullanıcının sistem ayarlarına göre belirleniyor
+      });
+
+      // Formatlanmış saati döndür
+      return formatter.format(date);
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      return ""; // Hata durumunda boş bir string döndür
+    }
+  };
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için sonu
 
   // tarih formatlamasını kullanıcının yerel tarih formatına göre ayarlayın
 
-  // Kullanıcının yerel tarih/saat formatı için effect kullanılmıyor
+  useEffect(() => {
+    // Format the date based on the user's locale
+    const dateFormatter = new Intl.DateTimeFormat(navigator.language);
+    const sampleDate = new Date(2021, 10, 21);
+    const formattedSampleDate = dateFormatter.format(sampleDate);
+    setLocaleDateFormat(formattedSampleDate.replace("2021", "YYYY").replace("21", "DD").replace("11", "MM"));
+
+    // Format the time based on the user's locale
+    const timeFormatter = new Intl.DateTimeFormat(navigator.language, { hour: "numeric", minute: "numeric" });
+    const sampleTime = new Date(2021, 10, 21, 13, 45); // Use a sample time, e.g., 13:45
+    const formattedSampleTime = timeFormatter.format(sampleTime);
+
+    // Check if the formatted time contains AM/PM, which implies a 12-hour format
+    const is12HourFormat = /AM|PM/.test(formattedSampleTime);
+    setLocaleTimeFormat(is12HourFormat ? "hh:mm A" : "HH:mm");
+  }, []);
 
   // tarih formatlamasını kullanıcının yerel tarih formatına göre ayarlayın sonu
 
