@@ -118,8 +118,8 @@ export default function CustomFilter({ onSubmit }) {
       if (selectedValue && inputValue) {
         if (selectedValue === "durum") {
           acc[selectedValue] = Number(inputValue); // Convert status to number
-        } else if (selectedValue === "islemTipKodId") {
-          // Only for islemTipKodId use the ID value
+        } else if (selectedValue === "islemTipKodId" || selectedValue === "lokasyonId" || selectedValue === "hasarBoyutId") {
+          // Use the underlying ID value for these fields
           acc[selectedValue] = inputIDValue;
         } else if (selectedValue === "firmaId" || selectedValue === "girisDepoId" || selectedValue === "aracId") {
           // Keep original behavior for these fields
@@ -316,7 +316,7 @@ export default function CustomFilter({ onSubmit }) {
                   <KodIDSelectbox name1={`input-${row.id}`} kodID={302} isRequired={false} onChange={(value, id) => handleKodIDSelectChange(value, id, row.id)} />
                 )}
                 {selectedValues[row.id] === "lokasyonId" && (
-                  <LokasyonTablo name1={`input-${row.id}`} isRequired={false} onChange={(label, value) => handleKodIDSelectChange(label, value, row.id)} />
+                  <LokasyonTablo fieldName={`input-${row.id}`} onSubmit={(selected) => handleKodIDSelectChange(selected?.location, selected?.locationId, row.id)} />
                 )}
               </Col>
             </Col>

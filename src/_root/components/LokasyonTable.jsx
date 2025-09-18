@@ -45,6 +45,24 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, multiSelec
     }));
   }, []);
 
+  // İlk veri çekme fonksiyonu
+  const fetchData = useCallback(
+    (parameter = "") => {
+      setLoading(true);
+      AxiosInstance.get(`Location/GetChildLocationListByParentId?parentID=0&parameter=${parameter}`)
+        .then((response) => {
+          const tree = formatDataForTable(response.data);
+          setTreeData(tree);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("API Hatası:", error);
+          setLoading(false);
+        });
+    },
+    [formatDataForTable]
+  );
+
   // Search function called when button is clicked or Enter key is pressed
   const handleSearch = (value) => {
     fetchData(value);
@@ -111,24 +129,7 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, multiSelec
         });
     }
   };
-
-  // İlk veri çekme fonksiyonu
-  const fetchData = useCallback(
-    (parameter = "") => {
-      setLoading(true);
-      AxiosInstance.get(`Location/GetChildLocationListByParentId?parentID=0&parameter=${parameter}`)
-        .then((response) => {
-          const tree = formatDataForTable(response.data);
-          setTreeData(tree);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("API Hatası:", error);
-          setLoading(false);
-        });
-    },
-    [formatDataForTable]
-  );
+  // fetchData tanımı yukarı taşındı (TDZ hatasını önlemek için)
 
   // Ağaç yapısında belirli bir öğeyi bulma fonksiyonu
   const findItemInTree = (key, tree) => {
