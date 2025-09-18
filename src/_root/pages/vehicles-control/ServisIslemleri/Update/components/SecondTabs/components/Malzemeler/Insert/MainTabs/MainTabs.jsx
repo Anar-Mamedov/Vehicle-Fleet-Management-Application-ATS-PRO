@@ -242,6 +242,7 @@ export default function MainTabs({ aracID }) {
         title: "Malzeme Tanım",
         dataIndex: "malezemeTanim",
         key: "malezemeTanim",
+        width: 200,
         ellipsis: true,
         sorter: (a, b) => (a.malezemeTanim || "").localeCompare(b.malezemeTanim || ""),
       },
