@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Button, Modal, Table, Input } from "antd";
-import { SearchOutlined, PlusOutlined, CloseCircleFilled } from "@ant-design/icons";
+import React, { useCallback, useEffect, useState } from "react";
+import { Modal, Table, Input } from "antd";
+import { PlusOutlined, CloseCircleFilled } from "@ant-design/icons";
 import AxiosInstance from "../../api/http.jsx";
 import { t } from "i18next";
 import { Controller, useForm, FormProvider } from "react-hook-form";
+import PropTypes from "prop-types";
 
 const { Search } = Input;
 
-export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUserId, setRefreshKey, multiSelect = false }) {
+export default function LokasyonTablo({ workshopSelectedId, onSubmit, multiSelect = false, fieldName = "lokasyon" }) {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false);
   const [treeData, setTreeData] = useState([]);
@@ -34,7 +35,7 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
   ];
 
   // API'den gelen veriyi tabloya uygun formata dönüştürme fonksiyonu
-  const formatDataForTable = (data) => {
+  const formatDataForTable = useCallback((data) => {
     return data.map((item) => ({
       ...item,
       key: item.locationId,
@@ -42,7 +43,25 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
       children: item.hasChild ? [] : undefined, // hasChild true ise children boş dizi
       fullLocationPath: item.fullLocationPath,
     }));
-  };
+  }, []);
+
+  // İlk veri çekme fonksiyonu
+  const fetchData = useCallback(
+    (parameter = "") => {
+      setLoading(true);
+      AxiosInstance.get(`Location/GetChildLocationListByParentId?parentID=0&parameter=${parameter}`)
+        .then((response) => {
+          const tree = formatDataForTable(response.data);
+          setTreeData(tree);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("API Hatası:", error);
+          setLoading(false);
+        });
+    },
+    [formatDataForTable]
+  );
 
   // Search function called when button is clicked or Enter key is pressed
   const handleSearch = (value) => {
@@ -60,7 +79,7 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
       // Initial data fetch with empty search
       fetchData("");
     }
-  }, [isModalVisible]);
+  }, [isModalVisible, fetchData]);
 
   // Tablodaki satırı genişletme ve çocuklarını yükleme fonksiyonu
   const onTableRowExpand = (expanded, record) => {
@@ -110,21 +129,7 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
         });
     }
   };
-
-  // İlk veri çekme fonksiyonu
-  const fetchData = (parameter = "") => {
-    setLoading(true);
-    AxiosInstance.get(`Location/GetChildLocationListByParentId?parentID=0&parameter=${parameter}`)
-      .then((response) => {
-        const tree = formatDataForTable(response.data);
-        setTreeData(tree);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("API Hatası:", error);
-        setLoading(false);
-      });
-  };
+  // fetchData tanımı yukarı taşındı (TDZ hatasını önlemek için)
 
   // Ağaç yapısında belirli bir öğeyi bulma fonksiyonu
   const findItemInTree = (key, tree) => {
@@ -168,14 +173,14 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
       if (selectedData.length > 0) {
         onSubmit && onSubmit(selectedData);
         const locationNames = selectedData.map((item) => item.location).join(", ");
-        methods.setValue("lokasyon", locationNames);
+        methods.setValue(fieldName, locationNames);
       }
     } else {
       // Single-select modunda sadece ilk seçili öğeyi gönder
       const selectedData = findItemInTree(selectedRowKeys[0], treeData);
       if (selectedData) {
         onSubmit && onSubmit(selectedData);
-        methods.setValue("lokasyon", selectedData.location);
+        methods.setValue(fieldName, selectedData.location);
       }
     }
     setIsModalVisible(false);
@@ -212,7 +217,7 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
 
   // Input temizleme fonksiyonu
   const handleClearInput = () => {
-    methods.setValue("lokasyon", "");
+    methods.setValue(fieldName, "");
     onSubmit && onSubmit(null);
   };
 
@@ -220,7 +225,7 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
     <FormProvider {...methods}>
       <div>
         <Controller
-          name="lokasyon"
+          name={fieldName}
           control={control}
           render={({ field, fieldState: { error } }) => (
             <div style={{ display: "flex", flexDirection: "column", gap: "5px", width: "100%" }}>
@@ -268,3 +273,10 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, currentUse
     </FormProvider>
   );
 }
+
+LokasyonTablo.propTypes = {
+  workshopSelectedId: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])), PropTypes.string, PropTypes.number]),
+  onSubmit: PropTypes.func,
+  multiSelect: PropTypes.bool,
+  fieldName: PropTypes.string,
+};

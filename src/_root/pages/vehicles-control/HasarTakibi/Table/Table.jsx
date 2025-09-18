@@ -885,7 +885,7 @@ const HasarTakibi = () => {
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
 
-              {/*  <Filters onChange={handleBodyChange} /> */}
+              <Filters onChange={handleBodyChange} />
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
             </div>

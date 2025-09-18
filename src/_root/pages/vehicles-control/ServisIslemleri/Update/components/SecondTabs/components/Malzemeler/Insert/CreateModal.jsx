@@ -6,7 +6,7 @@ import { Controller, useForm, FormProvider } from "react-hook-form";
 import MainTabs from "./MainTabs/MainTabs";
 import dayjs from "dayjs";
 
-export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, secilenKayitID, plaka, aracID, kdvOran }) {
+export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, secilenKayitID, plaka, aracID, kdvOran, baslangicTarihi }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const methods = useForm({
@@ -31,7 +31,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, s
       depoID: "",
       birim: null,
       birimID: "",
-
+      baslangicTarihi: baslangicTarihi || "",
       // Add other default values here
     },
   });
@@ -69,6 +69,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, s
       kdvTutar: Number(data.kdvDegeri),
       malzemeTipKodId: Number(data.isTipiID),
       malzemeTanim: data.malzemeTanimi,
+      tarih: formatDateWithDayjs(baslangicTarihi),
     };
 
     AxiosInstance.post(`MaterialMovements/AddMaterialMovementService`, Body)
@@ -120,7 +121,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, s
             </Spin>
           ) : (
             <form onSubmit={methods.handleSubmit(onSubmited)}>
-              <MainTabs />
+              <MainTabs aracID={aracID} />
             </form>
           )}
         </Modal>

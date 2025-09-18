@@ -1,10 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Button, Modal, Input, Typography, Tabs, DatePicker, TimePicker, InputNumber, Checkbox } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import AxiosInstance from "../../../../../../../../../../../api/http";
+import PropTypes from "prop-types";
+import { Button, Input, Typography, Tabs, InputNumber, Checkbox, Alert, Modal, Table } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
 import YapilanIsTable from "./components/YapilanIsTable.jsx";
-import { SearchOutlined } from "@ant-design/icons";
+// import { SearchOutlined } from "@ant-design/icons";
 import CikisDeposu from "./components/CikisDeposu.jsx";
 import Birim from "./components/Birim.jsx";
 import MalzemeTipi from "./components/MalzemeTipi.jsx";
@@ -22,7 +24,7 @@ const StyledDivBottomLine = styled.div`
   }
 `;
 
-const onChange = (key) => {
+const onChange = () => {
   // console.log(key);
 };
 
@@ -58,9 +60,13 @@ const StyledTabs = styled(Tabs)`
 `;
 
 //styled components end
-export default function MainTabs() {
+export default function MainTabs({ aracID }) {
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
+  const [latestUsageInfo, setLatestUsageInfo] = useState(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [historyData, setHistoryData] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const {
     control,
     watch,
@@ -126,6 +132,7 @@ export default function MainTabs() {
     return formatter.format(new Date(date));
   };
 
+  // formatTime helper kullanılmıyor
   const formatTime = (time) => {
     if (!time || time.trim() === "") return ""; // `trim` metodu ile baştaki ve sondaki boşlukları temizle
 
@@ -162,7 +169,6 @@ export default function MainTabs() {
       return ""; // Hata durumunda boş bir string döndür
     }
   };
-
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için sonu
 
   // tarih formatlamasını kullanıcının yerel tarih formatına göre ayarlayın
@@ -202,6 +208,172 @@ export default function MainTabs() {
   }, [watchFields, setValue]);
 
   // iki tarih ve saat arasında geçen süreyi hesaplamak için sonu
+
+  // Malzemenin son kullanım tarihini çekmek için API çağrısı
+  const watchedAracId = watch("aracID");
+  const watchedMalzemeKoduId = watch("malzemeKoduID");
+
+  useEffect(() => {
+    const vehicleId = Number(aracID ?? watchedAracId);
+    const materialId = Number(watchedMalzemeKoduId);
+
+    if (!vehicleId || !materialId) {
+      setLatestUsageInfo(null);
+      return;
+    }
+
+    let isActive = true;
+
+    AxiosInstance.get("MaterialMovements/GetLatestUsedMaterialUsageDate", {
+      params: { vId: vehicleId, materialId },
+    })
+      .then((response) => {
+        if (!isActive) return;
+        setLatestUsageInfo(response?.data ?? null);
+      })
+      .catch(() => {
+        if (!isActive) return;
+        setLatestUsageInfo(null);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [aracID, watchedAracId, watchedMalzemeKoduId]);
+
+  // Malzemenin son kullanım tarihini çekmek için API çağrısı sonu
+
+  // Modal açıldığında malzeme kullanım detaylarını çek
+  useEffect(() => {
+    if (!isHistoryModalOpen) return;
+    const vehicleId = Number(aracID ?? watchedAracId);
+    const materialId = Number(watchedMalzemeKoduId);
+    if (!vehicleId || !materialId) return;
+
+    let isActive = true;
+    setHistoryLoading(true);
+    AxiosInstance.get("MaterialMovements/GetTopUsedMaterialDetails", {
+      params: { vId: vehicleId, materialId },
+    })
+      .then((res) => {
+        if (!isActive) return;
+        const rows = Array.isArray(res?.data) ? res.data : [];
+        setHistoryData(rows);
+      })
+      .catch(() => {
+        if (!isActive) return;
+        setHistoryData([]);
+      })
+      .finally(() => {
+        if (!isActive) return;
+        setHistoryLoading(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [isHistoryModalOpen, aracID, watchedAracId, watchedMalzemeKoduId]);
+
+  const historyColumns = useMemo(
+    () => [
+      /* {
+        title: "Sıra No",
+        dataIndex: "siraNo",
+        key: "siraNo",
+        width: 100,
+        sorter: (a, b) => (a.siraNo ?? 0) - (b.siraNo ?? 0),
+      }, */
+      {
+        title: "Malzeme Kod",
+        dataIndex: "malezemeKod",
+        key: "malezemeKod",
+        width: 140,
+        sorter: (a, b) => (a.malezemeKod || "").localeCompare(b.malezemeKod || ""),
+      },
+      {
+        title: "Malzeme Tanım",
+        dataIndex: "malezemeTanim",
+        key: "malezemeTanim",
+        width: 200,
+        ellipsis: true,
+        sorter: (a, b) => (a.malezemeTanim || "").localeCompare(b.malezemeTanim || ""),
+      },
+      {
+        title: "Tarih",
+        dataIndex: "tarih",
+        key: "tarih",
+        render: (val) => (val ? formatDate(val) : "-"),
+        width: 140,
+        sorter: (a, b) => {
+          const at = a.tarih ? new Date(a.tarih).getTime() : 0;
+          const bt = b.tarih ? new Date(b.tarih).getTime() : 0;
+          return at - bt;
+        },
+      },
+      {
+        title: "Garanti Bitiş",
+        dataIndex: "garantiBitisTarih",
+        key: "garantiBitisTarih",
+        render: (val) => (val ? formatDate(val) : "-"),
+        width: 160,
+        sorter: (a, b) => {
+          const at = a.garantiBitisTarih ? new Date(a.garantiBitisTarih).getTime() : 0;
+          const bt = b.garantiBitisTarih ? new Date(b.garantiBitisTarih).getTime() : 0;
+          return at - bt;
+        },
+      },
+      {
+        title: "Plaka",
+        dataIndex: "plaka",
+        key: "plaka",
+        width: 140,
+        sorter: (a, b) => (a.plaka || "").localeCompare(b.plaka || ""),
+      },
+
+      { title: "Miktar", dataIndex: "miktar", key: "miktar", width: 100, sorter: (a, b) => (a.miktar ?? 0) - (b.miktar ?? 0) },
+      { title: "Fiyat", dataIndex: "fiyat", key: "fiyat", width: 110, sorter: (a, b) => (a.fiyat ?? 0) - (b.fiyat ?? 0) },
+      { title: "Toplam", dataIndex: "toplam", key: "toplam", width: 120, sorter: (a, b) => (a.toplam ?? 0) - (b.toplam ?? 0) },
+    ],
+    []
+  );
+
+  const alertDescription = useMemo(() => {
+    if (!latestUsageInfo || !latestUsageInfo.latestUsageDate) return null;
+    const latest = dayjs(latestUsageInfo.latestUsageDate);
+    if (!latest.isValid()) return null;
+
+    const latestStr = formatDate(latestUsageInfo.latestUsageDate);
+
+    if (latestUsageInfo.guaranteeExpDate) {
+      const guarantee = dayjs(latestUsageInfo.guaranteeExpDate);
+      if (guarantee.isValid()) {
+        const now = dayjs();
+        const stillValid = guarantee.isAfter(now, "day") || guarantee.isSame(now, "day");
+        const guaranteeStr = formatDate(latestUsageInfo.guaranteeExpDate);
+        if (stillValid) {
+          return (
+            <span>
+              {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} kadar devam etmektedir. Lütfen tekrar kullanım gerektiğini kontrol ediniz. Malzeme tarihçesini görmek için `}
+              <Link onClick={() => setIsHistoryModalOpen(true)}>tıklayın</Link>
+            </span>
+          );
+        }
+        return (
+          <span>
+            {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} tarihinde bitmiştir. Malzeme tarihçesini görmek için `}
+            <Link onClick={() => setIsHistoryModalOpen(true)}>tıklayın</Link>
+          </span>
+        );
+      }
+    }
+
+    return (
+      <span>
+        {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmıştır. Malzeme tarihçesini görmek için `}
+        <Link onClick={() => setIsHistoryModalOpen(true)}>tıklayın</Link>
+      </span>
+    );
+  }, [latestUsageInfo]);
 
   const handleIscilikUcretiChange = (value) => {
     setValue("iscilikUcreti", value);
@@ -497,8 +669,25 @@ export default function MainTabs() {
             </div>
           </div>
         </div>
+        {alertDescription && <Alert style={{ width: "100%", marginBottom: "10px" }} type="warning" message="Uyarı" description={alertDescription} showIcon />}
       </div>
       <StyledTabs defaultActiveKey="1" items={items} onChange={onChange} />
+
+      <Modal title="Malzeme Tarihçesi" open={isHistoryModalOpen} onCancel={() => setIsHistoryModalOpen(false)} onOk={() => setIsHistoryModalOpen(false)} width={900}>
+        <Table
+          rowKey={(row) => row.siraNo}
+          loading={historyLoading}
+          columns={historyColumns}
+          dataSource={historyData}
+          size="small"
+          pagination={{ pageSize: 10 }}
+          scroll={{ y: "calc(100vh - 380px)" }}
+        />
+      </Modal>
     </div>
   );
 }
+
+MainTabs.propTypes = {
+  aracID: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+};

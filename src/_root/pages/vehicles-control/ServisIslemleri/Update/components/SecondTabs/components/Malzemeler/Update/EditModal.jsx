@@ -48,6 +48,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
 
           // API'den gelen verileri set ederken
           setValue("aracID", item.mlzAracId);
+          setValue("baslangicTarihi", item.tarih ? (dayjs(item.tarih).isValid() ? dayjs(item.tarih) : null) : null);
           setValue("aciklama", item.aciklama);
           setValue("stokluMalzeme", item.stoklu);
           setValue("malzemeKodu", item.malezemeKod);
@@ -119,6 +120,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
       kdvTutar: Number(data.kdvDegeri),
       malzemeTipKodId: Number(data.isTipiID),
       malzemeTanim: data.malzemeTanimi,
+      tarih: formatDateWithDayjs(data.baslangicTarihi),
     };
 
     AxiosInstance.post(`MaterialMovements/UpdateMaterialMovementService`, Body)
