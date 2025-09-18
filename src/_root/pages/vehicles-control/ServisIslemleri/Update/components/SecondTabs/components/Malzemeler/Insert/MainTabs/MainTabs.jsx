@@ -58,7 +58,7 @@ const StyledTabs = styled(Tabs)`
 `;
 
 //styled components end
-export default function MainTabs() {
+export default function MainTabs({ aracID }) {
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
   const {

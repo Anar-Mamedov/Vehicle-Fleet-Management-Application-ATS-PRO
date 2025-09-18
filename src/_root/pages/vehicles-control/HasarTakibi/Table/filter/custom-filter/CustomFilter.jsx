@@ -8,11 +8,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/tr"; // For Turkish locale
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import advancedFormat from "dayjs/plugin/advancedFormat";
-import StatusSelect from "./components/StatusSelect";
 import KodIDSelectbox from "../../../../../../../_root/components/KodIDSelectbox";
-import FirmaSelectBox from "../../../../../../../_root/components/FirmaSelectBox";
-import DepoSelectBox from "../../../../../../../_root/components/DepoSelectBox";
-import PlakaSelectbox from "../../../../../../../_root/components/PlakaSelectbox";
 import LokasyonTablo from "../../../../../../../_root/components/LokasyonTable";
 
 dayjs.extend(weekOfYear);
@@ -116,14 +112,19 @@ export default function CustomFilter({ onSubmit }) {
       const inputIDValue = inputValues[`input-${row.id}ID`] || "";
 
       if (selectedValue && inputValue) {
-        if (selectedValue === "durum") {
-          acc[selectedValue] = Number(inputValue); // Convert status to number
-        } else if (selectedValue === "islemTipKodId" || selectedValue === "lokasyonId" || selectedValue === "hasarBoyutId") {
-          // Use the underlying ID value for these fields
+        if (selectedValue === "lokasyonId") {
+          // For lokasyonId, create or append to array
+          if (!acc[selectedValue]) {
+            acc[selectedValue] = [];
+          }
+          if (Array.isArray(inputIDValue)) {
+            acc[selectedValue] = [...acc[selectedValue], ...inputIDValue];
+          } else if (inputIDValue) {
+            acc[selectedValue].push(inputIDValue);
+          }
+        } else if (selectedValue === "hasarBoyutId") {
+          // Use the underlying ID value for hasarBoyutId
           acc[selectedValue] = inputIDValue;
-        } else if (selectedValue === "firmaId" || selectedValue === "girisDepoId" || selectedValue === "aracId") {
-          // Keep original behavior for these fields
-          acc[selectedValue] = inputValue;
         } else {
           acc[selectedValue] = inputValue;
         }
@@ -139,7 +140,6 @@ export default function CustomFilter({ onSubmit }) {
       filterData.bitisTarih = endDate.format("YYYY-MM-DD");
     }
 
-    console.log(filterData);
     // You can now submit or process the filterData object as needed.
     onSubmit(filterData);
     setOpen(false);
@@ -197,14 +197,25 @@ export default function CustomFilter({ onSubmit }) {
     console.log("search:", value);
   };
 
-  const handleKodIDSelectChange = (text, id, rowId) => {
-    // Update both the display value and the ID value
-    // text = display text (label), id = the actual numeric ID value
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [`input-${rowId}`]: text,
-      [`input-${rowId}ID`]: id,
-    }));
+  const handleKodIDSelectChange = (selectedData, rowId) => {
+    if (selectedData && Array.isArray(selectedData)) {
+      // Multi-select mode - selectedData is an array of objects
+      const locationNames = selectedData.map((item) => item.location).join(", ");
+      const locationIds = selectedData.map((item) => item.locationId);
+
+      setInputValues((prevInputValues) => ({
+        ...prevInputValues,
+        [`input-${rowId}`]: locationNames,
+        [`input-${rowId}ID`]: locationIds,
+      }));
+    } else if (selectedData) {
+      // Single-select mode - selectedData is a single object
+      setInputValues((prevInputValues) => ({
+        ...prevInputValues,
+        [`input-${rowId}`]: selectedData.location,
+        [`input-${rowId}ID`]: selectedData.locationId,
+      }));
+    }
   };
 
   return (
@@ -313,10 +324,10 @@ export default function CustomFilter({ onSubmit }) {
                   }}
                 />
                 {selectedValues[row.id] === "hasarBoyutId" && (
-                  <KodIDSelectbox name1={`input-${row.id}`} kodID={302} isRequired={false} onChange={(value, id) => handleKodIDSelectChange(value, id, row.id)} />
+                  <KodIDSelectbox name1={`input-${row.id}`} kodID={909} isRequired={false} onChange={(value, id) => handleKodIDSelectChange(value, id, row.id)} />
                 )}
                 {selectedValues[row.id] === "lokasyonId" && (
-                  <LokasyonTablo fieldName={`input-${row.id}`} onSubmit={(selected) => handleKodIDSelectChange(selected?.location, selected?.locationId, row.id)} />
+                  <LokasyonTablo fieldName={`input-${row.id}`} multiSelect={true} onSubmit={(selected) => handleKodIDSelectChange(selected, row.id)} />
                 )}
               </Col>
             </Col>

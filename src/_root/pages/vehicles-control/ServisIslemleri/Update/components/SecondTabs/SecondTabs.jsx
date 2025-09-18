@@ -64,7 +64,7 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
     {
       key: "2",
       label: "Malzemeler",
-      children: <Malzemeler isActive={activeTabKey === "2"} fieldRequirements={fieldRequirements} />,
+      children: <Malzemeler baslangicTarihi={watch("baslangicTarihi")} isActive={activeTabKey === "2"} fieldRequirements={fieldRequirements} />,
     },
     {
       key: "3",
