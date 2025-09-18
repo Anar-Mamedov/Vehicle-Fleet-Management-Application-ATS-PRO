@@ -1,15 +1,17 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Button, Modal, Input, Typography, Tabs, DatePicker, TimePicker, InputNumber, Checkbox } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import AxiosInstance from "../../../../../../../../../../../api/http";
+import PropTypes from "prop-types";
+import { Button, Input, Typography, Tabs, InputNumber, Checkbox, Alert } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
 import YapilanIsTable from "./components/YapilanIsTable.jsx";
-import { SearchOutlined } from "@ant-design/icons";
+// import { SearchOutlined } from "@ant-design/icons";
 import CikisDeposu from "./components/CikisDeposu.jsx";
 import Birim from "./components/Birim.jsx";
 import MalzemeTipi from "./components/MalzemeTipi.jsx";
 
-const { Text, Link } = Typography;
+const { Text } = Typography;
 const { TextArea } = Input;
 
 const StyledDivBottomLine = styled.div`
@@ -22,7 +24,7 @@ const StyledDivBottomLine = styled.div`
   }
 `;
 
-const onChange = (key) => {
+const onChange = () => {
   // console.log(key);
 };
 
@@ -61,6 +63,7 @@ const StyledTabs = styled(Tabs)`
 export default function MainTabs({ aracID }) {
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
+  const [latestUsageInfo, setLatestUsageInfo] = useState(null);
   const {
     control,
     watch,
@@ -202,6 +205,63 @@ export default function MainTabs({ aracID }) {
   }, [watchFields, setValue]);
 
   // iki tarih ve saat arasında geçen süreyi hesaplamak için sonu
+
+  // Malzemenin son kullanım tarihini çekmek için API çağrısı
+  const watchedAracId = watch("aracID");
+  const watchedMalzemeKoduId = watch("malzemeKoduID");
+
+  useEffect(() => {
+    const vehicleId = Number(aracID ?? watchedAracId);
+    const materialId = Number(watchedMalzemeKoduId);
+
+    if (!vehicleId || !materialId) {
+      setLatestUsageInfo(null);
+      return;
+    }
+
+    let isActive = true;
+
+    AxiosInstance.get("MaterialMovements/GetLatestUsedMaterialUsageDate", {
+      params: { vId: vehicleId, materialId },
+    })
+      .then((response) => {
+        if (!isActive) return;
+        setLatestUsageInfo(response?.data ?? null);
+      })
+      .catch(() => {
+        if (!isActive) return;
+        setLatestUsageInfo(null);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [aracID, watchedAracId, watchedMalzemeKoduId]);
+
+  // Malzemenin son kullanım tarihini çekmek için API çağrısı sonu
+
+  const alertDescription = useMemo(() => {
+    if (!latestUsageInfo || !latestUsageInfo.latestUsageDate) return null;
+    const latest = dayjs(latestUsageInfo.latestUsageDate);
+    if (!latest.isValid()) return null;
+
+    const latestStr = latest.format("DD.MM.YYYY");
+
+    if (latestUsageInfo.guaranteeExpDate) {
+      const guarantee = dayjs(latestUsageInfo.guaranteeExpDate);
+      if (guarantee.isValid()) {
+        const now = dayjs();
+        const stillValid = guarantee.isAfter(now, "day") || guarantee.isSame(now, "day");
+        const guaranteeStr = guarantee.format("DD.MM.YYYY");
+        if (stillValid) {
+          return `Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} kadar devam etmektedir. Lütfen tekrar kullanım gerektiğini kontrol ediniz. Malzeme tarihçesini görmek için tıklayın`;
+        }
+        return `Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} tarihinde bitmiştir. Malzeme tarihçesini görmek için tıklayın`;
+      }
+    }
+
+    return `Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmıştır. Malzeme tarihçesini görmek için tıklayın`;
+  }, [latestUsageInfo]);
 
   const handleIscilikUcretiChange = (value) => {
     setValue("iscilikUcreti", value);
@@ -497,8 +557,13 @@ export default function MainTabs({ aracID }) {
             </div>
           </div>
         </div>
+        {alertDescription && <Alert style={{ width: "100%", marginBottom: "10px" }} type="warning" message="Uyarı" description={alertDescription} showIcon />}
       </div>
       <StyledTabs defaultActiveKey="1" items={items} onChange={onChange} />
     </div>
   );
 }
+
+MainTabs.propTypes = {
+  aracID: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+};
