@@ -13,6 +13,7 @@ import KodIDSelectbox from "../../../../../../../_root/components/KodIDSelectbox
 import FirmaSelectBox from "../../../../../../../_root/components/FirmaSelectBox";
 import DepoSelectBox from "../../../../../../../_root/components/DepoSelectBox";
 import PlakaSelectbox from "../../../../../../../_root/components/PlakaSelectbox";
+import LokasyonTablo from "../../../../../../../_root/components/LokasyonTable";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(advancedFormat);
@@ -315,7 +316,7 @@ export default function CustomFilter({ onSubmit }) {
                   <KodIDSelectbox name1={`input-${row.id}`} kodID={302} isRequired={false} onChange={(value, id) => handleKodIDSelectChange(value, id, row.id)} />
                 )}
                 {selectedValues[row.id] === "lokasyonId" && (
-                  <FirmaSelectBox name1={`input-${row.id}`} isRequired={false} onChange={(label, value) => handleKodIDSelectChange(label, value, row.id)} />
+                  <LokasyonTablo name1={`input-${row.id}`} isRequired={false} onChange={(label, value) => handleKodIDSelectChange(label, value, row.id)} />
                 )}
               </Col>
             </Col>
