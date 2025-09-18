@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import AxiosInstance from "../../../../../../../../../../../api/http";
 import PropTypes from "prop-types";
-import { Button, Input, Typography, Tabs, InputNumber, Checkbox, Alert } from "antd";
+import { Button, Input, Typography, Tabs, InputNumber, Checkbox, Alert, Modal } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -11,7 +11,7 @@ import CikisDeposu from "./components/CikisDeposu.jsx";
 import Birim from "./components/Birim.jsx";
 import MalzemeTipi from "./components/MalzemeTipi.jsx";
 
-const { Text } = Typography;
+const { Text, Link } = Typography;
 const { TextArea } = Input;
 
 const StyledDivBottomLine = styled.div`
@@ -64,6 +64,7 @@ export default function MainTabs({ aracID }) {
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
   const [latestUsageInfo, setLatestUsageInfo] = useState(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const {
     control,
     watch,
@@ -245,22 +246,37 @@ export default function MainTabs({ aracID }) {
     const latest = dayjs(latestUsageInfo.latestUsageDate);
     if (!latest.isValid()) return null;
 
-    const latestStr = latest.format("DD.MM.YYYY");
+    const latestStr = formatDate(latestUsageInfo.latestUsageDate);
 
     if (latestUsageInfo.guaranteeExpDate) {
       const guarantee = dayjs(latestUsageInfo.guaranteeExpDate);
       if (guarantee.isValid()) {
         const now = dayjs();
         const stillValid = guarantee.isAfter(now, "day") || guarantee.isSame(now, "day");
-        const guaranteeStr = guarantee.format("DD.MM.YYYY");
+        const guaranteeStr = formatDate(latestUsageInfo.guaranteeExpDate);
         if (stillValid) {
-          return `Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} kadar devam etmektedir. Lütfen tekrar kullanım gerektiğini kontrol ediniz. Malzeme tarihçesini görmek için tıklayın`;
+          return (
+            <span>
+              {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} kadar devam etmektedir. Lütfen tekrar kullanım gerektiğini kontrol ediniz. Malzeme tarihçesini görmek için `}
+              <Link onClick={() => setIsHistoryModalOpen(true)}>tıklayın</Link>
+            </span>
+          );
         }
-        return `Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} tarihinde bitmiştir. Malzeme tarihçesini görmek için tıklayın`;
+        return (
+          <span>
+            {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} tarihinde bitmiştir. Malzeme tarihçesini görmek için `}
+            <Link onClick={() => setIsHistoryModalOpen(true)}>tıklayın</Link>
+          </span>
+        );
       }
     }
 
-    return `Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmıştır. Malzeme tarihçesini görmek için tıklayın`;
+    return (
+      <span>
+        {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmıştır. Malzeme tarihçesini görmek için `}
+        <Link onClick={() => setIsHistoryModalOpen(true)}>tıklayın</Link>
+      </span>
+    );
   }, [latestUsageInfo]);
 
   const handleIscilikUcretiChange = (value) => {
@@ -560,6 +576,12 @@ export default function MainTabs({ aracID }) {
         {alertDescription && <Alert style={{ width: "100%", marginBottom: "10px" }} type="warning" message="Uyarı" description={alertDescription} showIcon />}
       </div>
       <StyledTabs defaultActiveKey="1" items={items} onChange={onChange} />
+
+      <Modal title="Malzeme Tarihçesi" open={isHistoryModalOpen} onCancel={() => setIsHistoryModalOpen(false)} onOk={() => setIsHistoryModalOpen(false)}>
+        <div>
+          <Text>{latestUsageInfo?.latestUsageDate ? `Son kullanım: ${dayjs(latestUsageInfo.latestUsageDate).format("DD.MM.YYYY")}` : "Kayıt bulunamadı."}</Text>
+        </div>
+      </Modal>
     </div>
   );
 }
