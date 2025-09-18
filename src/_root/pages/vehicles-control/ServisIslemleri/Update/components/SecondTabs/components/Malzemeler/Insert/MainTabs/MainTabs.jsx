@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import AxiosInstance from "../../../../../../../../../../../api/http";
 import PropTypes from "prop-types";
-import { Button, Input, Typography, Tabs, InputNumber, Checkbox, Alert, Modal } from "antd";
+import { Button, Input, Typography, Tabs, InputNumber, Checkbox, Alert, Modal, Table } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -61,10 +61,10 @@ const StyledTabs = styled(Tabs)`
 
 //styled components end
 export default function MainTabs({ aracID }) {
-  const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
-  const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
   const [latestUsageInfo, setLatestUsageInfo] = useState(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [historyData, setHistoryData] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const {
     control,
     watch,
@@ -130,63 +130,13 @@ export default function MainTabs({ aracID }) {
     return formatter.format(new Date(date));
   };
 
-  const formatTime = (time) => {
-    if (!time || time.trim() === "") return ""; // `trim` metodu ile baştaki ve sondaki boşlukları temizle
-
-    try {
-      // Saati ve dakikayı parçalara ayır, boşlukları temizle
-      const [hours, minutes] = time
-        .trim()
-        .split(":")
-        .map((part) => part.trim());
-
-      // Saat ve dakika değerlerinin geçerliliğini kontrol et
-      const hoursInt = parseInt(hours, 10);
-      const minutesInt = parseInt(minutes, 10);
-      if (isNaN(hoursInt) || isNaN(minutesInt) || hoursInt < 0 || hoursInt > 23 || minutesInt < 0 || minutesInt > 59) {
-        throw new Error("Invalid time format");
-      }
-
-      // Geçerli tarih ile birlikte bir Date nesnesi oluştur ve sadece saat ve dakika bilgilerini ayarla
-      const date = new Date();
-      date.setHours(hoursInt, minutesInt, 0);
-
-      // Kullanıcının lokal ayarlarına uygun olarak saat ve dakikayı formatla
-      // `hour12` seçeneğini belirtmeyerek Intl.DateTimeFormat'ın kullanıcının yerel ayarlarına göre otomatik seçim yapmasına izin ver
-      const formatter = new Intl.DateTimeFormat(navigator.language, {
-        hour: "numeric",
-        minute: "2-digit",
-        // hour12 seçeneği burada belirtilmiyor; böylece otomatik olarak kullanıcının sistem ayarlarına göre belirleniyor
-      });
-
-      // Formatlanmış saati döndür
-      return formatter.format(date);
-    } catch (error) {
-      console.error("Error formatting time:", error);
-      return ""; // Hata durumunda boş bir string döndür
-    }
-  };
+  // formatTime helper kullanılmıyor
 
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için sonu
 
   // tarih formatlamasını kullanıcının yerel tarih formatına göre ayarlayın
 
-  useEffect(() => {
-    // Format the date based on the user's locale
-    const dateFormatter = new Intl.DateTimeFormat(navigator.language);
-    const sampleDate = new Date(2021, 10, 21);
-    const formattedSampleDate = dateFormatter.format(sampleDate);
-    setLocaleDateFormat(formattedSampleDate.replace("2021", "YYYY").replace("21", "DD").replace("11", "MM"));
-
-    // Format the time based on the user's locale
-    const timeFormatter = new Intl.DateTimeFormat(navigator.language, { hour: "numeric", minute: "numeric" });
-    const sampleTime = new Date(2021, 10, 21, 13, 45); // Use a sample time, e.g., 13:45
-    const formattedSampleTime = timeFormatter.format(sampleTime);
-
-    // Check if the formatted time contains AM/PM, which implies a 12-hour format
-    const is12HourFormat = /AM|PM/.test(formattedSampleTime);
-    setLocaleTimeFormat(is12HourFormat ? "hh:mm A" : "HH:mm");
-  }, []);
+  // Kullanıcının yerel tarih/saat formatı için effect kullanılmıyor
 
   // tarih formatlamasını kullanıcının yerel tarih formatına göre ayarlayın sonu
 
@@ -240,6 +190,99 @@ export default function MainTabs({ aracID }) {
   }, [aracID, watchedAracId, watchedMalzemeKoduId]);
 
   // Malzemenin son kullanım tarihini çekmek için API çağrısı sonu
+
+  // Modal açıldığında malzeme kullanım detaylarını çek
+  useEffect(() => {
+    if (!isHistoryModalOpen) return;
+    const vehicleId = Number(aracID ?? watchedAracId);
+    const materialId = Number(watchedMalzemeKoduId);
+    if (!vehicleId || !materialId) return;
+
+    let isActive = true;
+    setHistoryLoading(true);
+    AxiosInstance.get("MaterialMovements/GetTopUsedMaterialDetails", {
+      params: { vId: vehicleId, materialId },
+    })
+      .then((res) => {
+        if (!isActive) return;
+        const rows = Array.isArray(res?.data) ? res.data : [];
+        setHistoryData(rows);
+      })
+      .catch(() => {
+        if (!isActive) return;
+        setHistoryData([]);
+      })
+      .finally(() => {
+        if (!isActive) return;
+        setHistoryLoading(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [isHistoryModalOpen, aracID, watchedAracId, watchedMalzemeKoduId]);
+
+  const historyColumns = useMemo(
+    () => [
+      /* {
+        title: "Sıra No",
+        dataIndex: "siraNo",
+        key: "siraNo",
+        width: 100,
+        sorter: (a, b) => (a.siraNo ?? 0) - (b.siraNo ?? 0),
+      }, */
+      {
+        title: "Malzeme Kod",
+        dataIndex: "malezemeKod",
+        key: "malezemeKod",
+        width: 140,
+        sorter: (a, b) => (a.malezemeKod || "").localeCompare(b.malezemeKod || ""),
+      },
+      {
+        title: "Malzeme Tanım",
+        dataIndex: "malezemeTanim",
+        key: "malezemeTanim",
+        ellipsis: true,
+        sorter: (a, b) => (a.malezemeTanim || "").localeCompare(b.malezemeTanim || ""),
+      },
+      {
+        title: "Tarih",
+        dataIndex: "tarih",
+        key: "tarih",
+        render: (val) => (val ? formatDate(val) : "-"),
+        width: 140,
+        sorter: (a, b) => {
+          const at = a.tarih ? new Date(a.tarih).getTime() : 0;
+          const bt = b.tarih ? new Date(b.tarih).getTime() : 0;
+          return at - bt;
+        },
+      },
+      {
+        title: "Garanti Bitiş",
+        dataIndex: "garantiBitisTarih",
+        key: "garantiBitisTarih",
+        render: (val) => (val ? formatDate(val) : "-"),
+        width: 160,
+        sorter: (a, b) => {
+          const at = a.garantiBitisTarih ? new Date(a.garantiBitisTarih).getTime() : 0;
+          const bt = b.garantiBitisTarih ? new Date(b.garantiBitisTarih).getTime() : 0;
+          return at - bt;
+        },
+      },
+      {
+        title: "Plaka",
+        dataIndex: "plaka",
+        key: "plaka",
+        width: 140,
+        sorter: (a, b) => (a.plaka || "").localeCompare(b.plaka || ""),
+      },
+
+      { title: "Miktar", dataIndex: "miktar", key: "miktar", width: 100, sorter: (a, b) => (a.miktar ?? 0) - (b.miktar ?? 0) },
+      { title: "Fiyat", dataIndex: "fiyat", key: "fiyat", width: 110, sorter: (a, b) => (a.fiyat ?? 0) - (b.fiyat ?? 0) },
+      { title: "Toplam", dataIndex: "toplam", key: "toplam", width: 120, sorter: (a, b) => (a.toplam ?? 0) - (b.toplam ?? 0) },
+    ],
+    []
+  );
 
   const alertDescription = useMemo(() => {
     if (!latestUsageInfo || !latestUsageInfo.latestUsageDate) return null;
@@ -577,10 +620,16 @@ export default function MainTabs({ aracID }) {
       </div>
       <StyledTabs defaultActiveKey="1" items={items} onChange={onChange} />
 
-      <Modal title="Malzeme Tarihçesi" open={isHistoryModalOpen} onCancel={() => setIsHistoryModalOpen(false)} onOk={() => setIsHistoryModalOpen(false)}>
-        <div>
-          <Text>{latestUsageInfo?.latestUsageDate ? `Son kullanım: ${dayjs(latestUsageInfo.latestUsageDate).format("DD.MM.YYYY")}` : "Kayıt bulunamadı."}</Text>
-        </div>
+      <Modal title="Malzeme Tarihçesi" open={isHistoryModalOpen} onCancel={() => setIsHistoryModalOpen(false)} onOk={() => setIsHistoryModalOpen(false)} width={900}>
+        <Table
+          rowKey={(row) => row.siraNo}
+          loading={historyLoading}
+          columns={historyColumns}
+          dataSource={historyData}
+          size="small"
+          pagination={{ pageSize: 10 }}
+          scroll={{ y: "calc(100vh - 380px)" }}
+        />
       </Modal>
     </div>
   );
