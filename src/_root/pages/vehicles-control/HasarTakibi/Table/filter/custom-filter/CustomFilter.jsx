@@ -293,20 +293,12 @@ export default function CustomFilter({ onSubmit }) {
                   filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
                   options={[
                     {
-                      value: "firmaId",
-                      label: "Firma",
+                      value: "lokasyonId",
+                      label: "Lokasyon",
                     },
                     {
-                      value: "islemTipKodId",
-                      label: "İşlem Tipi",
-                    },
-                    {
-                      value: "girisDepoId",
-                      label: "Depo",
-                    },
-                    {
-                      value: "aracId",
-                      label: "Arac",
+                      value: "hasarBoyutId",
+                      label: "Hasar Boyutu",
                     },
                   ]}
                 />
@@ -316,28 +308,14 @@ export default function CustomFilter({ onSubmit }) {
                   value={inputValues[`input-${row.id}`] || ""}
                   onChange={(e) => handleInputChange(e, row.id)}
                   style={{
-                    display:
-                      selectedValues[row.id] === "durum" ||
-                      selectedValues[row.id] === "islemTipKodId" ||
-                      selectedValues[row.id] === "girisDepoId" ||
-                      selectedValues[row.id] === "aracId" ||
-                      selectedValues[row.id] === "firmaId"
-                        ? "none"
-                        : "block",
+                    display: selectedValues[row.id] === "hasarBoyutId" || selectedValues[row.id] === "lokasyonId" ? "none" : "block",
                   }}
                 />
-                {selectedValues[row.id] === "durum" && <StatusSelect value={inputValues[`input-${row.id}`]} onChange={(value) => handleStatusChange(value, row.id)} />}
-                {selectedValues[row.id] === "islemTipKodId" && (
+                {selectedValues[row.id] === "hasarBoyutId" && (
                   <KodIDSelectbox name1={`input-${row.id}`} kodID={302} isRequired={false} onChange={(value, id) => handleKodIDSelectChange(value, id, row.id)} />
                 )}
-                {selectedValues[row.id] === "firmaId" && (
+                {selectedValues[row.id] === "lokasyonId" && (
                   <FirmaSelectBox name1={`input-${row.id}`} isRequired={false} onChange={(label, value) => handleKodIDSelectChange(label, value, row.id)} />
-                )}
-                {selectedValues[row.id] === "girisDepoId" && (
-                  <DepoSelectBox name1={`input-${row.id}`} kodID={"MALZEME"} isRequired={false} onChange={(value, label) => handleKodIDSelectChange(value, label, row.id)} />
-                )}
-                {selectedValues[row.id] === "aracId" && (
-                  <PlakaSelectbox name1={`input-${row.id}`} isRequired={false} onChange={(label, value) => handleKodIDSelectChange(label, value, row.id)} />
                 )}
               </Col>
             </Col>
