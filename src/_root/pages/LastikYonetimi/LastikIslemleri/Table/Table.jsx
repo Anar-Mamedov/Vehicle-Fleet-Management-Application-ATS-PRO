@@ -306,9 +306,9 @@ const Ceza = () => {
     fetchData(0, 1);
   }, []);
 
+  // Filtre değişiminde otomatik istek atmayalım; sadece manuel tetiklemelerde istek atılacak
   useEffect(() => {
     if (body !== prevBodyRef.current) {
-      fetchData(0, 1);
       prevBodyRef.current = body;
     }
   }, [body]);
@@ -844,7 +844,7 @@ const Ceza = () => {
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
 
-              <Filters onChange={handleBodyChange} />
+              <Filters onChange={handleBodyChange} onApply={handleSearch} />
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
               <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}></Button>

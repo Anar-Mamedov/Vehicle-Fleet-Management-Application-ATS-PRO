@@ -1,14 +1,10 @@
 import React from "react";
-import ConditionFilter from "./ConditionFilter";
-import LocationFilter from "./LocationFilter";
-import TypeFilter from "./TypeFilter";
+import PropTypes from "prop-types";
 import CustomFilter from "./custom-filter/CustomFilter";
-import ZamanAraligi from "./ZamanAraligi";
 import MarkaSelectbox from "../../../../../components/MarkaSelectbox";
 import ModelSelectbox from "../../../../../components/ModelSelectbox";
-import { t } from "i18next";
 
-export default function Filters({ onChange }) {
+export default function Filters({ onChange, onApply }) {
   const [markaIds, setMarkaIds] = React.useState([]);
   const [modelIds, setModelIds] = React.useState([]);
   const [filters, setFilters] = React.useState({
@@ -56,8 +52,23 @@ export default function Filters({ onChange }) {
         {/*  }*/}
         {/*/>*/}
         {/* <ZamanAraligi /> */}
-        <CustomFilter onSubmit={(newFilters) => setFilters((state) => ({ ...state, customfilter: { ...(state.customfilter || {}), ...newFilters } }))} />
+        <CustomFilter
+          onSubmit={(newFilters) => {
+            setFilters((state) => {
+              const updated = { ...state, customfilter: { ...(state.customfilter || {}), ...newFilters } };
+              // Parent body'yi hemen güncelle ve ardından fetch'i tetikle
+              onChange("filters", updated);
+              if (onApply) onApply();
+              return updated;
+            });
+          }}
+        />
       </div>
     </>
   );
 }
+
+Filters.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  onApply: PropTypes.func,
+};
