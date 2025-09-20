@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 
 const { Search } = Input;
 
-export default function LokasyonTablo({ workshopSelectedId, onSubmit, multiSelect = false, fieldName = "lokasyon" }) {
+export default function LokasyonTablo({ workshopSelectedId, onSubmit, multiSelect = false, fieldName = "lokasyon", style = {} }) {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false);
   const [treeData, setTreeData] = useState([]);
@@ -228,7 +228,7 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, multiSelec
           name={fieldName}
           control={control}
           render={({ field, fieldState: { error } }) => (
-            <div style={{ display: "flex", flexDirection: "column", gap: "5px", width: "100%" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "5px", width: "100%", ...style }}>
               <Input
                 {...field}
                 status={error ? "error" : ""}

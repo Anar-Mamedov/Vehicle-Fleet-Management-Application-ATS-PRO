@@ -829,7 +829,7 @@ const Ceza = () => {
                 gap: "10px",
                 alignItems: "center",
                 width: "100%",
-                maxWidth: "935px",
+                maxWidth: "985px",
                 flexWrap: "wrap",
               }}
             >

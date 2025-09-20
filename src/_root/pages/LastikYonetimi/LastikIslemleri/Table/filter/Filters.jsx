@@ -34,49 +34,51 @@ export default function Filters({ onChange, onApply }) {
   }, [filters, onChange]);
 
   return (
-    <>
-      <div style={{ display: "flex", gap: "10px" }}>
-        <LokasyonTable fieldName="lokasyonIds" multiSelect={true} onSubmit={setLokasyonIds} />
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+      <LokasyonTable fieldName="lokasyonIds" multiSelect={true} onSubmit={setLokasyonIds} style={{ width: "200px" }} />
+      <div style={{ width: "150px" }}>
         <MarkaSelectbox name1={"marka"} isRequired={false} onChange={setMarkaIds} dropdownWidth="300px" inputWidth="150px" multiSelect={true} />
-        <ModelSelectbox name1={"model"} isRequired={false} onChange={setModelIds} dropdownWidth="300px" inputWidth="150px" markaId={markaIds} multiSelect={true} />
-
-        {/*<TypeFilter*/}
-        {/*  onSubmit={(newFilters) =>*/}
-        {/*    setFilters((state) => ({ ...state, isemritipleri: newFilters }))*/}
-        {/*  }*/}
-        {/*/>*/}
-        {/*<ConditionFilter*/}
-        {/*  onSubmit={(newFilters) =>*/}
-        {/*    setFilters((state) => ({ ...state, durumlar: newFilters }))*/}
-        {/*  }*/}
-        {/*/>*/}
-        {/*<LocationFilter*/}
-        {/*  onSubmit={(newFilters) =>*/}
-        {/*    setFilters((state) => ({ ...state, lokasyonlar: newFilters }))*/}
-        {/*  }*/}
-        {/*/>*/}
-        {/* <ZamanAraligi /> */}
-        <CustomFilter
-          onSubmit={(newFilters) => {
-            setFilters((state) => {
-              const isEmpty = !newFilters || Object.keys(newFilters).length === 0;
-              const nextCustomfilter = isEmpty
-                ? {
-                    lokasyonIds: Array.isArray(lokasyonIds) ? lokasyonIds.map((item) => (typeof item === "object" && item !== null ? item.locationId : item)) : [],
-                    markaIds: Array.isArray(markaIds) ? markaIds : [],
-                    modelIds: Array.isArray(modelIds) ? modelIds : [],
-                  }
-                : { ...(state.customfilter || {}), ...newFilters };
-
-              const updated = { ...state, customfilter: nextCustomfilter };
-              onChange("filters", updated);
-              if (onApply) onApply({ customfilterOverride: nextCustomfilter });
-              return updated;
-            });
-          }}
-        />
       </div>
-    </>
+      <div style={{ width: "150px" }}>
+        <ModelSelectbox name1={"model"} isRequired={false} onChange={setModelIds} dropdownWidth="300px" inputWidth="150px" markaId={markaIds} multiSelect={true} />
+      </div>
+
+      {/*<TypeFilter*/}
+      {/*  onSubmit={(newFilters) =>*/}
+      {/*    setFilters((state) => ({ ...state, isemritipleri: newFilters }))*/}
+      {/*  }*/}
+      {/*/>*/}
+      {/*<ConditionFilter*/}
+      {/*  onSubmit={(newFilters) =>*/}
+      {/*    setFilters((state) => ({ ...state, durumlar: newFilters }))*/}
+      {/*  }*/}
+      {/*/>*/}
+      {/*<LocationFilter*/}
+      {/*  onSubmit={(newFilters) =>*/}
+      {/*    setFilters((state) => ({ ...state, lokasyonlar: newFilters }))*/}
+      {/*  }*/}
+      {/*/>*/}
+      {/* <ZamanAraligi /> */}
+      <CustomFilter
+        onSubmit={(newFilters) => {
+          setFilters((state) => {
+            const isEmpty = !newFilters || Object.keys(newFilters).length === 0;
+            const nextCustomfilter = isEmpty
+              ? {
+                  lokasyonIds: Array.isArray(lokasyonIds) ? lokasyonIds.map((item) => (typeof item === "object" && item !== null ? item.locationId : item)) : [],
+                  markaIds: Array.isArray(markaIds) ? markaIds : [],
+                  modelIds: Array.isArray(modelIds) ? modelIds : [],
+                }
+              : { ...(state.customfilter || {}), ...newFilters };
+
+            const updated = { ...state, customfilter: nextCustomfilter };
+            onChange("filters", updated);
+            if (onApply) onApply({ customfilterOverride: nextCustomfilter });
+            return updated;
+          });
+        }}
+      />
+    </div>
   );
 }
 
