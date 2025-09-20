@@ -123,8 +123,16 @@ export default function CustomFilter({ onSubmit }) {
             acc[selectedValue].push(inputIDValue);
           }
         } else if (selectedValue === "hasarBoyutIds") {
-          // Use the underlying ID value for hasarBoyutIds
-          acc[selectedValue] = inputIDValue;
+          // Ensure hasarBoyutIds is always an array and filter out nulls
+          if (!acc[selectedValue]) {
+            acc[selectedValue] = [];
+          }
+          if (Array.isArray(inputIDValue)) {
+            const filtered = inputIDValue.filter((v) => v != null);
+            acc[selectedValue] = [...acc[selectedValue], ...filtered];
+          } else if (inputIDValue != null) {
+            acc[selectedValue].push(inputIDValue);
+          }
         } else {
           acc[selectedValue] = inputValue;
         }
@@ -197,23 +205,40 @@ export default function CustomFilter({ onSubmit }) {
     console.log("search:", value);
   };
 
-  const handleKodIDSelectChange = (selectedData, rowId) => {
-    if (selectedData && Array.isArray(selectedData)) {
-      // Multi-select mode - selectedData is an array of objects
+  const handleKodIDSelectChange = (selectedData, option, rowId) => {
+    // Case: Coming from LokasyonTablo (array of objects with location/locationId)
+    if (selectedData && Array.isArray(selectedData) && selectedData[0] && typeof selectedData[0] === "object" && "location" in selectedData[0]) {
       const locationNames = selectedData.map((item) => item.location).join(", ");
-      const locationIds = selectedData.map((item) => item.locationId);
-
+      const locationIds = selectedData.map((item) => item.locationId).filter((v) => v != null);
       setInputValues((prevInputValues) => ({
         ...prevInputValues,
         [`input-${rowId}`]: locationNames,
         [`input-${rowId}ID`]: locationIds,
       }));
-    } else if (selectedData) {
-      // Single-select mode - selectedData is a single object
+      return;
+    }
+
+    // Case: Coming from KodIDSelectbox (multi-select): selectedData is array of IDs, option is array of options with label
+    if (Array.isArray(selectedData) && Array.isArray(option)) {
+      const labels = option
+        .map((opt) => opt.label)
+        .filter(Boolean)
+        .join(", ");
+      const ids = selectedData.filter((v) => v != null);
+      setInputValues((prevInputValues) => ({
+        ...prevInputValues,
+        [`input-${rowId}`]: labels,
+        [`input-${rowId}ID`]: ids,
+      }));
+      return;
+    }
+
+    // Fallback: single object with location/locationId
+    if (selectedData && typeof selectedData === "object" && "location" in selectedData) {
       setInputValues((prevInputValues) => ({
         ...prevInputValues,
         [`input-${rowId}`]: selectedData.location,
-        [`input-${rowId}ID`]: selectedData.locationId,
+        [`input-${rowId}ID`]: selectedData.locationId ?? null,
       }));
     }
   };
@@ -329,11 +354,11 @@ export default function CustomFilter({ onSubmit }) {
                     kodID={909}
                     isRequired={false}
                     multiSelect={true}
-                    onChange={(value, id) => handleKodIDSelectChange(value, id, row.id)}
+                    onChange={(value, option) => handleKodIDSelectChange(value, option, row.id)}
                   />
                 )}
                 {selectedValues[row.id] === "lokasyonIds" && (
-                  <LokasyonTablo fieldName={`input-${row.id}`} multiSelect={true} onSubmit={(selected) => handleKodIDSelectChange(selected, row.id)} />
+                  <LokasyonTablo fieldName={`input-${row.id}`} multiSelect={true} onSubmit={(selected) => handleKodIDSelectChange(selected, undefined, row.id)} />
                 )}
               </Col>
             </Col>
