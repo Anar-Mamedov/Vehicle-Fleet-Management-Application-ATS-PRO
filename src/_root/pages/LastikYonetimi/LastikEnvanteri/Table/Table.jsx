@@ -1,26 +1,8 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
-import { useFormContext } from "react-hook-form";
-import ContextMenu from "../components/ContextMenu/ContextMenu.jsx";
-import CreateDrawer from "../Insert/CreateDrawer.jsx";
-import EditDrawer from "../Update/EditDrawer.jsx";
+import React, { useCallback, useEffect, useState } from "react";
 import Filters from "./filter/Filters.jsx";
-import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
-import { Routes, Route, useNavigate } from "react-router-dom";
+// react-router-dom import removed as it's not used here
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, message, Tooltip, ConfigProvider } from "antd";
-import {
-  HolderOutlined,
-  SearchOutlined,
-  MenuOutlined,
-  HomeOutlined,
-  ArrowDownOutlined,
-  ArrowUpOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  DashboardOutlined,
-  CheckCircleFilled,
-  WarningFilled,
-  CloseCircleFilled,
-} from "@ant-design/icons";
+import { HolderOutlined, SearchOutlined, MenuOutlined, DashboardOutlined, CheckCircleFilled, WarningFilled, CloseCircleFilled } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -29,7 +11,7 @@ import "./ResizeStyle.css";
 import AxiosInstance from "../../../../../api/http.jsx";
 import { FormProvider, useForm } from "react-hook-form";
 import styled from "styled-components";
-import dayjs from "dayjs";
+// PropTypes import removed; not used in this file
 import { t } from "i18next";
 import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
@@ -163,7 +145,6 @@ const LastikEnvanteri = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false); // Set initial loading state to false
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchTimeout, setSearchTimeout] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0); // Total data count
   const [pageSize, setPageSize] = useState(10); // Page size
@@ -173,7 +154,6 @@ const LastikEnvanteri = () => {
     visible: false,
     data: null,
   });
-  const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
 
@@ -239,8 +219,9 @@ const LastikEnvanteri = () => {
       }
 
       // Determine what to send for customfilters
+      const requestBody = body?.filters || {};
 
-      const response = await AxiosInstance.post(`TyreInventory/GetTyreInventoryList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
+      const response = await AxiosInstance.post(`TyreInventory/GetTyreInventoryList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, requestBody);
 
       // Handle the new response format with page, recordCount, and list properties
       const total = response.data.recordCount;
@@ -266,18 +247,10 @@ const LastikEnvanteri = () => {
     }
   };
 
+  // Sayfa açılışında ilk veriyi çek
   useEffect(() => {
     fetchData(0, 1);
   }, []);
-
-  useEffect(() => {
-    if (body !== prevBodyRef.current) {
-      fetchData(0, 1);
-      prevBodyRef.current = body;
-    }
-  }, [body]);
-
-  const prevBodyRef = useRef(body);
 
   // Search handling
   // Define handleSearch function
@@ -1018,7 +991,6 @@ const LastikEnvanteri = () => {
                 gap: "10px",
                 alignItems: "center",
                 width: "100%",
-                maxWidth: "935px",
                 flexWrap: "wrap",
               }}
             >
@@ -1036,14 +1008,15 @@ const LastikEnvanteri = () => {
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
 
-              {/* <Filters onChange={handleBodyChange} /> */}
+              <Filters onChange={handleBodyChange} />
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
+              <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}></Button>
             </div>
-            <div style={{ display: "flex", gap: "10px" }}>
-              {/* <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} /> */}
-              {/*  <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} /> */}
-            </div>
+            {/* <div style={{ display: "flex", gap: "10px" }}>
+              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+              <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+            </div> */}
           </div>
           {/* Table */}
           <div
