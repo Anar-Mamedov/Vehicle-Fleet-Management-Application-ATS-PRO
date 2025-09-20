@@ -215,7 +215,7 @@ const Ceza = () => {
   const fetchData = async (diff, targetPage, options = {}) => {
     setLoading(true);
     try {
-      const { overrideAnchorId } = options;
+      const { overrideAnchorId, customfilterOverride, parameterOverride } = options;
       let currentSetPointId = 0;
 
       if (diff > 0) {
@@ -231,17 +231,20 @@ const Ceza = () => {
       // Determine what to send for customfilters
 
       // Cache the exact request so we can replay it later for refreshes
+      const effectiveCustomfilter = customfilterOverride ?? (body.filters?.customfilter || {});
+      const effectiveParameter = parameterOverride ?? searchTerm;
+
       lastRequestRef.current = {
         diff,
         setPointId: currentSetPointId,
         page: targetPage,
-        parameter: searchTerm,
-        customfilter: body.filters?.customfilter || {},
+        parameter: effectiveParameter,
+        customfilter: effectiveCustomfilter,
       };
 
       const response = await AxiosInstance.post(
-        `TyreOperation/GetTyreOperations?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
-        body.filters?.customfilter || {}
+        `TyreOperation/GetTyreOperations?diff=${diff}&setPointId=${currentSetPointId}&parameter=${effectiveParameter}`,
+        effectiveCustomfilter
       );
 
       const total = response.data.vehicleCount;
@@ -306,9 +309,9 @@ const Ceza = () => {
     fetchData(0, 1);
   }, []);
 
+  // Filtre değişiminde otomatik istek atmayalım; sadece manuel tetiklemelerde istek atılacak
   useEffect(() => {
     if (body !== prevBodyRef.current) {
-      fetchData(0, 1);
       prevBodyRef.current = body;
     }
   }, [body]);
@@ -317,8 +320,8 @@ const Ceza = () => {
 
   // Search handling
   // Define handleSearch function
-  const handleSearch = () => {
-    fetchData(0, 1);
+  const handleSearch = (options = {}) => {
+    fetchData(0, 1, options);
   };
 
   const handleTableChange = (page) => {
@@ -826,7 +829,7 @@ const Ceza = () => {
                 gap: "10px",
                 alignItems: "center",
                 width: "100%",
-                maxWidth: "935px",
+                maxWidth: "985px",
                 flexWrap: "wrap",
               }}
             >
@@ -844,9 +847,10 @@ const Ceza = () => {
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
 
-              <Filters onChange={handleBodyChange} />
+              <Filters onChange={handleBodyChange} onApply={handleSearch} />
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
+              <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}></Button>
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
