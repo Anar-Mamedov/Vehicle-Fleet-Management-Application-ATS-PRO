@@ -26,7 +26,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function LastikModel({ name1, isRequired, watchName, lastikMarkaId }) {
+export default function LastikModel({ name1, isRequired, watchName, lastikMarkaId, multiSelect = false }) {
   const {
     control,
     setValue,
