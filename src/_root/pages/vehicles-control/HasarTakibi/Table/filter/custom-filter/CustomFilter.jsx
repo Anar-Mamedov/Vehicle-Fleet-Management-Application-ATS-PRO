@@ -112,8 +112,8 @@ export default function CustomFilter({ onSubmit }) {
       const inputIDValue = inputValues[`input-${row.id}ID`] || "";
 
       if (selectedValue && inputValue) {
-        if (selectedValue === "lokasyonId") {
-          // For lokasyonId, create or append to array
+        if (selectedValue === "lokasyonIds") {
+          // For lokasyonIds, create or append to array
           if (!acc[selectedValue]) {
             acc[selectedValue] = [];
           }
@@ -122,8 +122,8 @@ export default function CustomFilter({ onSubmit }) {
           } else if (inputIDValue) {
             acc[selectedValue].push(inputIDValue);
           }
-        } else if (selectedValue === "hasarBoyutId") {
-          // Use the underlying ID value for hasarBoyutId
+        } else if (selectedValue === "hasarBoyutIds") {
+          // Use the underlying ID value for hasarBoyutIds
           acc[selectedValue] = inputIDValue;
         } else {
           acc[selectedValue] = inputValue;
@@ -305,11 +305,11 @@ export default function CustomFilter({ onSubmit }) {
                   filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
                   options={[
                     {
-                      value: "lokasyonId",
+                      value: "lokasyonIds",
                       label: "Lokasyon",
                     },
                     {
-                      value: "hasarBoyutId",
+                      value: "hasarBoyutIds",
                       label: "Hasar Boyutu",
                     },
                   ]}
@@ -320,13 +320,19 @@ export default function CustomFilter({ onSubmit }) {
                   value={inputValues[`input-${row.id}`] || ""}
                   onChange={(e) => handleInputChange(e, row.id)}
                   style={{
-                    display: selectedValues[row.id] === "hasarBoyutId" || selectedValues[row.id] === "lokasyonId" ? "none" : "block",
+                    display: selectedValues[row.id] === "hasarBoyutIds" || selectedValues[row.id] === "lokasyonIds" ? "none" : "block",
                   }}
                 />
-                {selectedValues[row.id] === "hasarBoyutId" && (
-                  <KodIDSelectbox name1={`input-${row.id}`} kodID={909} isRequired={false} onChange={(value, id) => handleKodIDSelectChange(value, id, row.id)} />
+                {selectedValues[row.id] === "hasarBoyutIds" && (
+                  <KodIDSelectbox
+                    name1={`input-${row.id}`}
+                    kodID={909}
+                    isRequired={false}
+                    multiSelect={true}
+                    onChange={(value, id) => handleKodIDSelectChange(value, id, row.id)}
+                  />
                 )}
-                {selectedValues[row.id] === "lokasyonId" && (
+                {selectedValues[row.id] === "lokasyonIds" && (
                   <LokasyonTablo fieldName={`input-${row.id}`} multiSelect={true} onSubmit={(selected) => handleKodIDSelectChange(selected, row.id)} />
                 )}
               </Col>
