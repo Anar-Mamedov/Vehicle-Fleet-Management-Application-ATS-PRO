@@ -1,45 +1,73 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { FormProvider, useForm } from "react-hook-form";
 import LokasyonTable from "../../../../components/LokasyonTable"; // veya LocationFilter
-import { Button } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import ZamanAraligi from "./ZamanAraligi";
 
 export default function Filters({ onChange }) {
-  const [lokasyonId, setLokasyonId] = useState(null);
+  const [lokasyonIds, setLokasyonIds] = useState([]);
+  const [dateRange, setDateRange] = useState({ baslangicTarih: null, bitisTarih: null });
+
+  const methods = useForm({
+    defaultValues: {
+      timeRange: "all",
+      baslangicTarih: null,
+      bitisTarih: null,
+    },
+  });
 
   useEffect(() => {
-    // lokasyonId null veya boşsa filtreyi temizle
-    if (!lokasyonId || !lokasyonId.locationId) {
-      onChange("filters", {}); // tüm kayıtları getir
-    } else {
-      const filters = {
-        customfilters: {
-          lokasyonId: lokasyonId.locationId,
-        },
-      };
-      onChange("filters", filters);
+    const hasLocation = Array.isArray(lokasyonIds) && lokasyonIds.length > 0;
+    const hasDates = Boolean(dateRange.baslangicTarih || dateRange.bitisTarih);
+
+    if (!hasLocation && !hasDates) {
+      onChange("filters", {});
+      return;
     }
-  }, [lokasyonId]);
+
+    const customfilters = {};
+    if (hasLocation) customfilters.lokasyonIds = lokasyonIds;
+    if (hasDates) {
+      customfilters.baslangicTarih = dateRange.baslangicTarih;
+      customfilters.bitisTarih = dateRange.bitisTarih;
+    }
+
+    onChange("filters", { customfilters });
+  }, [lokasyonIds, dateRange, onChange]);
 
   const handleLokasyonChange = (value) => {
-    // hem state'i güncelle, hem filtreyi tetikle
-    setLokasyonId(value);
-  };
-
-  const handleSearch = () => {
-    if (lokasyonId && lokasyonId.locationId) {
-      const filters = {
-        customfilters: {
-          lokasyonId: lokasyonId.locationId,
-        },
-      };
-      onChange("filters", filters);
-      console.log("Sadece lokasyon filtresi ile arama:", filters);
+    // multiSelect=true: value dizi olabilir, temizlemede null gelebilir
+    if (!value) {
+      setLokasyonIds([]);
+      return;
     }
+
+    // LokasyonTablo multiSelect modunda seçilen öğeleri array olarak gönderiyor
+    if (Array.isArray(value)) {
+      const ids = value.map((item) => item && (item.locationId ?? item.key)).filter((id) => id !== undefined && id !== null);
+      setLokasyonIds(ids);
+      return;
+    }
+
+    // Single-select güvenlik: object -> tek id
+    if (value && (value.locationId || value.key)) {
+      setLokasyonIds([value.locationId ?? value.key]);
+      return;
+    }
+
+    setLokasyonIds([]);
   };
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-      <LokasyonTable onSubmit={handleLokasyonChange} />
+      <FormProvider {...methods}>
+        <ZamanAraligi onDateChange={setDateRange} />
+      </FormProvider>
+      <LokasyonTable onSubmit={handleLokasyonChange} multiSelect={true} />
     </div>
   );
 }
+
+Filters.propTypes = {
+  onChange: PropTypes.func.isRequired,
+};
