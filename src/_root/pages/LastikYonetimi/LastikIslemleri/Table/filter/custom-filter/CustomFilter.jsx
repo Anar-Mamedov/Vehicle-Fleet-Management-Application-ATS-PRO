@@ -212,14 +212,6 @@ export default function CustomFilter({ onSubmit }) {
                       label: t("grup"),
                     },
                     {
-                      value: "marka",
-                      label: t("marka"),
-                    },
-                    {
-                      value: "model",
-                      label: t("model"),
-                    },
-                    {
                       value: "plaka",
                       label: t("plaka"),
                     },

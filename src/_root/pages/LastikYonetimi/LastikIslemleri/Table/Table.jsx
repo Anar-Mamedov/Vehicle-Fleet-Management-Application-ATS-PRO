@@ -215,7 +215,7 @@ const Ceza = () => {
   const fetchData = async (diff, targetPage, options = {}) => {
     setLoading(true);
     try {
-      const { overrideAnchorId } = options;
+      const { overrideAnchorId, customfilterOverride, parameterOverride } = options;
       let currentSetPointId = 0;
 
       if (diff > 0) {
@@ -231,17 +231,20 @@ const Ceza = () => {
       // Determine what to send for customfilters
 
       // Cache the exact request so we can replay it later for refreshes
+      const effectiveCustomfilter = customfilterOverride ?? (body.filters?.customfilter || {});
+      const effectiveParameter = parameterOverride ?? searchTerm;
+
       lastRequestRef.current = {
         diff,
         setPointId: currentSetPointId,
         page: targetPage,
-        parameter: searchTerm,
-        customfilter: body.filters?.customfilter || {},
+        parameter: effectiveParameter,
+        customfilter: effectiveCustomfilter,
       };
 
       const response = await AxiosInstance.post(
-        `TyreOperation/GetTyreOperations?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
-        body.filters?.customfilter || {}
+        `TyreOperation/GetTyreOperations?diff=${diff}&setPointId=${currentSetPointId}&parameter=${effectiveParameter}`,
+        effectiveCustomfilter
       );
 
       const total = response.data.vehicleCount;
@@ -317,8 +320,8 @@ const Ceza = () => {
 
   // Search handling
   // Define handleSearch function
-  const handleSearch = () => {
-    fetchData(0, 1);
+  const handleSearch = (options = {}) => {
+    fetchData(0, 1, options);
   };
 
   const handleTableChange = (page) => {
