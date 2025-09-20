@@ -1,45 +1,55 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { FormProvider, useForm } from "react-hook-form";
 import LokasyonTable from "../../../../components/LokasyonTable"; // veya LocationFilter
-import { Button } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import ZamanAraligi from "./ZamanAraligi";
 
 export default function Filters({ onChange }) {
   const [lokasyonId, setLokasyonId] = useState(null);
+  const [dateRange, setDateRange] = useState({ baslangicTarih: null, bitisTarih: null });
+
+  const methods = useForm({
+    defaultValues: {
+      timeRange: "all",
+      baslangicTarih: null,
+      bitisTarih: null,
+    },
+  });
 
   useEffect(() => {
-    // lokasyonId null veya boşsa filtreyi temizle
-    if (!lokasyonId || !lokasyonId.locationId) {
-      onChange("filters", {}); // tüm kayıtları getir
-    } else {
-      const filters = {
-        customfilters: {
-          lokasyonId: lokasyonId.locationId,
-        },
-      };
-      onChange("filters", filters);
+    const hasLocation = Boolean(lokasyonId && lokasyonId.locationId);
+    const hasDates = Boolean(dateRange.baslangicTarih || dateRange.bitisTarih);
+
+    if (!hasLocation && !hasDates) {
+      onChange("filters", {});
+      return;
     }
-  }, [lokasyonId]);
+
+    const customfilters = {};
+    if (hasLocation) customfilters.lokasyonId = lokasyonId.locationId;
+    if (hasDates) {
+      customfilters.baslangicTarih = dateRange.baslangicTarih;
+      customfilters.bitisTarih = dateRange.bitisTarih;
+    }
+
+    onChange("filters", { customfilters });
+  }, [lokasyonId, dateRange, onChange]);
 
   const handleLokasyonChange = (value) => {
     // hem state'i güncelle, hem filtreyi tetikle
     setLokasyonId(value);
   };
 
-  const handleSearch = () => {
-    if (lokasyonId && lokasyonId.locationId) {
-      const filters = {
-        customfilters: {
-          lokasyonId: lokasyonId.locationId,
-        },
-      };
-      onChange("filters", filters);
-      console.log("Sadece lokasyon filtresi ile arama:", filters);
-    }
-  };
-
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-      <LokasyonTable onSubmit={handleLokasyonChange} />
+      <FormProvider {...methods}>
+        <ZamanAraligi onDateChange={setDateRange} />
+      </FormProvider>
+      <LokasyonTable onSubmit={handleLokasyonChange} multiSelect={true} />
     </div>
   );
 }
+
+Filters.propTypes = {
+  onChange: PropTypes.func.isRequired,
+};
