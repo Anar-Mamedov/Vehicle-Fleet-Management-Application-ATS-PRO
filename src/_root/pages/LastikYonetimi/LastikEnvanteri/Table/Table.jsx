@@ -1018,7 +1018,6 @@ const LastikEnvanteri = () => {
                 gap: "10px",
                 alignItems: "center",
                 width: "100%",
-                maxWidth: "935px",
                 flexWrap: "wrap",
               }}
             >
@@ -1036,14 +1035,14 @@ const LastikEnvanteri = () => {
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
 
-              {/* <Filters onChange={handleBodyChange} /> */}
+              <Filters onChange={handleBodyChange} />
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
             </div>
-            <div style={{ display: "flex", gap: "10px" }}>
-              {/* <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} /> */}
-              {/*  <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} /> */}
-            </div>
+            {/* <div style={{ display: "flex", gap: "10px" }}>
+              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+              <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+            </div> */}
           </div>
           {/* Table */}
           <div
