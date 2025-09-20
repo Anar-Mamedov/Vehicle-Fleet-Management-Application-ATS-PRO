@@ -1,13 +1,11 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { Controller, useFormContext } from "react-hook-form";
-import { Select, Typography, Spin, Input } from "antd";
+import { Select, Input } from "antd";
 import AxiosInstance from "../../api/http";
 import styled from "styled-components";
 
 import { t } from "i18next";
-
-const { Text, Link } = Typography;
-const { Option } = Select;
 
 const StyledSelect = styled(Select)`
   @media (min-width: 600px) {
@@ -28,7 +26,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function LastikMarka({ name1, isRequired }) {
+export default function LastikMarka({ name1, isRequired, multiSelect = false, inputWidth, dropdownWidth, placeholder }) {
   const {
     control,
     setValue,
@@ -36,7 +34,6 @@ export default function LastikMarka({ name1, isRequired }) {
   } = useFormContext();
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectKey, setSelectKey] = useState(0);
 
   const fetchData = async () => {
     setLoading(true);
@@ -68,42 +65,68 @@ export default function LastikMarka({ name1, isRequired }) {
         name={name1}
         control={control}
         rules={{ required: isRequired ? t("alanBosBirakilamaz") : false }}
-        render={({ field }) => (
-          <StyledSelect
-            {...field}
-            status={errors[name1] ? "error" : ""}
-            key={selectKey}
-            showSearch
-            allowClear
-            placeholder="Seçim Yapınız"
-            optionFilterProp="children"
-            filterOption={(input, option) => (option.label ? option.label.toLowerCase().includes(input.toLowerCase()) : false)}
-            onDropdownVisibleChange={(open) => {
-              if (open) {
-                fetchData(); // Fetch data when the dropdown is opened
-              }
-            }}
-            loading={loading}
-            options={options.map((item) => ({
-              value: item.siraNo, // Use siraNo as the value
-              label: item.marka, // Display marka in the dropdown
-            }))}
-            onChange={(value) => {
-              // Seçilen değerin ID'sini NedeniID alanına set et
-              setValue(`${name1}ID`, value);
+        render={({ field }) => {
+          let normalizedValue = field.value;
+          if (multiSelect) {
+            normalizedValue = Array.isArray(field.value) ? field.value : [];
+          }
 
-              // Store the label (marka name) in a new field
-              const selectedOption = options.find((item) => item.siraNo === value);
-              if (selectedOption) {
-                setValue(`${name1}Label`, selectedOption.marka);
-              } else {
-                setValue(`${name1}Label`, null);
-              }
+          const idToLabelMap = new Map(options.map((opt) => [opt.siraNo, opt.marka]));
+          const getSelectedLabels = (vals) => {
+            if (!Array.isArray(vals)) return [];
+            const labels = [];
+            for (const val of vals) {
+              const label = idToLabelMap.get(val);
+              if (label) labels.push(label);
+            }
+            return labels;
+          };
 
-              field.onChange(value);
-            }}
-          />
-        )}
+          return (
+            <StyledSelect
+              {...field}
+              status={errors[name1] ? "error" : ""}
+              mode={multiSelect ? "multiple" : undefined}
+              showSearch
+              allowClear
+              placeholder={placeholder || "Seçim Yapınız"}
+              optionFilterProp="children"
+              filterOption={(input, option) => {
+                const label = option && option.label ? String(option.label) : "";
+                if (!label) return false;
+                return label.toLowerCase().includes(String(input).toLowerCase());
+              }}
+              onDropdownVisibleChange={(open) => {
+                if (open) {
+                  fetchData();
+                }
+              }}
+              loading={loading}
+              options={options.map((item) => ({
+                value: item.siraNo,
+                label: item.marka,
+              }))}
+              value={normalizedValue}
+              onChange={(value) => {
+                if (multiSelect) {
+                  const selectedLabels = getSelectedLabels(value);
+                  setValue(`${name1}ID`, value);
+                  setValue(`${name1}Label`, selectedLabels);
+                  field.onChange(value);
+                  return;
+                }
+
+                setValue(`${name1}ID`, value);
+                const singleLabel = idToLabelMap.get(value) || null;
+                setValue(`${name1}Label`, singleLabel);
+                field.onChange(value);
+              }}
+              style={{ width: inputWidth }}
+              dropdownStyle={{ width: dropdownWidth || "auto", minWidth: "100px" }}
+              popupMatchSelectWidth={false}
+            />
+          );
+        }}
       />
       {errors[name1] && <div style={{ color: "red", marginTop: "5px" }}>{errors[name1].message}</div>}
       <Controller
@@ -120,3 +143,11 @@ export default function LastikMarka({ name1, isRequired }) {
     </StyledDiv>
   );
 }
+
+LastikMarka.propTypes = {
+  name1: PropTypes.string.isRequired,
+  isRequired: PropTypes.bool,
+  multiSelect: PropTypes.bool,
+  inputWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  dropdownWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+};

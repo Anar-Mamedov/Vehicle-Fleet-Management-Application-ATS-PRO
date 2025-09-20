@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { Select, Typography, Spin, Input } from "antd";
+import { Select, Input } from "antd";
 import AxiosInstance from "../../api/http";
 import styled from "styled-components";
+import PropTypes from "prop-types";
 
 import { t } from "i18next";
-
-const { Text, Link } = Typography;
-const { Option } = Select;
 
 const StyledSelect = styled(Select)`
   @media (min-width: 600px) {
@@ -28,7 +26,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function LastikModel({ name1, isRequired, watchName }) {
+export default function LastikModel({ name1, isRequired, watchName, lastikMarkaId }) {
   const {
     control,
     setValue,
@@ -40,7 +38,7 @@ export default function LastikModel({ name1, isRequired, watchName }) {
   const [selectKey, setSelectKey] = useState(0);
 
   // Watch the value of the brand ID field using watch function
-  const brandId = watch(`${watchName}ID`);
+  const brandId = watch(`${watchName}ID`) || lastikMarkaId;
 
   const fetchData = async () => {
     if (!brandId) {
@@ -118,7 +116,7 @@ export default function LastikModel({ name1, isRequired, watchName }) {
 
               field.onChange(value);
             }}
-            disabled={!brandId} // Disable selection if no brand is selected
+            disabled={!brandId || (Array.isArray(brandId) && brandId.length === 0)} // Disable if no brand or empty array
           />
         )}
       />
@@ -137,3 +135,15 @@ export default function LastikModel({ name1, isRequired, watchName }) {
     </StyledDiv>
   );
 }
+
+LastikModel.propTypes = {
+  name1: PropTypes.string.isRequired,
+  isRequired: PropTypes.bool,
+  watchName: PropTypes.string.isRequired,
+  lastikMarkaId: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.array]),
+};
+
+LastikModel.defaultProps = {
+  isRequired: false,
+  lastikMarkaId: undefined,
+};
