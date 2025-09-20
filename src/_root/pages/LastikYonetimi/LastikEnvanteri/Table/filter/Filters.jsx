@@ -1,9 +1,10 @@
 import React from "react";
-import ConditionFilter from "./ConditionFilter";
-import LocationFilter from "./LocationFilter";
-import TypeFilter from "./TypeFilter";
-import CustomFilter from "./custom-filter/CustomFilter";
-import ZamanAraligi from "./ZamanAraligi";
+import PropTypes from "prop-types";
+// import ConditionFilter from "./ConditionFilter";
+// import LocationFilter from "./LocationFilter";
+// import TypeFilter from "./TypeFilter";
+// import CustomFilter from "./custom-filter/CustomFilter";
+// import ZamanAraligi from "./ZamanAraligi";
 import MarkaSelectbox from "../../../../../components/MarkaSelectbox";
 import ModelSelectbox from "../../../../../components/ModelSelectbox";
 
@@ -11,11 +12,20 @@ export default function Filters({ onChange }) {
   const [markaIds, setMarkaIds] = React.useState([]);
   const [modelIds, setModelIds] = React.useState([]);
   const [filters, setFilters] = React.useState({
-    lokasyonlar: {},
+    /* lokasyonlar: {},
     isemritipleri: {},
     durumlar: {},
-    customfilter: {},
+    customfilter: {}, */
   });
+
+  // Marka ve model seçimleri değiştiğinde filtrelere yansıt
+  React.useEffect(() => {
+    setFilters((state) => ({
+      ...state,
+      markaIds: Array.isArray(markaIds) ? markaIds : [],
+      modelIds: Array.isArray(modelIds) ? modelIds : [],
+    }));
+  }, [markaIds, modelIds]);
 
   React.useEffect(() => {
     onChange("filters", filters);
@@ -47,3 +57,7 @@ export default function Filters({ onChange }) {
     </>
   );
 }
+
+Filters.propTypes = {
+  onChange: PropTypes.func.isRequired,
+};

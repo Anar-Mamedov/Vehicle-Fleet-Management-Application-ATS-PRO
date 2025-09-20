@@ -239,8 +239,9 @@ const LastikEnvanteri = () => {
       }
 
       // Determine what to send for customfilters
+      const requestBody = body?.filters || {};
 
-      const response = await AxiosInstance.post(`TyreInventory/GetTyreInventoryList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
+      const response = await AxiosInstance.post(`TyreInventory/GetTyreInventoryList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, requestBody);
 
       // Handle the new response format with page, recordCount, and list properties
       const total = response.data.recordCount;
