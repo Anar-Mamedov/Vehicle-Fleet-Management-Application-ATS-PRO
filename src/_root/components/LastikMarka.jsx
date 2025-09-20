@@ -26,7 +26,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function LastikMarka({ name1, isRequired, multiSelect = false, inputWidth, dropdownWidth, placeholder }) {
+export default function LastikMarka({ name1, isRequired, multiSelect = false, inputWidth, dropdownWidth, placeholder, onChange }) {
   const {
     control,
     setValue,
@@ -113,6 +113,9 @@ export default function LastikMarka({ name1, isRequired, multiSelect = false, in
                   setValue(`${name1}ID`, value);
                   setValue(`${name1}Label`, selectedLabels);
                   field.onChange(value);
+                  if (typeof onChange === "function") {
+                    onChange(Array.isArray(value) ? value : []);
+                  }
                   return;
                 }
 
@@ -120,6 +123,9 @@ export default function LastikMarka({ name1, isRequired, multiSelect = false, in
                 const singleLabel = idToLabelMap.get(value) || null;
                 setValue(`${name1}Label`, singleLabel);
                 field.onChange(value);
+                if (typeof onChange === "function") {
+                  onChange(value != null ? [value] : []);
+                }
               }}
               style={{ width: inputWidth }}
               dropdownStyle={{ width: dropdownWidth || "auto", minWidth: "100px" }}
@@ -150,4 +156,6 @@ LastikMarka.propTypes = {
   multiSelect: PropTypes.bool,
   inputWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   dropdownWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onChange: PropTypes.func,
+  placeholder: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 };

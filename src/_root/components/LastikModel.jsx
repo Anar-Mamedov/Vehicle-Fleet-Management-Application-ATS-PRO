@@ -26,7 +26,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function LastikModel({ name1, isRequired, watchName, lastikMarkaId, multiSelect = false }) {
+export default function LastikModel({ name1, isRequired, watchName, lastikMarkaId, multiSelect = false, onChange, inputWidth, dropdownWidth, placeholder }) {
   const {
     control,
     setValue,
@@ -40,6 +40,19 @@ export default function LastikModel({ name1, isRequired, watchName, lastikMarkaI
   // Watch the value of the brand ID field using watch function
   const brandId = watch(`${watchName}ID`) || lastikMarkaId;
 
+  const isBrandIdValid = () => {
+    if (Array.isArray(brandId)) {
+      return brandId.length > 0 && brandId.some((id) => id != null && id !== "");
+    }
+    return brandId != null && brandId !== "";
+  };
+
+  const getLabelsByIds = (ids) => {
+    if (!Array.isArray(ids)) return [];
+    const idToLabel = new Map(options.map((opt) => [opt.siraNo, opt.model]));
+    return ids.map((id) => idToLabel.get(id)).filter((label) => Boolean(label));
+  };
+
   const fetchData = async () => {
     if (!brandId) {
       setOptions([]);
@@ -48,7 +61,8 @@ export default function LastikModel({ name1, isRequired, watchName, lastikMarkaI
 
     setLoading(true);
     try {
-      const response = await AxiosInstance.get(`TyreModel/GetTyreModelList?id=${brandId}`);
+      const markId = Array.isArray(brandId) ? brandId : [brandId];
+      const response = await AxiosInstance.get(`TyreModel/GetTyreModelList?id=${markId}`);
       if (response && response.data) {
         setOptions(response.data);
       }
@@ -82,43 +96,62 @@ export default function LastikModel({ name1, isRequired, watchName, lastikMarkaI
         name={name1}
         control={control}
         rules={{ required: isRequired ? t("alanBosBirakilamaz") : false }}
-        render={({ field }) => (
-          <StyledSelect
-            {...field}
-            status={errors[name1] ? "error" : ""}
-            key={selectKey}
-            showSearch
-            allowClear
-            placeholder="Seçim Yapınız"
-            optionFilterProp="children"
-            filterOption={(input, option) => (option.label ? option.label.toLowerCase().includes(input.toLowerCase()) : false)}
-            onDropdownVisibleChange={(open) => {
-              if (open) {
-                fetchData(); // Fetch data when the dropdown is opened
-              }
-            }}
-            loading={loading}
-            options={options.map((item) => ({
-              value: item.siraNo, // Use siraNo as the value
-              label: item.model, // Display model in the dropdown instead of marka
-            }))}
-            onChange={(value) => {
-              // Seçilen değerin ID'sini NedeniID alanına set et
-              setValue(`${name1}ID`, value);
+        render={({ field }) => {
+          let normalizedValue = field.value;
+          if (multiSelect) {
+            normalizedValue = Array.isArray(field.value) ? field.value : [];
+          }
 
-              // Store the label (model name) in a new field
-              const selectedOption = options.find((item) => item.siraNo === value);
-              if (selectedOption) {
-                setValue(`${name1}Label`, selectedOption.model);
-              } else {
-                setValue(`${name1}Label`, null);
-              }
+          return (
+            <StyledSelect
+              {...field}
+              status={errors[name1] ? "error" : ""}
+              key={selectKey}
+              mode={multiSelect ? "multiple" : undefined}
+              disabled={!isBrandIdValid()}
+              showSearch
+              allowClear
+              placeholder={placeholder || "Seçim Yapınız"}
+              optionFilterProp="children"
+              filterOption={(input, option) => (option?.label ? option.label.toLowerCase().includes(input.toLowerCase()) : false)}
+              onDropdownVisibleChange={(open) => {
+                if (open) {
+                  fetchData();
+                }
+              }}
+              loading={loading}
+              options={options.map((item) => ({
+                value: item.siraNo,
+                label: item.model,
+              }))}
+              value={normalizedValue}
+              onChange={(value) => {
+                if (multiSelect) {
+                  const selectedLabels = getLabelsByIds(value);
 
-              field.onChange(value);
-            }}
-            disabled={!brandId || (Array.isArray(brandId) && brandId.length === 0)} // Disable if no brand or empty array
-          />
-        )}
+                  setValue(name1, selectedLabels);
+                  setValue(`${name1}ID`, value);
+                  field.onChange(value);
+                  if (typeof onChange === "function") {
+                    onChange(value);
+                  }
+                } else {
+                  const selectedOption = options.find((item) => item.siraNo === value);
+                  const singleLabel = selectedOption ? selectedOption.model : null;
+                  setValue(name1, singleLabel);
+                  setValue(`${name1}ID`, value);
+                  field.onChange(value);
+                  if (typeof onChange === "function") {
+                    onChange(value != null ? [value] : []);
+                  }
+                }
+              }}
+              style={{ width: inputWidth }}
+              dropdownStyle={{ width: dropdownWidth || "auto", minWidth: "100px" }}
+              popupMatchSelectWidth={false}
+            />
+          );
+        }}
       />
       {errors[name1] && <div style={{ color: "red", marginTop: "5px" }}>{errors[name1].message}</div>}
       <Controller
@@ -141,6 +174,11 @@ LastikModel.propTypes = {
   isRequired: PropTypes.bool,
   watchName: PropTypes.string.isRequired,
   lastikMarkaId: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.array]),
+  multiSelect: PropTypes.bool,
+  onChange: PropTypes.func,
+  inputWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  dropdownWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  placeholder: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 };
 
 LastikModel.defaultProps = {
