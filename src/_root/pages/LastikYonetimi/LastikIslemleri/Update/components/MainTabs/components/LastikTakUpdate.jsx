@@ -39,7 +39,18 @@ const getDatePickerLocale = () => {
 const { Text } = Typography;
 const { TextArea } = Input;
 
-export default function LastikTak({ aracId, wheelInfo, axleList, positionList, shouldOpenModal, onModalClose, showAddButton = true, refreshList, tireData }) {
+export default function LastikTak({
+  aracId,
+  wheelInfo,
+  axleList,
+  positionList,
+  shouldOpenModal,
+  onModalClose,
+  showAddButton = true,
+  refreshList,
+  tireData,
+  fromLastikEnvanteri = false,
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchTireData = async (siraNo) => {
@@ -467,7 +478,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                       <span style={{ color: "red" }}>*</span>
                     </Text>
                     <div style={{ width: "250px" }}>
-                      <AxleListSelect axleList={axleList} disabled={false} />
+                      <AxleListSelect axleList={fromLastikEnvanteri ? (watch("selectedAxle") ? [watch("selectedAxle")] : []) : axleList} disabled={fromLastikEnvanteri} />
                     </div>
                   </div>
 
@@ -477,7 +488,10 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                       <span style={{ color: "red" }}>*</span>
                     </Text>
                     <div style={{ width: "250px" }}>
-                      <PositionListSelect positionList={positionList} disabled={false} />
+                      <PositionListSelect
+                        positionList={fromLastikEnvanteri ? (watch("selectedPosition") ? [watch("selectedPosition")] : []) : positionList}
+                        disabled={fromLastikEnvanteri}
+                      />
                     </div>
                   </div>
 
@@ -491,6 +505,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                           <InputNumber
                             {...field}
                             min={0}
+                            disabled={fromLastikEnvanteri}
                             suffix="KM"
                             style={{
                               width: "100%",
@@ -520,6 +535,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                           <>
                             <DatePicker
                               {...field}
+                              disabled={fromLastikEnvanteri}
                               style={{ width: "100%" }}
                               format="DD.MM.YYYY"
                               placeholder={t("montajTarihi")}
@@ -541,7 +557,7 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "start", justifyContent: "space-between", width: "350px" }}>
                     <Text>{t("aciklama")}</Text>
                     <div style={{ width: "250px" }}>
-                      <Controller name="lastikAciklama" control={control} render={({ field }) => <TextArea {...field} rows={4} />} />
+                      <Controller name="lastikAciklama" control={control} render={({ field }) => <TextArea {...field} rows={4} disabled={fromLastikEnvanteri} />} />
                     </div>
                   </div>
                 </div>

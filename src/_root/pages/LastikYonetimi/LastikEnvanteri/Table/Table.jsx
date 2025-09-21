@@ -1051,6 +1051,7 @@ const LastikEnvanteri = () => {
         </FormProvider>
         <LastikTakUpdate
           aracId={selectedTireData?.aracId}
+          fromLastikEnvanteri={true}
           wheelInfo={null}
           axleList={[]}
           positionList={[]}
