@@ -1,22 +1,18 @@
 import { CloseOutlined, FilterOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Drawer, Row, Typography, Select, Space, Input, DatePicker } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import "./style.css";
-import { Controller, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
+import StatusSelect from "./components/StatusSelect";
+import { t } from "i18next";
 import dayjs from "dayjs";
-import "dayjs/locale/tr"; // For Turkish locale
+import "dayjs/locale/tr";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import advancedFormat from "dayjs/plugin/advancedFormat";
-import KodIDSelectbox from "../../../../../../../_root/components/KodIDSelectbox";
-import LokasyonTablo from "../../../../../../../_root/components/LokasyonTable";
+import PropTypes from "prop-types";
 
-dayjs.extend(weekOfYear);
-dayjs.extend(advancedFormat);
-
-dayjs.locale("tr"); // use Turkish locale
-
-const { Text, Link } = Typography;
+const { Text } = Typography;
 
 const StyledCloseOutlined = styled(CloseOutlined)`
   svg {
@@ -37,21 +33,20 @@ const CloseButton = styled.div`
 `;
 
 export default function CustomFilter({ onSubmit }) {
-  const {
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useFormContext();
+  const { watch } = useFormContext();
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [newObjectsAdded, setNewObjectsAdded] = useState(false);
   const [filtersExist, setFiltersExist] = useState(false);
   const [inputValues, setInputValues] = useState({});
-  const [filters, setFilters] = useState({});
-  const [filterValues, setFilterValues] = useState({});
   const [isInitialMount, setIsInitialMount] = useState(true);
 
+  // Dayjs setup
+  dayjs.extend(weekOfYear);
+  dayjs.extend(advancedFormat);
+  dayjs.locale("tr");
+
+  // Date range state
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
@@ -63,30 +58,22 @@ export default function CustomFilter({ onSubmit }) {
       setIsInitialMount(false);
       return;
     }
-
-    if (startDateSelected === null) {
+    if (startDateSelected == null) {
       setStartDate(null);
     } else {
       setStartDate(dayjs(startDateSelected));
     }
-    if (endDateSelected === null) {
+    if (endDateSelected == null) {
       setEndDate(null);
     } else {
       setEndDate(dayjs(endDateSelected));
     }
   }, [startDateSelected, endDateSelected, isInitialMount]);
 
-  useEffect(() => {
-    if (isInitialMount) return;
-
-    // Always submit after initial mount when dates change (including null)
-    handleSubmit();
-  }, [startDate, endDate]);
-
   // Create a state variable to store selected values for each row
   const [selectedValues, setSelectedValues] = useState({});
 
-  // Tarih seçimi yapıldığında veya filtreler eklenip kaldırıldığında düğmenin stilini değiştirmek için bir durum
+  // Filtreler eklenip kaldırıldığında ve/veya tarih seçildiğinde düğmenin stilini değiştirmek için bir durum
   const isFilterApplied = newObjectsAdded || filtersExist || startDate || endDate;
 
   const handleSelectChange = (value, rowId) => {
@@ -104,35 +91,14 @@ export default function CustomFilter({ onSubmit }) {
     setOpen(false);
   };
 
-  const handleSubmit = () => {
-    // Combine selected values, input values for each row, and date range
+  const handleSubmit = useCallback(() => {
+    // Combine selected values, input values for each row and date range
     const filterData = rows.reduce((acc, row) => {
       const selectedValue = selectedValues[row.id] || "";
       const inputValue = inputValues[`input-${row.id}`] || "";
-      const inputIDValue = inputValues[`input-${row.id}ID`] || "";
-
       if (selectedValue && inputValue) {
-        if (selectedValue === "lokasyonIds") {
-          // For lokasyonIds, create or append to array
-          if (!acc[selectedValue]) {
-            acc[selectedValue] = [];
-          }
-          if (Array.isArray(inputIDValue)) {
-            acc[selectedValue] = [...acc[selectedValue], ...inputIDValue];
-          } else if (inputIDValue) {
-            acc[selectedValue].push(inputIDValue);
-          }
-        } else if (selectedValue === "hasarBoyutIds") {
-          // Ensure hasarBoyutIds is always an array and filter out nulls
-          if (!acc[selectedValue]) {
-            acc[selectedValue] = [];
-          }
-          if (Array.isArray(inputIDValue)) {
-            const filtered = inputIDValue.filter((v) => v != null);
-            acc[selectedValue] = [...acc[selectedValue], ...filtered];
-          } else if (inputIDValue != null) {
-            acc[selectedValue].push(inputIDValue);
-          }
+        if (selectedValue === "durum") {
+          acc[selectedValue] = Number(inputValue);
         } else {
           acc[selectedValue] = inputValue;
         }
@@ -140,7 +106,6 @@ export default function CustomFilter({ onSubmit }) {
       return acc;
     }, {});
 
-    // Add date range to the filterData object if dates are selected
     if (startDate) {
       filterData.baslangicTarih = startDate.format("YYYY-MM-DD");
     }
@@ -148,13 +113,13 @@ export default function CustomFilter({ onSubmit }) {
       filterData.bitisTarih = endDate.format("YYYY-MM-DD");
     }
 
-    // You can now submit or process the filterData object as needed.
     onSubmit(filterData);
     setOpen(false);
-  };
+  }, [rows, selectedValues, inputValues, startDate, endDate, onSubmit]);
+
+  // Tarih değişiminde otomatik uygulamayı kaldırdık; sadece Uygula butonu ile tetiklenecek
 
   const handleCancelClick = (rowId) => {
-    setFilters({});
     setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
 
     const filtersRemaining = rows.length > 1;
@@ -177,12 +142,6 @@ export default function CustomFilter({ onSubmit }) {
       ...prevInputValues,
       [`input-${rowId}`]: value,
     }));
-
-    // Update filters with the status value
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      status: value,
-    }));
   };
 
   const handleAddFilterClick = () => {
@@ -197,50 +156,8 @@ export default function CustomFilter({ onSubmit }) {
     }));
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-
   const onSearch = (value) => {
     console.log("search:", value);
-  };
-
-  const handleKodIDSelectChange = (selectedData, option, rowId) => {
-    // Case: Coming from LokasyonTablo (array of objects with location/locationId)
-    if (selectedData && Array.isArray(selectedData) && selectedData[0] && typeof selectedData[0] === "object" && "location" in selectedData[0]) {
-      const locationNames = selectedData.map((item) => item.location).join(", ");
-      const locationIds = selectedData.map((item) => item.locationId).filter((v) => v != null);
-      setInputValues((prevInputValues) => ({
-        ...prevInputValues,
-        [`input-${rowId}`]: locationNames,
-        [`input-${rowId}ID`]: locationIds,
-      }));
-      return;
-    }
-
-    // Case: Coming from KodIDSelectbox (multi-select): selectedData is array of IDs, option is array of options with label
-    if (Array.isArray(selectedData) && Array.isArray(option)) {
-      const labels = option
-        .map((opt) => opt.label)
-        .filter(Boolean)
-        .join(", ");
-      const ids = selectedData.filter((v) => v != null);
-      setInputValues((prevInputValues) => ({
-        ...prevInputValues,
-        [`input-${rowId}`]: labels,
-        [`input-${rowId}ID`]: ids,
-      }));
-      return;
-    }
-
-    // Fallback: single object with location/locationId
-    if (selectedData && typeof selectedData === "object" && "location" in selectedData) {
-      setInputValues((prevInputValues) => ({
-        ...prevInputValues,
-        [`input-${rowId}`]: selectedData.location,
-        [`input-${rowId}ID`]: selectedData.locationId ?? null,
-      }));
-    }
   };
 
   return (
@@ -255,20 +172,20 @@ export default function CustomFilter({ onSubmit }) {
         className={isFilterApplied ? "#ff0000-dot-button" : ""}
       >
         <FilterOutlined />
-        <span style={{ marginRight: "5px" }}>Filtreler</span>
+        <span style={{ marginRight: "5px" }}>{t("filtreler")}</span>
         {isFilterApplied && <span className="blue-dot"></span>}
       </Button>
       <Drawer
         extra={
           <Space>
             <Button type="primary" onClick={handleSubmit}>
-              Uygula
+              {t("uygula")}
             </Button>
           </Space>
         }
         title={
           <span>
-            <FilterOutlined style={{ marginRight: "8px" }} /> Filtreler
+            <FilterOutlined style={{ marginRight: "8px" }} /> {t("filtreler")}
           </span>
         }
         placement="right"
@@ -284,13 +201,12 @@ export default function CustomFilter({ onSubmit }) {
           }}
         >
           <div style={{ marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>Tarih Aralığı</Text>
+            <Text style={{ fontSize: "14px" }}>{t("tarihAraligi")}</Text>
           </div>
-
           <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-            <DatePicker style={{ width: "100%" }} placeholder="Başlangıç Tarihi" value={startDate} onChange={setStartDate} locale={dayjs.locale("tr")} />
+            <DatePicker style={{ width: "100%" }} placeholder={t("baslangicTarihi")} value={startDate} onChange={setStartDate} locale={dayjs.locale("tr")} />
             <Text style={{ fontSize: "14px" }}>-</Text>
-            <DatePicker style={{ width: "100%" }} placeholder="Bitiş Tarihi" value={endDate} onChange={setEndDate} locale={dayjs.locale("tr")} />
+            <DatePicker style={{ width: "100%" }} placeholder={t("bitisTarihi")} value={endDate} onChange={setEndDate} locale={dayjs.locale("tr")} />
           </div>
         </div>
         {rows.map((row) => (
@@ -313,7 +229,7 @@ export default function CustomFilter({ onSubmit }) {
                   alignItems: "center",
                 }}
               >
-                <Text>Yeni Filtre</Text>
+                <Text>{t("yeniFiltre")}</Text>
                 <CloseButton onClick={() => handleCancelClick(row.id)}>
                   <StyledCloseOutlined />
                 </CloseButton>
@@ -322,7 +238,7 @@ export default function CustomFilter({ onSubmit }) {
                 <Select
                   style={{ width: "100%", marginBottom: "10px" }}
                   showSearch
-                  placeholder={`Seçim Yap`}
+                  placeholder={`${t("secimYap")}`}
                   optionFilterProp="children"
                   onChange={(value) => handleSelectChange(value, row.id)}
                   value={selectedValues[row.id] || undefined}
@@ -330,41 +246,32 @@ export default function CustomFilter({ onSubmit }) {
                   filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
                   options={[
                     {
-                      value: "lokasyonIds",
-                      label: "Lokasyon",
+                      value: "aracTip",
+                      label: t("aracTip"),
                     },
                     {
-                      value: "hasarBoyutIds",
-                      label: "Hasar Boyutu",
+                      value: "grup",
+                      label: t("grup"),
+                    },
+                    {
+                      value: "plaka",
+                      label: t("plaka"),
                     },
                   ]}
                 />
                 <Input
-                  placeholder="Arama Yap"
+                  placeholder={t("aramaYap")}
                   name={`input-${row.id}`}
                   value={inputValues[`input-${row.id}`] || ""}
                   onChange={(e) => handleInputChange(e, row.id)}
-                  style={{
-                    display: selectedValues[row.id] === "hasarBoyutIds" || selectedValues[row.id] === "lokasyonIds" ? "none" : "block",
-                  }}
+                  style={{ display: selectedValues[row.id] === "durum" ? "none" : "block" }}
                 />
-                {selectedValues[row.id] === "hasarBoyutIds" && (
-                  <KodIDSelectbox
-                    name1={`input-${row.id}`}
-                    kodID={909}
-                    isRequired={false}
-                    multiSelect={true}
-                    onChange={(value, option) => handleKodIDSelectChange(value, option, row.id)}
-                  />
-                )}
-                {selectedValues[row.id] === "lokasyonIds" && (
-                  <LokasyonTablo fieldName={`input-${row.id}`} multiSelect={true} onSubmit={(selected) => handleKodIDSelectChange(selected, undefined, row.id)} />
-                )}
+                {selectedValues[row.id] === "durum" && <StatusSelect value={inputValues[`input-${row.id}`]} onChange={(value) => handleStatusChange(value, row.id)} />}
               </Col>
             </Col>
           </Row>
         ))}
-        <Button
+        {/* <Button
           type="primary"
           onClick={handleAddFilterClick}
           style={{
@@ -375,9 +282,13 @@ export default function CustomFilter({ onSubmit }) {
           }}
         >
           <PlusOutlined />
-          Filtre ekle
-        </Button>
+          {t("filtreEkle")}
+        </Button> */}
       </Drawer>
     </>
   );
 }
+
+CustomFilter.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};

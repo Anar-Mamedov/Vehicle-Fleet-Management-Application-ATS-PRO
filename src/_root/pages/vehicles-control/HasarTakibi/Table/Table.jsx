@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "react";
-import { useFormContext } from "react-hook-form";
+// import { useFormContext } from "react-hook-form";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateDrawer from "../Insert/CreateDrawer";
 import EditDrawer from "../Update/EditDrawer";
 import Filters from "./filter/Filters";
-import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+// import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
+import { useNavigate } from "react-router-dom";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, ConfigProvider } from "antd";
+import { HolderOutlined, SearchOutlined, MenuOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -16,7 +16,7 @@ import "./ResizeStyle.css";
 import AxiosInstance from "../../../../../api/http";
 import { FormProvider, useForm } from "react-hook-form";
 import styled from "styled-components";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 import { t } from "i18next";
 import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
@@ -170,7 +170,7 @@ const HasarTakibi = () => {
 
   // API call - memoized with useCallback to prevent recreation on every render
   const fetchData = useCallback(
-    async (diff, targetPage) => {
+    async (diff, targetPage, customfilterOverride) => {
       setLoading(true);
       try {
         let currentSetPointId = 0;
@@ -185,7 +185,7 @@ const HasarTakibi = () => {
 
         const response = await AxiosInstance.post(
           `DamageTracking/GetDamageList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
-          body.filters?.customfilter || {}
+          customfilterOverride || body.filters?.customfilter || {}
         );
 
         const total = response.data.recordCount;
@@ -221,16 +221,18 @@ const HasarTakibi = () => {
   // Watch for body state changes
   useEffect(() => {
     if (JSON.stringify(body) !== JSON.stringify(prevBodyRef.current)) {
-      fetchData(0, 1);
       prevBodyRef.current = { ...body };
     }
   }, [body, fetchData]);
 
   // Search handling
   // Define handleSearch function
-  const handleSearch = useCallback(() => {
-    fetchData(0, 1);
-  }, [fetchData]);
+  const handleSearch = useCallback(
+    (customfilterOverride) => {
+      fetchData(0, 1, customfilterOverride);
+    },
+    [fetchData]
+  );
 
   const handleTableChange = (page) => {
     const diff = page - currentPage;
@@ -867,7 +869,7 @@ const HasarTakibi = () => {
                 gap: "10px",
                 alignItems: "center",
                 width: "100%",
-                maxWidth: "935px",
+                maxWidth: "985px",
                 flexWrap: "wrap",
               }}
             >
@@ -882,12 +884,13 @@ const HasarTakibi = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onPressEnter={handleSearch}
                 // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
-                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={() => handleSearch()} />}
               />
 
-              <Filters onChange={handleBodyChange} />
+              <Filters onChange={handleBodyChange} onApply={handleSearch} />
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
+              <Button type="primary" icon={<SearchOutlined />} onClick={() => handleSearch()}></Button>
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
