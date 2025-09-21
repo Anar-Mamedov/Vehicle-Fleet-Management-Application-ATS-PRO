@@ -17,6 +17,7 @@ import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
+import LastikTakUpdate from "../../LastikIslemleri/Update/components/MainTabs/components/LastikTakUpdate.jsx";
 
 const localeMap = {
   tr: trTR,
@@ -155,7 +156,8 @@ const LastikEnvanteri = () => {
     data: null,
   });
 
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [selectedTireData, setSelectedTireData] = useState(null);
 
   const [body, setBody] = useState({
     keyword: "",
@@ -265,10 +267,6 @@ const LastikEnvanteri = () => {
 
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
-
-    // Find selected rows data
-    const newSelectedRows = data.filter((row) => newSelectedRowKeys.includes(row.key));
-    setSelectedRows(newSelectedRows);
   };
 
   const rowSelection = {
@@ -277,13 +275,15 @@ const LastikEnvanteri = () => {
     onChange: onSelectChange,
   };
 
-  const onRowClick = (record) => {
-    setDrawer({ visible: true, data: record });
+  // onRowClick removed; using openUpdateModal instead
+
+  const openUpdateModal = (record) => {
+    setSelectedTireData({ siraNo: record?.siraNo, aracId: record?.aracId });
+    setIsUpdateModalOpen(true);
   };
 
   const refreshTableData = useCallback(() => {
     setSelectedRowKeys([]);
-    setSelectedRows([]);
     fetchData(0, 1);
   }, []);
 
@@ -296,7 +296,7 @@ const LastikEnvanteri = () => {
       width: 120,
       ellipsis: true,
       visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+      render: (text, record) => <a onClick={() => openUpdateModal(record)}>{text}</a>,
       sorter: (a, b) => {
         if (a.seriNo === null) return -1;
         if (b.seriNo === null) return 1;
@@ -1049,6 +1049,18 @@ const LastikEnvanteri = () => {
             {/* <EditDrawer selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} /> */}
           </div>
         </FormProvider>
+        <LastikTakUpdate
+          aracId={selectedTireData?.aracId}
+          fromLastikEnvanteri={true}
+          wheelInfo={null}
+          axleList={[]}
+          positionList={[]}
+          shouldOpenModal={isUpdateModalOpen}
+          onModalClose={() => setIsUpdateModalOpen(false)}
+          showAddButton={false}
+          refreshList={refreshTableData}
+          tireData={selectedTireData}
+        />
       </ConfigProvider>
     </>
   );

@@ -22,18 +22,26 @@ export default function PositionListSelect({ positionList, disabled }) {
   const getPositionsByAxle = () => {
     if (!selectedAxle || !positionList) return [];
 
+    // Eğer positionList tek bir değer içeren array ise (fromLastikEnvanteri durumu)
+    if (positionList.length === 1 && typeof positionList[0] === "string") {
+      return positionList;
+    }
+
     if (selectedAxle === "onAks") {
-      return positionList[0];
+      const result = positionList[0];
+      return Array.isArray(result) ? result : [];
     }
 
     if (selectedAxle === "arkaAks") {
-      return positionList[positionList.length - 1];
+      const result = positionList[positionList.length - 1];
+      return Array.isArray(result) ? result : [];
     }
 
     // ortaAks1, ortaAks2, etc. cases
     const axleNumber = parseInt(selectedAxle.replace("ortaAks", ""));
     if (!isNaN(axleNumber)) {
-      return positionList[axleNumber] || [];
+      const result = positionList[axleNumber];
+      return Array.isArray(result) ? result : [];
     }
 
     return [];
