@@ -1,25 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { Typography, Space, message, InputNumber, Input, DatePicker, Button, Modal } from "antd";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Typography, message, InputNumber, Input, DatePicker, Button, Modal } from "antd";
+import PropTypes from "prop-types";
 import AxleListSelect from "./AxleListSelect";
 import PositionListSelect from "./PositionListSelect";
 import KodIDSelectbox from "../../../../../../../components/KodIDSelectbox";
-import StoksuzLastikTablo from "../../../../../../../components/StoksuzLastikTablo";
 import LastikMarka from "../../../../../../../components/LastikMarka";
 import LastikModel from "../../../../../../../components/LastikModel";
 import AxiosInstance from "../../../../../../../../api/http";
 import { t } from "i18next";
-import { Controller, useFormContext, FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import dayjs from "dayjs";
 // Import locale data for DatePicker
 import enUS from "antd/lib/date-picker/locale/en_US";
 import trTR from "antd/lib/date-picker/locale/tr_TR";
 import ruRU from "antd/lib/date-picker/locale/ru_RU";
 import azAZ from "antd/lib/date-picker/locale/az_AZ";
-
-const getDecimalSeparator = () => {
-  const lang = localStorage.getItem("i18nextLng") || "en";
-  return ["tr", "az", "ru"].includes(lang) ? "," : ".";
-};
 
 // Function to get DatePicker locale based on i18next language
 const getDatePickerLocale = () => {
@@ -53,11 +48,55 @@ export default function LastikTak({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchTireData = async (siraNo) => {
+  const methods = useForm({
+    defaultValues: {
+      lastik: null,
+      lastikID: null,
+      selectedAxle: null,
+      selectedPosition: null,
+      lastikTip: null,
+      lastikEbat: null,
+      lastikTipID: null,
+      lastikEbatID: null,
+      seriNo: "",
+      lastikOmru: 0,
+      marka: null,
+      markaID: null,
+      model: null,
+      modelID: null,
+      disDerinligi: 0,
+      basinc: 0,
+      montajKm: 0,
+      montajTarihi: null,
+      lastikAciklama: null,
+    },
+    mode: "onChange",
+  });
+
+  const { control, setValue, watch } = methods;
+
+  const selectedAxle = watch("selectedAxle");
+  const selectedPosition = watch("selectedPosition");
+
+  const effectiveAxleList = useMemo(() => {
+    if (!fromLastikEnvanteri) {
+      return axleList;
+    }
+    return selectedAxle ? [selectedAxle] : [];
+  }, [fromLastikEnvanteri, axleList, selectedAxle]);
+
+  const effectivePositionList = useMemo(() => {
+    if (!fromLastikEnvanteri) {
+      return positionList;
+    }
+    return selectedPosition ? [selectedPosition] : [];
+  }, [fromLastikEnvanteri, positionList, selectedPosition]);
+
+  const fetchTireData = useCallback(async (siraNo) => {
     try {
       const response = await AxiosInstance.get(`TyreOperation/GetTyreOperationById?id=${siraNo}`);
-      if (response && response.data) {
-        const data = response.data;
+      const data = response?.data;
+      if (data) {
         setValue("lastik", data.lastikTanim);
         setValue("lastikID", data.lastikSiraNo);
         setValue("selectedAxle", data.aksPozisyon);
@@ -89,40 +128,7 @@ export default function LastikTak({
       console.error("Error fetching tire data:", error);
       message.error(t("lastikVerileriAlinamadi"));
     }
-  };
-
-  const methods = useForm({
-    defaultValues: {
-      lastik: null,
-      lastikID: null,
-      selectedAxle: null,
-      selectedPosition: null,
-      lastikTip: null,
-      lastikEbat: null,
-      lastikTipID: null,
-      lastikEbatID: null,
-      seriNo: "",
-      lastikOmru: 0,
-      marka: null,
-      markaID: null,
-      model: null,
-      modelID: null,
-      disDerinligi: 0,
-      basinc: 0,
-      montajKm: 0,
-      montajTarihi: null,
-      lastikAciklama: null,
-    },
-    mode: "onChange",
-  });
-
-  const {
-    control,
-    formState: { errors },
-    setValue,
-    reset,
-    watch,
-  } = methods;
+  }, [setValue]);
 
   // Listen for external modal trigger
   useEffect(() => {
@@ -131,16 +137,14 @@ export default function LastikTak({
     }
   }, [shouldOpenModal]);
 
-  const handleOpenModal = async () => {
+  const handleOpenModal = () => {
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     methods.reset();
-    if (onModalClose) {
-      onModalClose();
-    }
+    onModalClose?.();
   };
 
   useEffect(() => {
@@ -154,17 +158,7 @@ export default function LastikTak({
     if (tireData?.siraNo) {
       fetchTireData(tireData.siraNo);
     }
-  }, [tireData]);
-
-  const formatDateWithDayjs = (dateString) => {
-    const formattedDate = dayjs(dateString);
-    return formattedDate.isValid() ? formattedDate.format("YYYY-MM-DD") : "";
-  };
-
-  const formatTimeWithDayjs = (timeObj) => {
-    const formattedTime = dayjs(timeObj);
-    return formattedTime.isValid() ? formattedTime.format("HH:mm:ss") : "";
-  };
+  }, [tireData, fetchTireData]);
 
   const createRequestBody = (data) => ({
     siraNo: tireData?.siraNo,
@@ -190,14 +184,13 @@ export default function LastikTak({
   const handleApiCall = async (data) => {
     try {
       const response = await AxiosInstance.post("TyreOperation/UpdateTyreOperation", createRequestBody(data));
+      const statusCode = response?.data?.statusCode;
 
-      if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202) {
+      if (statusCode === 200 || statusCode === 201 || statusCode === 202) {
         message.success("Güncelleme Başarılı.");
-        if (typeof refreshList === "function") {
-          await refreshList();
-        }
+        await refreshList?.();
         return true;
-      } else if (response.data.statusCode === 401) {
+      } else if (statusCode === 401) {
         message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
       } else {
         message.error("İşlem Başarısız.");
@@ -222,13 +215,6 @@ export default function LastikTak({
     }
   };
 
-  const handleSaveAndNew = async (data) => {
-    const success = await handleApiCall(data);
-    if (success) {
-      methods.reset();
-    }
-  };
-
   const validateSeriNo = async (value) => {
     if (!value) return true;
     try {
@@ -237,7 +223,7 @@ export default function LastikTak({
         code: value,
       });
 
-      if (response.data.status === true) {
+      if (response?.data?.status === true) {
         return t("seriNumarasiBenzersizDegildir");
       }
       return true;
@@ -246,8 +232,6 @@ export default function LastikTak({
       return t("seriNumarasiKontroluSirasindaHataOlustu");
     }
   };
-
-  const [isValidatingSeriNo, setIsValidatingSeriNo] = useState(false);
 
   return (
     <>
@@ -280,17 +264,15 @@ export default function LastikTak({
                             },
                           }}
                           render={({ field, fieldState: { error } }) => (
-                            <>
-                              <Input
-                                {...field}
-                                status={error ? "error" : ""}
-                                placeholder={t("lastikSeciniz")}
-                                disabled={true}
-                                style={{
-                                  width: "100%",
-                                }}
-                              />
-                            </>
+                            <Input
+                              {...field}
+                              status={error ? "error" : ""}
+                              placeholder={t("lastikSeciniz")}
+                              disabled
+                              style={{
+                                width: "100%",
+                              }}
+                            />
                           )}
                         />
                         {/* <StoksuzLastikTablo
@@ -478,7 +460,7 @@ export default function LastikTak({
                       <span style={{ color: "red" }}>*</span>
                     </Text>
                     <div style={{ width: "250px" }}>
-                      <AxleListSelect axleList={fromLastikEnvanteri ? (watch("selectedAxle") ? [watch("selectedAxle")] : []) : axleList} disabled={fromLastikEnvanteri} />
+                      <AxleListSelect axleList={effectiveAxleList} disabled={fromLastikEnvanteri} />
                     </div>
                   </div>
 
@@ -488,10 +470,7 @@ export default function LastikTak({
                       <span style={{ color: "red" }}>*</span>
                     </Text>
                     <div style={{ width: "250px" }}>
-                      <PositionListSelect
-                        positionList={fromLastikEnvanteri ? (watch("selectedPosition") ? [watch("selectedPosition")] : []) : positionList}
-                        disabled={fromLastikEnvanteri}
-                      />
+                      <PositionListSelect positionList={effectivePositionList} disabled={fromLastikEnvanteri} />
                     </div>
                   </div>
 
@@ -564,7 +543,6 @@ export default function LastikTak({
               </div>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
-                {/* <Button onClick={methods.handleSubmit(handleSaveAndNew)}>{t("kaydetVeYeniEkle")}</Button> */}
                 <Button type="primary" onClick={methods.handleSubmit(onSubmit)}>
                   {t("guncelle")}
                 </Button>
@@ -576,3 +554,21 @@ export default function LastikTak({
     </>
   );
 }
+
+LastikTak.propTypes = {
+  aracId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  axleList: PropTypes.arrayOf(PropTypes.any),
+  fromLastikEnvanteri: PropTypes.bool,
+  onModalClose: PropTypes.func,
+  positionList: PropTypes.arrayOf(PropTypes.any),
+  refreshList: PropTypes.func,
+  shouldOpenModal: PropTypes.bool,
+  showAddButton: PropTypes.bool,
+  tireData: PropTypes.shape({
+    siraNo: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  }),
+  wheelInfo: PropTypes.shape({
+    axlePosition: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    wheelPosition: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  }),
+};
