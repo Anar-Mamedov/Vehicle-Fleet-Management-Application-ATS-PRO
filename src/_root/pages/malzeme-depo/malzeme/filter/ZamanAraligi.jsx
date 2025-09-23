@@ -39,6 +39,7 @@ export default function ZamanAraligi() {
       setValue("startDate", null);
       setValue("endDate", null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTimeRange, isInitialMount]);
 
   const handleTimeRangeChange = (value) => {

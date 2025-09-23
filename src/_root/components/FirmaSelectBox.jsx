@@ -28,7 +28,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function FirmaSelectBox({ name1, isRequired, onChange }) {
+export default function FirmaSelectBox({ name1, isRequired, onChange, multiSelect = false }) {
   const {
     control,
     watch,
@@ -68,38 +68,73 @@ export default function FirmaSelectBox({ name1, isRequired, onChange }) {
         name={name1}
         control={control}
         rules={{ required: isRequired ? t("alanBosBirakilamaz") : false }}
-        render={({ field }) => (
-          <StyledSelect
-            {...field}
-            status={errors[name1] ? "error" : ""}
-            showSearch
-            allowClear
-            placeholder="Firma Seçiniz"
-            optionFilterProp="children"
-            filterOption={(input, option) => (option?.label ? option.label.toLowerCase().includes(input.toLowerCase()) : false)}
-            onDropdownVisibleChange={(open) => {
-              if (open) {
-                fetchData();
-              }
-            }}
-            options={options.map((item) => ({
-              value: item.firmaId,
-              label: item.unvan,
-            }))}
-            onChange={(value, option) => {
-              const numericValue = value ? Number(value) : null;
-              setValue(name1, numericValue);
-              setValue(`${name1}ID`, numericValue);
-              field.onChange(numericValue);
-              if (onChange) {
-                onChange(numericValue, option?.label);
-              }
-            }}
-          />
-        )}
+        render={({ field }) => {
+          const { value, onChange: fieldOnChange, ref, ...restField } = field;
+          const normalizedValue = multiSelect
+            ? Array.isArray(value)
+              ? value
+              : value !== undefined && value !== null
+                ? [value]
+                : []
+            : value ?? null;
+
+          return (
+            <StyledSelect
+              {...restField}
+              ref={ref}
+              value={normalizedValue}
+              mode={multiSelect ? "multiple" : undefined}
+              status={errors[name1] ? "error" : ""}
+              showSearch
+              allowClear
+              placeholder="Firma Seçiniz"
+              optionFilterProp="children"
+              filterOption={(input, option) => (option?.label ? option.label.toLowerCase().includes(input.toLowerCase()) : false)}
+              onDropdownVisibleChange={(open) => {
+                if (open) {
+                  fetchData();
+                }
+              }}
+              options={options.map((item) => ({
+                value: item.firmaId,
+                label: item.unvan,
+              }))}
+              onChange={(selectedValue, option) => {
+                if (multiSelect) {
+                  const numericValues = Array.isArray(selectedValue)
+                    ? selectedValue.map((val) => (typeof val === "number" ? val : Number(val)))
+                    : [];
+                  setValue(name1, numericValues);
+                  setValue(`${name1}ID`, numericValues);
+                  fieldOnChange(numericValues);
+                  if (onChange) {
+                    const labels = Array.isArray(option) ? option.map((opt) => (opt?.label ?? null)) : [];
+                    onChange(numericValues, labels);
+                  }
+                } else {
+                  const numericValue = selectedValue !== undefined && selectedValue !== null ? Number(selectedValue) : null;
+                  setValue(name1, numericValue);
+                  setValue(`${name1}ID`, numericValue);
+                  fieldOnChange(numericValue);
+                  if (onChange) {
+                    onChange(numericValue, option?.label);
+                  }
+                }
+              }}
+            />
+          );
+        }}
       />
       {errors[name1] && <div style={{ color: "red", marginTop: "5px" }}>{errors[name1].message}</div>}
-      <Controller name={`${name1}ID`} control={control} render={({ field }) => <Input {...field} type="text" style={{ display: "none" }} />} />
+      <Controller
+        name={`${name1}ID`}
+        control={control}
+        render={({ field }) => {
+          const { value, ...restField } = field;
+          const hiddenValue = multiSelect && Array.isArray(value) ? value.join(",") : value ?? "";
+          return <Input {...restField} value={hiddenValue} type="text" style={{ display: "none" }} readOnly />;
+        }}
+      />
     </StyledDiv>
   );
 }

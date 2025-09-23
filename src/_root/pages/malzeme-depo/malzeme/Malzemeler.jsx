@@ -171,7 +171,6 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
 
   useEffect(() => {
     if (body !== prevBodyRef.current) {
-      fetchData(0, 1);
       prevBodyRef.current = body;
     }
   }, [body]);
@@ -179,63 +178,66 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
   const prevBodyRef = useRef(body);
 
   // API Data Fetching with diff and setPointId
-  const fetchData = async (diff, targetPage) => {
-    setLoading(true);
-    try {
-      let currentSetPointId = 0;
+  const fetchData = useCallback(
+    async (diff, targetPage, customfilterOverride) => {
+      setLoading(true);
+      try {
+        let currentSetPointId = 0;
 
-      if (isCikisTransfer) {
-        // For isCikisTransfer = true, use siraNo
-        if (diff > 0) {
-          // Moving forward
-          currentSetPointId = data[data.length - 1]?.siraNo || 0;
-        } else if (diff < 0) {
-          // Moving backward
-          currentSetPointId = data[0]?.siraNo || 0;
+        if (isCikisTransfer) {
+          // For isCikisTransfer = true, use siraNo
+          if (diff > 0) {
+            // Moving forward
+            currentSetPointId = data[data.length - 1]?.siraNo || 0;
+          } else if (diff < 0) {
+            // Moving backward
+            currentSetPointId = data[0]?.siraNo || 0;
+          } else {
+            currentSetPointId = 0;
+          }
         } else {
-          currentSetPointId = 0;
+          // For isCikisTransfer = false, use malzemeId (original logic)
+          if (diff > 0) {
+            // Moving forward
+            currentSetPointId = data[data.length - 1]?.malzemeId || 0;
+          } else if (diff < 0) {
+            // Moving backward
+            currentSetPointId = data[0]?.malzemeId || 0;
+          } else {
+            currentSetPointId = 0;
+          }
         }
-      } else {
-        // For isCikisTransfer = false, use malzemeId (original logic)
-        if (diff > 0) {
-          // Moving forward
-          currentSetPointId = data[data.length - 1]?.malzemeId || 0;
-        } else if (diff < 0) {
-          // Moving backward
-          currentSetPointId = data[0]?.malzemeId || 0;
+
+        const endpoint = isCikisTransfer
+          ? `WareHouseManagement/GetMaterialListByWareHouseId?setPointId=${currentSetPointId}&diff=${diff}&parameter=${searchTerm}&wareHouseId=${wareHouseId || 0}`
+          : `Material/GetMaterialList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&wareHouseId=${wareHouseId || 0}`;
+
+        const response = await AxiosInstance.post(endpoint, customfilterOverride || body.filters?.customfilter || {});
+
+        const total = response.data.total_count;
+        setTotalCount(total);
+        setCurrentPage(targetPage);
+
+        const newData = response.data.materialList.map((item) => ({
+          ...item,
+          key: item.malzemeId,
+        }));
+
+        if (newData.length > 0) {
+          setData(newData);
         } else {
-          currentSetPointId = 0;
+          message.warning("No data found.");
+          setData([]);
         }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error("An error occurred while fetching data.");
+      } finally {
+        setLoading(false);
       }
-
-      const endpoint = isCikisTransfer
-        ? `WareHouseManagement/GetMaterialListByWareHouseId?setPointId=${currentSetPointId}&diff=${diff}&parameter=${searchTerm}&wareHouseId=${wareHouseId || 0}`
-        : `Material/GetMaterialList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&wareHouseId=${wareHouseId || 0}`;
-
-      const response = await AxiosInstance.post(endpoint, body.filters?.customfilter || {});
-
-      const total = response.data.total_count;
-      setTotalCount(total);
-      setCurrentPage(targetPage);
-
-      const newData = response.data.materialList.map((item) => ({
-        ...item,
-        key: item.malzemeId,
-      }));
-
-      if (newData.length > 0) {
-        setData(newData);
-      } else {
-        message.warning("No data found.");
-        setData([]);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      message.error("An error occurred while fetching data.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [searchTerm, body.filters, data, isCikisTransfer, wareHouseId]
+  );
 
   // Fetch custom field definitions from the backend
   const fetchCustomFields = async () => {
@@ -259,9 +261,12 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
 
   // Search handling
   // Define handleSearch function
-  const handleSearch = () => {
-    fetchData(0, 1);
-  };
+  const handleSearch = useCallback(
+    (customfilterOverride) => {
+      fetchData(0, 1, customfilterOverride);
+    },
+    [fetchData]
+  );
 
   const handleTableChange = (page) => {
     const diff = page - currentPage;
@@ -1114,9 +1119,10 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
                 // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
-              <Filters onChange={handleBodyChange} />
+              <Filters onChange={handleBodyChange} onApply={handleSearch} />
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
+              <Button type="primary" icon={<SearchOutlined />} onClick={() => handleSearch()}></Button>
             </div>
             {!isSelectionMode && (
               <div style={{ display: "flex", gap: "10px" }}>
