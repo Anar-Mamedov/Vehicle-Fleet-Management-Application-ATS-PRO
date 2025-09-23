@@ -7,7 +7,7 @@ import CreateModal from "./Insert/CreateModal";
 import EditModal from "./Update/EditModal";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
 
-export default function KontrolListesiTablo({ isActive, baslangicTarihi }) {
+export default function KontrolListesiTablo({ isActive, baslangicTarihi, onCountsRefresh }) {
   const [loading, setLoading] = useState(false);
   const { control, watch, setValue } = useFormContext();
   const [data, setData] = useState([]);
@@ -230,7 +230,15 @@ export default function KontrolListesiTablo({ isActive, baslangicTarihi }) {
               setSelectedRowsData([]);
             }}
           />
-          <CreateModal kdvOran={watch("kdvOran")} onRefresh={refreshTable} secilenKayitID={secilenKayitID} plaka={plaka} aracID={aracID} baslangicTarihi={baslangicTarihi} />
+          <CreateModal
+            kdvOran={watch("kdvOran")}
+            onRefresh={refreshTable}
+            onCountsRefresh={onCountsRefresh}
+            secilenKayitID={secilenKayitID}
+            plaka={plaka}
+            aracID={aracID}
+            baslangicTarihi={baslangicTarihi}
+          />
         </div>
       </div>
 

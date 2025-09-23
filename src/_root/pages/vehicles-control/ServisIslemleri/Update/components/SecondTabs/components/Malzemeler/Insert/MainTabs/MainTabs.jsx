@@ -212,6 +212,8 @@ export default function MainTabs({ aracID }) {
   // Malzemenin son kullanım tarihini çekmek için API çağrısı
   const watchedAracId = watch("aracID");
   const watchedMalzemeKoduId = watch("malzemeKoduID");
+  const watchedMalzemeKodu = watch("malzemeKodu");
+  const watchedMalzemeTanimi = watch("malzemeTanimi");
 
   useEffect(() => {
     const vehicleId = Number(aracID ?? watchedAracId);
@@ -276,14 +278,14 @@ export default function MainTabs({ aracID }) {
 
   const historyColumns = useMemo(
     () => [
-      /* {
+      {
         title: "Sıra No",
         dataIndex: "siraNo",
         key: "siraNo",
         width: 100,
         sorter: (a, b) => (a.siraNo ?? 0) - (b.siraNo ?? 0),
-      }, */
-      {
+      },
+      /* {
         title: "Malzeme Kod",
         dataIndex: "malezemeKod",
         key: "malezemeKod",
@@ -297,6 +299,14 @@ export default function MainTabs({ aracID }) {
         width: 200,
         ellipsis: true,
         sorter: (a, b) => (a.malezemeTanim || "").localeCompare(b.malezemeTanim || ""),
+      }, */
+      {
+        title: "Firma",
+        dataIndex: "firma",
+        key: "firma",
+        width: 200,
+        ellipsis: true,
+        sorter: (a, b) => (a.firma || "").localeCompare(b.firma || ""),
       },
       {
         title: "Tarih",
@@ -314,7 +324,16 @@ export default function MainTabs({ aracID }) {
         title: "Garanti Bitiş",
         dataIndex: "garantiBitisTarih",
         key: "garantiBitisTarih",
-        render: (val) => (val ? formatDate(val) : "-"),
+        render: (val) => {
+          const guaranteeDate = val ? dayjs(val) : null;
+          if (!guaranteeDate || !guaranteeDate.isValid()) {
+            return "Bitti";
+          }
+
+          const now = dayjs();
+          const stillValid = guaranteeDate.isAfter(now, "day") || guaranteeDate.isSame(now, "day");
+          return stillValid ? formatDate(val) : "Bitti";
+        },
         width: 160,
         sorter: (a, b) => {
           const at = a.garantiBitisTarih ? new Date(a.garantiBitisTarih).getTime() : 0;
@@ -353,15 +372,15 @@ export default function MainTabs({ aracID }) {
         if (stillValid) {
           return (
             <span>
-              {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} kadar devam etmektedir. Lütfen tekrar kullanım gerektiğini kontrol ediniz. Malzeme tarihçesini görmek için `}
-              <Link onClick={() => setIsHistoryModalOpen(true)}>tıklayın</Link>
+              {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} kadar devam etmektedir. Lütfen tekrar kullanım gerektiğini kontrol ediniz. `}
+              <Link onClick={() => setIsHistoryModalOpen(true)}>Malzeme tarihçesi için tıklayınız.</Link>
             </span>
           );
         }
         return (
           <span>
-            {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} tarihinde bitmiştir. Malzeme tarihçesini görmek için `}
-            <Link onClick={() => setIsHistoryModalOpen(true)}>tıklayın</Link>
+            {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} tarihinde bitmiştir. `}
+            <Link onClick={() => setIsHistoryModalOpen(true)}>Malzeme tarihçesi için tıklayınız.</Link>
           </span>
         );
       }
@@ -369,8 +388,8 @@ export default function MainTabs({ aracID }) {
 
     return (
       <span>
-        {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmıştır. Malzeme tarihçesini görmek için `}
-        <Link onClick={() => setIsHistoryModalOpen(true)}>tıklayın</Link>
+        {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmıştır. `}
+        <Link onClick={() => setIsHistoryModalOpen(true)}>Malzeme tarihçesi için tıklayınız.</Link>
       </span>
     );
   }, [latestUsageInfo]);
@@ -403,6 +422,11 @@ export default function MainTabs({ aracID }) {
     recalculateIndirimYuzde();
     recalculateToplam();
   };
+
+  const historyModalTitle = useMemo(() => {
+    const parts = [watchedMalzemeKodu, watchedMalzemeTanimi].filter((part) => Boolean(part && `${part}`.trim()));
+    return parts.length > 0 ? parts.join(" - ") : "Malzeme Tarihçesi";
+  }, [watchedMalzemeKodu, watchedMalzemeTanimi]);
 
   const handleKdvOraniChange = (value) => {
     setValue("kdvOrani", value);
@@ -673,7 +697,7 @@ export default function MainTabs({ aracID }) {
       </div>
       <StyledTabs defaultActiveKey="1" items={items} onChange={onChange} />
 
-      <Modal title="Malzeme Tarihçesi" open={isHistoryModalOpen} onCancel={() => setIsHistoryModalOpen(false)} onOk={() => setIsHistoryModalOpen(false)} width={900}>
+      <Modal title={historyModalTitle} open={isHistoryModalOpen} onCancel={() => setIsHistoryModalOpen(false)} onOk={() => setIsHistoryModalOpen(false)} width={900}>
         <Table
           rowKey={(row) => row.siraNo}
           loading={historyLoading}
