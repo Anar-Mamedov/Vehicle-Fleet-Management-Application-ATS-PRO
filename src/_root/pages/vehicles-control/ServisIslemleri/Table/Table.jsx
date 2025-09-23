@@ -209,51 +209,56 @@ const Ceza = ({ statusId1 }) => {
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
   }
 
+  const prevBodyRef = useRef(body);
+
   // API Data Fetching with diff and setPointId
-  const fetchData = async (diff, targetPage) => {
-    setLoading(true);
-    try {
-      let currentSetPointId = 0;
+  const fetchData = useCallback(
+    async (diff, targetPage, customfilterOverride) => {
+      setLoading(true);
+      try {
+        let currentSetPointId = 0;
 
-      if (diff > 0) {
-        // Moving forward
-        currentSetPointId = data[data.length - 1]?.siraNo || 0;
-      } else if (diff < 0) {
-        // Moving backward
-        currentSetPointId = data[0]?.siraNo || 0;
-      } else {
-        currentSetPointId = 0;
+        if (diff > 0) {
+          // Moving forward
+          currentSetPointId = data[data.length - 1]?.siraNo || 0;
+        } else if (diff < 0) {
+          // Moving backward
+          currentSetPointId = data[0]?.siraNo || 0;
+        } else {
+          currentSetPointId = 0;
+        }
+
+        // Determine what to send for customfilters
+
+        const response = await AxiosInstance.post(
+          `VehicleServices/GetVehicleServices?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&statusId=${statusId1 !== undefined && statusId1 !== null ? statusId1 : 0}`,
+          customfilterOverride || body.filters?.customfilter || {}
+        );
+
+        const total = response.data.recordCount;
+        setTotalCount(total);
+        setCurrentPage(targetPage);
+
+        const newData = response.data.list.map((item) => ({
+          ...item,
+          key: item.siraNo, // Assign key directly from siraNo
+        }));
+
+        if (newData.length > 0) {
+          setData(newData);
+        } else {
+          message.warning(t("kayitBulunamadi"));
+          setData([]);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error(t("hataOlustu"));
+      } finally {
+        setLoading(false);
       }
-
-      // Determine what to send for customfilters
-
-      const response = await AxiosInstance.post(
-        `VehicleServices/GetVehicleServices?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&statusId=${statusId1 !== undefined && statusId1 !== null ? statusId1 : 0}`,
-        body.filters?.customfilter || {}
-      );
-
-      const total = response.data.recordCount;
-      setTotalCount(total);
-      setCurrentPage(targetPage);
-
-      const newData = response.data.list.map((item) => ({
-        ...item,
-        key: item.siraNo, // Assign key directly from siraNo
-      }));
-
-      if (newData.length > 0) {
-        setData(newData);
-      } else {
-        message.warning(t("kayitBulunamadi"));
-        setData([]);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      message.error(t("hataOlustu"));
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [searchTerm, body.filters, data]
+  );
 
   useEffect(() => {
     fetchData(0, 1);
@@ -261,18 +266,18 @@ const Ceza = ({ statusId1 }) => {
 
   useEffect(() => {
     if (body !== prevBodyRef.current) {
-      fetchData(0, 1);
       prevBodyRef.current = body;
     }
   }, [body]);
 
-  const prevBodyRef = useRef(body);
-
   // Search handling
   // Define handleSearch function
-  const handleSearch = () => {
-    fetchData(0, 1);
-  };
+  const handleSearch = useCallback(
+    (customfilterOverride) => {
+      fetchData(0, 1, customfilterOverride);
+    },
+    [fetchData]
+  );
 
   const handleTableChange = (page) => {
     const diff = page - currentPage;
@@ -1066,7 +1071,7 @@ const Ceza = ({ statusId1 }) => {
                 gap: "10px",
                 alignItems: "center",
                 width: "100%",
-                maxWidth: "935px",
+                maxWidth: "1093px",
                 flexWrap: "wrap",
               }}
             >
@@ -1084,9 +1089,10 @@ const Ceza = ({ statusId1 }) => {
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
 
-              <Filters onChange={handleBodyChange} />
+              <Filters onChange={handleBodyChange} onApply={handleSearch} />
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
+              <Button type="primary" icon={<SearchOutlined />} onClick={() => handleSearch()}></Button>
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
