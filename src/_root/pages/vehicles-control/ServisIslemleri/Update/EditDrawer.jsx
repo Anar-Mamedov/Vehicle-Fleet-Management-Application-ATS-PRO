@@ -362,7 +362,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
         <Modal
           width="1400px"
           centered
-          title={`Servis Güncelleme ${periyodikBakim}`}
+          title={`Servis Güncelleme (${watch("Plaka")}) ${periyodikBakim} `}
           open={drawerVisible}
           onCancel={onClose}
           footer={
