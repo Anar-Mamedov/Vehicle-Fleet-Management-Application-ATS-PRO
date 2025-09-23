@@ -173,7 +173,7 @@ const MalzemeHareketleri = () => {
 
   // API call - memoized with useCallback to prevent recreation on every render
   const fetchData = useCallback(
-    async (diff, targetPage) => {
+    async (diff, targetPage, customfilterOverride) => {
       setLoading(true);
       try {
         let currentSetPointId = 0;
@@ -188,7 +188,7 @@ const MalzemeHareketleri = () => {
 
         const response = await AxiosInstance.post(
           `MaterialMovements/GetMaterialMovementsList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=M`,
-          body.filters?.customfilter || {}
+          customfilterOverride || body.filters?.customfilter || {}
         );
 
         const total = response.data.recordCount;
@@ -224,16 +224,18 @@ const MalzemeHareketleri = () => {
   // Watch for body state changes
   useEffect(() => {
     if (JSON.stringify(body) !== JSON.stringify(prevBodyRef.current)) {
-      fetchData(0, 1);
       prevBodyRef.current = { ...body };
     }
-  }, [body, fetchData]);
+  }, [body]);
 
   // Search handling
   // Define handleSearch function
-  const handleSearch = useCallback(() => {
-    fetchData(0, 1);
-  }, [fetchData]);
+  const handleSearch = useCallback(
+    (customfilterOverride) => {
+      fetchData(0, 1, customfilterOverride);
+    },
+    [fetchData]
+  );
 
   const handleTableChange = (page) => {
     const diff = page - currentPage;
@@ -844,7 +846,7 @@ const MalzemeHareketleri = () => {
                 gap: "10px",
                 alignItems: "center",
                 width: "100%",
-                maxWidth: "935px",
+                maxWidth: "1093px",
                 flexWrap: "wrap",
               }}
             >
@@ -862,9 +864,10 @@ const MalzemeHareketleri = () => {
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
 
-              <Filters onChange={handleBodyChange} />
+              <Filters onChange={handleBodyChange} onApply={handleSearch} />
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
+              <Button type="primary" icon={<SearchOutlined />} onClick={() => handleSearch()}></Button>
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
