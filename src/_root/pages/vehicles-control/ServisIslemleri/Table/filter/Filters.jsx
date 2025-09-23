@@ -33,7 +33,15 @@ export default function Filters({ onChange, onApply }) {
         ...(state.customfilter || {}),
         lokasyonIds: Array.isArray(lokasyonIds) ? lokasyonIds.map((item) => (typeof item === "object" && item !== null ? item.locationId : item)) : [],
         servisNedeniIds: Array.isArray(servisNedeniIds) ? servisNedeniIds : [],
-        servisTanimIds: Array.isArray(servisTanimIds) ? servisTanimIds : [],
+        servisTanimIds: Array.isArray(servisTanimIds)
+          ? servisTanimIds.map((item) => {
+              if (typeof item === "object" && item !== null) {
+                if (item.bakimId != null) return item.bakimId;
+                if (item.key != null) return item.key;
+              }
+              return item;
+            })
+          : [],
       },
     }));
   }, [lokasyonIds, servisNedeniIds, servisTanimIds]);
@@ -65,8 +73,8 @@ export default function Filters({ onChange, onApply }) {
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
       <ZamanAraligi />
-      <LokasyonTable fieldName="lokasyonIds" multiSelect={true} onSubmit={setLokasyonIds} style={{ width: "200px" }} />
-      <ServisKoduTablo fieldName="servisTanimIds" multiSelect={true} onSubmit={setServisTanimIds} style={{ width: "200px" }} />
+      <LokasyonTable fieldName="lokasyonIds" multiSelect={true} onSubmit={setLokasyonIds} style={{ width: "150px" }} />
+      <ServisKoduTablo fieldName="servisTanimIds" multiSelect={true} onSubmit={setServisTanimIds} style={{ width: "150px" }} />
       <div style={{ width: "150px" }}>
         <KodIDSelectbox
           name1={"servisNedeniIds"}
@@ -103,7 +111,15 @@ export default function Filters({ onChange, onApply }) {
               ? {
                   lokasyonIds: Array.isArray(lokasyonIds) ? lokasyonIds.map((item) => (typeof item === "object" && item !== null ? item.locationId : item)) : [],
                   servisNedeniIds: Array.isArray(servisNedeniIds) ? servisNedeniIds : [],
-                  servisTanimIds: Array.isArray(servisTanimIds) ? servisTanimIds : [],
+                  servisTanimIds: Array.isArray(servisTanimIds)
+                    ? servisTanimIds.map((item) => {
+                        if (typeof item === "object" && item !== null) {
+                          if (item.bakimId != null) return item.bakimId;
+                          if (item.key != null) return item.key;
+                        }
+                        return item;
+                      })
+                    : [],
                 }
               : { ...(state.customfilter || {}), ...newFilters };
 

@@ -1,18 +1,21 @@
 import { CloseOutlined, FilterOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Drawer, Row, Typography, Select, Space, Input, DatePicker } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import "./style.css";
-import { useFormContext } from "react-hook-form";
-import StatusSelect from "./components/StatusSelect";
-import { t } from "i18next";
+import { Controller, useFormContext } from "react-hook-form";
 import dayjs from "dayjs";
-import "dayjs/locale/tr";
+import "dayjs/locale/tr"; // For Turkish locale
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import advancedFormat from "dayjs/plugin/advancedFormat";
-import PropTypes from "prop-types";
+import StatusSelect from "./components/StatusSelect";
 
-const { Text } = Typography;
+dayjs.extend(weekOfYear);
+dayjs.extend(advancedFormat);
+
+dayjs.locale("tr"); // use Turkish locale
+
+const { Text, Link } = Typography;
 
 const StyledCloseOutlined = styled(CloseOutlined)`
   svg {
@@ -33,20 +36,21 @@ const CloseButton = styled.div`
 `;
 
 export default function CustomFilter({ onSubmit }) {
-  const { watch } = useFormContext();
+  const {
+    control,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useFormContext();
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [newObjectsAdded, setNewObjectsAdded] = useState(false);
   const [filtersExist, setFiltersExist] = useState(false);
   const [inputValues, setInputValues] = useState({});
+  const [filters, setFilters] = useState({});
+  const [filterValues, setFilterValues] = useState({});
   const [isInitialMount, setIsInitialMount] = useState(true);
 
-  // Dayjs setup
-  dayjs.extend(weekOfYear);
-  dayjs.extend(advancedFormat);
-  dayjs.locale("tr");
-
-  // Date range state
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
@@ -58,22 +62,30 @@ export default function CustomFilter({ onSubmit }) {
       setIsInitialMount(false);
       return;
     }
-    if (startDateSelected == null) {
+
+    if (startDateSelected === null) {
       setStartDate(null);
     } else {
       setStartDate(dayjs(startDateSelected));
     }
-    if (endDateSelected == null) {
+    if (endDateSelected === null) {
       setEndDate(null);
     } else {
       setEndDate(dayjs(endDateSelected));
     }
   }, [startDateSelected, endDateSelected, isInitialMount]);
 
+  useEffect(() => {
+    if (isInitialMount) return;
+
+    // Always submit after initial mount when dates change (including null)
+    handleSubmit();
+  }, [startDate, endDate]);
+
   // Create a state variable to store selected values for each row
   const [selectedValues, setSelectedValues] = useState({});
 
-  // Filtreler eklenip kaldırıldığında ve/veya tarih seçildiğinde düğmenin stilini değiştirmek için bir durum
+  // Tarih seçimi yapıldığında veya filtreler eklenip kaldırıldığında düğmenin stilini değiştirmek için bir durum
   const isFilterApplied = newObjectsAdded || filtersExist || startDate || endDate;
 
   const handleSelectChange = (value, rowId) => {
@@ -91,14 +103,14 @@ export default function CustomFilter({ onSubmit }) {
     setOpen(false);
   };
 
-  const handleSubmit = useCallback(() => {
-    // Combine selected values, input values for each row and date range
+  const handleSubmit = () => {
+    // Combine selected values, input values for each row, and date range
     const filterData = rows.reduce((acc, row) => {
       const selectedValue = selectedValues[row.id] || "";
       const inputValue = inputValues[`input-${row.id}`] || "";
       if (selectedValue && inputValue) {
         if (selectedValue === "durum") {
-          acc[selectedValue] = Number(inputValue);
+          acc[selectedValue] = Number(inputValue); // Convert status to number
         } else {
           acc[selectedValue] = inputValue;
         }
@@ -106,6 +118,7 @@ export default function CustomFilter({ onSubmit }) {
       return acc;
     }, {});
 
+    // Add date range to the filterData object if dates are selected
     if (startDate) {
       filterData.baslangicTarih = startDate.format("YYYY-MM-DD");
     }
@@ -113,13 +126,14 @@ export default function CustomFilter({ onSubmit }) {
       filterData.bitisTarih = endDate.format("YYYY-MM-DD");
     }
 
+    console.log(filterData);
+    // You can now submit or process the filterData object as needed.
     onSubmit(filterData);
     setOpen(false);
-  }, [rows, selectedValues, inputValues, startDate, endDate, onSubmit]);
-
-  // Tarih değişiminde otomatik uygulamayı kaldırdık; sadece Uygula butonu ile tetiklenecek
+  };
 
   const handleCancelClick = (rowId) => {
+    setFilters({});
     setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
 
     const filtersRemaining = rows.length > 1;
@@ -142,6 +156,12 @@ export default function CustomFilter({ onSubmit }) {
       ...prevInputValues,
       [`input-${rowId}`]: value,
     }));
+
+    // Update filters with the status value
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      status: value,
+    }));
   };
 
   const handleAddFilterClick = () => {
@@ -154,6 +174,10 @@ export default function CustomFilter({ onSubmit }) {
       ...prevInputValues,
       [newRow.id]: "", // Set an empty input value for the new row
     }));
+  };
+
+  const onChange = (value) => {
+    console.log(`selected ${value}`);
   };
 
   const onSearch = (value) => {
@@ -172,20 +196,20 @@ export default function CustomFilter({ onSubmit }) {
         className={isFilterApplied ? "#ff0000-dot-button" : ""}
       >
         <FilterOutlined />
-        <span style={{ marginRight: "5px" }}>{t("filtreler")}</span>
+        <span style={{ marginRight: "5px" }}>Filtreler</span>
         {isFilterApplied && <span className="blue-dot"></span>}
       </Button>
       <Drawer
         extra={
           <Space>
             <Button type="primary" onClick={handleSubmit}>
-              {t("uygula")}
+              Uygula
             </Button>
           </Space>
         }
         title={
           <span>
-            <FilterOutlined style={{ marginRight: "8px" }} /> {t("filtreler")}
+            <FilterOutlined style={{ marginRight: "8px" }} /> Filtreler
           </span>
         }
         placement="right"
@@ -201,12 +225,13 @@ export default function CustomFilter({ onSubmit }) {
           }}
         >
           <div style={{ marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>{t("tarihAraligi")}</Text>
+            <Text style={{ fontSize: "14px" }}>Tarih Aralığı</Text>
           </div>
+
           <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-            <DatePicker style={{ width: "100%" }} placeholder={t("baslangicTarihi")} value={startDate} onChange={setStartDate} locale={dayjs.locale("tr")} />
+            <DatePicker style={{ width: "100%" }} placeholder="Başlangıç Tarihi" value={startDate} onChange={setStartDate} locale={dayjs.locale("tr")} />
             <Text style={{ fontSize: "14px" }}>-</Text>
-            <DatePicker style={{ width: "100%" }} placeholder={t("bitisTarihi")} value={endDate} onChange={setEndDate} locale={dayjs.locale("tr")} />
+            <DatePicker style={{ width: "100%" }} placeholder="Bitiş Tarihi" value={endDate} onChange={setEndDate} locale={dayjs.locale("tr")} />
           </div>
         </div>
         {rows.map((row) => (
@@ -229,7 +254,7 @@ export default function CustomFilter({ onSubmit }) {
                   alignItems: "center",
                 }}
               >
-                <Text>{t("yeniFiltre")}</Text>
+                <Text>Yeni Filtre</Text>
                 <CloseButton onClick={() => handleCancelClick(row.id)}>
                   <StyledCloseOutlined />
                 </CloseButton>
@@ -238,7 +263,7 @@ export default function CustomFilter({ onSubmit }) {
                 <Select
                   style={{ width: "100%", marginBottom: "10px" }}
                   showSearch
-                  placeholder={`${t("secimYap")}`}
+                  placeholder={`Seçim Yap`}
                   optionFilterProp="children"
                   onChange={(value) => handleSelectChange(value, row.id)}
                   value={selectedValues[row.id] || undefined}
@@ -250,8 +275,16 @@ export default function CustomFilter({ onSubmit }) {
                       label: "Servis Tipi",
                     },
                     {
+                      value: "servisNedeni",
+                      label: "Servis Nedeni",
+                    },
+                    {
                       value: "firma",
                       label: "Firma",
+                    },
+                    {
+                      value: "lokasyon",
+                      label: "Lokasyon",
                     },
                     {
                       value: "aracTipi",
@@ -264,7 +297,7 @@ export default function CustomFilter({ onSubmit }) {
                   ]}
                 />
                 <Input
-                  placeholder={t("aramaYap")}
+                  placeholder="Arama Yap"
                   name={`input-${row.id}`}
                   value={inputValues[`input-${row.id}`] || ""}
                   onChange={(e) => handleInputChange(e, row.id)}
@@ -286,13 +319,9 @@ export default function CustomFilter({ onSubmit }) {
           }}
         >
           <PlusOutlined />
-          {t("filtreEkle")}
+          Filtre ekle
         </Button>
       </Drawer>
     </>
   );
 }
-
-CustomFilter.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
