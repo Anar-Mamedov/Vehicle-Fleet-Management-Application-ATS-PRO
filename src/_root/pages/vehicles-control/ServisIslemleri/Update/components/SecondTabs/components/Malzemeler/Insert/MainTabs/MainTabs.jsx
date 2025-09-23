@@ -372,14 +372,14 @@ export default function MainTabs({ aracID }) {
         if (stillValid) {
           return (
             <span>
-              {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} kadar devam etmektedir. Lütfen tekrar kullanım gerektiğini kontrol ediniz. `}
+              {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} kadar devam etmektedir. Lütfen tekrar kullanım gerekliliğini kontrol ediniz. `}
               <Link onClick={() => setIsHistoryModalOpen(true)}>Malzeme tarihçesi için tıklayınız.</Link>
             </span>
           );
         }
         return (
           <span>
-            {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} tarihinde bitmiştir. `}
+            {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmış ve garanti süresi ${guaranteeStr} tarihinde bitmiştir. Lütfen tekrar kullanım gerekliliğini kontrol ediniz. `}
             <Link onClick={() => setIsHistoryModalOpen(true)}>Malzeme tarihçesi için tıklayınız.</Link>
           </span>
         );
@@ -388,7 +388,7 @@ export default function MainTabs({ aracID }) {
 
     return (
       <span>
-        {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmıştır. `}
+        {`Bu malzeme daha önce ${latestStr} tarihinde bu araçta kullanılmıştır. Lütfen tekrar kullanım gerekliliğini kontrol ediniz. `}
         <Link onClick={() => setIsHistoryModalOpen(true)}>Malzeme tarihçesi için tıklayınız.</Link>
       </span>
     );

@@ -1,6 +1,6 @@
 import tr_TR from "antd/es/locale/tr_TR";
 import "@ant-design/v5-patch-for-react-19";
-import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import { PlusOutlined, ReloadOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Space, ConfigProvider, Modal, message } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
@@ -13,10 +13,13 @@ dayjs.extend(customParseFormat);
 import AxiosInstance from "../../../../../api/http.jsx";
 import SecondTabs from "./components/SecondTabs/SecondTabs.jsx";
 // import SecondTabs from "./components/secondTabs/secondTabs";
+import { FcRefresh } from "react-icons/fc";
 
 export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   const [open, setOpen] = useState(false);
   const [periyodikBakim, setPeriyodikBakim] = useState("");
+  const [latestSimilarService, setLatestSimilarService] = useState(null);
+  const [isFetchingLatestSimilarService, setIsFetchingLatestSimilarService] = useState(false);
   const fileInputRef = useRef(null);
   const showModal = () => {
     setOpen(true);
@@ -117,6 +120,59 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   };
 
   const { reset, watch } = methods;
+  const watchedPlakaId = watch("PlakaID");
+  const watchedServisKoduId = watch("servisKoduID");
+
+  const formatLatestSimilarServiceDate = (dateString) => {
+    const parsedDate = dayjs(dateString);
+    return parsedDate.isValid() ? parsedDate.format("DD.MM.YYYY") : dateString || "";
+  };
+
+  // Fetch latest similar service details when both identifiers are present
+  useEffect(() => {
+    const vehicleId = Number(watchedPlakaId);
+    const serviceId = Number(watchedServisKoduId);
+    const isValidVehicleId = Number.isFinite(vehicleId) && vehicleId > 0;
+    const isValidServiceId = Number.isFinite(serviceId) && serviceId > 0;
+
+    if (!isValidVehicleId || !isValidServiceId) {
+      setLatestSimilarService(null);
+      setIsFetchingLatestSimilarService(false);
+      return;
+    }
+
+    let isActive = true;
+
+    const fetchLatestSimilarService = async () => {
+      setIsFetchingLatestSimilarService(true);
+      setLatestSimilarService(null);
+      try {
+        const { data } = await AxiosInstance.get("VehicleServices/GetLatestSimilarServiceRecordForVehicle", {
+          params: { vId: vehicleId, serviceId },
+        });
+
+        if (!isActive) return;
+
+        const hasCompleteData = data && typeof data === "object" && data.firma && data.islem && data.tarih;
+        setLatestSimilarService(hasCompleteData ? data : null);
+      } catch (error) {
+        if (isActive) {
+          console.error("Failed to fetch latest similar service record:", error);
+          setLatestSimilarService(null);
+        }
+      } finally {
+        if (isActive) {
+          setIsFetchingLatestSimilarService(false);
+        }
+      }
+    };
+
+    fetchLatestSimilarService();
+
+    return () => {
+      isActive = false;
+    };
+  }, [watchedPlakaId, watchedServisKoduId]);
 
   //* export
   const onSubmit = (data) => {
@@ -456,7 +512,31 @@ aciklama: ""
             <div>
               <MainTabs modalOpen={open} />
               <SecondTabs />
-              {/*<Footer />*/}
+              {!isFetchingLatestSimilarService && latestSimilarService && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 12,
+                    marginTop: 16,
+                    padding: "12px 16px",
+                    borderRadius: 6,
+                    border: "1px solid #91caff",
+                    backgroundColor: "#f0f5ff",
+                  }}
+                >
+                  <FcRefresh style={{ fontSize: 20, color: "#0958d9", marginTop: 2 }} />
+                  <div>
+                    <p style={{ margin: 0 }}>
+                      Bu araca "<strong>{latestSimilarService.islem}</strong>" işlemi daha önce <strong>{formatLatestSimilarServiceDate(latestSimilarService.tarih)}</strong>{" "}
+                      tarihinde uygulanmıştır.
+                    </p>
+                    <p style={{ margin: "4px 0 0" }}>
+                      İşlem, <strong>{latestSimilarService.firma}</strong> servisinde gerçekleştirilmiş ve <strong>tamamlanmış</strong> olarak kaydedilmiştir.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </form>
         </Modal>
