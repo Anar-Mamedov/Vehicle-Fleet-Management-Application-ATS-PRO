@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Input, Tabs, Typography } from "antd";
 import styled from "styled-components";
 import { Controller, useFormContext } from "react-hook-form";
@@ -49,6 +49,7 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
   const { watch } = useFormContext();
   const [activeTabKey, setActiveTabKey] = useState("1"); // Default to the first tab
   const [tabCounts, setTabCounts] = useState({ iscilik: 0, malzeme: 0 });
+  const isMountedRef = useRef(true);
 
   // Modify the onChange handler to update the active tab state
   const onChange = (key) => {
@@ -58,53 +59,61 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
   const secilenIsEmriID = watch("secilenKayitID");
 
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchTabCounts = async () => {
-      if (!secilenIsEmriID) {
-        if (isMounted) {
-          setTabCounts({ iscilik: 0, malzeme: 0 });
-        }
-        return;
-      }
-
-      try {
-        const { data } = await AxiosInstance.get(`VehicleServices/GetUsedMaterialsWorkOrdersCount?serviceId=${secilenIsEmriID}`);
-
-        if (isMounted) {
-          const parsedIscilik = Number(data?.iscilikSayisi ?? 0);
-          const parsedMalzeme = Number(data?.malzemeSayisi ?? 0);
-
-          setTabCounts({
-            iscilik: Number.isNaN(parsedIscilik) ? 0 : parsedIscilik,
-            malzeme: Number.isNaN(parsedMalzeme) ? 0 : parsedMalzeme,
-          });
-        }
-      } catch (error) {
-        console.error("VehicleServices/GetUsedMaterialsWorkOrdersCount isteği başarısız oldu:", error);
-        if (isMounted) {
-          setTabCounts({ iscilik: 0, malzeme: 0 });
-        }
-      }
-    };
-
-    fetchTabCounts();
-
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
     };
-  }, [secilenIsEmriID, refreshKey]);
+  }, []);
+
+  const fetchTabCounts = useCallback(async () => {
+    if (!secilenIsEmriID) {
+      if (isMountedRef.current) {
+        setTabCounts({ iscilik: 0, malzeme: 0 });
+      }
+      return;
+    }
+
+    try {
+      const { data } = await AxiosInstance.get(`VehicleServices/GetUsedMaterialsWorkOrdersCount?serviceId=${secilenIsEmriID}`);
+
+      if (isMountedRef.current) {
+        const parsedIscilik = Number(data?.iscilikSayisi ?? 0);
+        const parsedMalzeme = Number(data?.malzemeSayisi ?? 0);
+
+        setTabCounts({
+          iscilik: Number.isNaN(parsedIscilik) ? 0 : parsedIscilik,
+          malzeme: Number.isNaN(parsedMalzeme) ? 0 : parsedMalzeme,
+        });
+      }
+    } catch (error) {
+      console.error("VehicleServices/GetUsedMaterialsWorkOrdersCount isteği başarısız oldu:", error);
+      if (isMountedRef.current) {
+        setTabCounts({ iscilik: 0, malzeme: 0 });
+      }
+    }
+  }, [secilenIsEmriID]);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    fetchTabCounts();
+  }, [fetchTabCounts, refreshKey]);
 
   const items = [
     {
       key: "1",
       label: `İşçilik (${tabCounts.iscilik})`,
-      children: <IscilikTablo isActive={activeTabKey === "1"} fieldRequirements={fieldRequirements} />,
+      children: <IscilikTablo isActive={activeTabKey === "1"} fieldRequirements={fieldRequirements} onCountsRefresh={fetchTabCounts} />,
     },
     {
       key: "2",
       label: `Malzemeler (${tabCounts.malzeme})`,
-      children: <Malzemeler baslangicTarihi={watch("baslangicTarihi")} isActive={activeTabKey === "2"} fieldRequirements={fieldRequirements} />,
+      children: (
+        <Malzemeler
+          baslangicTarihi={watch("baslangicTarihi")}
+          isActive={activeTabKey === "2"}
+          fieldRequirements={fieldRequirements}
+          onCountsRefresh={fetchTabCounts}
+        />
+      ),
     },
     {
       key: "3",
