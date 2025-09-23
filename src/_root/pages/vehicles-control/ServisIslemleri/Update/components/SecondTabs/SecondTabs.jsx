@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Input, Tabs, Typography } from "antd";
+import { Input, Tabs } from "antd";
+import PropTypes from "prop-types";
 import styled from "styled-components";
 import { Controller, useFormContext } from "react-hook-form";
 import Sigorta from "./components/Sigorta/Sigorta";
@@ -9,7 +10,6 @@ import Malzemeler from "./components/Malzemeler/Malzemeler";
 import Maliyetler from "../MainTabs/components/Maliyetler.jsx";
 import AxiosInstance from "../../../../../../../api/http.jsx";
 
-const { Text, Link } = Typography;
 const { TextArea } = Input;
 
 //styled components
@@ -57,6 +57,9 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
   };
 
   const secilenIsEmriID = watch("secilenKayitID");
+  const sigortaVar = watch("sigortaBilgileri");
+  const aciklamaVar = (watch("aciklama") || "").toString().trim() !== "";
+  const sikayetVar = (watch("sikayetler") || "").toString().trim() !== "";
 
   useEffect(() => {
     return () => {
@@ -106,23 +109,16 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
     {
       key: "2",
       label: `Malzemeler (${tabCounts.malzeme})`,
-      children: (
-        <Malzemeler
-          baslangicTarihi={watch("baslangicTarihi")}
-          isActive={activeTabKey === "2"}
-          fieldRequirements={fieldRequirements}
-          onCountsRefresh={fetchTabCounts}
-        />
-      ),
+      children: <Malzemeler baslangicTarihi={watch("baslangicTarihi")} isActive={activeTabKey === "2"} fieldRequirements={fieldRequirements} onCountsRefresh={fetchTabCounts} />,
     },
     {
       key: "3",
-      label: "Sigorta",
+      label: sigortaVar ? "Sigorta *" : "Sigorta",
       children: <Sigorta fieldRequirements={fieldRequirements} />,
     },
     {
       key: "4",
-      label: "Şikayetler",
+      label: sikayetVar ? "Şikayetler *" : "Şikayetler",
       children: (
         <div>
           <Controller name="sikayetler" render={({ field }) => <TextArea {...field} rows={4} placeholder="Şikayetler" style={{ width: "100%", resize: "none" }} />} />
@@ -131,7 +127,7 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
     },
     {
       key: "5",
-      label: "Açıklama",
+      label: aciklamaVar ? "Açıklama *" : "Açıklama",
       children: (
         <div>
           <Controller name="aciklama" render={({ field }) => <TextArea {...field} rows={4} placeholder="Açıklama" style={{ width: "100%", resize: "none" }} />} />
@@ -157,3 +153,8 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
     </div>
   );
 }
+
+SecondTabs.propTypes = {
+  refreshKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  fieldRequirements: PropTypes.object,
+};
