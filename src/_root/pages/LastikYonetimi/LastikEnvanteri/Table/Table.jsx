@@ -322,7 +322,7 @@ const LastikEnvanteri = () => {
       title: t("lastikMarka"),
       dataIndex: "lastikMarka",
       key: "lastikMarka",
-      width: 120,
+      width: 140,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
@@ -336,13 +336,41 @@ const LastikEnvanteri = () => {
       title: t("lastikModel"),
       dataIndex: "lastikModel",
       key: "lastikModel",
-      width: 120,
+      width: 252,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
         if (a.lastikModel === null) return -1;
         if (b.lastikModel === null) return 1;
         return a.lastikModel.localeCompare(b.lastikModel);
+      },
+    },
+
+    {
+      title: t("tip"),
+      dataIndex: "tip",
+      key: "tip",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.tip === null) return -1;
+        if (b.tip === null) return 1;
+        return a.tip.localeCompare(b.tip);
+      },
+    },
+
+    {
+      title: t("ebat"),
+      dataIndex: "ebat",
+      key: "ebat",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.ebat === null) return -1;
+        if (b.ebat === null) return 1;
+        return a.ebat.localeCompare(b.ebat);
       },
     },
 
@@ -410,34 +438,6 @@ const LastikEnvanteri = () => {
         );
       },
       sorter: (a, b) => calculateTireUsagePercentage(a) - calculateTireUsagePercentage(b),
-    },
-
-    {
-      title: t("ebat"),
-      dataIndex: "ebat",
-      key: "ebat",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.ebat === null) return -1;
-        if (b.ebat === null) return 1;
-        return a.ebat.localeCompare(b.ebat);
-      },
-    },
-
-    {
-      title: t("tip"),
-      dataIndex: "tip",
-      key: "tip",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.tip === null) return -1;
-        if (b.tip === null) return 1;
-        return a.tip.localeCompare(b.tip);
-      },
     },
 
     {
