@@ -70,32 +70,40 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
     },
   ];
 
-  const fetch = useCallback(
-    (page = pagination.current) => {
+  const fetchData = useCallback(
+    (diff = 0, targetPage = pagination.current) => {
       setLoading(true);
 
-      AxiosInstance.get(`WorkCard/GetWorkCardsList?page=${page}&parameter=${searchTerm}`)
+      let currentSetPointId = 0;
+      if (diff > 0) {
+        currentSetPointId = data[data.length - 1]?.isTanimId || 0;
+      } else if (diff < 0) {
+        currentSetPointId = data[0]?.isTanimId || 0;
+      }
+
+      AxiosInstance.get(`WorkCard/GetWorkCardsList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`)
         .then((response) => {
-          const { list, recordCount } = response.data; // Destructure the list and recordCount from the response
+          const { list, recordCount } = response.data;
           const fetchedData = list.map((item) => ({
             ...item,
             key: item.isTanimId,
           }));
           setData(fetchedData);
-          setPagination({
-            ...pagination,
-            total: recordCount, // Update the total number of records for pagination
-          });
+          setPagination((prev) => ({
+            ...prev,
+            total: recordCount,
+            current: targetPage,
+          }));
         })
         .finally(() => setLoading(false));
     },
-    [pagination, searchTerm]
+    [searchTerm, data, pagination]
   );
 
   const handleModalToggle = () => {
     setIsModalVisible((prev) => !prev);
     if (!isModalVisible) {
-      fetch();
+      fetchData(0, 1);
       setSelectedRowKeys([]);
     }
   };
@@ -117,24 +125,25 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
   };
 
   const handleTableChange = (newPagination) => {
+    const diff = newPagination.current - pagination.current;
     setPagination(newPagination);
-    fetch(newPagination.current);
+    fetchData(diff, newPagination.current);
   };
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (searchTerm.trim() !== "") {
         setPagination((prev) => ({ ...prev, current: 1 }));
-        fetch(1);
+        fetchData(0, 1);
         hasSearchedRef.current = true;
       } else if (searchTerm.trim() === "" && hasSearchedRef.current) {
         setPagination((prev) => ({ ...prev, current: 1 }));
-        fetch(1);
+        fetchData(0, 1);
       }
     }, 2000);
 
     return () => clearTimeout(timeout);
-  }, [searchTerm, fetch]);
+  }, [searchTerm, fetchData]);
 
   return (
     <div>
