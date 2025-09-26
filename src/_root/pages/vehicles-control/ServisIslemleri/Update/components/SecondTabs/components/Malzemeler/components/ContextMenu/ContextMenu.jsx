@@ -5,7 +5,7 @@ import Sil from "./components/Sil";
 
 const { Text, Link } = Typography;
 
-export default function ContextMenu({ selectedRows, refreshTableData, clearSelections }) {
+export default function ContextMenu({ selectedRows, refreshTableData, clearSelections, onCountsRefresh }) {
   const [visible, setVisible] = useState(false);
 
   const handleVisibleChange = (visible) => {
@@ -17,7 +17,11 @@ export default function ContextMenu({ selectedRows, refreshTableData, clearSelec
   };
 
   const content = (
-    <div>{selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} clearSelections={clearSelections} />}</div>
+    <div>
+      {selectedRows.length >= 1 && (
+        <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} clearSelections={clearSelections} onCountsRefresh={onCountsRefresh} />
+      )}
+    </div>
   );
   return (
     <Popover placement="bottom" content={content} trigger="click" open={visible} onOpenChange={handleVisibleChange}>
