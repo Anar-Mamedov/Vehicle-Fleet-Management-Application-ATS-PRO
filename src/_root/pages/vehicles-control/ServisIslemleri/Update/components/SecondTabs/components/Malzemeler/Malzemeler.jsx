@@ -224,6 +224,7 @@ export default function KontrolListesiTablo({ isActive, baslangicTarihi, onCount
         <div style={{ display: "flex", alignItems: "center" }}>
           <ContextMenu
             selectedRows={selectedRowsData}
+            onCountsRefresh={onCountsRefresh}
             refreshTableData={refreshTable}
             clearSelections={() => {
               setSelectedRowKeys([]);

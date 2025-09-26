@@ -207,19 +207,13 @@ export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
           <ContextMenu
             selectedRows={selectedRowsData}
             refreshTableData={refreshTable}
+            onCountsRefresh={onCountsRefresh}
             clearSelections={() => {
               setSelectedRowKeys([]);
               setSelectedRowsData([]);
             }}
           />
-          <CreateModal
-            kdvOran={watch("kdvOran")}
-            onRefresh={refreshTable}
-            onCountsRefresh={onCountsRefresh}
-            secilenKayitID={secilenKayitID}
-            plaka={plaka}
-            aracID={aracID}
-          />
+          <CreateModal kdvOran={watch("kdvOran")} onRefresh={refreshTable} onCountsRefresh={onCountsRefresh} secilenKayitID={secilenKayitID} plaka={plaka} aracID={aracID} />
         </div>
       </div>
 
