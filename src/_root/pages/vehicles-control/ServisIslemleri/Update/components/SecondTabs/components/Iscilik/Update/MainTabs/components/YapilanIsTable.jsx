@@ -1,26 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Modal, Table, Input } from "antd";
 import AxiosInstance from "../../../../../../../../../../../../api/http";
-import { CheckCircleOutlined, CloseCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
+import PropTypes from "prop-types";
 
-// Türkçe karakterleri İngilizce karşılıkları ile değiştiren fonksiyon
-const normalizeText = (text) => {
-  return text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/ğ/g, "g")
-    .replace(/Ğ/g, "G")
-    .replace(/ü/g, "u")
-    .replace(/Ü/g, "U")
-    .replace(/ş/g, "s")
-    .replace(/Ş/g, "S")
-    .replace(/ı/g, "i")
-    .replace(/İ/g, "I")
-    .replace(/ö/g, "o")
-    .replace(/Ö/g, "O")
-    .replace(/ç/g, "c")
-    .replace(/Ç/g, "C");
-};
+// normalizeText was unused; removed to satisfy lint rules
 
 export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -29,8 +13,7 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
   const [loading, setLoading] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchCount, setSearchCount] = useState(0);
-  const [debounceTimer, setDebounceTimer] = useState(null);
+  const hasSearchedRef = useRef(false);
 
   const [pagination, setPagination] = useState({
     current: 1,
@@ -87,24 +70,27 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
     },
   ];
 
-  const fetch = useCallback(() => {
-    setLoading(true);
+  const fetch = useCallback(
+    (page = pagination.current) => {
+      setLoading(true);
 
-    AxiosInstance.get(`WorkCard/GetWorkCardsList?page=${pagination.current}&parameter=${searchTerm}`)
-      .then((response) => {
-        const { list, recordCount } = response.data; // Destructure the list and recordCount from the response
-        const fetchedData = list.map((item) => ({
-          ...item,
-          key: item.isTanimId,
-        }));
-        setData(fetchedData);
-        setPagination({
-          ...pagination,
-          total: recordCount, // Update the total number of records for pagination
-        });
-      })
-      .finally(() => setLoading(false));
-  }, [pagination.current, searchTerm]);
+      AxiosInstance.get(`WorkCard/GetWorkCardsList?page=${page}&parameter=${searchTerm}`)
+        .then((response) => {
+          const { list, recordCount } = response.data; // Destructure the list and recordCount from the response
+          const fetchedData = list.map((item) => ({
+            ...item,
+            key: item.isTanimId,
+          }));
+          setData(fetchedData);
+          setPagination({
+            ...pagination,
+            total: recordCount, // Update the total number of records for pagination
+          });
+        })
+        .finally(() => setLoading(false));
+    },
+    [pagination, searchTerm]
+  );
 
   const handleModalToggle = () => {
     setIsModalVisible((prev) => !prev);
@@ -132,25 +118,20 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
 
   const handleTableChange = (newPagination) => {
     setPagination(newPagination);
+    fetch(newPagination.current);
   };
 
   useEffect(() => {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
     const timeout = setTimeout(() => {
       if (searchTerm.trim() !== "") {
-        fetch(); // Trigger the API request based on your search logic
-        setPagination((prev) => ({ ...prev, current: 1 })); // Reset to page 1 when search term changes
-        setSearchCount(searchCount + 1);
-      } else if (searchTerm.trim() === "" && searchCount > 0) {
-        fetch(); // Fetch data without search term
-        setPagination((prev) => ({ ...prev, current: 1 })); // Reset to page 1 when search term changes
+        setPagination((prev) => ({ ...prev, current: 1 }));
+        fetch(1);
+        hasSearchedRef.current = true;
+      } else if (searchTerm.trim() === "" && hasSearchedRef.current) {
+        setPagination((prev) => ({ ...prev, current: 1 }));
+        fetch(1);
       }
     }, 2000);
-
-    setDebounceTimer(timeout);
 
     return () => clearTimeout(timeout);
   }, [searchTerm, fetch]);
@@ -158,7 +139,7 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
   return (
     <div>
       <Button onClick={handleModalToggle}> + </Button>
-      <Modal width={1200} centered title="Servis Kodları" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
+      <Modal width={1200} centered title="Yapılan İş" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
         <Input
           style={{ width: "250px", marginBottom: "10px" }}
           type="text"
@@ -185,3 +166,8 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
     </div>
   );
 }
+
+YapilanIsTable.propTypes = {
+  workshopSelectedId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  onSubmit: PropTypes.func,
+};

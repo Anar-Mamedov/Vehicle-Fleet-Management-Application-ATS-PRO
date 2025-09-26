@@ -214,7 +214,7 @@ export default function PersonelTable({ workshopSelectedId, onSubmit }) {
   return (
     <div>
       <Button onClick={handleModalToggle}> + </Button>
-      <Modal width={1200} centered title="Servis Kodları" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
+      <Modal width={1200} centered title="Personel Listesi" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
         <Input
           style={{ width: "250px", marginBottom: "10px" }}
           type="text"
