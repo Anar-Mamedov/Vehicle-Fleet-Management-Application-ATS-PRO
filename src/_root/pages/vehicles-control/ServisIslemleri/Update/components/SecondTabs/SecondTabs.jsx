@@ -103,14 +103,15 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
   const items = [
     {
       key: "1",
-      label: `İşçilik (${tabCounts.iscilik})`,
-      children: <IscilikTablo isActive={activeTabKey === "1"} fieldRequirements={fieldRequirements} onCountsRefresh={fetchTabCounts} />,
-    },
-    {
-      key: "2",
       label: `Malzemeler (${tabCounts.malzeme})`,
       children: <Malzemeler baslangicTarihi={watch("baslangicTarihi")} isActive={activeTabKey === "2"} fieldRequirements={fieldRequirements} onCountsRefresh={fetchTabCounts} />,
     },
+    {
+      key: "2",
+      label: `İşçilik (${tabCounts.iscilik})`,
+      children: <IscilikTablo isActive={activeTabKey === "1"} fieldRequirements={fieldRequirements} onCountsRefresh={fetchTabCounts} />,
+    },
+
     {
       key: "3",
       label: sigortaVar ? "Sigorta *" : "Sigorta",
