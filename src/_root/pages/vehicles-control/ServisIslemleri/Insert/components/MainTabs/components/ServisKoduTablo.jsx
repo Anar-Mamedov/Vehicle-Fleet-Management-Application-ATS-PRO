@@ -242,7 +242,7 @@ export default function ServisKoduTablo({ workshopSelectedId, onSubmit }) {
     setSearchTerm1(e.target.value);
   };
 
-  const PlakaLabel = watch("PlakaLabel");
+  const PlakaLabel = watch("Plaka") || "";
 
   return (
     <div>
