@@ -126,8 +126,8 @@ const AddModal = ({ setStatus }) => {
   const { handleSubmit, reset, setValue, watch, control } = methods;
   const yakitTipId = useWatch({ control, name: "yakitTipId" });
 
+  // 1) Prefill form values on modal open
   useEffect(() => {
-    // Only pre-fill values when modal is open to ensure fields are populated on each open
     if (!isOpen) return;
 
     setValue("surucuId", data.surucuId);
@@ -145,15 +145,6 @@ const AddModal = ({ setStatus }) => {
     setValue("guncelKmLog", data.guncelKmLog);
     setValue("kdvDahilHaric", data.kdvDahilHaric);
 
-    // Ensure kdvDahilHaric is set correctly when modal opens
-    if (data.yakitTipId) {
-      GetMaterialPriceService(data.yakitTipId).then((res) => {
-        if (res?.data && res?.data.kdvDahilHaric !== undefined) {
-          setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
-        }
-      });
-    }
-
     if (plaka.length === 1) {
       setValue("plaka", plaka[0].id);
     }
@@ -169,12 +160,8 @@ const AddModal = ({ setStatus }) => {
         let kdvTutari = 0;
 
         if (kdvDahilMi) {
-          // KDV dahilse: Tutar = Mal bedeli + KDV
-          // KDV = (Tutar * KDV Oranı) / (100 + KDV Oranı)
           kdvTutari = (tutar * kdvOrani) / (100 + kdvOrani);
         } else {
-          // KDV hariçse: Tutar = Mal bedeli
-          // KDV = Tutar * (KDV Oranı / 100)
           kdvTutari = (tutar * kdvOrani) / 100;
         }
 
@@ -182,7 +169,30 @@ const AddModal = ({ setStatus }) => {
       }
     });
     return () => subscription.unsubscribe();
-  }, [data, isOpen, plaka, setValue, watch]);
+  }, [isOpen, data, plaka, setValue, watch]);
+
+  // 2) When modal opens and a single plate is preselected, set aracId and fetch card content once
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!Array.isArray(plaka) || plaka.length !== 1 || !plaka[0]?.id) return;
+
+    const selectedId = plaka[0].id;
+
+    // Ensure form has correct ids
+    if (watch("aracId") !== selectedId) {
+      setValue("aracId", selectedId);
+    }
+    if (watch("plaka") !== selectedId) {
+      setValue("plaka", selectedId);
+    }
+
+    // Fetch card content only if current context data isn't already for this vehicle
+    if (data?.aracId !== selectedId) {
+      GetFuelCardContentByIdService(selectedId).then((res) => {
+        setData(res.data);
+      });
+    }
+  }, [isOpen, plaka, data?.aracId, setValue, setData, watch]);
 
   useEffect(() => {
     if (!yakitTipId) return;
