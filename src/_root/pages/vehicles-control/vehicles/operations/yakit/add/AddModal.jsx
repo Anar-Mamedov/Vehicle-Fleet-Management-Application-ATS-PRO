@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import { t } from "i18next";
@@ -123,9 +123,13 @@ const AddModal = ({ setStatus }) => {
   const methods = useForm({
     defaultValues: defaultValues,
   });
-  const { handleSubmit, reset, setValue, watch } = methods;
+  const { handleSubmit, reset, setValue, watch, control } = methods;
+  const yakitTipId = useWatch({ control, name: "yakitTipId" });
 
   useEffect(() => {
+    // Only pre-fill values when modal is open to ensure fields are populated on each open
+    if (!isOpen) return;
+
     setValue("surucuId", data.surucuId);
     setValue("surucu", data.surucuAdi);
     setValue("tarih", dayjs(new Date()));
@@ -178,17 +182,17 @@ const AddModal = ({ setStatus }) => {
       }
     });
     return () => subscription.unsubscribe();
-  }, [data]);
+  }, [data, isOpen, plaka, setValue, watch]);
 
   useEffect(() => {
-    if (!watch("yakitTipId")) return;
+    if (!yakitTipId) return;
 
-    GetMaterialPriceService(watch("yakitTipId")).then((res) => {
+    GetMaterialPriceService(yakitTipId).then((res) => {
       setValue("litreFiyat", res?.data.price);
       setValue("kdvOrani", res?.data.kdv);
       setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
     });
-  }, [watch("yakitTipId"), setValue]);
+  }, [yakitTipId, setValue]);
 
   const onSubmit = handleSubmit((values) => {
     // Ensure kdvDahilHaric is set correctly before submission
