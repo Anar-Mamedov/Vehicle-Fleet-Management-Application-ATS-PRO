@@ -231,6 +231,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       diger: Number(data.digerUcreti),
       malzeme: Number(data.malzemeUcreti),
       iscilik: Number(data.iscilikUcreti),
+      toplam: Number(data.toplamUcret),
       talepNo: data.talepNo,
       onayId: Number(data.onayID),
       tarih: formatDateWithDayjs(data.duzenlenmeTarihi) || null,
