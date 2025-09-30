@@ -95,7 +95,7 @@ const Hatirlatici = ({ data, getHatirlatici, loading, data1, getHatirlatici1 }) 
       </Text>
       <CustomSpin spinning={loading}>
         <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-          <Row onClick={() => handleRowClick("Süresi Yaklaşan", <div>Süresi Yaklaşan İçeriği</div>)}>
+          <Row /* onClick={() => handleRowClick("Süresi Yaklaşan", <div>Süresi Yaklaşan İçeriği</div>)} */>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px" }}>
               <Indicator style={{ backgroundColor: "#008000" }} />
               <Text>Süresi Yaklaşan</Text>
@@ -111,7 +111,7 @@ const Hatirlatici = ({ data, getHatirlatici, loading, data1, getHatirlatici1 }) 
               {data1?.yaklasanSure}
             </Text>
           </Row>
-          <Row onClick={() => handleRowClick("Kritik Süre", <div>Kritik Süre İçeriği</div>)}>
+          <Row /* onClick={() => handleRowClick("Kritik Süre", <div>Kritik Süre İçeriği</div>)} */>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px" }}>
               <Indicator style={{ backgroundColor: "#ffad00" }} />
               <Text>Kritik Süre</Text>
@@ -127,7 +127,7 @@ const Hatirlatici = ({ data, getHatirlatici, loading, data1, getHatirlatici1 }) 
               {data1?.kritikSure}
             </Text>
           </Row>
-          <Row onClick={() => handleRowClick("Süresi Geçen", <div>Süresi Geçen İçeriği</div>)}>
+          <Row /* onClick={() => handleRowClick("Süresi Geçen", <div>Süresi Geçen İçeriği</div>)} */>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px" }}>
               <Indicator style={{ backgroundColor: "#ff0000" }} />
               <Text>Süresi Geçen</Text>
