@@ -141,6 +141,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       ozelAlanKodId10: values.ozelAlanKodId10 || 0,
       ozelAlan11: values.ozelAlan11 || 0,
       ozelAlan12: values.ozelAlan12 || 0,
+      odendigiTarih: dayjs(values.odendigiTarih).format("YYYY-MM-DD"),
     };
 
     AddVehicleFineItemService(body).then((res) => {
@@ -172,7 +173,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     {
       key: "1",
       label: t("genelBilgiler"),
-      children: <GeneralInfo />,
+      children: <GeneralInfo isUpdateMode={false} />,
     },
     {
       key: "2",

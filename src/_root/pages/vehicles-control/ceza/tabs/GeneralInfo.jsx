@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
+import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import { t } from "i18next";
 import { Button, Modal } from "antd";
@@ -17,7 +18,7 @@ import CezaMaddesiTable from "./CezaMaddesi";
 
 dayjs.locale("tr");
 
-const GeneralInfo = () => {
+const GeneralInfo = ({ isUpdateMode = false }) => {
   const { setValue, watch } = useFormContext();
   const [open, setOpen] = useState(false);
   const [madde, setMadde] = useState(false);
@@ -27,6 +28,9 @@ const GeneralInfo = () => {
   const indirimOran = watch("indirimOran");
   const gecikmeTutar = watch("gecikmeTutar");
   const tebligTarih = watch("tebligTarih");
+  const odemeYapildi = watch("odeme");
+  const odendigiTarih = watch("odendigiTarih");
+  const odemeTarih = watch("odemeTarih");
 
   useEffect(() => {
     if (tutar && indirimOran) {
@@ -49,6 +53,35 @@ const GeneralInfo = () => {
     }
   }, [tebligTarih, setValue]);
 
+  useEffect(() => {
+    if (odemeYapildi) {
+      // Checkbox işaretlendiğinde o anki tarihi set et
+      setValue("odendigiTarih", dayjs());
+    } else {
+      // Checkbox kaldırıldığında tarihi temizle
+      setValue("odendigiTarih", null);
+    }
+  }, [odemeYapildi, setValue]);
+
+  useEffect(() => {
+    // Only calculate discount in Add mode, not in Update mode
+    if (!isUpdateMode && odendigiTarih && tebligTarih && odemeTarih && tutar) {
+      const odendigiTarihDay = dayjs(odendigiTarih);
+      const tebligTarihDay = dayjs(tebligTarih);
+      const odemeTarihDay = dayjs(odemeTarih);
+
+      // Ödendiği tarih, tebliğ tarihi ile son ödeme tarihi arasındaysa
+      if (odendigiTarihDay.isAfter(tebligTarihDay) && odendigiTarihDay.isBefore(odemeTarihDay)) {
+        // %25 indirimli tutar hesapla
+        const indirimliTutar = tutar * 0.75;
+        setValue("odenenTutar", indirimliTutar);
+      } else {
+        // İndirim yoksa tam tutarı set et
+        setValue("odenenTutar", tutar);
+      }
+    }
+  }, [odendigiTarih, tebligTarih, odemeTarih, tutar, setValue, isUpdateMode]);
+
   const handleOpen = () => {
     setModalKey((prevKey) => prevKey + 1);
     setOpen(true);
@@ -56,10 +89,18 @@ const GeneralInfo = () => {
 
   // Handle the selected plate data
   const handlePlakaSubmit = (selectedRow) => {
-    if (selectedRow && selectedRow.lokasyon && selectedRow.lokasyonId) {
+    if (selectedRow) {
       // Set the location values
-      setValue("lokasyon", selectedRow.lokasyon);
-      setValue("lokasyonId", selectedRow.lokasyonId);
+      if (selectedRow.lokasyon && selectedRow.lokasyonId) {
+        setValue("lokasyon", selectedRow.lokasyon);
+        setValue("lokasyonId", selectedRow.lokasyonId);
+      }
+
+      // Set the driver values automatically (only in Add mode, not in Update mode)
+      if (!isUpdateMode && selectedRow.surucu && selectedRow.surucuId) {
+        setValue("surucu", selectedRow.surucu);
+        setValue("surucuId", selectedRow.surucuId);
+      }
     }
   };
 
@@ -126,6 +167,12 @@ const GeneralInfo = () => {
               <div className="flex flex-col gap-1">
                 <label>{t("lokasyon")}</label>
                 <Location />
+              </div>
+            </div>
+            <div className="col-span-6">
+              <div className="flex flex-col gap-1">
+                <label>{t("sonOdemeTarih")}</label>
+                <DateInput name="odemeTarih" />
               </div>
             </div>
           </div>
@@ -203,20 +250,24 @@ const GeneralInfo = () => {
         </div>
         <div className="col-span-6 border p-20">
           <div className="grid gap-1">
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("sonOdemeTarih")}</label>
-                <DateInput name="odemeTarih" />
-              </div>
-            </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("odemeYapildi")}</label>
                 <CheckboxInput name="odeme" />
               </div>
             </div>
-            <div className="col-span-3">
+            <div className="col-span-6">
               <div className="flex flex-col gap-1">
+                <label>
+                  {t("odemeTarihi")}
+                  {odemeYapildi && <span className="text-danger"> *</span>}
+                </label>
+                <DateInput name="odendigiTarih" checked={!odemeYapildi} required={odemeYapildi} />
+              </div>
+            </div>
+
+            <div className="col-span-3">
+              <div className="flex flex-col gap-1" style={{ marginLeft: "15px" }}>
                 <label>{t("surucuOder")}</label>
                 <CheckboxInput name="surucuOder" />
               </div>
@@ -236,6 +287,10 @@ const GeneralInfo = () => {
       </Modal>
     </>
   );
+};
+
+GeneralInfo.propTypes = {
+  isUpdateMode: PropTypes.bool,
 };
 
 export default GeneralInfo;
