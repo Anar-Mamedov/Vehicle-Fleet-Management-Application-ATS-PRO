@@ -56,10 +56,18 @@ const GeneralInfo = () => {
 
   // Handle the selected plate data
   const handlePlakaSubmit = (selectedRow) => {
-    if (selectedRow && selectedRow.lokasyon && selectedRow.lokasyonId) {
+    if (selectedRow) {
       // Set the location values
-      setValue("lokasyon", selectedRow.lokasyon);
-      setValue("lokasyonId", selectedRow.lokasyonId);
+      if (selectedRow.lokasyon && selectedRow.lokasyonId) {
+        setValue("lokasyon", selectedRow.lokasyon);
+        setValue("lokasyonId", selectedRow.lokasyonId);
+      }
+
+      // Set the driver values automatically
+      if (selectedRow.surucu && selectedRow.surucuId) {
+        setValue("surucu", selectedRow.surucu);
+        setValue("surucuId", selectedRow.surucuId);
+      }
     }
   };
 
@@ -126,6 +134,12 @@ const GeneralInfo = () => {
               <div className="flex flex-col gap-1">
                 <label>{t("lokasyon")}</label>
                 <Location />
+              </div>
+            </div>
+            <div className="col-span-6">
+              <div className="flex flex-col gap-1">
+                <label>{t("sonOdemeTarih")}</label>
+                <DateInput name="odemeTarih" />
               </div>
             </div>
           </div>
@@ -205,8 +219,8 @@ const GeneralInfo = () => {
           <div className="grid gap-1">
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label>{t("sonOdemeTarih")}</label>
-                <DateInput name="odemeTarih" />
+                <label>{t("odendigiTarih")}</label>
+                <DateInput name="odendigiTarih" />
               </div>
             </div>
             <div className="col-span-3">
