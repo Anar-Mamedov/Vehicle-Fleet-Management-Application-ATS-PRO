@@ -27,6 +27,7 @@ const GeneralInfo = () => {
   const indirimOran = watch("indirimOran");
   const gecikmeTutar = watch("gecikmeTutar");
   const tebligTarih = watch("tebligTarih");
+  const odemeYapildi = watch("odeme");
 
   useEffect(() => {
     if (tutar && indirimOran) {
@@ -48,6 +49,12 @@ const GeneralInfo = () => {
       setValue("odemeTarih", null);
     }
   }, [tebligTarih, setValue]);
+
+  useEffect(() => {
+    if (!odemeYapildi) {
+      setValue("odendigiTarih", null);
+    }
+  }, [odemeYapildi, setValue]);
 
   const handleOpen = () => {
     setModalKey((prevKey) => prevKey + 1);
@@ -219,8 +226,11 @@ const GeneralInfo = () => {
           <div className="grid gap-1">
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label>{t("odendigiTarih")}</label>
-                <DateInput name="odendigiTarih" />
+                <label>
+                  {t("odendigiTarih")}
+                  {odemeYapildi && <span className="text-danger"> *</span>}
+                </label>
+                <DateInput name="odendigiTarih" checked={!odemeYapildi} required={odemeYapildi} />
               </div>
             </div>
             <div className="col-span-3">
