@@ -173,7 +173,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     {
       key: "1",
       label: t("genelBilgiler"),
-      children: <GeneralInfo />,
+      children: <GeneralInfo isUpdateMode={false} />,
     },
     {
       key: "2",

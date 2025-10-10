@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
+import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import { t } from "i18next";
 import { Button, Modal } from "antd";
@@ -17,7 +18,7 @@ import CezaMaddesiTable from "./CezaMaddesi";
 
 dayjs.locale("tr");
 
-const GeneralInfo = () => {
+const GeneralInfo = ({ isUpdateMode = false }) => {
   const { setValue, watch } = useFormContext();
   const [open, setOpen] = useState(false);
   const [madde, setMadde] = useState(false);
@@ -63,7 +64,8 @@ const GeneralInfo = () => {
   }, [odemeYapildi, setValue]);
 
   useEffect(() => {
-    if (odendigiTarih && tebligTarih && odemeTarih && tutar) {
+    // Only calculate discount in Add mode, not in Update mode
+    if (!isUpdateMode && odendigiTarih && tebligTarih && odemeTarih && tutar) {
       const odendigiTarihDay = dayjs(odendigiTarih);
       const tebligTarihDay = dayjs(tebligTarih);
       const odemeTarihDay = dayjs(odemeTarih);
@@ -78,7 +80,7 @@ const GeneralInfo = () => {
         setValue("odenenTutar", tutar);
       }
     }
-  }, [odendigiTarih, tebligTarih, odemeTarih, tutar, setValue]);
+  }, [odendigiTarih, tebligTarih, odemeTarih, tutar, setValue, isUpdateMode]);
 
   const handleOpen = () => {
     setModalKey((prevKey) => prevKey + 1);
@@ -94,8 +96,8 @@ const GeneralInfo = () => {
         setValue("lokasyonId", selectedRow.lokasyonId);
       }
 
-      // Set the driver values automatically
-      if (selectedRow.surucu && selectedRow.surucuId) {
+      // Set the driver values automatically (only in Add mode, not in Update mode)
+      if (!isUpdateMode && selectedRow.surucu && selectedRow.surucuId) {
         setValue("surucu", selectedRow.surucu);
         setValue("surucuId", selectedRow.surucuId);
       }
@@ -285,6 +287,10 @@ const GeneralInfo = () => {
       </Modal>
     </>
   );
+};
+
+GeneralInfo.propTypes = {
+  isUpdateMode: PropTypes.bool,
 };
 
 export default GeneralInfo;
