@@ -155,6 +155,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         setValue("ozelAlanKodId10", res?.data.ozelAlanKodId10);
         setValue("ozelAlan11", res?.data.ozelAlan11);
         setValue("ozelAlan12", res?.data.ozelAlan12);
+        setValue("odendigiTarih", res?.data.odendigiTarih ? dayjs(res?.data.odendigiTarih) : null);
       });
 
       GetPhotosByRefGroupService(selectedRow?.key, "CEZA").then((res) => setImageUrls(res.data));
@@ -220,6 +221,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       ozelAlanKodId10: values.ozelAlanKodId10 || 0,
       ozelAlan11: values.ozelAlan11 || 0,
       ozelAlan12: values.ozelAlan12 || 0,
+      odendigiTarih: dayjs(values.odendigiTarih).format("YYYY-MM-DD"),
     };
 
     UpdateVehicleFineItemService(body).then((res) => {

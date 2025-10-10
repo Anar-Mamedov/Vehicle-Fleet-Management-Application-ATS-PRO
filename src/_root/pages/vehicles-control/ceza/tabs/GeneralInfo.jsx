@@ -28,6 +28,8 @@ const GeneralInfo = () => {
   const gecikmeTutar = watch("gecikmeTutar");
   const tebligTarih = watch("tebligTarih");
   const odemeYapildi = watch("odeme");
+  const odendigiTarih = watch("odendigiTarih");
+  const odemeTarih = watch("odemeTarih");
 
   useEffect(() => {
     if (tutar && indirimOran) {
@@ -51,10 +53,35 @@ const GeneralInfo = () => {
   }, [tebligTarih, setValue]);
 
   useEffect(() => {
-    if (!odemeYapildi) {
+    if (odemeYapildi) {
+      // Checkbox işaretlendiğinde o anki tarihi set et
+      setValue("odendigiTarih", dayjs());
+    } else {
+      // Checkbox kaldırıldığında tarihi temizle
       setValue("odendigiTarih", null);
     }
   }, [odemeYapildi, setValue]);
+
+  useEffect(() => {
+    if (odendigiTarih && tebligTarih && odemeTarih && tutar) {
+      const odendigiTarihDay = dayjs(odendigiTarih);
+      const tebligTarihDay = dayjs(tebligTarih);
+      const odemeTarihDay = dayjs(odemeTarih);
+
+      // Ödendiği tarih, tebliğ tarihi ile son ödeme tarihi arasındaysa
+      if (
+        odendigiTarihDay.isAfter(tebligTarihDay) &&
+        odendigiTarihDay.isBefore(odemeTarihDay)
+      ) {
+        // %25 indirimli tutar hesapla
+        const indirimliTutar = tutar * 0.75;
+        setValue("odenenTutar", indirimliTutar);
+      } else {
+        // İndirim yoksa tam tutarı set et
+        setValue("odenenTutar", tutar);
+      }
+    }
+  }, [odendigiTarih, tebligTarih, odemeTarih, tutar, setValue]);
 
   const handleOpen = () => {
     setModalKey((prevKey) => prevKey + 1);
