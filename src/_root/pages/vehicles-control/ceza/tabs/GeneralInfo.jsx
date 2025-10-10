@@ -69,10 +69,7 @@ const GeneralInfo = () => {
       const odemeTarihDay = dayjs(odemeTarih);
 
       // Ödendiği tarih, tebliğ tarihi ile son ödeme tarihi arasındaysa
-      if (
-        odendigiTarihDay.isAfter(tebligTarihDay) &&
-        odendigiTarihDay.isBefore(odemeTarihDay)
-      ) {
+      if (odendigiTarihDay.isAfter(tebligTarihDay) && odendigiTarihDay.isBefore(odemeTarihDay)) {
         // %25 indirimli tutar hesapla
         const indirimliTutar = tutar * 0.75;
         setValue("odenenTutar", indirimliTutar);
@@ -251,23 +248,24 @@ const GeneralInfo = () => {
         </div>
         <div className="col-span-6 border p-20">
           <div className="grid gap-1">
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>
-                  {t("odendigiTarih")}
-                  {odemeYapildi && <span className="text-danger"> *</span>}
-                </label>
-                <DateInput name="odendigiTarih" checked={!odemeYapildi} required={odemeYapildi} />
-              </div>
-            </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("odemeYapildi")}</label>
                 <CheckboxInput name="odeme" />
               </div>
             </div>
-            <div className="col-span-3">
+            <div className="col-span-6">
               <div className="flex flex-col gap-1">
+                <label>
+                  {t("odemeTarihi")}
+                  {odemeYapildi && <span className="text-danger"> *</span>}
+                </label>
+                <DateInput name="odendigiTarih" checked={!odemeYapildi} required={odemeYapildi} />
+              </div>
+            </div>
+
+            <div className="col-span-3">
+              <div className="flex flex-col gap-1" style={{ marginLeft: "15px" }}>
                 <label>{t("surucuOder")}</label>
                 <CheckboxInput name="surucuOder" />
               </div>
