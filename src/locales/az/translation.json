@@ -543,5 +543,22 @@
   "yeniOnaylayiciEkle": "Yeni Təsdiq Edən Əlavə Et",
   "onaylayiciAdi": "Təsdiq Edən Adı",
   "pozisyon": "Vəzifə",
-  "siraNo": "Sıra No"
+  "siraNo": "Sıra No",
+  "beklemede": "Gözləmədə",
+  "onaylandi": "Təsdiqləndi",
+  "reddedildi": "Rədd edildi",
+  "tamamlandi": "Tamamlandı",
+  "dusuk": "Aşağı",
+  "orta": "Orta",
+  "yuksek": "Yüksək",
+  "acil": "Təcili",
+  "ariza": "Nasazlıq",
+  "arac": "Nəqliyyat",
+  "aksesuar": "Aksesuar",
+  "yakit": "Yanacaq",
+  "talepNo": "Sorğu №",
+  "talepDurum": "Sorğu statusu",
+  "talepOncelik": "Prioritet",
+  "talepTur": "Sorğu növü",
+  "talepEden": "Sorğu edən"
 }

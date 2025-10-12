@@ -1,25 +1,27 @@
 import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "react";
+// import { useFormContext } from "react-hook-form";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateDrawer from "../Insert/CreateDrawer";
 import EditDrawer from "../Update/EditDrawer";
 import Filters from "./filter/Filters";
+// import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
+import { useNavigate } from "react-router-dom";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined } from "@ant-design/icons";
+import { HolderOutlined, SearchOutlined, MenuOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Resizable } from "react-resizable";
 import "./ResizeStyle.css";
-import AxiosInstance from "../../../../../api/http";
+import AxiosInstance from "../../../../api/http";
 import { FormProvider, useForm } from "react-hook-form";
 import styled from "styled-components";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 import { t } from "i18next";
 import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
-import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 
 const localeMap = {
   tr: trTR,
@@ -138,21 +140,24 @@ DraggableRow.displayName = "DraggableRow";
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const YakitLimitleri = () => {
+const HasarTakibi = () => {
   const formMethods = useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false); // Set initial loading state to false
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0); // Total data count
+  const [pageSize, setPageSize] = useState(10); // Page size
   const [localeDateFormat, setLocaleDateFormat] = useState("MM/DD/YYYY");
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm");
   const [drawer, setDrawer] = useState({
     visible: false,
     data: null,
   });
+  const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
 
@@ -162,43 +167,10 @@ const YakitLimitleri = () => {
   });
 
   const prevBodyRef = useRef(body);
-  const hasFetchedRef = useRef(false);
-
-  // Mevcut hafta/ay/yıl başlangıç-bitiş aralıklarını ISO formatında döndür
-  const buildPeriodRanges = useCallback(() => {
-    const now = new Date();
-
-    // UTC bileşenlerini kullan
-    const year = now.getUTCFullYear();
-    const month = now.getUTCMonth();
-    const date = now.getUTCDate();
-
-    // Yıl (UTC)
-    const startOfYear = new Date(Date.UTC(year, 0, 1, 0, 0, 0, 0));
-    const endOfYear = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
-
-    // Ay (UTC)
-    const startOfMonth = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
-    const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
-
-    // Hafta (UTC, Pazartesi başlangıç)
-    const dayOfWeekUTC = (now.getUTCDay() + 6) % 7; // Pazartesi=0
-    const startOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC, 0, 0, 0, 0));
-    const endOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC + 6, 23, 59, 59, 999));
-
-    return {
-      haftalikBaslangicTarih: startOfWeek.toISOString(),
-      haftalikBitisTarih: endOfWeek.toISOString(),
-      aylikBaslangicTarih: startOfMonth.toISOString(),
-      aylikBitisTarih: endOfMonth.toISOString(),
-      yillikBaslangicTarih: startOfYear.toISOString(),
-      yillikBitisTarih: endOfYear.toISOString(),
-    };
-  }, []);
 
   // API call - memoized with useCallback to prevent recreation on every render
   const fetchData = useCallback(
-    async (diff, targetPage) => {
+    async (diff, targetPage, customfilterOverride) => {
       setLoading(true);
       try {
         let currentSetPointId = 0;
@@ -211,10 +183,10 @@ const YakitLimitleri = () => {
           currentSetPointId = data[0]?.siraNo || 0;
         }
 
-        const response = await AxiosInstance.post(`FuelLimit/GetFuelLimitList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, {
-          ...(body.filters?.customfilter || {}),
-          ...buildPeriodRanges(),
-        });
+        const response = await AxiosInstance.get(
+          `RequestNotification/GetRequestList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
+          customfilterOverride || body.filters?.customfilter || {}
+        );
 
         const total = response.data.recordCount;
         setTotalCount(total);
@@ -238,30 +210,29 @@ const YakitLimitleri = () => {
         setLoading(false);
       }
     },
-    [searchTerm, body.filters, data, buildPeriodRanges]
+    [searchTerm, body.filters, data]
   ); // Added data to dependencies
 
   // Initial data fetch - only run once on mount
   useEffect(() => {
-    if (!hasFetchedRef.current) {
-      hasFetchedRef.current = true;
-      fetchData(0, 1);
-    }
-  }, [fetchData]);
+    fetchData(0, 1);
+  }, []); // Use empty dependency array for initial load only
 
   // Watch for body state changes
   useEffect(() => {
     if (JSON.stringify(body) !== JSON.stringify(prevBodyRef.current)) {
-      fetchData(0, 1);
       prevBodyRef.current = { ...body };
     }
   }, [body, fetchData]);
 
   // Search handling
   // Define handleSearch function
-  const handleSearch = useCallback(() => {
-    fetchData(0, 1);
-  }, [fetchData]);
+  const handleSearch = useCallback(
+    (customfilterOverride) => {
+      fetchData(0, 1, customfilterOverride);
+    },
+    [fetchData]
+  );
 
   const handleTableChange = (page) => {
     const diff = page - currentPage;
@@ -296,13 +267,26 @@ const YakitLimitleri = () => {
   const initialColumns = useMemo(
     () => [
       {
+        title: t("talepNo"),
+        dataIndex: "talepNo",
+        key: "talepNo",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+        sorter: (a, b) => {
+          if (a.talepNo === null) return -1;
+          if (b.talepNo === null) return 1;
+          return a.talepNo.localeCompare(b.talepNo);
+        },
+      },
+      {
         title: t("plaka"),
         dataIndex: "plaka",
         key: "plaka",
         width: 120,
         ellipsis: true,
         visible: true,
-        render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
         sorter: (a, b) => {
           if (a.plaka === null) return -1;
           if (b.plaka === null) return 1;
@@ -310,62 +294,36 @@ const YakitLimitleri = () => {
         },
       },
       {
-        title: t("surucu"),
-        dataIndex: "surucuIsim",
-        key: "surucuIsim",
-        width: 150,
+        title: t("lokasyon"),
+        dataIndex: "lokasyon",
+        key: "lokasyon",
+        width: 170,
         ellipsis: true,
         visible: true,
-        render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
         sorter: (a, b) => {
-          if (a.surucuIsim === null) return -1;
-          if (b.surucuIsim === null) return 1;
-          return a.surucuIsim.localeCompare(b.surucuIsim);
+          if (a.lokasyon === null) return -1;
+          if (b.lokasyon === null) return 1;
+          return a.lokasyon.localeCompare(b.lokasyon);
         },
       },
-
       {
-        title: t("limitTipi"),
-        dataIndex: "limitTipi",
-        key: "limitTipi",
-        width: 120,
+        title: t("aciklama"),
+        dataIndex: "aciklama",
+        key: "aciklama",
+        width: 250,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
-          if (a.limitTipi === null) return -1;
-          if (b.limitTipi === null) return 1;
-          return a.limitTipi.localeCompare(b.limitTipi);
-        },
-        render: (text) => {
-          return t(text);
+          if (a.aciklama === null) return -1;
+          if (b.aciklama === null) return 1;
+          return a.aciklama.localeCompare(b.aciklama);
         },
       },
-
-      {
-        title: t("limitMiktari"),
-        dataIndex: "limit",
-        key: "limit",
-        width: 110,
-        ellipsis: true,
-        visible: true,
-        render: (text, record) => {
-          const limit = Number(record?.limit ?? 0);
-          const toplam = Number(record?.toplamYakitMiktari ?? 0);
-          const kalan = limit - toplam;
-          return <span>{formatNumberWithLocale(Number.isFinite(kalan) ? kalan : 0)}</span>;
-        },
-        sorter: (a, b) => {
-          const aVal = Number(a?.limit ?? 0) - Number(a?.toplamYakitMiktari ?? 0);
-          const bVal = Number(b?.limit ?? 0) - Number(b?.toplamYakitMiktari ?? 0);
-          return aVal - bVal;
-        },
-      },
-
       {
         title: t("tarih"),
         dataIndex: "tarih",
         key: "tarih",
-        width: 150,
+        width: 110,
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
@@ -373,54 +331,138 @@ const YakitLimitleri = () => {
           if (b.tarih === null) return 1;
           return a.tarih.localeCompare(b.tarih);
         },
-        render: (text, record) => {
-          const ranges = buildPeriodRanges();
-          if (record?.limitTipi === "haftalik") {
-            return `${formatDateFromISODateOnly(ranges.haftalikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.haftalikBitisTarih)}`;
-          }
-          if (record?.limitTipi === "aylik") {
-            return `${formatDateFromISODateOnly(ranges.aylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.aylikBitisTarih)}`;
-          }
-          if (record?.limitTipi === "yillik") {
-            return `${formatDateFromISODateOnly(ranges.yillikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.yillikBitisTarih)}`;
-          }
-          return formatDate(text);
-        },
+        render: (text) => formatDate(text),
       },
-
       {
-        title: t("durum"),
-        dataIndex: "durum",
-        key: "durum",
+        title: t("talepDurum"),
+        dataIndex: "talepDurum",
+        key: "talepDurum",
         width: 150,
         ellipsis: true,
         visible: true,
-        render: (_, record) => {
-          const limit = Number(record?.limit ?? 0);
-          const used = Number(record?.toplamYakitMiktari ?? 0);
-          const usagePercent = limit > 0 ? (used / limit) * 100 : used > 0 ? 101 : 0;
+        render: (text) => {
+          const getStatusColor = (status) => {
+            const trimmedStatus = status ? status.trim().toLowerCase() : "";
+            switch (trimmedStatus) {
+              case "beklemede":
+                return "orange";
+              case "onaylandi":
+                return "blue";
+              case "reddedildi":
+                return "red";
+              case "tamamlandi":
+                return "green";
+              default:
+                return "default";
+            }
+          };
 
-          let color = "green"; // Normal
-          let label = t("normal");
-          if (usagePercent > 100) {
-            color = "red"; // Aşıldı
-            label = t("asildi");
-          } else if (usagePercent >= 80) {
-            color = "orange"; // Uyarı
-            label = t("uyari");
-          }
-
-          const pctText = Math.round(usagePercent);
-          return <Tag color={color}>{`${label} (%${pctText})`}</Tag>;
+          const trimmedText = text ? text.trim() : "";
+          return trimmedText ? (
+            <Tag color={getStatusColor(trimmedText)} style={{ fontWeight: 500 }}>
+              {t(trimmedText)}
+            </Tag>
+          ) : (
+            ""
+          );
         },
         sorter: (a, b) => {
-          const limitA = Number(a?.limit ?? 0);
-          const usedA = Number(a?.toplamYakitMiktari ?? 0);
-          const limitB = Number(b?.limit ?? 0);
-          const usedB = Number(b?.toplamYakitMiktari ?? 0);
-          const pctA = limitA > 0 ? usedA / limitA : usedA > 0 ? Number.POSITIVE_INFINITY : 0;
-          const pctB = limitB > 0 ? usedB / limitB : usedB > 0 ? Number.POSITIVE_INFINITY : 0;
-          return pctA - pctB;
+          if (a.talepDurum === null) return -1;
+          if (b.talepDurum === null) return 1;
+          return a.talepDurum.localeCompare(b.talepDurum);
+        },
+      },
+      {
+        title: t("talepOncelik"),
+        dataIndex: "talepOncelik",
+        key: "talepOncelik",
+        width: 130,
+        ellipsis: true,
+        visible: true,
+        render: (text) => {
+          const getPriorityColor = (priority) => {
+            const trimmedPriority = priority ? priority.trim().toLowerCase() : "";
+            switch (trimmedPriority) {
+              case "dusuk":
+                return "green";
+              case "orta":
+                return "blue";
+              case "yuksek":
+                return "orange";
+              case "acil":
+                return "red";
+              default:
+                return "default";
+            }
+          };
+
+          const trimmedText = text ? text.trim() : "";
+          return trimmedText ? (
+            <Tag color={getPriorityColor(trimmedText)} style={{ fontWeight: 500 }}>
+              {t(trimmedText)}
+            </Tag>
+          ) : (
+            ""
+          );
+        },
+        sorter: (a, b) => {
+          if (a.talepOncelik === null) return -1;
+          if (b.talepOncelik === null) return 1;
+          return a.talepOncelik.localeCompare(b.talepOncelik);
+        },
+      },
+      {
+        title: t("talepTur"),
+        dataIndex: "talepTur",
+        key: "talepTur",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        render: (text) => {
+          const getTypeColor = (type) => {
+            const trimmedType = type ? type.trim().toLowerCase() : "";
+            switch (trimmedType) {
+              case "ariza":
+                return "red";
+              case "lastik":
+                return "purple";
+              case "arac":
+                return "blue";
+              case "aksesuar":
+                return "cyan";
+              case "yakit":
+                return "orange";
+              default:
+                return "default";
+            }
+          };
+
+          const trimmedText = text ? text.trim() : "";
+          return trimmedText ? (
+            <Tag color={getTypeColor(trimmedText)} style={{ fontWeight: 500 }}>
+              {t(trimmedText)}
+            </Tag>
+          ) : (
+            ""
+          );
+        },
+        sorter: (a, b) => {
+          if (a.talepTur === null) return -1;
+          if (b.talepTur === null) return 1;
+          return a.talepTur.localeCompare(b.talepTur);
+        },
+      },
+      {
+        title: t("talepEden"),
+        dataIndex: "talepEden",
+        key: "talepEden",
+        width: 180,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.talepEden === null) return -1;
+          if (b.talepEden === null) return 1;
+          return a.talepEden.localeCompare(b.talepEden);
         },
       },
     ],
@@ -454,23 +496,6 @@ const YakitLimitleri = () => {
     });
     return formatter.format(new Date(date));
   }, []);
-
-  // ISO tarihlerin sadece tarih kısmını (YYYY-MM-DD) alıp yerel tarihe göre formatlar
-  const formatDateFromISODateOnly = useCallback(
-    (isoString) => {
-      if (!isoString) return "";
-      const datePart = typeof isoString === "string" ? isoString.slice(0, 10) : ""; // YYYY-MM-DD
-      if (!datePart) return "";
-      const [yearStr, monthStr, dayStr] = datePart.split("-");
-      const year = parseInt(yearStr, 10);
-      const month = parseInt(monthStr, 10);
-      const day = parseInt(dayStr, 10);
-      if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) return "";
-      const localDate = new Date(year, month - 1, day, 0, 0, 0, 0);
-      return formatDate(localDate);
-    },
-    [formatDate]
-  );
 
   const formatTime = (time) => {
     if (!time || time.trim() === "") return ""; // `trim` metodu ile baştaki ve sondaki boşlukları temizle
@@ -517,9 +542,9 @@ const YakitLimitleri = () => {
 
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
-    const savedOrder = localStorage.getItem("columnOrderYakitLimitleri");
-    const savedVisibility = localStorage.getItem("columnVisibilityYakitLimitleri");
-    const savedWidths = localStorage.getItem("columnWidthsYakitLimitleri");
+    const savedOrder = localStorage.getItem("columnOrderHasarTakibi");
+    const savedVisibility = localStorage.getItem("columnVisibilityHasarTakibi");
+    const savedWidths = localStorage.getItem("columnWidthsHasarTakibi");
 
     let order = savedOrder ? JSON.parse(savedOrder) : [];
     let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
@@ -537,9 +562,9 @@ const YakitLimitleri = () => {
       }
     });
 
-    localStorage.setItem("columnOrderYakitLimitleri", JSON.stringify(order));
-    localStorage.setItem("columnVisibilityYakitLimitleri", JSON.stringify(visibility));
-    localStorage.setItem("columnWidthsYakitLimitleri", JSON.stringify(widths));
+    localStorage.setItem("columnOrderHasarTakibi", JSON.stringify(order));
+    localStorage.setItem("columnVisibilityHasarTakibi", JSON.stringify(visibility));
+    localStorage.setItem("columnWidthsHasarTakibi", JSON.stringify(widths));
 
     return order.map((key) => {
       const column = initialColumns.find((col) => col.key === key);
@@ -549,9 +574,9 @@ const YakitLimitleri = () => {
 
   // Save columns to localStorage
   useEffect(() => {
-    localStorage.setItem("columnOrderYakitLimitleri", JSON.stringify(columns.map((col) => col.key)));
+    localStorage.setItem("columnOrderHasarTakibi", JSON.stringify(columns.map((col) => col.key)));
     localStorage.setItem(
-      "columnVisibilityYakitLimitleri",
+      "columnVisibilityHasarTakibi",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -563,7 +588,7 @@ const YakitLimitleri = () => {
       )
     );
     localStorage.setItem(
-      "columnWidthsYakitLimitleri",
+      "columnWidthsHasarTakibi",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -628,9 +653,9 @@ const YakitLimitleri = () => {
 
   // Reset columns
   const resetColumns = () => {
-    localStorage.removeItem("columnOrderYakitLimitleri");
-    localStorage.removeItem("columnVisibilityYakitLimitleri");
-    localStorage.removeItem("columnWidthsYakitLimitleri");
+    localStorage.removeItem("columnOrderHasarTakibi");
+    localStorage.removeItem("columnVisibilityHasarTakibi");
+    localStorage.removeItem("columnWidthsHasarTakibi");
     window.location.reload();
   };
 
@@ -778,7 +803,7 @@ const YakitLimitleri = () => {
                 gap: "10px",
                 alignItems: "center",
                 width: "100%",
-                maxWidth: "935px",
+                maxWidth: "985px",
                 flexWrap: "wrap",
               }}
             >
@@ -793,16 +818,17 @@ const YakitLimitleri = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onPressEnter={handleSearch}
                 // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
-                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={() => handleSearch()} />}
               />
 
-              {/* <Filters onChange={handleBodyChange} /> */}
+              {/*  <Filters onChange={handleBodyChange} onApply={handleSearch} /> */}
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
+              {/* <Button type="primary" icon={<SearchOutlined />} onClick={() => handleSearch()}></Button> */}
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-              <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+              {/* <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} /> */}
             </div>
           </div>
           {/* Table */}
@@ -833,7 +859,7 @@ const YakitLimitleri = () => {
                 scroll={{ y: "calc(100vh - 335px)" }}
               />
             </Spin>
-            <EditDrawer selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} />
+            {/* <EditDrawer selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} /> */}
           </div>
         </FormProvider>
       </ConfigProvider>
@@ -841,4 +867,4 @@ const YakitLimitleri = () => {
   );
 };
 
-export default memo(YakitLimitleri);
+export default memo(HasarTakibi);

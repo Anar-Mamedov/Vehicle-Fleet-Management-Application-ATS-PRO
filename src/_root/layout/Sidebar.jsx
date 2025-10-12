@@ -7,7 +7,7 @@ import { MdOutlineSystemUpdateAlt } from "react-icons/md";
 import { LuWarehouse } from "react-icons/lu";
 import { FaGears } from "react-icons/fa6";
 import { GiAutoRepair } from "react-icons/gi";
-import { HiOutlineDocumentReport } from "react-icons/hi";
+import { HiOutlineDocumentReport, HiOutlineClipboardList } from "react-icons/hi";
 import i18n, { t } from "i18next";
 import Draggable from "react-draggable";
 import Ayarlar from "../pages/Ayarlar/Ayarlar";
@@ -284,6 +284,11 @@ const Sidebar = ({ collapsed }) => {
         key: "2bskfa",
         icon: <HiOutlineDocumentReport />,
         label: <Link to={"/hgs-islem-takibi"}>{t("hgsIslemleri")}</Link>,
+      },
+      {
+        key: "l23jkhb4",
+        icon: <HiOutlineClipboardList />,
+        label: <Link to={"/talep-yonetimi"}>{t("talepYonetimi")}</Link>,
       },
       /* {
       key: "13",
