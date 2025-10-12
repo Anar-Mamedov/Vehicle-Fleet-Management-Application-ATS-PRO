@@ -140,7 +140,7 @@ DraggableRow.displayName = "DraggableRow";
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const HasarTakibi = () => {
+const TalepYonetimi = () => {
   const formMethods = useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
@@ -542,9 +542,9 @@ const HasarTakibi = () => {
 
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
-    const savedOrder = localStorage.getItem("columnOrderHasarTakibi");
-    const savedVisibility = localStorage.getItem("columnVisibilityHasarTakibi");
-    const savedWidths = localStorage.getItem("columnWidthsHasarTakibi");
+    const savedOrder = localStorage.getItem("columnOrderTalepYonetimi");
+    const savedVisibility = localStorage.getItem("columnVisibilityTalepYonetimi");
+    const savedWidths = localStorage.getItem("columnWidthsTalepYonetimi");
 
     let order = savedOrder ? JSON.parse(savedOrder) : [];
     let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
@@ -562,9 +562,9 @@ const HasarTakibi = () => {
       }
     });
 
-    localStorage.setItem("columnOrderHasarTakibi", JSON.stringify(order));
-    localStorage.setItem("columnVisibilityHasarTakibi", JSON.stringify(visibility));
-    localStorage.setItem("columnWidthsHasarTakibi", JSON.stringify(widths));
+    localStorage.setItem("columnOrderTalepYonetimi", JSON.stringify(order));
+    localStorage.setItem("columnVisibilityTalepYonetimi", JSON.stringify(visibility));
+    localStorage.setItem("columnWidthsTalepYonetimi", JSON.stringify(widths));
 
     return order.map((key) => {
       const column = initialColumns.find((col) => col.key === key);
@@ -574,9 +574,9 @@ const HasarTakibi = () => {
 
   // Save columns to localStorage
   useEffect(() => {
-    localStorage.setItem("columnOrderHasarTakibi", JSON.stringify(columns.map((col) => col.key)));
+    localStorage.setItem("columnOrderTalepYonetimi", JSON.stringify(columns.map((col) => col.key)));
     localStorage.setItem(
-      "columnVisibilityHasarTakibi",
+      "columnVisibilityTalepYonetimi",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -588,7 +588,7 @@ const HasarTakibi = () => {
       )
     );
     localStorage.setItem(
-      "columnWidthsHasarTakibi",
+      "columnWidthsTalepYonetimi",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -653,9 +653,9 @@ const HasarTakibi = () => {
 
   // Reset columns
   const resetColumns = () => {
-    localStorage.removeItem("columnOrderHasarTakibi");
-    localStorage.removeItem("columnVisibilityHasarTakibi");
-    localStorage.removeItem("columnWidthsHasarTakibi");
+    localStorage.removeItem("columnOrderTalepYonetimi");
+    localStorage.removeItem("columnVisibilityTalepYonetimi");
+    localStorage.removeItem("columnWidthsTalepYonetimi");
     window.location.reload();
   };
 
@@ -867,4 +867,4 @@ const HasarTakibi = () => {
   );
 };
 
-export default memo(HasarTakibi);
+export default memo(TalepYonetimi);
