@@ -1038,5 +1038,14 @@
   "durum": "Status",
   "yeniOnaylayiciEkle": "Add New Approver",
   "onaylayiciAdi": "Approver Name",
-  "pozisyon": "Position"
+  "pozisyon": "Position",
+  "beklemede": "Pending",
+  "onaylandi": "Approved",
+  "reddedildi": "Rejected",
+  "tamamlandi": "Completed",
+  "dusuk": "Low",
+  "yuksek": "High",
+  "acil": "Urgent",
+  "ariza": "Fault",
+  "aksesuar": "Accessory"
 }

@@ -22,6 +22,9 @@ const KiralikAraclar = lazy(() => import("./_root/pages/vehicles-control/kiralik
 // hgs islemleri
 const HgsİslemTakibi = lazy(() => import("./_root/pages/HgsIslemleri/HgsIslemTakibi/HgsIslemTakibi.jsx"));
 
+// Talep yonetimi
+const TalepYonetimi = lazy(() => import("./_root/pages/TalepYonetimi/TalepYonetimi.jsx"));
+
 // yakit yonetimi
 const YakitTanimlar = lazy(() => import("./_root/pages/yakit-yonetim/yakit-tanim/YakitTanimlar"));
 const YakitCikisFisleri = lazy(() => import("./_root/pages/yakit-yonetim/cikis-fis/YakitCikisFisleri"));
@@ -508,6 +511,15 @@ const App = () => {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <HgsİslemTakibi />
+            </Suspense>
+          }
+        />
+        {/* Talep yonetimi */}
+        <Route
+          path="/talep-yonetimi"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <TalepYonetimi />
             </Suspense>
           }
         />
