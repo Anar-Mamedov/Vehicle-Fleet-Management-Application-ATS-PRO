@@ -19,6 +19,7 @@ import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
+import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 
 const localeMap = {
   tr: trTR,
@@ -351,7 +352,7 @@ const YakitLimitleri = () => {
           const limit = Number(record?.limit ?? 0);
           const toplam = Number(record?.toplamYakitMiktari ?? 0);
           const kalan = limit - toplam;
-          return <span>{Number.isFinite(kalan) ? kalan : 0}</span>;
+          return <span>{formatNumberWithLocale(Number.isFinite(kalan) ? kalan : 0)}</span>;
         },
         sorter: (a, b) => {
           const aVal = Number(a?.limit ?? 0) - Number(a?.toplamYakitMiktari ?? 0);
