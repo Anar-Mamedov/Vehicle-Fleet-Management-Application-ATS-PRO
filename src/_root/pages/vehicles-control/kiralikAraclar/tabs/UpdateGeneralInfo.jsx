@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import { useFormContext } from "react-hook-form";
-import Plaka from "../../../../components/form/selects/Plaka";
 import DateInput from "../../../../components/form/date/DateInput";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import TextInput from "../../../../components/form/inputs/TextInput";
@@ -11,7 +10,7 @@ import CheckboxInput from "../../../../components/form/checkbox/CheckboxInput";
 import Firma from "../../../../components/form/selects/Firma";
 import ReadonlyInput from "../../../../components/form/inputs/ReadonlyInput";
 
-const GeneralInfo = () => {
+const UpdateGeneralInfo = () => {
   const { watch } = useFormContext();
   const krediKiralama = watch("krediKiralama");
 
@@ -23,9 +22,9 @@ const GeneralInfo = () => {
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>
-                  {t("plaka")} <span className="text-danger">*</span>
+                  {t("plaka")}
                 </label>
-                <Plaka required={true} />
+                <ReadonlyInput name="plaka" />
               </div>
             </div>
 
@@ -108,10 +107,10 @@ const GeneralInfo = () => {
   );
 };
 
-GeneralInfo.propTypes = {
+UpdateGeneralInfo.propTypes = {
   setIsValid: PropTypes.func,
   response: PropTypes.string,
   setResponse: PropTypes.func,
 };
 
-export default GeneralInfo;
+export default UpdateGeneralInfo;

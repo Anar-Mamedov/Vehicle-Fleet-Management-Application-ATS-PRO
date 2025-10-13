@@ -528,7 +528,11 @@ const KiralikAraclarTablo = ({ customFields }) => {
       width: 120,
       ellipsis: true,
       visible: true,
-      /*render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,*/
+      render: (text, record) => (
+        <a onClick={() => onRowClick(record)} style={{ cursor: "pointer", color: "#1890ff" }}>
+          {text}
+        </a>
+      ),
       sorter: (a, b) => {
         if (a.plaka === null) return -1;
         if (b.plaka === null) return 1;
@@ -1160,7 +1164,7 @@ const KiralikAraclarTablo = ({ customFields }) => {
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-            <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+            <AddModal onRefresh={refreshTableData} />
           </div>
         </div>
         {/* Table */}
