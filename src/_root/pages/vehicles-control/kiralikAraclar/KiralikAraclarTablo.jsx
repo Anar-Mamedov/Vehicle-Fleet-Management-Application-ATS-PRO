@@ -528,7 +528,11 @@ const KiralikAraclarTablo = ({ customFields }) => {
       width: 120,
       ellipsis: true,
       visible: true,
-      /*render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,*/
+      render: (text, record) => (
+        <a onClick={() => onRowClick(record)} style={{ cursor: "pointer", color: "#1890ff" }}>
+          {text}
+        </a>
+      ),
       sorter: (a, b) => {
         if (a.plaka === null) return -1;
         if (b.plaka === null) return 1;
