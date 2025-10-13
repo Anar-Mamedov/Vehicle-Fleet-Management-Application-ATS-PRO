@@ -1160,7 +1160,7 @@ const KiralikAraclarTablo = ({ customFields }) => {
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-            <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+            <AddModal onRefresh={refreshTableData} />
           </div>
         </div>
         {/* Table */}

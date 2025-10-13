@@ -1,149 +1,104 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
+import { useFormContext } from "react-hook-form";
 import Plaka from "../../../../components/form/selects/Plaka";
 import DateInput from "../../../../components/form/date/DateInput";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import TextInput from "../../../../components/form/inputs/TextInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
 import CheckboxInput from "../../../../components/form/checkbox/CheckboxInput";
-import CodeControl from "../../../../components/form/selects/CodeControl";
 import Firma from "../../../../components/form/selects/Firma";
+import ReadonlyInput from "../../../../components/form/inputs/ReadonlyInput";
 
 const GeneralInfo = () => {
+  const { watch } = useFormContext();
+  const krediKiralama = watch("krediKiralama");
+
   return (
     <>
-      <div className="grid gap-1">
-        <div className="col-span-4 border p-20">
-          <div className="grid gap-1">
-            <div className="col-span-12">
+      <div className="grid gap-1 mt-14">
+        <div className="col-span-12">
+          <div className="grid gap-1 p-20 border">
+            <div className="col-span-3">
+              <div className="flex flex-col gap-1">
+                <label>
+                  {t("plaka")} <span className="text-danger">*</span>
+                </label>
+                <Plaka required={true} />
+              </div>
+            </div>
+
+            <div className="col-span-3">
+              <div className="flex flex-col gap-1">
+                <label>{t("kiralamaYeri")}</label>
+                <Firma name="kiralamafirma" codeName="kiralamaFirmaId" />
+              </div>
+            </div>
+
+            <div className="col-span-3">
               <div className="grid gap-1">
+                <div className="col-span-12">
+                  <label>{t("aylikOdemeTutar")}</label>
+                </div>
                 <div className="col-span-9">
-                  <div className="flex flex-col gap-1">
-                    <label>
-                      {t("plaka")} <span className="text-danger">*</span>
-                    </label>
-                    <Plaka required={true} />
-                  </div>
+                  <NumberInput name="krediAylikOdeme" />
                 </div>
-                <div className="col-span-3">
-                  <div className="flex flex-col gap-1">
-                    <label>{t("aktif")}</label>
-                    <CheckboxInput name="aktif" />
+                <div className="col-span-3 flex items-center">
+                  <div className="flex gap-1 items-center">
+                    <CheckboxInput name="krediUyar" />
+                    <label>{t("uyari")}</label>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="col-span-12">
+
+            <div className="col-span-3">
               <div className="flex flex-col gap-1">
-                <label>
-                  {t("sigortaTanim")} <span className="text-danger">*</span>
-                </label>
-                <CodeControl name="sigorta" codeName="sigortaKodId" id={405} required={true} />
+                <label>{t("kiralamaTutar")}</label>
+                <NumberInput name="krediTutar" />
               </div>
             </div>
-            <div className="col-span-12">
+
+            <div className="col-span-3">
               <div className="flex flex-col gap-1">
-                <label>
-                  {t("baslangicTarih")} <span className="text-danger">*</span>
-                </label>
-                <DateInput name="baslangicTarih" required={true} />
+                <label>{t("hesapNo")}</label>
+                <TextInput name="krediHesapNo" />
               </div>
             </div>
-            <div className="col-span-12">
+
+            <div className="col-span-3">
               <div className="flex flex-col gap-1">
-                <label>
-                  {t("bitisTarih")} <span className="text-danger">*</span>
-                </label>
-                <DateInput name="bitisTarih" required={true} />
+                <label>{t("kiraBaslangicTarih")}</label>
+                <DateInput name="kiraBaslangic" />
               </div>
             </div>
-          </div>
-        </div>
-        <div className="col-span-8 border p-20">
-          <div className="grid gap-1">
-            <div className="col-span-6">
+
+            <div className="col-span-3">
               <div className="flex flex-col gap-1">
-                <label>{t("policeNo")}</label>
-                <TextInput name="policeNo" />
+                <label>{t("ilgili")}</label>
+                <TextInput name="krediIlgili" />
               </div>
             </div>
-            <div className="col-span-6">
+
+            <div className="col-span-3">
               <div className="flex flex-col gap-1">
-                <label>{t("tutar")}</label>
-                <NumberInput name="tutar" />
+                <label>{t("kiralamaSuresi")}</label>
+                <NumberInput name="krediSure" />
               </div>
             </div>
-            <div className="col-span-6">
+
+            <div className="col-span-3">
               <div className="flex flex-col gap-1">
-                <label>{t("aracBedeli")}</label>
-                <NumberInput name="aracBedeli" />
+                <label>{t("ilkOdemeTarih")}</label>
+                <DateInput name="krediIlkOdTarih" />
               </div>
             </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("hasarsizlikIndirimi")} (%)</label>
-                <NumberInput name="hasarIndirimi" />
-              </div>
-            </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("firma")}</label>
-                <Firma />
-              </div>
-            </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("yetkili")}</label>
-                <TextInput name="yetkili" />
-              </div>
-            </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("ruhsatBelgeSeriNo")}</label>
-                <TextInput name="ruhsatBelgeSeriNo" />
-              </div>
-            </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("adres")}</label>
-                <TextInput name="adres" />
-              </div>
-            </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("il")}</label>
-                <TextInput name="il" />
-              </div>
-            </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("ilce")}</label>
-                <TextInput name="ilce" />
-              </div>
-            </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("acenta")}</label>
-                <CodeControl name="acenta" codeName="acentaKodId" id={406} />
-              </div>
-            </div>
-            <div className="col-span-6">
-              <div className="flex flex-col gap-1">
-                <label>{t("telefon")}</label>
-                <TextInput name="telefon" />
-              </div>
-            </div>
+
             <div className="col-span-12">
               <div className="flex flex-col gap-1">
                 <label>{t("aciklama")}</label>
-                <Textarea name="aciklama" />
-              </div>
-            </div>
-            <div className="col-span-12">
-              <div className="flex gap-2">
-                <CheckboxInput name="varsayilan" />
-                <label>{t("varsayilan")}</label>
+                <Textarea name="krediAciklama" />
               </div>
             </div>
           </div>
