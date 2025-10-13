@@ -118,7 +118,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       cezaPuan: values.cezaPuan || 0,
       odenenTutar: values.odenenTutar || 0,
       surucuId: values.surucuId || 0,
-      odemeTarih: dayjs(values.odemeTarih).format("YYYY-MM-DD"),
+      odemeTarih: values.odemeTarih ? dayjs(values.odemeTarih).format("YYYY-MM-DD") : "",
       odeme: values.odeme,
       cezaMaddesiId: values.cezaMaddesiId || 0,
       aciklama: values.aciklama,
@@ -127,7 +127,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       lokasyonId: values.lokasyonId || 0,
       aracKm: values.aracKm || 0,
       surucuOder: values.surucuOder,
-      tebligTarih: dayjs(values.tebligTarih).format("YYYY-MM-DD"),
+      tebligTarih: values.tebligTarih ? dayjs(values.tebligTarih).format("YYYY-MM-DD") : "",
       indirimOran: values.indirimOran || 0,
       ozelAlan1: values.ozelAlan1 || "",
       ozelAlan2: values.ozelAlan2 || "",
@@ -141,7 +141,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       ozelAlanKodId10: values.ozelAlanKodId10 || 0,
       ozelAlan11: values.ozelAlan11 || 0,
       ozelAlan12: values.ozelAlan12 || 0,
-      odendigiTarih: dayjs(values.odendigiTarih).format("YYYY-MM-DD"),
+      odendigiTarih: values.odendigiTarih ? dayjs(values.odendigiTarih).format("YYYY-MM-DD") : "",
     };
 
     AddVehicleFineItemService(body).then((res) => {
