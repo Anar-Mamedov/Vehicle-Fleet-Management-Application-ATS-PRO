@@ -662,7 +662,7 @@ export default function MainTabs({ aracID }) {
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>Birim Fiyatı:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <NumberInput name="iscilikUcreti" style={{ flex: 1 }} formatSection="stok" formatType="tutar" onChange={(value) => handleIscilikUcretiChange(value)} />
+              <NumberInput name="iscilikUcreti" style={{ flex: 1 }} min={0} formatSection="stok" formatType="tutar" onChange={(value) => handleIscilikUcretiChange(value)} />
             </div>
           </div>
 
@@ -677,6 +677,8 @@ export default function MainTabs({ aracID }) {
                 formatSection="stok"
                 formatType="tutar"
                 prefix={true}
+                min={0}
+                max={100}
               />
               <NumberInput
                 name="kdvDegeri"

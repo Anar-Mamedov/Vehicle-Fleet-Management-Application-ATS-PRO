@@ -3,7 +3,6 @@ import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { InputNumber, Typography } from "antd";
 import i18next from "i18next";
-import AxiosInstance from "../../../../api/http";
 
 const { Text } = Typography;
 
@@ -59,11 +58,11 @@ const NumberInput = ({
       return;
     }
 
-    let endpoint = "";
     let formatFieldName = "";
+    let storageKey = "";
 
     if (formatSection === "yakit") {
-      endpoint = "CommonSettings/GetSettingByType?type=4";
+      storageKey = "yakit";
       if (formatType === "miktar") {
         formatFieldName = "yakitMiktarFormat";
       } else if (formatType === "ortalama") {
@@ -72,7 +71,7 @@ const NumberInput = ({
         formatFieldName = "yakitTutarFormat";
       }
     } else if (formatSection === "stok") {
-      endpoint = "CommonSettings/GetSettingByType?type=3";
+      storageKey = "stok";
       if (formatType === "miktar") {
         formatFieldName = "stokMiktarFormat";
       } else if (formatType === "tutar") {
@@ -82,32 +81,29 @@ const NumberInput = ({
       }
     }
 
-    if (!endpoint || !formatFieldName) {
+    if (!storageKey || !formatFieldName) {
       setPrecision(undefined);
       return;
     }
 
-    let isActive = true;
-
-    AxiosInstance.get(endpoint)
-      .then((response) => {
-        if (!isActive) return;
-        const formatValue = response?.data?.[formatFieldName];
-        if (formatValue !== undefined && formatValue !== null) {
-          const parsedValue = parseInt(formatValue, 10);
-          setPrecision(isNaN(parsedValue) ? undefined : parsedValue);
-        } else {
-          setPrecision(undefined);
-        }
-      })
-      .catch(() => {
-        if (!isActive) return;
+    try {
+      const storedValue = localStorage.getItem(storageKey);
+      if (!storedValue) {
         setPrecision(undefined);
-      });
+        return;
+      }
 
-    return () => {
-      isActive = false;
-    };
+      const parsedStorage = JSON.parse(storedValue);
+      const formatValue = parsedStorage?.[formatFieldName];
+      if (formatValue !== undefined && formatValue !== null) {
+        const parsedValue = parseInt(formatValue, 10);
+        setPrecision(isNaN(parsedValue) ? undefined : parsedValue);
+      } else {
+        setPrecision(undefined);
+      }
+    } catch (error) {
+      setPrecision(undefined);
+    }
   }, [formatSection, formatType]);
 
   // Apply precision formatting when field value changes
