@@ -1,13 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
-import { InputNumber } from "antd";
+import { InputNumber, Typography } from "antd";
 import i18next from "i18next";
+import AxiosInstance from "../../../../api/http";
 
-const NumberInput = ({ name, checked, required, placeholder = "", style, min, max, useThousandsSeparator = true }) => {
-  const { control, setValue } = useFormContext();
+const { Text } = Typography;
+
+const NumberInput = ({
+  name,
+  checked,
+  required,
+  placeholder = "",
+  style,
+  min,
+  max,
+  useThousandsSeparator = true,
+  formatSection,
+  formatType,
+  prefix = false,
+  onChange,
+  onFocus,
+  onBlur,
+}) => {
+  const { control, setValue, watch } = useFormContext();
   const [decimalSeparator, setDecimalSeparator] = useState(".");
   const [thousandsSeparator, setThousandsSeparator] = useState(",");
+  const [precision, setPrecision] = useState(undefined);
+  const fieldValue = watch(name);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     const applyLocaleSeparators = (locale) => {
@@ -30,6 +51,82 @@ const NumberInput = ({ name, checked, required, placeholder = "", style, min, ma
       i18next.off("languageChanged", handleLanguageChanged);
     };
   }, []);
+
+  // Fetch format settings based on formatSection and formatType
+  useEffect(() => {
+    if (!formatSection || !formatType) {
+      setPrecision(undefined);
+      return;
+    }
+
+    let endpoint = "";
+    let formatFieldName = "";
+
+    if (formatSection === "yakit") {
+      endpoint = "CommonSettings/GetSettingByType?type=4";
+      if (formatType === "miktar") {
+        formatFieldName = "yakitMiktarFormat";
+      } else if (formatType === "ortalama") {
+        formatFieldName = "yakitOrtalamaFormat";
+      } else if (formatType === "tutar") {
+        formatFieldName = "yakitTutarFormat";
+      }
+    } else if (formatSection === "stok") {
+      endpoint = "CommonSettings/GetSettingByType?type=3";
+      if (formatType === "miktar") {
+        formatFieldName = "stokMiktarFormat";
+      } else if (formatType === "tutar") {
+        formatFieldName = "stokTutarFormat";
+      } else if (formatType === "ortalama") {
+        formatFieldName = "stokOrtalamaFormat";
+      }
+    }
+
+    if (!endpoint || !formatFieldName) {
+      setPrecision(undefined);
+      return;
+    }
+
+    let isActive = true;
+
+    AxiosInstance.get(endpoint)
+      .then((response) => {
+        if (!isActive) return;
+        const formatValue = response?.data?.[formatFieldName];
+        if (formatValue !== undefined && formatValue !== null) {
+          const parsedValue = parseInt(formatValue, 10);
+          setPrecision(isNaN(parsedValue) ? undefined : parsedValue);
+        } else {
+          setPrecision(undefined);
+        }
+      })
+      .catch(() => {
+        if (!isActive) return;
+        setPrecision(undefined);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [formatSection, formatType]);
+
+  // Apply precision formatting when field value changes
+  useEffect(() => {
+    if (isFocused) return;
+    if (precision === undefined || fieldValue === undefined || fieldValue === null) return;
+
+    const currentValue = typeof fieldValue === "number" ? fieldValue : parseFloat(fieldValue);
+    if (isNaN(currentValue)) return;
+
+    // Round the value to the specified precision
+    const factor = Math.pow(10, precision);
+    const roundedValue = Math.round(currentValue * factor) / factor;
+
+    // Only update if the rounded value is different from current value
+    if (roundedValue !== currentValue) {
+      setValue(name, roundedValue, { shouldValidate: false, shouldDirty: false });
+    }
+  }, [fieldValue, precision, name, setValue, isFocused]);
 
   // Formatter function for thousands separator
   const formatter = (value) => {
@@ -68,14 +165,26 @@ const NumberInput = ({ name, checked, required, placeholder = "", style, min, ma
 
   // Parser function to remove thousands separator but keep decimal separator
   const parser = (value) => {
-    if (!useThousandsSeparator || !value) return value;
+    if (value === undefined || value === null) return value;
 
-    // Remove thousands separator and convert decimal separator to dot for processing
-    let parsedValue = value.toString().split(thousandsSeparator).join("");
+    let parsedValue = value.toString();
 
-    // If decimal separator is comma, convert it to dot for internal processing
-    if (decimalSeparator === ",") {
-      parsedValue = parsedValue.replace(",", ".");
+    if (useThousandsSeparator && thousandsSeparator) {
+      parsedValue = parsedValue.split(thousandsSeparator).join("");
+    }
+
+    if (decimalSeparator && decimalSeparator !== ".") {
+      parsedValue = parsedValue.replace(decimalSeparator, ".");
+    }
+
+    if (precision !== undefined && precision !== null) {
+      const dotIndex = parsedValue.indexOf(".");
+      if (dotIndex !== -1) {
+        const fractional = parsedValue.slice(dotIndex + 1);
+        if (fractional.length > precision) {
+          parsedValue = `${parsedValue.slice(0, dotIndex + 1)}${fractional.slice(0, precision)}`;
+        }
+      }
     }
 
     return parsedValue;
@@ -92,6 +201,8 @@ const NumberInput = ({ name, checked, required, placeholder = "", style, min, ma
             {...field}
             {...(min !== undefined && min !== null && { min })}
             {...(max !== undefined && max !== null && { max })}
+            {...(precision !== undefined && { precision })}
+            {...(prefix && { prefix: <Text style={{ color: "#0091ff" }}>%</Text> })}
             placeholder={placeholder}
             className={fieldState.error ? "input-error w-full" : "w-full"}
             disabled={checked}
@@ -101,10 +212,25 @@ const NumberInput = ({ name, checked, required, placeholder = "", style, min, ma
             decimalSeparator={decimalSeparator}
             formatter={useThousandsSeparator ? formatter : undefined}
             parser={useThousandsSeparator ? parser : undefined}
+            onFocus={(event) => {
+              setIsFocused(true);
+              if (typeof onFocus === "function") {
+                onFocus(event);
+              }
+            }}
+            onBlur={(event) => {
+              setIsFocused(false);
+              if (typeof onBlur === "function") {
+                onBlur(event);
+              }
+            }}
             onChange={(e) => {
               field.onChange(e);
               if (e === null) {
                 setValue(name, 0);
+              }
+              if (typeof onChange === "function") {
+                onChange(e);
               }
             }}
           />
@@ -124,6 +250,12 @@ NumberInput.propTypes = {
   min: PropTypes.number,
   max: PropTypes.number,
   useThousandsSeparator: PropTypes.bool,
+  formatSection: PropTypes.oneOf(["yakit", "stok"]),
+  formatType: PropTypes.oneOf(["miktar", "ortalama", "tutar"]),
+  prefix: PropTypes.bool,
+  onChange: PropTypes.func,
+  onFocus: PropTypes.func,
+  onBlur: PropTypes.func,
 };
 
 export default NumberInput;
