@@ -67,6 +67,7 @@ const Ekspertizler = lazy(() => import("./_root/pages/vehicles-control/Ekspertiz
 
 // Bakım ve Onarım
 const PeriyordikBakimlar = lazy(() => import("./_root/pages/BakimVeOnarim/PeriyodikBakimlar/PeriyodikBakimlar.jsx"));
+const ArizaBildirimleri = lazy(() => import("./_root/pages/BakimVeOnarim/ArizaBildirimleri/ArizaBildirimleri.jsx"));
 
 const Raporlar = lazy(() => import("./_root/pages/raporlar/RaporYonetimi.jsx"));
 const KodYonetimi = lazy(() => import("./_root/pages/kod-yonetimi/KodYonetimi"));
@@ -563,6 +564,14 @@ const App = () => {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <PeriyordikBakimlar />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/ariza-bildirimleri"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <ArizaBildirimleri />
             </Suspense>
           }
         />
