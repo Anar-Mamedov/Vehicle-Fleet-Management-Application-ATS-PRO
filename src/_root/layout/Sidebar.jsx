@@ -127,16 +127,16 @@ const Sidebar = ({ collapsed }) => {
       {
         key: "2",
         icon: <CarOutlined />,
-        label: t("aracYonetimi"),
+        label: t("filoYonetimi"),
         children: [
           {
             key: "3",
             label: <Link to={"/araclar"}>{t("araclar")}</Link>,
           },
-          {
+          /* {
             key: "4",
             label: <Link to={"/yakit-islemleri"}>{t("yakitIslemleri")}</Link>,
-          },
+          }, */
           {
             key: "6",
             label: <Link to={"/sefer-islemleri"}>{t("gorevTakibi")}</Link>,
@@ -157,14 +157,14 @@ const Sidebar = ({ collapsed }) => {
             key: "10",
             label: <Link to={"/ceza-islemleri"}>{t("cezalar")}</Link>,
           },
-          {
+          /* {
             key: "kj234h5b",
             label: <Link to={"/hasar-takibi"}>{t("hasarTakibi")}</Link>,
-          },
-          {
+          }, */
+          /* {
             key: "3jkh45",
             label: <Link to={"/yakit-limitleri"}>{t("yakitLimitleri")}</Link>,
-          },
+          }, */
           {
             key: "48ashjd6",
             label: <Link to={"/kiralik-araclar"}>{t("kiralikAraclar")}</Link>,
@@ -180,9 +180,28 @@ const Sidebar = ({ collapsed }) => {
         ],
       },
       {
+        key: "2435897xcv",
+        icon: <CarOutlined />,
+        label: t("yakitIslemleri"),
+        children: [
+          {
+            key: "4",
+            label: <Link to={"/yakit-islemleri"}>{t("yakitGirisleri")}</Link>,
+          },
+          {
+            key: "3jkh45",
+            label: <Link to={"/yakit-limitleri"}>{t("yakitLimitleri")}</Link>,
+          },
+          {
+            key: "14",
+            label: <Link to={"/yakit-tanimlari"}>{t("yakitTanimlari")}</Link>,
+          },
+        ],
+      },
+      {
         key: "19",
         icon: <GiAutoRepair />,
-        label: t("bakim&Onarim"),
+        label: t("bakim&ServisYonetimi"),
         children: [
           {
             key: "21",
@@ -191,6 +210,14 @@ const Sidebar = ({ collapsed }) => {
           {
             key: "20",
             label: <Link to={"/Periodic-Maintenance"}>{t("periyodikBakimlar")}</Link>,
+          },
+          {
+            key: "kj234h5b",
+            label: <Link to={"/hasar-takibi"}>{t("hasarTakibi")}</Link>,
+          },
+          {
+            key: "kjh564bg34511",
+            label: <Link to={"/ariza-bildirimleri"}>{t("arizaBildirimi")}</Link>,
           },
           /*  {
           key: "22",
@@ -228,7 +255,7 @@ const Sidebar = ({ collapsed }) => {
       {
         key: "31",
         icon: <LuWarehouse />,
-        label: t("malzemeDepo"),
+        label: t("stok&malzemeYonetimi"),
         children: [
           {
             key: "32",
@@ -283,7 +310,7 @@ const Sidebar = ({ collapsed }) => {
       {
         key: "2bskfa",
         icon: <HiOutlineDocumentReport />,
-        label: <Link to={"/hgs-islem-takibi"}>{t("hgsIslemleri")}</Link>,
+        label: <Link to={"/hgs-islem-takibi"}>{t("hgs&gecisIslemleri")}</Link>,
       },
       {
         key: "l23jkhb4",
@@ -371,10 +398,7 @@ const Sidebar = ({ collapsed }) => {
             key: "43",
             label: <Link to={"/servis-tanimlari"}>{t("servisTanimlari")}</Link>,
           },
-          {
-            key: "14",
-            label: <Link to={"/yakit-tanimlari"}>{t("yakitTanimlari")}</Link>,
-          },
+
           {
             key: "44",
             label: <Link to={"/guzergah-tanimlari"}>{t("guzergahlar")}</Link>,
