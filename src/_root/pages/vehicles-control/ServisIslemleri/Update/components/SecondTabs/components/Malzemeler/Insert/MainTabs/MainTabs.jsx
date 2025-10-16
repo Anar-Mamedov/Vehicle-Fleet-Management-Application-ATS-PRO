@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import AxiosInstance from "../../../../../../../../../../../api/http";
 import PropTypes from "prop-types";
-import { Button, Input, Typography, Tabs, InputNumber, Checkbox, Alert, Modal, Table } from "antd";
+import { Button, Input, Typography, Tabs, Checkbox, Alert, Modal, Table } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -10,6 +10,7 @@ import YapilanIsTable from "./components/YapilanIsTable.jsx";
 import CikisDeposu from "./components/CikisDeposu.jsx";
 import Birim from "./components/Birim.jsx";
 import MalzemeTipi from "./components/MalzemeTipi.jsx";
+import NumberInput from "../../../../../../../../../../components/form/inputs/NumberInput.jsx";
 
 const { Text, Link } = Typography;
 const { TextArea } = Input;
@@ -74,6 +75,13 @@ export default function MainTabs({ aracID }) {
     getValues,
     formState: { errors },
   } = useFormContext();
+
+  useEffect(() => {
+    const currentMiktar = getValues("miktar");
+    if (currentMiktar === undefined || currentMiktar === null) {
+      setValue("miktar", 1);
+    }
+  }, []); // run once to ensure default miktar
 
   const handleYapilanIsMinusClick = () => {
     setValue("malzemeKodu", "");
@@ -402,7 +410,10 @@ export default function MainTabs({ aracID }) {
   };
 
   const handleMiktarChange = (value) => {
-    setValue("miktar", value);
+    const numericValue = typeof value === "number" && !Number.isNaN(value) ? value : 0;
+    const normalizedValue = numericValue >= 1 ? numericValue : 1;
+
+    setValue("miktar", normalizedValue);
 
     recalculateIndirimOrani();
     recalculateIndirimYuzde();
@@ -429,30 +440,25 @@ export default function MainTabs({ aracID }) {
   }, [watchedMalzemeKodu, watchedMalzemeTanimi]);
 
   const handleKdvOraniChange = (value) => {
-    setValue("kdvOrani", value);
+    const normalizedValue = typeof value === "number" && !Number.isNaN(value) ? value : 0;
+    setValue("kdvOrani", normalizedValue);
 
+    recalculateToplam({ kdvOrani: normalizedValue });
+  };
+
+  const handleKdvOraniFocus = () => {
     recalculateToplam();
   };
 
   const handleKdvDegeriChange = (value) => {
-    setValue("kdvDegeri", value);
+    const normalizedValue = typeof value === "number" && !Number.isNaN(value) ? value : 0;
+    setValue("kdvDegeri", normalizedValue);
 
-    // Recalculate KDV oranı based on the new KDV değeri
-    const values = getValues();
-    const miktar = values.miktar || 1;
-    const iscilikUcreti = (values.iscilikUcreti || 0) * miktar;
-    const indirimOrani = values.indirimOrani || 0;
-    const remainingAmount = iscilikUcreti - (indirimOrani || 0);
+    recalculateKdvFromDegeri({ kdvDegeri: normalizedValue });
+  };
 
-    if (remainingAmount > 0 && value > 0) {
-      const newKdvOrani = (value / remainingAmount) * 100;
-      setValue("kdvOrani", newKdvOrani);
-    }
-
-    // Update final total
-    const kdvDegeri = value || 0;
-    const finalAmount = remainingAmount + kdvDegeri;
-    setValue("toplam", isNaN(finalAmount) ? 0 : finalAmount);
+  const handleKdvDegeriFocus = () => {
+    recalculateKdvFromDegeri();
   };
 
   const recalculateIndirimOrani = () => {
@@ -477,25 +483,57 @@ export default function MainTabs({ aracID }) {
     setValue("indirimYuzde", isNaN(calculatedIndirimYuzde) ? 0 : calculatedIndirimYuzde);
   };
 
-  const recalculateToplam = () => {
-    const values = getValues();
+  const recalculateKdvFromDegeri = (overrides = {}) => {
+    const values = { ...getValues(), ...overrides };
 
     const miktar = values.miktar || 1;
     const iscilikUcreti = (values.iscilikUcreti || 0) * miktar;
     const indirimOrani = values.indirimOrani || 0;
-    const kdvOrani = values.kdvOrani || 0;
+    const remainingAmount = iscilikUcreti - (indirimOrani || 0);
+    const parsedKdvDegeri = Number(values.kdvDegeri);
+    const kdvDegeri = Number.isFinite(parsedKdvDegeri) ? parsedKdvDegeri : 0;
+
+    if (!iscilikUcreti || iscilikUcreti <= 0) {
+      setValue("kdvOrani", 0);
+      setValue("toplam", 0);
+      return;
+    }
+
+    if (remainingAmount <= 0 || kdvDegeri <= 0) {
+      setValue("kdvOrani", 0);
+      const finalAmount = remainingAmount + kdvDegeri;
+      setValue("toplam", isNaN(finalAmount) ? 0 : finalAmount);
+      return;
+    }
+
+    const newKdvOrani = (kdvDegeri / remainingAmount) * 100;
+    const finalAmount = remainingAmount + kdvDegeri;
+
+    setValue("kdvOrani", isNaN(newKdvOrani) ? 0 : newKdvOrani);
+    setValue("toplam", isNaN(finalAmount) ? 0 : finalAmount);
+  };
+
+  const recalculateToplam = (overrides = {}) => {
+    const values = { ...getValues(), ...overrides };
+
+    const miktar = values.miktar || 1;
+    const iscilikUcreti = (values.iscilikUcreti || 0) * miktar;
+    const indirimOrani = values.indirimOrani || 0;
+    const parsedKdvOrani = Number(values.kdvOrani);
+    const kdvOrani = Number.isFinite(parsedKdvOrani) ? parsedKdvOrani : 0;
 
     if (!iscilikUcreti || iscilikUcreti <= 0) {
       setValue("kdvDegeri", 0);
       setValue("toplam", 0);
-    } else {
-      const remainingAmount = iscilikUcreti - (indirimOrani || 0);
-      const kdv = remainingAmount * (kdvOrani / 100);
-      const finalAmount = remainingAmount + kdv;
-
-      setValue("kdvDegeri", isNaN(kdv) ? 0 : kdv);
-      setValue("toplam", isNaN(finalAmount) ? 0 : finalAmount);
+      return;
     }
+
+    const remainingAmount = iscilikUcreti - (indirimOrani || 0);
+    const kdv = remainingAmount * (kdvOrani / 100);
+    const finalAmount = remainingAmount + kdv;
+
+    setValue("kdvDegeri", isNaN(kdv) ? 0 : kdv);
+    setValue("toplam", isNaN(finalAmount) ? 0 : finalAmount);
   };
 
   return (
@@ -618,78 +656,51 @@ export default function MainTabs({ aracID }) {
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>Miktar:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="miktar"
-                control={control}
-                defaultValue={1} // Set default value to 1
-                render={({ field }) => (
-                  <InputNumber
-                    {...field}
-                    min={1}
-                    style={{ flex: 1 }}
-                    onChange={(value) => {
-                      if (value === null || value < 1) {
-                        field.onChange(1); // Reset to 1 if value is null or less than 1
-                      } else {
-                        field.onChange(value);
-                      }
-
-                      handleMiktarChange(value);
-                    }}
-                  />
-                )}
-              />
+              <NumberInput name="miktar" min={1} style={{ flex: 1 }} formatSection="stok" formatType="miktar" onChange={(value) => handleMiktarChange(value)} />
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>Birim Fiyatı:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="iscilikUcreti"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleIscilikUcretiChange(value)} />}
-              />
+              <NumberInput name="iscilikUcreti" style={{ flex: 1 }} min={0} formatSection="stok" formatType="tutar" onChange={(value) => handleIscilikUcretiChange(value)} />
             </div>
           </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>KDV Oranı %:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
+              <NumberInput
                 name="kdvOrani"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber {...field} style={{ flex: 1 }} prefix={<Text style={{ color: "#0091ff" }}>%</Text>} onChange={(value) => handleKdvOraniChange(value)} />
-                )}
+                style={{ flex: 1 }}
+                onChange={(value) => handleKdvOraniChange(value)}
+                onFocus={handleKdvOraniFocus}
+                formatSection="stok"
+                formatType="tutar"
+                prefix={true}
+                min={0}
+                max={100}
               />
-              <Controller
+              <NumberInput
                 name="kdvDegeri"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleKdvDegeriChange(value)} />}
+                style={{ flex: 1 }}
+                onChange={(value) => handleKdvDegeriChange(value)}
+                onFocus={handleKdvDegeriFocus}
+                formatSection="stok"
+                formatType="tutar"
               />
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>İndirim %:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="indirimYuzde"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber {...field} style={{ flex: 1 }} prefix={<Text style={{ color: "#0091ff" }}>%</Text>} onChange={(value) => handleIndirimYuzdeChange(value)} />
-                )}
-              />
-              <Controller
-                name="indirimOrani"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleIndirimOraniChange(value)} />}
-              />
+              <NumberInput name="indirimYuzde" formatSection="stok" formatType="tutar" style={{ flex: 1 }} prefix={true} onChange={(value) => handleIndirimYuzdeChange(value)} />
+              <NumberInput name="indirimOrani" style={{ flex: 1 }} formatSection="stok" formatType="tutar" onChange={(value) => handleIndirimOraniChange(value)} />
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>Toplam:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller name="toplam" control={control} render={({ field }) => <InputNumber {...field} disabled style={{ flex: 1 }} />} />
+              <NumberInput name="toplam" style={{ flex: 1 }} checked={true} formatSection="stok" formatType="tutar" />
             </div>
           </div>
         </div>

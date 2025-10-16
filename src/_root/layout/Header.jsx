@@ -92,6 +92,29 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
     getHatirlatici1();
   }, []);
 
+  useEffect(() => {
+    const fetchCommonSettings = async () => {
+      try {
+        const [fuelResponse, stockResponse] = await Promise.all([
+          AxiosInstance.get("CommonSettings/GetSettingByType?type=4"),
+          AxiosInstance.get("CommonSettings/GetSettingByType?type=3"),
+        ]);
+
+        if (fuelResponse?.data !== undefined) {
+          localStorage.setItem("yakit", JSON.stringify(fuelResponse.data));
+        }
+
+        if (stockResponse?.data !== undefined) {
+          localStorage.setItem("stok", JSON.stringify(stockResponse.data));
+        }
+      } catch (error) {
+        console.error("Failed to fetch common settings", error);
+      }
+    };
+
+    fetchCommonSettings();
+  }, []);
+
   // const handleLogout = () => {
   //   localStorage.removeItem("token");
   //   localStorage.removeItem("token_expire");
