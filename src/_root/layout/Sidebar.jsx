@@ -217,7 +217,7 @@ const Sidebar = ({ collapsed }) => {
           },
           {
             key: "kjh564bg34511",
-            label: <Link to={"/ariza-bildirimleri"}>{t("arizaBildirimi")}</Link>,
+            label: <Link to={"/ariza-bildirimleri"}>{t("arizaBildirimleri")}</Link>,
           },
           /*  {
           key: "22",
