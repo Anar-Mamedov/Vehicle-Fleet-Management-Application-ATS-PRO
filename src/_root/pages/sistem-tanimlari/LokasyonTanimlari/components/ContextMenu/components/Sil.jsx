@@ -21,7 +21,7 @@ export default function Sil({ selectedRows, refreshTableData, disabled, hidePopo
         // Silme API isteğini gönder
         const response = await AxiosInstance.get(`Location/DeleteLocation?locationId=${row.key}`);
         console.log("Silme işlemi başarılı:", response);
-        if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202) {
+        if (response.data.statusCode === 200 || response.data.statusCode === 201 || response.data.statusCode === 202 || response.data.statusCode === 204) {
           message.success("İşlem Başarılı.");
         } else if (response.data.statusCode === 401) {
           message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
