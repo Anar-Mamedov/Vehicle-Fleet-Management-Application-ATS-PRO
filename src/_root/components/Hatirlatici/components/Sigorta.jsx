@@ -301,16 +301,14 @@ const Sigorta = () => {
       render: (text, record) => {
         const baslangicTarih = dayjs(record.baslangicTarih);
         const bitisTarih = dayjs(record.bitisTarih);
-        const maxDays = bitisTarih.diff(baslangicTarih, "day");
-        let percent = 0;
-        if (text === 0) {
-          percent = 0;
-        } else if (text === maxDays) {
-          percent = 100;
-        } else {
-          percent = (text / maxDays) * 100;
-        }
-        return <Progress percent={percent} steps={8} format={() => `${text}`} />;
+        const maxDays =
+          baslangicTarih.isValid() && bitisTarih.isValid() ? bitisTarih.diff(baslangicTarih, "day") : 0;
+        const numericValue = typeof text === "number" ? text : Number(text);
+        const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
+        const clampedValue = Math.max(safeValue, 0);
+        const percent = maxDays > 0 ? Math.min((clampedValue / maxDays) * 100, 100) : 0;
+
+        return <Progress percent={percent} steps={8} format={() => `${clampedValue}`} />;
       },
     },
     {
