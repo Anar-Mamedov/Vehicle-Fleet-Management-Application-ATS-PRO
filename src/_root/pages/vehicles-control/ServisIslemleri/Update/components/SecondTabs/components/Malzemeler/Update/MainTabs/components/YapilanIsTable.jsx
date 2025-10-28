@@ -3,6 +3,7 @@ import { Button, Modal, Table, Input, message } from "antd";
 import AxiosInstance from "../../../../../../../../../../../../api/http";
 import { CheckCircleOutlined, CloseCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { t } from "i18next";
+import AddModal from "../../../../../../../../../../malzeme-depo/malzeme/AddModal.jsx";
 
 const { Search } = Input;
 
@@ -187,18 +188,25 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouse
     setCurrentPage(1);
   };
 
+  const handleAddModalRefresh = useCallback(() => {
+    fetchData(0, 1);
+  }, [fetchData]);
+
   return (
     <div>
       <Button onClick={handleModalToggle}> + </Button>
       <Modal width={1200} centered title="Malzeme Listesi" destroyOnClose open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
-        <Search
-          style={{ width: "250px", marginBottom: "10px" }}
-          placeholder={t("aramaYap")}
-          onSearch={handleSearch}
-          enterButton
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px", gap: "12px" }}>
+          <Search
+            style={{ width: "250px" }}
+            placeholder={t("aramaYap")}
+            onSearch={handleSearch}
+            enterButton
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <AddModal onRefresh={handleAddModalRefresh} />
+        </div>
         <Table
           rowSelection={{
             type: "radio",
