@@ -20,6 +20,24 @@ const TasitKarti = ({ visible, onClose, id }) => {
   });
   const { handleSubmit, setValue, watch } = methods;
 
+  const normalizeDateValue = (value) => {
+    if (!value) {
+      return null;
+    }
+
+    const parsedDate = dayjs(value);
+    return parsedDate.isValid() ? parsedDate : null;
+  };
+
+  const formatDateValue = (value) => {
+    if (!value) {
+      return null;
+    }
+
+    const parsedDate = dayjs(value);
+    return parsedDate.isValid() ? parsedDate.format("YYYY-MM-DD") : null;
+  };
+
   useEffect(() => {
     GetVehicleDetailsInfoService(id, 6).then((res) => {
       setValue("dtyTasitKarti", res.data.dtyTasitKarti);
@@ -35,12 +53,12 @@ const TasitKarti = ({ visible, onClose, id }) => {
       setValue("tkNo", res.data.tkNo);
       setValue("ykTuruKodId", res.data.ykTuruKodId);
       setValue("tkYkturu", res.data.tkYkturu);
-      setValue("tkVerilisTarih", res.data.tkVerilisTarih ? dayjs(res.data.tkVerilisTarih) : null);
-      setValue("tkBitisTarih", res.data.tkBitisTarih ? dayjs(res.data.tkBitisTarih) : null);
-      setValue("tkIptalTarih", res.data.tkIptalTarih ? dayjs(res.data.tkIptalTarih) : null);
-      setValue("tkYbVerilisTarih", res.data.tkYbVerilisTarih ? dayjs(res.data.tkYbVerilisTarih) : null);
-      setValue("tkYbBitisTarih", res.data.tkYbBitisTarih ? dayjs(res.data.tkYbBitisTarih) : null);
-      setValue("ybIptalTarih", res.data.ybIptalTarih ? dayjs(res.data.ybIptalTarih) : null);
+      setValue("tkVerilisTarih", normalizeDateValue(res.data.tkVerilisTarih));
+      setValue("tkBitisTarih", normalizeDateValue(res.data.tkBitisTarih));
+      setValue("tkIptalTarih", normalizeDateValue(res.data.tkIptalTarih));
+      setValue("tkYbVerilisTarih", normalizeDateValue(res.data.tkYbVerilisTarih));
+      setValue("tkYbBitisTarih", normalizeDateValue(res.data.tkYbBitisTarih));
+      setValue("ybIptalTarih", normalizeDateValue(res.data.ybIptalTarih));
     });
   }, [id, status]);
 
@@ -54,12 +72,12 @@ const TasitKarti = ({ visible, onClose, id }) => {
       tkAciklama: values.tkAciklama,
       tkYbNo: values.tkYbNo,
       tkNo: values.tkNo,
-      tkVerilisTarih: dayjs(values.tkVerilisTarih).format("YYYY-MM-DD") || null,
-      tkBitisTarih: dayjs(values.tkBitisTarih).format("YYYY-MM-DD") || null,
-      tkIptalTarih: dayjs(values.tkIptalTarih).format("YYYY-MM-DD") || null,
-      tkYbVerilisTarih: dayjs(values.tkYbVerilisTarih).format("YYYY-MM-DD") || null,
-      tkYbBitisTarih: dayjs(values.tkYbBitisTarih).format("YYYY-MM-DD") || null,
-      ybIptalTarih: dayjs(values.ybIptalTarih).format("YYYY-MM-DD") || null,
+      tkVerilisTarih: formatDateValue(values.tkVerilisTarih),
+      tkBitisTarih: formatDateValue(values.tkBitisTarih),
+      tkIptalTarih: formatDateValue(values.tkIptalTarih),
+      tkYbVerilisTarih: formatDateValue(values.tkYbVerilisTarih),
+      tkYbBitisTarih: formatDateValue(values.tkYbBitisTarih),
+      ybIptalTarih: formatDateValue(values.ybIptalTarih),
       ykTuruKodId: values.ykTuruKodId || -1,
       tkIptal: values.tkIptal,
       dtyTasitKarti: values.dtyTasitKarti,
