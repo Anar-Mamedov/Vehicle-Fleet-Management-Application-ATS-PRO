@@ -119,7 +119,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
       stoklu: data.stokluMalzeme,
       kdvTutar: Number(data.kdvDegeri),
       malzemeTipKodId: Number(data.isTipiID),
-      malzemeTanim: data.malzemeTanimi,
+      malezemeTanim: data.malzemeTanimi,
       tarih: formatDateWithDayjs(data.baslangicTarihi),
     };
 

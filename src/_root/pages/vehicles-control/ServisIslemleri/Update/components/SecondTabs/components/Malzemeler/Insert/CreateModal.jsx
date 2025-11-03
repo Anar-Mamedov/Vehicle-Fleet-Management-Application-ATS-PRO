@@ -68,7 +68,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, o
       stoklu: data.stokluMalzeme,
       kdvTutar: Number(data.kdvDegeri),
       malzemeTipKodId: Number(data.isTipiID),
-      malzemeTanim: data.malzemeTanimi,
+      malezemeTanim: data.malzemeTanimi,
       tarih: formatDateWithDayjs(baslangicTarihi),
     };
 
