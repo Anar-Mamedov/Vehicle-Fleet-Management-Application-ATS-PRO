@@ -76,13 +76,18 @@ export default function KontrolListesiTablo({ isActive, baslangicTarihi, onCount
       ellipsis: true,
       render: (text, record) => (
         <span
-          style={{ cursor: "pointer", color: "#1890ff" }}
+          style={{
+            cursor: "pointer",
+            color: "#1890ff",
+            display: "inline-block",
+            width: "100%",
+          }}
           onClick={() => {
             setSelectedRow(record);
             setIsModalVisible(true);
           }}
         >
-          {text}
+          {text || "-"}
         </span>
       ),
     },
