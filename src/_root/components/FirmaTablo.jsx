@@ -48,7 +48,7 @@ const ResizableTitle = (props) => {
   );
 };
 
-export function FirmaTablo({ workshopSelectedId, onSubmit, type = 0 }) {
+export function FirmaTablo({ workshopSelectedId, onSubmit, type = 0, statusValue = 0 }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState([]);
@@ -249,11 +249,13 @@ export function FirmaTablo({ workshopSelectedId, onSubmit, type = 0 }) {
         } else {
           currentSetPointId = 0;
         }
-
+        const body = {
+          status: statusValue,
+        };
         const url = `Company/GetCompaniesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=${type}`;
         console.log("API URL:", url);
 
-        const response = await AxiosInstance.get(url);
+        const response = await AxiosInstance.post(url, body);
         console.log("API Response:", response.data);
 
         const total = response.data.recordCount || 0;
@@ -296,7 +298,7 @@ export function FirmaTablo({ workshopSelectedId, onSubmit, type = 0 }) {
         setLoading(false);
       }
     },
-    [data, searchTerm, islemiYapan]
+    [data, searchTerm, islemiYapan, type, statusValue]
   );
 
   const fetch1 = useCallback(() => {

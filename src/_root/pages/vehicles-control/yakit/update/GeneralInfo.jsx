@@ -799,7 +799,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("firma")}</label>
-                <Firma />
+                <Firma yakit={true} />
               </div>
             </div>
             <div className="col-span-8">

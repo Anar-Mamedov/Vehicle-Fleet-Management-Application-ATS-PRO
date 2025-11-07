@@ -4,21 +4,31 @@ import PropTypes from "prop-types";
 import { Select, Spin } from "antd";
 import { CodeControlByUrlService } from "../../../../api/services/code/services";
 
-const Firma = ({ name, codeName, checked, required }) => {
+const Firma = ({ name, codeName, checked, required, yakit = false }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const { setValue, watch, control } = useFormContext();
 
   const fetchData = useCallback(() => {
     setLoading(true);
-    CodeControlByUrlService("Company/GetCompanyListForSelectInput?isInsurance=true")
-      .then((res) => {
-        setData(res?.data || []);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+    if (yakit) {
+      CodeControlByUrlService("Company/GetCompanyListForSelectInput?type=3")
+        .then((res) => {
+          setData(res?.data || []);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      CodeControlByUrlService("Company/GetCompanyListForSelectInput?type=2")
+        .then((res) => {
+          setData(res?.data || []);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [yakit]);
 
   return (
     <Controller
@@ -83,6 +93,7 @@ Firma.propTypes = {
   codeName: PropTypes.string,
   checked: PropTypes.bool,
   required: PropTypes.bool,
+  yakit: PropTypes.bool,
 };
 
 export default Firma;
