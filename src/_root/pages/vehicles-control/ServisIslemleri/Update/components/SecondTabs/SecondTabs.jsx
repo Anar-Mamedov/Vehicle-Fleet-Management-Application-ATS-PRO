@@ -8,6 +8,8 @@ import OzelAlanlar from "./components/OzelAlanlar/OzelAlanlar.jsx";
 import IscilikTablo from "./components/Iscilik/IscilikTablo";
 import Malzemeler from "./components/Malzemeler/Malzemeler";
 import Maliyetler from "../MainTabs/components/Maliyetler.jsx";
+import DosyaUpload from "../../../../../../components/Dosya/DosyaUpload.jsx";
+import ResimUpload from "../../../../../../components/Resim/ResimUpload.jsx";
 import AxiosInstance from "../../../../../../../api/http.jsx";
 
 const { TextArea } = Input;
@@ -127,6 +129,22 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
       ),
     },
     {
+      key: "6",
+      label: "Özel Alanlar",
+      // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
+      children: <OzelAlanlar />,
+    },
+    {
+      key: "8",
+      label: "Resimler",
+      children: <ResimUpload refGroup="Servis_islemleri" selectedRowID={secilenIsEmriID} />,
+    },
+    {
+      key: "7",
+      label: "Dosyalar",
+      children: <DosyaUpload refGroup="Servis_islemleri" selectedRowID={secilenIsEmriID} />,
+    },
+    {
       key: "5",
       label: aciklamaVar ? "Açıklama *" : "Açıklama",
       children: (
@@ -134,12 +152,6 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
           <Controller name="aciklama" render={({ field }) => <TextArea {...field} rows={4} placeholder="Açıklama" style={{ width: "100%", resize: "none" }} />} />
         </div>
       ),
-    },
-    {
-      key: "6",
-      label: "Özel Alanlar",
-      // children: <SureBilgileri fieldRequirements={fieldRequirements} />,
-      children: <OzelAlanlar />,
     },
   ];
 

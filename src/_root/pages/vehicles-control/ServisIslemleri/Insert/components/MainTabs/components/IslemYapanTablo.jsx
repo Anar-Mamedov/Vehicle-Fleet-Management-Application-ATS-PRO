@@ -210,8 +210,10 @@ export default function IslemYapanTablo({ workshopSelectedId, onSubmit }) {
         } else {
           currentSetPointId = 0;
         }
-
-        const response = await AxiosInstance.post(`Company/GetCompaniesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&isService=true&type=1`);
+        const body = {
+          status: 1,
+        };
+        const response = await AxiosInstance.post(`Company/GetCompaniesList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&isService=true&type=1`, body);
 
         const total = response.data.recordCount;
         setTotalCount(total);
