@@ -74,8 +74,8 @@ export default function MainTabs() {
     setValue("toplam", 0);
 
     // KDV, indirim ve toplam değerlerini sıfırla veya yeniden hesapla
-    recalculateIndirimOrani(0, indirimYuzde);
-    recalculateToplam(0, 0, kdvOrani);
+    const resetIndirimOrani = recalculateIndirimOrani(0, indirimYuzde);
+    recalculateToplam(0, resetIndirimOrani, kdvOrani);
   };
 
   const handlePersonelMinusClick = () => {
@@ -203,13 +203,14 @@ export default function MainTabs() {
 
   const handleIscilikUcretiChange = (value) => {
     setValue("iscilikUcreti", value);
-    recalculateIndirimOrani(value, indirimYuzde);
-    recalculateToplam(value, indirimOrani, kdvOrani);
+    const updatedIndirimOrani = recalculateIndirimOrani(value, indirimYuzde);
+    recalculateToplam(value, updatedIndirimOrani, kdvOrani);
   };
 
   const handleIndirimYuzdeChange = (value) => {
     setValue("indirimYuzde", value);
-    recalculateIndirimOrani(iscilikUcreti, value);
+    const updatedIndirimOrani = recalculateIndirimOrani(iscilikUcreti, value);
+    recalculateToplam(iscilikUcreti, updatedIndirimOrani, kdvOrani);
   };
 
   const handleIndirimOraniChange = (value) => {
@@ -246,7 +247,9 @@ export default function MainTabs() {
 
   const recalculateIndirimOrani = (iscilikUcreti, indirimYuzde) => {
     const calculatedIndirimOrani = (iscilikUcreti * indirimYuzde) / 100;
-    setValue("indirimOrani", isNaN(calculatedIndirimOrani) ? 0 : calculatedIndirimOrani);
+    const safeValue = isNaN(calculatedIndirimOrani) ? 0 : calculatedIndirimOrani;
+    setValue("indirimOrani", safeValue);
+    return safeValue;
   };
 
   const recalculateIndirimYuzde = (iscilikUcreti, indirimOrani) => {
@@ -358,8 +361,8 @@ export default function MainTabs() {
                   setValue("isTipiID", selectedData.isTipKodId);
 
                   // Yeni değerleri güncelledikten sonra hesaplamaları tetikleyin
-                  recalculateIndirimOrani(selectedData.ucret, indirimYuzde);
-                  recalculateToplam(selectedData.ucret, indirimOrani, kdvOrani);
+                  const updatedIndirimOrani = recalculateIndirimOrani(selectedData.ucret, indirimYuzde);
+                  recalculateToplam(selectedData.ucret, updatedIndirimOrani, kdvOrani);
                 }}
               />
               <Button onClick={handleYapilanIsMinusClick}> - </Button>
