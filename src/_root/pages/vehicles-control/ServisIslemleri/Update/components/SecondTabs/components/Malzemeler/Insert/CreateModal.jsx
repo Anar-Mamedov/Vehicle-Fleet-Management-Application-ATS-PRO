@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button, Modal, Input, Typography, Tabs, message, Spin } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import AxiosInstance from "../../../../../../../../../../api/http";
@@ -36,7 +36,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, o
     },
   });
 
-  const { setValue, reset, handleSubmit, watch } = methods;
+  const { reset, handleSubmit, getValues } = methods;
 
   const formatDateWithDayjs = (dateString) => {
     const formattedDate = dayjs(dateString);
@@ -104,6 +104,66 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, o
     }
   };
 
+  const handleBulkMaterialAdd = useCallback(
+    async (selectedItems) => {
+      if (!selectedItems?.length) {
+        message.warning("Lütfen en az bir malzeme seçin.");
+        return;
+      }
+
+      if (!secilenKayitID) {
+        message.warning("İş emri seçili değil.");
+        return;
+      }
+
+      const formValues = getValues();
+
+      setLoading(true);
+      try {
+        const formattedDate = formatDateWithDayjs(formValues.baslangicTarihi || baslangicTarihi);
+
+        const payload = selectedItems.map((item) => ({
+          mlzAracId: Number(formValues.aracID || aracID || 0),
+          servisSirano: Number(secilenKayitID),
+          cikisDepoSiraNo: Number(formValues.depoID || 0),
+          malzemeId: Number(item.malzemeId || item.key),
+          birimKodId: Number(item.birimKodId || formValues.birimID || 0),
+          miktar: Number(formValues.miktar || 1),
+          fiyat: Number(item.fiyat ?? formValues.iscilikUcreti ?? 0),
+          gc: 3,
+          kdvOran: Number(formValues.kdvOrani || 0),
+          indirim: Number(formValues.indirimOrani || 0),
+          indirimOran: Number(formValues.indirimYuzde || 0),
+          toplam: Number(formValues.toplam || 0),
+          aciklama: formValues.aciklama,
+          stoklu: formValues.stokluMalzeme,
+          kdvTutar: Number(formValues.kdvDegeri || 0),
+          malzemeTipKodId: Number(item.malzemeTipKodId || formValues.isTipiID || 0),
+          malezemeTanim: item.tanim,
+          tarih: formattedDate,
+        }));
+
+        const response = await AxiosInstance.post(`MaterialMovements/AddBulkMaterialMovementService`, payload);
+
+        if (response?.data?.statusCode === 200 || response?.data?.statusCode === 201) {
+          message.success("Seçili malzemeler başarıyla eklendi.");
+          reset();
+          setIsModalVisible(false);
+          onRefresh?.();
+          onCountsRefresh?.();
+        } else {
+          message.error(response?.data?.message || "Seçili malzemeler eklenemedi.");
+        }
+      } catch (error) {
+        console.error("Çoklu malzeme ekleme hatası:", error);
+        message.error("Seçili malzemeler eklenirken bir hata oluştu.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [aracID, baslangicTarihi, getValues, onCountsRefresh, onRefresh, reset, secilenKayitID]
+  );
+
   // Aşğaıdaki form elemanlarını eklemek üçün API ye gönderilme işlemi sonu
 
   return (
@@ -122,7 +182,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, o
             </Spin>
           ) : (
             <form onSubmit={methods.handleSubmit(onSubmited)}>
-              <MainTabs aracID={aracID} />
+              <MainTabs aracID={aracID} onBulkAdd={handleBulkMaterialAdd} />
             </form>
           )}
         </Modal>
