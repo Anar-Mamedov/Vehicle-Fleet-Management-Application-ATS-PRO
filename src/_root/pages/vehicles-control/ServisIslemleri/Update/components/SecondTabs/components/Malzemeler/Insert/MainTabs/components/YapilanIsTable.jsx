@@ -29,6 +29,7 @@ const normalizeText = (text) => {
 export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouseId }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
@@ -147,6 +148,11 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouse
     [searchTerm, wareHouseId, data]
   );
 
+  const resetSelectionState = () => {
+    setSelectedRowKeys([]);
+    setSelectedRows([]);
+  };
+
   const handleModalToggle = () => {
     setIsModalVisible((prev) => {
       if (!prev) {
@@ -155,26 +161,75 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouse
         setData([]);
         // Pass empty string directly to fetchData
         fetchData(0, 1, "");
-        setSelectedRowKeys([]);
+        resetSelectionState();
+      } else {
+        resetSelectionState();
       }
       return !prev;
     });
   };
 
   const handleModalOk = () => {
-    const selectedData = data.find((item) => item.key === selectedRowKeys[0]);
-    if (selectedData) {
-      onSubmit && onSubmit(selectedData);
+    if (selectedRowKeys.length === 0) {
+      message.warning("Lütfen en az bir kayıt seçiniz.");
+      return;
+    }
+
+    const selectedRowsMap = new Map(selectedRows.map((row) => [row.key, row]));
+    const selectedItems = selectedRowKeys
+      .map((key) => selectedRowsMap.get(key) || data.find((item) => item.key === key))
+      .filter(Boolean);
+
+    if (!selectedItems.length) {
+      message.warning("Seçili kayıtlar alınamadı, lütfen tekrar deneyin.");
+      return;
+    }
+
+    if (onSubmit) {
+      const meta = {
+        allSelected: selectedItems,
+        isBulk: selectedItems.length > 1,
+      };
+
+      const payload = meta.isBulk ? selectedItems : selectedItems[0];
+      onSubmit(payload, meta);
     }
     setIsModalVisible(false);
+    resetSelectionState();
   };
 
   useEffect(() => {
-    setSelectedRowKeys(workshopSelectedId ? [workshopSelectedId] : []);
+    if (!workshopSelectedId) {
+      setSelectedRowKeys([]);
+      return;
+    }
+
+    if (Array.isArray(workshopSelectedId)) {
+      setSelectedRowKeys(workshopSelectedId);
+    } else {
+      setSelectedRowKeys([workshopSelectedId]);
+    }
   }, [workshopSelectedId]);
 
-  const onRowSelectChange = (selectedKeys) => {
-    setSelectedRowKeys(selectedKeys.length ? [selectedKeys[0]] : []);
+  const onRowSelectChange = (selectedKeys, rows = []) => {
+    setSelectedRowKeys(selectedKeys);
+    setSelectedRows((prevRows) => {
+      const map = new Map(prevRows.map((row) => [row.key, row]));
+
+      // Remove deselected rows
+      Array.from(map.keys()).forEach((key) => {
+        if (!selectedKeys.includes(key)) {
+          map.delete(key);
+        }
+      });
+
+      // Add or update currently selected rows
+      rows.forEach((row) => {
+        map.set(row.key, row);
+      });
+
+      return Array.from(map.values());
+    });
   };
 
   // Handle page change correctly, exactly like in Malzemeler.jsx
@@ -209,7 +264,8 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouse
         </div>
         <Table
           rowSelection={{
-            type: "radio",
+            type: "checkbox",
+            preserveSelectedRowKeys: true,
             selectedRowKeys,
             onChange: onRowSelectChange,
           }}

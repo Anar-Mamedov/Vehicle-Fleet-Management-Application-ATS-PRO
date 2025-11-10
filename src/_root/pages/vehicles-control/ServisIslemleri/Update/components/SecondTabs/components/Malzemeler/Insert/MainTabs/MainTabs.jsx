@@ -61,7 +61,7 @@ const StyledTabs = styled(Tabs)`
 `;
 
 //styled components end
-export default function MainTabs({ aracID }) {
+export default function MainTabs({ aracID, onBulkAdd }) {
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
   const [latestUsageInfo, setLatestUsageInfo] = useState(null);
@@ -598,7 +598,15 @@ export default function MainTabs({ aracID }) {
 
               <YapilanIsTable
                 wareHouseId={watch("depoID")}
-                onSubmit={(selectedData) => {
+                onSubmit={(selection, meta) => {
+                  if (Array.isArray(selection) && meta?.isBulk) {
+                    onBulkAdd?.(selection);
+                    return;
+                  }
+
+                  const selectedData = Array.isArray(selection) ? selection[0] : selection;
+                  if (!selectedData) return;
+
                   setValue("malzemeKodu", selectedData.malzemeKod);
                   setValue("malzemeKoduID", selectedData.key);
                   setValue("malzemeTanimi", selectedData.tanim);
@@ -725,4 +733,5 @@ export default function MainTabs({ aracID }) {
 
 MainTabs.propTypes = {
   aracID: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  onBulkAdd: PropTypes.func,
 };
