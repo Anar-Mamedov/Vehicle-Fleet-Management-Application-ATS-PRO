@@ -141,7 +141,7 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
     },
     {
       key: "7",
-      label: "Dosyalar",
+      label: "Ekli Belgeler",
       children: <DosyaUpload refGroup="Servis_islemleri" selectedRowID={secilenIsEmriID} />,
     },
     {
