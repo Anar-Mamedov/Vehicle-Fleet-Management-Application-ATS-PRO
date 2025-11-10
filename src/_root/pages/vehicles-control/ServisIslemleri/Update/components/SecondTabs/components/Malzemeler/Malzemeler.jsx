@@ -106,13 +106,6 @@ export default function KontrolListesiTablo({ isActive, baslangicTarihi, onCount
       ellipsis: true,
     },
     {
-      title: "Birim Fiyatı",
-      dataIndex: "fiyat",
-      key: "fiyat",
-      width: 100,
-      ellipsis: true,
-    },
-    {
       title: "Birim",
       dataIndex: "birim",
       key: "birim",
@@ -120,7 +113,15 @@ export default function KontrolListesiTablo({ isActive, baslangicTarihi, onCount
       ellipsis: true,
     },
     {
-      title: "Toplam",
+      title: "Birim Fiyatı",
+      dataIndex: "fiyat",
+      key: "fiyat",
+      width: 100,
+      ellipsis: true,
+    },
+
+    {
+      title: "Tutar",
       dataIndex: "toplam",
       key: "toplam",
       width: 100,
