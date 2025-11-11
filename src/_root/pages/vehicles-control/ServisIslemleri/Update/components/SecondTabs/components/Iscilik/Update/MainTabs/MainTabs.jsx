@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Button, Modal, Input, Typography, Tabs, DatePicker, TimePicker, InputNumber, Checkbox } from "antd";
+import { Button, Modal, Input, Typography, Tabs, DatePicker, TimePicker, Checkbox } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -8,6 +8,7 @@ import YapilanIsTable from "./components/YapilanIsTable.jsx";
 import PersonelTable from "./components/PersonelTable.jsx";
 import { SearchOutlined } from "@ant-design/icons";
 import IsTipi from "./components/IsTipi.jsx";
+import NumberInput from "../../../../../../../../../../components/form/inputs/NumberInput.jsx";
 
 const { Text, Link } = Typography;
 const { TextArea } = Input;
@@ -203,13 +204,14 @@ export default function MainTabs({ isApiUpdate }) {
 
   const handleIscilikUcretiChange = (value) => {
     setValue("iscilikUcreti", value);
-    recalculateIndirimOrani(value, indirimYuzde);
-    recalculateToplam(value, indirimOrani, kdvOrani);
+    const updatedIndirimOrani = recalculateIndirimOrani(value, indirimYuzde);
+    recalculateToplam(value, updatedIndirimOrani, kdvOrani);
   };
 
   const handleIndirimYuzdeChange = (value) => {
     setValue("indirimYuzde", value);
-    recalculateIndirimOrani(iscilikUcreti, value);
+    const updatedIndirimOrani = recalculateIndirimOrani(iscilikUcreti, value);
+    recalculateToplam(iscilikUcreti, updatedIndirimOrani, kdvOrani);
   };
 
   const handleIndirimOraniChange = (value) => {
@@ -245,17 +247,21 @@ export default function MainTabs({ isApiUpdate }) {
   };
 
   const recalculateIndirimOrani = (iscilikUcreti, indirimYuzde) => {
+    const calculatedIndirimOrani = (iscilikUcreti * indirimYuzde) / 100;
+    const safeValue = isNaN(calculatedIndirimOrani) ? 0 : calculatedIndirimOrani;
     if (!isApiUpdate) {
-      const calculatedIndirimOrani = (iscilikUcreti * indirimYuzde) / 100;
-      setValue("indirimOrani", isNaN(calculatedIndirimOrani) ? 0 : calculatedIndirimOrani);
+      setValue("indirimOrani", safeValue);
     }
+    return safeValue;
   };
 
   const recalculateIndirimYuzde = (iscilikUcreti, indirimOrani) => {
+    const calculatedIndirimYuzde = (indirimOrani / iscilikUcreti) * 100;
+    const safeValue = isNaN(calculatedIndirimYuzde) ? 0 : calculatedIndirimYuzde;
     if (!isApiUpdate) {
-      const calculatedIndirimYuzde = (indirimOrani / iscilikUcreti) * 100;
-      setValue("indirimYuzde", isNaN(calculatedIndirimYuzde) ? 0 : calculatedIndirimYuzde);
+      setValue("indirimYuzde", safeValue);
     }
+    return safeValue;
   };
 
   const recalculateToplam = (iscilikUcreti, indirimOrani, kdvOrani) => {
@@ -414,8 +420,8 @@ export default function MainTabs({ isApiUpdate }) {
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>Saat-Dakika:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller name="saat" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} />} />
-              <Controller name="dakika" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} />} />
+              <NumberInput name="saat" style={{ flex: 1 }} min={0} />
+              <NumberInput name="dakika" style={{ flex: 1 }} min={0} />
             </div>
           </div>
         </div>
@@ -424,54 +430,30 @@ export default function MainTabs({ isApiUpdate }) {
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>İşçilik Ücreti:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="iscilikUcreti"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleIscilikUcretiChange(value)} />}
-              />
+              <NumberInput name="iscilikUcreti" style={{ flex: 1 }} min={0} formatSection="stok" formatType="tutar" onChange={(value) => handleIscilikUcretiChange(value)} />
             </div>
           </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>KDV Oranı %:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="kdvOrani"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber {...field} style={{ flex: 1 }} prefix={<Text style={{ color: "#0091ff" }}>%</Text>} onChange={(value) => handleKdvOraniChange(value)} />
-                )}
-              />
-              <Controller
-                name="kdvDegeri"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleKdvDegeriChange(value)} />}
-              />
+              <NumberInput name="kdvOrani" style={{ flex: 1 }} prefix={true} min={0} max={100} formatSection="stok" formatType="tutar" onChange={(value) => handleKdvOraniChange(value)} />
+              <NumberInput name="kdvDegeri" style={{ flex: 1 }} formatSection="stok" formatType="tutar" onChange={(value) => handleKdvDegeriChange(value)} />
             </div>
           </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>İndirim %:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="indirimYuzde"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber {...field} style={{ flex: 1 }} prefix={<Text style={{ color: "#0091ff" }}>%</Text>} onChange={(value) => handleIndirimYuzdeChange(value)} />
-                )}
-              />
-              <Controller
-                name="indirimOrani"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleIndirimOraniChange(value)} />}
-              />
+              <NumberInput name="indirimYuzde" style={{ flex: 1 }} prefix={true} min={0} formatSection="stok" formatType="tutar" onChange={(value) => handleIndirimYuzdeChange(value)} />
+              <NumberInput name="indirimOrani" style={{ flex: 1 }} formatSection="stok" formatType="tutar" onChange={(value) => handleIndirimOraniChange(value)} />
             </div>
           </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>Toplam:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller name="toplam" control={control} render={({ field }) => <InputNumber {...field} disabled style={{ flex: 1 }} />} />
+              <NumberInput name="toplam" style={{ flex: 1 }} checked={true} formatSection="stok" formatType="tutar" />
             </div>
           </div>
         </div>

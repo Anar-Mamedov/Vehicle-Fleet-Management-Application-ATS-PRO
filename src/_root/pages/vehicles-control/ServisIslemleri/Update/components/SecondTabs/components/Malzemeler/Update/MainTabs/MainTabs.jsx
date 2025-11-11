@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Button, Modal, Input, Typography, Tabs, DatePicker, TimePicker, InputNumber, Checkbox } from "antd";
+import { Button, Modal, Input, Typography, Tabs, DatePicker, TimePicker, Checkbox } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -8,6 +8,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import CikisDeposu from "./components/CikisDeposu.jsx";
 import Birim from "./components/Birim.jsx";
 import MalzemeTipi from "./components/MalzemeTipi.jsx";
+import NumberInput from "../../../../../../../../../../components/form/inputs/NumberInput.jsx";
 
 const { Text, Link } = Typography;
 const { TextArea } = Input;
@@ -422,78 +423,34 @@ export default function MainTabs() {
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>Miktar:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="miktar"
-                control={control}
-                defaultValue={1} // Set default value to 1
-                render={({ field }) => (
-                  <InputNumber
-                    {...field}
-                    min={1}
-                    style={{ flex: 1 }}
-                    onChange={(value) => {
-                      if (value === null || value < 1) {
-                        field.onChange(1); // Reset to 1 if value is null or less than 1
-                      } else {
-                        field.onChange(value);
-                      }
-
-                      handleMiktarChange(value);
-                    }}
-                  />
-                )}
-              />
+              <NumberInput name="miktar" min={1} style={{ flex: 1 }} formatSection="stok" formatType="miktar" onChange={(value) => handleMiktarChange(value)} />
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>Birim Fiyatı:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="iscilikUcreti"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleIscilikUcretiChange(value)} />}
-              />
+              <NumberInput name="iscilikUcreti" style={{ flex: 1 }} min={0} formatSection="stok" formatType="tutar" onChange={(value) => handleIscilikUcretiChange(value)} />
             </div>
           </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>KDV Oranı %:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="kdvOrani"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber {...field} style={{ flex: 1 }} prefix={<Text style={{ color: "#0091ff" }}>%</Text>} onChange={(value) => handleKdvOraniChange(value)} />
-                )}
-              />
-              <Controller
-                name="kdvDegeri"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleKdvDegeriChange(value)} />}
-              />
+              <NumberInput name="kdvOrani" style={{ flex: 1 }} prefix={true} min={0} max={100} formatSection="stok" formatType="tutar" onChange={(value) => handleKdvOraniChange(value)} />
+              <NumberInput name="kdvDegeri" style={{ flex: 1 }} formatSection="stok" formatType="tutar" onChange={(value) => handleKdvDegeriChange(value)} />
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>İndirim %:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller
-                name="indirimYuzde"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber {...field} style={{ flex: 1 }} prefix={<Text style={{ color: "#0091ff" }}>%</Text>} onChange={(value) => handleIndirimYuzdeChange(value)} />
-                )}
-              />
-              <Controller
-                name="indirimOrani"
-                control={control}
-                render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} onChange={(value) => handleIndirimOraniChange(value)} />}
-              />
+              <NumberInput name="indirimYuzde" style={{ flex: 1 }} prefix={true} min={0} formatSection="stok" formatType="tutar" onChange={(value) => handleIndirimYuzdeChange(value)} />
+              <NumberInput name="indirimOrani" style={{ flex: 1 }} formatSection="stok" formatType="tutar" onChange={(value) => handleIndirimOraniChange(value)} />
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <Text style={{ fontSize: "14px" }}>Toplam:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", maxWidth: "300px", minWidth: "300px", gap: "10px", width: "100%" }}>
-              <Controller name="toplam" control={control} render={({ field }) => <InputNumber {...field} disabled style={{ flex: 1 }} />} />
+              <NumberInput name="toplam" style={{ flex: 1 }} checked={true} formatSection="stok" formatType="tutar" />
             </div>
           </div>
         </div>
