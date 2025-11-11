@@ -154,6 +154,7 @@ const Ceza = () => {
   const [pageSize, setPageSize] = useState(10); // Page size
   const [localeDateFormat, setLocaleDateFormat] = useState("MM/DD/YYYY");
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm");
+  const [moduleFormName, setModuleFormName] = useState("");
   const [drawer, setDrawer] = useState({
     visible: false,
     data: null,
@@ -193,6 +194,7 @@ const Ceza = () => {
       const total = response.data.recordCount;
       setTotalCount(total);
       setCurrentPage(targetPage);
+      setModuleFormName(response.data?.moduleFormName || "");
 
       const newData = response.data.list.map((item) => ({
         ...item,
@@ -859,7 +861,7 @@ const Ceza = () => {
               {/* Other toolbar components */}
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
-              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} moduleFormName={moduleFormName} />
               <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
             </div>
           </div>

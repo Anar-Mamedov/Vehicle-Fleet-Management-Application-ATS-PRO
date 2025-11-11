@@ -13,6 +13,12 @@ export default defineConfig({
       transformMixedEsModules: true,
     },
   },
+  test: {
+    environment: "jsdom",
+    setupFiles: "./vitest.setup.js",
+    globals: true,
+    clearMocks: true,
+  },
 });
 
 // import { defineConfig } from "vite";
