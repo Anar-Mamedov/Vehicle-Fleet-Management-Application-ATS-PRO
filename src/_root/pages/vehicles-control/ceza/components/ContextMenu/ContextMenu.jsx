@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Button, Popover, Typography } from "antd";
-import { MoreOutlined, DownOutlined } from "@ant-design/icons";
+import { MoreOutlined } from "@ant-design/icons";
 import Sil from "./components/Sil";
+import ReportResultButton from "../../../../../components/ReportResultButton";
 
-const { Text, Link } = Typography;
+const { Text } = Typography;
 
-export default function ContextMenu({ selectedRows, refreshTableData }) {
+export default function ContextMenu({ selectedRows, refreshTableData, moduleFormName }) {
   const [visible, setVisible] = useState(false);
 
   const handleVisibleChange = (visible) => {
@@ -16,7 +17,18 @@ export default function ContextMenu({ selectedRows, refreshTableData }) {
     setVisible(false);
   };
 
-  const content = <div>{selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}</div>;
+  const hasSelection = Array.isArray(selectedRows) && selectedRows.length >= 1;
+
+  const content = (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {hasSelection && (
+        <>
+          <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />
+          <ReportResultButton moduleFormName={moduleFormName} selectedRows={selectedRows} onAfterOpen={hidePopover} buttonProps={{ block: true }} />
+        </>
+      )}
+    </div>
+  );
   return (
     <Popover placement="bottom" content={content} trigger="click" open={visible} onOpenChange={handleVisibleChange}>
       <Button

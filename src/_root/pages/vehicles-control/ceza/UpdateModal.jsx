@@ -14,6 +14,7 @@ import PhotoUpload from "../../../components/upload/PhotoUpload";
 import ResimUpload from "../../../components/Resim/ResimUpload";
 import DosyaUpload from "../../../components/Dosya/DosyaUpload";
 import dayjs from "dayjs";
+import ReportResultButton from "../../../components/ReportResultButton";
 
 const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const { plaka } = useContext(PlakaContext);
@@ -26,6 +27,10 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
   const [imageUrls, setImageUrls] = useState([]);
   const [loadingImages, setLoadingImages] = useState(false);
   const [images, setImages] = useState([]);
+  const [reportInfo, setReportInfo] = useState({
+    moduleFormName: "",
+    selectedRows: [],
+  });
 
   const [fields, setFields] = useState([
     {
@@ -115,52 +120,64 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
   useEffect(() => {
     if (drawerVisible && selectedRow) {
       GetVehicleFineItemService(selectedRow?.key).then((res) => {
-        setValue("aracId", res?.data.aracId);
-        setValue("plaka", res?.data.plaka);
-        setValue("tarih", res?.data.tarih ? dayjs(res?.data.tarih) : null);
-        setValue("saat", dayjs(res?.data.saat, "HH:mm:ss", true).isValid() ? dayjs(res?.data.saat, "HH:mm:ss") : null);
-        setValue("aciklama", res?.data.aciklama);
-        setValue("aracKm", res?.data.aracKm);
-        setValue("bankaHesap", res?.data.bankaHesap);
-        setValue("belgeNo", res?.data.belgeNo);
-        setValue("cezaMaddesi", res?.data.cezaMaddesi);
-        setValue("cezaMaddesiId", res?.data.cezaMaddesiId);
-        setValue("cezaPuan", res?.data.cezaPuan);
-        setValue("cezaTuru", res?.data.cezaTuru);
-        setValue("cezaTuruID", res?.data.cezaTuruKodId);
-        setValue("cezaBeyanTuru", res?.data.cezaBeyanTuru);
-        setValue("cezaBeyanTuruID", res?.data.cezaBeyanTuruKodId);
-        setValue("indirimOran", res?.data.indirimOran);
-        setValue("lokasyon", res?.data.lokasyon);
-        setValue("lokasyonId", res?.data.lokasyonId);
-        setValue("odeme", res?.data.odeme);
-        setValue("odemeTarih", res?.data.odemeTarih ? dayjs(res?.data.odemeTarih) : null);
-        setValue("tebligTarih", res?.data.tebligTarih ? dayjs(res?.data.tebligTarih) : null);
-        setValue("surucuId", res?.data.surucuId);
-        setValue("surucu", res?.data.surucuIsim);
-        setValue("surucuOder", res?.data.surucuOder);
-        setValue("odenenTutar", res?.data.odenenTutar);
-        setValue("tutar", res?.data.tutar);
-        setValue("ozelAlan1", res?.data.ozelAlan1);
-        setValue("ozelAlan2", res?.data.ozelAlan2);
-        setValue("ozelAlan3", res?.data.ozelAlan3);
-        setValue("ozelAlan4", res?.data.ozelAlan4);
-        setValue("ozelAlan5", res?.data.ozelAlan5);
-        setValue("ozelAlan6", res?.data.ozelAlan6);
-        setValue("ozelAlan7", res?.data.ozelAlan7);
-        setValue("ozelAlan8", res?.data.ozelAlan8);
-        setValue("ozelAlan9", res?.data.ozelAlan9);
-        setValue("ozelAlanKodId9", res?.data.ozelAlanKodId9);
-        setValue("ozelAlan10", res?.data.ozelAlan10);
-        setValue("ozelAlanKodId10", res?.data.ozelAlanKodId10);
-        setValue("ozelAlan11", res?.data.ozelAlan11);
-        setValue("ozelAlan12", res?.data.ozelAlan12);
-        setValue("odendigiTarih", res?.data.odendigiTarih ? dayjs(res?.data.odendigiTarih) : null);
+        const fineData = res?.data || {};
+        setValue("aracId", fineData.aracId);
+        setValue("plaka", fineData.plaka);
+        setValue("tarih", fineData.tarih ? dayjs(fineData.tarih) : null);
+        setValue("saat", dayjs(fineData.saat, "HH:mm:ss", true).isValid() ? dayjs(fineData.saat, "HH:mm:ss") : null);
+        setValue("aciklama", fineData.aciklama);
+        setValue("aracKm", fineData.aracKm);
+        setValue("bankaHesap", fineData.bankaHesap);
+        setValue("belgeNo", fineData.belgeNo);
+        setValue("cezaMaddesi", fineData.cezaMaddesi);
+        setValue("cezaMaddesiId", fineData.cezaMaddesiId);
+        setValue("cezaPuan", fineData.cezaPuan);
+        setValue("cezaTuru", fineData.cezaTuru);
+        setValue("cezaTuruID", fineData.cezaTuruKodId);
+        setValue("cezaBeyanTuru", fineData.cezaBeyanTuru);
+        setValue("cezaBeyanTuruID", fineData.cezaBeyanTuruKodId);
+        setValue("indirimOran", fineData.indirimOran);
+        setValue("lokasyon", fineData.lokasyon);
+        setValue("lokasyonId", fineData.lokasyonId);
+        setValue("odeme", fineData.odeme);
+        setValue("odemeTarih", fineData.odemeTarih ? dayjs(fineData.odemeTarih) : null);
+        setValue("tebligTarih", fineData.tebligTarih ? dayjs(fineData.tebligTarih) : null);
+        setValue("surucuId", fineData.surucuId);
+        setValue("surucu", fineData.surucuIsim);
+        setValue("surucuOder", fineData.surucuOder);
+        setValue("odenenTutar", fineData.odenenTutar);
+        setValue("tutar", fineData.tutar);
+        setValue("ozelAlan1", fineData.ozelAlan1);
+        setValue("ozelAlan2", fineData.ozelAlan2);
+        setValue("ozelAlan3", fineData.ozelAlan3);
+        setValue("ozelAlan4", fineData.ozelAlan4);
+        setValue("ozelAlan5", fineData.ozelAlan5);
+        setValue("ozelAlan6", fineData.ozelAlan6);
+        setValue("ozelAlan7", fineData.ozelAlan7);
+        setValue("ozelAlan8", fineData.ozelAlan8);
+        setValue("ozelAlan9", fineData.ozelAlan9);
+        setValue("ozelAlanKodId9", fineData.ozelAlanKodId9);
+        setValue("ozelAlan10", fineData.ozelAlan10);
+        setValue("ozelAlanKodId10", fineData.ozelAlanKodId10);
+        setValue("ozelAlan11", fineData.ozelAlan11);
+        setValue("ozelAlan12", fineData.ozelAlan12);
+        setValue("odendigiTarih", fineData.odendigiTarih ? dayjs(fineData.odendigiTarih) : null);
+
+        const hasSiraNo = fineData.siraNo !== null && typeof fineData.siraNo !== "undefined";
+        setReportInfo({
+          moduleFormName: fineData.moduleFormName || "",
+          selectedRows: hasSiraNo ? [{ siraNo: fineData.siraNo }] : [],
+        });
       });
 
       GetPhotosByRefGroupService(selectedRow?.key, "CEZA").then((res) => setImageUrls(res.data));
 
       GetDocumentsByRefGroupService(selectedRow?.key, "CEZA").then((res) => setFilesUrl(res.data));
+    } else {
+      setReportInfo({
+        moduleFormName: "",
+        selectedRows: [],
+      });
     }
   }, [selectedRow, drawerVisible]);
 
@@ -281,21 +298,26 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     },
   ];
 
-  const footer = [
-    <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit}>
-      {t("guncelle")}
-    </Button>,
-    <Button
-      key="back"
-      className="btn btn-min cancel-btn"
-      onClick={() => {
-        onDrawerClose();
-        setActiveKey("1");
-      }}
-    >
-      {t("kapat")}
-    </Button>,
-  ];
+  const footer = (
+    <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
+      <ReportResultButton moduleFormName={reportInfo.moduleFormName} selectedRows={reportInfo.selectedRows} />
+      <div style={{ display: "flex", gap: "8px" }}>
+        <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit}>
+          {t("guncelle")}
+        </Button>
+        <Button
+          key="back"
+          className="btn btn-min cancel-btn"
+          onClick={() => {
+            onDrawerClose();
+            setActiveKey("1");
+          }}
+        >
+          {t("kapat")}
+        </Button>
+      </div>
+    </div>
+  );
 
   return (
     <Modal title={t("cezaBilgisiGuncelle")} open={drawerVisible} onCancel={() => onDrawerClose()} maskClosable={false} footer={footer} width={1200}>
