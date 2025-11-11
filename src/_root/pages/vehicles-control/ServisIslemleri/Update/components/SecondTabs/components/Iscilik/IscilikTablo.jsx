@@ -100,6 +100,13 @@ export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
       width: 100,
       ellipsis: true,
     },
+    {
+      title: "Tutar",
+      dataIndex: "toplam",
+      key: "toplam",
+      width: 100,
+      ellipsis: true,
+    },
   ];
 
   const plaka = watch("Plaka");
