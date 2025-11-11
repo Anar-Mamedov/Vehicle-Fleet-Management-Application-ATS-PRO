@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Modal, Table, Button, Checkbox, Typography, Input, Space, DatePicker, InputNumber, TimePicker, Form, message } from "antd";
-import { MenuOutlined, SearchOutlined, SaveOutlined } from "@ant-design/icons";
+import { MenuOutlined, SearchOutlined, SaveOutlined, ArrowDownOutlined, ArrowUpOutlined, CloseOutlined } from "@ant-design/icons";
 import AxiosInstance from "../../../../../../api/http.jsx";
 import { DndContext, PointerSensor, useSensor, useSensors, KeyboardSensor } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
@@ -40,6 +40,8 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, onRefreshParen
   const [saveModalVisible, setSaveModalVisible] = useState(false);
   const [filtersLabel, setFiltersLabel] = useState({});
   const [filterDropdownOpen, setFilterDropdownOpen] = useState({});
+  const [columnSearch, setColumnSearch] = useState("");
+  const [columnSortMode, setColumnSortMode] = useState("asc");
 
   // Context'ten gelen state değerlerini kullan
   const { initialColumns, columns, tableData, originalData, columnFilters, filters, kullaniciRaporu } = reportData;
@@ -51,6 +53,53 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, onRefreshParen
   const [form] = useForm();
   const lan = localStorage.getItem("i18nextLng") || "tr";
 
+  const getColumnLabel = (column) => {
+    if (!column) return "";
+    const { title, dataIndex, key } = column;
+    if (typeof title === "string" || typeof title === "number") return String(title).trim();
+    if (React.isValidElement(title)) {
+      return React.Children.toArray(title.props?.children)
+        .join(" ")
+        .trim();
+    }
+    if (Array.isArray(title)) {
+      return title.join(" ").trim();
+    }
+    if (title && typeof title.toString === "function") {
+      return title.toString().trim();
+    }
+    if (dataIndex) return String(dataIndex).trim();
+    if (key) return String(key).trim();
+    return "";
+  };
+
+  const columnManagerColumns = useMemo(() => {
+    const normalizedSearch = columnSearch.trim().toLowerCase();
+    const locale = lan || "tr";
+    let preparedColumns = (initialColumns || []).slice();
+
+    if (columnSortMode === "asc" || columnSortMode === "desc") {
+      preparedColumns.sort((a, b) => getColumnLabel(a).localeCompare(getColumnLabel(b), locale, { sensitivity: "base" }));
+      if (columnSortMode === "desc") {
+        preparedColumns.reverse();
+      }
+    }
+
+    if (normalizedSearch) {
+      preparedColumns = preparedColumns.filter((col) => getColumnLabel(col).toLowerCase().includes(normalizedSearch));
+    }
+
+    return preparedColumns;
+  }, [initialColumns, columnSearch, columnSortMode, lan]);
+
+  const cycleColumnSortMode = () => {
+    setColumnSortMode((prev) => {
+      if (prev === "asc") return "desc";
+      if (prev === "desc") return "none";
+      return "asc";
+    });
+  };
+
   // ------------------ EFFECTS ------------------
   useEffect(() => {
     if (Object.keys(filters).length > 0) {
@@ -58,6 +107,13 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, onRefreshParen
       // Bu nedenle burada bir işlem yapmaya gerek yok
     }
   }, [filters]);
+
+  useEffect(() => {
+    if (!manageColumnsVisible) {
+      setColumnSearch("");
+      setColumnSortMode("asc");
+    }
+  }, [manageColumnsVisible]);
 
   useEffect(() => {
     if (!drawerVisible) {
@@ -948,21 +1004,46 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, onRefreshParen
             >
               <Text style={{ fontWeight: 600 }}>Sütunları Göster / Gizle</Text>
             </div>
+            {/* Search and Sort Controls */}
+            <div style={{ marginBottom: "15px", display: "flex", gap: "8px", alignItems: "center" }}>
+              <Input
+                placeholder="Sütun ara..."
+                value={columnSearch}
+                onChange={(e) => setColumnSearch(e.target.value)}
+                style={{ flex: 1 }}
+                prefix={<SearchOutlined />}
+                allowClear
+              />
+              <Button
+                size="small"
+                onClick={cycleColumnSortMode}
+                icon={
+                  columnSortMode === "asc" ? <ArrowDownOutlined /> : columnSortMode === "desc" ? <ArrowUpOutlined /> : <CloseOutlined />
+                }
+                title={
+                  columnSortMode === "asc" ? "A-Z Sıralama" : columnSortMode === "desc" ? "Z-A Sıralama" : "Varsayılan sıralama"
+                }
+              />
+            </div>
             <div style={{ height: "400px", overflow: "auto" }}>
-              {initialColumns.map((col) => (
-                <div
-                  key={col.key}
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                    alignItems: "center",
-                    marginBottom: "8px",
-                  }}
-                >
-                  <Checkbox checked={columns.find((column) => column.key === col.key)?.visible || false} onChange={(e) => toggleVisibility(col.key, e.target.checked)} />
-                  {col.title}
-                </div>
-              ))}
+              {columnManagerColumns.length === 0 ? (
+                <Text type="secondary">Eşleşen sütun bulunamadı.</Text>
+              ) : (
+                columnManagerColumns.map((col) => (
+                  <div
+                    key={col.key}
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <Checkbox checked={columns.find((column) => column.key === col.key)?.visible || false} onChange={(e) => toggleVisibility(col.key, e.target.checked)} />
+                    {col.title}
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
