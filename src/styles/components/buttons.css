@@ -106,3 +106,8 @@
 .plaka-button:hover span:last-of-type {
     background-color: var(--gray-400);
 }
+
+.ant-btn-icon {
+    display: flex;
+    align-items: center;
+}

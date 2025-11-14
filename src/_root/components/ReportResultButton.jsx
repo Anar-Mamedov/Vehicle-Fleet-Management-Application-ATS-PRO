@@ -5,12 +5,11 @@ import { unset } from "lodash";
 
 const REPORT_BASE_URL = "http://report.atspro.net/result";
 
-export default function ReportResultButton({ moduleFormName, selectedRows = [], buttonText = "Raporu Aç", buttonProps = {}, onAfterOpen }) {
+export default function ReportResultButton({ reportName = "", selectedRows = [], buttonText = "Raporu Aç", buttonProps = {}, onAfterOpen }) {
   const isOpeningRef = useRef(false);
   const timeoutsRef = useRef([]);
   const visibilityListenerRef = useRef(null);
-  const sanitizedModuleFormName = moduleFormName ? moduleFormName.trim() : "";
-  const canShowButton = Boolean(sanitizedModuleFormName) && selectedRows.length > 0;
+  const canShowButton = selectedRows.length > 0;
 
   const clearScheduledTimeouts = () => {
     timeoutsRef.current.forEach((timeoutId) => {
@@ -59,12 +58,14 @@ export default function ReportResultButton({ moduleFormName, selectedRows = [], 
       return [];
     }
 
-    const encodedReportName = encodeURIComponent(sanitizedModuleFormName);
+    const companyKey = localStorage.getItem("companyKey") || "";
     return validSiraNumbers.map((siraNo) => {
       const encodedSiraNo = encodeURIComponent(siraNo);
-      return `${REPORT_BASE_URL}?report=${encodedReportName}&NO=${encodedSiraNo}&format=pdf&inline=false`;
+      const reportPath = `${companyKey}\\${reportName}${companyKey}.fr3`;
+      const encodedReportPath = encodeURIComponent(reportPath);
+      return `${REPORT_BASE_URL}?report=${encodedReportPath}&NO=${encodedSiraNo}&format=pdf`;
     });
-  }, [canShowButton, sanitizedModuleFormName, validSiraNumbers]);
+  }, [canShowButton, validSiraNumbers, reportName]);
 
   if (!canShowButton || reportUrls.length === 0) {
     return null;
@@ -214,14 +215,14 @@ export default function ReportResultButton({ moduleFormName, selectedRows = [], 
   };
 
   return (
-    <Button type="link" onClick={handleClick} {...buttonProps} style={{ padding: "0px", height: "unset" }}>
+    <Button onClick={handleClick} icon={<img src="/images/PDF_icon.png" alt="PDF" style={{ height: "1em" }} />} {...buttonProps}>
       {buttonText}
     </Button>
   );
 }
 
 ReportResultButton.propTypes = {
-  moduleFormName: PropTypes.string,
+  reportName: PropTypes.string,
   selectedRows: PropTypes.arrayOf(
     PropTypes.shape({
       siraNo: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

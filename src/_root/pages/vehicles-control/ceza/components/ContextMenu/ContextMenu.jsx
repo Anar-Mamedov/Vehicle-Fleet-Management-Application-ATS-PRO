@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Button, Popover, Typography } from "antd";
 import { MoreOutlined } from "@ant-design/icons";
+import { t } from "i18next";
 import Sil from "./components/Sil";
 import ReportResultButton from "../../../../../components/ReportResultButton";
 
 const { Text } = Typography;
 
-export default function ContextMenu({ selectedRows, refreshTableData, moduleFormName }) {
+export default function ContextMenu({ selectedRows, refreshTableData }) {
   const [visible, setVisible] = useState(false);
 
   const handleVisibleChange = (visible) => {
@@ -24,7 +25,7 @@ export default function ContextMenu({ selectedRows, refreshTableData, moduleForm
       {hasSelection && (
         <>
           <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />
-          <ReportResultButton moduleFormName={moduleFormName} selectedRows={selectedRows} onAfterOpen={hidePopover} buttonProps={{ block: true }} />
+          <ReportResultButton reportName="Ceza_Formu_" selectedRows={selectedRows} onAfterOpen={hidePopover} buttonProps={{ block: true }} buttonText={t("cezaFormu")} />
         </>
       )}
     </div>
