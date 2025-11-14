@@ -300,7 +300,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
 
   const footer = (
     <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
-      <ReportResultButton moduleFormName={reportInfo.moduleFormName} selectedRows={reportInfo.selectedRows} />
+      <ReportResultButton reportName="Ceza_Formu_" selectedRows={reportInfo.selectedRows} buttonText={t("cezaFormu")} />
       <div style={{ display: "flex", gap: "8px" }}>
         <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit}>
           {t("guncelle")}

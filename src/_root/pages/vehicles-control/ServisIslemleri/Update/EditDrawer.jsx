@@ -10,6 +10,8 @@ import dayjs from "dayjs";
 import AxiosInstance from "../../../../../api/http.jsx";
 import Footer from "../Footer";
 import SecondTabs from "./components/SecondTabs/SecondTabs";
+import ReportResultButton from "../../../../components/ReportResultButton";
+import { t } from "i18next";
 
 export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) {
   const [, startTransition] = useTransition();
@@ -19,6 +21,9 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
     setOpen(true);
   };
   const [loading, setLoading] = useState(false);
+  const [reportInfo, setReportInfo] = useState({
+    selectedRows: [],
+  });
 
   const methods = useForm({
     defaultValues: {
@@ -190,6 +195,11 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("isRecordSeen", item.isRecordSeen);
           setValue("kdvOran", item.kdvOran);
           // ... Diğer setValue çağrıları
+
+          const hasSiraNo = item.siraNo !== null && typeof item.siraNo !== "undefined";
+          setReportInfo({
+            selectedRows: hasSiraNo ? [{ siraNo: item.siraNo }] : [],
+          });
 
           setLoading(false); // Yükleme tamamlandığında
         } catch (error) {
@@ -367,20 +377,23 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           open={drawerVisible}
           onCancel={onClose}
           footer={
-            <Space>
-              <Button onClick={onClose}>İptal</Button>
-              <Button
-                type="submit"
-                onClick={methods.handleSubmit(onSubmit)}
-                style={{
-                  backgroundColor: "#2bc770",
-                  borderColor: "#2bc770",
-                  color: "#ffffff",
-                }}
-              >
-                Güncelle
-              </Button>
-            </Space>
+            <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
+              <ReportResultButton reportName="Servis_Formu_" selectedRows={reportInfo.selectedRows} buttonText={t("servisFormu")} />
+              <Space>
+                <Button onClick={onClose}>İptal</Button>
+                <Button
+                  type="submit"
+                  onClick={methods.handleSubmit(onSubmit)}
+                  style={{
+                    backgroundColor: "#2bc770",
+                    borderColor: "#2bc770",
+                    color: "#ffffff",
+                  }}
+                >
+                  Güncelle
+                </Button>
+              </Space>
+            </div>
           }
         >
           {loading ? (

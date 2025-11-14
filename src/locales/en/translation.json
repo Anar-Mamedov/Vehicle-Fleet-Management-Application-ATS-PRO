@@ -202,6 +202,8 @@
   "odemeTarihi": "Payment Date",
   "cezaPuan": "Penalty Points",
   "cezaTutar": "Penalty Amount",
+  "cezaFormu": "Penalty Form",
+  "servisFormu": "Service Form",
   "harcamaBilgisiGuncelle": "Update Expense Information",
   "yeniHarcamaGirisi": "New Expense Entry",
   "harcamaBilgileri": "Expense Information",
