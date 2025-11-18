@@ -1,6 +1,7 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { getItemWithExpiration } from "./utils/expireToken";
+import { initDevToolsProtection } from "./utils/devToolsProtection";
 import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
 import Dashboard from "./_root/pages/dashboard/Dashboard";
@@ -142,6 +143,11 @@ const App = () => {
       }
     }
   }, [navigate, location.pathname]);
+
+  // DevTools protection - Initialize on component mount
+  useEffect(() => {
+    initDevToolsProtection();
+  }, []);
 
   return (
     <Routes>
