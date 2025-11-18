@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Button, Popover, Typography } from "antd";
 import { MoreOutlined, DownOutlined } from "@ant-design/icons";
 import Sil from "./components/Sil";
+import RequestToService from "../../../../../components/RequestToService";
+import OnayaGonder from "./components/OnayaGonder";
 
 const { Text, Link } = Typography;
 
@@ -16,7 +18,13 @@ export default function ContextMenu({ selectedRows, refreshTableData }) {
     setVisible(false);
   };
 
-  const content = <div>{selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}</div>;
+  const content = (
+    <div>
+      {selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
+      {selectedRows.length >= 1 && <RequestToService selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
+      {selectedRows.length >= 1 && <OnayaGonder selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
+    </div>
+  );
   return (
     <Popover placement="bottom" content={content} trigger="click" open={visible} onOpenChange={handleVisibleChange}>
       <Button
