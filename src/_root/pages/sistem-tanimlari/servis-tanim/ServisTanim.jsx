@@ -111,7 +111,7 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
 // Sütunların sürüklenebilir olmasını sağlayan component sonu
 
-const Yakit = () => {
+const Yakit = ({ isModalMode = false, onSelect = null }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -192,10 +192,15 @@ const Yakit = () => {
     // Find selected rows data
     const newSelectedRows = data.filter((row) => newSelectedRowKeys.includes(row.key));
     setSelectedRows(newSelectedRows);
+
+    // If in modal mode and onSelect callback exists, call it with selected row
+    if (isModalMode && onSelect && newSelectedRows.length > 0) {
+      onSelect(newSelectedRows[0]);
+    }
   };
 
   const rowSelection = {
-    type: "checkbox",
+    type: isModalMode ? "radio" : "checkbox",
     selectedRowKeys,
     onChange: onSelectChange,
   };
@@ -620,9 +625,11 @@ const Yakit = () => {
             flexWrap: "wrap",
           }}
         >
-          <StyledButton onClick={() => setIsModalVisible(true)}>
-            <MenuOutlined />
-          </StyledButton>
+          {!isModalMode && (
+            <StyledButton onClick={() => setIsModalVisible(true)}>
+              <MenuOutlined />
+            </StyledButton>
+          )}
           <Input
             style={{ width: "250px" }}
             type="text"
@@ -636,10 +643,12 @@ const Yakit = () => {
           {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
           {/* Other toolbar components */}
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-          <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
-        </div>
+        {!isModalMode && (
+          <div style={{ display: "flex", gap: "10px" }}>
+            <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+            <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+          </div>
+        )}
       </div>
 
       {/* Table */}
@@ -647,7 +656,7 @@ const Yakit = () => {
         style={{
           backgroundColor: "white",
           padding: "10px",
-          height: "calc(100vh - 200px)",
+          height: isModalMode ? "calc(100vh - 300px)" : "calc(100vh - 200px)",
           borderRadius: "8px 8px 8px 8px",
           filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
         }}
@@ -666,7 +675,7 @@ const Yakit = () => {
               showQuickJumper: true,
               onChange: handleTableChange,
             }}
-            scroll={{ y: "calc(100vh - 335px)" }}
+            scroll={{ y: isModalMode ? "calc(100vh - 435px)" : "calc(100vh - 335px)" }}
           />
         </Spin>
         <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} />
