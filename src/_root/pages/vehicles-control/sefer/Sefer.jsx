@@ -259,6 +259,20 @@ const Yakit = () => {
       },
     },
     {
+      title: t("surucu2"),
+      dataIndex: "surucuIsim2",
+      key: "surucuIsim2",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.surucuIsim2 === null) return -1;
+        if (b.surucuIsim2 === null) return 1;
+        return a.surucuIsim2.localeCompare(b.surucuIsim2);
+      },
+    },
+    {
       title: t("seferAdedi"),
       dataIndex: "seferAdedi",
       key: "seferAdedi",
