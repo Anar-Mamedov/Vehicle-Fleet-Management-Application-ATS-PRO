@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import { Button, Modal, message } from "antd";
 import ServisTanim from "../pages/sistem-tanimlari/servis-tanim/ServisTanim";
+import EditDrawer from "../pages/vehicles-control/ServisIslemleri/Update/EditDrawer";
 import AxiosInstance from "../../api/http";
 import { t } from "i18next";
 
-export default function RequestToService({ selectedRows = [] }) {
+export default function RequestToService({ selectedRows = [], refreshTableData, hidePopover }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [editDrawer, setEditDrawer] = useState({
+    visible: false,
+    data: null,
+  });
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -16,6 +21,13 @@ export default function RequestToService({ selectedRows = [] }) {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedService(null);
+  };
+
+  const handleCloseEditDrawer = () => {
+    setEditDrawer({
+      visible: false,
+      data: null,
+    });
   };
 
   const handleSelectService = (service) => {
@@ -46,12 +58,22 @@ export default function RequestToService({ selectedRows = [] }) {
       }));
 
       // API'ye gönder
-      const response = await AxiosInstance.post("RequestNotification/ToServiceItem", requestBody);
+      const response = await AxiosInstance.post("RequestNotifHandler/ToServiceItem", requestBody);
 
-      if (response.data.statusCode === 200) {
+      if (response?.data?.statusCode === 200 || response?.data?.statusCode === 206) {
         message.success("Servis işlemi başarıyla oluşturuldu!");
+        handleCloseModal();
+        if (hidePopover) hidePopover();
+        if (refreshTableData) refreshTableData();
+
+        // Eğer tek bir kayıt seçiliyse EditDrawer'ı aç
+        if (selectedRows.length === 1 && response.data.data) {
+          setEditDrawer({
+            visible: true,
+            data: { key: response.data.data },
+          });
+        }
       }
-      handleCloseModal();
     } catch (error) {
       message.error(error.response?.data?.message || "Servis işlemi oluşturulurken bir hata oluştu.");
     } finally {
@@ -78,6 +100,13 @@ export default function RequestToService({ selectedRows = [] }) {
       >
         <ServisTanim isModalMode={true} onSelect={handleSelectService} />
       </Modal>
+
+      <EditDrawer
+        selectedRow={editDrawer.data}
+        onDrawerClose={handleCloseEditDrawer}
+        drawerVisible={editDrawer.visible}
+        onRefresh={refreshTableData}
+      />
     </div>
   );
 }
