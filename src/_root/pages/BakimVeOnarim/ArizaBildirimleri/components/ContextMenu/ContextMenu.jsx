@@ -4,10 +4,11 @@ import { MoreOutlined, DownOutlined } from "@ant-design/icons";
 import Sil from "./components/Sil";
 import RequestToService from "../../../../../components/RequestToService";
 import OnayaGonder from "./components/OnayaGonder";
+import Iptal from "./components/Iptal";
 
 const { Text, Link } = Typography;
 
-export default function ContextMenu({ selectedRows, refreshTableData }) {
+export default function ContextMenu({ selectedRows, refreshTableData, approvalStatus }) {
   const [visible, setVisible] = useState(false);
 
   const handleVisibleChange = (visible) => {
@@ -18,11 +19,26 @@ export default function ContextMenu({ selectedRows, refreshTableData }) {
     setVisible(false);
   };
 
+  // Check if all selected rows have status "beklemede" or "inceleniyor"
+  const allRowsAreBeklemede = selectedRows.every((row) => {
+    const status = row.talepDurum?.trim().toLowerCase();
+    return status === "beklemede" || status === "incelemede";
+  });
+
+  // Check if all selected rows have status "beklemede", "inceleniyor", or "onaylandi"
+  const allRowsAreValidForService = selectedRows.every((row) => {
+    const status = row.talepDurum?.trim().toLowerCase();
+    return status === "beklemede" || status === "incelemede" || status === "onaylandi";
+  });
+
   const content = (
     <div>
       {selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
-      {selectedRows.length >= 1 && <RequestToService selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
-      {selectedRows.length >= 1 && <OnayaGonder selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
+      {selectedRows.length == 1 && allRowsAreBeklemede && <Iptal selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
+      {selectedRows.length >= 1 && allRowsAreValidForService && <RequestToService selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
+      {selectedRows.length >= 1 && approvalStatus && allRowsAreBeklemede && (
+        <OnayaGonder selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />
+      )}
     </div>
   );
   return (

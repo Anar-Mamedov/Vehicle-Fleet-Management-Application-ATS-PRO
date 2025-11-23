@@ -263,7 +263,7 @@ const OnaylamaIslemleri = () => {
   const handleApprove = useCallback(
     async (record) => {
       try {
-        await AxiosInstance.get(`Approval/GrantApproval?id=${record.siraNo}`);
+        await AxiosInstance.get(`ApprovalProcess/GrantApproval?id=${record.siraNo}`);
         message.success(t("onaylamaBasarili"));
         refreshTableData();
       } catch (error) {
@@ -278,7 +278,7 @@ const OnaylamaIslemleri = () => {
   const handleReject = useCallback(
     async (record) => {
       try {
-        await AxiosInstance.get(`Approval/RejectApproval?id=${record.siraNo}`);
+        await AxiosInstance.get(`ApprovalProcess/RejectApproval?id=${record.siraNo}`);
         message.success(t("reddetmeBasarili"));
         refreshTableData();
       } catch (error) {

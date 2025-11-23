@@ -160,6 +160,7 @@ const ArizaBildirimi = () => {
   const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
+  const [approvalStatus, setApprovalStatus] = useState(false);
 
   const [body, setBody] = useState({
     keyword: "",
@@ -191,6 +192,7 @@ const ArizaBildirimi = () => {
         const total = response.data.recordCount;
         setTotalCount(total);
         setCurrentPage(targetPage);
+        setApprovalStatus(response.data.approvalStatus || false);
 
         const newData = response.data.list.map((item) => ({
           ...item,
@@ -345,25 +347,48 @@ const ArizaBildirimi = () => {
             const trimmedStatus = status ? status.trim().toLowerCase() : "";
             switch (trimmedStatus) {
               case "beklemede":
-                return "orange";
+                return "#fa8c16"; // Turuncu
               case "onaylandi":
-                return "blue";
+                return "#1890ff"; // Mavi
+              case "onaylanmadi":
+                return "#ff4d4f"; // Kırmızı
+              case "onaybeklıyor":
+                return "#13c2c2"; // Cyan
+              case "serviseaktarildi":
+                return "#722ed1"; // Mor
               case "reddedildi":
-                return "red";
+                return "#f5222d"; // Koyu Kırmızı
               case "tamamlandi":
-                return "green";
+                return "#52c41a"; // Yeşil
+              case "incelemede":
+                return "#00b96b"; // Yeşil-Mavi
               default:
-                return "default";
+                return "#d9d9d9"; // Gri
             }
           };
 
+          const hexToRgba = (hex, alpha) => {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+          };
+
           const trimmedText = text ? text.trim() : "";
-          return trimmedText ? (
-            <Tag color={getStatusColor(trimmedText)} style={{ fontWeight: 500 }}>
+          if (!trimmedText) return "";
+
+          const color = getStatusColor(trimmedText);
+          return (
+            <Tag
+              style={{
+                fontWeight: 500,
+                color: color,
+                backgroundColor: hexToRgba(color, 0.15),
+                border: `1px solid ${color}`,
+              }}
+            >
               {t(trimmedText)}
             </Tag>
-          ) : (
-            ""
           );
         },
         sorter: (a, b) => {
@@ -827,7 +852,7 @@ const ArizaBildirimi = () => {
               {/* <Button type="primary" icon={<SearchOutlined />} onClick={() => handleSearch()}></Button> */}
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
-              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} approvalStatus={approvalStatus} />
               {/* <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} /> */}
             </div>
           </div>
