@@ -344,26 +344,28 @@ const ArizaBildirimi = () => {
         visible: true,
         render: (text) => {
           const getStatusColor = (status) => {
-            const trimmedStatus = status ? status.trim().toLowerCase() : "";
-            switch (trimmedStatus) {
+            const normalizedStatus = status ? status.trim().toLowerCase().replace(/\s+/g, "") : "";
+            switch (normalizedStatus) {
               case "beklemede":
-                return "#fa8c16"; // Turuncu
+                return "#fa8c16";
               case "onaylandi":
-                return "#1890ff"; // Mavi
+                return "#1890ff";
               case "onaylanmadi":
-                return "#ff4d4f"; // Kırmızı
-              case "onaybeklıyor":
-                return "#13c2c2"; // Cyan
+                return "#ff4d4f";
+              case "onaybekliyor":
+                return "#13c2c2";
               case "serviseaktarildi":
-                return "#722ed1"; // Mor
+                return "#722ed1";
               case "reddedildi":
-                return "#f5222d"; // Koyu Kırmızı
+                return "#f5222d";
               case "tamamlandi":
-                return "#52c41a"; // Yeşil
+                return "#52c41a";
               case "incelemede":
-                return "#00b96b"; // Yeşil-Mavi
+                return "#00b96b";
+              case "iptaledildi":
+                return "#d30000";
               default:
-                return "#d9d9d9"; // Gri
+                return "#d9d9d9";
             }
           };
 
