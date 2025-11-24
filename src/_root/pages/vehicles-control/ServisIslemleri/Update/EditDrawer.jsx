@@ -89,6 +89,10 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
 
       aciklama: "",
       sikayetler: "",
+      arizaTalepID: "",
+      arizaTalepNo: null,
+      lokasyonID: "",
+      lokasyon: null,
     },
   });
 
@@ -194,6 +198,10 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("ozelAlan12", item.ozelAlan12);
           setValue("isRecordSeen", item.isRecordSeen);
           setValue("kdvOran", item.kdvOran);
+          setValue("arizaTalepID", item.arizaTalepId);
+          setValue("arizaTalepNo", item.arizaTalepNo);
+          setValue("lokasyonID", item.lokasyonId);
+          setValue("lokasyon", item.lokasyon);
           // ... Diğer setValue çağrıları
 
           const hasSiraNo = item.siraNo !== null && typeof item.siraNo !== "undefined";
@@ -271,6 +279,8 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       ozelAlan11: Number(data.ozelAlan11),
       ozelAlan12: Number(data.ozelAlan12),
       isRecordSeen: false,
+      lokasyonId: Number(data.lokasyonID),
+      arizaTalepId: Number(data.arizaTalepID),
     };
   };
 
