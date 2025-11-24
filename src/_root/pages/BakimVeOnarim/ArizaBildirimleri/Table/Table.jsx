@@ -309,45 +309,6 @@ const ArizaBildirimi = () => {
         },
       },
       {
-        title: t("plaka"),
-        dataIndex: "plaka",
-        key: "plaka",
-        width: 120,
-        ellipsis: true,
-        visible: true,
-        sorter: (a, b) => {
-          if (a.plaka === null) return -1;
-          if (b.plaka === null) return 1;
-          return a.plaka.localeCompare(b.plaka);
-        },
-      },
-      {
-        title: t("lokasyon"),
-        dataIndex: "lokasyon",
-        key: "lokasyon",
-        width: 170,
-        ellipsis: true,
-        visible: true,
-        sorter: (a, b) => {
-          if (a.lokasyon === null) return -1;
-          if (b.lokasyon === null) return 1;
-          return a.lokasyon.localeCompare(b.lokasyon);
-        },
-      },
-      {
-        title: t("aciklama"),
-        dataIndex: "aciklama",
-        key: "aciklama",
-        width: 250,
-        ellipsis: true,
-        visible: true,
-        sorter: (a, b) => {
-          if (a.aciklama === null) return -1;
-          if (b.aciklama === null) return 1;
-          return a.aciklama.localeCompare(b.aciklama);
-        },
-      },
-      {
         title: t("tarih"),
         dataIndex: "tarih",
         key: "tarih",
@@ -362,7 +323,33 @@ const ArizaBildirimi = () => {
         render: (text) => formatDate(text),
       },
       {
-        title: t("talepDurum"),
+        title: t("plaka"),
+        dataIndex: "plaka",
+        key: "plaka",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.plaka === null) return -1;
+          if (b.plaka === null) return 1;
+          return a.plaka.localeCompare(b.plaka);
+        },
+      },
+      {
+        title: t("talepEden"),
+        dataIndex: "talepEden",
+        key: "talepEden",
+        width: 180,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.talepEden === null) return -1;
+          if (b.talepEden === null) return 1;
+          return a.talepEden.localeCompare(b.talepEden);
+        },
+      },
+      {
+        title: t("durum"),
         dataIndex: "talepDurum",
         key: "talepDurum",
         width: 150,
@@ -430,7 +417,34 @@ const ArizaBildirimi = () => {
         },
       },
       {
-        title: t("talepOncelik"),
+        title: t("aciklama"),
+        dataIndex: "aciklama",
+        key: "aciklama",
+        width: 250,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.aciklama === null) return -1;
+          if (b.aciklama === null) return 1;
+          return a.aciklama.localeCompare(b.aciklama);
+        },
+      },
+      {
+        title: t("lokasyon"),
+        dataIndex: "lokasyon",
+        key: "lokasyon",
+        width: 170,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.lokasyon === null) return -1;
+          if (b.lokasyon === null) return 1;
+          return a.lokasyon.localeCompare(b.lokasyon);
+        },
+      },
+
+      {
+        title: t("oncelik"),
         dataIndex: "talepOncelik",
         key: "talepOncelik",
         width: 130,
@@ -507,19 +521,6 @@ const ArizaBildirimi = () => {
           if (a.talepTur === null) return -1;
           if (b.talepTur === null) return 1;
           return a.talepTur.localeCompare(b.talepTur);
-        },
-      },
-      {
-        title: t("talepEden"),
-        dataIndex: "talepEden",
-        key: "talepEden",
-        width: 180,
-        ellipsis: true,
-        visible: true,
-        sorter: (a, b) => {
-          if (a.talepEden === null) return -1;
-          if (b.talepEden === null) return 1;
-          return a.talepEden.localeCompare(b.talepEden);
         },
       },
     ],
