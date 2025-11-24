@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "react";
 // import { useFormContext } from "react-hook-form";
+import Filters from "./filter/Filters";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateDrawer from "../Insert/CreateDrawer";
-import EditDrawer from "../Update/EditDrawer";
-import Filters from "./filter/Filters";
+import ServiceEditDrawer from "../../../vehicles-control/ServisIslemleri/Update/EditDrawer";
 // import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
 import { useNavigate } from "react-router-dom";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, ConfigProvider } from "antd";
@@ -56,7 +56,11 @@ const StyledButton = styled(Button)`
   height: 32px !important;
 `;
 
-const StyledTable = styled(Table)``;
+const StyledTable = styled(Table)`
+  .ant-table-tbody > tr.pending-row > td {
+    font-weight: 700;
+  }
+`;
 
 // Sütunların boyutlarını ayarlamak için kullanılan component
 
@@ -154,6 +158,10 @@ const ArizaBildirimi = () => {
   const [localeDateFormat, setLocaleDateFormat] = useState("MM/DD/YYYY");
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm");
   const [drawer, setDrawer] = useState({
+    visible: false,
+    data: null,
+  });
+  const [serviceDrawer, setServiceDrawer] = useState({
     visible: false,
     data: null,
   });
@@ -265,6 +273,24 @@ const ArizaBildirimi = () => {
     fetchData(0, 1);
   }, [fetchData]);
 
+  const handleServiceDrawerClose = useCallback(() => {
+    setServiceDrawer({
+      visible: false,
+      data: null,
+    });
+  }, []);
+
+  const openServiceDrawer = useCallback((record) => {
+    if (!record?.ilgiliKayitSirano || Number(record.ilgiliKayitSirano) <= 0) return;
+
+    setServiceDrawer({
+      visible: true,
+      data: {
+        key: record.ilgiliKayitSirano,
+      },
+    });
+  }, []);
+
   // Columns definition (adjust as needed)
   const initialColumns = useMemo(
     () => [
@@ -342,7 +368,7 @@ const ArizaBildirimi = () => {
         width: 150,
         ellipsis: true,
         visible: true,
-        render: (text) => {
+        render: (text, record) => {
           const getStatusColor = (status) => {
             const normalizedStatus = status ? status.trim().toLowerCase().replace(/\s+/g, "") : "";
             switch (normalizedStatus) {
@@ -380,6 +406,8 @@ const ArizaBildirimi = () => {
           if (!trimmedText) return "";
 
           const color = getStatusColor(trimmedText);
+          const normalizedStatus = trimmedText.toLowerCase().replace(/\s+/g, "");
+          const isServiceTransferred = normalizedStatus === "serviseaktarildi" && Number(record?.ilgiliKayitSirano) > 0;
           return (
             <Tag
               style={{
@@ -387,7 +415,9 @@ const ArizaBildirimi = () => {
                 color: color,
                 backgroundColor: hexToRgba(color, 0.15),
                 border: `1px solid ${color}`,
+                cursor: isServiceTransferred ? "pointer" : "default",
               }}
+              onClick={isServiceTransferred ? () => openServiceDrawer(record) : undefined}
             >
               {t(trimmedText)}
             </Tag>
@@ -593,10 +623,13 @@ const ArizaBildirimi = () => {
     localStorage.setItem("columnVisibilityArizaBildirimi", JSON.stringify(visibility));
     localStorage.setItem("columnWidthsArizaBildirimi", JSON.stringify(widths));
 
-    return order.map((key) => {
-      const column = initialColumns.find((col) => col.key === key);
-      return { ...column, visible: visibility[key], width: widths[key] };
-    });
+    return order
+      .map((key) => {
+        const column = initialColumns.find((col) => col.key === key);
+        if (!column) return null;
+        return { ...column, visible: visibility[key], width: widths[key] || column.width };
+      })
+      .filter(Boolean);
   });
 
   // Save columns to localStorage
@@ -685,6 +718,11 @@ const ArizaBildirimi = () => {
     localStorage.removeItem("columnWidthsArizaBildirimi");
     window.location.reload();
   };
+
+  const rowClassName = useCallback((record) => {
+    const normalizedStatus = record?.talepDurum ? record.talepDurum.toString().trim().toLowerCase().replace(/\s+/g, "") : "";
+    return normalizedStatus === "beklemede" ? "pending-row" : "";
+  }, []);
 
   // Kullanıcının dilini localStorage'den alın
   const currentLang = localStorage.getItem("i18nextLng") || "en";
@@ -872,6 +910,7 @@ const ArizaBildirimi = () => {
               <StyledTable
                 components={components}
                 rowSelection={rowSelection}
+                rowClassName={rowClassName}
                 columns={filteredColumns}
                 dataSource={data}
                 pagination={{
@@ -886,7 +925,7 @@ const ArizaBildirimi = () => {
                 scroll={{ y: "calc(100vh - 335px)" }}
               />
             </Spin>
-            {/* <EditDrawer selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} /> */}
+            <ServiceEditDrawer selectedRow={serviceDrawer.data} onDrawerClose={handleServiceDrawerClose} drawerVisible={serviceDrawer.visible} onRefresh={refreshTableData} />
           </div>
         </FormProvider>
       </ConfigProvider>
