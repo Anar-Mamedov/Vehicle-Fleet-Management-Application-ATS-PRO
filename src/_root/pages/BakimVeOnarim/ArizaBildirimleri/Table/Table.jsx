@@ -393,8 +393,7 @@ const ArizaBildirimi = () => {
           if (!trimmedText) return "";
 
           const color = getStatusColor(trimmedText);
-          const normalizedStatus = trimmedText.toLowerCase().replace(/\s+/g, "");
-          const isServiceTransferred = normalizedStatus === "serviseaktarildi" && Number(record?.ilgiliKayitSirano) > 0;
+          const hasRelatedRecord = Number(record?.ilgiliKayitSirano) > 0;
           return (
             <Tag
               style={{
@@ -402,9 +401,9 @@ const ArizaBildirimi = () => {
                 color: color,
                 backgroundColor: hexToRgba(color, 0.15),
                 border: `1px solid ${color}`,
-                cursor: isServiceTransferred ? "pointer" : "default",
+                cursor: hasRelatedRecord ? "pointer" : "default",
               }}
-              onClick={isServiceTransferred ? () => openServiceDrawer(record) : undefined}
+              onClick={hasRelatedRecord ? () => openServiceDrawer(record) : undefined}
             >
               {t(trimmedText)}
             </Tag>
