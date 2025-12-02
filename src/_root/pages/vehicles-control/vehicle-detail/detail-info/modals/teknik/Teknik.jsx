@@ -13,9 +13,9 @@ const Teknik = ({ visible, onClose, id }) => {
 
   const defaultValues = {
     tsasiNo: null,
-    tsilindirHacmi: null,
+    // tsilindirHacmi: null,
     tsilindirSaysi: null,
-    tmotorGucu: null,
+    // tmotorGucu: null,
     tanahtarKod: null,
     tmotorNo: null,
     ttork: null,
@@ -25,14 +25,13 @@ const Teknik = ({ visible, onClose, id }) => {
     dtyMaxHiz: null,
     dtyHizlanma: null,
     dtyCekisAksi: null,
-    tnetAgirlik: null,
     /*tyakitHacmi: null,*/
     tboy: null,
     tgenislik: null,
     tyukseklik: null,
     tonlastik: null,
     tarkalastik: null,
-    tkatarAgirlik: null,
+    // tkatarAgirlik: null,
     tbagajHacmi: null,
     tonBasinc: null,
     tarkaBasinc: null,
@@ -48,21 +47,21 @@ const Teknik = ({ visible, onClose, id }) => {
   useEffect(() => {
     GetVehicleDetailsInfoService(id, 1).then((res) => {
       setValue("tsasiNo", res.data.tsasiNo);
-      setValue("tsilindirHacmi", res.data.tsilindirHacmi);
+      // setValue("tsilindirHacmi", res.data.tsilindirHacmi);
       setValue("dtyIcYukseklik", res.data.dtyIcYukseklik);
       setValue("dtyAksMesafesi", res.data.dtyAksMesafesi);
       setValue("taciklama", res.data.taciklama);
       setValue("tbagajHacmi", res.data.tbagajHacmi);
       setValue("tarkaBasinc", res.data.tarkaBasinc);
       setValue("tonBasinc", res.data.tonBasinc);
-      setValue("tkatarAgirlik", res.data.tkatarAgirlik);
+      // setValue("tkatarAgirlik", res.data.tkatarAgirlik);
       setValue("tarkalastik", res.data.tarkalastik);
       setValue("tonlastik", res.data.tonlastik);
       setValue("tyukseklik", res.data.tyukseklik);
       setValue("tgenislik", res.data.tgenislik);
       setValue("tboy", res.data.tboy);
       /*setValue("tyakitHacmi", res.data.tyakitHacmi);*/ // alborza bu alanın kaldırıldığını söyle
-      setValue("tnetAgirlik", res.data.tnetAgirlik);
+      // setValue("tnetAgirlik", res.data.tnetAgirlik);
       setValue("dtyCekisAksi", res.data.dtyCekisAksi);
       setValue("dtyHizlanma", res.data.dtyHizlanma);
       setValue("dtyMaxHiz", res.data.dtyMaxHiz);
@@ -72,7 +71,7 @@ const Teknik = ({ visible, onClose, id }) => {
       setValue("ttork", res.data.ttork);
       setValue("tmotorNo", res.data.tmotorNo);
       setValue("tanahtarKod", res.data.tanahtarKod);
-      setValue("tmotorGucu", res.data.tmotorGucu);
+      // setValue("tmotorGucu", res.data.tmotorGucu);
       setValue("tsilindirSaysi", res.data.tsilindirSaysi);
     });
   }, [id, status]);
@@ -81,9 +80,9 @@ const Teknik = ({ visible, onClose, id }) => {
     const body = {
       dtyAracId: +id,
       tsasiNo: values.tsasiNo,
-      tsilindirHacmi: values.tsilindirHacmi,
+      // tsilindirHacmi: values.tsilindirHacmi,
       tsilindirSaysi: values.tsilindirSaysi,
-      tmotorGucu: values.tmotorGucu,
+      // tmotorGucu: values.tmotorGucu,
       tanahtarKod: values.tanahtarKod,
       tmotorNo: values.tmotorNo,
       ttork: values.ttork,
@@ -93,14 +92,14 @@ const Teknik = ({ visible, onClose, id }) => {
       dtyMaxHiz: values.dtyMaxHiz,
       dtyHizlanma: values.dtyHizlanma,
       dtyCekisAksi: values.dtyCekisAksi,
-      tnetAgirlik: values.tnetAgirlik,
+      // tnetAgirlik: values.tnetAgirlik,
       /*tyakitHacmi: values.tyakitHacmi,*/ //Alborza Bu alanın kaldırıldığını söyle
       tboy: values.tboy,
       tgenislik: values.tgenislik,
       tyukseklik: values.tyukseklik,
       tonlastik: values.tonlastik,
       tarkalastik: values.tarkalastik,
-      tkatarAgirlik: values.tkatarAgirlik,
+      // tkatarAgirlik: values.tkatarAgirlik,
       tbagajHacmi: values.tbagajHacmi,
       tonBasinc: values.tonBasinc,
       tarkaBasinc: values.tarkaBasinc,
@@ -150,12 +149,7 @@ const Teknik = ({ visible, onClose, id }) => {
                 <NumberInput name="dtyKapiAdedi" />
               </div>
             </div>
-            <div className="col-span-3">
-              <div className="flex flex-col gap-1">
-                <label>{t("silindirHacmiCC")}</label>
-                <TextInput name="tsilindirHacmi" />
-              </div>
-            </div>
+
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("silindirSayisi")}</label>
@@ -168,12 +162,7 @@ const Teknik = ({ visible, onClose, id }) => {
                 <TextInput name="dtyMaxHiz" />
               </div>
             </div>
-            <div className="col-span-3">
-              <div className="flex flex-col gap-1">
-                <label>{t("motorGucuBG")}</label>
-                <TextInput name="tmotorGucu" />
-              </div>
-            </div>
+
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("tork")}</label>
@@ -227,18 +216,6 @@ const Teknik = ({ visible, onClose, id }) => {
           </div>
           <h2 className="mt-14">{t("boyutBilgileri")}</h2>
           <div className="grid gap-1 border p-20 mt-10">
-            <div className="col-span-2">
-              <div className="flex flex-col gap-1">
-                <label>{t("netAgirlik")}</label>
-                <NumberInput name="tnetAgirlik" />
-              </div>
-            </div>
-            <div className="col-span-2">
-              <div className="flex flex-col gap-1">
-                <label>{t("katarAgirligi")}</label>
-                <NumberInput name="tkatarAgirlik" />
-              </div>
-            </div>
             <div className="col-span-2">
               <div className="flex flex-col gap-1">
                 <label>{t("icYukseklik")}</label>

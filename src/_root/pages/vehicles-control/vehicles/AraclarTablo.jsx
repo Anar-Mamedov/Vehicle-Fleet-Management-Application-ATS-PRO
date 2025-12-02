@@ -59,6 +59,7 @@ const infiniteScrollKey = "tabloInfiniteScroll"; // Add new key for infinite scr
 const columnOrderKey = "columnOrderAraclar";
 const columnVisibilityKey = "columnVisibilityAraclar";
 const columnWidthsKey = "columnWidthsAraclar";
+const visitedRowsSessionKey = "araclarVisitedRows";
 
 // Utility functions for safely handling localStorage
 const safeLocalStorage = {
@@ -86,6 +87,37 @@ const safeLocalStorage = {
       return true;
     } catch (error) {
       console.error(`Error removing item ${key} from localStorage:`, error);
+      return false;
+    }
+  },
+};
+
+// Utility functions for safely handling sessionStorage
+const safeSessionStorage = {
+  getItem: (key, defaultValue) => {
+    try {
+      const item = sessionStorage.getItem(key);
+      return item ? JSON.parse(item) : defaultValue;
+    } catch (error) {
+      console.error(`Error getting item ${key} from sessionStorage:`, error);
+      return defaultValue;
+    }
+  },
+  setItem: (key, value) => {
+    try {
+      sessionStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (error) {
+      console.error(`Error setting item ${key} in sessionStorage:`, error);
+      return false;
+    }
+  },
+  removeItem: (key) => {
+    try {
+      sessionStorage.removeItem(key);
+      return true;
+    } catch (error) {
+      console.error(`Error removing item ${key} from sessionStorage:`, error);
       return false;
     }
   },
@@ -380,6 +412,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+  const [openedRowIds, setOpenedRowIds] = useState(() => new Set(safeSessionStorage.getItem(visitedRowsSessionKey, [])));
 
   // Fixed page size options
   const pageSizeOptions = [20, 50, 100];
@@ -646,6 +679,10 @@ const Yakit = ({ ayarlarData, customFields }) => {
     setPlaka(newPlakaEntries);
   }, [selectedRows]);
 
+  useEffect(() => {
+    safeSessionStorage.setItem(visitedRowsSessionKey, Array.from(openedRowIds));
+  }, [openedRowIds]);
+
   const rowSelection = {
     type: "checkbox",
     selectedRowKeys,
@@ -655,6 +692,33 @@ const Yakit = ({ ayarlarData, customFields }) => {
   const onRowClick = (record) => {
     setDrawer({ visible: true, data: record });
   };
+
+  const markRowVisited = useCallback((record) => {
+    const id = record?.aracId;
+    if (!id) {
+      return;
+    }
+
+    setOpenedRowIds((prev) => {
+      if (prev.has(id)) {
+        return prev;
+      }
+      const updated = new Set(prev);
+      updated.add(id);
+      return updated;
+    });
+  }, []);
+
+  const handleVehicleOpen = useCallback(
+    (record) => {
+      if (!record) return;
+      markRowVisited(record);
+      setSelectedVehicleId(record.aracId);
+      setSelectedRows1([record]);
+      setIsDetailModalOpen(true);
+    },
+    [markRowVisited, setIsDetailModalOpen, setSelectedRows1, setSelectedVehicleId]
+  );
 
   const refreshTableData = useCallback(
     (isKmUpdate = false) => {
@@ -774,9 +838,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
       render: (text, record) => (
         <a
           onClick={() => {
-            setSelectedVehicleId(record.aracId);
-            setSelectedRows1([record]);
-            setIsDetailModalOpen(true);
+            handleVehicleOpen(record);
           }}
         >
           {text}
@@ -2328,6 +2390,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
               columns={filteredColumns}
               dataSource={data}
               pagination={false}
+              rowClassName={(record) => (openedRowIds.has(record.aracId) ? "visited-row" : "")}
               scroll={{ y: "calc(100vh - 335px)" }}
               onScroll={handleTableScroll}
               footer={tableFooter}

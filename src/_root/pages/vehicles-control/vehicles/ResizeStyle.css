@@ -12,3 +12,11 @@
     height: 100%;
     cursor: col-resize;
 }
+
+.ant-table-tbody > tr.visited-row:not(.ant-table-row-selected) > td {
+    background-color: #fff7e6;
+}
+
+.ant-table-tbody > tr.visited-row:not(.ant-table-row-selected):hover > td {
+    background-color: #ffe7ba;
+}
