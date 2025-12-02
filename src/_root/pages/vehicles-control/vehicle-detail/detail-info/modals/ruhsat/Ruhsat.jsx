@@ -12,6 +12,7 @@ import TextInput from "../../../../../../components/form/inputs/TextInput";
 import DateInput from "../../../../../../components/form/date/DateInput";
 import Textarea from "../../../../../../components/form/inputs/Textarea";
 import CheckboxInput from "../../../../../../components/form/checkbox/CheckboxInput";
+import NumberInput from "../../../../../../components/form/inputs/NumberInput";
 
 dayjs.locale("tr");
 
@@ -58,6 +59,10 @@ const Ruhsat = ({ visible, onClose, id }) => {
     vergiNo: "",
     yolcuNakli: false,
     yukNakli: false,
+    tnetAgirlik: 0,
+    tkatarAgirlik: 0,
+    tsilindirHacmi: "",
+    tmotorGucu: "",
   };
 
   const methods = useForm({
@@ -112,6 +117,10 @@ const Ruhsat = ({ visible, onClose, id }) => {
       setValue("vergiNo", res?.data.vergiNo);
       setValue("yolcuNakli", res?.data.yolcuNakli);
       setValue("yukNakli", res?.data.yukNakli);
+      setValue("tnetAgirlik", res.data.tnetAgirlik);
+      setValue("tkatarAgirlik", res.data.tkatarAgirlik);
+      setValue("tsilindirHacmi", res.data.tsilindirHacmi);
+      setValue("tmotorGucu", res.data.tmotorGucu);
     });
   }, [id, status]);
 
@@ -152,6 +161,10 @@ const Ruhsat = ({ visible, onClose, id }) => {
       hususi: values.hususi,
       vergiNo: values.vergiNo,
       vergiDaire: values.vergiDaire,
+      tnetAgirlik: values.tnetAgirlik || 0,
+      tkatarAgirlik: values.tkatarAgirlik || 0,
+      tsilindirHacmi: values.tsilindirHacmi,
+      tmotorGucu: values.tmotorGucu,
     };
 
     UpdateVehicleDetailsInfoService(2, body).then((res) => {
@@ -330,6 +343,30 @@ const Ruhsat = ({ visible, onClose, id }) => {
                       <CodeControl name="rAzamiIstiapHaddiBirim" codeName="rAzamiIstiapHaddiBirimKodId" id={109} />
                     </div>
                   </div>
+                </div>
+              </div>
+              <div className="col-span-3">
+                <div className="flex flex-col gap-1">
+                  <label>{t("netAgirlik")}</label>
+                  <NumberInput name="tnetAgirlik" />
+                </div>
+              </div>
+              <div className="col-span-3">
+                <div className="flex flex-col gap-1">
+                  <label>{t("katarAgirligi")}</label>
+                  <NumberInput name="tkatarAgirlik" />
+                </div>
+              </div>
+              <div className="col-span-3">
+                <div className="flex flex-col gap-1">
+                  <label>{t("silindirHacmiCC")}</label>
+                  <TextInput name="tsilindirHacmi" />
+                </div>
+              </div>
+              <div className="col-span-3">
+                <div className="flex flex-col gap-1">
+                  <label>{t("motorGucuBG")}</label>
+                  <TextInput name="tmotorGucu" />
                 </div>
               </div>
               <div className="col-span-12">
