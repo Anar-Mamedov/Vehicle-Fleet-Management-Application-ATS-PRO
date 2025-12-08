@@ -200,6 +200,46 @@ function Component5(updateApi) {
                 style={{
                   width: "10px",
                   height: "10px",
+                  backgroundColor: "#ffa500",
+                  borderRadius: "50%",
+                }}
+              ></div>
+              <Text> Arşivdeki Araçlar </Text>
+            </div>
+
+            <Text
+              style={{
+                borderRadius: "10px 10px 10px 10px",
+                backgroundColor: "rgb(255 165 0 / 35%)",
+                padding: "0px 5px 0px 5px",
+                color: "#ffa500",
+              }}
+            >
+              {data?.archiveV !== undefined ? data.archiveV : ""}
+            </Text>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              padding: "0px 10px 5px 10px",
+              borderBottom: "1px solid #f0f0f0",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <div
+                style={{
+                  width: "10px",
+                  height: "10px",
                   backgroundColor: "red",
                   borderRadius: "50%",
                 }}
