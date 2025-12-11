@@ -11,6 +11,7 @@ import Driver from "../../../../components/form/selects/Driver";
 import MaterialType from "../../../../components/form/selects/MaterialType";
 import DateInput from "../../../../components/form/date/DateInput";
 import KodIDSelectbox from "../../../../components/form/selects/KodIDSelectbox";
+import DatePickerSelectYear from "../../../../components/form/inputs/DatePickerSelectYear";
 
 const GeneralInfo = ({ isValid }) => {
   const validateStyle = {
@@ -79,8 +80,8 @@ const GeneralInfo = ({ isValid }) => {
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
-                <label>{t("modelYili")}</label>
-                <NumberInput name="yil" />
+                <label htmlFor="yil">{t("modelYili")}</label>
+                <DatePickerSelectYear name="yil" />
               </div>
             </div>
             <div className="col-span-4">
