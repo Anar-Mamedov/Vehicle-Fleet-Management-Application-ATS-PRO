@@ -11,7 +11,10 @@ import HasarNoTablo from "./components/HasarNoTablo.jsx";
 import Onay from "./components/Onay.jsx";
 import Maliyetler from "./components/Maliyetler.jsx";
 import SecondTabs from "../SecondTabs/SecondTabs.jsx";
+import LokasyonTablo from "../../../../../../components/form/LokasyonTable";
+import ModalInput from "../../../../../../components/form/inputs/ModalInput";
 import IslemYapanTablo from "./components/IslemYapanTablo.jsx";
+import { t } from "i18next";
 
 const { Text, Link } = Typography;
 const { TextArea } = Input;
@@ -69,6 +72,7 @@ export default function MainTabs({ modalOpen }) {
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
   const [selectboxTitle, setSelectboxTitle] = useState("Yetkili Servis");
+  const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
 
   const handleMinusClick = () => {
     setValue("servisKodu", "");
@@ -213,6 +217,14 @@ export default function MainTabs({ modalOpen }) {
 
   // tarih formatlamasını kullanıcının yerel tarih formatına göre ayarlayın sonu
 
+  const handleYeniLokasyonPlusClick = () => {
+    setIsLokasyonModalOpen(true);
+  };
+  const handleYeniLokasyonMinusClick = () => {
+    setValue("lokasyon", null);
+    setValue("lokasyonID", null);
+  };
+
   return (
     <div style={{ display: "flex", marginBottom: "15px", flexDirection: "column", gap: "10px", width: "100%" }}>
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "10px" }}>
@@ -237,10 +249,14 @@ export default function MainTabs({ modalOpen }) {
                     if (option && option.data) {
                       setValue("Surucu", option.data.surucu);
                       setValue("SurucuID", option.data.surucuId);
+                      setValue("lokasyon", option.data.lokasyon);
+                      setValue("lokasyonID", option.data.lokasyonId);
                     } else {
                       // Plaka değeri silindiğinde marka ve model alanlarını temizle
                       setValue("Surucu", null);
                       setValue("SurucuID", null);
+                      setValue("lokasyon", null);
+                      setValue("lokasyonID", null);
                     }
                   }}
                 />
@@ -377,6 +393,39 @@ export default function MainTabs({ modalOpen }) {
               <Text style={{ fontSize: "14px" }}>Onay:</Text>
               <Onay />
             </StyledDivBottomLine>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              maxWidth: "450px",
+              gap: "10px",
+              flexDirection: "row",
+            }}
+          >
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("lokasyon")}</Text>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column wrap",
+                alignItems: "flex-start",
+                width: "100%",
+                maxWidth: "300px",
+              }}
+            >
+              <ModalInput name="lokasyon" readonly={true} required={false} onPlusClick={handleYeniLokasyonPlusClick} onMinusClick={handleYeniLokasyonMinusClick} />
+              <LokasyonTablo
+                onSubmit={(selectedData) => {
+                  setValue("lokasyon", selectedData.location);
+                  setValue("lokasyonID", selectedData.key);
+                }}
+                isModalVisible={isLokasyonModalOpen}
+                setIsModalVisible={setIsLokasyonModalOpen}
+              />
+            </div>
           </div>
         </div>
       </div>
