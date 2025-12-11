@@ -252,10 +252,14 @@ export default function MainTabs({ modalOpen }) {
                     if (option && option.data) {
                       setValue("Surucu", option.data.surucu);
                       setValue("SurucuID", option.data.surucuId);
+                      setValue("lokasyon", option.data.lokasyon);
+                      setValue("lokasyonID", option.data.lokasyonId);
                     } else {
                       // Plaka değeri silindiğinde marka ve model alanlarını temizle
                       setValue("Surucu", null);
                       setValue("SurucuID", null);
+                      setValue("lokasyon", null);
+                      setValue("lokasyonID", null);
                     }
                   }}
                 />
