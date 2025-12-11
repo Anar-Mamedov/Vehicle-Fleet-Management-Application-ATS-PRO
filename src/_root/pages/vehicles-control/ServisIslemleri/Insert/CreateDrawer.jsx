@@ -83,6 +83,8 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       sigortaID: "",
       policeNo: "",
       firma: "",
+      lokasyonID: "",
+      lokasyon: null,
 
       ozelAlan1: "",
       ozelAlan2: "",
@@ -223,6 +225,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       ozelAlan11: Number(data.ozelAlan11),
       ozelAlan12: Number(data.ozelAlan12),
       isRecordSeen: true,
+      lokasyonId: Number(data.lokasyonID),
     };
 
     // AxiosInstance.post("/api/endpoint", { Body }).then((response) => {
@@ -528,7 +531,7 @@ aciklama: ""
                   <FcRefresh style={{ fontSize: 20, color: "#0958d9", marginTop: 2 }} />
                   <div>
                     <p style={{ margin: 0 }}>
-                      Bu araca "<strong>{latestSimilarService.islem}</strong>" işlemi daha önce <strong>{formatLatestSimilarServiceDate(latestSimilarService.tarih)}</strong>{" "}
+                      Bu araca &quot;<strong>{latestSimilarService.islem}</strong>&quot; işlemi daha önce <strong>{formatLatestSimilarServiceDate(latestSimilarService.tarih)}</strong>{" "}
                       tarihinde uygulanmıştır.
                     </p>
                     <p style={{ margin: "4px 0 0" }}>
