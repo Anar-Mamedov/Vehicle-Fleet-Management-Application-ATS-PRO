@@ -1084,9 +1084,9 @@ const Ceza = ({ statusId1 }) => {
                 placeholder="Arama yap..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onPressEnter={handleSearch}
+                onPressEnter={() => handleSearch()}
                 // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
-                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={() => handleSearch()} />}
               />
 
               <Filters onChange={handleBodyChange} onApply={handleSearch} />
