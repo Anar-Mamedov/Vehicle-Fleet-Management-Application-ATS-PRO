@@ -1050,5 +1050,9 @@
   "yuksek": "High",
   "acil": "Urgent",
   "ariza": "Fault",
-  "aksesuar": "Accessory"
+  "aksesuar": "Accessory",
+  "versionUpdateTitle": "New Version Available",
+  "versionUpdateMessage": "A new version of the application has been released. Please refresh the page to see updates.",
+  "versionUpdateButton": "Refresh",
+  "versionUpdateLater": "Later"
 }
