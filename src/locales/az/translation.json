@@ -563,5 +563,9 @@
   "talepDurum": "Sorğu statusu",
   "talepOncelik": "Prioritet",
   "talepTur": "Sorğu növü",
-  "talepEden": "Sorğu edən"
+  "talepEden": "Sorğu edən",
+  "versionUpdateTitle": "Yeni Versiya Mövcuddur",
+  "versionUpdateMessage": "Tətbiqin yeni versiyası buraxıldı. Yeniləmələri görmək üçün səhifəni yeniləyin.",
+  "versionUpdateButton": "Yenilə",
+  "versionUpdateLater": "Sonra"
 }

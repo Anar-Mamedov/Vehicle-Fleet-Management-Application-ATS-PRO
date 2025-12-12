@@ -83,5 +83,9 @@
   "talepOncelik": "Приоритет",
   "talepTur": "Тип запроса",
   "servisIslemi": "Сервисная операция",
-  "talepEden": "Заявитель"
+  "talepEden": "Заявитель",
+  "versionUpdateTitle": "Доступна новая версия",
+  "versionUpdateMessage": "Вышла новая версия приложения. Пожалуйста, обновите страницу, чтобы увидеть обновления.",
+  "versionUpdateButton": "Обновить",
+  "versionUpdateLater": "Позже"
 }

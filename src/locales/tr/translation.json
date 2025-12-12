@@ -1313,5 +1313,9 @@
   "": "",
   "": "",
   "": "",
-  "": ""
+  "": "",
+  "versionUpdateTitle": "Yeni Sürüm Mevcut",
+  "versionUpdateMessage": "Uygulamanın yeni bir sürümü yayınlandı. Güncellemeleri görmek için lütfen sayfayı yenileyin.",
+  "versionUpdateButton": "Yenile",
+  "versionUpdateLater": "Daha Sonra"
 }

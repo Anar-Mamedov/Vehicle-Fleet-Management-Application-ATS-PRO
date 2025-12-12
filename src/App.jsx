@@ -1,7 +1,10 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Modal } from "antd";
+import { useTranslation } from "react-i18next";
 import { getItemWithExpiration } from "./utils/expireToken";
 import { initDevToolsProtection } from "./utils/devToolsProtection";
+import { useVersionCheck } from "./hooks/useVersionCheck";
 import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
 import Dashboard from "./_root/pages/dashboard/Dashboard";
@@ -125,6 +128,8 @@ const App = () => {
   const [hasToken, setHasToken] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
+  const { hasUpdate, handleUpdate, dismissUpdate } = useVersionCheck();
 
   useEffect(() => {
     const token = getItemWithExpiration("token");
@@ -150,8 +155,22 @@ const App = () => {
   }, []);
 
   return (
-    <Routes>
-      <Route path="/" element={<RootLayout />}>
+    <>
+      <Modal
+        title={t("versionUpdateTitle")}
+        open={hasUpdate}
+        onOk={handleUpdate}
+        onCancel={dismissUpdate}
+        okText={t("versionUpdateButton")}
+        cancelText={t("versionUpdateLater")}
+        closable={false}
+        maskClosable={false}
+      >
+        <p>{t("versionUpdateMessage")}</p>
+      </Modal>
+
+      <Routes>
+        <Route path="/" element={<RootLayout />}>
         <Route index element={<Dashboard />} />
         {/* Lazy loaded routes - wrapped with Suspense */}
         <Route
@@ -720,6 +739,7 @@ const App = () => {
         }
       />
     </Routes>
+    </>
   );
 };
 
