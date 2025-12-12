@@ -2398,7 +2398,6 @@ const Yakit = ({ ayarlarData, customFields }) => {
           </Spin>
         </div>
       </FormProvider>
-
       {/* Only render DetailUpdate when we have a selectedVehicleId */}
       {selectedVehicleId && (
         <DetailUpdate
