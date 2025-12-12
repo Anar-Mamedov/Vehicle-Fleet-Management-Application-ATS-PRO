@@ -180,7 +180,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
 
     const body = {
       plaka: value.plaka,
-      yil: value.yil || 0,
+      yil: value.yil ? dayjs(value.yil).year() : 0,
       markaId: value.markaId || 0,
       modelId: value.modelId || 0,
       aracGrubuId: value.aracGrubuID || 0,
