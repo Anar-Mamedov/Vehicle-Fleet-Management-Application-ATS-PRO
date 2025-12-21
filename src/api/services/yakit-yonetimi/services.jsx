@@ -1,7 +1,7 @@
 import http from "../../http";
 
-export const GetFuelMaterialListService = async (search, page, data) => {
-  return await http.post(`/Material/GetFuelMaterialList?page=${page}&parameter=${search}`, data);
+export const GetFuelMaterialListService = async (search, diff, setPointId, pageSize, data) => {
+  return await http.post(`/Material/GetFuelMaterialList?diff=${diff}&setPointId=${setPointId}&parameter=${search}&pageSize=${pageSize}`, data);
 };
 
 export const AddMaterialService = async (data) => {

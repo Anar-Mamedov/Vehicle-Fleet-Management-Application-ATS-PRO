@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import { Table, Popover, Button, Input, Spin } from "antd";
@@ -115,37 +115,85 @@ const YakitTanimlar = () => {
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setIsInitialLoading(true);
-      const res = await GetFuelMaterialListService(search, tableParams.pagination.current, filterData);
-      setLoading(false);
-      setIsInitialLoading(false);
-      setDataSource(res?.data.materialList);
+  const fetchData = async (diff, targetPage, currentSize = tableParams.pagination.pageSize) => {
+    setLoading(true);
+    setIsInitialLoading(true);
+
+    let currentSetPointId = 0;
+
+    if (diff > 0 && dataSource.length > 0) {
+      currentSetPointId = dataSource[dataSource.length - 1]?.malzemeId || 0;
+    } else if (diff < 0 && dataSource.length > 0) {
+      currentSetPointId = dataSource[0]?.malzemeId || 0;
+    } else {
+      currentSetPointId = 0;
+    }
+
+    try {
+      const res = await GetFuelMaterialListService(search, diff, currentSetPointId, currentSize, filterData);
+      setDataSource(res?.data.materialList || []);
       setTableParams((prevTableParams) => ({
         ...prevTableParams,
         pagination: {
           ...prevTableParams.pagination,
+          current: targetPage ?? prevTableParams.pagination.current,
+          pageSize: currentSize,
           total: res?.data.total_count,
         },
       }));
-    };
+    } catch (error) {
+      console.error("Veri çekme hatası:", error);
+    } finally {
+      setLoading(false);
+      setIsInitialLoading(false);
+    }
+  };
 
-    fetchData();
-  }, [search, tableParams.pagination.current, status, filterData]);
+  useEffect(() => {
+    const currentSize = tableParams.pagination?.pageSize || 10;
+
+    setTableParams((prevTableParams) => ({
+      ...prevTableParams,
+      pagination: {
+        ...prevTableParams.pagination,
+        current: 1,
+      },
+    }));
+
+    fetchData(0, 1, currentSize);
+  }, [search, status, filterData]);
 
   const handleTableChange = (pagination, filters, sorter) => {
-    setLoading(true);
+    const nextPageSize = pagination.pageSize || tableParams.pagination?.pageSize || 10;
+    const nextPage = pagination.current || 1;
+    const prevPage = tableParams.pagination?.current || 1;
+    const prevPageSize = tableParams.pagination?.pageSize || 10;
+
+    if (nextPageSize !== prevPageSize) {
+      setTableParams({
+        pagination: {
+          ...pagination,
+          current: 1,
+          pageSize: nextPageSize,
+        },
+        filters,
+        ...sorter,
+      });
+
+      setDataSource([]);
+      fetchData(0, 1, nextPageSize);
+      return;
+    }
+
+    const diff = nextPage - prevPage;
+
     setTableParams({
       pagination,
       filters,
       ...sorter,
     });
 
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setDataSource([]);
-    }
+    fetchData(diff, nextPage, nextPageSize);
   };
 
   const filter = (data) => {
