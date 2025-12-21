@@ -49,6 +49,14 @@ function extractTextFromElement(element) {
   return text;
 }
 
+const getSafeFractionDigits = (value, fallback = 2) => {
+  const digits = Number(value);
+  if (!Number.isFinite(digits)) {
+    return fallback;
+  }
+  return Math.min(20, Math.max(0, Math.trunc(digits)));
+};
+
 // Add a key for localStorage
 const tabloPageSize = "tabloPageSizeYakit";
 const infiniteScrollKey = "tabloInfiniteScroll"; // Add new key for infinite scroll setting
@@ -655,6 +663,33 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
       },
     },
 
+    {
+      title: t("fiyat"),
+      dataIndex: "litreFiyat",
+      key: "litreFiyat",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      render: (text, record) => {
+        const litreFiyatDigits = getSafeFractionDigits(record?.litreFiyatFormat ?? record?.tutarFormat);
+
+        return (
+          <div className="">
+            <span>
+              {Number(text).toLocaleString(localStorage.getItem("i18nextLng"), {
+                minimumFractionDigits: litreFiyatDigits,
+                maximumFractionDigits: litreFiyatDigits,
+              })}
+            </span>
+          </div>
+        );
+      },
+      sorter: (a, b) => {
+        if (a.litreFiyat === null) return -1;
+        if (b.litreFiyat === null) return 1;
+        return a.litreFiyat - b.litreFiyat;
+      },
+    },
     {
       title: t("tutar"),
       dataIndex: "tutar",
