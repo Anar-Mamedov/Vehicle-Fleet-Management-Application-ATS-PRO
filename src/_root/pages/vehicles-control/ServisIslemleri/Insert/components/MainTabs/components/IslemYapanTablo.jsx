@@ -5,6 +5,7 @@ import { Resizable } from "react-resizable";
 import { CheckCircleOutlined, CloseCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { useFormContext } from "react-hook-form";
 import { t } from "i18next";
+import AddModal from "../../../../../../sistem-tanimlari/firma-tanim/add/AddModal";
 
 const ResizableTitle = (props) => {
   const { onResize, width, ...restProps } = props;
@@ -346,20 +347,23 @@ export default function IslemYapanTablo({ workshopSelectedId, onSubmit }) {
     <div>
       <Button onClick={handleModalToggle}>+</Button>
       <Modal width={1200} centered title={modalTitle} open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-          <Input
-            style={{ width: "250px" }}
-            type="text"
-            placeholder="Arama yap..."
-            value={searchTerm}
-            allowClear
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onPressEnter={handleSearch}
-            prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
-          />
-          <Button type="primary" onClick={handleSearch}>
-            <SearchOutlined />
-          </Button>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", marginBottom: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Input
+              style={{ width: "250px" }}
+              type="text"
+              placeholder="Arama yap..."
+              value={searchTerm}
+              allowClear
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onPressEnter={handleSearch}
+              prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
+            />
+            <Button type="primary" onClick={handleSearch}>
+              <SearchOutlined />
+            </Button>
+          </div>
+          {parseInt(islemiYapan) === 1 && <AddModal onRefresh={() => fetch(0, 1)} />}
         </div>
 
         <Table
