@@ -142,7 +142,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         setValue("lokasyon", res?.data.lokasyon);
         setValue("firmaId", res?.data.firmaId);
         setValue("firma", res?.data.firma);
-        setValue("istasyonKodId", res?.data.istasyonKodId);
+        // setValue("istasyonKodId", res?.data.istasyonKodId);
         setValue("istasyon", res?.data.istasyon);
         setValue("sonAlinanKm", res?.data.sonAlinanKm);
         setValue("alinanKm", res?.data.alinanKm);
@@ -253,7 +253,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       guzergahId: values.guzergahId,
       surucuId: values.surucuId,
       firmaId: values.firmaId,
-      istasyonKodId: values.istasyonKodId,
+      // istasyonKodId: values.istasyonKodId,
       istasyon: values.istasyon,
       alinanKm: values.alinanKm,
       miktar: values.miktar,
