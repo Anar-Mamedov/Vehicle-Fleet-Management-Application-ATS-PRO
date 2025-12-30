@@ -12,7 +12,6 @@ import {
   GetKmRangeBeforeDateService,
   GetLastThreeFuelRecordService,
   GetMaterialPriceService,
-  ValidateFuelInfoInsertionService,
 } from "../../../../../../../api/services/vehicles/operations_services";
 import { UpdateVehicleDetailsInfoService } from "../../../../../../../api/services/vehicles/vehicles/services";
 import Plaka from "../../../../../../components/form/selects/Plaka";
@@ -41,7 +40,7 @@ const getDecimalSeparator = () => {
   }
 };
 
-const GeneralInfo = ({ setIsValid, response, setResponse }) => {
+const GeneralInfo = ({ setIsValid, response }) => {
   const [, contextHolder] = message.useMessage();
   const { control, setValue, watch } = useFormContext();
   const { data, history, setHistory } = useContext(PlakaContext);
@@ -49,9 +48,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
 
   const [open, setOpen] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [content, setContent] = useState(null);
-  const [logError, setLogError] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [selectedYakitTipId, setSelectedYakitTipId] = useState(null);
 
@@ -275,49 +272,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   }, [watch("fullDepo"), watch("farkKm"), watch("miktar"), watch("yakitHacmi"), control, history, setValue, t]);
 
   // ------------------------------------------------------------------
-  // 5) KM LOG KONTROL
-  // ------------------------------------------------------------------
-  const validateLog = () => {
-    const body = {
-      aracId: data.aracId,
-      tarih: dayjs(watch("tarih")).format("YYYY-MM-DD"),
-      saat: dayjs(watch("saat")).format("HH:mm:ss"),
-      alinanKm: watch("alinanKm"),
-      kmLog: {
-        kmAracId: data.aracId,
-        plaka: data.plaka,
-        tarih: dayjs(watch("tarih")).format("YYYY-MM-DD"),
-        saat: dayjs(watch("saat")).format("HH:mm:ss"),
-        yeniKm: watch("alinanKm"),
-        dorse: false,
-        kaynak: "YAKIT",
-        lokasyonId: data.lokasyonId,
-      },
-    };
-
-    ValidateFuelInfoInsertionService(body).then((res) => {
-      if (res?.data.statusCode === 400) {
-        setResponse("error");
-        if (res?.data.message === " Invalid Km range for both KmLog and FuelKm !") {
-          setErrorMessage("Alınan Km Yakıt ve Km Log-a girilemez!");
-          setIsValid(true);
-        } else if (res?.data.message === " Invalid FuelKm Range !") {
-          setErrorMessage("Alınan Km Yakıt Log-a girilemez!");
-          setIsValid(true);
-        } else if (res?.data.message === " Invalid KmLog Range !") {
-          setLogError(true);
-        }
-      } else if (res?.data.statusCode === 200) {
-        setResponse("success");
-        setIsValid(false);
-      }
-    });
-
-    setIsValid(true);
-  };
-
-  // ------------------------------------------------------------------
-  // 6) DEPO HACMİ KONTROLÜ
+  // 5) DEPO HACMİ KONTROLÜ
   // ------------------------------------------------------------------
   useEffect(() => {
     if (watch("depoYakitMiktar") + history[0]?.miktar > watch("yakitHacmi")) {
@@ -329,7 +284,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
   }, [watch("depoYakitMiktar")]);
 
   // ------------------------------------------------------------------
-  // 7) LİTRE FİYATI DEĞİŞİNCE MİKTAR VE TUTAR DEĞERLERİNİ SIFIRLA
+  // 6) LİTRE FİYATI DEĞİŞİNCE MİKTAR VE TUTAR DEĞERLERİNİ SIFIRLA
   // ------------------------------------------------------------------
   useEffect(() => {
     // Skip initial render
@@ -339,28 +294,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
     }
   }, [watch("litreFiyat"), setValue]);
 
-  useEffect(() => {
-    if (logError) {
-      if (watch("engelle")) {
-        setResponse("success");
-        setIsValid(false);
-      } else {
-        setIsValid(true);
-        setResponse("error");
-        setErrorMessage("Alınan Km Km Log-a girilemez!");
-      }
-    }
-  }, [watch("engelle"), logError]);
-
-  // ------------------------------------------------------------------
-  // 8) ERROR MESAJI GÖSTER
-  // ------------------------------------------------------------------
-  useEffect(() => {
-    if (errorMessage) {
-      message.error(errorMessage);
-      setErrorMessage("");
-    }
-  }, [errorMessage]);
+  
 
   // ------------------------------------------------------------------
   // 9) DEPO HACMİ GÜNCELLE
@@ -465,7 +399,6 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                           onBlur={() => fetchData()}
                           onChange={(dateVal) => {
                             field.onChange(dateVal);
-                            if (watch("alinanKm")) validateLog();
                           }}
                         />
                       </ConfigProvider>
@@ -487,16 +420,15 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                   rules={{ required: "Bu alan boş bırakılamaz!" }}
                   render={({ field, fieldState }) => (
                     <>
-                      <TimePicker
-                        {...field}
-                        format="HH:mm:ss"
-                        className={fieldState.error ? "input-error" : ""}
-                        onBlur={() => fetchData()}
-                        onChange={(timeVal) => {
-                          field.onChange(timeVal);
-                          if (watch("alinanKm")) validateLog();
-                        }}
-                      />
+                        <TimePicker
+                          {...field}
+                          format="HH:mm:ss"
+                          className={fieldState.error ? "input-error" : ""}
+                          onBlur={() => fetchData()}
+                          onChange={(timeVal) => {
+                            field.onChange(timeVal);
+                          }}
+                        />
                       {fieldState.error && <span style={{ color: "red" }}>{fieldState.error.message}</span>}
                     </>
                   )}
@@ -553,14 +485,8 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                         className={fieldState.error ? "input-error w-full" : "w-full"}
                         // Projende var olan readOnly kontrolü:
                         readOnly={data.sonAlinanKm !== 0}
-                        onPressEnter={(e) => {
-                          validateLog();
-                          e.target.blur();
-                        }}
-                        onBlur={validateLog}
                         onChange={(value) => {
                           field.onChange(value);
-                          setIsValid(true);
 
                           // YENİ MANTIK:
                           const alKm = watch("alinanKm") ?? 0;
@@ -569,7 +495,6 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                           } else {
                             setValue("farkKm", alKm - value);
                           }
-                          validateLog();
                         }}
                       />
                       {fieldState.error && <span style={{ color: "red" }}>{fieldState.error.message}</span>}
@@ -595,14 +520,8 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                         {...field}
                         className={fieldState.error ? "input-error w-full" : "w-full"}
                         style={response === "error" ? { borderColor: "#dc3545" } : response === "success" ? { borderColor: "#23b545" } : { color: "#000" }}
-                        onPressEnter={(e) => {
-                          validateLog(); // ENTER'a basıldığında kontrol etsin
-                          e.target.blur(); // focus'u çıkartarak klavyeyi kapatmak ya da benzeri amaçla
-                        }}
-                        onBlur={validateLog} // Input dışına tıklandığında kontrol etsin
                         onChange={(value) => {
                           field.onChange(value);
-                          setIsValid(true);
 
                           // Fark Km hesaplama mantığı
                           const sonKm = watch("sonAlinanKm") ?? 0;
@@ -611,9 +530,6 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                           } else {
                             setValue("farkKm", value - sonKm);
                           }
-
-                          // Buradan validateLog()'u kaldırdık
-                          // validateLog();
                         }}
                       />
                       {fieldState.error && <span style={{ color: "red" }}>{fieldState.error.message}</span>}
@@ -643,7 +559,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
               </div>
             </div>
 
-            {/* --- ENGELLE --- */}
+            {/*
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("engelle")}</label>
@@ -654,6 +570,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                 />
               </div>
             </div>
+            */}
           </div>
         </div>
 
@@ -968,7 +885,6 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
 GeneralInfo.propTypes = {
   setIsValid: PropTypes.func,
   response: PropTypes.string,
-  setResponse: PropTypes.func,
 };
 
 export default GeneralInfo;
