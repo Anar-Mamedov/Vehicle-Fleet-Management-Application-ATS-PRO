@@ -23,10 +23,12 @@ function Forms() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+      {/*
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
         <Text style={{ fontSize: "14px", color: "#000000a4" }}>{t("kilometreKontrolZorunlu")}</Text>
         <Controller name="kilometreKontrolZorunlu" control={control} render={({ field }) => <Switch {...field} />} />
       </div>
+      */}
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
         <Text style={{ fontSize: "14px", color: "#000000a4" }}>{t("gidilenMesafeKontrolu")}</Text>

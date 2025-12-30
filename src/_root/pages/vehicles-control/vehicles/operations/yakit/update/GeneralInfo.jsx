@@ -9,8 +9,6 @@ import { PlakaContext } from "../../../../../../../context/plakaSlice";
 import {
   GetKmRangeBeforeDateService,
   GetMaterialPriceService,
-  ValidateFuelInfoInsertionService,
-  ValidateFuelInfoUpdateService,
 } from "../../../../../../../api/services/vehicles/operations_services";
 import { UpdateVehicleDetailsInfoService } from "../../../../../../../api/services/vehicles/vehicles/services";
 import HiddenInput from "../../../../../../components/form/inputs/HiddenInput";
@@ -45,15 +43,13 @@ const getDecimalSeparator = () => {
   }
 };
 
-const GeneralInfo = ({ setIsValid, response, setResponse }) => {
+const GeneralInfo = ({ setIsValid, response }) => {
   const { control, watch, setValue } = useFormContext();
   const { history, setHistory, data } = useContext(PlakaContext);
   const [open, setOpen] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
   const [openTutarModal, setOpenTutarModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [content, setContent] = useState(null);
-  const [logError, setLogError] = useState(false);
   const [originalLitreFiyat, setOriginalLitreFiyat] = useState(null);
   const [showPopconfirm, setShowPopconfirm] = useState(false);
 
@@ -284,72 +280,6 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
     GetKmRangeBeforeDateService(data.aracId, dayjs(watch("tarih")).format("YYYY-MM-DD"), dayjs(watch("saat")).format("HH:mm:ss")).then((res) => setHistory(res.data));
   }, [data]);
 
-  const validateLog = () => {
-    const body = {
-      siraNo: watch("siraNo"),
-      aracId: watch("aracId"),
-      plaka: watch("plaka"),
-      sonAlinanKm: watch("sonAlinanKm"),
-      farkKm: watch("farkKm"),
-      tuketim: watch("tuketim"),
-      alinanKm: watch("alinanKm"),
-      hasToInsertKmLog: watch("engelle"),
-      tarih: dayjs(watch("tarih")).format("YYYY-MM-DD"),
-      saat: dayjs(watch("saat")).format("HH:mm:ss"),
-      kmLog: {
-        siraNo: watch("kmLogId"),
-        kmAracId: watch("aracId"),
-        plaka: watch("plaka"),
-        tarih: dayjs(watch("tarih")).format("YYYY-MM-DD"),
-        saat: dayjs(watch("saat")).format("HH:mm:ss"),
-        yeniKm: watch("alinanKm"),
-        eskiKm: watch("eskiKm"),
-        dorse: false,
-        kaynak: "YAKIT",
-        lokasyonId: watch("lokasyonId"),
-      },
-    };
-
-    ValidateFuelInfoUpdateService(body).then((res) => {
-      if (res?.data.statusCode === 400) {
-        setResponse("error");
-        if (res?.data.message === " Invalid Km range for both KmLog and FuelKm !") {
-          setErrorMessage("Alınan Km Yakıt ve Km Log-a girilemez!");
-          setIsValid(true);
-        } else if (res?.data.message === " Invalid FuelKm Range !") {
-          setErrorMessage("Alınan Km Yakıt Log-a girilemez!");
-          setIsValid(true);
-        } else if (res?.data.message === " Invalid KmLog Range !") {
-          setLogError(true);
-        }
-      } else if (res?.data.statusCode === 200) {
-        setResponse("success");
-        setIsValid(false);
-      }
-    });
-    setIsValid(true);
-  };
-
-  useEffect(() => {
-    if (logError) {
-      if (watch("engelle")) {
-        setResponse("success");
-        setIsValid(false);
-      } else {
-        setIsValid(true);
-        setResponse("error");
-        setErrorMessage("Alınan Km Km Log-a girilemez!");
-      }
-    }
-  }, [watch("engelle"), logError]);
-
-  useEffect(() => {
-    if (errorMessage) {
-      message.error(errorMessage);
-    }
-    setErrorMessage("");
-  }, [errorMessage]);
-
   const updateDepoHacmi = () => {
     const body = {
       dtyAracId: watch("aracId"),
@@ -481,14 +411,8 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                         {...field}
                         style={response === "error" ? { borderColor: "#dc3545" } : response === "success" ? { borderColor: "#23b545" } : { color: "#000" }}
                         {...field}
-                        onPressEnter={(e) => {
-                          validateLog();
-                          e.target.blur();
-                        }}
-                        onBlur={validateLog}
                         onChange={(e) => {
                           field.onChange(e);
-                          setIsValid(true);
                           if (watch("sonAlinanKm") === 0 && !watch("alinanKm")) {
                             setValue("farkKm", 0);
                           } else {
@@ -515,18 +439,11 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                       {...field}
                       className="w-full"
                       readOnly={watch("sonAlinanKm") === 0}
-                      onPressEnter={(e) => {
-                        validateLog();
-                        e.target.blur();
-                      }}
                       value={watch("farkKm") < 0 ? 0 : watch("farkKm")}
-                      onBlur={validateLog}
                       onChange={(e) => {
                         field.onChange(e);
-                        setIsValid(true);
                         const alinanKm = watch("sonAlinanKm") + +e;
                         setValue("alinanKm", alinanKm);
-                        validateLog();
                         calculateTuketim();
                       }}
                     />
@@ -534,6 +451,7 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                 />
               </div>
             </div>
+            {/*
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("engelle")}</label>
@@ -546,13 +464,13 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
-                        validateLog();
                       }}
                     />
                   )}
                 />
               </div>
             </div>
+            */}
           </div>
         </div>
         <div className="col-span-6 p-20">
@@ -928,7 +846,6 @@ const GeneralInfo = ({ setIsValid, response, setResponse }) => {
 GeneralInfo.propTypes = {
   setIsValid: PropTypes.func,
   response: PropTypes.string,
-  setResponse: PropTypes.func,
 };
 
 export default GeneralInfo;

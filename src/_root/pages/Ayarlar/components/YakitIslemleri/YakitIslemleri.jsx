@@ -11,7 +11,7 @@ function YakitIslemleri() {
 
   const methods = useForm({
     defaultValues: {
-      kilometreKontrolZorunlu: false,
+      // kilometreKontrolZorunlu: false,
       gidilenMesafeKontrolu: false,
       gidilenMesafeMin: null,
       gidilenMesafeMax: null,
@@ -27,7 +27,7 @@ function YakitIslemleri() {
       const response = await AxiosInstance.get(`CommonSettings/GetSettingByType?type=4`);
       const item = response.data;
       if (item) {
-        setValue("kilometreKontrolZorunlu", item.yakitKilometreKontrol);
+        // setValue("kilometreKontrolZorunlu", item.yakitKilometreKontrol);
         setValue("gidilenMesafeKontrolu", item.yakitGidilenMesafeKontrol);
         setValue("gidilenMesafeMin", item.yakitGidilenMesafeMin);
         setValue("gidilenMesafeMax", item.yakitGidilenMesafeMax);
@@ -74,7 +74,7 @@ function YakitIslemleri() {
     // Form verilerini API'nin beklediği formata dönüştür
     const Body = {
       siraNo: 1,
-      yakitKilometreKontrol: data.kilometreKontrolZorunlu,
+      // yakitKilometreKontrol: data.kilometreKontrolZorunlu,
       yakitGidilenMesafeKontrol: data.gidilenMesafeKontrolu,
       yakitGidilenMesafeMin: data.gidilenMesafeMin,
       yakitGidilenMesafeMax: data.gidilenMesafeMax,
