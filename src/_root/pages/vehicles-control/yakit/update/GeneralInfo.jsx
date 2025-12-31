@@ -389,7 +389,7 @@ const GeneralInfo = ({ setIsValid, response }) => {
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label className="text-info">{t("sonAlinanKm")}</label>
-                <TextInput name="sonAlinanKm" readonly={true} />
+                <TextInput name="sonAlinanKm" />
               </div>
             </div>
             <div className="col-span-6">
