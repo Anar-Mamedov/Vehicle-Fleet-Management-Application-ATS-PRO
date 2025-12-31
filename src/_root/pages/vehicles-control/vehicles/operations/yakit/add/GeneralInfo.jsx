@@ -483,8 +483,6 @@ const GeneralInfo = ({ setIsValid, response }) => {
                       <InputNumber
                         {...field}
                         className={fieldState.error ? "input-error w-full" : "w-full"}
-                        // Projende var olan readOnly kontrolü:
-                        readOnly={data.sonAlinanKm !== 0}
                         onChange={(value) => {
                           field.onChange(value);
 
