@@ -327,6 +327,13 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, aracId }) => 
             setData(res.data);
           });
         }
+      } else if (res.data.statusCode === 400) {
+        const tarihSaat = `${dayjs(values.tarih).format("DD.MM.YYYY")} ${dayjs(values.saat).format("HH:mm:ss")}`;
+        message.warning(
+          `Seçtiğiniz tarih/saatte (${tarihSaat}) sistemdeki km aralığı ${res?.data?.data} - ${res?.data?.data1}. Girdiğiniz km (${values.alinanKm}) bu aralığın dışında olduğu için kayıt engellendi.`
+        );
+      } else {
+        message.error("Bir sorun oluşdu! Tekrar deneyiniz.");
       }
     });
 
