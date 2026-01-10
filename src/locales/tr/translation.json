@@ -1317,5 +1317,10 @@
   "versionUpdateTitle": "Yeni Sürüm Mevcut",
   "versionUpdateMessage": "Uygulamanın yeni bir sürümü yayınlandı. Güncellemeleri görmek için lütfen sayfayı yenileyin.",
   "versionUpdateButton": "Yenile",
-  "versionUpdateLater": "Daha Sonra"
+  "versionUpdateLater": "Daha Sonra",
+  "aracRenk": "Araç Rengi",
+  "muayeneTarih": "Muayene Tarihi",
+  "egzosTarih": "Egzoz Tarihi",
+  "vergiTarih": "Vergi Tarihi",
+  "kmLog": "Km Log"
 }
