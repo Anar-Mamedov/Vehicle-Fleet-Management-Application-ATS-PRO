@@ -11,6 +11,7 @@ import PropTypes from "prop-types";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetVehicleByIdService, UpdateVehicleService } from "../../../../api/services/vehicles/vehicles/services";
 import { GetDocumentsByRefGroupService, GetPhotosByRefGroupService } from "../../../../api/services/upload/services";
+import AxiosInstance from "../../../../api/http";
 import Arsivle from "../vehicles/components/ContextMenu/components/Arsivle";
 import ArsivdenCikar from "../vehicles/components/ContextMenu/components/ArsivdenCikar";
 import AktifYap from "../vehicles/components/ContextMenu/components/AktifYap";
@@ -76,6 +77,8 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
 
   const [photoUploaded, setPhotoUploaded] = useState(0);
   const [dosyaUploaded, setDosyaUploaded] = useState(0);
+
+  const [mandatoryFields, setMandatoryFields] = useState({});
 
   const [fields, setFields] = useState([
     {
@@ -173,6 +176,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     durumID: 0,
     durum: undefined,
     AracCinsiKodId: 0,
+    aracCinsiID: 0,
     renkID: 0,
     renk: undefined,
     lokasyonId: 0,
@@ -210,6 +214,10 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
   const { setValue, handleSubmit, watch } = methods;
 
   const [popoverVisible, setPopoverVisible] = useState(false);
+
+  const isRequired = (key) => {
+    return mandatoryFields ? mandatoryFields[key] === true : false;
+  };
 
   // Function to refresh vehicle data
   const refreshVehicleData = () => {
@@ -250,6 +258,20 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
   };
 
   useEffect(() => {
+    if (isOpen) {
+      AxiosInstance.get("MandatoryFields/GetMandatoryFieldsByModule?module=arac")
+        .then((response) => {
+          if (response.data && response.data.fields) {
+            setMandatoryFields(response.data.fields);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching mandatory fields:", error);
+        });
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     if (isOpen && selectedId) {
       setLoading(true);
       GetVehicleByIdService(selectedId).then((res) => {
@@ -274,7 +296,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setValue("hgsNo", res?.data.hgsNo);
         setValue("mulkiyetID", res?.data.aracMulkiyetKodId ? res?.data.aracMulkiyetKodId : null);
         setValue("mulkiyet", res?.data.aracMulkiyet ? res?.data.aracMulkiyet : null);
-        setValue("AracCinsiKodId", res?.data.aracCinsi);
+        setValue("aracCinsiID", res?.data.aracCinsiKodId ?? res?.data.aracCinsi);
         setValue("aracCinsi", res?.data.aracCinsi);
         setValue("markaId", res?.data.markaId ? res?.data.markaId : null);
         setValue("marka", res?.data.marka);
@@ -376,7 +398,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       modelId: values.modelId || 0,
       aracGrubuId: values.aracGrubuID || 0,
       aracRenkId: values.renkID || 0,
-      AracCinsiKodId: values.aracCinsiKodId || 0,
+      AracCinsiKodId: values.aracCinsiID || 0,
       /* lokasyonId: values.lokasyonId || 0, */
       departmanId: values.departmanID || 0,
       surucuId: values.surucuId || 0,
@@ -433,13 +455,14 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     form: "Arac",
     fields,
     setFields,
+    mandatoryFields,
   };
 
   const items = [
     {
       key: "1",
       label: t("genelBilgiler"),
-      children: <GeneralInfo />,
+      children: <GeneralInfo mandatoryFields={mandatoryFields} />,
     },
     {
       key: "5",
@@ -685,18 +708,18 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label htmlFor="plaka">
-                      {t("plaka")} <span className="text-danger">*</span>
+                      {t("plaka")} {isRequired("plaka") && <span className="text-danger">*</span>}
                     </label>
-                    <TextInput name="plaka" />
+                    <TextInput name="plaka" required={isRequired("plaka")} />
                   </div>
                 </div>
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label>
-                      {t("aracTip")} <span className="text-danger">*</span>
+                      {t("aracTip")} {isRequired("aracTip") && <span className="text-danger">*</span>}
                     </label>
                     {/* <CodeControl name="aracTip" codeName="aracTipId" id={100} required={true} /> */}
-                    <KodIDSelectbox name1="aracTip" kodID={100} isRequired={true} />
+                    <KodIDSelectbox name1="aracTip" kodID={100} isRequired={isRequired("aracTip")} />
                   </div>
                 </div>
                 <div className="col-span-4">
@@ -704,9 +727,12 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                     <div className="col-span-10">
                       <div className="flex flex-col gap-1">
                         <label className="flex gap-2">
-                          <span>{t("guncelKm")}</span> <span className="text-info">{guncelKmTarih ? `[ ${dayjs(guncelKmTarih).format("DD.MM.YYYY")} ]` : null}</span>
+                          <span>
+                            {t("guncelKm")} {isRequired("guncelKm") && <span className="text-danger">*</span>}
+                          </span>
+                          <span className="text-info">{guncelKmTarih ? `[ ${dayjs(guncelKmTarih).format("DD.MM.YYYY")} ]` : null}</span>
                         </label>
-                        <TextInput name="guncelKm" readonly={true} />
+                        <TextInput name="guncelKm" readonly={true} required={isRequired("guncelKm")} />
                       </div>
                     </div>
                     <div className="col-span-2 self-end">
@@ -719,9 +745,9 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label htmlFor="lokasyonId">
-                      {t("lokasyon")} <span className="text-danger">*</span>
+                      {t("lokasyon")} {isRequired("lokasyon") && <span className="text-danger">*</span>}
                     </label>
-                    <SurucuInput name="lokasyon" readonly={true} required={true} onPlusClick={handleLokasyonPlusClick} />
+                    <SurucuInput name="lokasyon" readonly={true} required={isRequired("lokasyon")} onPlusClick={handleLokasyonPlusClick} />
                     <AddLokasyon
                       isModalOpen={isLokasyonModalOpen}
                       setIsModalOpen={setIsLokasyonModalOpen}
@@ -736,23 +762,25 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label htmlFor="markaId">
-                      {t("marka")} <span className="text-danger">*</span>
+                      {t("marka")} {isRequired("marka") && <span className="text-danger">*</span>}
                     </label>
-                    <Marka required={true} />
+                    <Marka required={isRequired("marka")} />
                   </div>
                 </div>
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label htmlFor="modelId">
-                      {t("model")} <span className="text-danger">*</span>
+                      {t("model")} {isRequired("model") && <span className="text-danger">*</span>}
                     </label>
-                    <Model required={true} />
+                    <Model required={isRequired("model")} />
                   </div>
                 </div>
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
-                    <label htmlFor="surucuId">{t("surucu")}</label>
-                    <SurucuInput name="surucu" readonly={true} required={false} onPlusClick={handlePlusClick} />
+                    <label htmlFor="surucuId">
+                      {t("surucu")} {isRequired("surucu") && <span className="text-danger">*</span>}
+                    </label>
+                    <SurucuInput name="surucu" readonly={true} required={isRequired("surucu")} onPlusClick={handlePlusClick} />
                     <AddSurucu
                       isModalOpen={isModalOpen}
                       setIsModalOpen={setIsModalOpen}
@@ -767,16 +795,18 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label htmlFor="yakitTipId">
-                      {t("yakitTip")} <span className="text-danger">*</span>
+                      {t("yakitTip")} {isRequired("yakitTip") && <span className="text-danger">*</span>}
                     </label>
-                    <MaterialType name="yakitTip" codeName="yakitTipId" type="YAKIT" required={true} />
+                    <MaterialType name="yakitTip" codeName="yakitTipId" type="YAKIT" required={isRequired("yakitTip")} />
                   </div>
                 </div>
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
-                    <label htmlFor="aracRenkId">{t("renk")}</label>
+                    <label htmlFor="aracRenkId">
+                      {t("renk")} {isRequired("aracRenk") && <span className="text-danger">*</span>}
+                    </label>
                     {/* <CodeControl name="renk" codeName="aracRenkId" id={111} /> */}
-                    <KodIDSelectbox name1="renk" kodID={111} isRequired={false} />
+                    <KodIDSelectbox name1="renk" kodID={111} isRequired={isRequired("aracRenk")} />
                   </div>
                 </div>
               </div>

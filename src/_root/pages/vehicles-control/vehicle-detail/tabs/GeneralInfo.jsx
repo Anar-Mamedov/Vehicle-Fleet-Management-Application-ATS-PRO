@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import { IoIosWarning } from "react-icons/io";
@@ -15,7 +16,7 @@ import Textarea from "../../../../components/form/inputs/Textarea";
 import KodIDSelectbox from "../../../../components/form/selects/KodIDSelectbox";
 import DatePickerSelectYear from "../../../../components/form/inputs/DatePickerSelectYear";
 
-const GeneralInfo = () => {
+const GeneralInfo = ({ mandatoryFields }) => {
   const { setValue, watch, control } = useFormContext();
   const [open, setOpen] = useState(false);
   const [vehicle, setVehicle] = useState(false);
@@ -40,6 +41,12 @@ const GeneralInfo = () => {
       vergi: vergiDate.isValid() && vergiDate.diff(current, "day") < 0,
     });
   }, [watch("muayeneTarih"), watch("sozlesmeTarih"), watch("egzosTarih"), watch("vergiTarih")]);
+
+  const isRequired = (key) => {
+    return mandatoryFields ? mandatoryFields[key] === true : false;
+  };
+
+  const isAracGrubuRequired = isRequired("aracGrubu") || isRequired("grup");
 
   const footer = [
     <Button
@@ -67,16 +74,28 @@ const GeneralInfo = () => {
             <div className="grid gap-1 mt-10">
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="departmanId">{t("departman")}</label>
+                  <label htmlFor="departmanId">
+                    {t("departman")} {isRequired("departman") && <span className="text-danger">*</span>}
+                  </label>
                   {/* <CodeControl name="departman" codeName="departmanId" id={200} /> */}
-                  <KodIDSelectbox name1="departman" kodID={200} isRequired={false} />
+                  <KodIDSelectbox name1="departman" kodID={200} isRequired={isRequired("departman")} />
                 </div>
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="aracGrubuId">{t("aracGrup")}</label>
+                  <label htmlFor="aracGrubuId">
+                    {t("aracGrup")} {isAracGrubuRequired && <span className="text-danger">*</span>}
+                  </label>
                   {/* <CodeControl name="grup" codeName="aracGrubuId" id={101} /> */}
-                  <KodIDSelectbox name1="aracGrubu" kodID={101} isRequired={false} />
+                  <KodIDSelectbox name1="aracGrubu" kodID={101} isRequired={isAracGrubuRequired} />
+                </div>
+              </div>
+              <div className="col-span-4">
+                <div className="flex flex-col gap-1">
+                  <label>
+                    {t("aracCinsi")} {isRequired("aracCinsi") && <span className="text-danger">*</span>}
+                  </label>
+                  <KodIDSelectbox name1="aracCinsi" kodID={107} isRequired={isRequired("aracCinsi")} />
                 </div>
               </div>
               <div className="col-span-4">
@@ -108,8 +127,10 @@ const GeneralInfo = () => {
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="yil">{t("modelYili")}</label>
-                  <DatePickerSelectYear name="yil" />
+                  <label htmlFor="yil">
+                    {t("modelYili")} {isRequired("yil") && <span className="text-danger">*</span>}
+                  </label>
+                  <DatePickerSelectYear name="yil" required={isRequired("yil")} />
                 </div>
               </div>
 
@@ -213,56 +234,66 @@ const GeneralInfo = () => {
               <div className="col-span-6">
                 <div className="flex flex-col gap-1">
                   <label className="text-info flex gap-2" style={{ color: warning.muayene ? "red" : "#17a2b8" }}>
-                    <span>{t("muayeneTarihi")} </span>
+                    <span>
+                      {t("muayeneTarihi")} {isRequired("muayeneTarih") && <span className="text-danger">*</span>}
+                    </span>
                     <span className={`warning-icon ${warning.muayene ? "show" : "hide"}`}>
                       <IoIosWarning style={{ color: "red", fontSize: 18 }} />
                     </span>
                   </label>
-                  <DateInput name="muayeneTarih" />
+                  <DateInput name="muayeneTarih" required={isRequired("muayeneTarih")} />
                 </div>
               </div>
               <div className="col-span-6">
                 <div className="flex flex-col gap-1">
                   <label className="text-info flex gap-2" style={{ color: warning.sozlesme ? "red" : "#17a2b8" }}>
-                    <span>{t("sozlesmeTarihi")} </span>
+                    <span>
+                      {t("sozlesmeTarihi")} {isRequired("sozlesmeTarih") && <span className="text-danger">*</span>}
+                    </span>
                     <span className={`warning-icon ${warning.sozlesme ? "show" : "hide"}`}>
                       <IoIosWarning style={{ color: "red", fontSize: 18 }} />
                     </span>
                   </label>
-                  <DateInput name="sozlesmeTarih" />
+                  <DateInput name="sozlesmeTarih" required={isRequired("sozlesmeTarih")} />
                 </div>
               </div>
               <div className="col-span-6">
                 <div className="flex flex-col gap-1">
                   <label className="text-info flex gap-2" style={{ color: warning.egzos ? "red" : "#17a2b8" }}>
-                    <span>{t("egzozEmisyon")} </span>
+                    <span>
+                      {t("egzozEmisyon")} {isRequired("egzosTarih") && <span className="text-danger">*</span>}
+                    </span>
                     <span className={`warning-icon ${warning.egzos ? "show" : "hide"}`}>
                       <IoIosWarning style={{ color: "red", fontSize: 18 }} />
                     </span>
                   </label>
-                  <DateInput name="egzosTarih" />
+                  <DateInput name="egzosTarih" required={isRequired("egzosTarih")} />
                 </div>
               </div>
               <div className="col-span-6">
                 <div className="flex flex-col gap-1">
                   <label className="text-info flex gap-2" style={{ color: warning.vergi ? "red" : "#17a2b8" }}>
-                    <span>{t("vergi")} </span>
+                    <span>
+                      {t("vergi")} {isRequired("vergiTarih") && <span className="text-danger">*</span>}
+                    </span>
                     <span className={`warning-icon ${warning.vergi ? "show" : "hide"}`}>
                       <IoIosWarning style={{ color: "red", fontSize: 18 }} />
                     </span>
                   </label>
-                  <DateInput name="vergiTarih" />
+                  <DateInput name="vergiTarih" required={isRequired("vergiTarih")} />
                 </div>
               </div>
               <div className="col-span-6">
                 <div className="flex flex-col gap-1">
                   <label className="text-info flex gap-2" style={{ color: warning.takograf ? "red" : "#17a2b8" }}>
-                    <span>{t("takograf")} </span>
+                    <span>
+                      {t("takograf")} {isRequired("takografTarih") && <span className="text-danger">*</span>}
+                    </span>
                     <span className={`warning-icon ${warning.takograf ? "show" : "hide"}`}>
                       <IoIosWarning style={{ color: "red", fontSize: 18 }} />
                     </span>
                   </label>
-                  <DateInput name="takografTarih" />
+                  <DateInput name="takografTarih" required={isRequired("takografTarih")} />
                 </div>
               </div>
             </div>
@@ -338,6 +369,10 @@ const GeneralInfo = () => {
       </div>
     </>
   );
+};
+
+GeneralInfo.propTypes = {
+  mandatoryFields: PropTypes.object,
 };
 
 export default GeneralInfo;
