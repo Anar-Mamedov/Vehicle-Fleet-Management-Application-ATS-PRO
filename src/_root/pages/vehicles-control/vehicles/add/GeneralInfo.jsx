@@ -13,9 +13,13 @@ import DateInput from "../../../../components/form/date/DateInput";
 import KodIDSelectbox from "../../../../components/form/selects/KodIDSelectbox";
 import DatePickerSelectYear from "../../../../components/form/inputs/DatePickerSelectYear";
 
-const GeneralInfo = ({ isValid }) => {
+const GeneralInfo = ({ isValid, mandatoryFields }) => {
   const validateStyle = {
     borderColor: isValid === "error" ? "#dc3545" : isValid === "success" ? "#23b545" : "#000",
+  };
+
+  const isRequired = (key) => {
+    return mandatoryFields ? mandatoryFields[key] === true : false;
   };
 
   return (
@@ -26,24 +30,26 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>
-                  {t("plaka")} <span className="text-danger">*</span>
+                  {t("plaka")} {isRequired("plaka") && <span className="text-danger">*</span>}
                 </label>
-                <TextInput name="plaka" style={validateStyle} required={true} />
+                <TextInput name="plaka" style={validateStyle} required={isRequired("plaka")} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>
-                  {t("aracTip")} <span className="text-danger">*</span>
+                  {t("aracTip")} {isRequired("aracTip") && <span className="text-danger">*</span>}
                 </label>
-                {/* <CodeControl name="aracTip" codeName="aracTipId" id={100} required={true} /> */}
-                <KodIDSelectbox name1="aracTip" kodID={100} isRequired={true} />
+                {/* <CodeControl name="aracTip" codeName="aracTipId" id={100} required={isRequired("aracTip")} /> */}
+                <KodIDSelectbox name1="aracTip" kodID={100} isRequired={isRequired("aracTip")} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
-                <label>{t("guncelKm")}</label>
-                <NumberInput name="guncelKm" />
+                <label>
+                  {t("guncelKm")} {isRequired("guncelKm") && <span className="text-danger">*</span>}
+                </label>
+                <NumberInput name="guncelKm" required={isRequired("guncelKm")} />
               </div>
             </div>
           </div>
@@ -51,9 +57,9 @@ const GeneralInfo = ({ isValid }) => {
         <div className="col-span-4 p-10">
           <div className="flex flex-col gap-1">
             <label>
-              {t("lokasyon")} <span className="text-danger">*</span>
+              {t("lokasyon")} {isRequired("lokasyon") && <span className="text-danger">*</span>}
             </label>
-            <Location required={true} />
+            <Location required={isRequired("lokasyon")} />
           </div>
         </div>
       </div>
@@ -65,71 +71,72 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>
-                  {t("marka")} <span className="text-danger">*</span>
+                  {t("marka")} {isRequired("marka") && <span className="text-danger">*</span>}
                 </label>
-                <Marka required={true} />
+                <Marka required={isRequired("marka")} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>
-                  {t("model")} <span className="text-danger">*</span>
+                  {t("model")} {isRequired("model") && <span className="text-danger">*</span>}
                 </label>
-                <Model required={true} />
+                <Model required={isRequired("model")} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
-                <label htmlFor="yil">{t("modelYili")}</label>
-                <DatePickerSelectYear name="yil" />
+                <label htmlFor="yil">
+                  {t("modelYili")} {isRequired("yil") && <span className="text-danger">*</span>}
+                </label>
+                <DatePickerSelectYear name="yil" required={isRequired("yil")} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
-                <label>{t("aracGrup")}</label>
-                {/* <CodeControl name="grup" codeName="aracGrubuId" id={101} /> */}
-                <KodIDSelectbox name1="aracGrubu" kodID={101} isRequired={false} />
+                <label>
+                  {t("aracGrup")} {isRequired("aracGrubu") && <span className="text-danger">*</span>}
+                </label>
+                <KodIDSelectbox name1="aracGrubu" kodID={101} isRequired={isRequired("aracGrubu")} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("aracCinsi")}</label>
-                {/* <CodeControl name="AracCinsi" codeName="AracCinsiKodId" id={107} /> */}
+                {/* AracCinsi might not be in the list of dynamic fields provided, defaulting to optional or check if user listed it? User list: departman, grup, birin, plaka... aracTip etc. 'grup' maps to 'aracGrubu' probably? User listed 'aracGrubu'. 'AracCinsi' not explicitly listed in user sample but likely handles similarly if added later. Assuming optional for now as it maps to code 107 */}
                 <KodIDSelectbox name1="aracCinsi" kodID={107} isRequired={false} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
-                <label>{t("renk")}</label>
-                {/* <CodeControl name="renk" codeName="aracRenkId" id={111} /> */}
-                <KodIDSelectbox name1="renk" kodID={111} isRequired={false} />
-              </div>
-            </div>
-            {/* <div className="col-span-4">
-              <div className="flex flex-col gap-1">
-                <label>{t("mulkiyet")} -- ?</label>
-                <TextInput name="mulkiyet" readonly={true} />
-              </div>
-            </div> */}
-            <div className="col-span-4">
-              <div className="flex flex-col gap-1">
-                <label>{t("departman")}</label>
-                {/* <CodeControl name="departman" codeName="departmanId" id={200} /> */}
-                <KodIDSelectbox name1="departman" kodID={200} isRequired={false} />
-              </div>
-            </div>
-            <div className="col-span-4">
-              <div className="flex flex-col gap-1">
-                <label>{t("surucu")}</label>
-                <Driver />
+                <label>
+                  {t("renk")} {isRequired("aracRenk") && <span className="text-danger">*</span>}
+                </label>
+                <KodIDSelectbox name1="renk" kodID={111} isRequired={isRequired("aracRenk")} />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>
-                  {t("yakitTip")} <span className="text-danger">*</span>
+                  {t("departman")} {isRequired("departman") && <span className="text-danger">*</span>}
                 </label>
-                <MaterialType name="yakitTip" codeName="yakitTipId" type="YAKIT" required={true} />
+                <KodIDSelectbox name1="departman" kodID={200} isRequired={isRequired("departman")} />
+              </div>
+            </div>
+            <div className="col-span-4">
+              <div className="flex flex-col gap-1">
+                <label>
+                  {t("surucu")} {isRequired("surucu") && <span className="text-danger">*</span>}
+                </label>
+                <Driver required={isRequired("surucu")} />
+              </div>
+            </div>
+            <div className="col-span-4">
+              <div className="flex flex-col gap-1">
+                <label>
+                  {t("yakitTip")} {isRequired("yakitTip") && <span className="text-danger">*</span>}
+                </label>
+                <MaterialType name="yakitTip" codeName="yakitTipId" type="YAKIT" required={isRequired("yakitTip")} />
               </div>
             </div>
           </div>
@@ -140,32 +147,42 @@ const GeneralInfo = ({ isValid }) => {
           <div className="grid gap-1 mt-10">
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label className="text-info">{t("muayeneTarihi")}</label>
-                <DateInput name="muayeneTarih" />
+                <label className="text-info">
+                  {t("muayeneTarihi")} {isRequired("muayeneTarih") && <span className="text-danger">*</span>}
+                </label>
+                <DateInput name="muayeneTarih" required={isRequired("muayeneTarih")} />
               </div>
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label className="text-info">{t("sozlesmeTarihi")}</label>
-                <DateInput name="sozlesmeTarih" />
+                <label className="text-info">
+                  {t("sozlesmeTarihi")} {isRequired("sozlesmeTarih") && <span className="text-danger">*</span>}
+                </label>
+                <DateInput name="sozlesmeTarih" required={isRequired("sozlesmeTarih")} />
               </div>
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label className="text-info">{t("egzozTarihi")}</label>
-                <DateInput name="egzosTarih" />
+                <label className="text-info">
+                  {t("egzozTarihi")} {isRequired("egzosTarih") && <span className="text-danger">*</span>}
+                </label>
+                <DateInput name="egzosTarih" required={isRequired("egzosTarih")} />
               </div>
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label className="text-info">{t("vergiTarihi")}</label>
-                <DateInput name="vergiTarih" />
+                <label className="text-info">
+                  {t("vergiTarihi")} {isRequired("vergiTarih") && <span className="text-danger">*</span>}
+                </label>
+                <DateInput name="vergiTarih" required={isRequired("vergiTarih")} />
               </div>
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-                <label className="text-info">{t("takograf")}</label>
-                <DateInput name="takografTarih" />
+                <label className="text-info">
+                  {t("takograf")} {isRequired("takografTarih") && <span className="text-danger">*</span>}
+                </label>
+                <DateInput name="takografTarih" required={isRequired("takografTarih")} />
               </div>
             </div>
           </div>
@@ -177,6 +194,7 @@ const GeneralInfo = ({ isValid }) => {
 
 GeneralInfo.propTypes = {
   isValid: PropTypes.string,
+  mandatoryFields: PropTypes.object,
 };
 
 export default GeneralInfo;

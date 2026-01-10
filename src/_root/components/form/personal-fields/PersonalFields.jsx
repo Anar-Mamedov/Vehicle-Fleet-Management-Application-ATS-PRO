@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { PersonalFieldsReadService, PersonalFieldsUpdateService } from "../../../../api/service";
@@ -11,11 +11,15 @@ const PersonalFields = ({ personalProps }) => {
   const [originalFields, setOriginalFields] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [values, setValues] = useState(null);
-  const debounceTimers = useRef({});
 
-  const { control, setValue, watch } = useFormContext();
+  const {
+    control,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext();
 
-  const { form, fields, setFields } = personalProps;
+  const { form, fields, setFields, mandatoryFields } = personalProps;
 
   const handleClickSelect = (code) => {
     CodeControlByIdService(code).then((res) => {
@@ -76,13 +80,46 @@ const PersonalFields = ({ personalProps }) => {
     isModalOpen,
   };
 
+  const isRequired = (label) => {
+    return mandatoryFields ? mandatoryFields[label] === true : false;
+  };
+
   return (
     <div className="grid grid-cols-12 gap-1">
       {fields.map((item) => {
+        const required = isRequired(item.label);
         if (item.type === "text") {
           return (
             <div key={item.label} className="col-span-3 mt-10">
               <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <input
+                    id={item.label}
+                    onChange={(e) => handleInputChange(item, e.target.value)}
+                    onBlur={(e) => handleInputBlur(item, e.target.value)}
+                    value={item.value}
+                    className="personal-input"
+                  />
+                  {required && <span className="text-danger">*</span>}
+                </div>
+                <Controller
+                  name={item.label}
+                  control={control}
+                  rules={{ required: required ? "Bu alan zorunludur!" : false }}
+                  render={({ field }) => (
+                    <>
+                      <Input {...field} onChange={(e) => field.onChange(e.target.value)} status={errors[item.label] ? "error" : ""} />
+                      {errors[item.label] && <span style={{ color: "red" }}>{errors[item.label].message}</span>}
+                    </>
+                  )}
+                />
+              </div>
+            </div>
+          );
+        } else if (item.type === "select") {
+          return (
+            <div key={item.label} className="col-span-3 mt-10 flex flex-col gap-1">
+              <div className="flex items-center gap-1">
                 <input
                   id={item.label}
                   onChange={(e) => handleInputChange(item, e.target.value)}
@@ -90,49 +127,42 @@ const PersonalFields = ({ personalProps }) => {
                   value={item.value}
                   className="personal-input"
                 />
-                <Controller name={item.label} control={control} render={({ field }) => <Input {...field} onChange={(e) => field.onChange(e.target.value)} />} />
+                {required && <span className="text-danger">*</span>}
               </div>
-            </div>
-          );
-        } else if (item.type === "select") {
-          return (
-            <div key={item.label} className="col-span-3 mt-10 flex flex-col gap-1">
-              <input
-                id={item.label}
-                onChange={(e) => handleInputChange(item, e.target.value)}
-                onBlur={(e) => handleInputBlur(item, e.target.value)}
-                value={item.value}
-                className="personal-input"
-              />
               <Controller
                 name={item.name2}
                 control={control}
+                rules={{ required: required ? "Bu alan zorunludur!" : false }}
                 render={({ field }) => (
-                  <Select
-                    {...field}
-                    showSearch
-                    allowClear
-                    optionFilterProp="children"
-                    filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
-                    filterSort={(optionA, optionB) => (optionA?.label.toLowerCase() ?? "").toLowerCase().localeCompare((optionB?.label ?? "").toLowerCase())}
-                    options={data.map((item) => ({
-                      label: item.codeText,
-                      value: item.siraNo,
-                    }))}
-                    value={watch(item.label)}
-                    onClick={() => handleClickSelect(item.code)}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      const selectedOption = data.find((option) => option.siraNo === e);
-                      if (e === undefined) {
-                        setValue(item.label, "");
-                        setValue(item.name2, null);
-                      } else {
-                        setValue(item.name2, e);
-                        setValue(item.label, selectedOption.codeText);
-                      }
-                    }}
-                  />
+                  <>
+                    <Select
+                      {...field}
+                      showSearch
+                      allowClear
+                      optionFilterProp="children"
+                      filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
+                      filterSort={(optionA, optionB) => (optionA?.label.toLowerCase() ?? "").toLowerCase().localeCompare((optionB?.label ?? "").toLowerCase())}
+                      options={data.map((item) => ({
+                        label: item.codeText,
+                        value: item.siraNo,
+                      }))}
+                      value={watch(item.label)}
+                      onClick={() => handleClickSelect(item.code)}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        const selectedOption = data.find((option) => option.siraNo === e);
+                        if (e === undefined) {
+                          setValue(item.label, "");
+                          setValue(item.name2, null);
+                        } else {
+                          setValue(item.name2, e);
+                          setValue(item.label, selectedOption.codeText);
+                        }
+                      }}
+                      status={errors[item.name2] ? "error" : ""}
+                    />
+                    {errors[item.name2] && <span style={{ color: "red" }}>{errors[item.name2].message}</span>}
+                  </>
                 )}
               />
               <Controller name={item.name2} control={control} render={({ field }) => <Input {...field} style={{ display: "none" }} />} />
@@ -142,14 +172,27 @@ const PersonalFields = ({ personalProps }) => {
           return (
             <div key={item.label} className="col-span-3 mt-10">
               <div className="flex flex-col gap-1">
-                <input
-                  id={item.label}
-                  onChange={(e) => handleInputChange(item, e.target.value)}
-                  onBlur={(e) => handleInputBlur(item, e.target.value)}
-                  value={item.value}
-                  className="personal-input"
+                <div className="flex items-center gap-1">
+                  <input
+                    id={item.label}
+                    onChange={(e) => handleInputChange(item, e.target.value)}
+                    onBlur={(e) => handleInputBlur(item, e.target.value)}
+                    value={item.value}
+                    className="personal-input"
+                  />
+                  {required && <span className="text-danger">*</span>}
+                </div>
+                <Controller
+                  name={item.label}
+                  control={control}
+                  rules={{ required: required ? "Bu alan zorunludur!" : false }}
+                  render={({ field }) => (
+                    <>
+                      <InputNumber {...field} className="w-full" onChange={(e) => field.onChange(e)} status={errors[item.label] ? "error" : ""} />
+                      {errors[item.label] && <span style={{ color: "red" }}>{errors[item.label].message}</span>}
+                    </>
+                  )}
                 />
-                <Controller name={item.label} control={control} render={({ field }) => <InputNumber {...field} className="w-full" onChange={(e) => field.onChange(e)} />} />
               </div>
             </div>
           );

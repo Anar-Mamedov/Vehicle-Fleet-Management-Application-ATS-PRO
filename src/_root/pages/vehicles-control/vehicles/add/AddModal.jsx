@@ -9,13 +9,15 @@ import { AddVehicleService } from "../../../../../api/services/vehicles/vehicles
 import GeneralInfo from "./GeneralInfo";
 import PersonalFields from "../../../../components/form/personal-fields/PersonalFields";
 import { CodeItemValidateService } from "../../../../../api/services/code/services";
+import AxiosInstance from "../../../../../api/http";
 
 const AddModal = ({ setStatus, onRefresh }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isValid, setIsValid] = useState("normal");
   const [activeKey, setActiveKey] = useState("1");
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(""); // New state for error messages
+  const [errorMessage, setErrorMessage] = useState("");
+  const [mandatoryFields, setMandatoryFields] = useState({});
 
   const [fields, setFields] = useState([
     {
@@ -163,6 +165,20 @@ const AddModal = ({ setStatus, onRefresh }) => {
     }
   }, [watch("plaka")]);
 
+  useEffect(() => {
+    if (isModalOpen) {
+      AxiosInstance.get("MandatoryFields/GetMandatoryFieldsByModule?module=arac")
+        .then((response) => {
+          if (response.data && response.data.fields) {
+            setMandatoryFields(response.data.fields);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching mandatory fields:", error);
+        });
+    }
+  }, [isModalOpen]);
+
   const handleOk = handleSubmit(async (value) => {
     setLoading(true);
     setErrorMessage(""); // Reset error message before submission
@@ -219,9 +235,8 @@ const AddModal = ({ setStatus, onRefresh }) => {
         reset(defaultValues);
         setIsValid("normal");
         setActiveKey("1");
-        message.success(t("aracBasariylaEklendi")); // Success message
+        message.success(t("aracBasariylaEklendi"));
       } else {
-        // Handle unexpected status codes
         setErrorMessage(res?.data.message || t("islemBasarisiz"));
         message.error(res?.data.message || t("islemBasarisiz"));
       }
@@ -238,13 +253,14 @@ const AddModal = ({ setStatus, onRefresh }) => {
     form: "Arac",
     fields,
     setFields,
+    mandatoryFields,
   };
 
   const items = [
     {
       key: "1",
       label: t("genelBilgiler"),
-      children: <GeneralInfo isValid={isValid} />,
+      children: <GeneralInfo isValid={isValid} mandatoryFields={mandatoryFields} />,
     },
     {
       key: "2",
@@ -265,7 +281,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
         reset(defaultValues);
         setIsValid("normal");
         setActiveKey("1");
-        setErrorMessage(""); // Reset error message on cancel
+        setErrorMessage("");
       }}
     >
       {t("kapat")}
@@ -285,19 +301,19 @@ const AddModal = ({ setStatus, onRefresh }) => {
       </Button>
       <Modal
         title={t("yeniAracGiris")}
-        open={isModalOpen} // Updated from 'open' to 'visible' for AntD versions before 4.23.0
+        open={isModalOpen}
         onOk={handleOk}
         onCancel={() => {
           setIsModalOpen(false);
           setActiveKey("1");
           reset(defaultValues);
           setIsValid("normal");
-          setErrorMessage(""); // Reset error message on cancel
+          setErrorMessage("");
         }}
         maskClosable={false}
         footer={footer}
         width={1200}
-        destroyOnClose // Optional: destroys modal content on close to reset form
+        destroyOnClose
       >
         {errorMessage && <div style={{ marginBottom: 16, color: "red" }}>{errorMessage}</div>}
         <FormProvider {...methods}>
@@ -312,7 +328,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
 
 AddModal.propTypes = {
   setStatus: PropTypes.func,
-  onRefresh: PropTypes.func.isRequired, // Ensure onRefresh is required
+  onRefresh: PropTypes.func.isRequired,
 };
 
 export default AddModal;
