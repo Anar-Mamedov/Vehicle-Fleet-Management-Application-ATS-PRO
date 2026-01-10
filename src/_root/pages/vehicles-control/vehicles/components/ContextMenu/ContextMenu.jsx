@@ -9,6 +9,7 @@ import AktifYap from "./components/AktifYap";
 import PasifeAl from "./components/PasifeAl";
 import AracTipiniDegistir from "./components/AracTipiniDegistir";
 import AracGrubunuDegistir from "./components/AracGrubunuDegistir";
+import Parametreler from "./components/Parametreler";
 
 const { Text, Link } = Typography;
 
@@ -46,6 +47,7 @@ export default function ContextMenu({ selectedRows, refreshTableData }) {
       {selectedRows.length >= 1 && selectedRows.every((row) => row.arsiv === false) && (
         <AracGrubunuDegistir selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />
       )}
+      <Parametreler selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />
     </div>
   );
   return (
