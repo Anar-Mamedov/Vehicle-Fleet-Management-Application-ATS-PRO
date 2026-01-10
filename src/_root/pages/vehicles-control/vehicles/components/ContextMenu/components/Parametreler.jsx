@@ -9,6 +9,7 @@ export default function Parametreler({ hidePopover }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [customFieldsLabels, setCustomFieldsLabels] = useState({});
 
   // Define disabled fields first so we can use them in initial state if needed,
   // but better to enforce in useEffect to handle API responses too.
@@ -93,9 +94,22 @@ export default function Parametreler({ hidePopover }) {
     }
   };
 
+  const fetchCustomFields = async () => {
+    try {
+      const response = await AxiosInstance.get("CustomField/GetCustomFields?form=Arac");
+      if (response.data) {
+        setCustomFieldsLabels(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching custom fields:", error);
+      // Don't show error message to user, just fallback to default keys
+    }
+  };
+
   const handleOpen = () => {
     setIsModalVisible(true);
     fetchFields();
+    fetchCustomFields();
   };
 
   const handleCancel = () => {
@@ -169,6 +183,13 @@ export default function Parametreler({ hidePopover }) {
     "ozelAlan12",
   ];
 
+  const getFieldLabel = (key) => {
+    if (key.startsWith("ozelAlan") && customFieldsLabels[key]) {
+      return customFieldsLabels[key];
+    }
+    return t(key);
+  };
+
   return (
     <div>
       <div style={{ marginTop: "8px", cursor: "pointer", padding: "5px 0" }} onClick={handleOpen}>
@@ -195,7 +216,7 @@ export default function Parametreler({ hidePopover }) {
               {fieldKeys.map((key) => (
                 <Col span={8} key={key}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid #f0f0f0", padding: "10px", borderRadius: "5px" }}>
-                    <Text>{t(key)}</Text>
+                    <Text>{getFieldLabel(key)}</Text>
                     <Switch checked={fields[key]} onChange={(checked) => handleSwitchChange(key, checked)} disabled={disabledFields.includes(key)} />
                   </div>
                 </Col>
