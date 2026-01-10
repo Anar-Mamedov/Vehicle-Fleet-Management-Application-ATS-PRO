@@ -1,63 +1,208 @@
-import React, { useState } from "react";
-import { Button, Modal, Typography } from "antd";
+import React, { useState, useEffect } from "react";
+import { Button, Modal, Typography, Switch, Row, Col, Spin, message } from "antd";
+import AxiosInstance from "../../../../../../../api/http";
 import { t } from "i18next";
 
 const { Text } = Typography;
 
-export default function Parametreler({ selectedRows, refreshTableData, hidePopover }) {
+export default function Parametreler({ hidePopover }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [processing, setProcessing] = useState(false);
+
+  // Define disabled fields first so we can use them in initial state if needed,
+  // but better to enforce in useEffect to handle API responses too.
+  const disabledFields = ["plaka", "aracTip", "lokasyon", "marka", "model", "yakitTip"];
+
+  const [fields, setFields] = useState({
+    plaka: true, // Disabled fields default to true
+    yil: false,
+    marka: true,
+    model: true,
+    aracGrubu: false,
+    aracRenk: false,
+    lokasyon: true,
+    departman: false,
+    surucu: false,
+    aracTip: true,
+    guncelKm: false,
+    muayeneTarih: false,
+    egzosTarih: false,
+    vergiTarih: false,
+    takografTarih: false,
+    sozlesmeTarih: false,
+    yakitTip: true,
+    kmLog: false,
+    ozelAlan1: false,
+    ozelAlan2: false,
+    ozelAlan3: false,
+    ozelAlan4: false,
+    ozelAlan5: false,
+    ozelAlan6: false,
+    ozelAlan7: false,
+    ozelAlan8: false,
+    ozelAlan9: false,
+    ozelAlan10: false,
+    ozelAlan11: false,
+    ozelAlan12: false,
+  });
+
+  // Effect to ensure disabled fields are always true
+  useEffect(() => {
+    setFields((prev) => {
+      const updates = {};
+      let hasUpdates = false;
+      disabledFields.forEach((key) => {
+        if (!prev[key]) {
+          updates[key] = true;
+          hasUpdates = true;
+        }
+      });
+      return hasUpdates ? { ...prev, ...updates } : prev;
+    });
+  }, [JSON.stringify(fields)]);
+  // careful with dependency loop. If we update fields in effect, it triggers effect again.
+  // We check `!prev[key]` to only update if needed.
+  // Using JSON.stringify(fields) or specific checks helps avoid infinite loops if referential equality changes but values don't.
+  // However, simpler approach: Apply enforcement when setting state from API.
+
+  const fetchFields = async () => {
+    setLoading(true);
+    try {
+      const response = await AxiosInstance.get("/MandatoryFields/GetMandatoryFieldsByModule?module=arac");
+      if (response.data) {
+        let newFields = {};
+        if (response.data.fields) {
+          newFields = { ...response.data.fields };
+        } else if (typeof response.data === "object") {
+          newFields = { ...response.data };
+        }
+
+        // Enforce disabled fields to be true regardless of API response
+        disabledFields.forEach((key) => {
+          newFields[key] = true;
+        });
+
+        setFields((prev) => ({ ...prev, ...newFields }));
+      }
+    } catch (error) {
+      console.error("Error fetching fields:", error);
+      message.error(t("Alanlar yüklenirken bir hata oluştu."));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpen = () => {
+    setIsModalVisible(true);
+    fetchFields();
+  };
 
   const handleCancel = () => {
     setIsModalVisible(false);
   };
 
-  const handleOk = () => {
-    setIsModalVisible(false);
-    // Logic to be added
+  const handleOk = async () => {
+    setProcessing(true);
+    // Enforce one last time before sending, though UI prevents change
+    const payloadFields = { ...fields };
+    disabledFields.forEach((key) => {
+      payloadFields[key] = true;
+    });
+
+    const payload = {
+      module: "arac",
+      fields: payloadFields,
+    };
+
+    try {
+      await AxiosInstance.post("/MandatoryFields/ToggleFields", payload);
+      message.success(t("Parametreler başarıyla güncellendi."));
+      setIsModalVisible(false);
+      if (hidePopover) hidePopover();
+    } catch (error) {
+      console.error("Error updating fields:", error);
+      message.error(t("Güncelleme sırasında bir hata oluştu."));
+    } finally {
+      setProcessing(false);
+    }
   };
+
+  const handleSwitchChange = (key, checked) => {
+    if (disabledFields.includes(key)) return; // Prevent change
+    setFields((prev) => ({
+      ...prev,
+      [key]: checked,
+    }));
+  };
+
+  const fieldKeys = [
+    "plaka",
+    "yil",
+    "marka",
+    "model",
+    "aracGrubu",
+    "aracRenk",
+    "lokasyon",
+    "departman",
+    "surucu",
+    "aracTip",
+    "guncelKm",
+    "muayeneTarih",
+    "egzosTarih",
+    "vergiTarih",
+    "takografTarih",
+    "sozlesmeTarih",
+    "yakitTip",
+    "kmLog",
+    "ozelAlan1",
+    "ozelAlan2",
+    "ozelAlan3",
+    "ozelAlan4",
+    "ozelAlan5",
+    "ozelAlan6",
+    "ozelAlan7",
+    "ozelAlan8",
+    "ozelAlan9",
+    "ozelAlan10",
+    "ozelAlan11",
+    "ozelAlan12",
+  ];
 
   return (
     <div>
-      <div
-        style={{ marginTop: "8px", cursor: "pointer", padding: "5px 0" }}
-        onClick={() => {
-          setIsModalVisible(true);
-          // Don't hide popover immediately if we want the modal to open on top,
-          // usually hiding popover is fine as the modal is in a portal.
-          // But looking at existing code: hidePopover is passed but not called in onClick of AracTipiniDegistir unless it's successful?
-          // Actually AracTipiniDegistir calls hidePopover in onSubmit.
-          // However, if the popover closes, the component might unmount?
-          // The Popover in ContextMenu renders content. If content is unmounted, the state of Parametreler might be lost?
-          // Let's check ContextMenu implementation again.
-          // It renders `content` variable.
-          // If Popover closes, `visible` becomes false. The `content` is not conditionally rendered based on `visible` in the JSX, it is passed to `content` prop.
-          // Antd Popover `content` is rendered.
-          // If the popover closes, does the component inside stay alive?
-          // Typically, if `destroyTooltipOnHide` is default (false), it might stay.
-          // But `AracTipiniDegistir` calls `hidePopover()` only on success.
-          // So the popover stays open while the modal is open?
-          // If the modal is a child of the popover content, and popover closes, modal might close if it depends on parent?
-          // Antd Modal uses Portal by default, so it renders at document root.
-          // However, if the React component `Parametreler` unmounts, the Modal (even if in Portal) will unmount.
-          // So we must ensure `Parametreler` stays mounted or the Modal state is lifted up.
-          // In `AracTipiniDegistir.jsx`, `hidePopover` is CALLED in `onSubmit` (success).
-          // It is NOT called in `onClick` to open modal.
-          // So the popover stays open behind the modal?
-          // That seems to be the pattern.
-        }}
-      >
-        <Text>Parametreler</Text>
+      <div style={{ marginTop: "8px", cursor: "pointer", padding: "5px 0" }} onClick={handleOpen}>
+        <Text>{t("Parametreler")}</Text>
       </div>
 
       <Modal
-        title="Parametreler"
+        title={t("Zorunlu Alan Parametreleri")}
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
-        width={800} // Default width, can be adjusted
+        width={800}
+        confirmLoading={processing}
+        okText={t("Kaydet")}
+        cancelText={t("İptal")}
       >
-        {/* Modal content will be added here */}
-        <div>Modal içeriği buraya gelecek.</div>
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "20px" }}>
+            <Spin />
+          </div>
+        ) : (
+          <div style={{ maxHeight: "60vh", overflowY: "auto", overflowX: "hidden" }}>
+            <Row gutter={[16, 16]}>
+              {fieldKeys.map((key) => (
+                <Col span={8} key={key}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid #f0f0f0", padding: "10px", borderRadius: "5px" }}>
+                    <Text>{t(key)}</Text>
+                    <Switch checked={fields[key]} onChange={(checked) => handleSwitchChange(key, checked)} disabled={disabledFields.includes(key)} />
+                  </div>
+                </Col>
+              ))}
+            </Row>
+          </div>
+        )}
       </Modal>
     </div>
   );
