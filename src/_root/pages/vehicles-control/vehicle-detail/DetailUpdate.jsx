@@ -176,6 +176,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     durumID: 0,
     durum: undefined,
     AracCinsiKodId: 0,
+    aracCinsiID: 0,
     renkID: 0,
     renk: undefined,
     lokasyonId: 0,
@@ -295,7 +296,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setValue("hgsNo", res?.data.hgsNo);
         setValue("mulkiyetID", res?.data.aracMulkiyetKodId ? res?.data.aracMulkiyetKodId : null);
         setValue("mulkiyet", res?.data.aracMulkiyet ? res?.data.aracMulkiyet : null);
-        setValue("AracCinsiKodId", res?.data.aracCinsi);
+        setValue("aracCinsiID", res?.data.aracCinsiKodId ?? res?.data.aracCinsi);
         setValue("aracCinsi", res?.data.aracCinsi);
         setValue("markaId", res?.data.markaId ? res?.data.markaId : null);
         setValue("marka", res?.data.marka);
@@ -397,7 +398,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       modelId: values.modelId || 0,
       aracGrubuId: values.aracGrubuID || 0,
       aracRenkId: values.renkID || 0,
-      AracCinsiKodId: values.aracCinsiKodId || 0,
+      AracCinsiKodId: values.aracCinsiID || 0,
       /* lokasyonId: values.lokasyonId || 0, */
       departmanId: values.departmanID || 0,
       surucuId: values.surucuId || 0,

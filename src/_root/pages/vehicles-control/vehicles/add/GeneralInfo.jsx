@@ -102,9 +102,10 @@ const GeneralInfo = ({ isValid, mandatoryFields }) => {
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
-                <label>{t("aracCinsi")}</label>
-                {/* AracCinsi might not be in the list of dynamic fields provided, defaulting to optional or check if user listed it? User list: departman, grup, birin, plaka... aracTip etc. 'grup' maps to 'aracGrubu' probably? User listed 'aracGrubu'. 'AracCinsi' not explicitly listed in user sample but likely handles similarly if added later. Assuming optional for now as it maps to code 107 */}
-                <KodIDSelectbox name1="aracCinsi" kodID={107} isRequired={false} />
+                <label>
+                  {t("aracCinsi")} {isRequired("aracCinsi") && <span className="text-danger">*</span>}
+                </label>
+                <KodIDSelectbox name1="aracCinsi" kodID={107} isRequired={isRequired("aracCinsi")} />
               </div>
             </div>
             <div className="col-span-4">

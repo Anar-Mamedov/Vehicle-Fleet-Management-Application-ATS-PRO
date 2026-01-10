@@ -201,6 +201,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       modelId: value.modelId || 0,
       aracGrubuId: value.aracGrubuID || 0,
       aracRenkId: value.renkID || 0,
+      AracCinsiKodId: value.aracCinsiID || 0,
       lokasyonId: value.lokasyonId || 0,
       departmanId: value.departmanID || 0,
       surucuId: value.surucuId || 0,

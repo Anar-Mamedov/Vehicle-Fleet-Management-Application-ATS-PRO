@@ -92,6 +92,14 @@ const GeneralInfo = ({ mandatoryFields }) => {
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
+                  <label>
+                    {t("aracCinsi")} {isRequired("aracCinsi") && <span className="text-danger">*</span>}
+                  </label>
+                  <KodIDSelectbox name1="aracCinsi" kodID={107} isRequired={isRequired("aracCinsi")} />
+                </div>
+              </div>
+              <div className="col-span-4">
+                <div className="flex flex-col gap-1">
                   <label>{t("vitesTip")}</label>
                   <KodIDSelectbox name1="vitesTipi" kodID={902} isRequired={false} />
                   {/* <Controller
