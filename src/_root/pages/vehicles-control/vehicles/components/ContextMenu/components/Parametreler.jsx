@@ -10,6 +10,7 @@ export default function Parametreler({ hidePopover }) {
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [customFieldsLabels, setCustomFieldsLabels] = useState({});
+  const isUnauthorizedResponse = (response) => response?.data?.statusCode === 401;
 
   // Define disabled fields first so we can use them in initial state if needed,
   // but better to enforce in useEffect to handle API responses too.
@@ -73,6 +74,10 @@ export default function Parametreler({ hidePopover }) {
     try {
       const response = await AxiosInstance.get("/MandatoryFields/GetMandatoryFieldsByModule?module=arac");
       if (response.data) {
+        if (isUnauthorizedResponse(response)) {
+          message.error(t("Bu işlemi yapmaya yetkiniz bulunmamaktadır."));
+          return;
+        }
         let newFields = {};
         if (response.data.fields) {
           newFields = { ...response.data.fields };
@@ -99,6 +104,10 @@ export default function Parametreler({ hidePopover }) {
     try {
       const response = await AxiosInstance.get("CustomField/GetCustomFields?form=Arac");
       if (response.data) {
+        if (isUnauthorizedResponse(response)) {
+          message.error(t("Bu işlemi yapmaya yetkiniz bulunmamaktadır."));
+          return;
+        }
         setCustomFieldsLabels(response.data);
       }
     } catch (error) {
@@ -131,7 +140,11 @@ export default function Parametreler({ hidePopover }) {
     };
 
     try {
-      await AxiosInstance.post("/MandatoryFields/ToggleFields", payload);
+      const response = await AxiosInstance.post("/MandatoryFields/ToggleFields", payload);
+      if (isUnauthorizedResponse(response)) {
+        message.error(t("Bu işlemi yapmaya yetkiniz bulunmamaktadır."));
+        return;
+      }
       message.success(t("Parametreler başarıyla güncellendi."));
       setIsModalVisible(false);
       if (hidePopover) hidePopover();
