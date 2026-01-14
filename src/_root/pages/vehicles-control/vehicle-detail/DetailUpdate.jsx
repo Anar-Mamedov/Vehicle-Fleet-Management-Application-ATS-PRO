@@ -36,6 +36,8 @@ import Textarea from "../../../components/form/inputs/Textarea";
 import KodIDSelectbox from "../../../components/form/selects/KodIDSelectbox";
 const { Text } = Typography;
 
+const ALWAYS_REQUIRED_FIELDS = ["plaka", "aracTip", "lokasyon", "marka", "model", "yakitTip"];
+
 const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 }) => {
   const { setPlaka, setAracId, setPrintData } = useContext(PlakaContext);
   const [profile, setProfile] = useState([]);
@@ -216,7 +218,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
   const [popoverVisible, setPopoverVisible] = useState(false);
 
   const isRequired = (key) => {
-    return mandatoryFields ? mandatoryFields[key] === true : false;
+    return ALWAYS_REQUIRED_FIELDS.includes(key) || (mandatoryFields ? mandatoryFields[key] === true : false);
   };
 
   // Function to refresh vehicle data

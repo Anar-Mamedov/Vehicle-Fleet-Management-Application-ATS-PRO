@@ -13,13 +13,15 @@ import DateInput from "../../../../components/form/date/DateInput";
 import KodIDSelectbox from "../../../../components/form/selects/KodIDSelectbox";
 import DatePickerSelectYear from "../../../../components/form/inputs/DatePickerSelectYear";
 
+const ALWAYS_REQUIRED_FIELDS = ["plaka", "aracTip", "lokasyon", "marka", "model", "yakitTip"];
+
 const GeneralInfo = ({ isValid, mandatoryFields }) => {
   const validateStyle = {
     borderColor: isValid === "error" ? "#dc3545" : isValid === "success" ? "#23b545" : "#000",
   };
 
   const isRequired = (key) => {
-    return mandatoryFields ? mandatoryFields[key] === true : false;
+    return ALWAYS_REQUIRED_FIELDS.includes(key) || (mandatoryFields ? mandatoryFields[key] === true : false);
   };
 
   return (
