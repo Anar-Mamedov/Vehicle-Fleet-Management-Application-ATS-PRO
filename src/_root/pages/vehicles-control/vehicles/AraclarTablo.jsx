@@ -1640,6 +1640,21 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
+      title: t("utts"),
+      dataIndex: "utts",
+      key: "utts",
+      width: 130,
+      ellipsis: true,
+      visible: false, // Varsayılan olarak kapalı
+
+      sorter: (a, b) => {
+        if (a.utts === null) return -1;
+        if (b.utts === null) return 1;
+        return a.utts.localeCompare(b.utts);
+      },
+    },
+
+    {
       title: t("kiralamaYeri"),
       dataIndex: "kiralamaYeri",
       key: "kiralamaYeri",
