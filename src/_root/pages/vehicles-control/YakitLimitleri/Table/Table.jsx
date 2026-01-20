@@ -156,7 +156,7 @@ const YakitLimitleri = () => {
 
   const [selectedRows, setSelectedRows] = useState([]);
 
-  const [body, setBody] = useState({
+  const [body] = useState({
     keyword: "",
     filters: {},
   });
@@ -292,141 +292,6 @@ const YakitLimitleri = () => {
     fetchData(0, 1);
   }, [fetchData]);
 
-  // Columns definition (adjust as needed)
-  const initialColumns = useMemo(
-    () => [
-      {
-        title: t("plaka"),
-        dataIndex: "plaka",
-        key: "plaka",
-        width: 120,
-        ellipsis: true,
-        visible: true,
-        render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
-        sorter: (a, b) => {
-          if (a.plaka === null) return -1;
-          if (b.plaka === null) return 1;
-          return a.plaka.localeCompare(b.plaka);
-        },
-      },
-      {
-        title: t("surucu"),
-        dataIndex: "surucuIsim",
-        key: "surucuIsim",
-        width: 150,
-        ellipsis: true,
-        visible: true,
-        render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
-        sorter: (a, b) => {
-          if (a.surucuIsim === null) return -1;
-          if (b.surucuIsim === null) return 1;
-          return a.surucuIsim.localeCompare(b.surucuIsim);
-        },
-      },
-
-      {
-        title: t("limitTipi"),
-        dataIndex: "limitTipi",
-        key: "limitTipi",
-        width: 120,
-        ellipsis: true,
-        visible: true,
-        sorter: (a, b) => {
-          if (a.limitTipi === null) return -1;
-          if (b.limitTipi === null) return 1;
-          return a.limitTipi.localeCompare(b.limitTipi);
-        },
-        render: (text) => {
-          return t(text);
-        },
-      },
-
-      {
-        title: t("limitMiktari"),
-        dataIndex: "limit",
-        key: "limit",
-        width: 110,
-        ellipsis: true,
-        visible: true,
-        render: (text, record) => {
-          const limit = Number(record?.limit ?? 0);
-          const toplam = Number(record?.toplamYakitMiktari ?? 0);
-          const kalan = limit - toplam;
-          return <span>{formatNumberWithLocale(Number.isFinite(kalan) ? kalan : 0)}</span>;
-        },
-        sorter: (a, b) => {
-          const aVal = Number(a?.limit ?? 0) - Number(a?.toplamYakitMiktari ?? 0);
-          const bVal = Number(b?.limit ?? 0) - Number(b?.toplamYakitMiktari ?? 0);
-          return aVal - bVal;
-        },
-      },
-
-      {
-        title: t("tarih"),
-        dataIndex: "tarih",
-        key: "tarih",
-        width: 150,
-        ellipsis: true,
-        visible: true,
-        sorter: (a, b) => {
-          if (a.tarih === null) return -1;
-          if (b.tarih === null) return 1;
-          return a.tarih.localeCompare(b.tarih);
-        },
-        render: (text, record) => {
-          const ranges = buildPeriodRanges();
-          if (record?.limitTipi === "haftalik") {
-            return `${formatDateFromISODateOnly(ranges.haftalikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.haftalikBitisTarih)}`;
-          }
-          if (record?.limitTipi === "aylik") {
-            return `${formatDateFromISODateOnly(ranges.aylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.aylikBitisTarih)}`;
-          }
-          if (record?.limitTipi === "yillik") {
-            return `${formatDateFromISODateOnly(ranges.yillikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.yillikBitisTarih)}`;
-          }
-          return formatDate(text);
-        },
-      },
-
-      {
-        title: t("durum"),
-        dataIndex: "durum",
-        key: "durum",
-        width: 150,
-        ellipsis: true,
-        visible: true,
-        render: (_, record) => {
-          const limit = Number(record?.limit ?? 0);
-          const used = Number(record?.toplamYakitMiktari ?? 0);
-          const usagePercent = limit > 0 ? (used / limit) * 100 : used > 0 ? 101 : 0;
-
-          let color = "green"; // Normal
-          let label = t("normal");
-          if (usagePercent > 100) {
-            color = "red"; // Aşıldı
-            label = t("asildi");
-          } else if (usagePercent >= 80) {
-            color = "orange"; // Uyarı
-            label = t("uyari");
-          }
-
-          const pctText = Math.round(usagePercent);
-          return <Tag color={color}>{`${label} (%${pctText})`}</Tag>;
-        },
-        sorter: (a, b) => {
-          const limitA = Number(a?.limit ?? 0);
-          const usedA = Number(a?.toplamYakitMiktari ?? 0);
-          const limitB = Number(b?.limit ?? 0);
-          const usedB = Number(b?.toplamYakitMiktari ?? 0);
-          const pctA = limitA > 0 ? usedA / limitA : usedA > 0 ? Number.POSITIVE_INFINITY : 0;
-          const pctB = limitB > 0 ? usedB / limitB : usedB > 0 ? Number.POSITIVE_INFINITY : 0;
-          return pctA - pctB;
-        },
-      },
-    ],
-    []
-  );
-
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için
 
   // Intl.DateTimeFormat kullanarak tarih formatlama
@@ -472,48 +337,214 @@ const YakitLimitleri = () => {
     [formatDate]
   );
 
-  const formatTime = (time) => {
-    if (!time || time.trim() === "") return ""; // `trim` metodu ile baştaki ve sondaki boşlukları temizle
-
-    try {
-      // Saati ve dakikayı parçalara ayır, boşlukları temizle
-      const [hours, minutes] = time
-        .trim()
-        .split(":")
-        .map((part) => part.trim());
-
-      // Saat ve dakika değerlerinin geçerliliğini kontrol et
-      const hoursInt = parseInt(hours, 10);
-      const minutesInt = parseInt(minutes, 10);
-      if (isNaN(hoursInt) || isNaN(minutesInt) || hoursInt < 0 || hoursInt > 23 || minutesInt < 0 || minutesInt > 59) {
-        // throw new Error("Invalid time format"); // hata fırlatır ve uygulamanın çalışmasını durdurur
-        console.error("Invalid time format:", time);
-        // return time; // Hatalı formatı olduğu gibi döndür
-        return ""; // Hata durumunda boş bir string döndür
-      }
-
-      // Geçerli tarih ile birlikte bir Date nesnesi oluştur ve sadece saat ve dakika bilgilerini ayarla
-      const date = new Date();
-      date.setHours(hoursInt, minutesInt, 0);
-
-      // Kullanıcının lokal ayarlarına uygun olarak saat ve dakikayı formatla
-      // `hour12` seçeneğini belirtmeyerek Intl.DateTimeFormat'ın kullanıcının yerel ayarlarına göre otomatik seçim yapmasına izin ver
-      const formatter = new Intl.DateTimeFormat(navigator.language, {
-        hour: "numeric",
-        minute: "2-digit",
-        // hour12 seçeneği burada belirtilmiyor; böylece otomatik olarak kullanıcının sistem ayarlarına göre belirleniyor
-      });
-
-      // Formatlanmış saati döndür
-      return formatter.format(date);
-    } catch (error) {
-      console.error("Error formatting time:", error);
-      return ""; // Hata durumunda boş bir string döndür
-      // return time; // Hatalı formatı olduğu gibi döndür
-    }
-  };
-
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için sonu
+
+  // Columns definition
+  const initialColumns = useMemo(
+    () => [
+      {
+        title: t("plaka"),
+        dataIndex: "plaka",
+        key: "plaka",
+        width: 140,
+        ellipsis: true,
+        visible: true,
+        render: (text, record) => (
+          <div>
+            <a onClick={() => onRowClick(record)} style={{ fontWeight: 500 }}>
+              {text}
+            </a>
+            <div style={{ fontSize: "11px", color: "#9ca3af" }}>{record.brandModel || "-"}</div>
+          </div>
+        ),
+        sorter: (a, b) => {
+          if (a.plaka === null) return -1;
+          if (b.plaka === null) return 1;
+          return a.plaka.localeCompare(b.plaka);
+        },
+      },
+      {
+        title: t("surucu"),
+        dataIndex: "surucuIsim",
+        key: "surucuIsim",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+        sorter: (a, b) => {
+          if (a.surucuIsim === null) return -1;
+          if (b.surucuIsim === null) return 1;
+          return a.surucuIsim.localeCompare(b.surucuIsim);
+        },
+      },
+
+      {
+        title: t("limitTipi"),
+        dataIndex: "limitTipi",
+        key: "limitTipi",
+        width: 120,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.limitTipi === null) return -1;
+          if (b.limitTipi === null) return 1;
+          return a.limitTipi.localeCompare(b.limitTipi);
+        },
+        render: (text) => {
+          return t(text);
+        },
+      },
+
+      {
+        title: t("limitMiktariL"),
+        dataIndex: "limit",
+        key: "limit",
+        width: 110,
+        ellipsis: true,
+        visible: true,
+        render: (text) => <span>{formatNumberWithLocale(Number(text))}</span>,
+        sorter: (a, b) => Number(a?.limit ?? 0) - Number(b?.limit ?? 0),
+      },
+
+      {
+        title: t("tuketimL"),
+        dataIndex: "toplamYakitMiktari",
+        key: "toplamYakitMiktari",
+        width: 110,
+        ellipsis: true,
+        visible: true,
+        render: (text) => <span>{formatNumberWithLocale(Number(text))}</span>,
+        sorter: (a, b) => Number(a?.toplamYakitMiktari ?? 0) - Number(b?.toplamYakitMiktari ?? 0),
+      },
+
+      {
+        title: t("kalanL"),
+        key: "kalan",
+        width: 110,
+        ellipsis: true,
+        visible: true,
+        render: (_, record) => {
+          const limit = Number(record?.limit ?? 0);
+          const toplam = Number(record?.toplamYakitMiktari ?? 0);
+          return <span>{formatNumberWithLocale(limit - toplam)}</span>;
+        },
+        sorter: (a, b) => {
+          const aVal = Number(a?.limit ?? 0) - Number(a?.toplamYakitMiktari ?? 0);
+          const bVal = Number(b?.limit ?? 0) - Number(b?.toplamYakitMiktari ?? 0);
+          return aVal - bVal;
+        },
+      },
+
+      {
+        title: t("kullanimYuzdesi"),
+        key: "kullanimYuzdesi",
+        width: 160,
+        ellipsis: true,
+        visible: true,
+        render: (_, record) => {
+          const limit = Number(record?.limit ?? 0);
+          const used = Number(record?.toplamYakitMiktari ?? 0);
+          const p = limit > 0 ? (used / limit) * 100 : 0;
+
+          let color = "#10b981"; // emerald-500
+          if (p >= 100)
+            color = "#f43f5e"; // rose-500
+          else if (p >= 70) color = "#f59e0b"; // amber-500
+
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{ height: "8px", width: "100%", maxWidth: "80px", backgroundColor: "#f3f4f6", borderRadius: "4px", overflow: "hidden" }}>
+                <div
+                  style={{
+                    height: "100%",
+                    width: `${Math.min(100, p)}%`,
+                    backgroundColor: color,
+                    transition: "width 0.3s",
+                  }}
+                />
+              </div>
+              <span style={{ color: color, fontWeight: 500, fontSize: "12px" }}>{p.toFixed(0)}%</span>
+            </div>
+          );
+        },
+      },
+
+      {
+        title: t("donem"),
+        dataIndex: "tarih",
+        key: "donem",
+        width: 180,
+        ellipsis: true,
+        visible: true,
+        sorter: (a, b) => {
+          if (a.tarih === null) return -1;
+          if (b.tarih === null) return 1;
+          return a.tarih.localeCompare(b.tarih);
+        },
+        render: (text, record) => {
+          const ranges = buildPeriodRanges();
+          if (record?.limitTipi === "haftalik") {
+            return `${formatDateFromISODateOnly(ranges.haftalikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.haftalikBitisTarih)}`;
+          }
+          if (record?.limitTipi === "aylik") {
+            return `${formatDateFromISODateOnly(ranges.aylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.aylikBitisTarih)}`;
+          }
+          if (record?.limitTipi === "yillik") {
+            return `${formatDateFromISODateOnly(ranges.yillikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.yillikBitisTarih)}`;
+          }
+          return formatDate(text);
+        },
+      },
+
+      {
+        title: t("sonIslem"),
+        key: "sonIslem",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        render: () => {
+          // Mock or empty if no data in API yet
+          return <span>-</span>;
+        },
+      },
+
+      {
+        title: t("durum"),
+        dataIndex: "durum",
+        key: "durum",
+        width: 150,
+        ellipsis: true,
+        visible: true,
+        render: (_, record) => {
+          const limit = Number(record?.limit ?? 0);
+          const used = Number(record?.toplamYakitMiktari ?? 0);
+          const usagePercent = limit > 0 ? (used / limit) * 100 : used > 0 ? 101 : 0;
+
+          let color = "green"; // Normal
+          let label = t("normal");
+          if (usagePercent > 100) {
+            color = "red"; // Aşıldı
+            label = t("asildi");
+          } else if (usagePercent >= 70) {
+            color = "orange"; // Riskte
+            label = t("uyari");
+          }
+
+          return <Tag color={color}>{label}</Tag>;
+        },
+        sorter: (a, b) => {
+          const limitA = Number(a?.limit ?? 0);
+          const usedA = Number(a?.toplamYakitMiktari ?? 0);
+          const limitB = Number(b?.limit ?? 0);
+          const usedB = Number(b?.toplamYakitMiktari ?? 0);
+          const pctA = limitA > 0 ? usedA / limitA : usedA > 0 ? Number.POSITIVE_INFINITY : 0;
+          const pctB = limitB > 0 ? usedB / limitB : usedB > 0 ? Number.POSITIVE_INFINITY : 0;
+          return pctA - pctB;
+        },
+      },
+    ],
+    [t, onRowClick, formatNumberWithLocale, buildPeriodRanges, formatDate, formatDateFromISODateOnly]
+  );
 
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
@@ -643,33 +674,6 @@ const YakitLimitleri = () => {
     setLocaleDateFormat(dateFormatMap[currentLang] || "MM/DD/YYYY");
     setLocaleTimeFormat(timeFormatMap[currentLang] || "HH:mm");
   }, [currentLang]);
-
-  // filtreleme işlemi için kullanılan useEffect
-  const handleBodyChange = useCallback((type, newBody) => {
-    setBody((prevBody) => {
-      if (type === "filters") {
-        // If newBody is a function, call it with previous filters
-        const updatedFilters =
-          typeof newBody === "function"
-            ? newBody(prevBody.filters)
-            : {
-                ...prevBody.filters,
-                ...newBody,
-              };
-
-        return {
-          ...prevBody,
-          filters: updatedFilters,
-        };
-      }
-      return {
-        ...prevBody,
-        [type]: newBody,
-      };
-    });
-    setCurrentPage(1);
-  }, []);
-  // filtreleme işlemi için kullanılan useEffect son
 
   return (
     <div>
