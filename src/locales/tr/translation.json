@@ -1332,5 +1332,11 @@
   "fotograflar": "Fotoğraflar",
   "tiklayinVeyaSurukleyin": "Tıklayın veya bu alana resim sürükleyin",
   "resimYuklemeAciklama": "Tek seferde bir veya birden fazla resim yüklemeyi destekler.",
-  "arizayiTanimlayin": "Arızayı tanımlayın..."
+  "arizayiTanimlayin": "Arızayı tanımlayın...",
+  "aracSeciniz": "Araç Seçiniz",
+  "lokasyonSeciniz": "Lokasyon Seçiniz",
+  "tarihSeciniz": "Tarih Seçiniz",
+  "aciklamaGiriniz": "Açıklama Giriniz",
+  "yeniTalepBildirimiOlustur": "Yeni Talep Bildirimi Oluştur",
+  "plakaSeciniz": "Plaka Seçiniz"
 }

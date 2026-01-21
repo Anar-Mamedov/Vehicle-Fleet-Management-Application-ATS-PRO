@@ -6,7 +6,7 @@ export default function TalepYonetimi() {
   const formMethods = useForm();
   return (
     <FormProvider {...formMethods}>
-      <div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <MainTable />
       </div>
     </FormProvider>

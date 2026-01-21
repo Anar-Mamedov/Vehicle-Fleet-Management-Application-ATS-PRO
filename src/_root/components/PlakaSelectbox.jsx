@@ -80,7 +80,7 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
             status={errors[name1] ? "error" : ""}
             showSearch
             allowClear
-            placeholder="Plaka Seçiniz"
+            placeholder={t("plakaSeciniz")}
             optionFilterProp="children"
             filterOption={(input, option) => (option?.label ? option.label.toLowerCase().includes(input.toLowerCase()) : false)}
             onDropdownVisibleChange={(open) => {
