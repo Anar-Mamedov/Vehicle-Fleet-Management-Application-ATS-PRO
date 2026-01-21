@@ -1259,6 +1259,7 @@
   "talepOncelik": "Talep Önceliği",
   "talepTur": "Talep Türü",
   "talepYonetimi": "Talep Yönetimi",
+  "talepBildirimi": "Talep Bildirimi",
   "kiralikAracBilgisiGuncelle": "Kiralık Araç Bilgisi Güncelle",
   "yeniKiralikAracGirisi": "Yeni Kiralık Araç Girisi",
   "yakitGirisleri": "Yakıt Girişleri",
@@ -1338,5 +1339,6 @@
   "tarihSeciniz": "Tarih Seçiniz",
   "aciklamaGiriniz": "Açıklama Giriniz",
   "yeniTalepBildirimiOlustur": "Yeni Talep Bildirimi Oluştur",
-  "plakaSeciniz": "Plaka Seçiniz"
+  "plakaSeciniz": "Plaka Seçiniz",
+  "bakim": "Bakım"
 }

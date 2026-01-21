@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "
 import Filters from "./filter/Filters";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateDrawer from "../Insert/CreateDrawer";
+import EditDrawer from "../Update/EditDrawer";
 import ServiceEditDrawer from "../../../vehicles-control/ServisIslemleri/Update/EditDrawer";
 // import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
 import { useNavigate } from "react-router-dom";
@@ -272,6 +273,13 @@ const ArizaBildirimi = () => {
     setSelectedRows([]);
     fetchData(0, 1);
   }, [fetchData]);
+
+  const handleDrawerClose = useCallback(() => {
+    setDrawer({
+      visible: false,
+      data: null,
+    });
+  }, []);
 
   const handleServiceDrawerClose = useCallback(() => {
     setServiceDrawer({
@@ -926,6 +934,7 @@ const ArizaBildirimi = () => {
               />
             </Spin>
             <ServiceEditDrawer selectedRow={serviceDrawer.data} onDrawerClose={handleServiceDrawerClose} drawerVisible={serviceDrawer.visible} onRefresh={refreshTableData} />
+            <EditDrawer selectedRow={drawer.data} onDrawerClose={handleDrawerClose} drawerVisible={drawer.visible} onRefresh={refreshTableData} />
           </div>
         </FormProvider>
       </ConfigProvider>

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "
 // import { useFormContext } from "react-hook-form";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateModal from "../Insert/CreateModal";
-// import EditDrawer from "../Update/EditDrawer";
+import EditDrawer from "../Update/EditDrawer";
 // import Filters from "./filter/Filters";
 // import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
 import { useNavigate } from "react-router-dom";
@@ -262,6 +262,13 @@ const TalepYonetimi = () => {
     setSelectedRows([]);
     fetchData(0, 1);
   }, [fetchData]);
+
+  const handleDrawerClose = useCallback(() => {
+    setDrawer({
+      visible: false,
+      data: null,
+    });
+  }, []);
 
   // Columns definition (adjust as needed)
   const initialColumns = useMemo(
@@ -859,7 +866,7 @@ const TalepYonetimi = () => {
                 scroll={{ y: "calc(100vh - 335px)" }}
               />
             </Spin>
-            {/* <EditDrawer selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} /> */}
+            <EditDrawer selectedRow={drawer.data} onDrawerClose={handleDrawerClose} drawerVisible={drawer.visible} onRefresh={refreshTableData} />
           </div>
         </FormProvider>
       </ConfigProvider>
