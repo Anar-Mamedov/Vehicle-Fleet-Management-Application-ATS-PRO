@@ -1259,6 +1259,7 @@
   "talepOncelik": "Talep Önceliği",
   "talepTur": "Talep Türü",
   "talepYonetimi": "Talep Yönetimi",
+  "talepBildirimi": "Talep Bildirimi",
   "kiralikAracBilgisiGuncelle": "Kiralık Araç Bilgisi Güncelle",
   "yeniKiralikAracGirisi": "Yeni Kiralık Araç Girisi",
   "yakitGirisleri": "Yakıt Girişleri",
@@ -1327,5 +1328,17 @@
   "": "",
   "": "",
   "": "",
-  "": ""
+  "yeniArizaBildirimiOlustur": "Yeni Arıza Bildirimi Oluştur",
+  "arizaNo": "Arıza No",
+  "fotograflar": "Fotoğraflar",
+  "tiklayinVeyaSurukleyin": "Tıklayın veya bu alana resim sürükleyin",
+  "resimYuklemeAciklama": "Tek seferde bir veya birden fazla resim yüklemeyi destekler.",
+  "arizayiTanimlayin": "Arızayı tanımlayın...",
+  "aracSeciniz": "Araç Seçiniz",
+  "lokasyonSeciniz": "Lokasyon Seçiniz",
+  "tarihSeciniz": "Tarih Seçiniz",
+  "aciklamaGiriniz": "Açıklama Giriniz",
+  "yeniTalepBildirimiOlustur": "Yeni Talep Bildirimi Oluştur",
+  "plakaSeciniz": "Plaka Seçiniz",
+  "bakim": "Bakım"
 }

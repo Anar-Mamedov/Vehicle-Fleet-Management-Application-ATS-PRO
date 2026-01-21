@@ -5,31 +5,46 @@ import { Button, Space, ConfigProvider, Modal, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { t } from "i18next";
 import MainTabs from "./components/MainTabs/MainTabs";
-import SecondTabs from "./components/SecondTabs/SecondTabs";
+// import SecondTabs from "./components/SecondTabs/SecondTabs"; // Removed as we moved everything to MainTabs
 import { useForm, FormProvider } from "react-hook-form";
 import dayjs from "dayjs";
 import AxiosInstance from "../../../../../api/http.jsx";
 
-export default function CreateModal({ selectedLokasyonId, onRefresh }) {
+export default function CreateDrawer({ onRefresh }) {
   const [open, setOpen] = useState(false);
-  const [periyodikBakim, setPeriyodikBakim] = useState("");
-  const [hasarNoValidationStatus, setHasarNoValidationStatus] = useState(null);
 
-  const getFisNo = async () => {
+  const methods = useForm({
+    defaultValues: {
+      talepNo: "",
+      tarih: null,
+      saat: null,
+      plaka: null,
+      plakaID: null,
+      lokasyon: null,
+      lokasyonID: null,
+      talepOncelik: "Orta",
+      aciklama: "",
+      files: [],
+      // Other fields can be null
+    },
+  });
+
+  const { setValue, reset, handleSubmit } = methods;
+
+  const getArizaNo = React.useCallback(async () => {
     try {
       const response = await AxiosInstance.get("Numbering/GetModuleCodeByCode", {
         params: {
-          code: "HASAR_TAKIBI_NO",
+          code: "TALEP_BILDIRIM",
         },
       });
       if (response.data) {
-        setValue("hasarNo", response.data);
+        setValue("talepNo", response.data);
       }
     } catch (error) {
-      console.error("Error fetching fisNo:", error);
-      message.error("Fiş numarası alınamadı!");
+      console.error("Error fetching talepNo:", error);
     }
-  };
+  }, [setValue]);
 
   const showModal = () => {
     setOpen(true);
@@ -37,250 +52,85 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
 
   useEffect(() => {
     if (open) {
-      getFisNo();
+      getArizaNo();
       setValue("tarih", dayjs());
       setValue("saat", dayjs());
-      setHasarNoValidationStatus(null); // Reset validation status
-
-      // Reset the fisIcerigi with a timeout to avoid focus errors
-      setTimeout(() => {
-        setValue("fisIcerigi", []);
-      }, 0);
     }
-  }, [open]);
+  }, [open, setValue, getArizaNo]);
 
   const onClose = () => {
     Modal.confirm({
-      title: "İptal etmek istediğinden emin misin?",
-      content: "Kaydedilmemiş değişiklikler kaybolacaktır.",
-      okText: "Evet",
-      cancelText: "Hayır",
+      title: t("iptalEtmekIstediginizdenEminMisin"),
+      content: t("kaydedilmemisDegisikliklerKaybolacaktir"),
+      okText: t("evet"),
+      cancelText: t("hayir"),
       onOk: () => {
-        // First close the modal to avoid focus errors
         setOpen(false);
-
-        // Then reset the form with a slight delay
         setTimeout(() => {
-          methods.reset({
-            hasarNo: null,
-            hasarTipi: null,
-            hasarTipiID: null,
-            hasarliBolge: null,
-            hasarliBolgeID: null,
-            hasarBoyutu: null,
-            hasarBoyutuID: null,
-            olayYeri: null,
-            olayYeriID: null,
-            tarih: null,
-            saat: null,
-            plaka: null,
-            plakaID: null,
-            surucu: null,
-            surucuID: null,
-            marka: null,
-            model: null,
-            lokasyon: null,
-            lokasyonID: null,
-            policeNo: null,
-            aracKullanilabilir: false,
-            kazayaKarisanBaskaAracVar: false,
-            polisRaporuVar: false,
-            aciklama: null,
-            ozelAlan1: null,
-            ozelAlan2: null,
-            ozelAlan3: null,
-            ozelAlan4: null,
-            ozelAlan5: null,
-            ozelAlan6: null,
-            ozelAlan7: null,
-            ozelAlan8: null,
-            ozelAlan9: null,
-            ozelAlan9ID: null,
-            ozelAlan10: null,
-            ozelAlan10ID: null,
-            ozelAlan11: null,
-            ozelAlan12: null,
-          });
+          reset();
         }, 100);
-      },
-      onCancel: () => {
-        // Do nothing, continue from where the user left off
       },
     });
   };
 
-  // back-end'e gönderilecek veriler
+  const uploadPhotos = async (recordId, files) => {
+    if (!files || files.length === 0) return;
 
-  //* export
-  const methods = useForm({
-    defaultValues: {
-      hasarNo: null,
-      hasarTipi: null,
-      hasarTipiID: null,
-      hasarliBolge: null,
-      hasarliBolgeID: null,
-      hasarBoyutu: null,
-      hasarBoyutuID: null,
-      olayYeri: null,
-      olayYeriID: null,
-      tarih: null,
-      saat: null,
-      plaka: null,
-      plakaID: null,
-      surucu: null,
-      surucuID: null,
-      marka: null,
-      model: null,
-      lokasyon: null,
-      lokasyonID: null,
-      policeNo: null,
-      aracKullanilabilir: false,
-      kazayaKarisanBaskaAracVar: false,
-      polisRaporuVar: false,
-      aciklama: null,
-      ozelAlan1: null,
-      ozelAlan2: null,
-      ozelAlan3: null,
-      ozelAlan4: null,
-      ozelAlan5: null,
-      ozelAlan6: null,
-      ozelAlan7: null,
-      ozelAlan8: null,
-      ozelAlan9: null,
-      ozelAlan9ID: null,
-      ozelAlan10: null,
-      ozelAlan10ID: null,
-      ozelAlan11: null,
-      ozelAlan12: null,
-    },
-  });
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("images", file.originFileObj || file);
 
-  const formatDateWithDayjs = (dateString) => {
-    const formattedDate = dayjs(dateString);
-    return formattedDate.isValid() ? formattedDate.format("YYYY-MM-DD") : "";
-  };
-
-  const formatTimeWithDayjs = (timeObj) => {
-    const formattedTime = dayjs(timeObj);
-    return formattedTime.isValid() ? formattedTime.format("HH:mm:ss") : "";
-  };
-
-  const { setValue, reset, watch } = methods;
-
-  //* export
-  const onSubmit = (data) => {
-    // Hasar numarası validation kontrolü
-    if (hasarNoValidationStatus === "invalid") {
-      message.error("Hasar numarası geçerli değildir! Lütfen geçerli bir hasar numarası girin.");
-      return;
+      try {
+        await AxiosInstance.post(`/Photo/UploadPhoto?refId=${recordId}&refGroup=TALEP_BILDIRIM&isForDefault=false`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        console.log("Uploaded file:", file.name);
+      } catch (error) {
+        console.error("Error uploading file:", file.name, error);
+        message.error(`${file.name} yüklenemedi.`);
+      }
     }
+  };
 
+  const onSubmit = (data) => {
     const Body = {
-      hasarNo: String(data.hasarNo),
+      talepNo: data.talepNo,
       aracId: Number(data.plakaID),
-      surucuId: Number(data.surucuID),
-      tarih: String(formatDateWithDayjs(data.tarih)),
-      saat: String(formatTimeWithDayjs(data.saat)),
-      olayYeriKodId: Number(data.olayYeriID),
-      olayAniAciklamasi: data.aciklama || "",
-      hasarTipiKodId: Number(data.hasarTipiID),
-      hasarBolgeKodId: Number(data.hasarliBolgeID),
-      hasarBoyutuKodId: Number(data.hasarBoyutuID),
       lokasyonId: Number(data.lokasyonID),
-      policeNo: data.policeNo || "",
-      aracKullanilir: Boolean(data.aracKullanilabilir),
-      kazaYapanBaskaArac: Boolean(data.kazayaKarisanBaskaAracVar),
-      polisRaporuVar: Boolean(data.polisRaporuVar),
+      aciklama: data.aciklama,
+      tarih: data.tarih ? dayjs(data.tarih).format("YYYY-MM-DD") : null,
+      talepDurum: "beklemede",
+      talepOncelik: data.talepOncelik,
+      talepTur: "ariza",
+      talepEdenId: Number(localStorage.getItem("id")),
     };
 
-    AxiosInstance.post("DamageTracking/AddDamageTrackItem", Body)
-      .then((response) => {
-        // Handle successful response here, e.g.:
-        console.log("Data sent successfully:", response);
-
+    AxiosInstance.post("RequestNotification/AddRequestItem", Body)
+      .then(async (response) => {
         if (response.data.statusCode === 200 || response.data.statusCode === 201) {
-          message.success("Ekleme Başarılı.");
+          message.success(t("eklemeBasarili"));
 
-          // First close the modal to avoid focus errors
+          const recordId = response.data.data; // Provided by API doc
+          if (data.files && data.files.length > 0) {
+            await uploadPhotos(recordId, data.files);
+          }
+
           setOpen(false);
-          onRefresh();
-
-          // Then reset the form with a slight delay
+          if (onRefresh) onRefresh();
           setTimeout(() => {
-            methods.reset({
-              hasarNo: null,
-              hasarTipi: null,
-              hasarTipiID: null,
-              hasarliBolge: null,
-              hasarliBolgeID: null,
-              hasarBoyutu: null,
-              hasarBoyutuID: null,
-              olayYeri: null,
-              olayYeriID: null,
-              tarih: null,
-              saat: null,
-              plaka: null,
-              plakaID: null,
-              surucu: null,
-              surucuID: null,
-              marka: null,
-              model: null,
-              lokasyon: null,
-              lokasyonID: null,
-              policeNo: null,
-              aracKullanilabilir: false,
-              kazayaKarisanBaskaAracVar: false,
-              polisRaporuVar: false,
-              aciklama: null,
-              ozelAlan1: null,
-              ozelAlan2: null,
-              ozelAlan3: null,
-              ozelAlan4: null,
-              ozelAlan5: null,
-              ozelAlan6: null,
-              ozelAlan7: null,
-              ozelAlan8: null,
-              ozelAlan9: null,
-              ozelAlan9ID: null,
-              ozelAlan10: null,
-              ozelAlan10ID: null,
-              ozelAlan11: null,
-              ozelAlan12: null,
-            });
+            reset();
           }, 100);
-        } else if (response.data.statusCode === 401) {
-          message.error("Bu işlemi yapmaya yetkiniz bulunmamaktadır.");
         } else {
-          message.error("Ekleme Başarısız.");
+          message.error(t("eklemeBasarisiz"));
         }
       })
       .catch((error) => {
-        // Handle errors here, e.g.:
         console.error("Error sending data:", error);
-        message.error("Başarısız Olundu.");
+        message.error(t("basarisizOlundu"));
       });
-    console.log({ Body });
   };
-
-  useEffect(() => {
-    // Eğer selectedLokasyonId varsa ve geçerli bir değerse, formun default değerini güncelle
-    if (selectedLokasyonId !== undefined && selectedLokasyonId !== null) {
-      methods.reset({
-        ...methods.getValues(),
-        selectedLokasyonId: selectedLokasyonId,
-      });
-    }
-  }, [selectedLokasyonId, methods]);
-
-  const periyodikBilgisi = watch("periyodikBilgisi");
-
-  useEffect(() => {
-    if (periyodikBilgisi === true) {
-      setPeriyodikBakim("[Periyodik Bakım]");
-    } else {
-      setPeriyodikBakim("");
-    }
-  }, [periyodikBilgisi]);
 
   return (
     <FormProvider {...methods}>
@@ -297,9 +147,9 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
           {t("ekle")}
         </Button>
         <Modal
-          width="1100px"
+          width="800px" // Adjusted width
           centered
-          title={t("yeniHasarGirisi")}
+          title={t("yeniArizaBildirimiOlustur")} // Updated title
           destroyOnClose
           open={open}
           onCancel={onClose}
@@ -308,7 +158,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
               <Button onClick={onClose}>{t("iptal")}</Button>
               <Button
                 type="submit"
-                onClick={methods.handleSubmit(onSubmit)}
+                onClick={handleSubmit(onSubmit)}
                 style={{
                   backgroundColor: "#2bc770",
                   borderColor: "#2bc770",
@@ -320,10 +170,9 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
             </Space>
           }
         >
-          <form onSubmit={methods.handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div>
-              <MainTabs modalOpen={open} onHasarNoValidationChange={setHasarNoValidationStatus} />
-              <SecondTabs modalOpen={open} />
+              <MainTabs modalOpen={open} />
             </div>
           </form>
         </Modal>

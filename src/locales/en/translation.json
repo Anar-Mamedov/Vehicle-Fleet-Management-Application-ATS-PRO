@@ -775,6 +775,7 @@
   "faturaTarihi": "Invoice Date",
   "sikayetler": "Complaints",
   "talepNo": "Request No",
+  "talepBildirimi": "Request Notification",
   "talepEden": "Requester",
   "onay": "Approval",
   "gerceklesen": "Actual",

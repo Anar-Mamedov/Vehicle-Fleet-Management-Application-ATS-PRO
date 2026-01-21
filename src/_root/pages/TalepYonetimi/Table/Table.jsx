@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "react";
 // import { useFormContext } from "react-hook-form";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
-import CreateDrawer from "../Insert/CreateDrawer";
+import CreateModal from "../Insert/CreateModal";
 import EditDrawer from "../Update/EditDrawer";
-import Filters from "./filter/Filters";
+// import Filters from "./filter/Filters";
 // import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
 import { useNavigate } from "react-router-dom";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { HolderOutlined, SearchOutlined, MenuOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -262,6 +262,13 @@ const TalepYonetimi = () => {
     setSelectedRows([]);
     fetchData(0, 1);
   }, [fetchData]);
+
+  const handleDrawerClose = useCallback(() => {
+    setDrawer({
+      visible: false,
+      data: null,
+    });
+  }, []);
 
   // Columns definition (adjust as needed)
   const initialColumns = useMemo(
@@ -828,7 +835,7 @@ const TalepYonetimi = () => {
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-              {/* <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} /> */}
+              <CreateModal onRefresh={refreshTableData} />
             </div>
           </div>
           {/* Table */}
@@ -859,7 +866,7 @@ const TalepYonetimi = () => {
                 scroll={{ y: "calc(100vh - 335px)" }}
               />
             </Spin>
-            {/* <EditDrawer selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} /> */}
+            <EditDrawer selectedRow={drawer.data} onDrawerClose={handleDrawerClose} drawerVisible={drawer.visible} onRefresh={refreshTableData} />
           </div>
         </FormProvider>
       </ConfigProvider>
