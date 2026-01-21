@@ -1327,5 +1327,10 @@
   "": "",
   "": "",
   "": "",
-  "": ""
+  "yeniArizaBildirimiOlustur": "Yeni Arıza Bildirimi Oluştur",
+  "arizaNo": "Arıza No",
+  "fotograflar": "Fotoğraflar",
+  "tiklayinVeyaSurukleyin": "Tıklayın veya bu alana resim sürükleyin",
+  "resimYuklemeAciklama": "Tek seferde bir veya birden fazla resim yüklemeyi destekler.",
+  "arizayiTanimlayin": "Arızayı tanımlayın..."
 }

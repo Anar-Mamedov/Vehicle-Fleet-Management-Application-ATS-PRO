@@ -893,7 +893,7 @@ const ArizaBildirimi = () => {
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} approvalStatus={approvalStatus} />
-              {/* <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} /> */}
+              <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
             </div>
           </div>
           {/* Table */}
