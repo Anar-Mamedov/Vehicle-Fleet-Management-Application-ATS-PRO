@@ -105,6 +105,7 @@ export default function CreateDrawer({ onRefresh }) {
       talepOncelik: data.talepOncelik,
       talepTur: "ariza",
       talepEdenId: Number(localStorage.getItem("id")),
+      isDriver: false,
     };
 
     AxiosInstance.post("RequestNotification/AddRequestItem", Body)
