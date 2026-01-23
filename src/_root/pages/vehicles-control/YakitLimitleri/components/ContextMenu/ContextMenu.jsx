@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Button, Popover, Typography } from "antd";
-import { MoreOutlined, DownOutlined } from "@ant-design/icons";
+import { MoreOutlined } from "@ant-design/icons";
 import Sil from "./components/Sil";
+import Tarihce from "./components/Tarihce/Tarihce";
 
-const { Text, Link } = Typography;
+const { Text } = Typography;
 
 export default function ContextMenu({ selectedRows, refreshTableData }) {
   const [visible, setVisible] = useState(false);
@@ -16,7 +17,12 @@ export default function ContextMenu({ selectedRows, refreshTableData }) {
     setVisible(false);
   };
 
-  const content = <div>{selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}</div>;
+  const content = (
+    <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+      {selectedRows.length === 1 && <Tarihce selectedRow={selectedRows[0]} hidePopover={hidePopover} />}
+      {selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
+    </div>
+  );
   return (
     <Popover placement="bottom" content={content} trigger="click" open={visible} onOpenChange={handleVisibleChange}>
       <Button
