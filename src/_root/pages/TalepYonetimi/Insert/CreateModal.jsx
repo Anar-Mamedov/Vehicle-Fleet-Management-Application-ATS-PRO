@@ -94,6 +94,7 @@ export default function CreateModal({ onRefresh }) {
       talepOncelik: data.talepOncelik,
       talepTur: data.talepTur, // Kullanıcı seçimi (ariza, lastik, vb.)
       talepEdenId: Number(localStorage.getItem("id")),
+      isDriver: false,
     };
 
     AxiosInstance.post("RequestNotification/AddRequestItem", Body)
