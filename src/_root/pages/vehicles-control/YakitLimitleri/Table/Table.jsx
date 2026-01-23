@@ -223,6 +223,7 @@ const YakitLimitleri = () => {
         const newData = response.data.list.map((item) => ({
           ...item,
           key: item.siraNo,
+          brandModel: `${item.marka || ""} ${item.model || ""}`.trim(),
         }));
 
         if (newData.length > 0) {
@@ -477,8 +478,8 @@ const YakitLimitleri = () => {
         ellipsis: true,
         visible: true,
         sorter: (a, b) => {
-          if (a.tarih === null) return -1;
-          if (b.tarih === null) return 1;
+          if (!a.tarih) return -1;
+          if (!b.tarih) return 1;
           return a.tarih.localeCompare(b.tarih);
         },
         render: (text, record) => {
@@ -498,14 +499,12 @@ const YakitLimitleri = () => {
 
       {
         title: t("sonIslem"),
-        key: "sonIslem",
+        dataIndex: "sonIslemTarih",
+        key: "sonIslemTarih",
         width: 150,
         ellipsis: true,
         visible: true,
-        render: () => {
-          // Mock or empty if no data in API yet
-          return <span>-</span>;
-        },
+        render: (text) => formatDate(text),
       },
 
       {
