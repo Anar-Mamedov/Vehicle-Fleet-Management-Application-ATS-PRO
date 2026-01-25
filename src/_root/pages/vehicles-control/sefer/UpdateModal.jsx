@@ -7,12 +7,11 @@ import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetExpeditionItemByIdService, UpdateExpeditionItemService } from "../../../../api/services/vehicles/operations_services";
 import { GetDocumentsByRefGroupService, GetPhotosByRefGroupService } from "../../../../api/services/upload/services";
 import { CodeItemValidateService } from "../../../../api/services/code/services";
-import { uploadFile, uploadPhoto } from "../../../../utils/upload";
-import { message, Modal, Tabs, Button } from "antd";
+import { Modal, Tabs, Button } from "antd";
 import GeneralInfo from "./tabs/GeneralInfo";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
-import FileUpload from "../../../components/upload/FileUpload";
-import PhotoUpload from "../../../components/upload/PhotoUpload";
+import DosyaUpload from "../../../components/Dosya/DosyaUpload";
+import ResimUpload from "../../../components/Resim/ResimUpload";
 import Yakit from "../yakit/Yakit";
 import Harcamalar from "../harcama/Harcama";
 import TasimaRotaBilgileri from "./tabs/TasimaRota/TasimaRota";
@@ -22,14 +21,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
   const [isValid, setIsValid] = useState("normal");
   const [code, setCode] = useState("normal");
   const [activeKey, setActiveKey] = useState("1");
-  // file
   const [filesUrl, setFilesUrl] = useState([]);
-  const [files, setFiles] = useState([]);
-  const [loadingFiles, setLoadingFiles] = useState(false);
-  // photo
   const [imageUrls, setImageUrls] = useState([]);
-  const [loadingImages, setLoadingImages] = useState(false);
-  const [images, setImages] = useState([]);
   // Add this new state
   const [yakitKey, setYakitKey] = useState(0);
   const [harcamaKey, setHarcamaKey] = useState(0);
@@ -221,29 +214,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     }
   }, [drawerVisible]);
 
-  const uploadFiles = () => {
-    try {
-      setLoadingFiles(true);
-      uploadFile(selectedRow?.key, "SEFER", files);
-    } catch (error) {
-      message.error("Dosya yüklenemedi. Yeniden deneyin.");
-    } finally {
-      setLoadingFiles(false);
-    }
-  };
-
-  const uploadImages = () => {
-    try {
-      setLoadingImages(true);
-      const data = uploadPhoto(selectedRow?.key, "SEFER", images, false);
-      setImageUrls([...imageUrls, data.imageUrl]);
-    } catch (error) {
-      message.error("Resim yüklenemedi. Yeniden deneyin.");
-    } finally {
-      setLoadingImages(false);
-    }
-  };
-
   /*   useEffect(() => {
     setValue("surucuId1", data.surucuId);
     setValue("surucu1", data.surucuAdi);
@@ -306,9 +276,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         }
       }
     });
-
-    uploadFiles();
-    uploadImages();
   });
 
   const personalProps = {
@@ -356,12 +323,12 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     {
       key: "3",
       label: `[${imageUrls.length}] ${t("resimler")}`,
-      children: <PhotoUpload imageUrls={imageUrls} loadingImages={loadingImages} setImages={setImages} />,
+      children: <ResimUpload selectedRowID={selectedRow?.key} refGroup="SEFER" />,
     },
     {
       key: "4",
       label: `[${filesUrl.length}] ${t("ekliBelgeler")}`,
-      children: <FileUpload filesUrl={filesUrl} loadingFiles={loadingFiles} setFiles={setFiles} />,
+      children: <DosyaUpload selectedRowID={selectedRow?.key} refGroup="SEFER" />,
     },
   ];
 
