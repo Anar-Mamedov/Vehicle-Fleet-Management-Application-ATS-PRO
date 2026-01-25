@@ -5,25 +5,18 @@ import { t } from "i18next";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetExpenseByIdService, UpdateExpenseItemService } from "../../../../api/services/vehicles/operations_services";
 import { GetDocumentsByRefGroupService, GetPhotosByRefGroupService } from "../../../../api/services/upload/services";
-import { uploadFile, uploadPhoto } from "../../../../utils/upload";
-import { message, Modal, Tabs, Button } from "antd";
+import { Modal, Tabs, Button } from "antd";
 import GeneralInfo from "./tabs/GeneralInfo";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
-import FileUpload from "../../../components/upload/FileUpload";
 import dayjs from "dayjs";
-import PhotoUpload from "../../../components/upload/PhotoUpload";
+import DosyaUpload from "../../../components/Dosya/DosyaUpload";
+import ResimUpload from "../../../components/Resim/ResimUpload";
 
 const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const { plaka } = useContext(PlakaContext);
   const [activeKey, setActiveKey] = useState("1");
-  // file
   const [filesUrl, setFilesUrl] = useState([]);
-  const [files, setFiles] = useState([]);
-  const [loadingFiles, setLoadingFiles] = useState(false);
-  // photo
   const [imageUrls, setImageUrls] = useState([]);
-  const [loadingImages, setLoadingImages] = useState(false);
-  const [images, setImages] = useState([]);
 
   const [fields, setFields] = useState([
     {
@@ -148,29 +141,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     }
   }, [drawerVisible, selectedRow]);
 
-  const uploadFiles = () => {
-    try {
-      setLoadingFiles(true);
-      uploadFile(selectedRow?.key, "HARCAMA", files);
-    } catch (error) {
-      message.error("Dosya yüklenemedi. Yeniden deneyin.");
-    } finally {
-      setLoadingFiles(false);
-    }
-  };
-
-  const uploadImages = () => {
-    try {
-      setLoadingImages(true);
-      const data = uploadPhoto(selectedRow?.key, "HARCAMA", images, false);
-      setImageUrls([...imageUrls, data.imageUrl]);
-    } catch (error) {
-      message.error("Resim yüklenemedi. Yeniden deneyin.");
-    } finally {
-      setLoadingImages(false);
-    }
-  };
-
   const onSubmit = handleSubmit((values) => {
     const body = {
       siraNo: selectedRow?.key,
@@ -208,9 +178,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         }
       }
     });
-
-    uploadFiles();
-    uploadImages();
     // setStatus(false);
   });
 
@@ -234,12 +201,12 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     {
       key: "3",
       label: `[${imageUrls.length}] ${t("resimler")}`,
-      children: <PhotoUpload imageUrls={imageUrls} loadingImages={loadingImages} setImages={setImages} />,
+      children: <ResimUpload selectedRowID={selectedRow?.key} refGroup="HARCAMA" />,
     },
     {
       key: "4",
       label: `[${filesUrl.length}] ${t("ekliBelgeler")}`,
-      children: <FileUpload filesUrl={filesUrl} loadingFiles={loadingFiles} setFiles={setFiles} />,
+      children: <DosyaUpload selectedRowID={selectedRow?.key} refGroup="HARCAMA" />,
     },
   ];
 
