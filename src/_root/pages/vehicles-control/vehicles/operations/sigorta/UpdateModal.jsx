@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -158,7 +158,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, aracId, setStatus }) => 
         setValue("ozelAlan11", res?.data.ozelAlan11);
         setValue("ozelAlan12", res?.data.ozelAlan12);
       });
-
       GetPhotosByRefGroupService(id, "SIGORTA").then((res) => setImageUrls(res.data));
 
       GetDocumentsByRefGroupService(id, "SIGORTA").then((res) => setFilesUrl(res.data));
@@ -237,7 +236,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, aracId, setStatus }) => 
         setActiveKey("1");
       }
     });
-
     uploadFiles();
     uploadImages();
     setStatus(false);
