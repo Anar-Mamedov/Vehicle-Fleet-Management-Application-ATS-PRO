@@ -20,6 +20,7 @@ import dayjs from "dayjs";
 import { t } from "i18next";
 import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
+import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
 
@@ -523,6 +524,7 @@ const Ceza = ({ statusId1 }) => {
         if (b.km === null) return 1;
         return a.km - b.km;
       },
+      render: (text) => formatNumberWithLocale(text),
     },
 
     {
@@ -538,6 +540,7 @@ const Ceza = ({ statusId1 }) => {
         if (b.iscilik === null) return 1;
         return a.iscilik - b.iscilik;
       },
+      render: (text) => formatNumberWithLocale(text),
     },
 
     {
@@ -553,6 +556,7 @@ const Ceza = ({ statusId1 }) => {
         if (b.malzeme === null) return 1;
         return a.malzeme - b.malzeme;
       },
+      render: (text) => formatNumberWithLocale(text),
     },
 
     {
@@ -568,6 +572,7 @@ const Ceza = ({ statusId1 }) => {
         if (b.diger === null) return 1;
         return a.diger - b.diger;
       },
+      render: (text) => formatNumberWithLocale(text),
     },
     {
       title: t("KDV"),
@@ -582,6 +587,7 @@ const Ceza = ({ statusId1 }) => {
         if (b.kdv === null) return 1;
         return a.kdv - b.kdv;
       },
+      render: (text) => formatNumberWithLocale(text),
     },
     {
       title: t("indirim"),
@@ -596,6 +602,7 @@ const Ceza = ({ statusId1 }) => {
         if (b.indirim === null) return 1;
         return a.indirim - b.indirim;
       },
+      render: (text) => formatNumberWithLocale(text),
     },
 
     {
@@ -611,6 +618,7 @@ const Ceza = ({ statusId1 }) => {
         if (b.toplam === null) return 1;
         return a.toplam - b.toplam;
       },
+      render: (text) => formatNumberWithLocale(text),
     },
 
     {
@@ -738,6 +746,8 @@ const Ceza = ({ statusId1 }) => {
   ];
 
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için
+
+  // Sayıları formatlamak için fonksiyon
 
   // Intl.DateTimeFormat kullanarak tarih formatlama
   const formatDate = (date) => {
