@@ -36,6 +36,11 @@
   "temizle": "Прозрачный",
   "miktar": "Количество",
   "tutar": "Количество",
+  "fullDepo": "Полный бак",
+  "kismi": "Частичный",
+  "kaynak": "Источник",
+  "opetApi": "OPET API",
+  "manuel": "Вручную",
   "tarih": "История",
   "alinanKm": "Получил КМ.",
   "kullanim": "Использовать",
@@ -88,5 +93,6 @@
   "versionUpdateTitle": "Доступна новая версия",
   "versionUpdateMessage": "Вышла новая версия приложения. Пожалуйста, обновите страницу, чтобы увидеть обновления.",
   "versionUpdateButton": "Обновить",
-  "versionUpdateLater": "Позже"
+  "versionUpdateLater": "Позже",
+  "ruhsatBelgeSiraNo": "Порядковый номер документа"
 }

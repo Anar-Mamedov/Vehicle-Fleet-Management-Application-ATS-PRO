@@ -1625,6 +1625,21 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
+      title: t("ruhsatBelgeSiraNo"),
+      dataIndex: "ruhsatBelgeSiraNo",
+      key: "ruhsatBelgeSiraNo",
+      width: 150,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.ruhsatBelgeSiraNo === null) return -1;
+        if (b.ruhsatBelgeSiraNo === null) return 1;
+        return a.ruhsatBelgeSiraNo.localeCompare(b.ruhsatBelgeSiraNo);
+      },
+    },
+
+    {
       title: t("tts"),
       dataIndex: "tts",
       key: "tts",
