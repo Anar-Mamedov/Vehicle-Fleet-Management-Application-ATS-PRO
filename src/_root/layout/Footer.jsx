@@ -1,3 +1,4 @@
+import React from "react";
 import { Layout } from "antd";
 import dayjs from "dayjs";
 
@@ -8,7 +9,7 @@ const FooterComp = () => {
 
   return (
     <Footer className="footer">
-      <small>© 1998 - {currentYear} Orjin Yazılım</small>
+      <small>Orjin Yazılım · Kurumsal Filo Yönetim Platformu © 1998 - {currentYear}</small>
     </Footer>
   );
 };
