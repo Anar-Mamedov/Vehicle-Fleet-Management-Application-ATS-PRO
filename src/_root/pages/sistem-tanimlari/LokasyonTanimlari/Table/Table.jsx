@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useFormContext, useFieldArray, Controller } from "react-hook-form";
+import { useFormContext, useFieldArray } from "react-hook-form";
 import { Input, Table, Spin } from "antd";
 import AxiosInstance from "../../../../../api/http.jsx";
 import CreateDrawer from "../Insert/CreateDrawer";
-import { HomeOutlined, SearchOutlined } from "@ant-design/icons";
+// import { HomeOutlined } from "@ant-design/icons";
 import EditDrawer from "../Update/EditDrawer";
-import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
+// import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
 import ContextMenu from "../components/ContextMenu/ContextMenu.jsx";
-import { t } from "i18next";
+// import { t } from "i18next";
 import styled from "styled-components";
 
 const { Search } = Input;
 
-const breadcrumb = [{ href: "/", title: <HomeOutlined /> }, { title: t("lokasyonTanimlari") }];
+// const breadcrumb = [{ href: "/", title: <HomeOutlined /> }, { title: t("lokasyonTanimlari") }];
 
 const CustomSpin = styled(Spin)`
   .ant-spin-dot-item {
@@ -21,8 +21,8 @@ const CustomSpin = styled(Spin)`
 `;
 
 export default function MainTable() {
-  const { watch, control, setValue } = useFormContext();
-  const { fields, append, replace } = useFieldArray({
+  const { control, setValue } = useFormContext();
+  const { replace } = useFieldArray({
     control,
     name: "lokasyon",
   });
@@ -139,8 +139,9 @@ export default function MainTable() {
       key: "lokasyonBilgisi",
       width: "60%",
       ellipsis: true,
+      align: "left",
       render: (text, record) => (
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", textAlign: "left" }}>
           <div>{record.location}</div>
           {record.fullLocationPath && <div style={{ color: "gray", fontSize: "12px" }}>{record.fullLocationPath}</div>}
         </div>
