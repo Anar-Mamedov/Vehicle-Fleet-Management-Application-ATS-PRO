@@ -160,6 +160,7 @@ const TalepYonetimi = () => {
   const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
+  const [approvalStatus, setApprovalStatus] = useState(false);
 
   const [body, setBody] = useState({
     keyword: "",
@@ -191,6 +192,7 @@ const TalepYonetimi = () => {
         const total = response.data.recordCount;
         setTotalCount(total);
         setCurrentPage(targetPage);
+        setApprovalStatus(response.data.approvalStatus || false);
 
         const newData = response.data.list.map((item) => ({
           ...item,
@@ -834,7 +836,7 @@ const TalepYonetimi = () => {
               {/* <Button type="primary" icon={<SearchOutlined />} onClick={() => handleSearch()}></Button> */}
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
-              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} approvalStatus={approvalStatus} />
               <CreateModal onRefresh={refreshTableData} />
             </div>
           </div>
