@@ -75,7 +75,6 @@ export default function MainTabs({ imageUrls, loadingImages, setImages }) {
             rules={{ required: t("alanBosBirakilamaz") }}
             render={({ field }) => (
               <Select {...field} style={{ width: "100%" }} placeholder={t("secimYapiniz")} allowClear>
-                <Option value="ariza">{t("ariza")}</Option>
                 <Option value="lastik">{t("lastik")}</Option>
                 <Option value="aksesuar">{t("aksesuar")}</Option>
                 <Option value="yakit">{t("yakit")}</Option>
