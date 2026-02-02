@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { Button, Popover, Typography } from "antd";
 import { MoreOutlined, DownOutlined } from "@ant-design/icons";
 import Sil from "./components/Sil";
+import RequestToService from "../../../../../_root/components/RequestToService";
+import OnayaGonder from "./components/OnayaGonder";
 
 const { Text, Link } = Typography;
 
-export default function ContextMenu({ selectedRows, refreshTableData }) {
+export default function ContextMenu({ selectedRows, refreshTableData, approvalStatus }) {
   const [visible, setVisible] = useState(false);
 
   const handleVisibleChange = (visible) => {
@@ -16,7 +18,35 @@ export default function ContextMenu({ selectedRows, refreshTableData }) {
     setVisible(false);
   };
 
-  const content = <div>{selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}</div>;
+  // Check if all selected rows have status "beklemede" or "inceleniyor"
+  const allRowsAreBeklemede = selectedRows.every((row) => {
+    const status = row.talepDurum?.trim().toLowerCase();
+    return status === "beklemede" || status === "incelemede";
+  });
+
+  // Check if all selected rows have status "beklemede", "inceleniyor", or "onaylandi"
+  const allRowsAreValidForService = selectedRows.every((row) => {
+    const status = row.talepDurum?.trim().toLowerCase();
+    return status === "beklemede" || status === "incelemede" || status === "onaylandi";
+  });
+
+  // Check if all selected rows are of type "Bakim"
+  const allRowsAreBakim = selectedRows.every((row) => {
+    const type = row.talepTur?.trim().toLowerCase();
+    return type === "bakım" || type === "bakim";
+  });
+
+  const content = (
+    <div>
+      {selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
+      {selectedRows.length >= 1 && allRowsAreBakim && allRowsAreValidForService && (
+        <RequestToService selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />
+      )}
+      {selectedRows.length >= 1 && approvalStatus && allRowsAreBakim && allRowsAreBeklemede && (
+        <OnayaGonder selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />
+      )}
+    </div>
+  );
   return (
     <Popover placement="bottom" content={content} trigger="click" open={visible} onOpenChange={handleVisibleChange}>
       <Button
