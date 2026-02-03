@@ -335,6 +335,22 @@ const Yakit = () => {
     },
 
     {
+      title: t("varisTarih"),
+      dataIndex: "varisTarih",
+      key: "varisTarih",
+      width: 110,
+      ellipsis: true,
+      sorter: (a, b) => {
+        if (a.varisTarih === null) return -1;
+        if (b.varisTarih === null) return 1;
+        return a.varisTarih.localeCompare(b.varisTarih);
+      },
+
+      visible: true, // Varsayılan olarak açık
+      render: (text) => formatDate(text),
+    },
+
+    {
       title: t("varisSaat"),
       dataIndex: "varisSaat",
       key: "varisSaat",
