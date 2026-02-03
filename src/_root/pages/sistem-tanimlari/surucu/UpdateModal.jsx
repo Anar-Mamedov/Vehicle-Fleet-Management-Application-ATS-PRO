@@ -186,6 +186,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("ehliyetKullandigiChiazProtez", res.data.ehliyetKullandigiChiazProtez);
         setValue("ehliyetNo", res.data.ehliyetNo);
         setValue("isim", res.data.isim);
+        setValue("email", res.data.email);
         setSurucuId(res.data.surucuId);
         setValue("ozelAlan1", res?.data.ozelAlan1);
         setValue("ozelAlan2", res?.data.ozelAlan2);
@@ -288,6 +289,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       ozelAlanKodId10: values.ozelAlanKodId10 || -1,
       ozelAlan11: values.ozelAlan11 || 0,
       ozelAlan12: values.ozelAlan12 || 0,
+      email: values.email,
     };
 
     UpdateDriverService(body).then((res) => {

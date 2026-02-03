@@ -199,6 +199,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       ozelAlanKodId10: values.ozelAlanKodId10 || -1,
       ozelAlan11: values.ozelAlan11 || -1,
       ozelAlan12: values.ozelAlan12 || -1,
+      email: values.email,
     };
 
     AddDriverService(body).then((res) => {

@@ -178,6 +178,12 @@ const GeneralInfoUpdate = ({ isValid, setImages, urls }) => {
                 <TextInput name="sifre" />
               </div>
             </div>
+            <div className="col-span-4">
+              <div className="flex flex-col gap-1">
+                <label>E-posta</label>
+                <TextInput name="email" />
+              </div>
+            </div>
           </div>
         </div>
         <div className="col-span-4">
