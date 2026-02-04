@@ -5,12 +5,12 @@ import dayjs from "dayjs";
 import { LoadingOutlined } from "@ant-design/icons";
 import { IoLocationSharp } from "react-icons/io5";
 import { PiClockCounterClockwiseBold } from "react-icons/pi";
-import { FaCircle } from "react-icons/fa";
-import { Button, message, Modal, Spin, Tabs, Typography, Alert, Popover } from "antd";
+import { Button, message, Modal, Spin, Tabs, Typography, Alert } from "antd";
 import PropTypes from "prop-types";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetVehicleByIdService, UpdateVehicleService } from "../../../../api/services/vehicles/vehicles/services";
-import { GetDocumentsByRefGroupService, GetPhotosByRefGroupService } from "../../../../api/services/upload/services";
+import { GetPhotosByRefGroupService } from "../../../../api/services/upload/services";
+import { CodeItemValidateService } from "../../../../api/services/code/services";
 import AxiosInstance from "../../../../api/http";
 import Arsivle from "../vehicles/components/ContextMenu/components/Arsivle";
 import ArsivdenCikar from "../vehicles/components/ContextMenu/components/ArsivdenCikar";
@@ -79,6 +79,9 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
 
   const [photoUploaded, setPhotoUploaded] = useState(0);
   const [dosyaUploaded, setDosyaUploaded] = useState(0);
+
+  const [isValid, setIsValid] = useState("normal");
+  const [initialPlaka, setInitialPlaka] = useState("");
 
   const [mandatoryFields, setMandatoryFields] = useState({});
 
@@ -288,6 +291,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         });
         setValue("plaka", res?.data.plaka);
         setPlaka(res?.data.plaka);
+        setInitialPlaka(res?.data.plaka);
         setAracId(res?.data.aracId);
         setGuncelKmTarih(res?.data.sonKmGuncellemeTarih);
         setValue("guncelKm", res?.data.guncelKm);
@@ -373,6 +377,31 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       // GetDocumentsByRefGroupService(selectedId, "Arac").then((res) => setFilesUrl(res.data));
     }
   }, [isOpen, selectedId]);
+
+  const plakaWatch = watch("plaka");
+
+  useEffect(() => {
+    if (plakaWatch && plakaWatch !== initialPlaka) {
+      const body = {
+        tableName: "Arac",
+        code: plakaWatch,
+      };
+      CodeItemValidateService(body)
+        .then((res) => {
+          if (res.data.status) {
+            setIsValid("error");
+          } else {
+            setIsValid("success");
+          }
+        })
+        .catch((error) => {
+          console.error("Validation error:", error);
+          setIsValid("error");
+        });
+    } else {
+      setIsValid("normal");
+    }
+  }, [plakaWatch, initialPlaka, watch]);
 
   useEffect(() => {
     if (photoUploaded > 0) {
@@ -699,7 +728,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                 <div className="col-span-12 flex gap-1 justify-end mb-10" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>{durumNeden}</div>
                   <div style={{ display: "flex", gap: "10px" }}>
-                    <Button className="btn btn-min primary-btn" onClick={onSubmit}>
+                    <Button className="btn btn-min primary-btn" onClick={onSubmit} disabled={isValid === "error"}>
                       {t("guncelle")}
                     </Button>
                     <Button className="btn btn-min cancel-btn" onClick={handleCancel}>
@@ -712,7 +741,11 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                     <label htmlFor="plaka">
                       {t("plaka")} {isRequired("plaka") && <span className="text-danger">*</span>}
                     </label>
-                    <TextInput name="plaka" required={isRequired("plaka")} />
+                    <TextInput
+                      name="plaka"
+                      required={isRequired("plaka")}
+                      style={{ borderColor: isValid === "error" ? "#dc3545" : isValid === "success" ? "#23b545" : "#d9d9d9" }}
+                    />
                   </div>
                 </div>
                 <div className="col-span-4">
