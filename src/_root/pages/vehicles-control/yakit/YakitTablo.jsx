@@ -528,6 +528,16 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
   };
 
   // Columns definition (adjust as needed)
+  const getFuelTypeColor = (fuelType) => {
+    const colors = ["magenta", "red", "volcano", "orange", "gold", "lime", "green", "cyan", "blue", "geekblue", "purple"];
+    if (!fuelType) return "geekblue";
+    let hash = 0;
+    for (let i = 0; i < fuelType.length; i++) {
+      hash = fuelType.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
   const initialColumns = [
     {
       title: t("plaka"),
@@ -536,7 +546,12 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
       width: 120,
       ellipsis: true,
       visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+      render: (text, record) => (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <a onClick={() => onRowClick(record)}>{text}</a>
+          <span style={{ fontSize: "12px", color: "gray" }}>{record.aracTip}</span>
+        </div>
+      ),
       sorter: (a, b) => {
         if (a.plaka === null) return -1;
         if (b.plaka === null) return 1;
@@ -565,6 +580,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
       width: 130,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
+      render: (text) => <Tag color={getFuelTypeColor(text)}>{text}</Tag>,
 
       sorter: (a, b) => {
         if (a.yakitTip === null) return -1;
@@ -771,10 +787,17 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
       dataIndex: "fullDepo",
       key: "fullDepo",
       width: 130,
-      ellipsis: true,
+      ellipsis: false,
       visible: true, // Varsayılan olarak açık
       render: (text, record) => {
-        return record.fullDepo ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />;
+        return (
+          <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+            <Tag color={record.fullDepo ? "green" : "default"} style={{ display: "flex", alignItems: "center", width: "fit-content" }}>
+              <span style={{ fontSize: "8px", marginRight: "5px", lineHeight: "1", color: record.fullDepo ? "" : "gray" }}>●</span>
+              {record.fullDepo ? "Full" : "Kısmi"}
+            </Tag>
+          </div>
+        );
       },
       sorter: (a, b) => {
         const aValue = a.fullDepo === true ? 1 : 0;
