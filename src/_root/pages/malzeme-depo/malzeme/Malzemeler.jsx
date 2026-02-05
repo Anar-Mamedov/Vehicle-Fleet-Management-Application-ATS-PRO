@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState, useRef, isValidElement } from "react";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined, FileExcelOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -23,6 +23,7 @@ import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
+import * as XLSX from "xlsx";
 
 const localeMap = {
   tr: trTR,
@@ -48,6 +49,20 @@ const timeFormatMap = {
 };
 
 const { Text } = Typography;
+
+function extractTextFromElement(element) {
+  let text = "";
+  if (typeof element === "string") {
+    text = element;
+  } else if (Array.isArray(element)) {
+    text = element.map((child) => extractTextFromElement(child)).join("");
+  } else if (isValidElement(element)) {
+    text = extractTextFromElement(element.props.children);
+  } else if (element !== null && element !== undefined) {
+    text = element.toString();
+  }
+  return text;
+}
 
 const StyledButton = styled(Button)`
   display: flex;
@@ -163,6 +178,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
   const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
+  const [xlsxLoading, setXlsxLoading] = useState(false);
 
   const [body, setBody] = useState({
     keyword: "",
@@ -996,6 +1012,81 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
   }, []);
   // filtreleme işlemi için kullanılan useEffect son
 
+  const handleDownloadXLSX = async () => {
+    try {
+      setXlsxLoading(true);
+      const response = await AxiosInstance.post(
+        `WareHouseManagement/GetMaterialListByWareHouseIdReport?wareHouseId=${wareHouseId || 0}&parameter=${searchTerm}`,
+        body.filters?.customfilter || {}
+      );
+
+      if (response && response.data) {
+        const listData = Array.isArray(response.data) ? response.data : response.data.materialList || [];
+
+        const xlsxData = listData.map((row) => {
+          let xlsxRow = {};
+          filteredColumns.forEach((col) => {
+            const key = col.dataIndex;
+            if (key) {
+              let value = row[key];
+              if (col.render) {
+                if (key === "sonAlisTarih" || key.endsWith("Tarih")) {
+                  value = formatDate(value);
+                } else if (key === "aktif" || key === "yedekParca" || key === "sarfMlz" || key === "demirBas") {
+                  value = value ? t("evet") : t("hayir");
+                } else {
+                  try {
+                    value = extractTextFromElement(value);
+                  } catch {
+                    value = value !== null && value !== undefined ? value.toString() : "";
+                  }
+                }
+              }
+              xlsxRow[extractTextFromElement(col.title)] = value;
+            }
+          });
+          return xlsxRow;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(xlsxData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Malzemeler");
+
+        const headers = filteredColumns
+          .map((col) => ({
+            label: extractTextFromElement(col.title),
+            key: col.dataIndex,
+            width: col.width,
+          }))
+          .filter((col) => col.key);
+
+        const scalingFactor = 0.8;
+        worksheet["!cols"] = headers.map((header) => ({
+          wpx: header.width ? header.width * scalingFactor : 100,
+        }));
+
+        const excelBuffer = XLSX.write(workbook, {
+          bookType: "xlsx",
+          type: "array",
+        });
+        const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Malzeme_Listesi.xlsx");
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error("Excel indirme hatası:", error);
+      message.error("Excel indirilirken bir hata oluştu.");
+    } finally {
+      setXlsxLoading(false);
+    }
+  };
+
   return (
     <div>
       <ConfigProvider locale={currentLocale}>
@@ -1123,6 +1214,11 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
               <Button type="primary" icon={<SearchOutlined />} onClick={() => handleSearch()}></Button>
+            </div>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
+                {t("indir")}
+              </Button>
             </div>
             {!isSelectionMode && (
               <div style={{ display: "flex", gap: "10px" }}>
