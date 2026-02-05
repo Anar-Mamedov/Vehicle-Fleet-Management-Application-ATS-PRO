@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Table, Button, Form as AntForm, Input, InputNumber, Popconfirm, Modal, Typography, message } from "antd";
 import { useFieldArray, useFormContext, Controller } from "react-hook-form";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, FileExcelOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import Malzemeler from "../../../../../../malzeme/Malzemeler";
 import PlakaSelectBox from "../../../../../../../../components/PlakaSelectbox";
 import ModalInput from "../../../../../../../../components/form/inputs/ModalInput";
 import LokasyonTablo from "../../../../../../../../components/form/LokasyonTable";
 import KodIDSelectbox from "../../../../../../../../components/KodIDSelectbox";
+import * as XLSX from "xlsx";
 
 const { Text, Link } = Typography;
 const { TextArea } = Input;
@@ -738,9 +739,74 @@ function FisIcerigi({ modalOpen }) {
   // Filter out deleted rows before rendering
   const filteredDataSource = dataSource.filter((item) => !item.isDeleted);
 
+  const handleDownloadFisIcerigiXLSX = () => {
+    try {
+      if (filteredDataSource.length === 0) {
+        message.warning("İndirilecek veri bulunamadı.");
+        return;
+      }
+
+      const exportColumns = defaultColumns.filter((col) => col.dataIndex !== "operation");
+
+      const xlsxData = filteredDataSource.map((row) => {
+        let xlsxRow = {};
+        exportColumns.forEach((col) => {
+          const key = col.dataIndex;
+          if (key) {
+            let value = row[key];
+            if (key === "kdvDahilHaric") {
+              value = value ? "Dahil" : "Haric";
+            } else if (value === null || value === undefined) {
+              value = "";
+            }
+            xlsxRow[col.title] = value;
+          }
+        });
+        return xlsxRow;
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(xlsxData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Fiş İçeriği");
+
+      const headers = exportColumns
+        .map((col) => ({
+          label: col.title,
+          key: col.dataIndex,
+          width: col.width,
+        }))
+        .filter((col) => col.key);
+
+      const scalingFactor = 0.8;
+      worksheet["!cols"] = headers.map((header) => ({
+        wpx: header.width ? header.width * scalingFactor : 100,
+      }));
+
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "Cikis_Fisi_Icerigi.xlsx");
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Excel indirme hatası:", error);
+      message.error("Excel indirilirken bir hata oluştu.");
+    }
+  };
+
   return (
     <div style={{ marginTop: "-55px", zIndex: 10 }}>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16, gap: 8 }}>
+        <Button style={{ display: "flex", alignItems: "center", zIndex: 21 }} onClick={handleDownloadFisIcerigiXLSX} disabled={filteredDataSource.length === 0} icon={<FileExcelOutlined />}>
+          {t("indir")}
+        </Button>
         <Button
           style={{ zIndex: 21 }}
           type="primary"

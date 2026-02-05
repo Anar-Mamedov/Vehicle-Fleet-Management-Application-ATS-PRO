@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "react";
+import React, { useCallback, useEffect, useState, useRef, useMemo, memo, isValidElement } from "react";
 import { useFormContext } from "react-hook-form";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateDrawer from "../Insert/CreateDrawer";
@@ -7,7 +7,7 @@ import Filters from "./filter/Filters";
 import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined, FileExcelOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -22,6 +22,7 @@ import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
+import * as XLSX from "xlsx";
 
 const localeMap = {
   tr: trTR,
@@ -47,6 +48,20 @@ const timeFormatMap = {
 };
 
 const { Text } = Typography;
+
+function extractTextFromElement(element) {
+  let text = "";
+  if (typeof element === "string") {
+    text = element;
+  } else if (Array.isArray(element)) {
+    text = element.map((child) => extractTextFromElement(child)).join("");
+  } else if (isValidElement(element)) {
+    text = extractTextFromElement(element.props.children);
+  } else if (element !== null && element !== undefined) {
+    text = element.toString();
+  }
+  return text;
+}
 
 const StyledButton = styled(Button)`
   display: flex;
@@ -160,6 +175,7 @@ const GirisFisleri = () => {
   const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
+  const [xlsxLoading, setXlsxLoading] = useState(false);
 
   const [body, setBody] = useState({
     keyword: "",
@@ -642,6 +658,83 @@ const GirisFisleri = () => {
   }, []);
   // filtreleme işlemi için kullanılan useEffect son
 
+  const handleDownloadXLSX = async () => {
+    try {
+      setXlsxLoading(true);
+      const response = await AxiosInstance.post(`MaterialReceipt/GetMaterialReleaseReceiptReport?parameter=${searchTerm}`, body.filters?.customfilter || {});
+
+      if (response && response.data) {
+        // The API returns the array directly in response.data
+        const listData = Array.isArray(response.data) ? response.data : response.data.materialList || [];
+
+        const xlsxData = listData.map((row) => {
+          let xlsxRow = {};
+          filteredColumns.forEach((col) => {
+            const key = col.dataIndex;
+            if (key) {
+              let value = row[key];
+              if (col.render) {
+                if (key === "tarih") {
+                  value = formatDate(value);
+                } else if (key === "araToplam" || key === "kdvToplam" || key === "genelToplam") {
+                  value = Number(value).toFixed(Number(row?.tutarFormat));
+                } else {
+                  try {
+                    value = extractTextFromElement(value);
+                  } catch (e) {
+                    value = value !== null && value !== undefined ? value.toString() : "";
+                  }
+                }
+              }
+              xlsxRow[extractTextFromElement(col.title)] = value;
+            }
+          });
+          return xlsxRow;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(xlsxData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Çıkış Fişleri");
+
+        const headers = filteredColumns
+          .map((col) => {
+            let label = extractTextFromElement(col.title);
+            return {
+              label: label,
+              key: col.dataIndex,
+              width: col.width,
+            };
+          })
+          .filter((col) => col.key);
+
+        const scalingFactor = 0.8;
+        worksheet["!cols"] = headers.map((header) => ({
+          wpx: header.width ? header.width * scalingFactor : 100,
+        }));
+
+        // İndirme işlemini başlatıyoruz
+        const excelBuffer = XLSX.write(workbook, {
+          bookType: "xlsx",
+          type: "array",
+        });
+        const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Malzeme_Cikis_Fisleri.xlsx");
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error("Excel indirme hatası:", error);
+      message.error("Excel indirilirken bir hata oluştu.");
+    } finally {
+      setXlsxLoading(false);
+    }
+  };
+
   return (
     <div>
       <ConfigProvider locale={currentLocale}>
@@ -772,6 +865,9 @@ const GirisFisleri = () => {
               {/* Other toolbar components */}
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
+              <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
+                {t("indir")}
+              </Button>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
               <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
             </div>
