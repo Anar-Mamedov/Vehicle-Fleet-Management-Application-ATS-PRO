@@ -549,7 +549,9 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
       render: (text, record) => (
         <div style={{ display: "flex", flexDirection: "column" }}>
           <a onClick={() => onRowClick(record)}>{text}</a>
-          <span style={{ fontSize: "12px", color: "gray" }}>{record.aracTip}</span>
+          <span style={{ fontSize: "12px", color: "gray" }}>
+            {record.marka} - {record.model}
+          </span>
         </div>
       ),
       sorter: (a, b) => {
@@ -571,7 +573,12 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
       },
 
       visible: true, // Varsayılan olarak açık
-      render: (text) => formatDate(text),
+      render: (text, record) => (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <span>{formatDate(text)}</span>
+          <span style={{ fontSize: "12px", color: "gray" }}>{formatTime(record.saat)}</span>
+        </div>
+      ),
     },
     {
       title: t("yakitTipi"),
