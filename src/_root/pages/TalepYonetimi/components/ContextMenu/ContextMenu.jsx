@@ -30,10 +30,10 @@ export default function ContextMenu({ selectedRows, refreshTableData, approvalSt
     return status === "beklemede" || status === "incelemede" || status === "onaylandi";
   });
 
-  // Check if all selected rows are of type "Bakim"
+  // Check if all selected rows are of type "Bakim" or "Lastik"
   const allRowsAreBakim = selectedRows.every((row) => {
     const type = row.talepTur?.trim().toLowerCase();
-    return type === "bakım" || type === "bakim";
+    return type === "bakım" || type === "bakim" || type === "lastik";
   });
 
   const content = (
