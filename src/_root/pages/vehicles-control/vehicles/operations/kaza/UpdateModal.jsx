@@ -9,6 +9,8 @@ import { Modal, Tabs, Button } from "antd";
 import GeneralInfo from "./tabs/GeneralInfo";
 import PersonalFields from "../../../../../components/form/personal-fields/PersonalFields";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 import GeriOdeme from "./tabs/GeriOdeme";
 import SigortaBilgileri from "./tabs/SigortaBilgileri";
 import DosyaUpload from "../../../../../components/Dosya/DosyaUpload";
@@ -129,7 +131,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, aracId, setStatus }) => 
         setValue("karsiPlaka", res?.data.karsiPlaka);
         setValue("karsiSigorta", res?.data.karsiSigorta);
         setValue("karsiSurucu", res?.data.karsiSurucu);
-        setValue("kazaSaat", dayjs(res?.data.kazaSaat, "HH:mm:ss"));
+        setValue("kazaSaat", res?.data.kazaSaat ? dayjs(res?.data.kazaSaat, ["HH:mm:ss", "HH:mm"]) : null);
         setValue("kazaSekli", res?.data.kazaSekli);
         setValue("kazaSekliKodId", res?.data.kazaSekliKodId);
         setValue("kazaTuru", res?.data.kazaTuru);
