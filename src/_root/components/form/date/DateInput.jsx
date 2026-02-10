@@ -8,7 +8,7 @@ import { ConfigProvider, DatePicker } from "antd";
 
 dayjs.locale("tr");
 
-const DateInput = ({ name, checked, readonly, required, style, placeholder = "" }) => {
+const DateInput = ({ name, checked, readonly, required, style, placeholder = "", onBlur }) => {
   const { control } = useFormContext();
   return (
     <Controller
@@ -32,6 +32,10 @@ const DateInput = ({ name, checked, readonly, required, style, placeholder = "" 
               onChange={(e) => {
                 field.onChange(e);
               }}
+              onBlur={(e) => {
+                field.onBlur();
+                onBlur?.(e);
+              }}
             />
           </ConfigProvider>
           {fieldState.error && <span style={{ color: "red" }}>{fieldState.error.message}</span>}
@@ -46,6 +50,7 @@ DateInput.propTypes = {
   checked: PropTypes.bool,
   readonly: PropTypes.bool,
   required: PropTypes.bool,
+  onBlur: PropTypes.func,
 };
 
 export default DateInput;

@@ -101,15 +101,15 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, aracId, setStatus }) => 
   const methods = useForm({
     defaultValues: defaultValues,
   });
-  const { handleSubmit, reset, setValue, watch } = methods;
+  const { handleSubmit, reset, setValue, getValues } = methods;
 
-  useEffect(() => {
-    if (watch("baslangicTarih")) {
-      const dateObj = dayjs.utc(watch("baslangicTarih"));
-      const newDateObj = dateObj.add(1, "year");
-      setValue("bitisTarih", newDateObj);
+  const handleBaslangicTarihBlur = () => {
+    const baslangicTarih = getValues("baslangicTarih");
+    if (!baslangicTarih) {
+      return;
     }
-  }, [watch("baslangicTarih")]);
+    setValue("bitisTarih", dayjs(baslangicTarih).add(1, "year"), { shouldDirty: true });
+  };
 
   useEffect(() => {
     if (updateModal) {
@@ -218,7 +218,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, aracId, setStatus }) => 
     {
       key: "1",
       label: t("genelBilgiler"),
-      children: <GeneralInfo />,
+      children: <GeneralInfo onBaslangicTarihBlur={handleBaslangicTarihBlur} />,
     },
     {
       key: "2",

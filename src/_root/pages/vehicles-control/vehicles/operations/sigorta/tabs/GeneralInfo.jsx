@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { t } from "i18next";
 import Plaka from "../../../../../../components/form/selects/Plaka";
 import DateInput from "../../../../../../components/form/date/DateInput";
@@ -9,7 +10,7 @@ import CheckboxInput from "../../../../../../components/form/checkbox/CheckboxIn
 import CodeControl from "../../../../../../components/form/selects/CodeControl";
 import Firma from "../../../../../../components/form/selects/Firma";
 
-const GeneralInfo = () => {
+const GeneralInfo = ({ onBaslangicTarihBlur }) => {
   return (
     <>
       <div className="grid gap-1">
@@ -46,7 +47,7 @@ const GeneralInfo = () => {
                 <label>
                   {t("baslangicTarih")} <span className="text-danger">*</span>
                 </label>
-                <DateInput name="baslangicTarih" required={true} />
+                <DateInput name="baslangicTarih" required={true} onBlur={onBaslangicTarihBlur} />
               </div>
             </div>
             <div className="col-span-12">
@@ -150,6 +151,10 @@ const GeneralInfo = () => {
       </div>
     </>
   );
+};
+
+GeneralInfo.propTypes = {
+  onBaslangicTarihBlur: PropTypes.func,
 };
 
 export default GeneralInfo;
