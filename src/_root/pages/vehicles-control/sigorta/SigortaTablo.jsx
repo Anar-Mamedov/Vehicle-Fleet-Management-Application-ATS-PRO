@@ -31,6 +31,7 @@ import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 import UpdateModal from "./UpdateModal";
 import * as XLSX from "xlsx";
+import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -664,6 +665,10 @@ const SigortaTablo = ({ customFields }) => {
         const numB = parseFloat(b.tutar);
         return numA - numB;
       },
+      render: (text, record) => {
+        const format = record?.tutarFormat ? Math.min(Math.max(Number(record.tutarFormat), 0), 20) : undefined;
+        return <span>{formatNumberWithLocale(text, format, format)}</span>;
+      },
     },
 
     {
@@ -694,6 +699,10 @@ const SigortaTablo = ({ customFields }) => {
         const numA = parseFloat(a.tutar);
         const numB = parseFloat(b.tutar);
         return numA - numB;
+      },
+      render: (text, record) => {
+        const format = record?.tutarFormat ? Math.min(Math.max(Number(record.tutarFormat), 0), 20) : undefined;
+        return <span>{formatNumberWithLocale(text, format, format)}</span>;
       },
     },
 

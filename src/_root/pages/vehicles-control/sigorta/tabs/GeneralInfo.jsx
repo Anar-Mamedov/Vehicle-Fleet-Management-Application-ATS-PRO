@@ -10,7 +10,7 @@ import CheckboxInput from "../../../../components/form/checkbox/CheckboxInput";
 import CodeControl from "../../../../components/form/selects/CodeControl";
 import Firma from "../../../../components/form/selects/Firma";
 
-const GeneralInfo = () => {
+const GeneralInfo = ({ onBaslangicTarihBlur }) => {
   return (
     <>
       <div className="grid gap-1">
@@ -47,7 +47,7 @@ const GeneralInfo = () => {
                 <label>
                   {t("baslangicTarih")} <span className="text-danger">*</span>
                 </label>
-                <DateInput name="baslangicTarih" required={true} />
+                <DateInput name="baslangicTarih" required={true} onBlur={onBaslangicTarihBlur} />
               </div>
             </div>
             <div className="col-span-12">
@@ -154,6 +154,7 @@ const GeneralInfo = () => {
 };
 
 GeneralInfo.propTypes = {
+  onBaslangicTarihBlur: PropTypes.func,
   setIsValid: PropTypes.func,
   response: PropTypes.string,
   setResponse: PropTypes.func,

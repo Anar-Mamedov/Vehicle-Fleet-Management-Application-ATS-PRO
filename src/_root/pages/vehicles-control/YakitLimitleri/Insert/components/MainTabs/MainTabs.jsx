@@ -247,7 +247,7 @@ export default function MainTabs({ modalOpen }) {
             width: "100%",
           }}
         >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("yakitLimiti")}</Text>
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("yakitLimitiL")}</Text>
           <div
             style={{
               display: "flex",

@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import { t } from "i18next";
 import { Button, message, Modal, Tabs } from "antd";
 import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
@@ -10,8 +9,6 @@ import { PlakaContext } from "../../../../context/plakaSlice";
 import { AddInsuranceItemService } from "../../../../api/services/vehicles/operations_services";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import GeneralInfo from "./tabs/GeneralInfo";
-
-dayjs.extend(utc);
 
 const AddModal = ({ setStatus, onRefresh }) => {
   const { data, plaka, setPlaka } = useContext(PlakaContext);
@@ -104,7 +101,15 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const methods = useForm({
     defaultValues: defaultValues,
   });
-  const { handleSubmit, reset, setValue, watch } = methods;
+  const { handleSubmit, reset, setValue, getValues } = methods;
+
+  const handleBaslangicTarihBlur = () => {
+    const baslangicTarih = getValues("baslangicTarih");
+    if (!baslangicTarih) {
+      return;
+    }
+    setValue("bitisTarih", dayjs(baslangicTarih).add(1, "year"), { shouldDirty: true });
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -176,7 +181,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     {
       key: "1",
       label: t("genelBilgiler"),
-      children: <GeneralInfo />,
+      children: <GeneralInfo onBaslangicTarihBlur={handleBaslangicTarihBlur} />,
     },
     {
       key: "2",

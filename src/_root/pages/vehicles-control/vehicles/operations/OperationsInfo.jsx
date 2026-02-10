@@ -18,9 +18,10 @@ import PeryodikBakimlar from "./PeryodikBakimlar/PeryodikBakimlar.jsx";
 import Servisler from "./Servisler/Servisler";
 import Surucu from "../../vehicle-detail/detail-info/modals/surucu/Surucu.jsx";
 import Ekspertiz from "../../vehicle-detail/detail-info/modals/ekspertiz/Ekspertiz";
+import LokasyonBilgileri from "../../vehicle-detail/detail-info/modals/lokasyon/Surucu.jsx";
 import AksYapilandirma from "../../../LastikYonetimi/LastikIslemleri/Update/EditDrawer.jsx";
 
-const OperationsInfo = ({ ids, selectedRowsData }) => {
+const OperationsInfo = ({ ids, selectedRowsData, onRefresh }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [drawer, setDrawer] = useState({ visible: false, data: null });
 
@@ -100,6 +101,11 @@ const OperationsInfo = ({ ids, selectedRowsData }) => {
             label: t("surucuDegisiklikleri"),
             key: "13",
             icon: <MdSwitchAccount className="text-info" />,
+          },
+          {
+            label: t("lokasyonDegisiklikleri"),
+            key: "14",
+            icon: <MdRoute className="text-info" />,
           },
           {
             label: t("ekspertiz"),
@@ -276,6 +282,18 @@ const OperationsInfo = ({ ids, selectedRowsData }) => {
             }}
             id={ids[0]}
             selectedRowsData={selectedRowsData}
+          />
+        );
+      case "14":
+        return (
+          <LokasyonBilgileri
+            visible={selectedItem === "14"}
+            onClose={() => {
+              setSelectedItem(null);
+            }}
+            id={ids[0]}
+            selectedRowsData={selectedRowsData}
+            refreshVehicleData={onRefresh}
           />
         );
       case "15":
