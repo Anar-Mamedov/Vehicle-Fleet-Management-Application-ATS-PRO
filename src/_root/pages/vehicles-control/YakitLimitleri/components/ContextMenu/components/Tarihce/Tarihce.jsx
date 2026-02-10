@@ -40,6 +40,16 @@ const Tarihce = ({ selectedRow, hidePopover }) => {
     const startOfMonth = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
     const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
 
+    // Çeyrek (3 aylık, UTC)
+    const quarterStartMonth = Math.floor(month / 3) * 3;
+    const startOfQuarter = new Date(Date.UTC(year, quarterStartMonth, 1, 0, 0, 0, 0));
+    const endOfQuarter = new Date(Date.UTC(year, quarterStartMonth + 3, 0, 23, 59, 59, 999));
+
+    // Yarım yıl (6 aylık, UTC)
+    const halfYearStartMonth = month < 6 ? 0 : 6;
+    const startOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth, 1, 0, 0, 0, 0));
+    const endOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth + 6, 0, 23, 59, 59, 999));
+
     // Hafta (UTC, Pazartesi başlangıç)
     const dayOfWeekUTC = (now.getUTCDay() + 6) % 7; // Pazartesi=0
     const startOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC, 0, 0, 0, 0));
@@ -50,6 +60,14 @@ const Tarihce = ({ selectedRow, hidePopover }) => {
       haftalikBitisTarih: endOfWeek.toISOString(),
       aylikBaslangicTarih: startOfMonth.toISOString(),
       aylikBitisTarih: endOfMonth.toISOString(),
+      ucAylikBaslangicTarih: startOfQuarter.toISOString(),
+      ucAylikBitisTarih: endOfQuarter.toISOString(),
+      altiAylikBaslangicTarih: startOfHalfYear.toISOString(),
+      altiAylikBitisTarih: endOfHalfYear.toISOString(),
+      UcAylikBaslangicTarih: startOfQuarter.toISOString(),
+      UcAylikBitisTarih: endOfQuarter.toISOString(),
+      AltiAylikBaslangicTarih: startOfHalfYear.toISOString(),
+      AltiAylikBitisTarih: endOfHalfYear.toISOString(),
       yillikBaslangicTarih: startOfYear.toISOString(),
       yillikBitisTarih: endOfYear.toISOString(),
     };
@@ -65,14 +83,7 @@ const Tarihce = ({ selectedRow, hidePopover }) => {
       const payload = {
         siraNo: selectedRow.siraNo,
         type: selectedRow.limitTipi,
-        limitType: {
-          haftalikBaslangicTarih: dates.haftalikBaslangicTarih,
-          haftalikBitisTarih: dates.haftalikBitisTarih,
-          aylikBaslangicTarih: dates.aylikBaslangicTarih,
-          aylikBitisTarih: dates.aylikBitisTarih,
-          yillikBaslangicTarih: dates.yillikBaslangicTarih,
-          yillikBitisTarih: dates.yillikBitisTarih,
-        },
+        limitType: dates,
       };
 
       const response = await AxiosInstance.post(`FuelLimit/GetFuelListByLimitPeriod?setPointId=0&diff=0&parameter=`, payload);

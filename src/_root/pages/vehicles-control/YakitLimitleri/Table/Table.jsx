@@ -181,6 +181,16 @@ const YakitLimitleri = () => {
     const startOfMonth = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
     const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
 
+    // Çeyrek (3 aylık, UTC)
+    const quarterStartMonth = Math.floor(month / 3) * 3;
+    const startOfQuarter = new Date(Date.UTC(year, quarterStartMonth, 1, 0, 0, 0, 0));
+    const endOfQuarter = new Date(Date.UTC(year, quarterStartMonth + 3, 0, 23, 59, 59, 999));
+
+    // Yarım yıl (6 aylık, UTC)
+    const halfYearStartMonth = month < 6 ? 0 : 6;
+    const startOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth, 1, 0, 0, 0, 0));
+    const endOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth + 6, 0, 23, 59, 59, 999));
+
     // Hafta (UTC, Pazartesi başlangıç)
     const dayOfWeekUTC = (now.getUTCDay() + 6) % 7; // Pazartesi=0
     const startOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC, 0, 0, 0, 0));
@@ -191,6 +201,14 @@ const YakitLimitleri = () => {
       haftalikBitisTarih: endOfWeek.toISOString(),
       aylikBaslangicTarih: startOfMonth.toISOString(),
       aylikBitisTarih: endOfMonth.toISOString(),
+      ucAylikBaslangicTarih: startOfQuarter.toISOString(),
+      ucAylikBitisTarih: endOfQuarter.toISOString(),
+      altiAylikBaslangicTarih: startOfHalfYear.toISOString(),
+      altiAylikBitisTarih: endOfHalfYear.toISOString(),
+      UcAylikBaslangicTarih: startOfQuarter.toISOString(),
+      UcAylikBitisTarih: endOfQuarter.toISOString(),
+      AltiAylikBaslangicTarih: startOfHalfYear.toISOString(),
+      AltiAylikBitisTarih: endOfHalfYear.toISOString(),
       yillikBaslangicTarih: startOfYear.toISOString(),
       yillikBitisTarih: endOfYear.toISOString(),
     };
@@ -484,13 +502,20 @@ const YakitLimitleri = () => {
         },
         render: (text, record) => {
           const ranges = buildPeriodRanges();
-          if (record?.limitTipi === "haftalik") {
+          const limitTipi = String(record?.limitTipi || "").toLowerCase();
+          if (limitTipi === "haftalik") {
             return `${formatDateFromISODateOnly(ranges.haftalikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.haftalikBitisTarih)}`;
           }
-          if (record?.limitTipi === "aylik") {
+          if (limitTipi === "aylik") {
             return `${formatDateFromISODateOnly(ranges.aylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.aylikBitisTarih)}`;
           }
-          if (record?.limitTipi === "yillik") {
+          if (limitTipi === "ucaylik") {
+            return `${formatDateFromISODateOnly(ranges.ucAylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.ucAylikBitisTarih)}`;
+          }
+          if (limitTipi === "altiaylik") {
+            return `${formatDateFromISODateOnly(ranges.altiAylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.altiAylikBitisTarih)}`;
+          }
+          if (limitTipi === "yillik") {
             return `${formatDateFromISODateOnly(ranges.yillikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.yillikBitisTarih)}`;
           }
           return formatDate(text);
