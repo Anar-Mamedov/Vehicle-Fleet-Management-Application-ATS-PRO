@@ -120,9 +120,9 @@ const AddModal = ({ setStatus, onRefresh, seferId = null, selectedRow = null }) 
   const onSubmit = handleSubmit((values) => {
     const body = {
       ...(seferId !== null && { SeferSirano: seferId }),
-      aracId: data.aracId,
+      aracId: values.plakaID || 0,
       tarih: dayjs(values.tarih).format("YYYY-MM-DD"),
-      surucuId: values.surucuId || 0,
+      surucuId: values.surucuID || 0,
       lokasyonId: values.lokasyonId || 0,
       maliyet: values.maliyet,
       ozel: values.ozel,
