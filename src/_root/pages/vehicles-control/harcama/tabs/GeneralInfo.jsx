@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
+import { useFormContext } from "react-hook-form";
 import { t } from "i18next";
-import Plaka from "../../../../components/form/selects/Plaka";
-import Driver from "../../../../components/form/selects/Driver";
-import Location from "../../../../components/form/tree/Location";
+import PlakaSelectBox from "../../../../components/PlakaSelectbox";
+import SurucuSelectbox from "../../../../components/SurucuSelectbox";
+import LokasyonTablo from "../../../../components/form/LokasyonTable";
+import ModalInput from "../../../../components/form/inputs/ModalInput";
 import DateInput from "../../../../components/form/date/DateInput";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
@@ -10,6 +12,18 @@ import CheckboxInput from "../../../../components/form/checkbox/CheckboxInput";
 import CodeControl from "../../../../components/form/selects/CodeControl";
 
 const GeneralInfo = () => {
+  const { setValue } = useFormContext();
+  const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
+
+  const handleLokasyonPlusClick = () => {
+    setIsLokasyonModalOpen(true);
+  };
+
+  const handleLokasyonMinusClick = () => {
+    setValue("lokasyon", null);
+    setValue("lokasyonId", null);
+  };
+
   return (
     <>
       <div className="grid gap-1">
@@ -20,7 +34,23 @@ const GeneralInfo = () => {
                 <label>
                   {t("plaka")} <span className="text-danger">*</span>
                 </label>
-                <Plaka required={true} />
+                <PlakaSelectBox
+                  name1="plaka"
+                  isRequired={true}
+                  onChange={(value, option) => {
+                    if (option && option.data) {
+                      setValue("lokasyonId", option.data.lokasyonId);
+                      setValue("lokasyon", option.data.lokasyon);
+                      setValue("surucu", option.data.surucu);
+                      setValue("surucuID", option.data.surucuId);
+                    } else {
+                      setValue("lokasyonId", null);
+                      setValue("lokasyon", null);
+                      setValue("surucu", null);
+                      setValue("surucuID", null);
+                    }
+                  }}
+                />
               </div>
             </div>
             <div className="col-span-6">
@@ -34,7 +64,7 @@ const GeneralInfo = () => {
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("surucu")}</label>
-                <Driver />
+                <SurucuSelectbox name1="surucu" isRequired={false} />
               </div>
             </div>
             <div className="col-span-6">
@@ -42,7 +72,15 @@ const GeneralInfo = () => {
                 <label>
                   {t("lokasyon")} <span className="text-danger">*</span>
                 </label>
-                <Location required={true} />
+                <ModalInput name="lokasyon" readonly={true} required={true} onPlusClick={handleLokasyonPlusClick} onMinusClick={handleLokasyonMinusClick} />
+                <LokasyonTablo
+                  isModalVisible={isLokasyonModalOpen}
+                  setIsModalVisible={setIsLokasyonModalOpen}
+                  onSubmit={(selectedData) => {
+                    setValue("lokasyon", selectedData.location);
+                    setValue("lokasyonId", selectedData.key);
+                  }}
+                />
               </div>
             </div>
           </div>
