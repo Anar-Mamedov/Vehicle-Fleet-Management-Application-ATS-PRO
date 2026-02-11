@@ -23,10 +23,11 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, multiSelec
     {
       title: "",
       key: "locationInfo",
+      align: "left",
       render: (text, record) => (
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", textAlign: "left" }}>
           <div>{record.location}</div>
-          <div style={{ color: "gray", fontSize: "12px" }}>{record.fullLocationPath}</div>
+          {record.fullLocationPath && <div style={{ color: "gray", fontSize: "12px" }}>{record.fullLocationPath}</div>}
         </div>
       ),
       sorter: (a, b) => a.location.localeCompare(b.location),

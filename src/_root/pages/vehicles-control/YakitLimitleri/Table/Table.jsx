@@ -205,10 +205,6 @@ const YakitLimitleri = () => {
       ucAylikBitisTarih: endOfQuarter.toISOString(),
       altiAylikBaslangicTarih: startOfHalfYear.toISOString(),
       altiAylikBitisTarih: endOfHalfYear.toISOString(),
-      UcAylikBaslangicTarih: startOfQuarter.toISOString(),
-      UcAylikBitisTarih: endOfQuarter.toISOString(),
-      AltiAylikBaslangicTarih: startOfHalfYear.toISOString(),
-      AltiAylikBitisTarih: endOfHalfYear.toISOString(),
       yillikBaslangicTarih: startOfYear.toISOString(),
       yillikBitisTarih: endOfYear.toISOString(),
     };

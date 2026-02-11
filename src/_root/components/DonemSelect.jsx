@@ -39,8 +39,8 @@ export default function DonemSelect({ name1, isRequired, onChange, inputWidth, d
   const staticOptions = [
     { value: "yillik", label: t("yillik") },
     { value: "aylik", label: t("aylik") },
-    { value: "ucaylik", label: t("ucaylik") },
-    { value: "altiaylik", label: t("altiaylik") },
+    { value: "ucAylik", label: t("ucAylik") },
+    { value: "altiAylik", label: t("altiAylik") },
     { value: "haftalik", label: t("haftalik") },
   ];
 
