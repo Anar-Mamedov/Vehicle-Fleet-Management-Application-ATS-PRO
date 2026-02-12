@@ -99,15 +99,11 @@ const AddModal = ({ setStatus, onRefresh }) => {
     },
   ]);
 
-  const defaultValues = {};
+  const defaultValues = { seferAdedi: 1 };
   const methods = useForm({
     defaultValues: defaultValues,
   });
   const { handleSubmit, reset, setValue, watch } = methods;
-
-  useEffect(() => {
-    setValue("seferAdedi", 1);
-  }, []);
 
   useEffect(() => {
     let fark;
