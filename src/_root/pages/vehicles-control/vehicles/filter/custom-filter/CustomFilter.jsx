@@ -125,6 +125,9 @@ export default function CustomFilter({ onSubmit }) {
 
   const handleSubmit = () => {
     const json = {};
+    FILTER_OPTIONS.forEach((opt) => {
+      json[opt.value] = [];
+    });
 
     rows.forEach((row) => {
       const filterKey = selectedFilters[row.id];
