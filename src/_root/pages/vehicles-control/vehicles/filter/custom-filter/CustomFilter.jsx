@@ -1,10 +1,11 @@
 import { CloseOutlined, FilterOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Drawer, Row, Typography, Select, Space, Input } from "antd";
+import { Button, Col, Drawer, Row, Typography, Select, Space } from "antd";
 import React, { useState } from "react";
 import styled from "styled-components";
+import { CodeControlService, CustomCodeControlService, MaterialListSelectService } from "../../../../../../api/service";
 import "./style.css";
 
-const { Text, Link } = Typography;
+const { Text } = Typography;
 
 const StyledCloseOutlined = styled(CloseOutlined)`
   svg {
@@ -24,23 +25,94 @@ const CloseButton = styled.div`
   cursor: pointer;
 `;
 
+const FILTER_OPTIONS = [
+  { value: "GrupIds", label: "Araç Grubu" },
+  { value: "RenkIds", label: "Renk" },
+  { value: "YakitTipIds", label: "Yakıt Tipi" },
+  { value: "DepartmanIds", label: "Departman" },
+  { value: "AracCinsiIds", label: "Araç Cinsi" },
+  { value: "VitesTipiIds", label: "Vites Tipi" },
+  { value: "AracMulkiyetIds", label: "Araç Mülkiyet" },
+  { value: "KullanimAmacIds", label: "Kullanım Amacı" },
+  { value: "YedekAnahtarIds", label: "Yedek Anahtar" },
+  { value: "AracDurumIds", label: "Araç Durum" },
+  { value: "SurucuIds", label: "Sürücü" },
+];
+
+const fetchFilterData = async (filterKey) => {
+  switch (filterKey) {
+    case "GrupIds":
+      return CodeControlService(101).then((res) =>
+        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
+      );
+    case "RenkIds":
+      return CodeControlService(111).then((res) =>
+        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
+      );
+    case "DepartmanIds":
+      return CodeControlService(200).then((res) =>
+        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
+      );
+    case "AracCinsiIds":
+      return CodeControlService(107).then((res) =>
+        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
+      );
+    case "VitesTipiIds":
+      return CodeControlService(902).then((res) =>
+        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
+      );
+    case "AracMulkiyetIds":
+      return CodeControlService(891).then((res) =>
+        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
+      );
+    case "KullanimAmacIds":
+      return CodeControlService(887).then((res) =>
+        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
+      );
+    case "YedekAnahtarIds":
+      return CodeControlService(888).then((res) =>
+        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
+      );
+    case "AracDurumIds":
+      return CodeControlService(122).then((res) =>
+        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
+      );
+    case "YakitTipIds":
+      return MaterialListSelectService("YAKIT").then((res) =>
+        res.data.map((item) => ({ value: item.malzemeId, label: item.tanim }))
+      );
+    case "SurucuIds":
+      return CustomCodeControlService("Driver/GetDriverListForSelectInput").then((res) =>
+        res.data.map((item) => ({ value: item.surucuId, label: item.isim }))
+      );
+    default:
+      return [];
+  }
+};
+
 export default function CustomFilter({ onSubmit }) {
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [newObjectsAdded, setNewObjectsAdded] = useState(false);
   const [filtersExist, setFiltersExist] = useState(false);
-  const [inputValues, setInputValues] = useState({}); // Input değerlerini saklamak için bir state kullanıyoruz
-  const [filters, setFilters] = useState({});
-  const [filterValues, setFilterValues] = useState({});
-
-  // Create a state variable to store selected values for each row
+  const [selectedFilters, setSelectedFilters] = useState({});
   const [selectedValues, setSelectedValues] = useState({});
+  const [filterOptionsData, setFilterOptionsData] = useState({});
 
-  const handleSelectChange = (value, rowId) => {
-    setSelectedValues((prevSelectedValues) => ({
-      ...prevSelectedValues,
-      [rowId]: value,
-    }));
+  const handleFilterTypeChange = (value, rowId) => {
+    setSelectedFilters((prev) => ({ ...prev, [rowId]: value }));
+    setSelectedValues((prev) => ({ ...prev, [rowId]: [] }));
+    setFilterOptionsData((prev) => ({ ...prev, [rowId]: [] }));
+
+    if (value) {
+      fetchFilterData(value).then((options) => {
+        setFilterOptionsData((prev) => ({ ...prev, [rowId]: options }));
+      });
+    }
+  };
+
+  const handleValueChange = (values, rowId) => {
+    setSelectedValues((prev) => ({ ...prev, [rowId]: values }));
   };
 
   const showDrawer = () => {
@@ -52,39 +124,37 @@ export default function CustomFilter({ onSubmit }) {
   };
 
   const handleSubmit = () => {
-    // Combine selected values and input values for each row
-    const rowData = rows.map((row) => ({
-      selectedValue: selectedValues[row.id] || "",
-      inputValue: inputValues[`input-${row.id}`] || "",
-    }));
+    const json = {};
 
-    // Filter out rows where both selectedValue and inputValue are empty
-    const filteredData = rowData.filter(({ selectedValue, inputValue }) => {
-      return selectedValue !== "" && inputValue !== "";
+    rows.forEach((row) => {
+      const filterKey = selectedFilters[row.id];
+      const values = selectedValues[row.id];
+      if (filterKey && values && values.length > 0) {
+        json[filterKey] = values;
+      }
     });
 
-    let json = {};
-
-    if (filteredData.length > 0) {
-      // Convert the filteredData array to the desired JSON format
-      json = filteredData.reduce((acc, { selectedValue, inputValue }) => {
-        return {
-          ...acc,
-          [selectedValue]: inputValue,
-        };
-      }, {});
-    } else {
-      // Handle the case where there are no non-empty filters
-    }
-
-    // Always call onSubmit with the filters (empty object if no filters)
     onSubmit(json);
     setOpen(false);
   };
 
   const handleCancelClick = (rowId) => {
-    setFilters({});
     setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
+    setSelectedFilters((prev) => {
+      const updated = { ...prev };
+      delete updated[rowId];
+      return updated;
+    });
+    setSelectedValues((prev) => {
+      const updated = { ...prev };
+      delete updated[rowId];
+      return updated;
+    });
+    setFilterOptionsData((prev) => {
+      const updated = { ...prev };
+      delete updated[rowId];
+      return updated;
+    });
 
     const filtersRemaining = rows.length > 1;
     setFiltersExist(filtersRemaining);
@@ -94,31 +164,19 @@ export default function CustomFilter({ onSubmit }) {
     onSubmit({});
   };
 
-  const handleInputChange = (e, rowId) => {
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [`input-${rowId}`]: e.target.value,
-    }));
-  };
-
   const handleAddFilterClick = () => {
     const newRow = { id: Date.now() };
     setRows((prevRows) => [...prevRows, newRow]);
-
     setNewObjectsAdded(true);
     setFiltersExist(true);
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [newRow.id]: "", // Set an empty input value for the new row
-    }));
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
+  const getAvailableOptions = (currentRowId) => {
+    const usedFilters = Object.entries(selectedFilters)
+      .filter(([rowId]) => String(rowId) !== String(currentRowId))
+      .map(([, value]) => value);
 
-  const onSearch = (value) => {
-    console.log("search:", value);
+    return FILTER_OPTIONS.filter((opt) => !usedFilters.includes(opt.value));
   };
 
   return (
@@ -133,7 +191,6 @@ export default function CustomFilter({ onSubmit }) {
         className={newObjectsAdded ? "#ff0000-dot-button" : ""}
       >
         <FilterOutlined />
-        {/* <span style={{ marginRight: "5px" }}>Filtreler</span> */}
         {newObjectsAdded && <span className="blue-dot"></span>}
       </Button>
       <Drawer
@@ -182,54 +239,27 @@ export default function CustomFilter({ onSubmit }) {
                 <Select
                   style={{ width: "100%", marginBottom: "10px" }}
                   showSearch
-                  placeholder={`Seçim Yap`}
-                  optionFilterProp="children"
-                  onChange={(value) => handleSelectChange(value, row.id)}
-                  value={selectedValues[row.id] || undefined}
-                  onSearch={onSearch}
+                  placeholder="Filtre Seçiniz"
+                  optionFilterProp="label"
+                  onChange={(value) => handleFilterTypeChange(value, row.id)}
+                  value={selectedFilters[row.id] || undefined}
                   filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
-                  options={[
-                    {
-                      value: "grup",
-                      label: "Araç Grubu",
-                    },
-                    /* {
-                      value: "aracTip",
-                      label: "Araç Tipi",
-                    },
-                     {
-                      value: "marka",
-                      label: "Marka",
-                    },
-                    {
-                      value: "model",
-                      label: "Model",
-                    }, 
-                    {
-                      value: "plaka",
-                      label: "Plaka",
-                    },
-                     */
-                    {
-                      value: "renk",
-                      label: "Renk",
-                    },
-                    {
-                      value: "yakitTip",
-                      label: "Yakıt Tipi",
-                    },
-                    {
-                      value: "yil",
-                      label: "Üretim Yılı",
-                    },
-                  ]}
+                  options={getAvailableOptions(row.id)}
                 />
-                <Input
-                  placeholder="Arama Yap"
-                  name={`input-${row.id}`} // Use a unique name for each input based on the row ID
-                  value={inputValues[`input-${row.id}`] || ""} // Use the corresponding input value
-                  onChange={(e) => handleInputChange(e, row.id)} // Pass the rowId to handleInputChange
-                />
+                {selectedFilters[row.id] && (
+                  <Select
+                    mode="multiple"
+                    style={{ width: "100%" }}
+                    showSearch
+                    allowClear
+                    placeholder="Seçim Yapınız"
+                    optionFilterProp="label"
+                    onChange={(values) => handleValueChange(values, row.id)}
+                    value={selectedValues[row.id] || []}
+                    filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
+                    options={filterOptionsData[row.id] || []}
+                  />
+                )}
               </Col>
             </Col>
           </Row>
