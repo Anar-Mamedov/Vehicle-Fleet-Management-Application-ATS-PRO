@@ -26,9 +26,9 @@ export default function ZamanAraligi({ onDateChange }) {
 
   useEffect(() => {
     if (isInitialMount) {
-      setValue("timeRange", "thisWeek");
-      const baslangicTarih = dayjs().startOf("week");
-      const bitisTarih = dayjs().endOf("week");
+      setValue("timeRange", "last7Days");
+      const baslangicTarih = dayjs().subtract(6, "day").startOf("day");
+      const bitisTarih = dayjs().endOf("day");
       setValue("baslangicTarih", baslangicTarih);
       setValue("bitisTarih", bitisTarih);
       setIsInitialMount(false);
@@ -100,6 +100,10 @@ export default function ZamanAraligi({ onDateChange }) {
         baslangicTarih = dayjs().subtract(1, "year").startOf("year");
         bitisTarih = dayjs().subtract(1, "year").endOf("year");
         break;
+      case "last7Days":
+        baslangicTarih = dayjs().subtract(6, "day").startOf("day");
+        bitisTarih = dayjs().endOf("day");
+        break;
       case "last1Month":
         baslangicTarih = dayjs().subtract(1, "month");
         bitisTarih = dayjs();
@@ -149,6 +153,7 @@ export default function ZamanAraligi({ onDateChange }) {
               { value: "lastMonth", label: "Geçen Ay" },
               { value: "thisYear", label: "Bu Yıl" },
               { value: "lastYear", label: "Geçen Yıl" },
+              { value: "last7Days", label: "Son 7 Gün" },
               { value: "last1Month", label: "Son 1 Ay" },
               { value: "last3Months", label: "Son 3 Ay" },
               { value: "last6Months", label: "Son 6 Ay" },
