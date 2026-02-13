@@ -378,6 +378,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
     lastMonth: t("gecenAy"),
     thisYear: t("buYil"),
     lastYear: t("gecenYil"),
+    last7Days: t("son7Gun"),
     last1Month: t("son1Ay"),
     last3Months: t("son3Ay"),
     last6Months: t("son6Ay"),
@@ -1700,7 +1701,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                 <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel} {timeRangeLabel && <>&bull; %20 üzeri</>}</div>
               </div>
 
-              {/* Km Başına Maliyet */}
+              {/* Araç Başına Maliyet */}
               <div
                 style={{
                   backgroundColor: "white",
@@ -1712,7 +1713,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
                   <span style={{ color: "#1890ff", fontSize: "14px" }}>&#128207;</span>
-                  <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("kmBasinaMaliyet")}</span>
+                  <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("aracBasinaMaliyet")}</span>
                 </div>
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
                   {statistics.aracBasinaMaliyet === null || statistics.aracBasinaMaliyet === undefined
