@@ -1694,11 +1694,13 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                     Detay
                   </Button>
                 </div>
-                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{formatStatisticValue(statistics.anormalTuketim)}</div>
+                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+                  {statistics.anormalTuketim === null || statistics.anormalTuketim === undefined ? "-" : `${formatStatisticValue(statistics.anormalTuketim)} Araç`}
+                </div>
                 <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel} {timeRangeLabel && <>&bull; %20 üzeri</>}</div>
               </div>
 
-              {/* Araç Başına Maliyet */}
+              {/* Km Başına Maliyet */}
               <div
                 style={{
                   backgroundColor: "white",
@@ -1709,10 +1711,14 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
-                  <span style={{ color: "#1890ff", fontSize: "14px" }}>&#8634;</span>
-                  <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("aracBasinaMaliyet")}</span>
+                  <span style={{ color: "#1890ff", fontSize: "14px" }}>&#128207;</span>
+                  <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("kmBasinaMaliyet")}</span>
                 </div>
-                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{formatStatisticValue(statistics.aracBasinaMaliyet)}</div>
+                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+                  {statistics.aracBasinaMaliyet === null || statistics.aracBasinaMaliyet === undefined
+                    ? "-"
+                    : `${formatStatisticValue(statistics.aracBasinaMaliyet)} ₺ / km`}
+                </div>
                 <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
               </div>
             </div>
