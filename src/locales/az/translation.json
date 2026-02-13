@@ -576,5 +576,20 @@
   "versionUpdateTitle": "Yeni Versiya Mövcuddur",
   "versionUpdateMessage": "Tətbiqin yeni versiyası buraxıldı. Yeniləmələri görmək üçün səhifəni yeniləyin.",
   "versionUpdateButton": "Yenilə",
-  "versionUpdateLater": "Sonra"
+  "versionUpdateLater": "Sonra",
+  "toplamYakit": "Ümumi Yanacaq",
+  "toplamTutar": "Ümumi Məbləğ",
+  "aracBasinaMaliyet": "Nəqliyyat Vasitəsinə Görə Xərc",
+  "anormalTuketim": "Anormal İstehlak",
+  "bugun": "Bu gün",
+  "dun": "Dünən",
+  "buHafta": "Bu Həftə",
+  "gecenHafta": "Keçən Həftə",
+  "buAy": "Bu Ay",
+  "gecenAy": "Keçən Ay",
+  "buYil": "Bu İl",
+  "gecenYil": "Keçən İl",
+  "son1Ay": "Son 1 Ay",
+  "son3Ay": "Son 3 Ay",
+  "son6Ay": "Son 6 Ay"
 }

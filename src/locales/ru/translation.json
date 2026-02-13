@@ -97,5 +97,21 @@
   "versionUpdateMessage": "Вышла новая версия приложения. Пожалуйста, обновите страницу, чтобы увидеть обновления.",
   "versionUpdateButton": "Обновить",
   "versionUpdateLater": "Позже",
-  "ruhsatBelgeSiraNo": "Порядковый номер документа"
+  "ruhsatBelgeSiraNo": "Порядковый номер документа",
+  "toplamYakit": "Общий Расход Топлива",
+  "toplamTutar": "Общая Сумма",
+  "kmBasinaMaliyet": "Стоимость за км",
+  "aracBasinaMaliyet": "Стоимость на Транспортное Средство",
+  "anormalTuketim": "Аномальный Расход",
+  "bugun": "Сегодня",
+  "dun": "Вчера",
+  "buHafta": "Эта Неделя",
+  "gecenHafta": "Прошлая Неделя",
+  "buAy": "Этот Месяц",
+  "gecenAy": "Прошлый Месяц",
+  "buYil": "Этот Год",
+  "gecenYil": "Прошлый Год",
+  "son1Ay": "Последний 1 Месяц",
+  "son3Ay": "Последние 3 Месяца",
+  "son6Ay": "Последние 6 Месяцев"
 }

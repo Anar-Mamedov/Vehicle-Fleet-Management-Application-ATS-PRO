@@ -34,7 +34,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth }) {
+export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth, dropdownWidth, mode }) {
   const {
     control,
     watch,
@@ -78,6 +78,7 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
           <StyledSelect
             {...field}
             status={errors[name1] ? "error" : ""}
+            mode={mode}
             showSearch
             allowClear
             placeholder={t("plakaSeciniz")}
@@ -91,20 +92,30 @@ export default function PlakaSelectbox({ name1, isRequired, onChange, inputWidth
             options={options.map((item) => ({
               value: item.aracId,
               label: item.plaka,
-              data: item, // Tam veriyi option'a ekle
+              data: item,
             }))}
             onChange={(value, option) => {
-              const numericValue = value ? Number(value) : null;
-              setValue(name1, option?.label || null);
-              setValue(`${name1}ID`, numericValue);
-              field.onChange(option?.label || null);
-              if (onChange) {
-                onChange(numericValue, option);
+              if (mode === "multiple") {
+                const numericValues = Array.isArray(value) ? value.map(Number) : [];
+                setValue(`${name1}ID`, numericValues);
+                field.onChange(value);
+                if (onChange) {
+                  onChange(numericValues, option);
+                }
+              } else {
+                const numericValue = value ? Number(value) : null;
+                setValue(name1, option?.label || null);
+                setValue(`${name1}ID`, numericValue);
+                field.onChange(option?.label || null);
+                if (onChange) {
+                  onChange(numericValue, option);
+                }
               }
             }}
             style={{ width: inputWidth }}
             dropdownStyle={{ width: dropdownWidth || "auto", minWidth: "100px" }}
             popupMatchSelectWidth={false}
+            maxTagCount="responsive"
           />
         )}
       />
