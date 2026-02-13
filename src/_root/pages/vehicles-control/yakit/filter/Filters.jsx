@@ -21,8 +21,8 @@ export default function Filters({ onChange }) {
 
   const [timeRangeFilters, setTimeRangeFilters] = useState({});
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
-  const [lokasyonId, setLokasyonId] = useState(null);
-  const [plakaId, setPlakaId] = useState("");
+  const [lokasyonIds, setLokasyonIds] = useState([]);
+  const [plakaIds, setPlakaIds] = useState([]);
   const [dateRangeCleared, setDateRangeCleared] = useState(false);
 
   useEffect(() => {
@@ -66,12 +66,20 @@ export default function Filters({ onChange }) {
     }
   };
 
-  const handlePlakaChange = (value) => {
-    setPlakaId(value);
+  const handlePlakaChange = (values) => {
+    setPlakaIds(Array.isArray(values) ? values : []);
   };
 
-  const handleLokasyonChange = (value) => {
-    setLokasyonId(value);
+  const handleLokasyonChange = (values) => {
+    if (!values) {
+      setLokasyonIds([]);
+      return;
+    }
+    if (Array.isArray(values)) {
+      setLokasyonIds(values.map((item) => item.locationId));
+    } else if (values.locationId) {
+      setLokasyonIds([values.locationId]);
+    }
   };
 
   const handleCustomFilterSubmit = (newFilters) => {
@@ -81,13 +89,13 @@ export default function Filters({ onChange }) {
     const currentCustomFilters = { ...filters.customfilters };
     const preservedFilters = {};
 
-    // Preserve aracId and lokasyonId if they exist in current filters
-    if ("aracId" in currentCustomFilters) {
-      preservedFilters.aracId = currentCustomFilters.aracId;
+    // Preserve aracIds and lokasyonIds arrays if they exist in current filters
+    if ("aracIds" in currentCustomFilters) {
+      preservedFilters.aracIds = currentCustomFilters.aracIds;
     }
 
-    if ("lokasyonId" in currentCustomFilters) {
-      preservedFilters.lokasyonId = currentCustomFilters.lokasyonId;
+    if ("lokasyonIds" in currentCustomFilters) {
+      preservedFilters.lokasyonIds = currentCustomFilters.lokasyonIds;
     }
 
     // Merge the preserved filters with new custom filters
@@ -116,12 +124,12 @@ export default function Filters({ onChange }) {
 
     const mainFilterValues = {};
 
-    if (plakaId && plakaId !== "") {
-      mainFilterValues.aracId = plakaId;
+    if (plakaIds.length > 0) {
+      mainFilterValues.aracIds = plakaIds;
     }
 
-    if (lokasyonId && lokasyonId.locationId && lokasyonId.locationId !== 0) {
-      mainFilterValues.lokasyonId = lokasyonId.locationId;
+    if (lokasyonIds.length > 0) {
+      mainFilterValues.lokasyonIds = lokasyonIds;
     }
 
     if (!dateRangeCleared) {
@@ -131,12 +139,12 @@ export default function Filters({ onChange }) {
 
     const currentCustomFilters = { ...filters.customfilters };
 
-    if ("aracId" in currentCustomFilters && (!plakaId || plakaId === "")) {
-      delete currentCustomFilters.aracId;
+    if ("aracIds" in currentCustomFilters && plakaIds.length === 0) {
+      delete currentCustomFilters.aracIds;
     }
 
-    if ("lokasyonId" in currentCustomFilters && (!lokasyonId || !lokasyonId.locationId)) {
-      delete currentCustomFilters.lokasyonId;
+    if ("lokasyonIds" in currentCustomFilters && lokasyonIds.length === 0) {
+      delete currentCustomFilters.lokasyonIds;
     }
 
     if (dateRangeCleared) {
@@ -155,8 +163,6 @@ export default function Filters({ onChange }) {
     setFilters(updatedFilters);
 
     onChange("filters", updatedFilters);
-
-    console.log("Arama yapılıyor:", updatedFilters);
   };
 
   return (
@@ -168,13 +174,14 @@ export default function Filters({ onChange }) {
           kodID={100}
           isRequired={false}
           onChange={handlePlakaChange}
-          inputWidth="100px"
+          inputWidth="180px"
           dropdownWidth="300px"
           placeholder={t("plaka")}
+          mode="multiple"
         />
       </div>
-      <div style={{ display: "flex", gap: "10px", width: "100px" }}>
-        <LokasyonTable onSubmit={handleLokasyonChange} />
+      <div style={{ display: "flex", gap: "10px", width: "180px" }}>
+        <LokasyonTable onSubmit={handleLokasyonChange} multiSelect />
       </div>
       {/*<TypeFilter*/}
       {/*  onSubmit={(newFilters) =>*/}

@@ -1350,5 +1350,18 @@
   "plakaSeciniz": "Plaka Seçiniz",
   "bakim": "Bakım",
   "birimFiyat": "Birim Fiyat",
-  "tarihce": "Tarihçe"
+  "tarihce": "Tarihçe",
+  "toplamYakit": "Toplam Yakıt",
+  "anormalTuketim": "Anormal Tüketim",
+  "bugun": "Bugün",
+  "dun": "Dün",
+  "buHafta": "Bu Hafta",
+  "gecenHafta": "Geçen Hafta",
+  "buAy": "Bu Ay",
+  "gecenAy": "Geçen Ay",
+  "buYil": "Bu Yıl",
+  "gecenYil": "Geçen Yıl",
+  "son1Ay": "Son 1 Ay",
+  "son3Ay": "Son 3 Ay",
+  "son6Ay": "Son 6 Ay"
 }

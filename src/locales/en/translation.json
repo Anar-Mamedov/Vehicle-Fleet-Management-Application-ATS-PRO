@@ -1063,5 +1063,18 @@
   "versionUpdateTitle": "New Version Available",
   "versionUpdateMessage": "A new version of the application has been released. Please refresh the page to see updates.",
   "versionUpdateButton": "Refresh",
-  "versionUpdateLater": "Later"
+  "versionUpdateLater": "Later",
+  "toplamYakit": "Total Fuel",
+  "anormalTuketim": "Abnormal Consumption",
+  "bugun": "Today",
+  "dun": "Yesterday",
+  "buHafta": "This Week",
+  "gecenHafta": "Last Week",
+  "buAy": "This Month",
+  "gecenAy": "Last Month",
+  "buYil": "This Year",
+  "gecenYil": "Last Year",
+  "son1Ay": "Last 1 Month",
+  "son3Ay": "Last 3 Months",
+  "son6Ay": "Last 6 Months"
 }

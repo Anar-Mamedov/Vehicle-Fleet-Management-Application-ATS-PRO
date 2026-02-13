@@ -26,10 +26,19 @@ export default function ZamanAraligi({ onDateChange }) {
 
   useEffect(() => {
     if (isInitialMount) {
-      setValue("timeRange", "all");
-      setValue("baslangicTarih", null);
-      setValue("bitisTarih", null);
+      setValue("timeRange", "thisWeek");
+      const baslangicTarih = dayjs().startOf("week");
+      const bitisTarih = dayjs().endOf("week");
+      setValue("baslangicTarih", baslangicTarih);
+      setValue("bitisTarih", bitisTarih);
       setIsInitialMount(false);
+
+      if (onDateChange) {
+        onDateChange({
+          baslangicTarih: baslangicTarih.format("YYYY-MM-DD"),
+          bitisTarih: bitisTarih.format("YYYY-MM-DD"),
+        });
+      }
       return;
     }
 

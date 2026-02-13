@@ -194,6 +194,13 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [statisticsLoading, setStatisticsLoading] = useState(false);
+  const [statistics, setStatistics] = useState({
+    toplamYakit: null,
+    toplamTutar: null,
+    aracBasinaMaliyet: null,
+    anormalTuketim: null,
+  });
   const [paginationLoading, setPaginationLoading] = useState(false); // New state for pagination loading
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -348,20 +355,73 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
     return fetchDataWithDurum(diff, targetPage, currentSize, undefined);
   };
 
-  // useEffect for initial fetch and when component mounts
-  useEffect(() => {
-    // Show loading if infinite scroll is disabled
-    if (!infiniteScrollEnabled) {
-      setPaginationLoading(true);
-    }
-
-    // Fetch initial data using the current pageSize
-    fetchData(0, 1, pageSize).finally(() => {
-      if (!infiniteScrollEnabled) {
-        setPaginationLoading(false);
-      }
+  const formatStatisticValue = (value) => {
+    if (value === null || value === undefined) return "-";
+    const strValue = String(value);
+    const parts = strValue.split(".");
+    const decimalDigits = parts.length > 1 ? parts[1].length : 0;
+    return Number(value).toLocaleString(localStorage.getItem("i18nextLng"), {
+      minimumFractionDigits: decimalDigits,
+      maximumFractionDigits: decimalDigits,
     });
-    // We removed selectedDurum from dependencies since handleDurumChange handles that separately
+  };
+
+  const selectedTimeRange = watch("timeRange");
+
+  const timeRangeLabels = {
+    all: t("tümü"),
+    today: t("bugun"),
+    yesterday: t("dun"),
+    thisWeek: t("buHafta"),
+    lastWeek: t("gecenHafta"),
+    thisMonth: t("buAy"),
+    lastMonth: t("gecenAy"),
+    thisYear: t("buYil"),
+    lastYear: t("gecenYil"),
+    last1Month: t("son1Ay"),
+    last3Months: t("son3Ay"),
+    last6Months: t("son6Ay"),
+  };
+
+  const timeRangeLabel = timeRangeLabels[selectedTimeRange] || "";
+
+  const fetchStatistics = async () => {
+    setStatisticsLoading(true);
+    const customFilters = body.filters && body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+
+    try {
+      const [res1, res2, res3, res4] = await Promise.all([
+        AxiosInstance.post("FuelStatistics/GetInfoByType?type=1", customFilters),
+        AxiosInstance.post("FuelStatistics/GetInfoByType?type=2", customFilters),
+        AxiosInstance.post("FuelStatistics/GetInfoByType?type=3", customFilters),
+        AxiosInstance.post("FuelStatistics/GetInfoByType?type=4", customFilters),
+      ]);
+
+      setStatistics({
+        toplamYakit: res1.data,
+        toplamTutar: res2.data,
+        aracBasinaMaliyet: res3.data,
+        anormalTuketim: res4.data,
+      });
+    } catch (error) {
+      console.error("İstatistik verisi çekme hatası:", error);
+    } finally {
+      setStatisticsLoading(false);
+    }
+  };
+
+  // useEffect for initial fetch - only for isSefer mode where Filters component is not rendered
+  useEffect(() => {
+    if (isSefer) {
+      if (!infiniteScrollEnabled) {
+        setPaginationLoading(true);
+      }
+      fetchData(0, 1, pageSize).finally(() => {
+        if (!infiniteScrollEnabled) {
+          setPaginationLoading(false);
+        }
+      });
+    }
   }, []); // Empty dependency array means this runs only on mount
 
   // Modify the useEffect for body (filters/search) changes to only fetch when filtersApplied is true
@@ -382,6 +442,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
           setPaginationLoading(false);
         }
       });
+      fetchStatistics();
       prevBodyRef.current = body; // Update ref after fetch starts
     }
   }, [body, filtersApplied, pageSize, infiniteScrollEnabled]);
@@ -1573,6 +1634,90 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
         </div>
       </Modal>
       <FormProvider {...methods}>
+        {/* Statistics Cards */}
+        {!isSefer && (
+          <Spin spinning={statisticsLoading} size="small">
+            <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+              {/* Toplam Yakıt (Litre) */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  padding: "16px 20px",
+                  borderRadius: "8px",
+                  flex: "1",
+                  border: "1px solid #f0f0f0",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+                  <span style={{ color: "#1890ff", fontSize: "14px" }}>&#9889;</span>
+                  <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamYakit")} (Litre)</span>
+                </div>
+                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{formatStatisticValue(statistics.toplamYakit)}</div>
+                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
+              </div>
+
+              {/* Toplam Tutar (₺) */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  padding: "16px 20px",
+                  borderRadius: "8px",
+                  flex: "1",
+                  border: "1px solid #f0f0f0",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+                  <span style={{ color: "#1890ff", fontSize: "14px" }}>&#128196;</span>
+                  <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamTutar")} (&#8378;)</span>
+                </div>
+                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{formatStatisticValue(statistics.toplamTutar)}</div>
+                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
+              </div>
+
+              {/* Anormal Tüketim */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  padding: "16px 20px",
+                  borderRadius: "8px",
+                  flex: "1",
+                  border: "1px solid #f0f0f0",
+                  position: "relative",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ color: "#ff4d4f", fontSize: "14px" }}>&#9888;</span>
+                    <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("anormalTuketim")}</span>
+                  </div>
+                  <Button type="primary" danger size="small" style={{ borderRadius: "12px", fontSize: "12px", height: "24px", padding: "0 12px" }}>
+                    Detay
+                  </Button>
+                </div>
+                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{formatStatisticValue(statistics.anormalTuketim)}</div>
+                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel} {timeRangeLabel && <>&bull; %20 üzeri</>}</div>
+              </div>
+
+              {/* Araç Başına Maliyet */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  padding: "16px 20px",
+                  borderRadius: "8px",
+                  flex: "1",
+                  border: "1px solid #f0f0f0",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+                  <span style={{ color: "#1890ff", fontSize: "14px" }}>&#8634;</span>
+                  <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("aracBasinaMaliyet")}</span>
+                </div>
+                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{formatStatisticValue(statistics.aracBasinaMaliyet)}</div>
+                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
+              </div>
+            </div>
+          </Spin>
+        )}
         {/* Toolbar */}
         {isSefer ? (
           <div
@@ -1674,7 +1819,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
           style={{
             backgroundColor: "white",
             padding: "10px",
-            height: isSefer ? undefined : "calc(100vh - 200px)",
+            height: isSefer ? undefined : "calc(100vh - 290px)",
             borderRadius: "8px 8px 8px 8px",
             // filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
           }}
@@ -1686,7 +1831,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
               columns={filteredColumns}
               dataSource={data}
               pagination={false}
-              scroll={{ y: tableHeight ? tableHeight : "calc(100vh - 335px)" }}
+              scroll={{ y: tableHeight ? tableHeight : "calc(100vh - 425px)" }}
               onScroll={handleTableScroll}
               footer={tableFooter}
             />
