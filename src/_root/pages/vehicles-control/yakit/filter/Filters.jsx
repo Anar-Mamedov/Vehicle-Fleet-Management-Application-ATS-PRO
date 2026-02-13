@@ -210,7 +210,7 @@ export default function Filters({ onChange }) {
         {/* Ara */}
       </Button>
       <ZamanAraligi onDateChange={handleTimeRangeChange} />
-      <CustomFilter onSubmit={handleCustomFilterSubmit} currentFilters={filters.customfilters} />
+      <CustomFilter onSubmit={handleCustomFilterSubmit} currentFilters={filters.customfilters} dateRange={timeRangeFilters} onDateRangeChange={handleTimeRangeChange} />
     </>
   );
 }
