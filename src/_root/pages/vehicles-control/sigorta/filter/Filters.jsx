@@ -24,7 +24,7 @@ export default function Filters({ onChange }) {
   const [timeRangeFilters, setTimeRangeFilters] = useState({});
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [lokasyonId, setLokasyonId] = useState(null);
-  const [plakaId, setPlakaId] = useState("");
+  const [plakaIds, setPlakaIds] = useState([]);
   const [dateRangeCleared, setDateRangeCleared] = useState(false);
   const [status, setStatus] = useState(1);
 
@@ -76,7 +76,7 @@ export default function Filters({ onChange }) {
   };
 
   const handlePlakaChange = (value) => {
-    setPlakaId(value);
+    setPlakaIds(Array.isArray(value) ? value : []);
   };
 
   const handleLokasyonChange = (value) => {
@@ -94,9 +94,9 @@ export default function Filters({ onChange }) {
     const currentCustomFilters = { ...filters.customfilters };
     const preservedFilters = {};
 
-    // Preserve aracId and lokasyonId if they exist in current filters
-    if ("aracId" in currentCustomFilters) {
-      preservedFilters.aracId = currentCustomFilters.aracId;
+    // Preserve aracIds and lokasyonId if they exist in current filters
+    if ("aracIds" in currentCustomFilters) {
+      preservedFilters.aracIds = currentCustomFilters.aracIds;
     }
 
     if ("lokasyonId" in currentCustomFilters) {
@@ -134,8 +134,8 @@ export default function Filters({ onChange }) {
 
     const mainFilterValues = {};
 
-    if (plakaId && plakaId !== "") {
-      mainFilterValues.aracId = plakaId;
+    if (Array.isArray(plakaIds) && plakaIds.length > 0) {
+      mainFilterValues.aracIds = plakaIds;
     }
 
     if (lokasyonId && lokasyonId.locationId && lokasyonId.locationId !== 0) {
@@ -153,8 +153,8 @@ export default function Filters({ onChange }) {
 
     const currentCustomFilters = { ...filters.customfilters };
 
-    if ("aracId" in currentCustomFilters && (!plakaId || plakaId === "")) {
-      delete currentCustomFilters.aracId;
+    if ("aracIds" in currentCustomFilters && (!Array.isArray(plakaIds) || plakaIds.length === 0)) {
+      delete currentCustomFilters.aracIds;
     }
 
     if ("lokasyonId" in currentCustomFilters && (!lokasyonId || !lokasyonId.locationId)) {
@@ -193,6 +193,7 @@ export default function Filters({ onChange }) {
           addHide={true}
           kodID={100}
           isRequired={false}
+          mode="multiple"
           onChange={handlePlakaChange}
           inputWidth="100px"
           dropdownWidth="300px"
