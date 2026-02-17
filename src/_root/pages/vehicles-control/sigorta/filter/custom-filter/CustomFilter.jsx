@@ -121,10 +121,10 @@ export default function CustomFilter({ onSubmit, currentFilters }) {
       filterData.bitisTarih = bitisTarih.format("YYYY-MM-DD");
     }
 
-    // Preserve existing lokasyonId and aracId values if available
+    // Preserve existing lokasyonId and aracIds values if available
     const existingFilters = currentFilters || {};
-    if (existingFilters.aracId !== undefined) {
-      filterData.aracId = existingFilters.aracId;
+    if (existingFilters.aracIds !== undefined) {
+      filterData.aracIds = existingFilters.aracIds;
     }
     if (existingFilters.lokasyonId !== undefined) {
       filterData.lokasyonId = existingFilters.lokasyonId;

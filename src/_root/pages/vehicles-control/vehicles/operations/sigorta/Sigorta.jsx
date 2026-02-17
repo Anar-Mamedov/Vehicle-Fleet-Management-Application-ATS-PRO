@@ -2,12 +2,12 @@ import React, { useContext, useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
-import { Modal, Button, Table, Checkbox, Popconfirm, Input, Popover, Spin, message } from "antd";
+import { Modal, Button, Table, Checkbox, Popconfirm, Input, Popover, Spin, message, Select } from "antd";
 import { DeleteOutlined, MenuOutlined, LoadingOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../../../context/plakaSlice";
 import DragAndDropContext from "../../../../../components/drag-drop-table/DragAndDropContext";
 import SortableHeaderCell from "../../../../../components/drag-drop-table/SortableHeaderCell";
-import { GetInsuranceListByVehicleIdService } from "../../../../../../api/services/vehicles/operations_services";
+import AxiosInstance from "../../../../../../api/http";
 import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
 import Content from "../../../../../components/drag-drop-table/DraggableCheckbox";
@@ -32,29 +32,54 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
   const [value, setValue] = useState({});
   const [data, setData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [durumFilter, setDurumFilter] = useState(1);
+
+  const pageSize = 10;
+
+  const fetchData = useCallback(async (diff, targetPage = 1, currentSetPointId = 0) => {
+    const selectedAracIds = Array.isArray(ids) ? ids.map(Number).filter((item) => !Number.isNaN(item)) : [];
+
+    if (selectedAracIds.length === 0) {
+      setDataSource([]);
+      setTotalDataCount(0);
+      setCurrentPage(1);
+      setLoading(false);
+      setIsInitialLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const filters = {
+        aracIds: selectedAracIds,
+        status: durumFilter,
+      };
+
+      const res = await AxiosInstance.post(`Insurance/GetInsuranceList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${search}&pageSize=${pageSize}`, filters);
+
+      const list = res?.data?.list || [];
+      setDataSource(list);
+      setData(list);
+      setTotalDataCount(res?.data?.recordCount || 0);
+      setCurrentPage(targetPage);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      message.error(t("hataOlustu"));
+      setDataSource([]);
+    } finally {
+      setLoading(false);
+      setIsInitialLoading(false);
+    }
+  }, [durumFilter, ids, pageSize, search]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setIsInitialLoading(true);
-      try {
-        let currentSetPointId = 0;
-        const diff = 0; // Initial load with diff 0
-        const res = await GetInsuranceListByVehicleIdService(diff, currentSetPointId, search, ids);
-        setLoading(false);
-        setIsInitialLoading(false);
-        setDataSource(res?.data.list);
-        setTotalDataCount(res?.data.recordCount);
-        setData(res?.data.list);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-        setIsInitialLoading(false);
-      }
-    };
-    fetchData();
-  }, [search, status, ids]);
+    if (!visible) {
+      return;
+    }
+
+    setIsInitialLoading(true);
+    fetchData(0, 1, 0);
+  }, [visible, status, fetchData]);
 
   const baseColumns = [
     {
@@ -185,37 +210,11 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
     }))
   );
 
-  const handleTableChange = async (pagination, filters, sorter) => {
+  const handleTableChange = (pagination) => {
     if (pagination?.current && typeof pagination.current === "number") {
-      setLoading(true);
-      try {
-        const diff = pagination.current - currentPage;
-        let currentSetPointId = 0;
-
-        if (diff > 0) {
-          // Moving forward
-          currentSetPointId = dataSource[dataSource.length - 1]?.siraNo || 0;
-        } else if (diff < 0) {
-          // Moving backward
-          currentSetPointId = dataSource[0]?.siraNo || 0;
-        }
-
-        const res = await GetInsuranceListByVehicleIdService(diff, currentSetPointId, search, ids);
-
-        if (res?.data.list.length > 0) {
-          setDataSource(res.data.list);
-          setTotalDataCount(res.data.recordCount);
-          setCurrentPage(pagination.current);
-        } else {
-          message.warning(t("kayitBulunamadi"));
-          setDataSource([]);
-        }
-      } catch (error) {
-        console.error("Error in pagination:", error);
-        message.error(t("hataOlustu"));
-      } finally {
-        setLoading(false);
-      }
+      const diff = pagination.current - currentPage;
+      const currentSetPointId = diff > 0 ? dataSource[dataSource.length - 1]?.siraNo || 0 : diff < 0 ? dataSource[0]?.siraNo || 0 : 0;
+      fetchData(diff, pagination.current, currentSetPointId);
     }
   };
 
@@ -320,6 +319,16 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
           </Button>
         </Popover>
         <Input placeholder={t("arama")} style={{ width: "20%" }} onChange={(e) => setSearch(e.target.value)} />
+        <Select
+          value={durumFilter}
+          onChange={(value) => setDurumFilter(value)}
+          style={{ width: 140 }}
+          options={[
+            { value: 1, label: t("aktif") },
+            { value: 2, label: t("pasif") },
+            { value: 3, label: t("tumu") },
+          ]}
+        />
         <AddModal setStatus={setStatus} />
       </div>
 
