@@ -25,7 +25,7 @@ import styled from "styled-components";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
 import AddModal from "./AddModal";
 import Filters from "./filter/Filters";
-import dayjs from "dayjs";
+import FormattedDate from "../../../../_root/components/FormattedDate";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
@@ -560,10 +560,26 @@ const KiralikAraclarTablo = ({ customFields }) => {
       width: 110,
       ellipsis: true,
       visible: true,
-      render: (value) => value ? dayjs(value).format("DD.MM.YYYY") : "-",
+      render: (value) => <FormattedDate date={value} />,
       sorter: (a, b) => {
         const dateA = a.kiraBaslangic ? new Date(a.kiraBaslangic) : null;
         const dateB = b.kiraBaslangic ? new Date(b.kiraBaslangic) : null;
+        if (!dateA) return -1;
+        if (!dateB) return 1;
+        return dateA.getTime() - dateB.getTime();
+      },
+    },
+    {
+      title: t("kiraBitis"),
+      dataIndex: "kiraBitis",
+      key: "kiraBitis",
+      width: 110,
+      ellipsis: true,
+      visible: true,
+      render: (value) => <FormattedDate date={value} />,
+      sorter: (a, b) => {
+        const dateA = a.kiraBitis ? new Date(a.kiraBitis) : null;
+        const dateB = b.kiraBitis ? new Date(b.kiraBitis) : null;
         if (!dateA) return -1;
         if (!dateB) return 1;
         return dateA.getTime() - dateB.getTime();
@@ -577,7 +593,7 @@ const KiralikAraclarTablo = ({ customFields }) => {
       width: 110,
       ellipsis: true,
       visible: true,
-      render: (value) => value ? dayjs(value).format("DD.MM.YYYY") : "-",
+      render: (value) => <FormattedDate date={value} />,
       sorter: (a, b) => {
         const dateA = a.krediIlkOdTarih ? new Date(a.krediIlkOdTarih) : null;
         const dateB = b.krediIlkOdTarih ? new Date(b.krediIlkOdTarih) : null;
