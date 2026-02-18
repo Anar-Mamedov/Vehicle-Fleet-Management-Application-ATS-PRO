@@ -1696,7 +1696,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                   </Button>
                 </div>
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
-                  {statistics.anormalTuketim === null || statistics.anormalTuketim === undefined ? "-" : `${formatStatisticValue(statistics.anormalTuketim)} Araç`}
+                  {statistics.anormalTuketim === null || statistics.anormalTuketim === undefined ? "-" : `${formatStatisticValue(statistics.anormalTuketim)} ${t("arac")}`}
                 </div>
                 <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel} {timeRangeLabel && <>&bull; %20 üzeri</>}</div>
               </div>
@@ -1718,7 +1718,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
                   {statistics.aracBasinaMaliyet === null || statistics.aracBasinaMaliyet === undefined
                     ? "-"
-                    : `${formatStatisticValue(statistics.aracBasinaMaliyet)} ₺ / km`}
+                    : `${formatStatisticValue(statistics.aracBasinaMaliyet)} ₺ / ${t("arac")}`}
                 </div>
                 <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
               </div>
