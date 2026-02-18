@@ -156,10 +156,6 @@ const App = () => {
     initDevToolsProtection();
   }, []);
 
-  useEffect(() => {
-    setShowVersionUpdateModal(hasUpdate);
-  }, [hasUpdate]);
-
   const handleVersionUpdateCancel = () => {
     setShowVersionUpdateModal(false);
     dismissUpdate();
@@ -169,7 +165,7 @@ const App = () => {
     <>
       <Modal
         title={t("versionUpdateTitle")}
-        open={showVersionUpdateModal}
+        open={showVersionUpdateModal && hasUpdate}
         onOk={handleUpdate}
         onCancel={handleVersionUpdateCancel}
         okText={t("versionUpdateButton")}
