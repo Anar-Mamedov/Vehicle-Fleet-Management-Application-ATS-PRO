@@ -34,6 +34,7 @@ import DosyaUpload from "./Dosya/DosyaUpload";
 import DurumTarihcesi from "./DurumTarihce/DurumTarihcesi";
 import Textarea from "../../../components/form/inputs/Textarea";
 import KodIDSelectbox from "../../../components/form/selects/KodIDSelectbox";
+import QRCodeGenerator from "../../../components/QRCodeGenerator";
 const { Text } = Typography;
 
 const ALWAYS_REQUIRED_FIELDS = ["plaka", "aracTip", "lokasyon", "marka", "model", "yakitTip"];
@@ -76,6 +77,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
   const [durumIcon, setDurumIcon] = useState(null);
   const [durumNeden, setDurumNeden] = useState(null);
   const [durumTarihceModal, setDurumTarihceModal] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   const [photoUploaded, setPhotoUploaded] = useState(0);
   const [dosyaUploaded, setDosyaUploaded] = useState(0);
@@ -379,6 +381,8 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
   }, [isOpen, selectedId]);
 
   const plakaWatch = watch("plaka");
+  const qrCodeValue = selectedId ? `ARAC_ID:${selectedId}${plakaWatch ? `;PLAKA:${plakaWatch}` : ""}` : "ARAC_ID:0";
+  const qrFileName = String(plakaWatch || `arac-${selectedId || "qr"}`).replace(/[\\/:*?"<>|]/g, "-");
 
   useEffect(() => {
     if (plakaWatch && plakaWatch !== initialPlaka) {
@@ -560,6 +564,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
 
   const handleCancel = () => {
     onClose();
+    setIsQrModalOpen(false);
     setProfile([]);
     setUrls([]);
     setActiveKey("1");
@@ -728,6 +733,9 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                 <div className="col-span-12 flex gap-1 justify-end mb-10" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>{durumNeden}</div>
                   <div style={{ display: "flex", gap: "10px" }}>
+                    <Button className="btn btn-min info-btn" onClick={() => setIsQrModalOpen(true)}>
+                      {t("qrKod")}
+                    </Button>
                     <Button className="btn btn-min primary-btn" onClick={onSubmit} disabled={isValid === "error"}>
                       {t("guncelle")}
                     </Button>
@@ -869,6 +877,15 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       <Modal title={t("durumTarihcesi")} open={durumTarihceModal} onCancel={() => setDurumTarihceModal(false)} footer={null} width={1200}>
         <DurumTarihcesi selectedId={selectedId} durumTarihceModal={durumTarihceModal} />
       </Modal>
+
+      <QRCodeGenerator
+        visible={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        value={qrCodeValue}
+        fileName={qrFileName}
+        title={t("aracQrKodu")}
+        showValue={false}
+      />
     </Modal>
   );
 };
