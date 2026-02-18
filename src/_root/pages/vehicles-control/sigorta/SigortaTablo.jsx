@@ -14,6 +14,8 @@ import {
   FileExcelOutlined,
 } from "@ant-design/icons";
 import { FaExclamation, FaCheck, FaTimes } from "react-icons/fa";
+import { FcImageFile } from "react-icons/fc";
+import { VscAttach } from "react-icons/vsc";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -49,6 +51,14 @@ function extractTextFromElement(element) {
   }
   return text;
 }
+
+const getColumnExportTitle = (column) => {
+  const explicitTitle = typeof column?.excelTitle === "string" ? column.excelTitle.trim() : "";
+  if (explicitTitle) return explicitTitle;
+  const parsedTitle = extractTextFromElement(column?.title);
+  if (parsedTitle && parsedTitle.trim()) return parsedTitle.trim();
+  return column?.key || column?.dataIndex || "";
+};
 
 // Add a key for localStorage
 const tabloPageSize = "tabloPageSizeSigorta";
@@ -535,6 +545,42 @@ const SigortaTablo = ({ customFields }) => {
         if (b.plaka === null) return 1;
         return a.plaka.localeCompare(b.plaka);
       },
+    },
+    {
+      title: <FcImageFile />,
+      excelTitle: t("resimVar", { defaultValue: "Resim Var" }),
+      dataIndex: "resimVar",
+      key: "resimVar",
+      width: 80,
+      ellipsis: true,
+      visible: false,
+      align: "center",
+      render: (value) =>
+        value ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+            <FcImageFile size={24} />
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} />
+        ),
+    },
+    {
+      title: <VscAttach />,
+      excelTitle: t("dosyaVar", { defaultValue: "Dosya Var" }),
+      dataIndex: "dosyaVar",
+      key: "dosyaVar",
+      width: 80,
+      ellipsis: true,
+      visible: false,
+      align: "center",
+      render: (value) =>
+        value ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+            <VscAttach size={24} />
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} />
+        ),
     },
     {
       title: t("sigorta"),
@@ -1214,6 +1260,8 @@ const SigortaTablo = ({ customFields }) => {
               value = value ? "Evet" : "Hayır";
             } else if (key === "baslangicTarih" || key === "bitisTarih") {
               value = formatDate(value);
+            } else if (key === "resimVar" || key === "dosyaVar") {
+              value = value ? t("var", { defaultValue: "Var" }) : t("yok", { defaultValue: "Yok" });
             } else if (key === "tutar" || key === "aracBedeli") {
               try {
                 // Ensure format is a valid number between 0 and 20
@@ -1233,7 +1281,7 @@ const SigortaTablo = ({ customFields }) => {
             }
 
             // Extract title text from column title (which might be a React element)
-            xlsxRow[extractTextFromElement(col.title)] = value !== null && value !== undefined ? value.toString() : "";
+            xlsxRow[getColumnExportTitle(col)] = value !== null && value !== undefined ? value.toString() : "";
           });
 
           return xlsxRow;
