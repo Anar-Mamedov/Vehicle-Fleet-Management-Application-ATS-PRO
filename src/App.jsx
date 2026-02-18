@@ -126,6 +126,7 @@ const LoadingSpinner = () => (
 
 const App = () => {
   const [hasToken, setHasToken] = useState(false);
+  const [showVersionUpdateModal, setShowVersionUpdateModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
@@ -154,13 +155,22 @@ const App = () => {
     initDevToolsProtection();
   }, []);
 
+  useEffect(() => {
+    setShowVersionUpdateModal(hasUpdate);
+  }, [hasUpdate]);
+
+  const handleVersionUpdateCancel = () => {
+    setShowVersionUpdateModal(false);
+    dismissUpdate();
+  };
+
   return (
     <>
       <Modal
         title={t("versionUpdateTitle")}
-        open={hasUpdate}
+        open={showVersionUpdateModal}
         onOk={handleUpdate}
-        onCancel={dismissUpdate}
+        onCancel={handleVersionUpdateCancel}
         okText={t("versionUpdateButton")}
         cancelText={t("versionUpdateLater")}
         closable={false}
