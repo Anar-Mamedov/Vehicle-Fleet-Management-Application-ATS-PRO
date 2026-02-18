@@ -643,7 +643,8 @@
   "varsayilanDisDerinligi": "Default Tread Depth",
   "yakit": "Fuel",
   "sefer": "Trip",
-  "yok": "None",
+  "yok": "No",
+  "var": "Yes",
   "stokMiktarlariNegatifeDusebilir": "Stock Quantities Can Go Negative",
   "malzemeFiyatlariGuncellensin": "Update Material Prices",
   "guncellemeTipi": "Update Type",
@@ -1077,5 +1078,7 @@
   "son7Gun": "Last 7 Days",
   "son1Ay": "Last 1 Month",
   "son3Ay": "Last 3 Months",
-  "son6Ay": "Last 6 Months"
+  "son6Ay": "Last 6 Months",
+  "resimVar": "Image Available",
+  "dosyaVar": "File Available"
 }
