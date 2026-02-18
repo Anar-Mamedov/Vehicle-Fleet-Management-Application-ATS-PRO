@@ -131,7 +131,7 @@ const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const { hasUpdate, handleUpdate, dismissUpdate } = useVersionCheck();
+  const { hasUpdate, handleUpdate, dismissUpdate } = useVersionCheck(showVersionUpdateModal);
 
   useEffect(() => {
     const token = getItemWithExpiration("token");
