@@ -53,6 +53,20 @@ function extractTextFromElement(element) {
   return text;
 }
 
+const getColumnExportTitle = (column) => {
+  const explicitTitle = typeof column?.excelTitle === "string" ? column.excelTitle.trim() : "";
+  if (explicitTitle) return explicitTitle;
+
+  const title = extractTextFromElement(column?.title).trim();
+  if (title) return title;
+
+  if (typeof column?.dataIndex === "string" && column.dataIndex.trim()) {
+    return column.dataIndex;
+  }
+
+  return column?.key || "";
+};
+
 // Add a key for localStorage
 const pageSizeAraclar = "araclarTabloPageSize";
 const infiniteScrollKey = "tabloInfiniteScroll"; // Add new key for infinite scroll setting
@@ -868,6 +882,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
 
     {
       title: <FcImageFile />,
+      excelTitle: t("resimVar", { defaultValue: "Resim Var" }),
       dataIndex: "resimVar",
       key: "resimVar",
       width: 80,
@@ -886,6 +901,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
 
     {
       title: <VscAttach />,
+      excelTitle: t("dosyaVar", { defaultValue: "Dosya Var" }),
       dataIndex: "dosyaVar",
       key: "dosyaVar",
       width: 80,
@@ -2149,7 +2165,16 @@ const Yakit = ({ ayarlarData, customFields }) => {
 
               // Özel durumları ele alıyoruz
               if (col.render) {
-                if (key === "muayeneTarih" || key === "egzosTarih" || key === "vergiTarih" || key === "sozlesmeTarih" || key === "sigortaBitisTarih" || key.endsWith("Tarih")) {
+                if (key === "resimVar" || key === "dosyaVar") {
+                  value = value ? t("var", { defaultValue: "Var" }) : t("yok", { defaultValue: "Yok" });
+                } else if (
+                  key === "muayeneTarih" ||
+                  key === "egzosTarih" ||
+                  key === "vergiTarih" ||
+                  key === "sozlesmeTarih" ||
+                  key === "sigortaBitisTarih" ||
+                  key.endsWith("Tarih")
+                ) {
                   value = formatDate(value);
                 } else if (key === "guncelKm") {
                   // Kilometre değeri için özel işlem
@@ -2173,7 +2198,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
                 }
               }
 
-              xlsxRow[extractTextFromElement(col.title)] = value;
+              xlsxRow[getColumnExportTitle(col)] = value;
             }
           });
           return xlsxRow;
@@ -2187,7 +2212,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
         // Sütun genişliklerini ayarlıyoruz
         const headers = filteredColumns
           .map((col) => {
-            let label = extractTextFromElement(col.title);
+            let label = getColumnExportTitle(col);
             return {
               label: label,
               key: col.dataIndex,
