@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 const VERSION_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
 const LOCAL_STORAGE_KEY = "app_version";
 
-export const useVersionCheck = () => {
+export const useVersionCheck = (enabled = true) => {
   const [hasUpdate, setHasUpdate] = useState(false);
   const [serverVersion, setServerVersion] = useState(null);
 
@@ -56,6 +56,8 @@ export const useVersionCheck = () => {
   };
 
   useEffect(() => {
+    if (!enabled) return;
+
     // Initial check
     checkVersion();
 
@@ -64,7 +66,7 @@ export const useVersionCheck = () => {
 
     // Cleanup interval on unmount
     return () => clearInterval(intervalId);
-  }, []);
+  }, [enabled]);
 
   return {
     hasUpdate,
