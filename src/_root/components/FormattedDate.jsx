@@ -35,7 +35,9 @@ const FormattedDate = ({ date, format, fallback = "-", className, style, ...prop
     // Özel format varsa onu kullan, yoksa dile göre format kullan
     const formatToUse = customFormat || dateFormats[currentLang] || "DD.MM.YYYY";
 
-    return dayjs(text).format(formatToUse);
+    const parsed = dayjs(text);
+    if (!parsed.isValid()) return fallback;
+    return parsed.format(formatToUse);
   };
 
   const formattedDate = formatDateByLocale(date, format);

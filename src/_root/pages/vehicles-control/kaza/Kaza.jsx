@@ -16,6 +16,7 @@ import Filters from "./filter/Filters";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
+import FormattedDate from "../../../components/FormattedDate";
 import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
@@ -290,7 +291,7 @@ const Kaza = () => {
         if (b.kazaTarih === null) return 1;
         return a.kazaTarih.localeCompare(b.kazaTarih);
       },
-      render: (text) => formatDate(text),
+      render: (text) => <FormattedDate date={text} fallback="" />,
     },
     {
       title: t("surucu"),
@@ -373,7 +374,7 @@ const Kaza = () => {
         if (b.faturaTarih === null) return 1;
         return a.faturaTarih.localeCompare(b.faturaTarih);
       },
-      render: (text) => formatDate(text),
+      render: (text) => <FormattedDate date={text} fallback="" />,
     },
 
     {
