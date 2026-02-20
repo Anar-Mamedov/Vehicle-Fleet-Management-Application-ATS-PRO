@@ -81,7 +81,7 @@ const OperationsInfo = ({ ids, selectedRowsData, onRefresh }) => {
       icon: <MdSpeed className="text-info" />,
     },
     {
-      label: t("seferler"),
+      label: t("gorevler"),
       key: "10",
       icon: <MdRoute className="text-info" />,
     },
