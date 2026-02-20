@@ -30,6 +30,7 @@ export default function OnayaGonder({ selectedRows, refreshTableData, hidePopove
         tarih: row.tarih,
         talepEdilenNesne: `${row.plaka} -> servisKayidi`,
         talepDurum: row.talepDurum || "",
+        isDriver: row.isDriver,
       }));
 
       const response = await AxiosInstance.post("RequestNotifHandler/ToApprovalItem", requestBody);
