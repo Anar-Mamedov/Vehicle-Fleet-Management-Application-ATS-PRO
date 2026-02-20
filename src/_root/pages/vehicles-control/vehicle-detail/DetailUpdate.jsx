@@ -733,7 +733,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
                 <div className="col-span-12 flex gap-1 justify-end mb-10" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>{durumNeden}</div>
                   <div style={{ display: "flex", gap: "10px" }}>
-                    <Button className="btn btn-min info-btn" onClick={() => setIsQrModalOpen(true)}>
+                    <Button className="btn btn-min" style={{ backgroundColor: "#8a2be2", borderColor: "#8a2be2", color: "white" }} onClick={() => setIsQrModalOpen(true)}>
                       {t("qrKod")}
                     </Button>
                     <Button className="btn btn-min primary-btn" onClick={onSubmit} disabled={isValid === "error"}>
@@ -878,14 +878,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         <DurumTarihcesi selectedId={selectedId} durumTarihceModal={durumTarihceModal} />
       </Modal>
 
-      <QRCodeGenerator
-        visible={isQrModalOpen}
-        onClose={() => setIsQrModalOpen(false)}
-        value={qrCodeValue}
-        fileName={qrFileName}
-        title={t("aracQrKodu")}
-        showValue={false}
-      />
+      <QRCodeGenerator visible={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} value={qrCodeValue} fileName={qrFileName} title={t("aracQrKodu")} showValue={false} />
     </Modal>
   );
 };
