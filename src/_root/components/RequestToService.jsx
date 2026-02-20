@@ -55,6 +55,7 @@ export default function RequestToService({ selectedRows = [], refreshTableData, 
         tarih: row.tarih,
         talepEdilenNesne: `${row.plaka} -> servisKayidi`,
         talepDurum: row.talepDurum || "",
+        isDriver: row.isDriver,
       }));
 
       // API'ye gönder
@@ -101,12 +102,7 @@ export default function RequestToService({ selectedRows = [], refreshTableData, 
         <ServisTanim isModalMode={true} onSelect={handleSelectService} />
       </Modal>
 
-      <EditDrawer
-        selectedRow={editDrawer.data}
-        onDrawerClose={handleCloseEditDrawer}
-        drawerVisible={editDrawer.visible}
-        onRefresh={refreshTableData}
-      />
+      <EditDrawer selectedRow={editDrawer.data} onDrawerClose={handleCloseEditDrawer} drawerVisible={editDrawer.visible} onRefresh={refreshTableData} />
     </div>
   );
 }
