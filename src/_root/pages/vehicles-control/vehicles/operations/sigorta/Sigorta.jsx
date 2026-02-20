@@ -36,41 +36,44 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
 
   const pageSize = 10;
 
-  const fetchData = useCallback(async (diff, targetPage = 1, currentSetPointId = 0) => {
-    const selectedAracIds = Array.isArray(ids) ? ids.map(Number).filter((item) => !Number.isNaN(item)) : [];
+  const fetchData = useCallback(
+    async (diff, targetPage = 1, currentSetPointId = 0) => {
+      const selectedAracIds = Array.isArray(ids) ? ids.map(Number).filter((item) => !Number.isNaN(item)) : [];
 
-    if (selectedAracIds.length === 0) {
-      setDataSource([]);
-      setTotalDataCount(0);
-      setCurrentPage(1);
-      setLoading(false);
-      setIsInitialLoading(false);
-      return;
-    }
+      if (selectedAracIds.length === 0) {
+        setDataSource([]);
+        setTotalDataCount(0);
+        setCurrentPage(1);
+        setLoading(false);
+        setIsInitialLoading(false);
+        return;
+      }
 
-    setLoading(true);
-    try {
-      const filters = {
-        aracIds: selectedAracIds,
-        status: durumFilter,
-      };
+      setLoading(true);
+      try {
+        const filters = {
+          aracIds: selectedAracIds,
+          status: durumFilter,
+        };
 
-      const res = await AxiosInstance.post(`Insurance/GetInsuranceList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${search}&pageSize=${pageSize}`, filters);
+        const res = await AxiosInstance.post(`Insurance/GetInsuranceList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${search}&pageSize=${pageSize}`, filters);
 
-      const list = res?.data?.list || [];
-      setDataSource(list);
-      setData(list);
-      setTotalDataCount(res?.data?.recordCount || 0);
-      setCurrentPage(targetPage);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      message.error(t("hataOlustu"));
-      setDataSource([]);
-    } finally {
-      setLoading(false);
-      setIsInitialLoading(false);
-    }
-  }, [durumFilter, ids, pageSize, search]);
+        const list = res?.data?.list || [];
+        setDataSource(list);
+        setData(list);
+        setTotalDataCount(res?.data?.recordCount || 0);
+        setCurrentPage(targetPage);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error(t("hataOlustu"));
+        setDataSource([]);
+      } finally {
+        setLoading(false);
+        setIsInitialLoading(false);
+      }
+    },
+    [durumFilter, ids, pageSize, search]
+  );
 
   useEffect(() => {
     if (!visible) {
@@ -326,7 +329,7 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
           options={[
             { value: 1, label: t("aktif") },
             { value: 2, label: t("pasif") },
-            { value: 3, label: t("tumu") },
+            { value: 0, label: t("tumu") },
           ]}
         />
         <AddModal setStatus={setStatus} />
