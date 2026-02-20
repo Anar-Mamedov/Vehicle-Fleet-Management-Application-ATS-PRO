@@ -29,23 +29,17 @@ const CloseButton = styled.div`
 const FILTER_OPTIONS = [
   { value: "AracTipIds", label: t("aracTip") },
   { value: "GrupIds", label: t("grup") },
-  { value: "PlakaIds", label: t("plaka") },
+  { value: "AracIds", label: t("plaka") },
 ];
 
 const fetchFilterData = async (filterKey) => {
   switch (filterKey) {
     case "AracTipIds":
-      return CodeControlService(100).then((res) =>
-        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
-      );
+      return CodeControlService(100).then((res) => res.data.map((item) => ({ value: item.siraNo, label: item.codeText })));
     case "GrupIds":
-      return CodeControlService(101).then((res) =>
-        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
-      );
-    case "PlakaIds":
-      return CustomCodeControlService("Vehicle/GetVehiclePlates").then((res) =>
-        res.data.map((item) => ({ value: item.aracId, label: item.plaka }))
-      );
+      return CodeControlService(101).then((res) => res.data.map((item) => ({ value: item.siraNo, label: item.codeText })));
+    case "AracIds":
+      return CustomCodeControlService("Vehicle/GetVehiclePlates").then((res) => res.data.map((item) => ({ value: item.aracId, label: item.plaka })));
     default:
       return [];
   }
