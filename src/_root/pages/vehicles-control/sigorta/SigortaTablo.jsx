@@ -547,6 +547,84 @@ const SigortaTablo = ({ customFields }) => {
       },
     },
     {
+      title: t("aracTip"),
+      dataIndex: "aracTip",
+      key: "aracTip",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.aracTip === null) return -1;
+        if (b.aracTip === null) return 1;
+        return a.aracTip.localeCompare(b.aracTip);
+      },
+    },
+    {
+      title: t("marka"),
+      dataIndex: "marka",
+      key: "marka",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.marka === null) return -1;
+        if (b.marka === null) return 1;
+        return a.marka.localeCompare(b.marka);
+      },
+    },
+    {
+      title: t("model"),
+      dataIndex: "model",
+      key: "model",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.model === null) return -1;
+        if (b.model === null) return 1;
+        return a.model.localeCompare(b.model);
+      },
+    },
+    {
+      title: t("aracGrup"),
+      dataIndex: "aracGrup",
+      key: "aracGrup",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.aracGrup === null) return -1;
+        if (b.aracGrup === null) return 1;
+        return a.aracGrup.localeCompare(b.aracGrup);
+      },
+    },
+    {
+      title: t("sasiNo"),
+      dataIndex: "sasiNo",
+      key: "sasiNo",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.sasiNo === null) return -1;
+        if (b.sasiNo === null) return 1;
+        return a.sasiNo.localeCompare(b.sasiNo);
+      },
+    },
+    {
+      title: t("motorNo"),
+      dataIndex: "motorNo",
+      key: "motorNo",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.motorNo === null) return -1;
+        if (b.motorNo === null) return 1;
+        return a.motorNo.localeCompare(b.motorNo);
+      },
+    },
+    {
       title: <FcImageFile />,
       excelTitle: t("resimVar", { defaultValue: "Resim Var" }),
       dataIndex: "resimVar",
