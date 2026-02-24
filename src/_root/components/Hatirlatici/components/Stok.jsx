@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 import UpdateModal from "../../../pages/malzeme-depo/malzeme/UpdateModal";
+import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
 
@@ -262,6 +263,7 @@ const Stok = () => {
         if (b.kritikMiktar === null) return 1;
         return a.kritikMiktar - b.kritikMiktar;
       },
+      render: (text) => <span>{formatNumberWithLocale(text)}</span>,
     },
 
     {
@@ -276,6 +278,7 @@ const Stok = () => {
         if (b.stokMiktar === null) return 1;
         return a.stokMiktar - b.stokMiktar;
       },
+      render: (text) => <span>{formatNumberWithLocale(text)}</span>,
     },
 
     // Add other columns as needed
