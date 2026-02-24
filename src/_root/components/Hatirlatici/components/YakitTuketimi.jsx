@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 import DetailUpdate from "../../../pages/vehicles-control/vehicle-detail/DetailUpdate";
+import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
 
@@ -288,6 +289,7 @@ const YakitTuketimi = () => {
         if (b.gerceklesen === null) return 1;
         return a.gerceklesen - b.gerceklesen;
       },
+      render: (text) => <span>{formatNumberWithLocale(text)}</span>,
     },
 
     {
@@ -302,6 +304,7 @@ const YakitTuketimi = () => {
         if (b.onGorulenMax === null) return 1;
         return a.onGorulenMax - b.onGorulenMax;
       },
+      render: (text) => <span>{formatNumberWithLocale(text)}</span>,
     },
 
     {
@@ -316,6 +319,7 @@ const YakitTuketimi = () => {
         if (b.onGorulenMin === null) return 1;
         return a.onGorulenMin - b.onGorulenMin;
       },
+      render: (text) => <span>{formatNumberWithLocale(text)}</span>,
     },
 
     // Add other columns as needed

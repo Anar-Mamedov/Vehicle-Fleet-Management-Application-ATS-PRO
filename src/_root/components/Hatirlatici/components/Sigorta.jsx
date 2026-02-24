@@ -12,6 +12,7 @@ import styled from "styled-components";
 import dayjs from "dayjs";
 import UpdateModal from "../../../pages/vehicles-control/sigorta/UpdateModal";
 import { PlakaProvider } from "../../../../context/plakaSlice";
+import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
 
@@ -301,8 +302,7 @@ const Sigorta = () => {
       render: (text, record) => {
         const baslangicTarih = dayjs(record.baslangicTarih);
         const bitisTarih = dayjs(record.bitisTarih);
-        const maxDays =
-          baslangicTarih.isValid() && bitisTarih.isValid() ? bitisTarih.diff(baslangicTarih, "day") : 0;
+        const maxDays = baslangicTarih.isValid() && bitisTarih.isValid() ? bitisTarih.diff(baslangicTarih, "day") : 0;
         const numericValue = typeof text === "number" ? text : Number(text);
         const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
         const clampedValue = Math.max(safeValue, 0);
@@ -339,6 +339,10 @@ const Sigorta = () => {
       ellipsis: true,
 
       visible: true, // Varsayılan olarak açık
+      render: (text, record) => {
+        const format = record?.tutarFormat ? Math.min(Math.max(Number(record.tutarFormat), 0), 20) : undefined;
+        return <span>{formatNumberWithLocale(text, format, format)}</span>;
+      },
     },
     {
       title: "Acenta",
@@ -369,6 +373,10 @@ const Sigorta = () => {
       ellipsis: true,
 
       visible: true, // Varsayılan olarak açık
+      render: (text, record) => {
+        const format = record?.tutarFormat ? Math.min(Math.max(Number(record.tutarFormat), 0), 20) : undefined;
+        return <span>{formatNumberWithLocale(text, format, format)}</span>;
+      },
     },
 
     {
@@ -384,6 +392,7 @@ const Sigorta = () => {
       ellipsis: true,
 
       visible: true, // Varsayılan olarak açık
+      render: (text) => <span>{formatNumberWithLocale(text)}</span>,
     },
 
     // Diğer kolonlarınız...

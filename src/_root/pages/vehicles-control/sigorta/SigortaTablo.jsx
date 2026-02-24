@@ -843,6 +843,7 @@ const SigortaTablo = ({ customFields }) => {
         if (!b.hasarsizlikIndirim) return 1;
         return String(a.hasarsizlikIndirim).localeCompare(String(b.hasarsizlikIndirim));
       },
+      render: (text) => <span>{formatNumberWithLocale(text)}</span>,
     },
 
     {
