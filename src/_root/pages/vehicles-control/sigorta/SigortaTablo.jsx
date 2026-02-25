@@ -536,10 +536,17 @@ const SigortaTablo = ({ customFields }) => {
       title: t("plaka"),
       dataIndex: "plaka",
       key: "plaka",
-      width: 120,
+      width: 140,
       ellipsis: true,
       visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+      render: (text, record) => (
+        <div>
+          <a onClick={() => onRowClick(record)} style={{ fontWeight: 500 }}>
+            {text}
+          </a>
+          <div style={{ fontSize: "11px", color: "#9ca3af" }}>{`${record.marka || ""} ${record.model || ""}`.trim() || "-"}</div>
+        </div>
+      ),
       sorter: (a, b) => {
         if (a.plaka === null) return -1;
         if (b.plaka === null) return 1;
@@ -557,32 +564,6 @@ const SigortaTablo = ({ customFields }) => {
         if (a.aracTip === null) return -1;
         if (b.aracTip === null) return 1;
         return a.aracTip.localeCompare(b.aracTip);
-      },
-    },
-    {
-      title: t("marka"),
-      dataIndex: "marka",
-      key: "marka",
-      width: 150,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.marka === null) return -1;
-        if (b.marka === null) return 1;
-        return a.marka.localeCompare(b.marka);
-      },
-    },
-    {
-      title: t("model"),
-      dataIndex: "model",
-      key: "model",
-      width: 150,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.model === null) return -1;
-        if (b.model === null) return 1;
-        return a.model.localeCompare(b.model);
       },
     },
     {
