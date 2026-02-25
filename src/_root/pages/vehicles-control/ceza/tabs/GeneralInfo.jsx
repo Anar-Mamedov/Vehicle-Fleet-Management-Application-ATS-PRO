@@ -112,6 +112,7 @@ const GeneralInfo = ({ isUpdateMode = false }) => {
         setValue("cezaMaddesi", madde[0].madde);
         setValue("cezaMaddesiId", madde[0].siraNo);
         setValue("tutar", madde[0].tutar);
+        setValue("cezaPuan", madde[0].puan);
         setOpen(false);
       }}
     >
