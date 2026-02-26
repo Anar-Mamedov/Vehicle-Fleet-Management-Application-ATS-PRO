@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "react";
+import React, { useCallback, useEffect, useState, useRef, useMemo, memo, isValidElement } from "react";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateDrawer from "../Insert/CreateDrawer";
 import EditDrawer from "../Update/EditDrawer";
 import Filters from "./filter/Filters";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined } from "@ant-design/icons";
+import { HolderOutlined, SearchOutlined, MenuOutlined, FileExcelOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -20,6 +20,7 @@ import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
+import * as XLSX from "xlsx";
 
 const localeMap = {
   tr: trTR,
@@ -45,6 +46,20 @@ const timeFormatMap = {
 };
 
 const { Text } = Typography;
+
+function extractTextFromElement(element) {
+  let text = "";
+  if (typeof element === "string") {
+    text = element;
+  } else if (Array.isArray(element)) {
+    text = element.map((child) => extractTextFromElement(child)).join("");
+  } else if (isValidElement(element)) {
+    text = extractTextFromElement(element.props.children);
+  } else if (element !== null && element !== undefined) {
+    text = element.toString();
+  }
+  return text;
+}
 
 const StyledButton = styled(Button)`
   display: flex;
@@ -155,10 +170,11 @@ const YakitLimitleri = () => {
   });
 
   const [selectedRows, setSelectedRows] = useState([]);
+  const [xlsxLoading, setXlsxLoading] = useState(false);
 
-  const [body] = useState({
+  const [body, setBody] = useState({
     keyword: "",
-    filters: {},
+    filters: { customfilter: {} },
   });
 
   const prevBodyRef = useRef(body);
@@ -166,12 +182,15 @@ const YakitLimitleri = () => {
 
   // Mevcut hafta/ay/yıl başlangıç-bitiş aralıklarını ISO formatında döndür
   const buildPeriodRanges = useCallback(() => {
+    const customYear = body.filters?.customfilter?.yil;
+    const customMonth = body.filters?.customfilter?.ay; // 1-based
+
     const now = new Date();
 
-    // UTC bileşenlerini kullan
-    const year = now.getUTCFullYear();
-    const month = now.getUTCMonth();
-    const date = now.getUTCDate();
+    // Kullanıcı tarih seçtiyse onu, seçmediyse şu anki tarihi kullan
+    const year = customYear || now.getUTCFullYear();
+    const month = customMonth ? customMonth - 1 : now.getUTCMonth(); // 0-based
+    const date = customYear ? 1 : now.getUTCDate();
 
     // Yıl (UTC)
     const startOfYear = new Date(Date.UTC(year, 0, 1, 0, 0, 0, 0));
@@ -191,10 +210,18 @@ const YakitLimitleri = () => {
     const startOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth, 1, 0, 0, 0, 0));
     const endOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth + 6, 0, 23, 59, 59, 999));
 
-    // Hafta (UTC, Pazartesi başlangıç)
-    const dayOfWeekUTC = (now.getUTCDay() + 6) % 7; // Pazartesi=0
-    const startOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC, 0, 0, 0, 0));
-    const endOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC + 6, 23, 59, 59, 999));
+    // Hafta (UTC)
+    let startOfWeek, endOfWeek;
+    if (customYear) {
+      // Kullanıcı tarih seçtiyse o ayın 1'i ve 7'si
+      startOfWeek = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
+      endOfWeek = new Date(Date.UTC(year, month, 7, 23, 59, 59, 999));
+    } else {
+      // Varsayılan: mevcut haftanın başı ve sonu (Pazartesi başlangıç)
+      const dayOfWeekUTC = (now.getUTCDay() + 6) % 7; // Pazartesi=0
+      startOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC, 0, 0, 0, 0));
+      endOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC + 6, 23, 59, 59, 999));
+    }
 
     return {
       haftalikBaslangicTarih: startOfWeek.toISOString(),
@@ -208,7 +235,11 @@ const YakitLimitleri = () => {
       yillikBaslangicTarih: startOfYear.toISOString(),
       yillikBitisTarih: endOfYear.toISOString(),
     };
-  }, []);
+  }, [body.filters?.customfilter?.yil, body.filters?.customfilter?.ay]);
+
+  // Dönem sütunu render'ı için güncel period ranges'i ref'te tut
+  const periodRangesRef = useRef(buildPeriodRanges());
+  periodRangesRef.current = buildPeriodRanges();
 
   // API call - memoized with useCallback to prevent recreation on every render
   const fetchData = useCallback(
@@ -225,9 +256,11 @@ const YakitLimitleri = () => {
           currentSetPointId = data[0]?.siraNo || 0;
         }
 
+        const customfilter = body.filters?.customfilter || {};
         const response = await AxiosInstance.post(`FuelLimit/GetFuelLimitList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, {
-          ...(body.filters?.customfilter || {}),
-          ...buildPeriodRanges(),
+          lokasyonIds: customfilter.lokasyonIds || [0],
+          durum: customfilter.durum || "",
+          limitType: buildPeriodRanges(),
         });
 
         const total = response.data.recordCount;
@@ -306,6 +339,127 @@ const YakitLimitleri = () => {
     setSelectedRows([]);
     fetchData(0, 1);
   }, [fetchData]);
+
+  const handleBodyChange = useCallback((type, newBody) => {
+    setBody((prevBody) => {
+      if (type === "filters") {
+        return {
+          ...prevBody,
+          filters: { ...prevBody.filters, ...newBody },
+        };
+      }
+      return { ...prevBody, [type]: newBody };
+    });
+    setCurrentPage(1);
+  }, []);
+
+  const handleDownloadXLSX = async () => {
+    try {
+      setXlsxLoading(true);
+
+      const customfilter = body.filters?.customfilter || {};
+      const response = await AxiosInstance.post(`FuelLimit/GetFuelLimitReport?parameter=${searchTerm}`, {
+        lokasyonIds: customfilter.lokasyonIds || [0],
+        durum: customfilter.durum || "",
+        limitType: buildPeriodRanges(),
+      });
+
+      if (response?.data?.list) {
+        const ranges = buildPeriodRanges();
+        const xlsxData = response.data.list.map((row) => {
+          const xlsxRow = {};
+
+          filteredColumns.forEach((col) => {
+            const key = col.dataIndex;
+            const colKey = col.key;
+            const title = extractTextFromElement(col.title);
+            let value;
+
+            if (key === "plaka") {
+              value = row.plaka || "";
+            } else if (key === "surucuIsim") {
+              value = row.surucuIsim || "";
+            } else if (key === "limitTipi") {
+              value = row.limitTipi ? t(row.limitTipi) : "";
+            } else if (key === "limit") {
+              value = formatNumberWithLocale(Number(row.limit));
+            } else if (key === "toplamYakitMiktari") {
+              value = formatNumberWithLocale(Number(row.toplamYakitMiktari));
+            } else if (colKey === "kalan") {
+              const limit = Number(row?.limit ?? 0);
+              const toplam = Number(row?.toplamYakitMiktari ?? 0);
+              value = formatNumberWithLocale(limit - toplam);
+            } else if (colKey === "kullanimYuzdesi") {
+              const limit = Number(row?.limit ?? 0);
+              const used = Number(row?.toplamYakitMiktari ?? 0);
+              const p = limit > 0 ? (used / limit) * 100 : 0;
+              value = `${p.toFixed(0)}%`;
+            } else if (colKey === "donem") {
+              const limitTipi = String(row?.limitTipi || "").toLowerCase();
+              if (limitTipi === "haftalik") {
+                value = `${formatDateFromISODateOnly(ranges.haftalikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.haftalikBitisTarih)}`;
+              } else if (limitTipi === "aylik") {
+                value = `${formatDateFromISODateOnly(ranges.aylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.aylikBitisTarih)}`;
+              } else if (limitTipi === "ucaylik") {
+                value = `${formatDateFromISODateOnly(ranges.ucAylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.ucAylikBitisTarih)}`;
+              } else if (limitTipi === "altiaylik") {
+                value = `${formatDateFromISODateOnly(ranges.altiAylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.altiAylikBitisTarih)}`;
+              } else if (limitTipi === "yillik") {
+                value = `${formatDateFromISODateOnly(ranges.yillikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.yillikBitisTarih)}`;
+              } else {
+                value = formatDate(row.tarih);
+              }
+            } else if (key === "sonIslemTarih") {
+              value = formatDate(row.sonIslemTarih);
+            } else if (colKey === "durum") {
+              const limit = Number(row?.limit ?? 0);
+              const used = Number(row?.toplamYakitMiktari ?? 0);
+              const usagePercent = limit > 0 ? (used / limit) * 100 : used > 0 ? 101 : 0;
+              if (usagePercent > 100) {
+                value = t("asildi");
+              } else if (usagePercent >= 70) {
+                value = t("uyari");
+              } else {
+                value = t("normal");
+              }
+            } else if (key) {
+              value = row[key];
+            }
+
+            xlsxRow[title] = value !== null && value !== undefined ? value.toString() : "";
+          });
+
+          return xlsxRow;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(xlsxData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, t("yakitLimitleri"));
+
+        worksheet["!cols"] = filteredColumns.map((col) => ({
+          wpx: col.width ? col.width * 0.8 : 100,
+        }));
+
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${t("yakitLimitleri")}.xlsx`;
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        message.warning(t("kayitBulunamadi"));
+      }
+    } catch (error) {
+      console.error("XLSX indirme hatası:", error);
+      message.error(navigator.onLine ? t("hataOlustu") : t("internetBaglantiHatasi"));
+    } finally {
+      setXlsxLoading(false);
+    }
+  };
 
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için
 
@@ -497,7 +651,7 @@ const YakitLimitleri = () => {
           return a.tarih.localeCompare(b.tarih);
         },
         render: (text, record) => {
-          const ranges = buildPeriodRanges();
+          const ranges = periodRangesRef.current;
           const limitTipi = String(record?.limitTipi || "").toLowerCase();
           if (limitTipi === "haftalik") {
             return `${formatDateFromISODateOnly(ranges.haftalikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.haftalikBitisTarih)}`;
@@ -563,7 +717,7 @@ const YakitLimitleri = () => {
         },
       },
     ],
-    [t, onRowClick, formatNumberWithLocale, buildPeriodRanges, formatDate, formatDateFromISODateOnly]
+    [t, onRowClick, formatNumberWithLocale, formatDate, formatDateFromISODateOnly]
   );
 
   // Manage columns from localStorage or default
@@ -819,12 +973,12 @@ const YakitLimitleri = () => {
                 // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
-
-              {/* <Filters onChange={handleBodyChange} /> */}
-              {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
-              {/* Other toolbar components */}
+              <Filters onChange={handleBodyChange} />
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
+              <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
+                {t("indir")}
+              </Button>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
               <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
             </div>
