@@ -156,9 +156,9 @@ const YakitLimitleri = () => {
 
   const [selectedRows, setSelectedRows] = useState([]);
 
-  const [body] = useState({
+  const [body, setBody] = useState({
     keyword: "",
-    filters: {},
+    filters: { customfilter: {} },
   });
 
   const prevBodyRef = useRef(body);
@@ -166,12 +166,15 @@ const YakitLimitleri = () => {
 
   // Mevcut hafta/ay/yıl başlangıç-bitiş aralıklarını ISO formatında döndür
   const buildPeriodRanges = useCallback(() => {
+    const customYear = body.filters?.customfilter?.yil;
+    const customMonth = body.filters?.customfilter?.ay; // 1-based
+
     const now = new Date();
 
-    // UTC bileşenlerini kullan
-    const year = now.getUTCFullYear();
-    const month = now.getUTCMonth();
-    const date = now.getUTCDate();
+    // Kullanıcı tarih seçtiyse onu, seçmediyse şu anki tarihi kullan
+    const year = customYear || now.getUTCFullYear();
+    const month = customMonth ? customMonth - 1 : now.getUTCMonth(); // 0-based
+    const date = customYear ? 1 : now.getUTCDate();
 
     // Yıl (UTC)
     const startOfYear = new Date(Date.UTC(year, 0, 1, 0, 0, 0, 0));
@@ -191,10 +194,18 @@ const YakitLimitleri = () => {
     const startOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth, 1, 0, 0, 0, 0));
     const endOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth + 6, 0, 23, 59, 59, 999));
 
-    // Hafta (UTC, Pazartesi başlangıç)
-    const dayOfWeekUTC = (now.getUTCDay() + 6) % 7; // Pazartesi=0
-    const startOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC, 0, 0, 0, 0));
-    const endOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC + 6, 23, 59, 59, 999));
+    // Hafta (UTC)
+    let startOfWeek, endOfWeek;
+    if (customYear) {
+      // Kullanıcı tarih seçtiyse o ayın 1'i ve 7'si
+      startOfWeek = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
+      endOfWeek = new Date(Date.UTC(year, month, 7, 23, 59, 59, 999));
+    } else {
+      // Varsayılan: mevcut haftanın başı ve sonu (Pazartesi başlangıç)
+      const dayOfWeekUTC = (now.getUTCDay() + 6) % 7; // Pazartesi=0
+      startOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC, 0, 0, 0, 0));
+      endOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC + 6, 23, 59, 59, 999));
+    }
 
     return {
       haftalikBaslangicTarih: startOfWeek.toISOString(),
@@ -208,7 +219,11 @@ const YakitLimitleri = () => {
       yillikBaslangicTarih: startOfYear.toISOString(),
       yillikBitisTarih: endOfYear.toISOString(),
     };
-  }, []);
+  }, [body.filters?.customfilter?.yil, body.filters?.customfilter?.ay]);
+
+  // Dönem sütunu render'ı için güncel period ranges'i ref'te tut
+  const periodRangesRef = useRef(buildPeriodRanges());
+  periodRangesRef.current = buildPeriodRanges();
 
   // API call - memoized with useCallback to prevent recreation on every render
   const fetchData = useCallback(
@@ -225,9 +240,11 @@ const YakitLimitleri = () => {
           currentSetPointId = data[0]?.siraNo || 0;
         }
 
+        const customfilter = body.filters?.customfilter || {};
         const response = await AxiosInstance.post(`FuelLimit/GetFuelLimitList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, {
-          ...(body.filters?.customfilter || {}),
-          ...buildPeriodRanges(),
+          lokasyonIds: customfilter.lokasyonIds || [0],
+          durum: customfilter.durum || "",
+          limitType: buildPeriodRanges(),
         });
 
         const total = response.data.recordCount;
@@ -306,6 +323,19 @@ const YakitLimitleri = () => {
     setSelectedRows([]);
     fetchData(0, 1);
   }, [fetchData]);
+
+  const handleBodyChange = useCallback((type, newBody) => {
+    setBody((prevBody) => {
+      if (type === "filters") {
+        return {
+          ...prevBody,
+          filters: { ...prevBody.filters, ...newBody },
+        };
+      }
+      return { ...prevBody, [type]: newBody };
+    });
+    setCurrentPage(1);
+  }, []);
 
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için
 
@@ -497,7 +527,7 @@ const YakitLimitleri = () => {
           return a.tarih.localeCompare(b.tarih);
         },
         render: (text, record) => {
-          const ranges = buildPeriodRanges();
+          const ranges = periodRangesRef.current;
           const limitTipi = String(record?.limitTipi || "").toLowerCase();
           if (limitTipi === "haftalik") {
             return `${formatDateFromISODateOnly(ranges.haftalikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.haftalikBitisTarih)}`;
@@ -563,7 +593,7 @@ const YakitLimitleri = () => {
         },
       },
     ],
-    [t, onRowClick, formatNumberWithLocale, buildPeriodRanges, formatDate, formatDateFromISODateOnly]
+    [t, onRowClick, formatNumberWithLocale, formatDate, formatDateFromISODateOnly]
   );
 
   // Manage columns from localStorage or default
@@ -819,10 +849,7 @@ const YakitLimitleri = () => {
                 // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
                 suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
               />
-
-              {/* <Filters onChange={handleBodyChange} /> */}
-              {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
-              {/* Other toolbar components */}
+              <Filters onChange={handleBodyChange} />
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
