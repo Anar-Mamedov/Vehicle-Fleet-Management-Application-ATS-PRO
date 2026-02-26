@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState, useRef, useMemo, memo } from "react";
+import React, { useCallback, useEffect, useState, useRef, useMemo, memo, isValidElement } from "react";
 import ContextMenu from "../components/ContextMenu/ContextMenu";
 import CreateDrawer from "../Insert/CreateDrawer";
 import EditDrawer from "../Update/EditDrawer";
 import Filters from "./filter/Filters";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined } from "@ant-design/icons";
+import { HolderOutlined, SearchOutlined, MenuOutlined, FileExcelOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -20,6 +20,7 @@ import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
+import * as XLSX from "xlsx";
 
 const localeMap = {
   tr: trTR,
@@ -45,6 +46,20 @@ const timeFormatMap = {
 };
 
 const { Text } = Typography;
+
+function extractTextFromElement(element) {
+  let text = "";
+  if (typeof element === "string") {
+    text = element;
+  } else if (Array.isArray(element)) {
+    text = element.map((child) => extractTextFromElement(child)).join("");
+  } else if (isValidElement(element)) {
+    text = extractTextFromElement(element.props.children);
+  } else if (element !== null && element !== undefined) {
+    text = element.toString();
+  }
+  return text;
+}
 
 const StyledButton = styled(Button)`
   display: flex;
@@ -155,6 +170,7 @@ const YakitLimitleri = () => {
   });
 
   const [selectedRows, setSelectedRows] = useState([]);
+  const [xlsxLoading, setXlsxLoading] = useState(false);
 
   const [body, setBody] = useState({
     keyword: "",
@@ -336,6 +352,114 @@ const YakitLimitleri = () => {
     });
     setCurrentPage(1);
   }, []);
+
+  const handleDownloadXLSX = async () => {
+    try {
+      setXlsxLoading(true);
+
+      const customfilter = body.filters?.customfilter || {};
+      const response = await AxiosInstance.post(`FuelLimit/GetFuelLimitReport?parameter=${searchTerm}`, {
+        lokasyonIds: customfilter.lokasyonIds || [0],
+        durum: customfilter.durum || "",
+        limitType: buildPeriodRanges(),
+      });
+
+      if (response?.data?.list) {
+        const ranges = buildPeriodRanges();
+        const xlsxData = response.data.list.map((row) => {
+          const xlsxRow = {};
+
+          filteredColumns.forEach((col) => {
+            const key = col.dataIndex;
+            const colKey = col.key;
+            const title = extractTextFromElement(col.title);
+            let value;
+
+            if (key === "plaka") {
+              value = row.plaka || "";
+            } else if (key === "surucuIsim") {
+              value = row.surucuIsim || "";
+            } else if (key === "limitTipi") {
+              value = row.limitTipi ? t(row.limitTipi) : "";
+            } else if (key === "limit") {
+              value = formatNumberWithLocale(Number(row.limit));
+            } else if (key === "toplamYakitMiktari") {
+              value = formatNumberWithLocale(Number(row.toplamYakitMiktari));
+            } else if (colKey === "kalan") {
+              const limit = Number(row?.limit ?? 0);
+              const toplam = Number(row?.toplamYakitMiktari ?? 0);
+              value = formatNumberWithLocale(limit - toplam);
+            } else if (colKey === "kullanimYuzdesi") {
+              const limit = Number(row?.limit ?? 0);
+              const used = Number(row?.toplamYakitMiktari ?? 0);
+              const p = limit > 0 ? (used / limit) * 100 : 0;
+              value = `${p.toFixed(0)}%`;
+            } else if (colKey === "donem") {
+              const limitTipi = String(row?.limitTipi || "").toLowerCase();
+              if (limitTipi === "haftalik") {
+                value = `${formatDateFromISODateOnly(ranges.haftalikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.haftalikBitisTarih)}`;
+              } else if (limitTipi === "aylik") {
+                value = `${formatDateFromISODateOnly(ranges.aylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.aylikBitisTarih)}`;
+              } else if (limitTipi === "ucaylik") {
+                value = `${formatDateFromISODateOnly(ranges.ucAylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.ucAylikBitisTarih)}`;
+              } else if (limitTipi === "altiaylik") {
+                value = `${formatDateFromISODateOnly(ranges.altiAylikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.altiAylikBitisTarih)}`;
+              } else if (limitTipi === "yillik") {
+                value = `${formatDateFromISODateOnly(ranges.yillikBaslangicTarih)} - ${formatDateFromISODateOnly(ranges.yillikBitisTarih)}`;
+              } else {
+                value = formatDate(row.tarih);
+              }
+            } else if (key === "sonIslemTarih") {
+              value = formatDate(row.sonIslemTarih);
+            } else if (colKey === "durum") {
+              const limit = Number(row?.limit ?? 0);
+              const used = Number(row?.toplamYakitMiktari ?? 0);
+              const usagePercent = limit > 0 ? (used / limit) * 100 : used > 0 ? 101 : 0;
+              if (usagePercent > 100) {
+                value = t("asildi");
+              } else if (usagePercent >= 70) {
+                value = t("uyari");
+              } else {
+                value = t("normal");
+              }
+            } else if (key) {
+              value = row[key];
+            }
+
+            xlsxRow[title] = value !== null && value !== undefined ? value.toString() : "";
+          });
+
+          return xlsxRow;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(xlsxData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, t("yakitLimitleri"));
+
+        worksheet["!cols"] = filteredColumns.map((col) => ({
+          wpx: col.width ? col.width * 0.8 : 100,
+        }));
+
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${t("yakitLimitleri")}.xlsx`;
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        message.warning(t("kayitBulunamadi"));
+      }
+    } catch (error) {
+      console.error("XLSX indirme hatası:", error);
+      message.error(navigator.onLine ? t("hataOlustu") : t("internetBaglantiHatasi"));
+    } finally {
+      setXlsxLoading(false);
+    }
+  };
 
   // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için
 
@@ -852,6 +976,9 @@ const YakitLimitleri = () => {
               <Filters onChange={handleBodyChange} />
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
+              <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
+                {t("indir")}
+              </Button>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
               <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
             </div>
