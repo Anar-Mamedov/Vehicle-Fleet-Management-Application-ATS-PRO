@@ -258,7 +258,7 @@ const YakitLimitleri = () => {
 
         const customfilter = body.filters?.customfilter || {};
         const response = await AxiosInstance.post(`FuelLimit/GetFuelLimitList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, {
-          lokasyonIds: customfilter.lokasyonIds || [0],
+          lokasyonIds: customfilter.lokasyonIds || [],
           durum: customfilter.durum || "",
           limitType: buildPeriodRanges(),
         });
@@ -359,7 +359,7 @@ const YakitLimitleri = () => {
 
       const customfilter = body.filters?.customfilter || {};
       const response = await AxiosInstance.post(`FuelLimit/GetFuelLimitReport?parameter=${searchTerm}`, {
-        lokasyonIds: customfilter.lokasyonIds || [0],
+        lokasyonIds: customfilter.lokasyonIds || [],
         durum: customfilter.durum || "",
         limitType: buildPeriodRanges(),
       });
