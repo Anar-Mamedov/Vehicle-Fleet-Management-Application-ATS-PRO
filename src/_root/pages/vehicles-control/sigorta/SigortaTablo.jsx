@@ -554,94 +554,6 @@ const SigortaTablo = ({ customFields }) => {
       },
     },
     {
-      title: t("aracTip"),
-      dataIndex: "aracTip",
-      key: "aracTip",
-      width: 150,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.aracTip === null) return -1;
-        if (b.aracTip === null) return 1;
-        return a.aracTip.localeCompare(b.aracTip);
-      },
-    },
-    {
-      title: t("aracGrup"),
-      dataIndex: "aracGrup",
-      key: "aracGrup",
-      width: 150,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.aracGrup === null) return -1;
-        if (b.aracGrup === null) return 1;
-        return a.aracGrup.localeCompare(b.aracGrup);
-      },
-    },
-    {
-      title: t("sasiNo"),
-      dataIndex: "sasiNo",
-      key: "sasiNo",
-      width: 150,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.sasiNo === null) return -1;
-        if (b.sasiNo === null) return 1;
-        return a.sasiNo.localeCompare(b.sasiNo);
-      },
-    },
-    {
-      title: t("motorNo"),
-      dataIndex: "motorNo",
-      key: "motorNo",
-      width: 150,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.motorNo === null) return -1;
-        if (b.motorNo === null) return 1;
-        return a.motorNo.localeCompare(b.motorNo);
-      },
-    },
-    {
-      title: <FcImageFile />,
-      excelTitle: t("resimVar", { defaultValue: "Resim Var" }),
-      dataIndex: "resimVar",
-      key: "resimVar",
-      width: 80,
-      ellipsis: true,
-      visible: false,
-      align: "center",
-      render: (value) =>
-        value ? (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
-            <FcImageFile size={24} />
-          </div>
-        ) : (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} />
-        ),
-    },
-    {
-      title: <VscAttach />,
-      excelTitle: t("dosyaVar", { defaultValue: "Dosya Var" }),
-      dataIndex: "dosyaVar",
-      key: "dosyaVar",
-      width: 80,
-      ellipsis: true,
-      visible: false,
-      align: "center",
-      render: (value) =>
-        value ? (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
-            <VscAttach size={24} />
-          </div>
-        ) : (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} />
-        ),
-    },
-    {
       title: t("sigorta"),
       dataIndex: "sigorta",
       key: "sigorta",
@@ -654,20 +566,6 @@ const SigortaTablo = ({ customFields }) => {
         return a.sigorta.localeCompare(b.sigorta);
       },
     },
-    {
-      title: t("aktif"),
-      dataIndex: "aktif",
-      key: "aktif",
-      width: 130,
-      ellipsis: true,
-      visible: true,
-      render: (value) => (value ? <Tag color="success">{t("aktif")}</Tag> : <Tag color="error">{t("pasif")}</Tag>),
-      sorter: (a, b) => {
-        if (a.aktif === null) return -1;
-        if (b.aktif === null) return 1;
-        return a.aktif === b.aktif ? 0 : a.aktif ? -1 : 1;
-      },
-    },
 
     {
       title: t("baslangicTarih"),
@@ -675,7 +573,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "baslangicTarih",
       width: 110,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: true,
       sorter: (a, b) => {
         if (a.baslangicTarih === null) return -1;
         if (b.baslangicTarih === null) return 1;
@@ -690,7 +588,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "bitisTarih",
       width: 110,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: true,
       sorter: (a, b) => {
         if (a.bitisTarih === null) return -1;
         if (b.bitisTarih === null) return 1;
@@ -826,6 +724,108 @@ const SigortaTablo = ({ customFields }) => {
       },
       render: (text) => <span>{formatNumberWithLocale(text)}</span>,
     },
+    {
+      title: t("aracTip"),
+      dataIndex: "aracTip",
+      key: "aracTip",
+      width: 150,
+      ellipsis: true,
+      visible: false,
+      sorter: (a, b) => {
+        if (a.aracTip === null) return -1;
+        if (b.aracTip === null) return 1;
+        return a.aracTip.localeCompare(b.aracTip);
+      },
+    },
+    {
+      title: t("aracGrup"),
+      dataIndex: "aracGrup",
+      key: "aracGrup",
+      width: 150,
+      ellipsis: true,
+      visible: false,
+      sorter: (a, b) => {
+        if (a.aracGrup === null) return -1;
+        if (b.aracGrup === null) return 1;
+        return a.aracGrup.localeCompare(b.aracGrup);
+      },
+    },
+    {
+      title: t("sasiNo"),
+      dataIndex: "sasiNo",
+      key: "sasiNo",
+      width: 150,
+      ellipsis: true,
+      visible: false,
+      sorter: (a, b) => {
+        if (a.sasiNo === null) return -1;
+        if (b.sasiNo === null) return 1;
+        return a.sasiNo.localeCompare(b.sasiNo);
+      },
+    },
+    {
+      title: t("motorNo"),
+      dataIndex: "motorNo",
+      key: "motorNo",
+      width: 150,
+      ellipsis: true,
+      visible: false,
+      sorter: (a, b) => {
+        if (a.motorNo === null) return -1;
+        if (b.motorNo === null) return 1;
+        return a.motorNo.localeCompare(b.motorNo);
+      },
+    },
+    {
+      title: <FcImageFile />,
+      excelTitle: t("resimVar", { defaultValue: "Resim Var" }),
+      dataIndex: "resimVar",
+      key: "resimVar",
+      width: 80,
+      ellipsis: true,
+      visible: false,
+      align: "center",
+      render: (value) =>
+        value ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+            <FcImageFile size={24} />
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} />
+        ),
+    },
+    {
+      title: <VscAttach />,
+      excelTitle: t("dosyaVar", { defaultValue: "Dosya Var" }),
+      dataIndex: "dosyaVar",
+      key: "dosyaVar",
+      width: 80,
+      ellipsis: true,
+      visible: false,
+      align: "center",
+      render: (value) =>
+        value ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+            <VscAttach size={24} />
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} />
+        ),
+    },
+    {
+      title: t("aktif"),
+      dataIndex: "aktif",
+      key: "aktif",
+      width: 130,
+      ellipsis: true,
+      visible: false,
+      render: (value) => (value ? <Tag color="success">{t("aktif")}</Tag> : <Tag color="error">{t("pasif")}</Tag>),
+      sorter: (a, b) => {
+        if (a.aktif === null) return -1;
+        if (b.aktif === null) return 1;
+        return a.aktif === b.aktif ? 0 : a.aktif ? -1 : 1;
+      },
+    },
 
     {
       title: customFields.ozelAlan1 || t("ozelAlan1"),
@@ -833,7 +833,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan1",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan1 === null) return -1;
@@ -848,7 +848,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan2",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan2 === null) return -1;
@@ -862,7 +862,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan3",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan3 === null) return -1;
@@ -877,7 +877,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan4",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan4 === null) return -1;
@@ -892,7 +892,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan5",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan5 === null) return -1;
@@ -907,7 +907,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan6",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan6 === null) return -1;
@@ -922,7 +922,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan7",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan7 === null) return -1;
@@ -937,7 +937,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan8",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan8 === null) return -1;
@@ -952,7 +952,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan9",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan9 === null) return -1;
@@ -967,7 +967,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan10",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan10 === null) return -1;
@@ -982,7 +982,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan11",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan11 === null) return -1;
@@ -1002,7 +1002,7 @@ const SigortaTablo = ({ customFields }) => {
       key: "ozelAlan12",
       width: 130,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      visible: false,
 
       sorter: (a, b) => {
         if (a.ozelAlan12 === null) return -1;
@@ -1242,7 +1242,7 @@ const SigortaTablo = ({ customFields }) => {
       <div style={{}}>
         <div style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
           <div>
-            Toplam Araç: {totalCount} | Görüntülenen: {displayCount}
+            Toplam Kayıt: {totalCount} | Görüntülenen: {displayCount}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             {!infiniteScrollEnabled && (
