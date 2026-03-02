@@ -954,7 +954,7 @@
   "aks": "Aks",
   "tahrik": "Tahrik",
   "yon": "Yön",
-  "serbest": "Serbest",
+  "serbest": "SERBEST",
   "tanimliAks": "Tanımlı Aks",
   "axleConfiguration": "Aks Yapılandırması",
   "installedTires": "Takılı Lastikler",
@@ -1389,7 +1389,7 @@
   "operasyon": "Operasyon",
   "verilisNedeni": "Veriliş Nedeni",
   "hgsEtiketi": "HGS Etiketi",
-  "ayniSeviye": "Aynı seviye",
+  "ayniSeviye": "AYNI SEVİYE",
   "seciniz": "Seçiniz",
   "islemBasarisiz": "İşlem Başarısız",
   "ikameAracGuncelleme": "İkame Araç Güncelleme",
@@ -1398,6 +1398,6 @@
   "iadeTarihi": "İade Tarihi",
   "iadeKm": "İade Km",
   "iadeAciklamasi": "İade Açıklaması",
-  "bosBos": "Boş → Boş",
-  "fullFull": "Full → Full"
+  "bosBos": "BOŞ → BOŞ",
+  "fullFull": "FULL → FULL"
 }
