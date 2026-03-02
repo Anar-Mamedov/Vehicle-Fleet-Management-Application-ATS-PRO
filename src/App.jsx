@@ -22,6 +22,7 @@ const HasarTakibi = lazy(() => import("./_root/pages/vehicles-control/HasarTakib
 const YakitLimitleri = lazy(() => import("./_root/pages/vehicles-control/YakitLimitleri/YakitLimitleri.jsx"));
 const KmUpdate = lazy(() => import("./_root/pages/vehicles-control/hizli-km/KmUpdate"));
 const KiralikAraclar = lazy(() => import("./_root/pages/vehicles-control/kiralikAraclar/KiralikAraclarTablo.jsx"));
+const IkameAracYonetimi = lazy(() => import("./_root/pages/vehicles-control/IkameAracYonetimi/IkameAracYonetimi.jsx"));
 
 // hgs islemleri
 const HgsİslemTakibi = lazy(() => import("./_root/pages/HgsIslemleri/HgsIslemTakibi/HgsIslemTakibi.jsx"));
@@ -193,6 +194,14 @@ const App = () => {
             element={
               <Suspense fallback={<LoadingSpinner />}>
                 <KiralikAraclar />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/ikame-arac-yonetimi"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <IkameAracYonetimi />
               </Suspense>
             }
           />
