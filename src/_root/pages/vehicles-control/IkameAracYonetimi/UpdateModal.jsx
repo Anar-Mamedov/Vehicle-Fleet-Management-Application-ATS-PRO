@@ -60,7 +60,7 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
   const bitisTarih = watch("bitisTarih");
   const iadeEdildi = watch("iadeEdildi");
 
-  const kalanGun = bitisTarih ? dayjs(bitisTarih).diff(dayjs(), "day") : 0;
+  const kalanGun = bitisTarih ? dayjs(bitisTarih).startOf("day").diff(dayjs().startOf("day"), "day") : 0;
 
   useEffect(() => {
     if (baslangicTarih && bitisTarih) {

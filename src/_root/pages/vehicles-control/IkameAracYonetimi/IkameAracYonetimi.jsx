@@ -176,7 +176,6 @@ const IkameAracYonetimi = () => {
     },
   });
 
-
   const fetchData = async (diff, targetPage, customfilterOverride, currentSize = pageSize) => {
     const currentFetchId = lastFetchIdRef.current + 1;
     lastFetchIdRef.current = currentFetchId;
@@ -227,7 +226,7 @@ const IkameAracYonetimi = () => {
         ikameAracPlaka: item.ikameAracPlaka ?? item.ikamePlaka ?? null,
         asilAracModel: item.asilAracModel ?? item.asilMarka ?? null,
         ikameAracModel: item.ikameAracModel ?? item.ikameMarka ?? null,
-        kalanGun: item.kalanGun ?? item.gun ?? null,
+        kalanGun: item.sure ?? item.kalanGun ?? item.gun ?? null,
         kmLimiti: item.kmLimiti ?? item.kmLimit ?? null,
         durum: typeof item.durum === "boolean" ? (item.durum ? 1 : 2) : item.durum,
       }));
