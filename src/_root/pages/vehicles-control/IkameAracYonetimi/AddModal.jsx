@@ -229,7 +229,7 @@ const AddModal = ({ onRefresh }) => {
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label>{t("aracTip")}</label>
-                    <KodIDSelectbox name1="aracTipKodId" kodID={202} />
+                    <KodIDSelectbox name1="aracTipKodId" kodID={100} />
                   </div>
                 </div>
                 <div className="col-span-4">
