@@ -19,7 +19,8 @@ const { Text } = Typography;
 const { Option } = Select;
 
 const tabloPageSize = "tabloPageSizeIkameArac";
-const infiniteScrollKey = "tabloInfiniteScrollIkameArac";
+const infiniteScrollKey = "tabloInfiniteScroll";
+const legacyInfiniteScrollKey = "tabloInfiniteScrollIkameArac";
 const columnOrderKey = "columnOrderIkameArac";
 const columnVisibilityKey = "columnVisibilityIkameArac";
 const columnWidthsKey = "columnWidthsIkameArac";
@@ -146,7 +147,12 @@ const IkameAracYonetimi = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [infiniteScrollEnabled] = useState(() => {
     const savedScrollMode = localStorage.getItem(infiniteScrollKey);
-    return savedScrollMode !== null ? JSON.parse(savedScrollMode) : false;
+    if (savedScrollMode !== null) {
+      return JSON.parse(savedScrollMode);
+    }
+
+    const legacyScrollMode = localStorage.getItem(legacyInfiniteScrollKey);
+    return legacyScrollMode !== null ? JSON.parse(legacyScrollMode) : false;
   });
 
   const [isLoadingPage, setIsLoadingPage] = useState(false);
