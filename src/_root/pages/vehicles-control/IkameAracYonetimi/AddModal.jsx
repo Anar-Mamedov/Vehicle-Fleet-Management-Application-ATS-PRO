@@ -1,30 +1,31 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import { t } from "i18next";
 import { Button, message, Modal, Select } from "antd";
 import { PlusOutlined, LoadingOutlined, ArrowRightOutlined } from "@ant-design/icons";
-import { PlakaContext } from "../../../../context/plakaSlice";
 import AxiosInstance from "../../../../api/http";
-import Plaka from "../../../../_root/components/form/selects/Plaka";
+import PlakaSelectbox from "../../../../_root/components/PlakaSelectbox";
 import DateInput from "../../../../_root/components/form/date/DateInput";
 import NumberInput from "../../../../_root/components/form/inputs/NumberInput";
 import TextInput from "../../../../_root/components/form/inputs/TextInput";
 import Textarea from "../../../../_root/components/form/inputs/Textarea";
 import KodIDSelectbox from "../../../../_root/components/KodIDSelectbox";
+import MarkaSelectbox from "../../../../_root/components/MarkaSelectbox";
+import YakitTipSelectbox from "../../../../_root/components/YakitTipSelectbox";
+import SigortaSelectbox from "../../../../_root/components/SigortaSelectbox";
 
 const AddModal = ({ onRefresh }) => {
-  const { setPlaka } = useContext(PlakaContext);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [insuranceOptions, setInsuranceOptions] = useState([]);
 
   const defaultValues = {
-    aracId: null,
+    plaka: null,
+    plakaID: null,
     ikamePlaka: "",
-    markaId: null,
-    markaLabel: "",
+    marka: null,
+    markaID: null,
     baslangicTarih: null,
     bitisTarih: null,
     gun: 0,
@@ -36,8 +37,10 @@ const AddModal = ({ onRefresh }) => {
     nedenKodIdID: null,
     kmLimit: 0,
     hgs: null,
-    sigortaId: null,
-    yakitTipId: null,
+    sigorta: null,
+    sigortaID: null,
+    yakitTip: null,
+    yakitTipID: null,
     yakitPolitikasi: null,
     aciklama: "",
   };
@@ -48,7 +51,6 @@ const AddModal = ({ onRefresh }) => {
   const baslangicTarih = watch("baslangicTarih");
   const bitisTarih = watch("bitisTarih");
 
-  // Auto-calculate "Süre (Gün)" when dates change
   useEffect(() => {
     if (baslangicTarih && bitisTarih) {
       const start = dayjs(baslangicTarih);
@@ -60,66 +62,22 @@ const AddModal = ({ onRefresh }) => {
     }
   }, [baslangicTarih, bitisTarih, setValue]);
 
-  // Fetch insurance list when vehicle changes
-  const aracId = watch("aracId");
-  useEffect(() => {
-    if (aracId) {
-      AxiosInstance.get(`Insurance/GetActiveInsuranceList?vehicleId=${aracId}&diff=0&setPointId=0&parameter=`)
-        .then((res) => {
-          if (res.data?.list) {
-            setInsuranceOptions(res.data.list);
-          } else if (Array.isArray(res.data)) {
-            setInsuranceOptions(res.data);
-          }
-        })
-        .catch(() => {
-          setInsuranceOptions([]);
-        });
-    } else {
-      setInsuranceOptions([]);
-    }
-  }, [aracId]);
-
-  // Fetch brand list for marka select
-  const [brandOptions, setBrandOptions] = useState([]);
-  const handleBrandDropdown = (open) => {
-    if (open && brandOptions.length === 0) {
-      AxiosInstance.get("Mark/GetMarkList")
-        .then((res) => {
-          setBrandOptions(res.data || []);
-        })
-        .catch(() => setBrandOptions([]));
-    }
-  };
-
-  // Fetch fuel type list
-  const [fuelTypeOptions, setFuelTypeOptions] = useState([]);
-  const handleFuelTypeDropdown = (open) => {
-    if (open && fuelTypeOptions.length === 0) {
-      AxiosInstance.get("Material/GetMaterialListByType?type=YAKIT")
-        .then((res) => {
-          setFuelTypeOptions(res.data || []);
-        })
-        .catch(() => setFuelTypeOptions([]));
-    }
-  };
-
   const onSubmit = handleSubmit((values) => {
     const body = {
-      aracId: values.aracId || 0,
+      aracId: values.plakaID || 0,
       gun: values.gun || 0,
       ikamePlaka: values.ikamePlaka || "",
-      markaId: values.markaId || 0,
+      markaId: values.markaID || 0,
       baslangicTarih: values.baslangicTarih ? dayjs(values.baslangicTarih).toISOString() : null,
       bitisTarih: values.bitisTarih ? dayjs(values.bitisTarih).toISOString() : null,
       tedarikci: values.tedarikci || "",
       aracTipKodId: values.aracTipKodIdID || 0,
       km: values.km || 0,
       nedenKodId: values.nedenKodIdID || 0,
-      sigortaId: values.sigortaId || 0,
+      sigortaId: values.sigortaID || 0,
       kmLimit: values.kmLimit || 0,
       hgs: values.hgs || "",
-      yakitTipId: values.yakitTipId || 0,
+      yakitTipId: values.yakitTipID || 0,
       yakitPolitikasi: values.yakitPolitikasi || "",
       aciklama: values.aciklama || "",
     };
@@ -131,14 +89,12 @@ const AddModal = ({ onRefresh }) => {
           message.success(t("islemBasarili"));
           onRefresh();
           setIsOpen(false);
-          setPlaka([]);
           reset();
         } else {
           message.error(t("islemBasarisiz"));
         }
       })
-      .catch((err) => {
-        console.error("Error adding replacement vehicle:", err);
+      .catch(() => {
         message.error(t("islemBasarisiz"));
       })
       .finally(() => {
@@ -161,7 +117,6 @@ const AddModal = ({ onRefresh }) => {
       className="btn btn-min cancel-btn"
       onClick={() => {
         setIsOpen(false);
-        setPlaka([]);
         reset();
       }}
     >
@@ -175,7 +130,6 @@ const AddModal = ({ onRefresh }) => {
         className="btn primary-btn"
         onClick={() => {
           reset();
-          setPlaka([]);
           setIsOpen(true);
         }}
       >
@@ -187,7 +141,6 @@ const AddModal = ({ onRefresh }) => {
         destroyOnClose
         onCancel={() => {
           setIsOpen(false);
-          setPlaka([]);
           reset();
         }}
         maskClosable={false}
@@ -206,7 +159,7 @@ const AddModal = ({ onRefresh }) => {
                     <label>
                       {t("asilArac")} <span style={{ color: "red" }}>*</span>
                     </label>
-                    <Plaka codeName="aracId" required />
+                    <PlakaSelectbox name1="plaka" isRequired />
                   </div>
                 </div>
                 <div className="col-span-1 flex items-center justify-center" style={{ paddingTop: 20 }}>
@@ -223,25 +176,7 @@ const AddModal = ({ onRefresh }) => {
                 <div className="col-span-3">
                   <div className="flex flex-col gap-1">
                     <label>{t("marka")}</label>
-                    <Controller
-                      name="markaId"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          showSearch
-                          allowClear
-                          optionFilterProp="label"
-                          placeholder={t("seciniz")}
-                          onDropdownVisibleChange={handleBrandDropdown}
-                          options={brandOptions.map((item) => ({
-                            label: item.marka,
-                            value: item.siraNo,
-                          }))}
-                          filterOption={(input, option) => (option?.label?.toLowerCase() ?? "").includes(input.toLowerCase())}
-                        />
-                      )}
-                    />
+                    <MarkaSelectbox name1="marka" />
                   </div>
                 </div>
               </div>
@@ -294,7 +229,7 @@ const AddModal = ({ onRefresh }) => {
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label>{t("aracTip")}</label>
-                    <KodIDSelectbox name1="aracTipKodId" kodID={202} addHide />
+                    <KodIDSelectbox name1="aracTipKodId" kodID={202} />
                   </div>
                 </div>
                 <div className="col-span-4">
@@ -307,7 +242,7 @@ const AddModal = ({ onRefresh }) => {
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label>{t("verilisNedeni")}</label>
-                    <KodIDSelectbox name1="nedenKodId" kodID={203} addHide />
+                    <KodIDSelectbox name1="nedenKodId" kodID={914} />
                   </div>
                 </div>
                 <div className="col-span-4">
@@ -340,48 +275,13 @@ const AddModal = ({ onRefresh }) => {
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label>{t("policeNo")}</label>
-                    <Controller
-                      name="sigortaId"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          showSearch
-                          allowClear
-                          optionFilterProp="label"
-                          placeholder={t("seciniz")}
-                          options={insuranceOptions.map((item) => ({
-                            label: item.policeNo || item.sigortaFirma || `#${item.siraNo}`,
-                            value: item.siraNo,
-                          }))}
-                          filterOption={(input, option) => (option?.label?.toLowerCase() ?? "").includes(input.toLowerCase())}
-                        />
-                      )}
-                    />
+                    <SigortaSelectbox name1="sigorta" vehicleIdField="plakaID" />
                   </div>
                 </div>
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label>{t("yakitTip")}</label>
-                    <Controller
-                      name="yakitTipId"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          showSearch
-                          allowClear
-                          optionFilterProp="label"
-                          placeholder={t("seciniz")}
-                          onDropdownVisibleChange={handleFuelTypeDropdown}
-                          options={fuelTypeOptions.map((item) => ({
-                            label: item.tanim,
-                            value: item.malzemeId,
-                          }))}
-                          filterOption={(input, option) => (option?.label?.toLowerCase() ?? "").includes(input.toLowerCase())}
-                        />
-                      )}
-                    />
+                    <YakitTipSelectbox name1="yakitTip" />
                   </div>
                 </div>
                 <div className="col-span-4">
@@ -396,10 +296,10 @@ const AddModal = ({ onRefresh }) => {
                           allowClear
                           placeholder={t("seciniz")}
                           options={[
-                            { label: t("ayniSeviye"), value: "Aynı seviye" },
-                            { label: "Full → Full", value: "Full → Full" },
-                            { label: t("serbest"), value: "Serbest" },
-                            { label: t("bosaBos"), value: "Boş → Boş" },
+                            { label: t("ayniSeviye"), value: "ayniSeviye" },
+                            { label: t("fullFull"), value: "fullFull" },
+                            { label: t("serbest"), value: "serbest" },
+                            { label: t("bosBos"), value: "bosBos" },
                           ]}
                         />
                       )}

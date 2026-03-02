@@ -609,6 +609,7 @@
   "yakitPolitikasi": "Yanacaq Siyasəti",
   "kmLimiti": "Km Limiti",
   "hepsi": "Hamısı",
+  "tumu": "Hamısı",
   "toplamKayit": "Ümumi Qeyd",
   "goruntulenen": "Göstərilən",
   "belirsiz": "Qeyri-müəyyən",
@@ -623,5 +624,12 @@
   "seciniz": "Seçin",
   "islemBasarisiz": "Əməliyyat Uğursuz",
   "serbest": "Sərbəst",
-  "bosaBos": "Boş → Boş"
+  "ikameAracGuncelleme": "Əvəzedici Avtomobil Yeniləmə",
+  "iadeBilgileri": "Qaytarma Məlumatları",
+  "iadeEdildi": "Qaytarıldı",
+  "iadeTarihi": "Qaytarma Tarixi",
+  "iadeKm": "Qaytarma Km",
+  "iadeAciklamasi": "Qaytarma Açıqlaması",
+  "bosBos": "Boş → Boş",
+  "fullFull": "Full → Full"
 }

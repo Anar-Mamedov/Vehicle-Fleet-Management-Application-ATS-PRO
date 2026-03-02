@@ -1,7 +1,12 @@
 import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
-import { Select, DatePicker } from "antd";
+import { Select, DatePicker, ConfigProvider } from "antd";
 import { t } from "i18next";
+import dayjs from "dayjs";
+import "dayjs/locale/tr";
+import tr_TR from "antd/lib/locale/tr_TR";
+
+dayjs.locale("tr");
 
 const { Option } = Select;
 
@@ -15,7 +20,7 @@ export default function Filters({ onChange }) {
         durum: newDurum,
       };
       if (newTarih) {
-        customfilters.tarih = newTarih.toISOString();
+        customfilters.tarih = dayjs(newTarih).format("YYYY-MM-DD");
       }
       onChange("filters", { customfilters });
     },
@@ -39,7 +44,9 @@ export default function Filters({ onChange }) {
         <Option value={1}>{t("aktif")}</Option>
         <Option value={2}>{t("pasif")}</Option>
       </Select>
-      <DatePicker value={tarih} onChange={handleTarihChange} placeholder={t("tarih")} style={{ width: 140 }} />
+      <ConfigProvider locale={tr_TR}>
+        <DatePicker value={tarih} onChange={handleTarihChange} placeholder={t("tarih")} style={{ width: 140 }} format="DD.MM.YYYY" locale={dayjs.locale("tr")} />
+      </ConfigProvider>
     </div>
   );
 }

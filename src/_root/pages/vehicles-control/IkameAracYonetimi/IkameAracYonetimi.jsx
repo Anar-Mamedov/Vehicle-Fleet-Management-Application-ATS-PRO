@@ -13,6 +13,7 @@ import FormattedDate from "../../../../_root/components/FormattedDate";
 import { t } from "i18next";
 import Filters from "./filter/Filters";
 import AddModal from "./AddModal";
+import UpdateModal from "./UpdateModal";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -149,6 +150,8 @@ const IkameAracYonetimi = () => {
   });
 
   const [isLoadingPage, setIsLoadingPage] = useState(false);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [updateId, setUpdateId] = useState(null);
   const lastFetchIdRef = useRef(0);
   const scrollTimeoutRef = useRef(null);
 
@@ -173,9 +176,8 @@ const IkameAracYonetimi = () => {
     },
   });
 
-  const [filtersApplied, setFiltersApplied] = useState(true);
 
-  const fetchData = async (diff, targetPage, currentSize = pageSize) => {
+  const fetchData = async (diff, targetPage, customfilterOverride, currentSize = pageSize) => {
     const currentFetchId = lastFetchIdRef.current + 1;
     lastFetchIdRef.current = currentFetchId;
 
@@ -198,9 +200,7 @@ const IkameAracYonetimi = () => {
       }
 
       const customFilters =
-        body.filters && body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0
-          ? body.filters.customfilters
-          : { durum: 0 };
+        customfilterOverride || (body.filters && body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : { durum: 0 });
 
       const response = await AxiosInstance.post(
         `ReplacementVehicle/GetReplacementVehicleList?setPointId=${currentSetPointId}&diff=${diff}&pageSize=${currentSize}&parameter=${searchTerm}`,
@@ -266,30 +266,12 @@ const IkameAracYonetimi = () => {
     if (!infiniteScrollEnabled) {
       setPaginationLoading(true);
     }
-    setFiltersApplied(true);
-    fetchData(0, 1, pageSize).finally(() => {
+    fetchData(0, 1).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
     });
   }, []);
-
-  const prevBodyRef = useRef(body);
-
-  useEffect(() => {
-    if (filtersApplied) {
-      setFiltersApplied(false);
-      if (!infiniteScrollEnabled) {
-        setPaginationLoading(true);
-      }
-      fetchData(0, 1, pageSize).finally(() => {
-        if (!infiniteScrollEnabled) {
-          setPaginationLoading(false);
-        }
-      });
-      prevBodyRef.current = body;
-    }
-  }, [body, filtersApplied, pageSize, infiniteScrollEnabled]);
 
   useEffect(() => {
     const savedPageSize = localStorage.getItem(tabloPageSize);
@@ -300,12 +282,12 @@ const IkameAracYonetimi = () => {
     }
   }, []);
 
-  const handleSearch = () => {
+  const handleSearch = (customfilterOverride) => {
     if (!infiniteScrollEnabled) {
       setPaginationLoading(true);
     }
     setCurrentPage(1);
-    fetchData(0, 1, pageSize).finally(() => {
+    fetchData(0, 1, customfilterOverride).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
@@ -319,7 +301,7 @@ const IkameAracYonetimi = () => {
     if (size !== pageSize) {
       localStorage.setItem(tabloPageSize, size.toString());
       setPageSize(size);
-      fetchData(0, 1, size).finally(() => {
+      fetchData(0, 1, undefined, size).finally(() => {
         if (!infiniteScrollEnabled) {
           setPaginationLoading(false);
         }
@@ -327,7 +309,7 @@ const IkameAracYonetimi = () => {
     } else {
       const diff = page - currentPage;
       setCurrentPage(page);
-      fetchData(diff, page, pageSize).finally(() => {
+      fetchData(diff, page, undefined, pageSize).finally(() => {
         if (!infiniteScrollEnabled) {
           setPaginationLoading(false);
         }
@@ -345,12 +327,33 @@ const IkameAracYonetimi = () => {
     onChange: onSelectChange,
   };
 
+  const onRowClick = (record) => {
+    setUpdateId(Number(record.siraNo));
+    setUpdateModalOpen(true);
+  };
+
   const handleBodyChange = useCallback((type, newBody) => {
-    setBody((state) => ({
-      ...state,
-      [type]: newBody,
-    }));
-    setFiltersApplied(true);
+    setBody((prevBody) => {
+      if (type === "filters") {
+        const updatedFilters =
+          typeof newBody === "function"
+            ? newBody(prevBody.filters)
+            : {
+                ...prevBody.filters,
+                ...newBody,
+              };
+
+        return {
+          ...prevBody,
+          filters: updatedFilters,
+        };
+      }
+
+      return {
+        ...prevBody,
+        [type]: newBody,
+      };
+    });
     setCurrentPage(1);
   }, []);
 
@@ -359,7 +362,7 @@ const IkameAracYonetimi = () => {
       setPaginationLoading(true);
     }
     setSelectedRowKeys([]);
-    fetchData(0, 1, pageSize).finally(() => {
+    fetchData(0, 1).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
@@ -390,10 +393,10 @@ const IkameAracYonetimi = () => {
       ellipsis: true,
       visible: true,
       render: (text, record) => (
-        <div>
+        <a onClick={() => onRowClick(record)}>
           <div style={{ fontWeight: 500 }}>{text}</div>
           <div style={{ fontSize: 12, color: "#888" }}>{record.asilAracModel}</div>
-        </div>
+        </a>
       ),
       sorter: (a, b) => {
         if (a.asilAracPlaka === null) return -1;
@@ -524,6 +527,7 @@ const IkameAracYonetimi = () => {
       width: 140,
       ellipsis: true,
       visible: true,
+      render: (value) => (value ? t(value) : "-"),
       sorter: (a, b) => {
         if (a.yakitPolitikasi === null) return -1;
         if (b.yakitPolitikasi === null) return 1;
@@ -652,7 +656,7 @@ const IkameAracYonetimi = () => {
 
     if (scrollBottom <= clientHeight * 0.2 && !loading && !isLoadingMore && !isLoadingPage && data.length < totalCount) {
       scrollTimeoutRef.current = setTimeout(() => {
-        fetchData(1, undefined, pageSize);
+        fetchData(1, undefined, undefined, pageSize);
       }, 200);
     }
   };
@@ -680,7 +684,7 @@ const IkameAracYonetimi = () => {
     }
     localStorage.setItem(tabloPageSize, validValue.toString());
     setPageSize(validValue);
-    fetchData(0, 1, validValue).finally(() => {
+    fetchData(0, 1, undefined, validValue).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
@@ -801,10 +805,11 @@ const IkameAracYonetimi = () => {
               placeholder={t("aramaYap")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              onPressEnter={handleSearch}
-              suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+              onPressEnter={() => handleSearch()}
+              suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={() => handleSearch()} />}
             />
             <Filters onChange={handleBodyChange} />
+            <Button type="primary" icon={<SearchOutlined />} onClick={() => handleSearch()}></Button>
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             <AddModal onRefresh={refreshTableData} />
@@ -832,6 +837,7 @@ const IkameAracYonetimi = () => {
           </Spin>
         </div>
       </FormProvider>
+      <UpdateModal id={updateId} isOpen={updateModalOpen} setIsOpen={setUpdateModalOpen} onRefresh={refreshTableData} />
     </>
   );
 };

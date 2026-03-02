@@ -1392,5 +1392,12 @@
   "ayniSeviye": "Aynı seviye",
   "seciniz": "Seçiniz",
   "islemBasarisiz": "İşlem Başarısız",
-  "bosaBos": "Boş → Boş"
+  "ikameAracGuncelleme": "İkame Araç Güncelleme",
+  "iadeBilgileri": "İade Bilgileri",
+  "iadeEdildi": "İade Edildi",
+  "iadeTarihi": "İade Tarihi",
+  "iadeKm": "İade Km",
+  "iadeAciklamasi": "İade Açıklaması",
+  "bosBos": "Boş → Boş",
+  "fullFull": "Full → Full"
 }

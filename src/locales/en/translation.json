@@ -1106,5 +1106,12 @@
   "ayniSeviye": "Same Level",
   "seciniz": "Select",
   "islemBasarisiz": "Operation Failed",
-  "bosaBos": "Empty → Empty"
+  "ikameAracGuncelleme": "Update Replacement Vehicle",
+  "iadeBilgileri": "Return Information",
+  "iadeEdildi": "Returned",
+  "iadeTarihi": "Return Date",
+  "iadeKm": "Return Km",
+  "iadeAciklamasi": "Return Description",
+  "bosBos": "Empty → Empty",
+  "fullFull": "Full → Full"
 }

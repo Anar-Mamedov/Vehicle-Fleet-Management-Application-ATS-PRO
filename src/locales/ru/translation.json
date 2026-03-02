@@ -132,6 +132,7 @@
   "yakitPolitikasi": "Топливная Политика",
   "kmLimiti": "Лимит Км",
   "hepsi": "Все",
+  "tumu": "Все",
   "toplamKayit": "Всего Записей",
   "goruntulenen": "Отображается",
   "belirsiz": "Неизвестно",
@@ -146,5 +147,12 @@
   "seciniz": "Выберите",
   "islemBasarisiz": "Операция Не Удалась",
   "serbest": "Свободный",
-  "bosaBos": "Пустой → Пустой"
+  "ikameAracGuncelleme": "Обновление Замены Транспорта",
+  "iadeBilgileri": "Информация о Возврате",
+  "iadeEdildi": "Возвращено",
+  "iadeTarihi": "Дата Возврата",
+  "iadeKm": "Км Возврата",
+  "iadeAciklamasi": "Описание Возврата",
+  "bosBos": "Пустой → Пустой",
+  "fullFull": "Full → Full"
 }
