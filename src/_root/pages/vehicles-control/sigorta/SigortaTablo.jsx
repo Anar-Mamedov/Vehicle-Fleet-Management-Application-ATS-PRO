@@ -687,6 +687,19 @@ const SigortaTablo = ({ customFields }) => {
         return a.acenta.localeCompare(b.acenta);
       },
     },
+    {
+      title: t("firma"),
+      dataIndex: "firma",
+      key: "firma",
+      width: 260,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.firma === null) return -1;
+        if (b.firma === null) return 1;
+        return String(a.firma).localeCompare(String(b.firma));
+      },
+    },
 
     {
       title: t("aracBedeli"),
