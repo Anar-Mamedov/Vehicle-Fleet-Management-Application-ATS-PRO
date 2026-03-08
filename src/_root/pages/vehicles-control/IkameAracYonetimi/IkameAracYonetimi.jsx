@@ -460,7 +460,7 @@ const IkameAracYonetimi = () => {
       },
     },
     {
-      title: t("neden"),
+      title: t("verilisNedeni"),
       dataIndex: "neden",
       key: "neden",
       width: 120,
