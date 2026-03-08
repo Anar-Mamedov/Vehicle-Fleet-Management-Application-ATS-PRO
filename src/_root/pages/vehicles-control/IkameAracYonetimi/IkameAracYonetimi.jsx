@@ -228,12 +228,6 @@ const IkameAracYonetimi = () => {
         ...item,
         key: item.siraNo,
         // API'den gelen farklı alan adlarını tablo kolonlarıyla eşleştir.
-        asilAracPlaka: item.asilAracPlaka ?? item.asilPlaka ?? null,
-        ikameAracPlaka: item.ikameAracPlaka ?? item.ikamePlaka ?? null,
-        asilAracModel: item.asilAracModel ?? item.asilMarka ?? null,
-        ikameAracModel: item.ikameAracModel ?? item.ikameMarka ?? null,
-        kalanGun: item.sure ?? item.kalanGun ?? item.gun ?? null,
-        kmLimiti: item.kmLimiti ?? item.kmLimit ?? null,
         durum: typeof item.durum === "boolean" ? (item.durum ? 1 : 2) : item.durum,
       }));
 
@@ -392,7 +386,7 @@ const IkameAracYonetimi = () => {
   const initialColumns = [
     {
       title: t("asilArac"),
-      dataIndex: "asilAracPlaka",
+      dataIndex: "asilPlaka",
       key: "asilAracPlaka",
       width: 150,
       ellipsis: true,
@@ -400,18 +394,18 @@ const IkameAracYonetimi = () => {
       render: (text, record) => (
         <a onClick={() => onRowClick(record)}>
           <div style={{ fontWeight: 500 }}>{text}</div>
-          <div style={{ fontSize: 12, color: "#888" }}>{record.asilAracModel}</div>
+          <div style={{ fontSize: 12, color: "#888" }}>{record.asilMarka}</div>
         </a>
       ),
       sorter: (a, b) => {
-        if (a.asilAracPlaka === null) return -1;
-        if (b.asilAracPlaka === null) return 1;
-        return a.asilAracPlaka.localeCompare(b.asilAracPlaka);
+        if (a.asilPlaka === null) return -1;
+        if (b.asilPlaka === null) return 1;
+        return a.asilPlaka.localeCompare(b.asilPlaka);
       },
     },
     {
       title: t("ikameArac"),
-      dataIndex: "ikameAracPlaka",
+      dataIndex: "ikamePlaka",
       key: "ikameAracPlaka",
       width: 150,
       ellipsis: true,
@@ -419,13 +413,13 @@ const IkameAracYonetimi = () => {
       render: (text, record) => (
         <div>
           <div style={{ fontWeight: 500 }}>{text}</div>
-          <div style={{ fontSize: 12, color: "#888" }}>{record.ikameAracModel}</div>
+          <div style={{ fontSize: 12, color: "#888" }}>{record.ikameMarka}</div>
         </div>
       ),
       sorter: (a, b) => {
-        if (a.ikameAracPlaka === null) return -1;
-        if (b.ikameAracPlaka === null) return 1;
-        return a.ikameAracPlaka.localeCompare(b.ikameAracPlaka);
+        if (a.ikamePlaka === null) return -1;
+        if (b.ikamePlaka === null) return 1;
+        return a.ikamePlaka.localeCompare(b.ikamePlaka);
       },
     },
     {
@@ -506,7 +500,7 @@ const IkameAracYonetimi = () => {
     },
     {
       title: t("kalanGun"),
-      dataIndex: "kalanGun",
+      dataIndex: "sure",
       key: "kalanGun",
       width: 100,
       ellipsis: true,
@@ -520,9 +514,9 @@ const IkameAracYonetimi = () => {
         return <span style={{ color, fontWeight: 600 }}>{value}</span>;
       },
       sorter: (a, b) => {
-        if (a.kalanGun === null) return -1;
-        if (b.kalanGun === null) return 1;
-        return Number(a.kalanGun) - Number(b.kalanGun);
+        if (a.sure === null) return -1;
+        if (b.sure === null) return 1;
+        return Number(a.sure) - Number(b.sure);
       },
     },
     {
@@ -541,7 +535,7 @@ const IkameAracYonetimi = () => {
     },
     {
       title: t("kmLimiti"),
-      dataIndex: "kmLimiti",
+      dataIndex: "kmLimit",
       key: "kmLimiti",
       width: 120,
       ellipsis: true,
@@ -558,9 +552,9 @@ const IkameAracYonetimi = () => {
         );
       },
       sorter: (a, b) => {
-        if (a.kmLimiti === null) return -1;
-        if (b.kmLimiti === null) return 1;
-        return Number(a.kmLimiti) - Number(b.kmLimiti);
+        if (a.kmLimit === null) return -1;
+        if (b.kmLimit === null) return 1;
+        return Number(a.kmLimit) - Number(b.kmLimit);
       },
     },
   ];

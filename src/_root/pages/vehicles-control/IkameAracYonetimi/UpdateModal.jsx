@@ -12,7 +12,6 @@ import NumberInput from "../../../../_root/components/form/inputs/NumberInput";
 import TextInput from "../../../../_root/components/form/inputs/TextInput";
 import Textarea from "../../../../_root/components/form/inputs/Textarea";
 import KodIDSelectbox from "../../../../_root/components/KodIDSelectbox";
-import MarkaSelectbox from "../../../../_root/components/MarkaSelectbox";
 import YakitTipSelectbox from "../../../../_root/components/YakitTipSelectbox";
 import SigortaSelectbox from "../../../../_root/components/SigortaSelectbox";
 import DosyaUpload from "../../../../_root/components/Dosya/DosyaUpload";
@@ -140,12 +139,18 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
   };
 
   const onSubmit = handleSubmit((values) => {
+    if (values.iadeEdildi && !values.iadeTarihi) {
+      message.warning(t("lutfenGecerliTarihGiriniz"));
+      return;
+    }
+
     const body = {
       siraNo: values.siraNo || id || 0,
       aracId: values.plakaID || 0,
       durum: values.iadeEdildi ? false : Boolean(values.durum),
       gun: values.gun || 0,
       ikamePlaka: values.ikamePlaka || "",
+      ikameMarka: values.marka || "",
       markaId: values.markaID || 0,
       baslangicTarih: values.baslangicTarih ? dayjs(values.baslangicTarih).toISOString() : null,
       bitisTarih: values.bitisTarih ? dayjs(values.bitisTarih).toISOString() : null,
@@ -242,7 +247,7 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
                   <div className="col-span-3">
                     <div className="flex flex-col gap-1">
                       <label>{t("marka")}</label>
-                      <MarkaSelectbox name1="marka" />
+                      <TextInput name="marka" />
                     </div>
                   </div>
                 </div>
@@ -373,12 +378,6 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
                 </div>
               </div>
 
-              <div style={{ marginBottom: 16 }}>
-                <h3 style={{ fontWeight: 600, marginBottom: 8 }}>{t("aciklama")}</h3>
-                <hr style={{ border: "none", borderTop: "1px solid #f0f0f0", marginBottom: 16 }} />
-                <Textarea name="aciklama" />
-              </div>
-
               <Tabs
                 defaultActiveKey="return"
                 items={[
@@ -402,8 +401,10 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
                           <div className="grid gap-1">
                             <div className="col-span-6">
                               <div className="flex flex-col gap-1">
-                                <label>{t("iadeTarihi")}</label>
-                                <DateInput name="iadeTarihi" />
+                                <label>
+                                  {t("iadeTarihi")} <span style={{ color: "red" }}>*</span>
+                                </label>
+                                <DateInput name="iadeTarihi" required />
                               </div>
                             </div>
                             <div className="col-span-6">
@@ -432,6 +433,15 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
                     key: "images",
                     label: t("resimler"),
                     children: <ResimUpload selectedRowID={id} refGroup="IKAME_ARAC" />,
+                  },
+                  {
+                    key: "aciklamaTab",
+                    label: t("aciklama"),
+                    children: (
+                      <div style={{ paddingTop: 16, borderTop: "1px solid #f0f0f0" }}>
+                        <Textarea name="aciklama" />
+                      </div>
+                    ),
                   },
                 ]}
               />

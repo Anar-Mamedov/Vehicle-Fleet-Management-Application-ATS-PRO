@@ -171,7 +171,7 @@ const Sidebar = ({ collapsed }) => {
           },
           {
             key: "ikameAracYonetimi1",
-            label: <Link to={"/ikame-arac-yonetimi"}>{t("ikameAracYonetimi")}</Link>,
+            label: <Link to={"/ikame-arac-yonetimi"}>{t("ikameAraclar")}</Link>,
           },
           {
             key: "121",
