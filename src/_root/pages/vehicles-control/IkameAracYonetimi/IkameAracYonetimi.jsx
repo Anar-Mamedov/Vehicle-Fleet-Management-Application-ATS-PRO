@@ -447,32 +447,6 @@ const IkameAracYonetimi = () => {
       },
     },
     {
-      title: t("tedarikci"),
-      dataIndex: "tedarikci",
-      key: "tedarikci",
-      width: 130,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.tedarikci === null) return -1;
-        if (b.tedarikci === null) return 1;
-        return a.tedarikci.localeCompare(b.tedarikci);
-      },
-    },
-    {
-      title: t("verilisNedeni"),
-      dataIndex: "neden",
-      key: "neden",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: (a, b) => {
-        if (a.neden === null) return -1;
-        if (b.neden === null) return 1;
-        return a.neden.localeCompare(b.neden);
-      },
-    },
-    {
       title: t("baslangic"),
       dataIndex: "baslangicTarih",
       key: "baslangicTarih",
@@ -504,6 +478,7 @@ const IkameAracYonetimi = () => {
         return dateA.getTime() - dateB.getTime();
       },
     },
+
     {
       title: t("kalanGun"),
       dataIndex: "sure",
@@ -523,20 +498,6 @@ const IkameAracYonetimi = () => {
         if (a.sure === null) return -1;
         if (b.sure === null) return 1;
         return Number(a.sure) - Number(b.sure);
-      },
-    },
-    {
-      title: t("yakitPolitikasi"),
-      dataIndex: "yakitPolitikasi",
-      key: "yakitPolitikasi",
-      width: 140,
-      ellipsis: true,
-      visible: true,
-      render: (value) => (value ? t(value) : "-"),
-      sorter: (a, b) => {
-        if (a.yakitPolitikasi === null) return -1;
-        if (b.yakitPolitikasi === null) return 1;
-        return a.yakitPolitikasi.localeCompare(b.yakitPolitikasi);
       },
     },
     {
@@ -561,6 +522,47 @@ const IkameAracYonetimi = () => {
         if (a.kmLimit === null) return -1;
         if (b.kmLimit === null) return 1;
         return Number(a.kmLimit) - Number(b.kmLimit);
+      },
+    },
+    {
+      title: t("yakitPolitikasi"),
+      dataIndex: "yakitPolitikasi",
+      key: "yakitPolitikasi",
+      width: 140,
+      ellipsis: true,
+      visible: true,
+      render: (value) => (value ? t(value) : "-"),
+      sorter: (a, b) => {
+        if (a.yakitPolitikasi === null) return -1;
+        if (b.yakitPolitikasi === null) return 1;
+        return a.yakitPolitikasi.localeCompare(b.yakitPolitikasi);
+      },
+    },
+
+    {
+      title: t("verilisNedeni"),
+      dataIndex: "neden",
+      key: "neden",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.neden === null) return -1;
+        if (b.neden === null) return 1;
+        return a.neden.localeCompare(b.neden);
+      },
+    },
+    {
+      title: t("tedarikci"),
+      dataIndex: "tedarikci",
+      key: "tedarikci",
+      width: 130,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.tedarikci === null) return -1;
+        if (b.tedarikci === null) return 1;
+        return a.tedarikci.localeCompare(b.tedarikci);
       },
     },
   ];
