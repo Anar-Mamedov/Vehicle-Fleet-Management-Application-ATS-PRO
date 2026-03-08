@@ -12,6 +12,7 @@ import styled from "styled-components";
 import FormattedDate from "../../../../_root/components/FormattedDate";
 import { t } from "i18next";
 import Filters from "./filter/Filters";
+import ContextMenu from "./components/ContextMenu/ContextMenu";
 import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
 
@@ -139,6 +140,7 @@ const IkameAracYonetimi = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [paginationLoading, setPaginationLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -318,6 +320,8 @@ const IkameAracYonetimi = () => {
 
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
+    const newSelectedRows = data.filter((row) => newSelectedRowKeys.includes(row.key));
+    setSelectedRows(newSelectedRows);
   };
 
   const rowSelection = {
@@ -361,6 +365,7 @@ const IkameAracYonetimi = () => {
       setPaginationLoading(true);
     }
     setSelectedRowKeys([]);
+    setSelectedRows([]);
     fetchData(0, 1).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
@@ -811,6 +816,7 @@ const IkameAracYonetimi = () => {
             <Button type="primary" icon={<SearchOutlined />} onClick={() => handleSearch()}></Button>
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
+            <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
             <AddModal onRefresh={refreshTableData} />
           </div>
         </div>
