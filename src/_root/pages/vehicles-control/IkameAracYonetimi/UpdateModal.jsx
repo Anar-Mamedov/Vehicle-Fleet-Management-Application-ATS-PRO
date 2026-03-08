@@ -20,6 +20,7 @@ import ResimUpload from "../../../../_root/components/Resim/ResimUpload";
 const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
   const [loading, setLoading] = useState(false);
   const [fetchingDetail, setFetchingDetail] = useState(false);
+  const [initialDurum, setInitialDurum] = useState(null);
 
   const defaultValues = {
     siraNo: 0,
@@ -93,6 +94,9 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
       .then((res) => {
         const item = extractItem(res.data) || {};
 
+        const initialDurumValue = typeof item.durum === "boolean" ? item.durum : true;
+        setInitialDurum(initialDurumValue);
+
         reset({
           siraNo: item.siraNo ?? id ?? 0,
           plaka: item.asilPlaka || item.asilAracPlaka || null,
@@ -136,6 +140,7 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
   const closeModal = () => {
     setIsOpen(false);
     reset(defaultValues);
+    setInitialDurum(null);
   };
 
   const onSubmit = handleSubmit((values) => {
@@ -144,10 +149,14 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
       return;
     }
 
+    const finalDurum = values.iadeEdildi ? false : Boolean(values.durum);
+    const isDurumChanged = initialDurum !== null ? finalDurum !== initialDurum : false;
+
     const body = {
       siraNo: values.siraNo || id || 0,
       aracId: values.plakaID || 0,
-      durum: values.iadeEdildi ? false : Boolean(values.durum),
+      durum: finalDurum,
+      IsDurumChanged: isDurumChanged,
       gun: values.gun || 0,
       ikamePlaka: values.ikamePlaka || "",
       ikameMarka: values.marka || "",

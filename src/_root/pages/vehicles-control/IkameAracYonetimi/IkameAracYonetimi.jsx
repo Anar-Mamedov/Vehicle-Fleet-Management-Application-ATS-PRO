@@ -429,20 +429,21 @@ const IkameAracYonetimi = () => {
     },
     {
       title: t("durum"),
-      dataIndex: "durum",
+      dataIndex: "durumText",
       key: "durum",
       width: 100,
       ellipsis: true,
       visible: true,
-      render: (value) => {
-        if (value === 1) return <Tag color="green">{t("aktif")}</Tag>;
-        if (value === 2) return <Tag color="red">{t("pasif")}</Tag>;
-        return <Tag>{t("belirsiz")}</Tag>;
+      render: (text) => {
+        if (text === "aktif") return <Tag color="green">{t("aktif")}</Tag>;
+        if (text === "suresiDoldu") return <Tag color="red">{t("suresiDoldu")}</Tag>;
+        if (text === "iadeEdildi") return <Tag color="gold">{t("iadeEdildi")}</Tag>;
+        return <Tag>{text ? t(text) : t("belirsiz")}</Tag>;
       },
       sorter: (a, b) => {
-        if (a.durum === null) return -1;
-        if (b.durum === null) return 1;
-        return a.durum - b.durum;
+        const textA = a.durumText || "";
+        const textB = b.durumText || "";
+        return textA.localeCompare(textB);
       },
     },
     {
