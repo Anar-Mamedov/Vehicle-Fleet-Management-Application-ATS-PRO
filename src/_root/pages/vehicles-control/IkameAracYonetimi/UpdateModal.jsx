@@ -12,7 +12,6 @@ import NumberInput from "../../../../_root/components/form/inputs/NumberInput";
 import TextInput from "../../../../_root/components/form/inputs/TextInput";
 import Textarea from "../../../../_root/components/form/inputs/Textarea";
 import KodIDSelectbox from "../../../../_root/components/KodIDSelectbox";
-import MarkaSelectbox from "../../../../_root/components/MarkaSelectbox";
 import YakitTipSelectbox from "../../../../_root/components/YakitTipSelectbox";
 import SigortaSelectbox from "../../../../_root/components/SigortaSelectbox";
 import DosyaUpload from "../../../../_root/components/Dosya/DosyaUpload";
@@ -21,6 +20,8 @@ import ResimUpload from "../../../../_root/components/Resim/ResimUpload";
 const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
   const [loading, setLoading] = useState(false);
   const [fetchingDetail, setFetchingDetail] = useState(false);
+  const [initialDurum, setInitialDurum] = useState(null);
+  const [apiDurumText, setApiDurumText] = useState("");
 
   const defaultValues = {
     siraNo: 0,
@@ -94,6 +95,12 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
       .then((res) => {
         const item = extractItem(res.data) || {};
 
+        const initialDurumValue = typeof item.durum === "boolean" ? item.durum : true;
+        setInitialDurum(initialDurumValue);
+        
+        // Save durumText if it comes from the API
+        setApiDurumText(item.durumText || "");
+
         reset({
           siraNo: item.siraNo ?? id ?? 0,
           plaka: item.asilPlaka || item.asilAracPlaka || null,
@@ -137,15 +144,27 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
   const closeModal = () => {
     setIsOpen(false);
     reset(defaultValues);
+    setInitialDurum(null);
+    setApiDurumText("");
   };
 
   const onSubmit = handleSubmit((values) => {
+    if (values.iadeEdildi && !values.iadeTarihi) {
+      message.warning(t("lutfenGecerliTarihGiriniz"));
+      return;
+    }
+
+    const finalDurum = values.iadeEdildi ? false : Boolean(values.durum);
+    const isDurumChanged = initialDurum !== null ? finalDurum !== initialDurum : false;
+
     const body = {
       siraNo: values.siraNo || id || 0,
       aracId: values.plakaID || 0,
-      durum: values.iadeEdildi ? false : Boolean(values.durum),
+      durum: finalDurum,
+      IsDurumChanged: isDurumChanged,
       gun: values.gun || 0,
       ikamePlaka: values.ikamePlaka || "",
+      ikameMarka: values.marka || "",
       markaId: values.markaID || 0,
       baslangicTarih: values.baslangicTarih ? dayjs(values.baslangicTarih).toISOString() : null,
       bitisTarih: values.bitisTarih ? dayjs(values.bitisTarih).toISOString() : null,
@@ -204,7 +223,30 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
       <FormProvider {...methods}>
         <form>
           <div style={{ marginBottom: 16, display: "flex", gap: 8, alignItems: "center" }}>
-            <Tag color={iadeEdildi ? "default" : "green"}>{iadeEdildi ? t("pasif") : t("aktif")}</Tag>
+            {(() => {
+              let tagColor = "default";
+              let tagText = "belirsiz";
+
+              if (iadeEdildi) {
+                tagColor = "gold";
+                tagText = "iadeEdildi";
+              } else if (apiDurumText === "aktif") {
+                tagColor = "green";
+                tagText = "aktif";
+              } else if (apiDurumText === "suresiDoldu") {
+                tagColor = "red";
+                tagText = "suresiDoldu";
+              } else if (apiDurumText === "iadeEdildi") {
+                tagColor = "gold";
+                tagText = "iadeEdildi";
+              }
+
+              return (
+                <Tag color={tagColor}>
+                  {tagText === "belirsiz" && !apiDurumText ? t("belirsiz") : t(tagText)}
+                </Tag>
+              );
+            })()}
             <span style={{ color: kalanGun > 0 ? "#d48806" : "red", fontWeight: 600 }}>
               {t("kalan")}: {kalanGun} {t("gun")}
             </span>
@@ -242,7 +284,7 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
                   <div className="col-span-3">
                     <div className="flex flex-col gap-1">
                       <label>{t("marka")}</label>
-                      <MarkaSelectbox name1="marka" />
+                      <TextInput name="marka" />
                     </div>
                   </div>
                 </div>
@@ -373,12 +415,6 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
                 </div>
               </div>
 
-              <div style={{ marginBottom: 16 }}>
-                <h3 style={{ fontWeight: 600, marginBottom: 8 }}>{t("aciklama")}</h3>
-                <hr style={{ border: "none", borderTop: "1px solid #f0f0f0", marginBottom: 16 }} />
-                <Textarea name="aciklama" />
-              </div>
-
               <Tabs
                 defaultActiveKey="return"
                 items={[
@@ -402,8 +438,10 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
                           <div className="grid gap-1">
                             <div className="col-span-6">
                               <div className="flex flex-col gap-1">
-                                <label>{t("iadeTarihi")}</label>
-                                <DateInput name="iadeTarihi" />
+                                <label>
+                                  {t("iadeTarihi")} <span style={{ color: "red" }}>*</span>
+                                </label>
+                                <DateInput name="iadeTarihi" required />
                               </div>
                             </div>
                             <div className="col-span-6">
@@ -432,6 +470,15 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
                     key: "images",
                     label: t("resimler"),
                     children: <ResimUpload selectedRowID={id} refGroup="IKAME_ARAC" />,
+                  },
+                  {
+                    key: "aciklamaTab",
+                    label: t("aciklama"),
+                    children: (
+                      <div style={{ paddingTop: 16, borderTop: "1px solid #f0f0f0" }}>
+                        <Textarea name="aciklama" />
+                      </div>
+                    ),
                   },
                 ]}
               />

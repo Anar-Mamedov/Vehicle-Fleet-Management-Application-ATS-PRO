@@ -12,7 +12,6 @@ import NumberInput from "../../../../_root/components/form/inputs/NumberInput";
 import TextInput from "../../../../_root/components/form/inputs/TextInput";
 import Textarea from "../../../../_root/components/form/inputs/Textarea";
 import KodIDSelectbox from "../../../../_root/components/KodIDSelectbox";
-import MarkaSelectbox from "../../../../_root/components/MarkaSelectbox";
 import YakitTipSelectbox from "../../../../_root/components/YakitTipSelectbox";
 import SigortaSelectbox from "../../../../_root/components/SigortaSelectbox";
 
@@ -67,6 +66,7 @@ const AddModal = ({ onRefresh }) => {
       aracId: values.plakaID || 0,
       gun: values.gun || 0,
       ikamePlaka: values.ikamePlaka || "",
+      ikameMarka: values.marka || "",
       markaId: values.markaID || 0,
       baslangicTarih: values.baslangicTarih ? dayjs(values.baslangicTarih).toISOString() : null,
       bitisTarih: values.bitisTarih ? dayjs(values.bitisTarih).toISOString() : null,
@@ -176,7 +176,7 @@ const AddModal = ({ onRefresh }) => {
                 <div className="col-span-3">
                   <div className="flex flex-col gap-1">
                     <label>{t("marka")}</label>
-                    <MarkaSelectbox name1="marka" />
+                    <TextInput name="marka" />
                   </div>
                 </div>
               </div>

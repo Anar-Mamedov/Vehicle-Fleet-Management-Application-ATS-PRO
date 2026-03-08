@@ -42,7 +42,8 @@ export default function Filters({ onChange }) {
       <Select value={durum} onChange={handleDurumChange} style={{ width: 120 }} popupMatchSelectWidth={false}>
         <Option value={0}>{t("tumu")}</Option>
         <Option value={1}>{t("aktif")}</Option>
-        <Option value={2}>{t("pasif")}</Option>
+        <Option value={2}>{t("iadeEdildi")}</Option>
+        <Option value={3}>{t("suresiDoldu")}</Option>
       </Select>
       <ConfigProvider locale={tr_TR}>
         <DatePicker value={tarih} onChange={handleTarihChange} placeholder={t("tarih")} style={{ width: 140 }} format="DD.MM.YYYY" locale={dayjs.locale("tr")} />
