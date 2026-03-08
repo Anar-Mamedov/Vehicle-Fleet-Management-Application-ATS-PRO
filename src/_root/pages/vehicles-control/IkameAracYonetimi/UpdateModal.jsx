@@ -21,6 +21,7 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
   const [loading, setLoading] = useState(false);
   const [fetchingDetail, setFetchingDetail] = useState(false);
   const [initialDurum, setInitialDurum] = useState(null);
+  const [apiDurumText, setApiDurumText] = useState("");
 
   const defaultValues = {
     siraNo: 0,
@@ -96,6 +97,9 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
 
         const initialDurumValue = typeof item.durum === "boolean" ? item.durum : true;
         setInitialDurum(initialDurumValue);
+        
+        // Save durumText if it comes from the API
+        setApiDurumText(item.durumText || "");
 
         reset({
           siraNo: item.siraNo ?? id ?? 0,
@@ -141,6 +145,7 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
     setIsOpen(false);
     reset(defaultValues);
     setInitialDurum(null);
+    setApiDurumText("");
   };
 
   const onSubmit = handleSubmit((values) => {
@@ -218,7 +223,30 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
       <FormProvider {...methods}>
         <form>
           <div style={{ marginBottom: 16, display: "flex", gap: 8, alignItems: "center" }}>
-            <Tag color={iadeEdildi ? "default" : "green"}>{iadeEdildi ? t("pasif") : t("aktif")}</Tag>
+            {(() => {
+              let tagColor = "default";
+              let tagText = "belirsiz";
+
+              if (iadeEdildi) {
+                tagColor = "gold";
+                tagText = "iadeEdildi";
+              } else if (apiDurumText === "aktif") {
+                tagColor = "green";
+                tagText = "aktif";
+              } else if (apiDurumText === "suresiDoldu") {
+                tagColor = "red";
+                tagText = "suresiDoldu";
+              } else if (apiDurumText === "iadeEdildi") {
+                tagColor = "gold";
+                tagText = "iadeEdildi";
+              }
+
+              return (
+                <Tag color={tagColor}>
+                  {tagText === "belirsiz" && !apiDurumText ? t("belirsiz") : t(tagText)}
+                </Tag>
+              );
+            })()}
             <span style={{ color: kalanGun > 0 ? "#d48806" : "red", fontWeight: 600 }}>
               {t("kalan")}: {kalanGun} {t("gun")}
             </span>
