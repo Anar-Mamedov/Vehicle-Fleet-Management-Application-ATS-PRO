@@ -154,7 +154,7 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
       return;
     }
 
-    const finalDurum = values.iadeEdildi ? false : Boolean(values.durum);
+    const finalDurum = !values.iadeEdildi;
     const isDurumChanged = initialDurum !== null ? finalDurum !== initialDurum : false;
 
     const body = {
@@ -179,7 +179,7 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
       yakitPolitikasi: values.yakitPolitikasi || "",
       aciklama: values.aciklama || "",
       iadeEdildi: Boolean(values.iadeEdildi),
-      iadeTarihi: values.iadeTarihi ? dayjs(values.iadeTarihi).toISOString() : null,
+      iadeTarihi: values.iadeEdildi && values.iadeTarihi ? dayjs(values.iadeTarihi).toISOString() : null,
       iadekm: values.iadekm || 0,
       iadeAciklama: values.iadeAciklama || "",
     };
