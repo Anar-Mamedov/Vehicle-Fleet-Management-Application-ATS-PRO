@@ -1123,5 +1123,7 @@
   "odenmemisCeza": "Unpaid Fines",
   "enCokCezaAlanArac": "Most Fined Vehicle",
   "enRiskliSurucu": "Riskiest Driver",
-  "adet": "pcs"
+  "adet": "pcs",
+  "filtreSeciniz": "Select Filter",
+  "odenmedi": "Unpaid"
 }

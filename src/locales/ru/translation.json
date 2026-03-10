@@ -164,5 +164,7 @@
   "odenmemisCeza": "Неоплаченные Штрафы",
   "enCokCezaAlanArac": "Самое Штрафуемое ТС",
   "enRiskliSurucu": "Самый Рискованный Водитель",
-  "adet": "шт."
+  "adet": "шт.",
+  "filtreSeciniz": "Выберите Фильтр",
+  "odenmedi": "Не оплачено"
 }
