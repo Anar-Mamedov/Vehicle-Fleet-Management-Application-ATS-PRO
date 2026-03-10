@@ -33,6 +33,7 @@ import PersonelKPITablosu from "./components/PersonelKPITablosu.jsx";
 import IsEmriTipleri from "./components/IsEmriTipleri.jsx";
 import IsTalebiTipleri from "./components/IsTalebiTipleri.jsx";
 import ServisIslemleriDurumlari from "./components/ServisIslemleriDurumlari.jsx";
+import MarkaBazindaBakimMaliyetleri from "./components/MarkaBazindaBakimMaliyetleri.jsx";
 import { createRoot } from "react-dom/client";
 
 import "./custom-gridstack.css"; // Add this line to import your custom CSS
@@ -53,6 +54,7 @@ const widgetTitles = {
   widget20: "Aylık Maliyetler",
   widget21: "Aylık KM",
   widget22: "Servis İşlemleri Durumları",
+  widget23: "Marka Bazında Araç Sayıları",
 };
 
 const defaultItems = [
@@ -69,6 +71,7 @@ const defaultItems = [
   { id: "widget20", x: 0, y: 11, width: 6, height: 3, minW: 3, minH: 2 },
   { id: "widget21", x: 6, y: 11, width: 6, height: 3, minW: 3, minH: 2 },
   { id: "widget22", x: 0, y: 14, width: 5, height: 3, minW: 3, minH: 2 },
+  { id: "widget23", x: 5, y: 14, width: 7, height: 3, minW: 3, minH: 2 },
 ];
 
 function MainDashboard() {
@@ -88,6 +91,7 @@ function MainDashboard() {
     widget20: false,
     widget21: false,
     widget22: false,
+    widget23: false,
   });
 
   const methods = useForm({
@@ -370,6 +374,19 @@ function MainDashboard() {
               </FormProvider>
             );
             break;
+          case "widget23":
+            root.render(
+              <FormProvider {...methods}>
+                <I18nextProvider i18n={i18n}>
+                  <ConfigProvider locale={trTR}>
+                    <BrowserRouter>
+                      <MarkaBazindaBakimMaliyetleri />
+                    </BrowserRouter>
+                  </ConfigProvider>
+                </I18nextProvider>
+              </FormProvider>
+            );
+            break;
           default:
             break;
         }
@@ -626,6 +643,9 @@ function MainDashboard() {
       <Checkbox name="widget22" onChange={handleCheckboxChange} checked={checkedWidgets.widget22}>
         Servis İşlemleri Durumları
       </Checkbox>
+      <Checkbox name="widget23" onChange={handleCheckboxChange} checked={checkedWidgets.widget23}>
+        Marka Bazında Araç Sayıları
+      </Checkbox>
       <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
         <Button danger onClick={handleReset}>
           Widgetları Sıfırla
@@ -791,6 +811,12 @@ function MainDashboard() {
                 <div className="grid-stack-item-content">
                   <div className="widget-header">{widgetTitles.widget22}</div>
                   <ServisIslemleriDurumlari />
+                </div>
+              </div>
+              <div className="grid-stack-item border-dark" id="widget23">
+                <div className="grid-stack-item-content">
+                  <div className="widget-header">{widgetTitles.widget23}</div>
+                  <MarkaBazindaBakimMaliyetleri />
                 </div>
               </div>
             </div>

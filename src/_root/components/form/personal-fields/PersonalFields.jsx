@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { PersonalFieldsReadService, PersonalFieldsUpdateService } from "../../../../api/service";
-import { Input, InputNumber, Select } from "antd";
+import { Input, InputNumber } from "antd";
 import UpdateConfirmModal from "../../confirm/UpdateConfirmModal";
-import { CodeControlByIdService } from "../../../../api/services/code/services";
+import KodIDSelectbox from "../../KodIDSelectbox";
 
 const PersonalFields = ({ personalProps }) => {
-  const [data, setData] = useState([]);
   const [originalFields, setOriginalFields] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [values, setValues] = useState(null);
@@ -15,17 +14,10 @@ const PersonalFields = ({ personalProps }) => {
   const {
     control,
     setValue,
-    watch,
     formState: { errors },
   } = useFormContext();
 
   const { form, fields, setFields, mandatoryFields } = personalProps;
-
-  const handleClickSelect = (code) => {
-    CodeControlByIdService(code).then((res) => {
-      setData(res.data);
-    });
-  };
 
   useEffect(() => {
     PersonalFieldsReadService(form).then((res) => {
@@ -129,43 +121,20 @@ const PersonalFields = ({ personalProps }) => {
                 />
                 {required && <span className="text-danger">*</span>}
               </div>
-              <Controller
-                name={item.name2}
-                control={control}
-                rules={{ required: required ? "Bu alan zorunludur!" : false }}
-                render={({ field }) => (
-                  <>
-                    <Select
-                      {...field}
-                      showSearch
-                      allowClear
-                      optionFilterProp="children"
-                      filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
-                      filterSort={(optionA, optionB) => (optionA?.label.toLowerCase() ?? "").toLowerCase().localeCompare((optionB?.label ?? "").toLowerCase())}
-                      options={data.map((item) => ({
-                        label: item.codeText,
-                        value: item.siraNo,
-                      }))}
-                      value={watch(item.label)}
-                      onClick={() => handleClickSelect(item.code)}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        const selectedOption = data.find((option) => option.siraNo === e);
-                        if (e === undefined) {
-                          setValue(item.label, "");
-                          setValue(item.name2, null);
-                        } else {
-                          setValue(item.name2, e);
-                          setValue(item.label, selectedOption.codeText);
-                        }
-                      }}
-                      status={errors[item.name2] ? "error" : ""}
-                    />
-                    {errors[item.name2] && <span style={{ color: "red" }}>{errors[item.name2].message}</span>}
-                  </>
-                )}
+              <KodIDSelectbox
+                name1={item.label}
+                kodID={item.code}
+                isRequired={required}
+                addHide={false}
+                onChange={(value, option) => {
+                  handleInputChange(item, option?.label || "");
+                  if (value === undefined) {
+                    setValue(item.name2, null);
+                  } else {
+                    setValue(item.name2, value);
+                  }
+                }}
               />
-              <Controller name={item.name2} control={control} render={({ field }) => <Input {...field} style={{ display: "none" }} />} />
             </div>
           );
         } else if (item.type === "number") {
