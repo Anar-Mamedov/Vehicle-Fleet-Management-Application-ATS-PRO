@@ -1118,5 +1118,10 @@
   "sutunAyarlamaAciklama": "Show/hide columns and adjust their order.",
   "sutunGosterGizle": "Show/Hide Columns",
   "sutunSiralamaAyarla": "Adjust Column Order",
-  "sutunlariSifirla": "Reset Columns"
+  "sutunlariSifirla": "Reset Columns",
+  "buAyToplamTutar": "Total Amount",
+  "odenmemisCeza": "Unpaid Fines",
+  "enCokCezaAlanArac": "Most Fined Vehicle",
+  "enRiskliSurucu": "Riskiest Driver",
+  "adet": "pcs"
 }

@@ -636,5 +636,10 @@
   "sutunAyarlamaAciklama": "Sütunları göstər/gizlə və sıralamasını tənzimləyin.",
   "sutunGosterGizle": "Sütun Göstər/Gizlə",
   "sutunSiralamaAyarla": "Sütun Sıralama Tənzimlə",
-  "sutunlariSifirla": "Sütunları Sıfırla"
+  "sutunlariSifirla": "Sütunları Sıfırla",
+  "buAyToplamTutar": "Ümumi Məbləğ",
+  "odenmemisCeza": "Ödənilməmiş Cərimə",
+  "enCokCezaAlanArac": "Ən Çox Cərimə Alan Nəqliyyat",
+  "enRiskliSurucu": "Ən Riskli Sürücü",
+  "adet": "ədəd"
 }
