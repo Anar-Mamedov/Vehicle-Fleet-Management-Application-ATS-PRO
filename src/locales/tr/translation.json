@@ -395,7 +395,7 @@
   "minYakitTuketimi": "Min. Yakıt Tüketimi",
   "maxYakitTuketimi": "Maks. Yakıt Tüketimi",
   "gercekYakitTuketimi": "Gerçekleşen Yakıt Tüketimi",
-  "tts": "TTS",
+  "gpsId": "GPS ID",
   "proje": "Proje",
   "durum": "Durum",
   "kullanimAmaci": "Kullanım Amacı",

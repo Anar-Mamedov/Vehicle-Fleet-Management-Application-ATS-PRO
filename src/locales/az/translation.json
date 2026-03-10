@@ -393,7 +393,7 @@
   "minYakitTuketimi": "Minimum Yanacaq İstifadəsi",
   "maxYakitTuketimi": "Maksimum Yanacaq İstifadəsi",
   "gercekYakitTuketimi": "Reallaşan Yanacaq İstifadəsi",
-  "tts": "TTS",
+  "gpsId": "GPS ID",
   "proje": "Layihə",
   "normal": "Normal",
   "asildi": "Aşılıb",

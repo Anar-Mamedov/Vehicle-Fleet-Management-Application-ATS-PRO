@@ -395,7 +395,7 @@
   "minYakitTuketimi": "Min. Fuel Consumption",
   "maxYakitTuketimi": "Max. Fuel Consumption",
   "gercekYakitTuketimi": "Actual Fuel Consumption",
-  "tts": "TTS",
+  "gpsId": "GPS ID",
   "proje": "Project",
   "kullanimAmaci": "Purpose of Use",
   "havuz": "Pool",
