@@ -154,5 +154,10 @@
   "iadeKm": "Км Возврата",
   "iadeAciklamasi": "Описание Возврата",
   "bosBos": "Пустой → Пустой",
-  "fullFull": "Full → Full"
+  "fullFull": "Full → Full",
+  "sutunlariYonet": "Управление Столбцами",
+  "sutunAyarlamaAciklama": "Показать/скрыть столбцы и настроить их порядок.",
+  "sutunGosterGizle": "Показать/Скрыть Столбцы",
+  "sutunSiralamaAyarla": "Настроить Порядок Столбцов",
+  "sutunlariSifirla": "Сбросить Столбцы"
 }

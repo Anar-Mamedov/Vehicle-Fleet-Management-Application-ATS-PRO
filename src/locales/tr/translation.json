@@ -1401,5 +1401,10 @@
   "bosBos": "BOŞ → BOŞ",
   "ikameAraclar": "İkame Araçlar",
   "suresiDoldu": "Süresi Doldu",
-  "fullFull": "FULL → FULL"
+  "fullFull": "FULL → FULL",
+  "sutunlariYonet": "Sütunları Yönet",
+  "sutunAyarlamaAciklama": "Sütunları göster/gizle ve sıralamasını ayarlayın.",
+  "sutunGosterGizle": "Sütun Göster/Gizle",
+  "sutunSiralamaAyarla": "Sütun Sıralama Ayarla",
+  "sutunlariSifirla": "Sütunları Sıfırla"
 }

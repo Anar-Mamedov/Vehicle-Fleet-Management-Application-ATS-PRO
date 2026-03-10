@@ -631,5 +631,10 @@
   "iadeKm": "Qaytarma Km",
   "iadeAciklamasi": "Qaytarma Açıqlaması",
   "bosBos": "Boş → Boş",
-  "fullFull": "Full → Full"
+  "fullFull": "Full → Full",
+  "sutunlariYonet": "Sütunları İdarə Et",
+  "sutunAyarlamaAciklama": "Sütunları göstər/gizlə və sıralamasını tənzimləyin.",
+  "sutunGosterGizle": "Sütun Göstər/Gizlə",
+  "sutunSiralamaAyarla": "Sütun Sıralama Tənzimlə",
+  "sutunlariSifirla": "Sütunları Sıfırla"
 }
