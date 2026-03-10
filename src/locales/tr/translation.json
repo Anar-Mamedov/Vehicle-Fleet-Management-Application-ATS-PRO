@@ -1406,5 +1406,12 @@
   "sutunAyarlamaAciklama": "Sütunları göster/gizle ve sıralamasını ayarlayın.",
   "sutunGosterGizle": "Sütun Göster/Gizle",
   "sutunSiralamaAyarla": "Sütun Sıralama Ayarla",
-  "sutunlariSifirla": "Sütunları Sıfırla"
+  "sutunlariSifirla": "Sütunları Sıfırla",
+  "buAyToplamTutar": "Toplam Tutar",
+  "odenmemisCeza": "Ödenmemiş Ceza",
+  "enCokCezaAlanArac": "En Çok Ceza Alan Araç",
+  "enRiskliSurucu": "En Riskli Sürücü",
+  "adet": "adet",
+  "filtreSeciniz": "Filtre Seçiniz",
+  "odenmedi": "Ödenmedi"
 }

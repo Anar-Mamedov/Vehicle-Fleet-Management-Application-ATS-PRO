@@ -159,5 +159,12 @@
   "sutunAyarlamaAciklama": "Показать/скрыть столбцы и настроить их порядок.",
   "sutunGosterGizle": "Показать/Скрыть Столбцы",
   "sutunSiralamaAyarla": "Настроить Порядок Столбцов",
-  "sutunlariSifirla": "Сбросить Столбцы"
+  "sutunlariSifirla": "Сбросить Столбцы",
+  "buAyToplamTutar": "Общая Сумма",
+  "odenmemisCeza": "Неоплаченные Штрафы",
+  "enCokCezaAlanArac": "Самое Штрафуемое ТС",
+  "enRiskliSurucu": "Самый Рискованный Водитель",
+  "adet": "шт.",
+  "filtreSeciniz": "Выберите Фильтр",
+  "odenmedi": "Не оплачено"
 }

@@ -1,16 +1,11 @@
 import React from "react";
 import { Select } from "antd";
-import ConditionFilter from "./ConditionFilter";
-import LocationFilter from "./LocationFilter";
-import TypeFilter from "./TypeFilter";
 import CustomFilter from "./custom-filter/CustomFilter";
 import ZamanAraligi from "./ZamanAraligi";
+import { t } from "i18next";
 
 export default function Filters({ onChange }) {
   const [filters, setFilters] = React.useState({
-    lokasyonlar: {},
-    isemritipleri: {},
-    durumlar: {},
     customfilter: {},
   });
 
@@ -34,31 +29,16 @@ export default function Filters({ onChange }) {
 
   return (
     <>
-      {/*<TypeFilter*/}
-      {/*  onSubmit={(newFilters) =>*/}
-      {/*    setFilters((state) => ({ ...state, isemritipleri: newFilters }))*/}
-      {/*  }*/}
-      {/*/>*/}
-      {/*<ConditionFilter*/}
-      {/*  onSubmit={(newFilters) =>*/}
-      {/*    setFilters((state) => ({ ...state, durumlar: newFilters }))*/}
-      {/*  }*/}
-      {/*/>*/}
-      {/*<LocationFilter*/}
-      {/*  onSubmit={(newFilters) =>*/}
-      {/*    setFilters((state) => ({ ...state, lokasyonlar: newFilters }))*/}
-      {/*  }*/}
-      {/*/>*/}
       <ZamanAraligi />
       <Select
         style={{ width: "130px" }}
-        placeholder="Ödeme"
+        placeholder={t("odendi")}
         value={odeme}
         onChange={setOdeme}
         options={[
-          { label: "Tümü", value: "all" },
-          { label: "Ödendi", value: true },
-          { label: "Ödenmedi", value: false },
+          { label: t("tumu"), value: "all" },
+          { label: t("odendi"), value: true },
+          { label: t("odenmedi"), value: false },
         ]}
       />
       <CustomFilter onSubmit={(newFilters) => setFilters((state) => ({ ...state, customfilter: newFilters }))} />

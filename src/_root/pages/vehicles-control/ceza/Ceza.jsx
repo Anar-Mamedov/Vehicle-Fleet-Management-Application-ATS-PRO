@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined, DollarCircleOutlined, ClockCircleOutlined, CarOutlined, UserOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -168,6 +168,14 @@ const Ceza = () => {
     filters: {},
   });
 
+  const [statistics, setStatistics] = useState({
+    buAyToplamTutar: null,
+    odenmemisCeza: null,
+    enCokCezaAlanArac: null,
+    enRiskliSurucu: null,
+  });
+  const [statisticsLoading, setStatisticsLoading] = useState(false);
+
   // API Data Fetching with diff and setPointId
   const fetchData = async (diff, targetPage) => {
     setLoading(true);
@@ -217,12 +225,14 @@ const Ceza = () => {
 
   useEffect(() => {
     fetchData(0, 1);
+    fetchStatistics();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (body !== prevBodyRef.current) {
       fetchData(0, 1);
+      fetchStatistics();
       prevBodyRef.current = body;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -265,6 +275,17 @@ const Ceza = () => {
     fetchData(0, 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const formatStatisticValue = (value) => {
+    if (value === null || value === undefined) return "-";
+    const strValue = String(value);
+    const parts = strValue.split(".");
+    const decimalDigits = parts.length > 1 ? parts[1].length : 0;
+    return Number(value).toLocaleString(localStorage.getItem("i18nextLng"), {
+      minimumFractionDigits: decimalDigits,
+      maximumFractionDigits: decimalDigits,
+    });
+  };
 
   // Amount formatting based on app language stored in localStorage 'i18nextLng'
   const formatAmount = (value) => {
@@ -704,6 +725,29 @@ const Ceza = () => {
     setLocaleTimeFormat(timeFormatMap[currentLang] || "HH:mm");
   }, [currentLang]);
 
+  const fetchStatistics = async () => {
+    setStatisticsLoading(true);
+    const customFilters = body.filters?.customfilter && Object.keys(body.filters.customfilter).length > 0 ? body.filters.customfilter : null;
+    try {
+      const [res1, res2, res3, res4] = await Promise.all([
+        AxiosInstance.post("VehicleFineStatistics/GetInfoByType?type=1", customFilters),
+        AxiosInstance.post("VehicleFineStatistics/GetInfoByType?type=2", customFilters),
+        AxiosInstance.post("VehicleFineStatistics/GetInfoByType?type=3", customFilters),
+        AxiosInstance.post("VehicleFineStatistics/GetInfoByType?type=4", customFilters),
+      ]);
+      setStatistics({
+        buAyToplamTutar: res1.data,
+        odenmemisCeza: res2.data,
+        enCokCezaAlanArac: res3.data,
+        enRiskliSurucu: res4.data,
+      });
+    } catch (error) {
+      console.error("İstatistik verisi çekme hatası:", error);
+    } finally {
+      setStatisticsLoading(false);
+    }
+  };
+
   // filtreleme işlemi için kullanılan useEffect
   const handleBodyChange = useCallback((type, newBody) => {
     setBody((prevBody) => {
@@ -818,6 +862,95 @@ const Ceza = () => {
               </DndContext>
             </div>
           </Modal>
+          {/* Statistics Cards */}
+          <Spin spinning={statisticsLoading} size="small">
+            <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+              {/* Bu Ay Toplam Tutar */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  padding: "16px 20px",
+                  borderRadius: "8px",
+                  flex: "1",
+                  border: "1px solid #f0f0f0",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("buAyToplamTutar")}</div>
+                  <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>
+                    {statistics.buAyToplamTutar !== null && statistics.buAyToplamTutar !== undefined ? `₺${formatStatisticValue(statistics.buAyToplamTutar)}` : "-"}
+                  </div>
+                </div>
+                <DollarCircleOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />
+              </div>
+
+              {/* Ödenmemiş Ceza */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  padding: "16px 20px",
+                  borderRadius: "8px",
+                  flex: "1",
+                  border: "1px solid #f0f0f0",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("odenmemisCeza")}</div>
+                  <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>
+                    {statistics.odenmemisCeza !== null && statistics.odenmemisCeza !== undefined ? `${formatStatisticValue(statistics.odenmemisCeza)} ${t("adet")}` : "-"}
+                  </div>
+                </div>
+                <ClockCircleOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />
+              </div>
+
+              {/* En Çok Ceza Alan Araç */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  padding: "16px 20px",
+                  borderRadius: "8px",
+                  flex: "1",
+                  border: "1px solid #f0f0f0",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("enCokCezaAlanArac")}</div>
+                  <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>{statistics.enCokCezaAlanArac || "-"}</div>
+                </div>
+                <CarOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />
+              </div>
+
+              {/* En Riskli Sürücü */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  padding: "16px 20px",
+                  borderRadius: "8px",
+                  flex: "1",
+                  border: "1px solid #f0f0f0",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("enRiskliSurucu")}</div>
+                  <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>{statistics.enRiskliSurucu || "-"}</div>
+                </div>
+                <UserOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />
+              </div>
+            </div>
+          </Spin>
+
           {/* Toolbar */}
           <div
             style={{
@@ -870,7 +1003,7 @@ const Ceza = () => {
             style={{
               backgroundColor: "white",
               padding: "10px",
-              height: "calc(100vh - 200px)",
+              height: "calc(100vh - 305px)",
               borderRadius: "8px 8px 8px 8px",
               filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
             }}
@@ -890,7 +1023,7 @@ const Ceza = () => {
                   showQuickJumper: true,
                   onChange: handleTableChange,
                 }}
-                scroll={{ y: "calc(100vh - 335px)" }}
+                scroll={{ y: "calc(100vh - 440px)" }}
               />
             </Spin>
             <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} />

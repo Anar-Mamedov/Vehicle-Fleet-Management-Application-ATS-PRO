@@ -1,21 +1,20 @@
 import { CloseOutlined, FilterOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Drawer, Row, Typography, Select, Space, Input, DatePicker } from "antd";
+import { Button, Col, Drawer, Row, Typography, Select, Space } from "antd";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { CodeControlService, CustomCodeControlService } from "../../../../../../api/service";
+import AxiosInstance from "../../../../../../api/http";
+import LokasyonTable from "../../../../../components/LokasyonTable";
 import "./style.css";
-import { Controller, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import dayjs from "dayjs";
-import "dayjs/locale/tr"; // For Turkish locale
-import weekOfYear from "dayjs/plugin/weekOfYear";
-import advancedFormat from "dayjs/plugin/advancedFormat";
-import DatePickerComponent from "./components/DatePickerComponent";
+import "dayjs/locale/tr";
+import DateInput from "../../../../../components/form/date/DateInput";
+import { t } from "i18next";
 
-dayjs.extend(weekOfYear);
-dayjs.extend(advancedFormat);
+dayjs.locale("tr");
 
-dayjs.locale("tr"); // use Turkish locale
-
-const { Text, Link } = Typography;
+const { Text } = Typography;
 
 const StyledCloseOutlined = styled(CloseOutlined)`
   svg {
@@ -35,20 +34,43 @@ const CloseButton = styled.div`
   cursor: pointer;
 `;
 
+const FILTER_OPTIONS = [
+  { value: "aracIds", label: "Plaka", type: "api" },
+  { value: "surucuIds", label: "Sürücü", type: "api" },
+  { value: "lokasyonIds", label: "Lokasyon", type: "lokasyon" },
+  { value: "cezaTuruKodIds", label: "Ceza Türü", type: "api" },
+  { value: "tebligBaslangicTarih", label: "Tebliğ Başlangıç Tarihi", type: "date" },
+  { value: "tebligBitisTarih", label: "Tebliğ Bitiş Tarihi", type: "date" },
+];
+
+const fetchFilterData = async (filterKey) => {
+  switch (filterKey) {
+    case "aracIds":
+      return AxiosInstance.get("Vehicle/GetVehiclePlates").then((res) =>
+        res.data.map((item) => ({ value: item.aracId, label: item.plaka }))
+      );
+    case "surucuIds":
+      return CustomCodeControlService("Driver/GetDriverListForSelectInput").then((res) =>
+        res.data.map((item) => ({ value: item.surucuId, label: item.isim }))
+      );
+    case "cezaTuruKodIds":
+      return CodeControlService(400).then((res) =>
+        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
+      );
+    default:
+      return [];
+  }
+};
+
 export default function CustomFilter({ onSubmit }) {
-  const {
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useFormContext();
+  const { watch, getValues } = useFormContext();
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [newObjectsAdded, setNewObjectsAdded] = useState(false);
   const [filtersExist, setFiltersExist] = useState(false);
-  const [inputValues, setInputValues] = useState({});
-  const [filters, setFilters] = useState({});
-  const [filterValues, setFilterValues] = useState({});
+  const [selectedFilters, setSelectedFilters] = useState({});
+  const [selectedValues, setSelectedValues] = useState({});
+  const [filterOptionsData, setFilterOptionsData] = useState({});
   const [isInitialMount, setIsInitialMount] = useState(true);
 
   const [startDate, setStartDate] = useState(null);
@@ -77,22 +99,26 @@ export default function CustomFilter({ onSubmit }) {
 
   useEffect(() => {
     if (isInitialMount) return;
-
-    // Always submit after initial mount when dates change (including null)
     handleSubmit();
   }, [startDate, endDate]);
 
-  // Create a state variable to store selected values for each row
-  const [selectedValues, setSelectedValues] = useState({});
-
-  // Tarih seçimi yapıldığında veya filtreler eklenip kaldırıldığında düğmenin stilini değiştirmek için bir durum
   const isFilterApplied = newObjectsAdded || filtersExist || startDate || endDate;
 
-  const handleSelectChange = (value, rowId) => {
-    setSelectedValues((prevSelectedValues) => ({
-      ...prevSelectedValues,
-      [rowId]: value,
-    }));
+  const handleFilterTypeChange = (value, rowId) => {
+    setSelectedFilters((prev) => ({ ...prev, [rowId]: value }));
+    const filterOption = FILTER_OPTIONS.find((opt) => opt.value === value);
+    setSelectedValues((prev) => ({ ...prev, [rowId]: filterOption?.type === "date" ? null : [] }));
+    setFilterOptionsData((prev) => ({ ...prev, [rowId]: [] }));
+
+    if (value && filterOption?.type === "api") {
+      fetchFilterData(value).then((options) => {
+        setFilterOptionsData((prev) => ({ ...prev, [rowId]: options }));
+      });
+    }
+  };
+
+  const handleValueChange = (values, rowId) => {
+    setSelectedValues((prev) => ({ ...prev, [rowId]: values }));
   };
 
   const showDrawer = () => {
@@ -104,76 +130,76 @@ export default function CustomFilter({ onSubmit }) {
   };
 
   const handleSubmit = () => {
-    // Combine selected values, input values for each row, and date range
-    const filterData = rows.reduce((acc, row) => {
-      const selectedValue = selectedValues[row.id] || "";
-      const inputValue = inputValues[`input-${row.id}`] || "";
-      if (selectedValue && inputValue) {
-        acc[selectedValue] = inputValue;
-      }
-      return acc;
-    }, {});
+    const json = {};
 
-    // Add date range to the filterData object if dates are selected
+    rows.forEach((row) => {
+      const filterKey = selectedFilters[row.id];
+      if (!filterKey) return;
+
+      const opt = FILTER_OPTIONS.find((o) => o.value === filterKey);
+      if (opt?.type === "date") {
+        const dateVal = getValues(`dateFilter_${row.id}`);
+        if (dateVal) {
+          json[filterKey] = dayjs(dateVal).format("YYYY-MM-DD");
+        }
+      } else {
+        const values = selectedValues[row.id];
+        if (values && values.length > 0) {
+          json[filterKey] = values;
+        }
+      }
+    });
+
     if (startDate) {
-      filterData.baslangicTarih = startDate.format("YYYY-MM-DD");
+      json.baslangicTarih = startDate.format("YYYY-MM-DD");
     }
     if (endDate) {
-      filterData.bitisTarih = endDate.format("YYYY-MM-DD");
+      json.bitisTarih = endDate.format("YYYY-MM-DD");
     }
 
-    // payment status removed from drawer; handled outside
-
-    console.log(filterData);
-    // You can now submit or process the filterData object as needed.
-    onSubmit(filterData);
+    onSubmit(json);
     setOpen(false);
   };
 
   const handleCancelClick = (rowId) => {
-    setFilters({});
     setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
+    setSelectedFilters((prev) => {
+      const updated = { ...prev };
+      delete updated[rowId];
+      return updated;
+    });
+    setSelectedValues((prev) => {
+      const updated = { ...prev };
+      delete updated[rowId];
+      return updated;
+    });
+    setFilterOptionsData((prev) => {
+      const updated = { ...prev };
+      delete updated[rowId];
+      return updated;
+    });
 
     const filtersRemaining = rows.length > 1;
     setFiltersExist(filtersRemaining);
     if (!filtersRemaining) {
       setNewObjectsAdded(false);
     }
-    onSubmit("");
-  };
-
-  const handleInputChange = (e, rowId) => {
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [`input-${rowId}`]: e.target.value,
-    }));
-  };
-
-  const handleDateChange = (date, rowId) => {
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [`input-${rowId}`]: date ? date.format("YYYY-MM-DD") : "",
-    }));
+    onSubmit({});
   };
 
   const handleAddFilterClick = () => {
     const newRow = { id: Date.now() };
     setRows((prevRows) => [...prevRows, newRow]);
-
     setNewObjectsAdded(true);
     setFiltersExist(true);
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [newRow.id]: "", // Set an empty input value for the new row
-    }));
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
+  const getAvailableOptions = (currentRowId) => {
+    const usedFilters = Object.entries(selectedFilters)
+      .filter(([rowId]) => String(rowId) !== String(currentRowId))
+      .map(([, value]) => value);
 
-  const onSearch = (value) => {
-    console.log("search:", value);
+    return FILTER_OPTIONS.filter((opt) => !usedFilters.includes(opt.value));
   };
 
   return (
@@ -188,20 +214,20 @@ export default function CustomFilter({ onSubmit }) {
         className={isFilterApplied ? "#ff0000-dot-button" : ""}
       >
         <FilterOutlined />
-        <span style={{ marginRight: "5px" }}>Filtreler</span>
+        <span style={{ marginRight: "5px" }}>{t("filtreler")}</span>
         {isFilterApplied && <span className="blue-dot"></span>}
       </Button>
       <Drawer
         extra={
           <Space>
             <Button type="primary" onClick={handleSubmit}>
-              Uygula
+              {t("uygula")}
             </Button>
           </Space>
         }
         title={
           <span>
-            <FilterOutlined style={{ marginRight: "8px" }} /> Filtreler
+            <FilterOutlined style={{ marginRight: "8px" }} /> {t("filtreler")}
           </span>
         }
         placement="right"
@@ -217,94 +243,98 @@ export default function CustomFilter({ onSubmit }) {
           }}
         >
           <div style={{ marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>Tarih Aralığı</Text>
+            <Text style={{ fontSize: "14px" }}>{t("tarihAraligi")}</Text>
           </div>
 
           <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-            <DatePicker style={{ width: "100%" }} placeholder="Başlangıç Tarihi" value={startDate} onChange={setStartDate} locale={dayjs.locale("tr")} />
+            <DateInput name="startDate" placeholder={t("baslangicTarihi")} style={{ width: "100%" }} />
             <Text style={{ fontSize: "14px" }}>-</Text>
-            <DatePicker style={{ width: "100%" }} placeholder="Bitiş Tarihi" value={endDate} onChange={setEndDate} locale={dayjs.locale("tr")} />
+            <DateInput name="endDate" placeholder={t("bitisTarihi")} style={{ width: "100%" }} />
           </div>
         </div>
 
-        {rows.map((row) => (
-          <Row
-            key={row.id}
-            style={{
-              marginBottom: "10px",
-              border: "1px solid #80808048",
-              padding: "15px 10px",
-              borderRadius: "8px",
-            }}
-          >
-            <Col span={24}>
-              <Col
-                span={24}
-                style={{
-                  marginBottom: "10px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <Text>Yeni Filtre</Text>
-                <CloseButton onClick={() => handleCancelClick(row.id)}>
-                  <StyledCloseOutlined />
-                </CloseButton>
-              </Col>
-              <Col span={24} style={{ marginBottom: "10px" }}>
-                <Select
-                  style={{ width: "100%", marginBottom: "10px" }}
-                  showSearch
-                  placeholder={`Seçim Yap`}
-                  optionFilterProp="children"
-                  onChange={(value) => handleSelectChange(value, row.id)}
-                  value={selectedValues[row.id] || undefined}
-                  onSearch={onSearch}
-                  filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
-                  options={[
-                    {
-                      value: "plaka",
-                      label: "Plaka",
-                    },
-                    {
-                      value: "surucu",
-                      label: "Sürücü",
-                    },
-                    {
-                      value: "lokasyon",
-                      label: "Lokasyon",
-                    },
-                    {
-                      value: "cezaTuru",
-                      label: "Ceza Türü",
-                    },
+        {rows.map((row) => {
+          const filterKey = selectedFilters[row.id];
+          const filterOption = FILTER_OPTIONS.find((opt) => opt.value === filterKey);
+          const isDateFilter = filterOption?.type === "date";
+          const isLokasyonFilter = filterOption?.type === "lokasyon";
 
-                    {
-                      value: "tebligBaslangicTarih",
-                      label: "Teblig Başlangıç Tarihi",
-                    },
-
-                    {
-                      value: "tebligBitisTarih",
-                      label: "Teblig Bitiş Tarihi",
-                    },
-                  ]}
-                />
-                <Input
-                  placeholder="Arama Yap"
-                  name={`input-${row.id}`}
-                  value={inputValues[`input-${row.id}`] || ""}
-                  onChange={(e) => handleInputChange(e, row.id)}
-                  style={{ display: selectedValues[row.id] === "tebligBaslangicTarih" || selectedValues[row.id] === "tebligBitisTarih" ? "none" : "block" }}
-                />
-                {(selectedValues[row.id] === "tebligBaslangicTarih" || selectedValues[row.id] === "tebligBitisTarih") && (
-                  <DatePickerComponent value={inputValues[`input-${row.id}`]} onChange={(date) => handleDateChange(date, row.id)} />
-                )}
+          return (
+            <Row
+              key={row.id}
+              style={{
+                marginBottom: "10px",
+                border: "1px solid #80808048",
+                padding: "15px 10px",
+                borderRadius: "8px",
+              }}
+            >
+              <Col span={24}>
+                <Col
+                  span={24}
+                  style={{
+                    marginBottom: "10px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text>{t("yeniFiltre")}</Text>
+                  <CloseButton onClick={() => handleCancelClick(row.id)}>
+                    <StyledCloseOutlined />
+                  </CloseButton>
+                </Col>
+                <Col span={24} style={{ marginBottom: "10px" }}>
+                  <Select
+                    style={{ width: "100%", marginBottom: "10px" }}
+                    showSearch
+                    placeholder={t("filtreSeciniz")}
+                    optionFilterProp="label"
+                    onChange={(value) => handleFilterTypeChange(value, row.id)}
+                    value={selectedFilters[row.id] || undefined}
+                    filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
+                    options={getAvailableOptions(row.id)}
+                  />
+                  {filterKey && isDateFilter && (
+                    <DateInput name={`dateFilter_${row.id}`} placeholder={t("tarihSeciniz")} style={{ width: "100%" }} />
+                  )}
+                  {filterKey && isLokasyonFilter && (
+                    <LokasyonTable
+                      multiSelect={true}
+                      onSubmit={(val) => {
+                        const ids = [];
+                        if (val) {
+                          if (Array.isArray(val)) {
+                            val.forEach((item) => {
+                              if (item.locationId) ids.push(item.locationId);
+                            });
+                          } else if (val.locationId) {
+                            ids.push(val.locationId);
+                          }
+                        }
+                        handleValueChange(ids, row.id);
+                      }}
+                    />
+                  )}
+                  {filterKey && !isDateFilter && !isLokasyonFilter && (
+                    <Select
+                      mode="multiple"
+                      style={{ width: "100%" }}
+                      showSearch
+                      allowClear
+                      placeholder={t("secimYapiniz")}
+                      optionFilterProp="label"
+                      onChange={(values) => handleValueChange(values, row.id)}
+                      value={selectedValues[row.id] || []}
+                      filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
+                      options={filterOptionsData[row.id] || []}
+                    />
+                  )}
+                </Col>
               </Col>
-            </Col>
-          </Row>
-        ))}
+            </Row>
+          );
+        })}
         <Button
           type="primary"
           onClick={handleAddFilterClick}
@@ -316,7 +346,7 @@ export default function CustomFilter({ onSubmit }) {
           }}
         >
           <PlusOutlined />
-          Filtre ekle
+          {t("filtreEkle")}
         </Button>
       </Drawer>
     </>
