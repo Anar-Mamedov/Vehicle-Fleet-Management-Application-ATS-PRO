@@ -35,7 +35,7 @@ const CloseButton = styled.div`
 `;
 
 const FILTER_OPTIONS = [
-  { value: "aracIds", label: "Plaka", type: "api" },
+  { value: "Cez_arac_id", label: "Plaka", type: "api" },
   { value: "surucuIds", label: "Sürücü", type: "api" },
   { value: "lokasyonIds", label: "Lokasyon", type: "lokasyon" },
   { value: "cezaTuruKodIds", label: "Ceza Türü", type: "api" },
@@ -45,7 +45,7 @@ const FILTER_OPTIONS = [
 
 const fetchFilterData = async (filterKey) => {
   switch (filterKey) {
-    case "aracIds":
+    case "Cez_arac_id":
       return AxiosInstance.get("Vehicle/GetVehiclePlates").then((res) =>
         res.data.map((item) => ({ value: item.aracId, label: item.plaka }))
       );
