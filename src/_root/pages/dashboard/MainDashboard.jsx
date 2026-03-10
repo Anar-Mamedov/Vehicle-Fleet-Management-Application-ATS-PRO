@@ -408,6 +408,7 @@ function MainDashboard() {
         widget20: false,
         widget21: false,
         widget22: false,
+        widget23: false,
       };
       newGridItems.forEach((item) => {
         if (Object.prototype.hasOwnProperty.call(newChecked, item.id)) {
@@ -440,6 +441,7 @@ function MainDashboard() {
         widget20: false,
         widget21: false,
         widget22: false,
+        widget23: false,
       };
       itemsToLoad.forEach((item) => {
         if (Object.prototype.hasOwnProperty.call(checked, item.id)) {
@@ -710,7 +712,7 @@ function MainDashboard() {
                 </svg>
                 Yeniden Sırala
               </Button>
-              <Popover content={content} title="Widgetları Yönet" trigger="click">
+              <Popover content={content} title="Widgetları Yönet" trigger="click" placement="bottomRight" getPopupContainer={(triggerNode) => triggerNode.parentNode}>
                 <Button
                   style={{
                     display: "flex",
