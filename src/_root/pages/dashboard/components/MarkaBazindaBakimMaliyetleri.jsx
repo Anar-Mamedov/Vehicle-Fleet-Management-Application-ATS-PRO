@@ -267,7 +267,7 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="MARKA" interval={0} angle={-90} textAnchor="end" height={120} tick={{ fontSize: 11 }} />
+                <XAxis dataKey="MARKA" interval={0} angle={-90} textAnchor="end" height={120} tick={{ fontSize: 11 }} tickFormatter={(value) => (value && value.length > 10 ? `${value.slice(0, 10)}...` : value)} />
                 <YAxis tickFormatter={(value) => value.toLocaleString("tr-TR")} />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="ARAC_SAYISI" fill="#36B37E" hide={!visibleSeries.ARAC_SAYISI} name="Araç Sayısı">
@@ -355,7 +355,7 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
               }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="MARKA" interval={0} angle={-90} textAnchor="end" height={120} tick={{ fontSize: 11 }} />
+              <XAxis dataKey="MARKA" interval={0} angle={-90} textAnchor="end" height={120} tick={{ fontSize: 11 }} tickFormatter={(value) => (value && value.length > 10 ? `${value.slice(0, 10)}...` : value)} />
               <YAxis tickFormatter={(value) => value.toLocaleString("tr-TR")} />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="ARAC_SAYISI" fill="#36B37E" hide={!visibleSeries.ARAC_SAYISI} name="Araç Sayısı">
