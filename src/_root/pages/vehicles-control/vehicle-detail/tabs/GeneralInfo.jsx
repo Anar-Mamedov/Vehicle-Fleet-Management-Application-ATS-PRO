@@ -173,8 +173,8 @@ const GeneralInfo = ({ mandatoryFields }) => {
               </div>
               <div className="col-span-4">
                 <div className="flex flex-col gap-1">
-                  <label>{t("tts")}</label>
-                  <TextInput name="tts" />
+                  <label>{t("gpsId")}</label>
+                  <TextInput name="gpsId" />
                 </div>
               </div>
               <div className="col-span-4">

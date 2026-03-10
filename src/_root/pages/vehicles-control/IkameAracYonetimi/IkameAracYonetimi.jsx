@@ -264,17 +264,6 @@ const IkameAracYonetimi = () => {
   };
 
   useEffect(() => {
-    if (!infiniteScrollEnabled) {
-      setPaginationLoading(true);
-    }
-    fetchData(0, 1).finally(() => {
-      if (!infiniteScrollEnabled) {
-        setPaginationLoading(false);
-      }
-    });
-  }, []);
-
-  useEffect(() => {
     const savedPageSize = localStorage.getItem(tabloPageSize);
     const parsedValue = parseInt(savedPageSize, 10);
     if (isNaN(parsedValue) || ![20, 50, 100].includes(parsedValue)) {
@@ -335,7 +324,9 @@ const IkameAracYonetimi = () => {
     setUpdateModalOpen(true);
   };
 
-  const handleBodyChange = useCallback((type, newBody) => {
+  const handleBodyChange = (type, newBody) => {
+    let nextFilters;
+
     setBody((prevBody) => {
       if (type === "filters") {
         const updatedFilters =
@@ -345,6 +336,8 @@ const IkameAracYonetimi = () => {
                 ...prevBody.filters,
                 ...newBody,
               };
+
+        nextFilters = updatedFilters;
 
         return {
           ...prevBody,
@@ -358,7 +351,19 @@ const IkameAracYonetimi = () => {
       };
     });
     setCurrentPage(1);
-  }, []);
+
+    if (type === "filters") {
+      if (!infiniteScrollEnabled) {
+        setPaginationLoading(true);
+      }
+
+      fetchData(0, 1, nextFilters?.customfilters).finally(() => {
+        if (!infiniteScrollEnabled) {
+          setPaginationLoading(false);
+        }
+      });
+    }
+  };
 
   const refreshTableData = useCallback(() => {
     if (!infiniteScrollEnabled) {
@@ -816,7 +821,6 @@ const IkameAracYonetimi = () => {
               suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={() => handleSearch()} />}
             />
             <Filters onChange={handleBodyChange} />
-            <Button type="primary" icon={<SearchOutlined />} onClick={() => handleSearch()}></Button>
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />

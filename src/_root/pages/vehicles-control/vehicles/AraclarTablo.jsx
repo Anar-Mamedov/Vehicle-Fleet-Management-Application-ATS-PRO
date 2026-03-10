@@ -1656,17 +1656,17 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
-      title: t("tts"),
-      dataIndex: "tts",
-      key: "tts",
+      title: t("gpsId"),
+      dataIndex: "gpsId",
+      key: "gpsId",
       width: 130,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
 
       sorter: (a, b) => {
-        if (a.tts === null) return -1;
-        if (b.tts === null) return 1;
-        return a.tts.localeCompare(b.tts);
+        if (a.gpsId === null) return -1;
+        if (b.gpsId === null) return 1;
+        return a.gpsId.localeCompare(b.gpsId);
       },
     },
 

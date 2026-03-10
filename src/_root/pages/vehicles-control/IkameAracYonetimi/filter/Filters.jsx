@@ -1,53 +1,78 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import { Select, DatePicker, ConfigProvider } from "antd";
+import { FormProvider, useForm } from "react-hook-form";
+import { Select } from "antd";
 import { t } from "i18next";
-import dayjs from "dayjs";
-import "dayjs/locale/tr";
-import tr_TR from "antd/lib/locale/tr_TR";
-
-dayjs.locale("tr");
+import LokasyonTable from "../../../../components/LokasyonTable";
+import ZamanAraligi from "./ZamanAraligi";
 
 const { Option } = Select;
 
 export default function Filters({ onChange }) {
   const [durum, setDurum] = useState(0);
-  const [tarih, setTarih] = useState(null);
+  const [lokasyonIds, setLokasyonIds] = useState([]);
+  const [dateRange, setDateRange] = useState({ baslangicTarih: null, bitisTarih: null });
+  const [isTimeRangeReady, setIsTimeRangeReady] = useState(false);
+  const onChangeRef = useRef(onChange);
 
-  const applyFilters = useCallback(
-    (newDurum, newTarih) => {
-      const customfilters = {
-        durum: newDurum,
-      };
-      if (newTarih) {
-        customfilters.tarih = dayjs(newTarih).format("YYYY-MM-DD");
-      }
-      onChange("filters", { customfilters });
+  const methods = useForm({
+    defaultValues: {
+      timeRange: "all",
+      baslangicTarih: null,
+      bitisTarih: null,
     },
-    [onChange]
-  );
+  });
 
-  const handleDurumChange = (value) => {
-    setDurum(value);
-    applyFilters(value, tarih);
-  };
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
-  const handleTarihChange = (date) => {
-    setTarih(date);
-    applyFilters(durum, date);
+  const handleTimeRangeReady = useCallback(() => {
+    setIsTimeRangeReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isTimeRangeReady) {
+      return;
+    }
+
+    const customfilters = {
+      durum,
+    };
+
+    if (Array.isArray(lokasyonIds) && lokasyonIds.length > 0) {
+      customfilters.lokasyonIds = lokasyonIds;
+    }
+
+    if (dateRange.baslangicTarih || dateRange.bitisTarih) {
+      customfilters.baslangicTarih = dateRange.baslangicTarih;
+      customfilters.bitisTarih = dateRange.bitisTarih;
+    }
+
+    onChangeRef.current("filters", { customfilters });
+  }, [dateRange, durum, isTimeRangeReady, lokasyonIds]);
+
+  const handleLokasyonChange = (selectedData) => {
+    const selectedLokasyonIds =
+      Array.isArray(selectedData) && selectedData.length > 0
+        ? selectedData.map((item) => item.locationId).filter((id) => id !== undefined && id !== null)
+        : [];
+
+    setLokasyonIds(selectedLokasyonIds);
   };
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-      <Select value={durum} onChange={handleDurumChange} style={{ width: 120 }} popupMatchSelectWidth={false}>
+      <FormProvider {...methods}>
+        <ZamanAraligi onDateChange={setDateRange} onReady={handleTimeRangeReady} />
+      </FormProvider>
+      <LokasyonTable fieldName="lokasyonIds" multiSelect={true} onSubmit={handleLokasyonChange} style={{ width: 200 }} />
+      <Select value={durum} onChange={setDurum} style={{ width: 120 }} popupMatchSelectWidth={false}>
         <Option value={0}>{t("tumu")}</Option>
         <Option value={1}>{t("aktif")}</Option>
         <Option value={2}>{t("iadeEdildi")}</Option>
         <Option value={3}>{t("suresiDoldu")}</Option>
       </Select>
-      <ConfigProvider locale={tr_TR}>
-        <DatePicker value={tarih} onChange={handleTarihChange} placeholder={t("tarih")} style={{ width: 140 }} format="DD.MM.YYYY" locale={dayjs.locale("tr")} />
-      </ConfigProvider>
     </div>
   );
 }

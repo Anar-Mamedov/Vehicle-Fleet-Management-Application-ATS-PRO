@@ -194,7 +194,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     yakitTipId: 0,
     uyari: false,
     utts: "",
-    tts: "",
+    gpsId: "",
     muayeneTarih: "",
     sozlesmeTarih: "",
     egzosTarih: "",
@@ -334,7 +334,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
         setValue("havuzGrup", res?.data.havuzGrup);
         setValue("durumID", res?.data.durumKodId ? res?.data.durumKodId : null);
         setValue("durum", res?.data.durum);
-        setValue("tts", res?.data.tts);
+        setValue("gpsId", res?.data.gpsId);
         setValue("utts", res?.data.utts);
         setValue("muayeneTarih", res?.data.muayeneTarih ? dayjs(res?.data.muayeneTarih) : null);
         setValue("sozlesmeTarih", res?.data.sozlesmeTarih ? dayjs(res?.data.sozlesmeTarih) : null);
@@ -447,7 +447,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
       sozlesmeTarih: values?.sozlesmeTarih ? dayjs(values?.sozlesmeTarih).format("YYYY-MM-DD") : null,
       takografTarih: values?.takografTarih ? dayjs(values?.takografTarih).format("YYYY-MM-DD") : null,
       yakitTipId: values.yakitTipId || 0,
-      tts: values.tts,
+      gpsId: values.gpsId,
       utts: values.utts,
       aracMulkiyetKodId: values.mulkiyetID || 0,
       durumKodId: values.durumID || 0,
