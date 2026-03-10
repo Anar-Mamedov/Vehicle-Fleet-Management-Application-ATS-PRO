@@ -3,7 +3,8 @@
 
 const ALLOWED_DOMAINS = [
   'atspro.netlify.app',
-  'localhost:5174'
+  'localhost:5174',
+  'rad.atspro.net'
 ];
 
 let isDevToolsOpen = false;
