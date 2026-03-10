@@ -46,17 +46,11 @@ const FILTER_OPTIONS = [
 const fetchFilterData = async (filterKey) => {
   switch (filterKey) {
     case "aracIds":
-      return AxiosInstance.get("Vehicle/GetVehiclePlates").then((res) =>
-        res.data.map((item) => ({ value: item.aracId, label: item.plaka }))
-      );
+      return AxiosInstance.get("Vehicle/GetVehiclePlates").then((res) => res.data.map((item) => ({ value: item.aracId, label: item.plaka })));
     case "surucuIds":
-      return CustomCodeControlService("Driver/GetDriverListForSelectInput").then((res) =>
-        res.data.map((item) => ({ value: item.surucuId, label: item.isim }))
-      );
+      return CustomCodeControlService("Driver/GetDriverListForSelectInput").then((res) => res.data.map((item) => ({ value: item.surucuId, label: item.isim })));
     case "cezaTuruKodIds":
-      return CodeControlService(400).then((res) =>
-        res.data.map((item) => ({ value: item.siraNo, label: item.codeText }))
-      );
+      return CodeControlService(400).then((res) => res.data.map((item) => ({ value: item.siraNo, label: item.codeText })));
     default:
       return [];
   }
@@ -295,9 +289,7 @@ export default function CustomFilter({ onSubmit }) {
                     filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
                     options={getAvailableOptions(row.id)}
                   />
-                  {filterKey && isDateFilter && (
-                    <DateInput name={`dateFilter_${row.id}`} placeholder={t("tarihSeciniz")} style={{ width: "100%" }} />
-                  )}
+                  {filterKey && isDateFilter && <DateInput name={`dateFilter_${row.id}`} placeholder={t("tarihSeciniz")} style={{ width: "100%" }} />}
                   {filterKey && isLokasyonFilter && (
                     <LokasyonTable
                       multiSelect={true}
