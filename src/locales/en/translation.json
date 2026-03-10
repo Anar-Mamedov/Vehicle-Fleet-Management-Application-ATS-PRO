@@ -1113,5 +1113,10 @@
   "iadeKm": "Return Km",
   "iadeAciklamasi": "Return Description",
   "bosBos": "Empty → Empty",
-  "fullFull": "Full → Full"
+  "fullFull": "Full → Full",
+  "sutunlariYonet": "Manage Columns",
+  "sutunAyarlamaAciklama": "Show/hide columns and adjust their order.",
+  "sutunGosterGizle": "Show/Hide Columns",
+  "sutunSiralamaAyarla": "Adjust Column Order",
+  "sutunlariSifirla": "Reset Columns"
 }
