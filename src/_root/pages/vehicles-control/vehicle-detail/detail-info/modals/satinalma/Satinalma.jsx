@@ -242,7 +242,7 @@ const Satinalma = ({ visible, onClose, id }) => {
                 <div className="col-span-3">
                   <div className="flex flex-col gap-1">
                     <label>{t("kiralamaYeri")}</label>
-                    <Firma name="kiralamafirma" codeName="kiralamaFirmaId" checked={!watch("krediKiralama")} />
+                    <Firma name="kiralamafirma" codeName="kiralamaFirmaId" checked={!watch("krediKiralama")} firmaType={5} />
                   </div>
                 </div>
                 <div className="col-span-3">
