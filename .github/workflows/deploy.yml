@@ -53,3 +53,13 @@ jobs:
           local-dir: dist/ # Vite's default build directory
           server-dir: /public_html/
           debug: true
+
+      - name: Deploy to FTP Server 2
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        with:
+          server: ${{ secrets.FTP_HOST_2 }}
+          username: ${{ secrets.FTP_USERNAME_2 }}
+          password: ${{ secrets.FTP_PASSWORD_2 }}
+          local-dir: dist/
+          server-dir: /public_html/
+          debug: true
