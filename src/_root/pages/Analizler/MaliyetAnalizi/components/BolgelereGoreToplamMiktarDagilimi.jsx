@@ -64,6 +64,7 @@ function BolgelereGoreToplamMiktarDagilimi() {
         { name: t("sigortaMaliyeti"), value: response.data.sigortaMaliyeti },
         { name: t("harcamaMaliyeti"), value: response.data.harcamaMaliyeti },
         { name: t("bakimOnarimMaliyeti"), value: response.data.bakimOnarimMaliyeti },
+        { name: t("hgsMaliyeti"), value: response.data.hgsMaliyeti },
         { name: t("lastikMaliyeti"), value: response.data.lastikMaliyeti },
       ];
 
@@ -89,7 +90,7 @@ function BolgelereGoreToplamMiktarDagilimi() {
 
   // Generate colors using chroma.js
   const generateColors = (dataLength) => {
-    const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#bd2400", "#131842"];
+    const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#bd2400", "#6441a5", "#131842"];
     return chroma.scale(colors).mode("lch").colors(dataLength);
   };
 

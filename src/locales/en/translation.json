@@ -848,6 +848,7 @@
   "harcamaMaliyeti": "Expense Cost",
   "bakimOnarimMaliyeti": "Maintenance Repair Cost",
   "lastikMaliyeti": "Tire Cost",
+  "hgsMaliyeti": "HGS Cost",
   "toplamSahipOlmaMaliyeti": "Total Ownership Cost",
   "lokasyonBazliMaliyetListesi": "Cost List by Location",
   "lokasyonTanim": "Location Definition",

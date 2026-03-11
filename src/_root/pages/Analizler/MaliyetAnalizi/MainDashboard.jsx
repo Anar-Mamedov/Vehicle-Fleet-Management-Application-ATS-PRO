@@ -14,6 +14,7 @@ import Component3 from "./components/Component3.jsx";
 import Component2 from "./components/Component2.jsx";
 import Component1 from "./components/Component1.jsx";
 import Component4 from "./components/Component4.jsx";
+import ComponentHGS from "./components/ComponentHGS.jsx";
 import Component5 from "./components/Component5.jsx";
 import Component6 from "./components/Component6.jsx";
 import LokasyonBazindaIsTalepleri from "./components/LokasyonBazindaIsTalepleri.jsx";
@@ -42,6 +43,7 @@ const widgetTitles = {
   widget1: "Toplam Yakıt Miktarı",
   widget2: "Toplam Yakıt Tutarı",
   widget3: "Toplam Mesafe",
+  widgetHGS: "HGS",
   widget4: "Km Başına Yakıt Tüketimi",
   widget5: "Yıllık Yakıt Tüketimleri",
   widget6: "Araçlar Arası Yakıt Tüketimi ve Gider Karşılaştırması",
@@ -52,10 +54,11 @@ const widgetTitles = {
 };
 
 const defaultItems = [
-  { id: "widget1", x: 0, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
-  { id: "widget2", x: 3, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
-  { id: "widget3", x: 6, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
-  { id: "widget4", x: 9, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
+  { id: "widget1", x: 0, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
+  { id: "widget2", x: 2, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
+  { id: "widget3", x: 4, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
+  { id: "widgetHGS", x: 6, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
+  { id: "widget4", x: 8, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
   { id: "widget5", x: 0, y: 1, width: 6, height: 3, minW: 3, minH: 2 },
   { id: "widget19", x: 6, y: 1, width: 6, height: 3, minW: 3, minH: 2 },
   { id: "widget14", x: 0, y: 4, width: 6, height: 4, minW: 3, minH: 2 },
@@ -71,6 +74,7 @@ function MainDashboard() {
     widget1: false,
     widget2: false,
     widget3: false,
+    widgetHGS: false,
     widget4: false,
     widget5: false,
     widget6: false,
@@ -221,6 +225,19 @@ function MainDashboard() {
               </FormProvider>
             );
             break;
+          case "widgetHGS":
+            root.render(
+              <FormProvider {...methods}>
+                <I18nextProvider i18n={i18n}>
+                  <ConfigProvider locale={trTR}>
+                    <BrowserRouter>
+                      <ComponentHGS />
+                    </BrowserRouter>
+                  </ConfigProvider>
+                </I18nextProvider>
+              </FormProvider>
+            );
+            break;
           case "widget4":
             root.render(
               <FormProvider {...methods}>
@@ -327,6 +344,7 @@ function MainDashboard() {
         widget1: false,
         widget2: false,
         widget3: false,
+        widgetHGS: false,
         widget4: false,
         widget5: false,
         widget6: false,
@@ -356,6 +374,7 @@ function MainDashboard() {
         widget1: false,
         widget2: false,
         widget3: false,
+        widgetHGS: false,
         widget4: false,
         widget5: false,
         widget6: false,
@@ -535,6 +554,9 @@ function MainDashboard() {
       </Checkbox>
       <Checkbox name="widget3" onChange={handleCheckboxChange} checked={checkedWidgets.widget3}>
         Toplam Mesafe
+      </Checkbox>
+      <Checkbox name="widgetHGS" onChange={handleCheckboxChange} checked={checkedWidgets.widgetHGS}>
+        HGS
       </Checkbox>
       <Checkbox name="widget4" onChange={handleCheckboxChange} checked={checkedWidgets.widget4}>
         Km Başına Yakıt Tüketimi
