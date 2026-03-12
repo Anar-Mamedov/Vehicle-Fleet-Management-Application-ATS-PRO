@@ -34,8 +34,7 @@ function ComponentSingleCard() {
     };
 
     try {
-      // Sadece type=1 ile tek bir istek
-      const response = await AxiosInstance.post("CostAnalysis/GetCostAnalysisInfoByType?type=4", body);
+      const response = await AxiosInstance.post("CostAnalysis/GetCostAnalysisInfoByType?type=12", body);
       setData(response.data);
     } catch (error) {
       console.error("Failed to fetch data:", error);
@@ -106,11 +105,11 @@ function ComponentSingleCard() {
   return (
     <div style={{ width: "100%", height: "100%" }}>
       {renderCard(
-        data, // API'den gelen değer (type=1 sonucu)
-        t("sigortaVeVergiler"),
-        "linear-gradient(to right, #ff4e50, #f9d423)",
+        data,
+        "HGS",
+        "linear-gradient(to right, #6441a5, #2a0845)",
         "TL.",
-        isLoading // Yüklenme durumu
+        isLoading
       )}
     </div>
   );

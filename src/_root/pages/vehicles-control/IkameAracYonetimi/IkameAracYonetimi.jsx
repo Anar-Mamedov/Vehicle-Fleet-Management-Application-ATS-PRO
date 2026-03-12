@@ -530,6 +530,19 @@ const IkameAracYonetimi = () => {
       },
     },
     {
+      title: t("lokasyon"),
+      dataIndex: "lokasyon",
+      key: "lokasyon",
+      width: 130,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.lokasyon === null) return -1;
+        if (b.lokasyon === null) return 1;
+        return a.lokasyon.localeCompare(b.lokasyon);
+      },
+    },
+    {
       title: t("yakitPolitikasi"),
       dataIndex: "yakitPolitikasi",
       key: "yakitPolitikasi",
