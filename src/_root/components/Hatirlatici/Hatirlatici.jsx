@@ -16,6 +16,7 @@ import Egzoz from "./components/Egzoz";
 import PeriyodikBakim from "./components/PeriyodikBakim";
 import Takograf from "./components/Takograf";
 import OnayIslemleri from "../../pages/SistemAyarlari/OnaylamaIslemleri/OnaylamaIslemleri";
+import IkameArac from "./components/IkameArac";
 import { FormProvider, useForm } from "react-hook-form";
 import { t } from "i18next";
 
@@ -238,6 +239,22 @@ const Hatirlatici = ({ data, getHatirlatici, loading, data1, getHatirlatici1 }) 
               }}
             >
               {data?.stokHatirlaticiSayisi}
+            </Text>
+          </Row>
+          <Row onClick={() => handleRowClick("İkame Araç", <IkameArac />)}>
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px" }}>
+              <Indicator style={{ backgroundColor: "rgba(0,128,128,0.88)" }} />
+              <Text>İkame Araç</Text>
+            </div>
+            <Text
+              style={{
+                borderRadius: "8px 8px 8px 8px",
+                padding: "1px 7px",
+                backgroundColor: "rgba(0,128,128,0.20)",
+                color: "rgba(0,128,128,0.88)",
+              }}
+            >
+              {data?.ikameAracHatirlaticiSayisi}
             </Text>
           </Row>
           <Row onClick={() => handleRowClick("Sürücü", <Surucu />)}>
