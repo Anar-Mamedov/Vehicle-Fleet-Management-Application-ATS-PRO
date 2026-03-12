@@ -1695,9 +1695,6 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                     <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("anormalTuketim")}</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <Button type="primary" danger size="small" style={{ borderRadius: "12px", fontSize: "12px", height: "24px", padding: "0 12px" }}>
-                      {t("detay")}
-                    </Button>
                     <Tooltip title={t("anomaliKurallariNasilCalisir")}>
                       <div
                         style={{
