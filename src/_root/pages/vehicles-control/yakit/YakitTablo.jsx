@@ -14,6 +14,8 @@ import {
   FileExcelOutlined,
 } from "@ant-design/icons";
 import { FaExclamation, FaCheck, FaTimes } from "react-icons/fa";
+import { BsFillQuestionCircleFill } from "react-icons/bs";
+import AnomalyRulesModal from "./components/AnomalyRulesModal";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -254,6 +256,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
   const [filtersApplied, setFiltersApplied] = useState(false);
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isAnomalyModalVisible, setIsAnomalyModalVisible] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
 
   const fetchDataWithDurum = async (diff, targetPage, currentSize = pageSize) => {
@@ -1691,9 +1694,25 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                     <span style={{ color: "#ff4d4f", fontSize: "14px" }}>&#9888;</span>
                     <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("anormalTuketim")}</span>
                   </div>
-                  <Button type="primary" danger size="small" style={{ borderRadius: "12px", fontSize: "12px", height: "24px", padding: "0 12px" }}>
-                    Detay
-                  </Button>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Button type="primary" danger size="small" style={{ borderRadius: "12px", fontSize: "12px", height: "24px", padding: "0 12px" }}>
+                      {t("detay")}
+                    </Button>
+                    <Tooltip title={t("anomaliKurallariNasilCalisir")}>
+                      <div
+                        style={{
+                          cursor: "pointer",
+                          color: "#1890ff",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                        onClick={() => setIsAnomalyModalVisible(true)}
+                      >
+                        <BsFillQuestionCircleFill />
+                      </div>
+                    </Tooltip>
+                  </div>
                 </div>
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
                   {statistics.anormalTuketim === null || statistics.anormalTuketim === undefined ? "-" : `${formatStatisticValue(statistics.anormalTuketim)} ${t("arac")}`}
@@ -1725,6 +1744,10 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
             </div>
           </Spin>
         )}
+
+        {/* Anomaly Rules Modal */}
+        <AnomalyRulesModal visible={isAnomalyModalVisible} onCancel={() => setIsAnomalyModalVisible(false)} />
+
         {/* Toolbar */}
         {isSefer ? (
           <div
