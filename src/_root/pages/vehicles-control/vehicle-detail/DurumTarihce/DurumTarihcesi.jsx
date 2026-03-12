@@ -84,6 +84,8 @@ function DurumTarihcesi({ selectedId, durumTarihceModal }) {
           durumIcon = <Tag color="success">{t("aktif")}</Tag>; // 2) record.arsiv false, record.aktif true => yeşil aktif
         } else if (record.durumNo === 2) {
           durumIcon = <Tag color="warning">{t("pasif")}</Tag>; // 3) record.arsiv false, record.aktif false => sarı passif
+        } else if (record.durumNo === 4) {
+          durumIcon = <Tag color="blue">{t("aracIkamede")}</Tag>; // 4) record.durumNo === 4 => mavi ikamede
         }
         return <div>{durumIcon}</div>;
       },
