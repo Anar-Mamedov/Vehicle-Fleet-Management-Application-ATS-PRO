@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -128,10 +128,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("girisSaat", data.girisSaat);
         setValue("cikisTarih", data.cikisTarih ? dayjs(data.cikisTarih) : null);
         setValue("cikisSaat", data.cikisSaat);
-        setValue("girisYeriKodId", data.girisYeriKodId);
-        setValue("girisYeri", data.girisYeri);
-        setValue("cikisYeriKodId", data.cikisYeriKodId);
-        setValue("cikisYeri", data.cikisYeri);
+        setValue("GirisYeri", data.GirisYeri);
+        setValue("CikisYeri", data.CikisYeri);
         setValue("odemeTuruKodId", data.odemeTuruKodId);
         setValue("odemeTuru", data.odemeTuru);
         setValue("gecisUcreti", data.gecisUcreti ? parseFloat(data.gecisUcreti.toString().replace(",", ".")).toFixed(2) : "");
@@ -158,7 +156,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("ozelAlan11", data.ozelAlan11);
         setValue("ozelAlan12", data.ozelAlan12);
       });
-  
+
       GetPhotosByRefGroupService(selectedRow?.key, "HGSISLEMTAKIP").then((res) => setImageUrls(res.data));
       GetDocumentsByRefGroupService(selectedRow?.key, "HGSISLEMTAKIP").then((res) => setFilesUrl(res.data));
     }
@@ -176,10 +174,10 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       girisSaat: values.girisSaat ? dayjs(values.girisSaat).format("HH:mm") : "",
       cikisTarih: values.cikisTarih,
       cikisSaat: values.cikisSaat ? dayjs(values.cikisSaat).format("HH:mm") : "",
-      girisYeriKodId: values.girisYeriKodId,
-      cikisYeriKodId: values.cikisYeriKodId,
+      GirisYeri: values.GirisYeri || "",
+      CikisYeri: values.CikisYeri || "",
       odemeTuruKodId: values.odemeTuruKodId,
-      gecisUcreti: values.gecisUcreti ? (typeof values.gecisUcreti === 'string' ? values.gecisUcreti.replace(",", ".") : values.gecisUcreti.toString().replace(",", ".")) : null,
+      gecisUcreti: values.gecisUcreti ? (typeof values.gecisUcreti === "string" ? values.gecisUcreti.replace(",", ".") : values.gecisUcreti.toString().replace(",", ".")) : null,
       odemeDurumuKodId: values.odemeDurumuKodId,
       fisNo: values.fisNo,
       gecisKategorisiKodId: values.gecisKategorisiKodId,
@@ -198,7 +196,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       ozelAlan11: values.ozelAlan11 ?? 0,
       ozelAlan12: values.ozelAlan12 ?? 0,
     };
-  
+
     UpdateHgsItemService(body).then((res) => {
       if (res.data.statusCode === 202) {
         onDrawerClose();
@@ -207,7 +205,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setActiveKey("1");
       }
     });
-  
+
     // Dosya ve görsel işlemleri sonradan gelsin
     uploadImages();
     uploadFiles();

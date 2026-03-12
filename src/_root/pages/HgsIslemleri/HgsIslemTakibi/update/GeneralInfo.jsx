@@ -11,8 +11,6 @@ import DateInput from "../components/ContextMenu/components/DateInput";
 import CodeControl from "../../../../components/form/selects/CodeControl";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import Guzergah from "../../../../components/form/selects/Guzergah";
-import GirisYeri from "../components/ContextMenu/components/GirisYeri";
-import CikisYeri from "../components/ContextMenu/components/CikisYeri";
 import OdemeTuru from "../components/ContextMenu/components/OdemeTuru";
 import OdemeDurumu from "../components/ContextMenu/components/OdemeDurumu";
 import GecisKategorisi from "../components/ContextMenu/components/GecisKategorisi";
@@ -59,7 +57,7 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("girisYeri")}</label>
-                  <GirisYeri name="girisYeriKodId" />
+                  <TextInput name="GirisYeri" />
               </div>
             </div>
             <div className="col-span-3">
@@ -74,7 +72,7 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("cikisYeri")}</label>
-                  <CikisYeri name="cikisYeriKodId" />
+                  <TextInput name="CikisYeri" />
               </div>
             </div>
             <div className="col-span-3">
