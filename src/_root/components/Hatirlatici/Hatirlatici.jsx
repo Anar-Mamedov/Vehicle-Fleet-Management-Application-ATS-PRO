@@ -241,10 +241,10 @@ const Hatirlatici = ({ data, getHatirlatici, loading, data1, getHatirlatici1 }) 
               {data?.stokHatirlaticiSayisi}
             </Text>
           </Row>
-          <Row onClick={() => handleRowClick("İkame Araç", <IkameArac />)}>
+          <Row onClick={() => handleRowClick("İkame Araçlar", <IkameArac />)}>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px" }}>
               <Indicator style={{ backgroundColor: "rgba(0,128,128,0.88)" }} />
-              <Text>İkame Araç</Text>
+              <Text>İkame Araçlar</Text>
             </div>
             <Text
               style={{

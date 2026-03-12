@@ -989,7 +989,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
         let durumIcon;
 
         if (record.ikame) {
-          durumIcon = <Tag color="blue">Araç İkamede</Tag>;
+          durumIcon = <Tag color="blue">İkame</Tag>;
         } else if (record.arsiv) {
           durumIcon = <Tag color="error">{t("arsiv")}</Tag>; // 1) record.arsiv true => gri arşiv
         } else if (record.aktif) {
