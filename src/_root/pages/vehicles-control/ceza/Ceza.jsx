@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined, DollarCircleOutlined, ClockCircleOutlined, CarOutlined, UserOutlined } from "@ant-design/icons";
+import { BsFillQuestionCircleFill } from "react-icons/bs";
+import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined, DollarCircleOutlined, ClockCircleOutlined, CarOutlined, UserOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -13,6 +14,7 @@ import ContextMenu from "./components/ContextMenu/ContextMenu";
 import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
 import Filters from "./filter/Filters";
+import RiskCalculationModal from "./components/RiskCalculationModal";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
@@ -144,6 +146,7 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 const Ceza = () => {
   const formMethods = useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isRiskModalVisible, setIsRiskModalVisible] = useState(false);
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false); // Set initial loading state to false
@@ -862,6 +865,10 @@ const Ceza = () => {
               </DndContext>
             </div>
           </Modal>
+
+          {/* Modal for Risk Calculation */}
+          <RiskCalculationModal visible={isRiskModalVisible} onCancel={() => setIsRiskModalVisible(false)} />
+
           {/* Statistics Cards */}
           <Spin spinning={statisticsLoading} size="small">
             <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
@@ -940,8 +947,27 @@ const Ceza = () => {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
+                  position: "relative",
                 }}
               >
+                <Tooltip title="Risk Skoru Nasıl Hesaplanıyor?" placement="left">
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "10px",
+                      right: "10px",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                      color: "#1890ff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    onClick={() => setIsRiskModalVisible(true)}
+                  >
+                    <BsFillQuestionCircleFill />
+                  </div>
+                </Tooltip>
                 <div>
                   <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("enRiskliSurucu")}</div>
                   <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>{statistics.enRiskliSurucu || "-"}</div>
