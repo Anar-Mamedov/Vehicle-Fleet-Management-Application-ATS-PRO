@@ -572,7 +572,14 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
   };
 
   useEffect(() => {
-    if (dataSource.arsiv) {
+    if (dataSource.ikame) {
+      setDurumIcon(
+        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+          <div style={{ backgroundColor: "#1890ff", width: "10px", height: "10px", borderRadius: "50%" }}></div>
+          {t("ikameAraclar")}
+        </div>
+      ); // 0) record.ikame true => blue ikamede
+    } else if (dataSource.arsiv) {
       setDurumIcon(
         <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
           <div style={{ backgroundColor: "red", width: "10px", height: "10px", borderRadius: "50%" }}></div>

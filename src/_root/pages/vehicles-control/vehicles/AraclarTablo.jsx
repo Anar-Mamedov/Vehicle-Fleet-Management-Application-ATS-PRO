@@ -988,7 +988,9 @@ const Yakit = ({ ayarlarData, customFields }) => {
       render: (text, record) => {
         let durumIcon;
 
-        if (record.arsiv) {
+        if (record.ikame) {
+          durumIcon = <Tag color="blue">Araç İkamede</Tag>;
+        } else if (record.arsiv) {
           durumIcon = <Tag color="error">{t("arsiv")}</Tag>; // 1) record.arsiv true => gri arşiv
         } else if (record.aktif) {
           durumIcon = <Tag color="success">{t("aktif")}</Tag>; // 2) record.arsiv false, record.aktif true => yeşil aktif
