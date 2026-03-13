@@ -9,105 +9,123 @@ import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
 import Dashboard from "./_root/pages/dashboard/Dashboard";
 
+// Retry wrapper for lazy imports — handles stale chunks after deployments
+const lazyWithRetry = (importFn) =>
+  lazy(() =>
+    importFn().catch((error) => {
+      const lastReload = sessionStorage.getItem("chunk_reload_time");
+      // Eğer son 10 saniye içinde zaten yenileme yapıldıysa tekrar yenileme yapma (kısır döngüyü önle)
+      const isRecent = lastReload && Date.now() - parseInt(lastReload, 10) < 10000;
+      
+      if (!isRecent) {
+        sessionStorage.setItem("chunk_reload_time", Date.now().toString());
+        window.location.reload();
+        return new Promise(() => {}); // prevent rendering while reloading
+      }
+      
+      return Promise.reject(error); // Eğer yakın zamanda yenilendiyse ve hala hata veriyorsa hatayı fırlat
+    })
+  );
+
 // Lazy loading for all other pages (not Dashboard)
 // arac yonetimi
-const Vehicles = lazy(() => import("./_root/pages/vehicles-control/vehicles/Vehicles"));
-const Yakit = lazy(() => import("./_root/pages/vehicles-control/yakit/Yakit"));
-const Sefer = lazy(() => import("./_root/pages/vehicles-control/sefer/Sefer"));
-const Sigorta = lazy(() => import("./_root/pages/vehicles-control/sigorta/Sigorta"));
-const Kaza = lazy(() => import("./_root/pages/vehicles-control/kaza/Kaza"));
-const Harcama = lazy(() => import("./_root/pages/vehicles-control/harcama/Harcama"));
-const Ceza = lazy(() => import("./_root/pages/vehicles-control/ceza/Ceza"));
-const HasarTakibi = lazy(() => import("./_root/pages/vehicles-control/HasarTakibi/HasarTakibi.jsx"));
-const YakitLimitleri = lazy(() => import("./_root/pages/vehicles-control/YakitLimitleri/YakitLimitleri.jsx"));
-const KmUpdate = lazy(() => import("./_root/pages/vehicles-control/hizli-km/KmUpdate"));
-const KiralikAraclar = lazy(() => import("./_root/pages/vehicles-control/kiralikAraclar/KiralikAraclarTablo.jsx"));
-const IkameAracYonetimi = lazy(() => import("./_root/pages/vehicles-control/IkameAracYonetimi/IkameAracYonetimi.jsx"));
+const Vehicles = lazyWithRetry(() => import("./_root/pages/vehicles-control/vehicles/Vehicles"));
+const Yakit = lazyWithRetry(() => import("./_root/pages/vehicles-control/yakit/Yakit"));
+const Sefer = lazyWithRetry(() => import("./_root/pages/vehicles-control/sefer/Sefer"));
+const Sigorta = lazyWithRetry(() => import("./_root/pages/vehicles-control/sigorta/Sigorta"));
+const Kaza = lazyWithRetry(() => import("./_root/pages/vehicles-control/kaza/Kaza"));
+const Harcama = lazyWithRetry(() => import("./_root/pages/vehicles-control/harcama/Harcama"));
+const Ceza = lazyWithRetry(() => import("./_root/pages/vehicles-control/ceza/Ceza"));
+const HasarTakibi = lazyWithRetry(() => import("./_root/pages/vehicles-control/HasarTakibi/HasarTakibi.jsx"));
+const YakitLimitleri = lazyWithRetry(() => import("./_root/pages/vehicles-control/YakitLimitleri/YakitLimitleri.jsx"));
+const KmUpdate = lazyWithRetry(() => import("./_root/pages/vehicles-control/hizli-km/KmUpdate"));
+const KiralikAraclar = lazyWithRetry(() => import("./_root/pages/vehicles-control/kiralikAraclar/KiralikAraclarTablo.jsx"));
+const IkameAracYonetimi = lazyWithRetry(() => import("./_root/pages/vehicles-control/IkameAracYonetimi/IkameAracYonetimi.jsx"));
 
 // hgs islemleri
-const HgsİslemTakibi = lazy(() => import("./_root/pages/HgsIslemleri/HgsIslemTakibi/HgsIslemTakibi.jsx"));
+const HgsİslemTakibi = lazyWithRetry(() => import("./_root/pages/HgsIslemleri/HgsIslemTakibi/HgsIslemTakibi.jsx"));
 
 // Talep yonetimi
-const TalepYonetimi = lazy(() => import("./_root/pages/TalepYonetimi/TalepYonetimi.jsx"));
+const TalepYonetimi = lazyWithRetry(() => import("./_root/pages/TalepYonetimi/TalepYonetimi.jsx"));
 
 // yakit yonetimi
-const YakitTanimlar = lazy(() => import("./_root/pages/yakit-yonetim/yakit-tanim/YakitTanimlar"));
-const YakitCikisFisleri = lazy(() => import("./_root/pages/yakit-yonetim/cikis-fis/YakitCikisFisleri"));
-const YakitTransferler = lazy(() => import("./_root/pages/yakit-yonetim/transferler/YakitTransferler"));
-const YakitGirisFisleri = lazy(() => import("./_root/pages/yakit-yonetim/giris-fis/YakitGirisFisleri"));
+const YakitTanimlar = lazyWithRetry(() => import("./_root/pages/yakit-yonetim/yakit-tanim/YakitTanimlar"));
+const YakitCikisFisleri = lazyWithRetry(() => import("./_root/pages/yakit-yonetim/cikis-fis/YakitCikisFisleri"));
+const YakitTransferler = lazyWithRetry(() => import("./_root/pages/yakit-yonetim/transferler/YakitTransferler"));
+const YakitGirisFisleri = lazyWithRetry(() => import("./_root/pages/yakit-yonetim/giris-fis/YakitGirisFisleri"));
 
 // malzeme depo
-const Malzemeler = lazy(() => import("./_root/pages/malzeme-depo/malzeme/Malzemeler"));
-const GirisFisleri1 = lazy(() => import("./_root/pages/malzeme-depo/giris-fis/GirisFisleri"));
-const GirisFisleri = lazy(() => import("./_root/pages/malzeme-depo/GirisFisleri/GirisFisleri.jsx"));
-const CikisFisleri1 = lazy(() => import("./_root/pages/malzeme-depo/cikis-fis/CikisFisleri"));
-const CikisFisleri = lazy(() => import("./_root/pages/malzeme-depo/CikisFisleri/CikisFisleri.jsx"));
-const Transferler = lazy(() => import("./_root/pages/malzeme-depo/TransferFisleri/TransferFisleri.jsx"));
-const Transferler1 = lazy(() => import("./_root/pages/malzeme-depo/transferler/Transferler.jsx"));
-const MalzemeHareketler = lazy(() => import("./_root/pages/malzeme-depo/MalzemeHaraketleri/MalzemeHaraketleri.jsx"));
-const Hareketler = lazy(() => import("./_root/pages/malzeme-depo/hareketler/Hareketler"));
-const MalzemeDepoTanimlari = lazy(() => import("./_root/pages/malzeme-depo/DepoTanimlari/DepoTanimlari.jsx"));
+const Malzemeler = lazyWithRetry(() => import("./_root/pages/malzeme-depo/malzeme/Malzemeler"));
+const GirisFisleri1 = lazyWithRetry(() => import("./_root/pages/malzeme-depo/giris-fis/GirisFisleri"));
+const GirisFisleri = lazyWithRetry(() => import("./_root/pages/malzeme-depo/GirisFisleri/GirisFisleri.jsx"));
+const CikisFisleri1 = lazyWithRetry(() => import("./_root/pages/malzeme-depo/cikis-fis/CikisFisleri"));
+const CikisFisleri = lazyWithRetry(() => import("./_root/pages/malzeme-depo/CikisFisleri/CikisFisleri.jsx"));
+const Transferler = lazyWithRetry(() => import("./_root/pages/malzeme-depo/TransferFisleri/TransferFisleri.jsx"));
+const Transferler1 = lazyWithRetry(() => import("./_root/pages/malzeme-depo/transferler/Transferler.jsx"));
+const MalzemeHareketler = lazyWithRetry(() => import("./_root/pages/malzeme-depo/MalzemeHaraketleri/MalzemeHaraketleri.jsx"));
+const Hareketler = lazyWithRetry(() => import("./_root/pages/malzeme-depo/hareketler/Hareketler"));
+const MalzemeDepoTanimlari = lazyWithRetry(() => import("./_root/pages/malzeme-depo/DepoTanimlari/DepoTanimlari.jsx"));
 
-const Suruculer = lazy(() => import("./_root/pages/sistem-tanimlari/surucu/SurucuTanim"));
-const Settings = lazy(() => import("./_root/pages/settings/Settings"));
-const MarkaList = lazy(() => import("./_root/pages/sistem-tanimlari/marka-model/MarkaList"));
-const Sehirler = lazy(() => import("./_root/pages/sistem-tanimlari/sehirler/Sehirler"));
-const Guzergah = lazy(() => import("./_root/pages/sistem-tanimlari/guzergah/Guzergah"));
-const IsKartlari = lazy(() => import("./_root/pages/sistem-tanimlari/is-kartlari/IsKartlari"));
-const HgsGecisUcretleri = lazy(() => import("./_root/pages/sistem-tanimlari/hgs-gecis-fiyatlari/HgsGecisFiyatlari.jsx"));
+const Suruculer = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/surucu/SurucuTanim"));
+const Settings = lazyWithRetry(() => import("./_root/pages/settings/Settings"));
+const MarkaList = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/marka-model/MarkaList"));
+const Sehirler = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/sehirler/Sehirler"));
+const Guzergah = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/guzergah/Guzergah"));
+const IsKartlari = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/is-kartlari/IsKartlari"));
+const HgsGecisUcretleri = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/hgs-gecis-fiyatlari/HgsGecisFiyatlari.jsx"));
 
 // Lastik Yonetimi
-const LastikTanim = lazy(() => import("./_root/pages/sistem-tanimlari/lastik-tanim/LastikTanim"));
-const Axle = lazy(() => import("./_root/pages/LastikYonetimi/Axle/Axle.jsx"));
-const LastikIslemleri = lazy(() => import("./_root/pages/LastikYonetimi/LastikIslemleri/LastikIslemleri"));
-const LastikEnvanteri = lazy(() => import("./_root/pages/LastikYonetimi/LastikEnvanteri/LastikEnvanteri"));
+const LastikTanim = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/lastik-tanim/LastikTanim"));
+const Axle = lazyWithRetry(() => import("./_root/pages/LastikYonetimi/Axle/Axle.jsx"));
+const LastikIslemleri = lazyWithRetry(() => import("./_root/pages/LastikYonetimi/LastikIslemleri/LastikIslemleri"));
+const LastikEnvanteri = lazyWithRetry(() => import("./_root/pages/LastikYonetimi/LastikEnvanteri/LastikEnvanteri"));
 
-const CezaTanim = lazy(() => import("./_root/pages/sistem-tanimlari/ceza-tanim/CezaTanim"));
-const ServisTanim = lazy(() => import("./_root/pages/sistem-tanimlari/servis-tanim/ServisTanim"));
-const FirmaTanim = lazy(() => import("./_root/pages/sistem-tanimlari/firma-tanim/FirmaTanim"));
-const PersonelTanim = lazy(() => import("./_root/pages/sistem-tanimlari/personel-tanim/PersonelTanim"));
-const LokasyonTanimlari = lazy(() => import("./_root/pages/sistem-tanimlari/LokasyonTanimlari/LokasyonTanimlari.jsx"));
-const YakitHaraketleri = lazy(() => import("./_root/pages/yakit-yonetim/YakitHareketleri/YakitIslemleri.jsx"));
-const Ekspertizler = lazy(() => import("./_root/pages/vehicles-control/Ekspertizler/Ekspertizler.jsx"));
+const CezaTanim = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/ceza-tanim/CezaTanim"));
+const ServisTanim = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/servis-tanim/ServisTanim"));
+const FirmaTanim = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/firma-tanim/FirmaTanim"));
+const PersonelTanim = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/personel-tanim/PersonelTanim"));
+const LokasyonTanimlari = lazyWithRetry(() => import("./_root/pages/sistem-tanimlari/LokasyonTanimlari/LokasyonTanimlari.jsx"));
+const YakitHaraketleri = lazyWithRetry(() => import("./_root/pages/yakit-yonetim/YakitHareketleri/YakitIslemleri.jsx"));
+const Ekspertizler = lazyWithRetry(() => import("./_root/pages/vehicles-control/Ekspertizler/Ekspertizler.jsx"));
 
 // Bakım ve Onarım
-const PeriyordikBakimlar = lazy(() => import("./_root/pages/BakimVeOnarim/PeriyodikBakimlar/PeriyodikBakimlar.jsx"));
-const ArizaBildirimleri = lazy(() => import("./_root/pages/BakimVeOnarim/ArizaBildirimleri/ArizaBildirimleri.jsx"));
+const PeriyordikBakimlar = lazyWithRetry(() => import("./_root/pages/BakimVeOnarim/PeriyodikBakimlar/PeriyodikBakimlar.jsx"));
+const ArizaBildirimleri = lazyWithRetry(() => import("./_root/pages/BakimVeOnarim/ArizaBildirimleri/ArizaBildirimleri.jsx"));
 
-const Raporlar = lazy(() => import("./_root/pages/raporlar/RaporYonetimi.jsx"));
-const KodYonetimi = lazy(() => import("./_root/pages/kod-yonetimi/KodYonetimi"));
-const Hazirlaniyor = lazy(() => import("./_root/pages/Hazirlaniyor"));
+const Raporlar = lazyWithRetry(() => import("./_root/pages/raporlar/RaporYonetimi.jsx"));
+const KodYonetimi = lazyWithRetry(() => import("./_root/pages/kod-yonetimi/KodYonetimi"));
+const Hazirlaniyor = lazyWithRetry(() => import("./_root/pages/Hazirlaniyor"));
 
-const ServisIslemleri = lazy(() => import("./_root/pages/vehicles-control/ServisIslemleri/ServisIslemleri"));
+const ServisIslemleri = lazyWithRetry(() => import("./_root/pages/vehicles-control/ServisIslemleri/ServisIslemleri"));
 
 // Analizler
-const YakitTuketimAnalizi = lazy(() => import("./_root/pages/Analizler/YakitTuketimAnalizi/YakitTuketimAnalizi.jsx"));
-const PerformansAnalizi = lazy(() => import("./_root/pages/Analizler/PerformansAnalizi/PerformansAnalizi.jsx"));
-const MaliyetAnalizi = lazy(() => import("./_root/pages/Analizler/MaliyetAnalizi/MaliyetAnalizi.jsx"));
-const MalzemeTuketimAnalizi = lazy(() => import("./_root/pages/Analizler/MalzemeTuketimAnalizi/MalzemeTuketimAnalizi.jsx"));
+const YakitTuketimAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/YakitTuketimAnalizi/YakitTuketimAnalizi.jsx"));
+const PerformansAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/PerformansAnalizi/PerformansAnalizi.jsx"));
+const MaliyetAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/MaliyetAnalizi/MaliyetAnalizi.jsx"));
+const MalzemeTuketimAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/MalzemeTuketimAnalizi/MalzemeTuketimAnalizi.jsx"));
 
 // sistem Ayarlari
-const KullaniciTanimlari = lazy(() => import("./_root/pages/SistemAyarlari/KullaniciTanimlari/KullaniciTanimlari.jsx"));
-const Onaylar = lazy(() => import("./_root/pages/SistemAyarlari/Onaylar/Onaylar.jsx"));
-const OnaylamaIslemleri = lazy(() => import("./_root/pages/SistemAyarlari/OnaylamaIslemleri/OnaylamaIslemleri.jsx"));
+const KullaniciTanimlari = lazyWithRetry(() => import("./_root/pages/SistemAyarlari/KullaniciTanimlari/KullaniciTanimlari.jsx"));
+const Onaylar = lazyWithRetry(() => import("./_root/pages/SistemAyarlari/Onaylar/Onaylar.jsx"));
+const OnaylamaIslemleri = lazyWithRetry(() => import("./_root/pages/SistemAyarlari/OnaylamaIslemleri/OnaylamaIslemleri.jsx"));
 
 // Profil Duzenleme
-const ProfiliDuzenleTabs = lazy(() => import("./_root/pages/KullaniciProfil/components/ProfiliDuzenle/ProfiliDuzenleTabs.jsx"));
+const ProfiliDuzenleTabs = lazyWithRetry(() => import("./_root/pages/KullaniciProfil/components/ProfiliDuzenle/ProfiliDuzenleTabs.jsx"));
 
 // Yetkısız İşlem
-const YetkisizIslem = lazy(() => import("./_root/pages/YekisizIslem"));
+const YetkisizIslem = lazyWithRetry(() => import("./_root/pages/YekisizIslem"));
 
-const DenemeTable = lazy(() => import("./_root/pages/Deneme/DenemeTable.jsx"));
+const DenemeTable = lazyWithRetry(() => import("./_root/pages/Deneme/DenemeTable.jsx"));
 
-const CompanyKeyPage = lazy(() => import("./_auth/CompanyKeyPage.jsx"));
+const CompanyKeyPage = lazyWithRetry(() => import("./_auth/CompanyKeyPage.jsx"));
 
 // Aktarım
-const AracAktarim = lazy(() => import("./_root/pages/Aktarim/AracAktarim.jsx"));
-const CezaAktarim = lazy(() => import("./_root/pages/Aktarim/CezaAktarim.jsx"));
-const KazaAktarim = lazy(() => import("./_root/pages/Aktarim/KazaAktarim.jsx"));
-const SurucuAktarim = lazy(() => import("./_root/pages/Aktarim/SurucuAktarim.jsx"));
-const KmAktarim = lazy(() => import("./_root/pages/Aktarim/KmAktarim.jsx"));
-const HgsAktarim = lazy(() => import("./_root/pages/Aktarim/HgsAktarim.jsx"));
+const AracAktarim = lazyWithRetry(() => import("./_root/pages/Aktarim/AracAktarim.jsx"));
+const CezaAktarim = lazyWithRetry(() => import("./_root/pages/Aktarim/CezaAktarim.jsx"));
+const KazaAktarim = lazyWithRetry(() => import("./_root/pages/Aktarim/KazaAktarim.jsx"));
+const SurucuAktarim = lazyWithRetry(() => import("./_root/pages/Aktarim/SurucuAktarim.jsx"));
+const KmAktarim = lazyWithRetry(() => import("./_root/pages/Aktarim/KmAktarim.jsx"));
+const HgsAktarim = lazyWithRetry(() => import("./_root/pages/Aktarim/HgsAktarim.jsx"));
 
 // Loading component
 const LoadingSpinner = () => (
