@@ -9,7 +9,7 @@ import DetailUpdate from "../../../../../../vehicles-control/vehicle-detail/Deta
 
 const { Text } = Typography;
 
-const Tarihce = ({ selectedRow, hidePopover }) => {
+const Tarihce = ({ selectedRow, hidePopover, periodRanges }) => {
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -25,51 +25,46 @@ const Tarihce = ({ selectedRow, hidePopover }) => {
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
 
   const buildPeriodRanges = useCallback(() => {
-    const now = new Date();
+    const now = dayjs();
+    const year = now.year();
+    const month = now.month();
 
-    // UTC bileşenlerini kullan
-    const year = now.getUTCFullYear();
-    const month = now.getUTCMonth();
-    const date = now.getUTCDate();
+    const dateFormat = "YYYY-MM-DDTHH:mm:ss.SSS[Z]";
 
-    // Yıl (UTC)
-    const startOfYear = new Date(Date.UTC(year, 0, 1, 0, 0, 0, 0));
-    const endOfYear = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
+    // Yıl
+    const startOfYear = now.startOf("year");
+    const endOfYear = now.endOf("year");
 
-    // Ay (UTC)
-    const startOfMonth = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
-    const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
+    // Ay
+    const startOfMonth = now.startOf("month");
+    const endOfMonth = now.endOf("month");
 
-    // Çeyrek (3 aylık, UTC)
+    // Çeyrek (3 aylık)
     const quarterStartMonth = Math.floor(month / 3) * 3;
-    const startOfQuarter = new Date(Date.UTC(year, quarterStartMonth, 1, 0, 0, 0, 0));
-    const endOfQuarter = new Date(Date.UTC(year, quarterStartMonth + 3, 0, 23, 59, 59, 999));
+    const startOfQuarter = dayjs().year(year).month(quarterStartMonth).startOf("month");
+    const endOfQuarter = dayjs().year(year).month(quarterStartMonth + 2).endOf("month");
 
-    // Yarım yıl (6 aylık, UTC)
+    // Yarım yıl (6 aylık)
     const halfYearStartMonth = month < 6 ? 0 : 6;
-    const startOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth, 1, 0, 0, 0, 0));
-    const endOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth + 6, 0, 23, 59, 59, 999));
+    const startOfHalfYear = dayjs().year(year).month(halfYearStartMonth).startOf("month");
+    const endOfHalfYear = dayjs().year(year).month(halfYearStartMonth + 5).endOf("month");
 
-    // Hafta (UTC, Pazartesi başlangıç)
-    const dayOfWeekUTC = (now.getUTCDay() + 6) % 7; // Pazartesi=0
-    const startOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC, 0, 0, 0, 0));
-    const endOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC + 6, 23, 59, 59, 999));
+    // Hafta (Pazartesi başlangıç)
+    const dayOfWeek = (now.day() + 6) % 7; // Pazartesi=0
+    const startOfWeek = now.subtract(dayOfWeek, "day").startOf("day");
+    const endOfWeek = now.subtract(dayOfWeek, "day").add(6, "day").endOf("day");
 
     return {
-      haftalikBaslangicTarih: startOfWeek.toISOString(),
-      haftalikBitisTarih: endOfWeek.toISOString(),
-      aylikBaslangicTarih: startOfMonth.toISOString(),
-      aylikBitisTarih: endOfMonth.toISOString(),
-      ucAylikBaslangicTarih: startOfQuarter.toISOString(),
-      ucAylikBitisTarih: endOfQuarter.toISOString(),
-      altiAylikBaslangicTarih: startOfHalfYear.toISOString(),
-      altiAylikBitisTarih: endOfHalfYear.toISOString(),
-      UcAylikBaslangicTarih: startOfQuarter.toISOString(),
-      UcAylikBitisTarih: endOfQuarter.toISOString(),
-      AltiAylikBaslangicTarih: startOfHalfYear.toISOString(),
-      AltiAylikBitisTarih: endOfHalfYear.toISOString(),
-      yillikBaslangicTarih: startOfYear.toISOString(),
-      yillikBitisTarih: endOfYear.toISOString(),
+      haftalikBaslangicTarih: startOfWeek.format(dateFormat),
+      haftalikBitisTarih: endOfWeek.format(dateFormat),
+      aylikBaslangicTarih: startOfMonth.format(dateFormat),
+      aylikBitisTarih: endOfMonth.format(dateFormat),
+      ucAylikBaslangicTarih: startOfQuarter.format(dateFormat),
+      ucAylikBitisTarih: endOfQuarter.format(dateFormat),
+      altiAylikBaslangicTarih: startOfHalfYear.format(dateFormat),
+      altiAylikBitisTarih: endOfHalfYear.format(dateFormat),
+      yillikBaslangicTarih: startOfYear.format(dateFormat),
+      yillikBitisTarih: endOfYear.format(dateFormat),
     };
   }, []);
 
@@ -78,7 +73,7 @@ const Tarihce = ({ selectedRow, hidePopover }) => {
 
     setLoading(true);
     try {
-      const dates = buildPeriodRanges();
+      const dates = periodRanges || buildPeriodRanges();
 
       const payload = {
         siraNo: selectedRow.siraNo,

@@ -180,60 +180,65 @@ const YakitLimitleri = () => {
   const prevBodyRef = useRef(body);
   const hasFetchedRef = useRef(false);
 
-  // Mevcut hafta/ay/yıl başlangıç-bitiş aralıklarını ISO formatında döndür
+  // Mevcut hafta/ay/yıl başlangıç-bitiş aralıklarını dayjs ile oluştur
   const buildPeriodRanges = useCallback(() => {
     const customYear = body.filters?.customfilter?.yil;
     const customMonth = body.filters?.customfilter?.ay; // 1-based
 
-    const now = new Date();
+    const now = dayjs();
 
     // Kullanıcı tarih seçtiyse onu, seçmediyse şu anki tarihi kullan
-    const year = customYear || now.getUTCFullYear();
-    const month = customMonth ? customMonth - 1 : now.getUTCMonth(); // 0-based
-    const date = customYear ? 1 : now.getUTCDate();
+    const year = customYear || now.year();
+    const month = customMonth ? customMonth - 1 : now.month();
+    const date = customYear ? 1 : now.date();
 
-    // Yıl (UTC)
-    const startOfYear = new Date(Date.UTC(year, 0, 1, 0, 0, 0, 0));
-    const endOfYear = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
+    const baseDate = dayjs().year(year).month(month).date(date);
 
-    // Ay (UTC)
-    const startOfMonth = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
-    const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
+    // Formatımız
+    const dateFormat = "YYYY-MM-DDTHH:mm:ss.SSS[Z]";
 
-    // Çeyrek (3 aylık, UTC)
+    // Yıl
+    const startOfYear = baseDate.startOf("year");
+    const endOfYear = baseDate.endOf("year");
+
+    // Ay
+    const startOfMonth = baseDate.startOf("month");
+    const endOfMonth = baseDate.endOf("month");
+
+    // Çeyrek (3 aylık)
     const quarterStartMonth = Math.floor(month / 3) * 3;
-    const startOfQuarter = new Date(Date.UTC(year, quarterStartMonth, 1, 0, 0, 0, 0));
-    const endOfQuarter = new Date(Date.UTC(year, quarterStartMonth + 3, 0, 23, 59, 59, 999));
+    const startOfQuarter = dayjs().year(year).month(quarterStartMonth).startOf("month");
+    const endOfQuarter = dayjs().year(year).month(quarterStartMonth + 2).endOf("month");
 
-    // Yarım yıl (6 aylık, UTC)
+    // Yarım yıl (6 aylık)
     const halfYearStartMonth = month < 6 ? 0 : 6;
-    const startOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth, 1, 0, 0, 0, 0));
-    const endOfHalfYear = new Date(Date.UTC(year, halfYearStartMonth + 6, 0, 23, 59, 59, 999));
+    const startOfHalfYear = dayjs().year(year).month(halfYearStartMonth).startOf("month");
+    const endOfHalfYear = dayjs().year(year).month(halfYearStartMonth + 5).endOf("month");
 
-    // Hafta (UTC)
+    // Hafta (Pazartesi başlangıç)
     let startOfWeek, endOfWeek;
     if (customYear) {
       // Kullanıcı tarih seçtiyse o ayın 1'i ve 7'si
-      startOfWeek = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
-      endOfWeek = new Date(Date.UTC(year, month, 7, 23, 59, 59, 999));
+      startOfWeek = dayjs().year(year).month(month).date(1).startOf("day");
+      endOfWeek = dayjs().year(year).month(month).date(7).endOf("day");
     } else {
-      // Varsayılan: mevcut haftanın başı ve sonu (Pazartesi başlangıç)
-      const dayOfWeekUTC = (now.getUTCDay() + 6) % 7; // Pazartesi=0
-      startOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC, 0, 0, 0, 0));
-      endOfWeek = new Date(Date.UTC(year, month, date - dayOfWeekUTC + 6, 23, 59, 59, 999));
+      // Varsayılan: mevcut haftanın başı ve sonu (Pazartesi=0)
+      const dayOfWeek = (now.day() + 6) % 7;
+      startOfWeek = now.subtract(dayOfWeek, "day").startOf("day");
+      endOfWeek = now.subtract(dayOfWeek, "day").add(6, "day").endOf("day");
     }
 
     return {
-      haftalikBaslangicTarih: startOfWeek.toISOString(),
-      haftalikBitisTarih: endOfWeek.toISOString(),
-      aylikBaslangicTarih: startOfMonth.toISOString(),
-      aylikBitisTarih: endOfMonth.toISOString(),
-      ucAylikBaslangicTarih: startOfQuarter.toISOString(),
-      ucAylikBitisTarih: endOfQuarter.toISOString(),
-      altiAylikBaslangicTarih: startOfHalfYear.toISOString(),
-      altiAylikBitisTarih: endOfHalfYear.toISOString(),
-      yillikBaslangicTarih: startOfYear.toISOString(),
-      yillikBitisTarih: endOfYear.toISOString(),
+      haftalikBaslangicTarih: startOfWeek.format(dateFormat),
+      haftalikBitisTarih: endOfWeek.format(dateFormat),
+      aylikBaslangicTarih: startOfMonth.format(dateFormat),
+      aylikBitisTarih: endOfMonth.format(dateFormat),
+      ucAylikBaslangicTarih: startOfQuarter.format(dateFormat),
+      ucAylikBitisTarih: endOfQuarter.format(dateFormat),
+      altiAylikBaslangicTarih: startOfHalfYear.format(dateFormat),
+      altiAylikBitisTarih: endOfHalfYear.format(dateFormat),
+      yillikBaslangicTarih: startOfYear.format(dateFormat),
+      yillikBitisTarih: endOfYear.format(dateFormat),
     };
   }, [body.filters?.customfilter?.yil, body.filters?.customfilter?.ay]);
 
@@ -979,7 +984,7 @@ const YakitLimitleri = () => {
               <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
                 {t("indir")}
               </Button>
-              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} periodRanges={periodRangesRef.current} />
               <CreateDrawer selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
             </div>
           </div>

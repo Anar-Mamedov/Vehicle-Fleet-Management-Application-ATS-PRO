@@ -6,7 +6,7 @@ import Tarihce from "./components/Tarihce/Tarihce";
 
 const { Text } = Typography;
 
-export default function ContextMenu({ selectedRows, refreshTableData }) {
+export default function ContextMenu({ selectedRows, refreshTableData, periodRanges }) {
   const [visible, setVisible] = useState(false);
 
   const handleVisibleChange = (visible) => {
@@ -19,7 +19,7 @@ export default function ContextMenu({ selectedRows, refreshTableData }) {
 
   const content = (
     <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-      {selectedRows.length === 1 && <Tarihce selectedRow={selectedRows[0]} hidePopover={hidePopover} />}
+      {selectedRows.length === 1 && <Tarihce selectedRow={selectedRows[0]} hidePopover={hidePopover} periodRanges={periodRanges} />}
       {selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
     </div>
   );
