@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip } from "antd";
+import React, { useCallback, useEffect, useState, useRef } from "react";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select, Pagination } from "antd";
 import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -18,6 +18,10 @@ import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 
 const { Text } = Typography;
+const { Option } = Select;
+
+const pageSizeHgsIslem = "hgsIslemTabloPageSize";
+const infiniteScrollKey = "tabloInfiniteScroll";
 
 const StyledButton = styled(Button)`
   display: flex;
@@ -116,12 +120,31 @@ const Yakit = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [loading, setLoading] = useState(false); // Set initial loading state to false
+  const [loading, setLoading] = useState(false);
+  const [paginationLoading, setPaginationLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0); // Total data count
-  const [pageSize, setPageSize] = useState(10); // Page size
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [infiniteScrollEnabled, setInfiniteScrollEnabled] = useState(() => {
+    const savedScrollMode = localStorage.getItem(infiniteScrollKey);
+    return savedScrollMode !== null ? JSON.parse(savedScrollMode) : false;
+  });
+  
+  const [pageSize, setPageSize] = useState(() => {
+    const savedPageSize = localStorage.getItem(pageSizeHgsIslem);
+    const initialSize = parseInt(savedPageSize, 10);
+    return !isNaN(initialSize) && initialSize >= 20 ? initialSize : 20;
+  });
+
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortDirection, setSortDirection] = useState("");
+
+  const [isLoadingPage, setIsLoadingPage] = useState(false);
+  const lastFetchIdRef = useRef(0);
+  const scrollTimeoutRef = useRef(null);
+
   const [drawer, setDrawer] = useState({
     visible: false,
     data: null,
@@ -130,61 +153,190 @@ const Yakit = () => {
 
   const [selectedRows, setSelectedRows] = useState([]);
 
-  // API Data Fetching with diff and setPointId
-  const fetchData = async (diff, targetPage) => {
-    setLoading(true);
-    try {
-      let currentSetPointId = 0;
+  // API Data Fetching with pagination, search, and sorting
+  const fetchData = async (diff, targetPage, currentSize = pageSize, customSortColumn = sortColumn, customSortDirection = sortDirection) => {
+    const currentFetchId = lastFetchIdRef.current + 1;
+    lastFetchIdRef.current = currentFetchId;
 
-      if (diff > 0) {
-        // Moving forward
-        currentSetPointId = data[data.length - 1]?.siraNo || 0;
-      } else if (diff < 0) {
-        // Moving backward
-        currentSetPointId = data[0]?.siraNo || 0;
-      } else {
-        currentSetPointId = 0;
+    if (isLoadingPage && diff > 0) return;
+
+    diff === 0 ? setLoading(true) : setIsLoadingMore(true);
+    setIsLoadingPage(true);
+
+    try {
+      const directionStr = customSortDirection === "ascend" ? "asc" : customSortDirection === "descend" ? "desc" : "";
+      
+      const payload = {
+        sortColumn: customSortColumn,
+        sortDirection: directionStr
+      };
+
+      const qSearch = searchTerm ? `&parameter=${encodeURIComponent(searchTerm)}` : "";
+
+      const response = await AxiosInstance.post(`HgsOperations/GetHgsOperationsList?pageSize=${currentSize}&pageNumber=${targetPage}${qSearch}`, payload);
+
+      if (currentFetchId !== lastFetchIdRef.current) {
+        return;
       }
 
-      const response = await AxiosInstance.post(`HgsOperations/GetHgsOperationsList?setPointId=${currentSetPointId}&diff=${diff}&parameter=${searchTerm}`);
-
-      const total = response.data.recordCount;
+      const total = response.data.recordCount || 0;
       setTotalCount(total);
-      setCurrentPage(targetPage);
 
-      const newData = response.data.list.map((item) => ({
+      if (targetPage !== undefined) {
+        setCurrentPage(targetPage);
+      }
+
+      const listItems = response.data.list || [];
+      const newItems = listItems.map((item) => ({
         ...item,
-        key: item.siraNo, // Assign key directly from siraNo
+        key: item.siraNo,
       }));
 
-      if (newData.length > 0) {
-        setData(newData);
+      if (infiniteScrollEnabled) {
+        if (diff > 0 && newItems.length > 0) {
+          const existingIds = new Set(data.map((item) => item.siraNo));
+          const uniqueNewItems = newItems.filter((item) => !existingIds.has(item.siraNo));
+
+          if (uniqueNewItems.length > 0) {
+            setData((prevData) => [...prevData, ...uniqueNewItems]);
+          }
+        } else if (diff === 0 || targetPage === 1) {
+          setData(newItems);
+        }
       } else {
-        message.warning("No data found.");
-        setData([]);
+        if (newItems.length > 0) {
+          setData(newItems);
+        } else {
+          message.warning("Veri bulunamadı.");
+          if (targetPage === 1) {
+            setData([]);
+          }
+        }
       }
     } catch (error) {
       console.error("Error fetching data:", error);
       message.error("An error occurred while fetching data.");
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
+      setIsLoadingPage(false);
     }
   };
 
   useEffect(() => {
-    fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!infiniteScrollEnabled) {
+      setPaginationLoading(true);
+    }
+    fetchData(0, 1, pageSize).finally(() => {
+      if (!infiniteScrollEnabled) {
+        setPaginationLoading(false);
+      }
+    });
+  }, [infiniteScrollEnabled]);
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
   }, []);
 
-  // Search handling
-  // Define handleSearch function
   const handleSearch = () => {
-    fetchData(0, 1);
+    if (!infiniteScrollEnabled) setPaginationLoading(true);
+    setCurrentPage(1);
+    fetchData(0, 1, pageSize).finally(() => {
+      if (!infiniteScrollEnabled) setPaginationLoading(false);
+    });
   };
 
-  const handleTableChange = (page) => {
+  const handleTableChange = (pagination, filters, sorter) => {
+    if (sorter) {
+      const newSortColumn = sorter.field || "";
+      const newSortDirection = sorter.order || "";
+      setSortColumn(newSortColumn);
+      setSortDirection(newSortDirection);
+      
+      if (!infiniteScrollEnabled) setPaginationLoading(true);
+      setCurrentPage(1);
+      fetchData(0, 1, pageSize, newSortColumn, newSortDirection).finally(() => {
+        if (!infiniteScrollEnabled) setPaginationLoading(false);
+      });
+      return;
+    }
+
+    const page = typeof pagination === "object" ? (pagination.current || 1) : pagination;
     const diff = page - currentPage;
-    fetchData(diff, page);
+    if (!infiniteScrollEnabled) setPaginationLoading(true);
+    fetchData(diff, page, pageSize).finally(() => {
+      if (!infiniteScrollEnabled) setPaginationLoading(false);
+    });
+  };
+
+  const handlePageSizeChange = (value) => {
+    if (!infiniteScrollEnabled) setPaginationLoading(true);
+    localStorage.setItem(pageSizeHgsIslem, value.toString());
+    setPageSize(value);
+    fetchData(0, 1, value).finally(() => {
+      if (!infiniteScrollEnabled) setPaginationLoading(false);
+    });
+  };
+
+  const handleTableScroll = (e) => {
+    if (!infiniteScrollEnabled) return;
+
+    const target = e.target;
+    if (target.className !== "ant-table-body") return;
+
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    const { scrollTop, scrollHeight, clientHeight } = target;
+    const scrollBottom = scrollHeight - (scrollTop + clientHeight);
+
+    if (scrollBottom <= clientHeight * 0.2 && !loading && !isLoadingMore && !isLoadingPage && data.length < totalCount) {
+      scrollTimeoutRef.current = setTimeout(() => {
+        fetchData(1, currentPage + 1, pageSize);
+      }, 200);
+    }
+  };
+
+  const tableFooter = () => {
+    if (isLoadingMore) {
+      return <div style={{ textAlign: "center" }}>Daha fazla yükleniyor...</div>;
+    }
+
+    const displayCount = infiniteScrollEnabled ? Math.min(data.length, totalCount) : data.length;
+
+    return (
+      <div style={{}}>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
+          <div>
+            Toplam Kayıt: {totalCount} | Görüntülenen: {displayCount}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+            {!infiniteScrollEnabled && (
+              <Pagination
+                simple={{ readOnly: true }}
+                current={currentPage}
+                total={totalCount}
+                pageSize={pageSize}
+                onChange={(page) => handleTableChange(page)}
+                showSizeChanger={false}
+                size="small"
+              />
+            )}
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <span style={{ marginRight: "8px" }}>Kayıt:</span>
+              <Select value={pageSize} onChange={handlePageSizeChange} style={{ width: 70 }} popupMatchSelectWidth={false}>
+                <Option value={20}>20</Option>
+                <Option value={50}>50</Option>
+                <Option value={100}>100</Option>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
@@ -222,11 +374,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true,
       render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
-      sorter: (a, b) => {
-        if (a.plaka === null) return -1;
-        if (b.plaka === null) return 1;
-        return a.plaka.localeCompare(b.plaka);
-      },
+      sorter: true,
     },
     {
       title: t("tarih"),
@@ -235,11 +383,7 @@ const Yakit = () => {
       width: 120,
       ellipsis: true,
       visible: true,
-      sorter: (a, b) => {
-        if (a.tarih === null) return -1;
-        if (b.tarih === null) return 1;
-        return new Date(a.tarih) - new Date(b.tarih);
-      },
+      sorter: true,
         render: (text) => {
         if (!text) return "-";
         return dayjs(text).format("DD.MM.YYYY");
@@ -252,11 +396,7 @@ const Yakit = () => {
       width: 120,
       ellipsis: true,
       visible: true,
-      sorter: (a, b) => {
-        if (a.isim === null) return -1;
-        if (b.isim === null) return 1;
-        return a.isim.localeCompare(b.isim);
-      },
+      sorter: true,
     },
     {
       title: t("otoyol"),
@@ -266,11 +406,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
 
-      sorter: (a, b) => {
-        if (a.otoYol === null) return -1;
-        if (b.otoYol === null) return 1;
-        return a.otoYol.localeCompare(b.otoYol);
-      },
+      sorter: true,
     },
     {
       title: t("girisYeri"),
@@ -280,11 +416,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
 
-      sorter: (a, b) => {
-        if (a.girisYeri === null) return -1;
-        if (b.girisYeri === null) return 1;
-        return a.girisYeri.localeCompare(b.girisYeri);
-      },
+      sorter: true,
     },
     {
       title: t("girisTarih"),
@@ -293,11 +425,7 @@ const Yakit = () => {
       width: 120,
       ellipsis: true,
       visible: true,
-      sorter: (a, b) => {
-        if (a.girisTarih === null) return -1;
-        if (b.girisTarih === null) return 1;
-        return new Date(a.girisTarih) - new Date(b.girisTarih);
-      },
+      sorter: true,
         render: (text) => {
         if (!text) return "-";
         return dayjs(text).format("DD.MM.YYYY");
@@ -311,11 +439,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
 
-      sorter: (a, b) => {
-        if (a.girisSaat === null) return -1;
-        if (b.girisSaat === null) return 1;
-        return a.girisSaat.localeCompare(b.girisSaat);
-      },
+      sorter: true,
     },
     {
       title: t("cikisYeri"),
@@ -325,11 +449,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
 
-      sorter: (a, b) => {
-        if (a.cikisYeri === null) return -1;
-        if (b.cikisYeri === null) return 1;
-        return a.cikisYeri - b.cikisYeri;
-      },
+      sorter: true,
     },
     {
       title: t("cikisTarih"),
@@ -338,11 +458,7 @@ const Yakit = () => {
       width: 120,
       ellipsis: true,
       visible: true,
-      sorter: (a, b) => {
-        if (a.cikisTarih === null) return -1;
-        if (b.cikisTarih === null) return 1;
-        return new Date(a.cikisTarih) - new Date(b.cikisTarih);
-      },
+      sorter: true,
         render: (text) => {
         if (!text) return "-";
         return dayjs(text).format("DD.MM.YYYY");
@@ -356,11 +472,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
 
-      sorter: (a, b) => {
-        if (a.cikisSaat === null) return -1;
-        if (b.cikisSaat === null) return 1;
-        return a.cikisSaat.localeCompare(b.cikisSaat);
-      },
+      sorter: true,
     },
     {
       title: t("odemeTuru"),
@@ -370,11 +482,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak açık
 
-      sorter: (a, b) => {
-        if (a.odemeTuru === null) return -1;
-        if (b.odemeTuru === null) return 1;
-        return a.odemeTuru - b.odemeTuru;
-      },
+      sorter: true,
     },
     {
       title: t("gecisUcreti"),
@@ -384,11 +492,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
     
-      sorter: (a, b) => {
-        if (a.gecisUcreti === null) return -1;
-        if (b.gecisUcreti === null) return 1;
-        return a.gecisUcreti - b.gecisUcreti;
-      },
+      sorter: true,
       render: (value) => {
         // Ondalık sayıyı 2 haneli olarak formatlıyoruz
         return value !== null ? value.toFixed(2) : "-";
@@ -402,11 +506,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak açık
 
-      sorter: (a, b) => {
-        if (a.odemeDurumu === null) return -1;
-        if (b.odemeDurumu === null) return 1;
-        return a.odemeDurumu - b.odemeDurumu;
-      },
+      sorter: true,
     },
     {
       title: t("fisNo"),
@@ -416,11 +516,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak açık
 
-      sorter: (a, b) => {
-        if (a.fisNo === null) return -1;
-        if (b.fisNo === null) return 1;
-        return a.fisNo.localeCompare(b.fisNo);
-      },
+      sorter: true,
     },
     {
       title: t("gecisKategorisi"),
@@ -430,11 +526,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak açık
 
-      sorter: (a, b) => {
-        if (a.gecisKategorisi === null) return -1;
-        if (b.gecisKategorisi === null) return 1;
-        return a.gecisKategorisi.localeCompare(b.gecisKategorisi);
-      },
+      sorter: true,
     },
     {
       title: t("guzergah"),
@@ -444,11 +536,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak açık
 
-      sorter: (a, b) => {
-        if (a.guzergah === null) return -1;
-        if (b.guzergah === null) return 1;
-        return a.guzergah.localeCompare(b.guzergah);
-      },
+      sorter: true,
     },
     {
       title: t("aciklama"),
@@ -458,11 +546,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
 
-      sorter: (a, b) => {
-        if (a.aciklama === null) return -1;
-        if (b.aciklama === null) return 1;
-        return a.aciklama.localeCompare(b.aciklama);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan1"),
@@ -472,11 +556,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan1 === null) return -1;
-        if (b.ozelAlan1 === null) return 1;
-        return a.ozelAlan1.localeCompare(b.ozelAlan1);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan2"),
@@ -486,11 +566,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan2 === null) return -1;
-        if (b.ozelAlan2 === null) return 1;
-        return a.ozelAlan2.localeCompare(b.ozelAlan2);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan3"),
@@ -500,11 +576,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan3 === null) return -1;
-        if (b.ozelAlan3 === null) return 1;
-        return a.ozelAlan3.localeCompare(b.ozelAlan3);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan4"),
@@ -514,11 +586,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan4 === null) return -1;
-        if (b.ozelAlan4 === null) return 1;
-        return a.ozelAlan4.localeCompare(b.ozelAlan4);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan5"),
@@ -528,11 +596,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan5 === null) return -1;
-        if (b.ozelAlan5 === null) return 1;
-        return a.ozelAlan5.localeCompare(b.ozelAlan5);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan6"),
@@ -542,11 +606,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan6 === null) return -1;
-        if (b.ozelAlan6 === null) return 1;
-        return a.ozelAlan6.localeCompare(b.ozelAlan6);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan7"),
@@ -556,11 +616,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan7 === null) return -1;
-        if (b.ozelAlan7 === null) return 1;
-        return a.ozelAlan7.localeCompare(b.ozelAlan7);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan8"),
@@ -570,11 +626,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan8 === null) return -1;
-        if (b.ozelAlan8 === null) return 1;
-        return a.ozelAlan8.localeCompare(b.ozelAlan8);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan9"),
@@ -584,11 +636,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan9 === null) return -1;
-        if (b.ozelAlan9 === null) return 1;
-        return a.ozelAlan9.localeCompare(b.ozelAlan9);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan10"),
@@ -598,11 +646,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan10 === null) return -1;
-        if (b.ozelAlan10 === null) return 1;
-        return a.ozelAlan10.localeCompare(b.ozelAlan10);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan11"),
@@ -612,11 +656,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan11 === null) return -1;
-        if (b.ozelAlan11 === null) return 1;
-        return a.ozelAlan11.localeCompare(b.ozelAlan11);
-      },
+      sorter: true,
     },
     {
       title: t("ozelAlan12"),
@@ -626,11 +666,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: false, // Varsayılan olarak kapalı
 
-      sorter: (a, b) => {
-        if (a.ozelAlan1 === null) return -1;
-        if (b.ozelAlan1 === null) return 1;
-        return a.ozelAlan1.localeCompare(b.ozelAlan1);
-      },
+      sorter: true,
     },
 
 
@@ -970,21 +1006,17 @@ const Yakit = () => {
           filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
         }}
       >
-        <Spin spinning={loading}>
+        <Spin spinning={loading || (!infiniteScrollEnabled && paginationLoading)}>
           <Table
             components={components}
             rowSelection={rowSelection}
             columns={filteredColumns}
             dataSource={data}
-            pagination={{
-              current: currentPage,
-              total: totalCount,
-              pageSize: 10,
-              showSizeChanger: false,
-              showQuickJumper: true,
-              onChange: handleTableChange,
-            }}
+            pagination={false}
             scroll={{ y: "calc(100vh - 335px)" }}
+            onScroll={handleTableScroll}
+            onChange={handleTableChange}
+            footer={tableFooter}
           />
         </Spin>
         <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} />
