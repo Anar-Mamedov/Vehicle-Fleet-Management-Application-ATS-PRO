@@ -6,6 +6,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import http from "../../../../api/http.jsx";
 import dayjs from "dayjs";
+import FormattedNumber from "../../../../hooks/FormattedNumber.jsx";
 
 const { Text } = Typography;
 
@@ -191,7 +192,7 @@ function Component1(props) {
                   textOverflow: "ellipsis",
                 }}
               >
-                {data}
+                <FormattedNumber num={data} />
               </Text>
               <Text style={{ color: "white", fontSize: "15px", fontWeight: "400" }}>Aktif Araç Sayısı</Text>
             </div>

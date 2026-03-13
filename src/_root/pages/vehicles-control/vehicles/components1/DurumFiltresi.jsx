@@ -35,7 +35,7 @@ function DurumFiltresi(props) {
     },
     {
       value: "8",
-      label: "Seferde Olan Araçlar",
+      label: "Görevde Olan Araçlar",
     },
   ];
 

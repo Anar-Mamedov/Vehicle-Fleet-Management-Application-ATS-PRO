@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate
 import styled from "styled-components";
 import http from "../../../../api/http.jsx";
 import dayjs from "dayjs";
+import FormattedNumber from "../../../../hooks/FormattedNumber.jsx";
 
 const { Text } = Typography;
 
@@ -69,8 +70,6 @@ function Component2(props) {
         if (typeof responseData === "number") {
           // Ondalık kısmı yuvarlama
           responseData = Math.round(responseData);
-          // Sayıyı 100'lük basamaklara ayırma
-          responseData = responseData.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
         setData(responseData);
       }
@@ -195,7 +194,7 @@ function Component2(props) {
                   textOverflow: "ellipsis",
                 }}
               >
-                {data} lt
+                <FormattedNumber num={data} /> lt
               </Text>
               <Text style={{ color: "white", fontSize: "15px", fontWeight: "400" }}>Yakıt Tüketimi</Text>
             </div>

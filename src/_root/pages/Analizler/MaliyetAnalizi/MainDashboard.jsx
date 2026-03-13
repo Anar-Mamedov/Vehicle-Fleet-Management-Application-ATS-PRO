@@ -54,11 +54,11 @@ const widgetTitles = {
 };
 
 const defaultItems = [
-  { id: "widget1", x: 0, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
-  { id: "widget2", x: 2, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
-  { id: "widget3", x: 4, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
-  { id: "widgetHGS", x: 6, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
-  { id: "widget4", x: 8, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
+  { id: "widget1", x: 0, y: 0, width: 3, height: 1, minW: 2, minH: 1 },
+  { id: "widget2", x: 3, y: 0, width: 3, height: 1, minW: 2, minH: 1 },
+  { id: "widget3", x: 6, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
+  { id: "widgetHGS", x: 8, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
+  { id: "widget4", x: 10, y: 0, width: 2, height: 1, minW: 2, minH: 1 },
   { id: "widget5", x: 0, y: 1, width: 6, height: 3, minW: 3, minH: 2 },
   { id: "widget19", x: 6, y: 1, width: 6, height: 3, minW: 3, minH: 2 },
   { id: "widget14", x: 0, y: 4, width: 6, height: 4, minW: 3, minH: 2 },
@@ -637,7 +637,7 @@ function MainDashboard() {
                 </svg>
                 Yeniden Sırala
               </Button>
-              <Popover content={content} title="Widgetları Yönet" trigger="click">
+              <Popover content={content} title="Widgetları Yönet" trigger="click" placement="bottomRight">
                 <Button
                   style={{
                     display: "flex",
