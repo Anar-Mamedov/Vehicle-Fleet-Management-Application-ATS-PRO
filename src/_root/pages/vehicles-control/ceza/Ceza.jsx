@@ -888,8 +888,11 @@ const Ceza = () => {
                 <div>
                   <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("buAyToplamTutar")}</div>
                   <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>
-                    {statistics.buAyToplamTutar !== null && statistics.buAyToplamTutar !== undefined ? `₺${formatStatisticValue(statistics.buAyToplamTutar)}` : "-"}
+                    {statistics.buAyToplamTutar?.toplamTutar !== null && statistics.buAyToplamTutar?.toplamTutar !== undefined ? `₺${formatStatisticValue(statistics.buAyToplamTutar.toplamTutar)}` : "-"}
                   </div>
+                  {(statistics.buAyToplamTutar?.cezaSayisi !== null && statistics.buAyToplamTutar?.cezaSayisi !== undefined) && (
+                    <div style={{ fontSize: "13px", color: "#8c8c8c", marginTop: "4px", fontWeight: 400 }}>{statistics.buAyToplamTutar.cezaSayisi} kayıt</div>
+                  )}
                 </div>
                 <DollarCircleOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />
               </div>
@@ -910,8 +913,11 @@ const Ceza = () => {
                 <div>
                   <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("odenmemisCeza")}</div>
                   <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>
-                    {statistics.odenmemisCeza !== null && statistics.odenmemisCeza !== undefined ? `${formatStatisticValue(statistics.odenmemisCeza)} ${t("adet")}` : "-"}
+                    {statistics.odenmemisCeza?.odenmemisCezaSayisi !== null && statistics.odenmemisCeza?.odenmemisCezaSayisi !== undefined ? `${formatStatisticValue(statistics.odenmemisCeza.odenmemisCezaSayisi)} ${t("adet")}` : "-"}
                   </div>
+                  {(statistics.odenmemisCeza?.odenmemisTutar !== null && statistics.odenmemisCeza?.odenmemisTutar !== undefined) && (
+                    <div style={{ fontSize: "13px", color: "#8c8c8c", marginTop: "4px", fontWeight: 400 }}>₺{formatStatisticValue(statistics.odenmemisCeza.odenmemisTutar)}</div>
+                  )}
                 </div>
                 <ClockCircleOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />
               </div>
@@ -931,7 +937,10 @@ const Ceza = () => {
               >
                 <div>
                   <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("enCokCezaAlanArac")}</div>
-                  <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>{statistics.enCokCezaAlanArac || "-"}</div>
+                  <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>{statistics.enCokCezaAlanArac?.enCokCezaAlanArac || "-"}</div>
+                  {(statistics.enCokCezaAlanArac?.cezaSayisi !== null && statistics.enCokCezaAlanArac?.cezaSayisi !== undefined) && (
+                    <div style={{ fontSize: "13px", color: "#8c8c8c", marginTop: "4px", fontWeight: 400 }}>{statistics.enCokCezaAlanArac.cezaSayisi} kayıt</div>
+                  )}
                 </div>
                 <CarOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />
               </div>
@@ -970,7 +979,10 @@ const Ceza = () => {
                 </Tooltip>
                 <div>
                   <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("enRiskliSurucu")}</div>
-                  <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>{statistics.enRiskliSurucu || "-"}</div>
+                  <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>{statistics.enRiskliSurucu?.enCokCezaAlanSurucu || "-"}</div>
+                  {(statistics.enRiskliSurucu?.cezaSayisi !== null && statistics.enRiskliSurucu?.cezaSayisi !== undefined) && (
+                    <div style={{ fontSize: "13px", color: "#8c8c8c", marginTop: "4px", fontWeight: 400 }}>{statistics.enRiskliSurucu.cezaSayisi} kayıt</div>
+                  )}
                 </div>
                 <UserOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />
               </div>
