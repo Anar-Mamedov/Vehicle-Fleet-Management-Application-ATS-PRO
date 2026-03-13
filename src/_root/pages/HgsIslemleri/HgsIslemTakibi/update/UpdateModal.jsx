@@ -4,15 +4,13 @@ import PropTypes from "prop-types";
 import { t } from "i18next";
 import { Button, message, Modal, Tabs } from "antd";
 import { CodeItemValidateService } from "../../../../../api/services/code/services";
-import { GetDocumentsByRefGroupService, GetPhotosByRefGroupService } from "../../../../../api/services/upload/services";
 import { UpdateHgsItemService, GetHgsOperationItemByIdService } from "../../../../../api/services/hgs-islem-takibi/services";
 import GeneralInfo from "./GeneralInfo";
 import Iletisim from "./Iletisim";
 import PersonalFields from "../../../../components/form/PersonalFields";
 import FinansBilgileri from "./FinansBilgileri";
-import { uploadFile, uploadPhoto } from "../../../../../utils/upload";
-import PhotoUpload from "../../../../components/upload/PhotoUpload";
-import FileUpload from "../../../../components/upload/FileUpload";
+import ResimUpload from "../../../../components/Resim/ResimUpload";
+import DosyaUpload from "../../../../components/Dosya/DosyaUpload";
 import dayjs from "dayjs";
 
 const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
@@ -20,14 +18,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
   const [code, setCode] = useState("normal");
   const [activeKey, setActiveKey] = useState("1");
   const [firmaId, setFirmaId] = useState(0);
-  // file
-  const [filesUrl, setFilesUrl] = useState([]);
-  const [files, setFiles] = useState([]);
-  const [loadingFiles, setLoadingFiles] = useState(false);
-  // photo
-  const [imageUrls, setImageUrls] = useState([]);
-  const [loadingImages, setLoadingImages] = useState(false);
-  const [images, setImages] = useState([]);
   const [fields, setFields] = useState([
     {
       label: "ozelAlan1",
@@ -157,8 +147,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("ozelAlan12", data.ozelAlan12);
       });
 
-      GetPhotosByRefGroupService(selectedRow?.key, "HGSISLEMTAKIP").then((res) => setImageUrls(res.data));
-      GetDocumentsByRefGroupService(selectedRow?.key, "HGSISLEMTAKIP").then((res) => setFilesUrl(res.data));
     }
   }, [selectedRow, drawerVisible]);
 
@@ -171,9 +159,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       surucuId: values.surucuId,
       otoYolKodId: values.otoYolKodId,
       girisTarih: values.girisTarih,
-      girisSaat: values.girisSaat ? dayjs(values.girisSaat).format("HH:mm") : "",
+      girisSaat: values.girisSaat ? (dayjs.isDayjs(values.girisSaat) ? values.girisSaat.format("HH:mm") : values.girisSaat) : "",
       cikisTarih: values.cikisTarih,
-      cikisSaat: values.cikisSaat ? dayjs(values.cikisSaat).format("HH:mm") : "",
+      cikisSaat: values.cikisSaat ? (dayjs.isDayjs(values.cikisSaat) ? values.cikisSaat.format("HH:mm") : values.cikisSaat) : "",
       GirisYeri: values.GirisYeri || "",
       CikisYeri: values.CikisYeri || "",
       odemeTuruKodId: values.odemeTuruKodId,
@@ -206,33 +194,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       }
     });
 
-    // Dosya ve görsel işlemleri sonradan gelsin
-    uploadImages();
-    uploadFiles();
   });
-
-  const uploadImages = () => {
-    try {
-      setLoadingImages(true);
-      const data = uploadPhoto(selectedRow?.key, "HGSISLEMTAKIP", images, false);
-      setImageUrls([...imageUrls, data.imageUrl]);
-    } catch (error) {
-      message.error("Resim yüklenemedi. Yeniden deneyin.");
-    } finally {
-      setLoadingImages(false);
-    }
-  };
-
-  const uploadFiles = () => {
-    try {
-      setLoadingFiles(true);
-      uploadFile(selectedRow?.key, "HGSISLEMTAKIP", files);
-    } catch (error) {
-      message.error("Dosya yüklenemedi. Yeniden deneyin.");
-    } finally {
-      setLoadingFiles(false);
-    }
-  };
 
   const personalProps = {
     form: "HgsIslem",
@@ -253,13 +215,13 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
     },
     {
       key: "5",
-      label: `[${imageUrls.length}] ${t("resimler")}`,
-      children: <PhotoUpload imageUrls={imageUrls} loadingImages={loadingImages} setImages={setImages} />,
+      label: t("resimler"),
+      children: <ResimUpload selectedRowID={selectedRow?.key} refGroup="HGSISLEMTAKIP" />,
     },
     {
       key: "6",
-      label: `[${filesUrl.length}] ${t("ekliBelgeler")}`,
-      children: <FileUpload filesUrl={filesUrl} loadingFiles={loadingFiles} setFiles={setFiles} />,
+      label: t("ekliBelgeler"),
+      children: <DosyaUpload selectedRowID={selectedRow?.key} refGroup="HGSISLEMTAKIP" />,
     },
   ];
 

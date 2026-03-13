@@ -195,7 +195,7 @@ function Component3(props) {
               >
                 <FormattedNumber num={data} /> km
               </Text>
-              <Text style={{ color: "white", fontSize: "15px", fontWeight: "400" }}>Toplam Katedilen Mesafe</Text>
+              <Text style={{ color: "white", fontSize: "15px", fontWeight: "400" }}>Toplam Katedilen Mesafe ({startYear})</Text>
             </div>
             <StyledClockCircleOutlined />
           </div>

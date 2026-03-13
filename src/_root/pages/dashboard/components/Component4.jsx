@@ -195,7 +195,7 @@ function Component4(props) {
               >
                 <FormattedNumber num={data} /> ₺
               </Text>
-              <Text style={{ color: "white", fontSize: "15px", fontWeight: "400" }}>Araç Başına Maliyet</Text>
+              <Text style={{ color: "white", fontSize: "15px", fontWeight: "400" }}>Araç Başına Maliyet ({startYear})</Text>
             </div>
             <StyledClockCircleOutlined />
           </div>
