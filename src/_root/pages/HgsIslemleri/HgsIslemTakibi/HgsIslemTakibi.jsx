@@ -990,7 +990,7 @@ const Yakit = () => {
           {/* Other toolbar components */}
         </div>
         <div style={{ display: "flex", gap: "25px" }}>
-          <HgsEntegrasyon onRefresh={refreshTableData} />
+          {/* <HgsEntegrasyon onRefresh={refreshTableData} /> */}
           <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
           <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
         </div>
