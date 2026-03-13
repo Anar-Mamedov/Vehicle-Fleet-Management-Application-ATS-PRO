@@ -196,7 +196,7 @@ function Component2(props) {
               >
                 <FormattedNumber num={data} /> lt
               </Text>
-              <Text style={{ color: "white", fontSize: "15px", fontWeight: "400" }}>Yakıt Tüketimi</Text>
+              <Text style={{ color: "white", fontSize: "15px", fontWeight: "400" }}>Yakıt Tüketimi ({startYear})</Text>
             </div>
             <StyledClockCircleOutlined />
           </div>
