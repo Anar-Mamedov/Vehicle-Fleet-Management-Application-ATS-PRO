@@ -47,16 +47,20 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
         responseType: "blob", // blob olarak çekiyoruz
       });
 
-      const downloadURL = URL.createObjectURL(response.data);
-
-      const link = document.createElement("a");
-      link.href = downloadURL;
-      link.setAttribute("download", file.dosyaAd);
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      URL.revokeObjectURL(downloadURL);
+      const isPdf = file.dosyaUzanti?.toLowerCase() === ".pdf" || file.dosyaAd?.toLowerCase().endsWith(".pdf");
+      if (isPdf) {
+        const blobUrl = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
+        window.open(blobUrl, "_blank");
+      } else {
+        const downloadURL = URL.createObjectURL(response.data);
+        const link = document.createElement("a");
+        link.href = downloadURL;
+        link.setAttribute("download", file.dosyaAd);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(downloadURL);
+      }
     } catch (error) {
       console.error("Dosya indirme hatası:", error);
       message.error("Dosya indirilirken bir hata oluştu.");

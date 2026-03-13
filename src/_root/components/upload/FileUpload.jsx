@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { DownloadDocumentByIdService } from "../../../api/services/upload/services";
 import { InboxOutlined, FileOutlined, LoadingOutlined } from "@ant-design/icons";
@@ -36,11 +36,17 @@ const FileUpload = ({ filesUrl, loadingFiles, setFiles, uploadFinished, setUploa
 
     DownloadDocumentByIdService(data)
       .then((res) => {
-        const link = document.createElement("a");
-        link.href = window.URL.createObjectURL(res.data);
-        link.download = file.dosyaAd;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
+        const isPdf = file.dosyaUzanti?.toLowerCase() === ".pdf" || file.dosyaAd?.toLowerCase().endsWith(".pdf");
+        if (isPdf) {
+          const blobUrl = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
+          window.open(blobUrl, "_blank");
+        } else {
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(res.data);
+          link.download = file.dosyaAd;
+          link.click();
+          window.URL.revokeObjectURL(link.href);
+        }
       })
       .catch((err) => {
         console.error("Error downloading file:", err);
