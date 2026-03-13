@@ -44,7 +44,7 @@ const widgetTitles = {
   widget1: "Aktif Araç Sayısı",
   widget2: "Yakıt Tüketimi",
   widget3: "Toplam Katedilen Mesafe",
-  widget4: "KM Başına Maliyetler",
+  widget4: "Araç Başına Maliyetler",
   widget5: "Filo Araç Durumları",
   widget6: "Hatırlatıcı",
   widget11: "Aylık Bakım Maliyetleri",
@@ -616,7 +616,7 @@ function MainDashboard() {
         Toplam Katedilen Mesafe
       </Checkbox>
       <Checkbox name="widget4" onChange={handleCheckboxChange} checked={checkedWidgets.widget4}>
-        KM Başına Maliyetler
+        Araç Başına Maliyetler
       </Checkbox>
       <Checkbox name="widget5" onChange={handleCheckboxChange} checked={checkedWidgets.widget5}>
         Filo Araç Durumları
