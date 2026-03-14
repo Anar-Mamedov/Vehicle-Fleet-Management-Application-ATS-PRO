@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import bg from "/images/bg-card.png";
-import { Spin, Typography } from "antd";
+import { Spin, Tooltip, Typography } from "antd";
 import { useFormContext } from "react-hook-form";
 import AxiosInstance from "../../../../../api/http.jsx";
 import { t } from "i18next";
@@ -83,19 +83,27 @@ function ComponentSingleCard() {
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", overflow: "hidden", width: "100%" }}>
-            <Text style={{ fontWeight: "500", fontSize: "35px", color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {value !== null && value !== undefined ? (
-                <>
-                  {Number(value).toLocaleString("tr-TR", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                  {unit && <span style={{ fontSize: "20px" }}> ({unit})</span>}
-                </>
-              ) : (
-                ""
-              )}
-            </Text>
+            <Tooltip
+              title={
+                value !== null && value !== undefined
+                  ? `${Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit || ""}`
+                  : ""
+              }
+            >
+              <Text style={{ fontWeight: "500", fontSize: "35px", color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {value !== null && value !== undefined ? (
+                  <>
+                    {Number(value).toLocaleString("tr-TR", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                    {unit && <span style={{ fontSize: "20px" }}> ({unit})</span>}
+                  </>
+                ) : (
+                  ""
+                )}
+              </Text>
+            </Tooltip>
             <Text style={{ color: "white", fontSize: "15px", fontWeight: "400", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</Text>
           </div>
         </div>
