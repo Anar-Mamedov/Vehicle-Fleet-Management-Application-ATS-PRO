@@ -85,7 +85,7 @@ function ComponentSingleCard() {
             <Tooltip
               title={
                 value !== null && value !== undefined
-                  ? `${Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit || ""}`
+                  ? `${Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺`
                   : ""
               }
             >
@@ -96,7 +96,7 @@ function ComponentSingleCard() {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
-                    {unit && <span style={{ fontSize: "20px" }}> ({unit})</span>}
+                    <span style={{ fontSize: "20px" }}> ₺</span>
                   </>
                 ) : (
                   ""
