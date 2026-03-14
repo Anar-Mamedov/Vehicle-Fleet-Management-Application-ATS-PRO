@@ -6,12 +6,10 @@ import { t } from "i18next";
 import { Button, message, Modal, Tabs } from "antd";
 import { PlakaContext } from "../../../../../context/plakaSlice";
 import { GetFuelCardContentByIdService, GetFuelCardInfoByFuelIdService, UpdateFuelService } from "../../../../../api/services/vehicles/operations_services";
-import { GetDocumentsByRefGroupService, GetPhotosByRefGroupService } from "../../../../../api/services/upload/services";
-import { uploadFile, uploadPhoto } from "../../../../../utils/upload";
 import PersonalFields from "../../../../components/form/personal-fields/PersonalFields";
 import GeneralInfo from "./GeneralInfo";
-import PhotoUpload from "../../../../components/upload/PhotoUpload";
-import FileUpload from "../../../../components/upload/FileUpload";
+import ResimUpload from "../../../../components/Resim/ResimUpload";
+import DosyaUpload from "../../../../components/Dosya/DosyaUpload";
 
 const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const { data, plaka, setData } = useContext(PlakaContext);
@@ -19,13 +17,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
   const [response, setResponse] = useState("normal");
   const [activeKey, setActiveKey] = useState("1");
   // file
-  const [filesUrl, setFilesUrl] = useState([]);
-  const [files, setFiles] = useState([]);
-  const [loadingFiles, setLoadingFiles] = useState(false);
+  const [fileCount, setFileCount] = useState(0);
   // photo
-  const [imageUrls, setImageUrls] = useState([]);
-  const [loadingImages, setLoadingImages] = useState(false);
-  const [images, setImages] = useState([]);
+  const [photoCount, setPhotoCount] = useState(0);
   const [fields, setFields] = useState([
     {
       label: "ozelAlan1",
@@ -192,34 +186,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         setValue("kdvDahilHaric", res?.data.kdvDahilHaric);
         setValue("isRecordSeen", res?.data.isRecordSeen);
       });
-
-      GetPhotosByRefGroupService(selectedRow?.key, "YAKIT").then((res) => setImageUrls(res.data));
-      GetDocumentsByRefGroupService(selectedRow?.key, "YAKIT").then((res) => setFilesUrl(res.data));
     }
   }, [selectedRow, drawerVisible]);
 
-  const uploadImages = () => {
-    try {
-      setLoadingImages(true);
-      const data = uploadPhoto(selectedRow?.key, "YAKIT", images, false);
-      setImageUrls([...imageUrls, data.imageUrl]);
-    } catch (error) {
-      message.error("Resim yüklenemedi. Yeniden deneyin.");
-    } finally {
-      setLoadingImages(false);
-    }
-  };
-
-  const uploadFiles = () => {
-    try {
-      setLoadingFiles(true);
-      uploadFile(selectedRow?.key, "YAKIT", files);
-    } catch (error) {
-      message.error("Dosya yüklenemedi. Yeniden deneyin.");
-    } finally {
-      setLoadingFiles(false);
-    }
-  };
 
   const constructRequestBody = (values) => {
     const kmLog = !watch("engelle")
@@ -342,12 +311,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
           `Seçtiğiniz tarih/saatte (${tarihSaat}) sistemdeki km aralığı ${res?.data?.data} - ${res?.data?.data1}. Girdiğiniz km (${values.alinanKm}) bu aralığın dışında olduğu için kayıt engellendi.`
         );
       } else {
-        message.error("Bir sorun oluşdu! Tekrar deneyiniz.");
+        message.error("Bir sorun oluştu! Tekrar deneyiniz.");
       }
     });
-
-    uploadImages();
-    uploadFiles();
     // setStatus(false);
   });
 
@@ -370,13 +336,13 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     },
     {
       key: "3",
-      label: `[${imageUrls.length}] ${t("resimler")}`,
-      children: <PhotoUpload imageUrls={imageUrls} loadingImages={loadingImages} setImages={setImages} />,
+      label: `[${photoCount}] ${t("resimler")}`,
+      children: <ResimUpload selectedRowID={selectedRow?.key} setPhotoCount={setPhotoCount} refGroup="YAKIT" />,
     },
     {
       key: "4",
-      label: `[${filesUrl.length}] ${t("ekliBelgeler")}`,
-      children: <FileUpload filesUrl={filesUrl} loadingFiles={loadingFiles} setFiles={setFiles} />,
+      label: `[${fileCount}] ${t("ekliBelgeler")}`,
+      children: <DosyaUpload selectedRowID={selectedRow?.key} setFileCount={setFileCount} refGroup="YAKIT" />,
     },
   ];
 
@@ -390,7 +356,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       onClick={() => {
         onDrawerClose();
         setResponse("normal");
-        onRefresh();
         setActiveKey("1");
       }}
     >
@@ -423,6 +388,10 @@ UpdateModal.propTypes = {
   setUpdateModal: PropTypes.func,
   setStatus: PropTypes.func,
   id: PropTypes.number,
+  selectedRow: PropTypes.object,
+  onDrawerClose: PropTypes.func,
+  drawerVisible: PropTypes.bool,
+  onRefresh: PropTypes.func,
 };
 
 export default UpdateModal;
