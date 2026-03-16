@@ -5,6 +5,7 @@ import { useFormContext } from "react-hook-form";
 import AxiosInstance from "../../../../../api/http.jsx";
 import { t } from "i18next";
 import dayjs from "dayjs";
+import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
 
@@ -86,11 +87,8 @@ function ComponentSingleCard() {
             <Text style={{ fontWeight: "500", fontSize: "35px", color: "white" }}>
               {value !== null && value !== undefined ? (
                 <>
-                  {Number(value).toLocaleString("tr-TR", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                  {unit && <span style={{ fontSize: "20px" }}> ({unit})</span>}
+                  {formatNumberWithLocale(value)}
+                  {unit && <span style={{ fontSize: "20px" }}> {unit}</span>}
                 </>
               ) : (
                 ""
@@ -109,7 +107,7 @@ function ComponentSingleCard() {
         data, // API'den gelen değer (type=1 sonucu)
         t("toplamYakitTutari"),
         "linear-gradient(to right, #6a11cb, #2575fc)",
-        "TL.",
+        "₺",
         isLoading // Yüklenme durumu
       )}
     </div>
