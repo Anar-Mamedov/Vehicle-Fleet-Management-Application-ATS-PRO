@@ -315,6 +315,10 @@ const defaultColumns = [
     dataIndex: "departman",
   },
   {
+    title: t("surucuIsim"),
+    dataIndex: "surucuIsim",
+  },
+  {
     title: t("guncelKm"),
     dataIndex: "guncelKm",
     // render: (text) => <FormattedNumber num={text} />,
