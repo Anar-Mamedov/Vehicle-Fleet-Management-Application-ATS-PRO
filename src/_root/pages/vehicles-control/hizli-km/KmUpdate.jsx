@@ -8,7 +8,8 @@ import BreadcrumbComp from "../..//../components/breadcrumb/Breadcrumb";
 import Filter from "./filter/Filter";
 import ContextMenu from "./context-menu/ContextMenu";
 import FormattedNumber from "../../../../hooks/FormattedNumber";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import SurucuSelectbox from "../../../components/SurucuSelectbox";
 
 const breadcrumb = [
   {
@@ -23,10 +24,13 @@ const breadcrumb = [
 const EditableContext = createContext(null);
 const EditableRow = ({ ...props }) => {
   const [form] = Form.useForm();
+  const rhfMethods = useForm();
   return (
     <Form form={form} component={false}>
       <EditableContext.Provider value={form}>
-        <tr {...props} />
+        <FormProvider {...rhfMethods}>
+          <tr {...props} />
+        </FormProvider>
       </EditableContext.Provider>
     </Form>
   );
@@ -37,6 +41,7 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
   const [openDatePicker, setOpenDatePicker] = useState(false);
   const [openTimePicker, setOpenTimePicker] = useState(false);
   const form = useContext(EditableContext);
+  const rhfContext = useFormContext();
 
   useEffect(() => {
     if (editing) {
@@ -50,6 +55,9 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
       setOpenDatePicker(true);
     } else if (dataIndex === "saat") {
       setOpenTimePicker(true);
+    } else if (dataIndex === "surucuIsim") {
+      rhfContext.setValue("surucuIsim", record.surucuIsim || null);
+      rhfContext.setValue("surucuIsimID", record.surucuId ?? 0);
     }
     form.setFieldsValue({
       [dataIndex]:
@@ -184,8 +192,8 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
         );
         break;
 
-      case "tarih":
-        function formatDate(row) {
+      case "tarih": {
+        const formatDate = (row) => {
           const dateString = row.tarih;
 
           const ddMMyyyyRegex = /^\d{2}\.\d{2}\.\d{4}$/;
@@ -199,7 +207,7 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
           }
 
           return formattedDate;
-        }
+        };
 
         childNode = editing ? (
           <Form.Item style={{ margin: 0 }} name={dataIndex}>
@@ -223,6 +231,7 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
           </div>
         );
         break;
+      }
 
       case "saat":
         childNode = editing ? (
@@ -271,6 +280,35 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
         );
         break;
 
+      case "surucuIsim": {
+        childNode = editing ? (
+          <div onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+              setEditing(false);
+            }
+          }}>
+            <SurucuSelectbox
+              name1="surucuIsim"
+              onChange={(surucuId, option) => {
+                if (surucuId != null) {
+                  handleSave({
+                    ...record,
+                    surucuId: surucuId,
+                    surucuIsim: option?.label || "",
+                  });
+                }
+                setEditing(false);
+              }}
+            />
+          </div>
+        ) : (
+          <div className="editable-cell-value-wrap" style={{ paddingRight: 24 }} onClick={toggleEdit}>
+            {children}
+          </div>
+        );
+        break;
+      }
+
       default:
         childNode = children;
     }
@@ -317,6 +355,8 @@ const defaultColumns = [
   {
     title: t("surucuIsim"),
     dataIndex: "surucuIsim",
+    editable: true,
+    width: "180px",
   },
   {
     title: t("guncelKm"),
@@ -498,6 +538,7 @@ const KmUpdate = () => {
           dorse: true,
           aciklama: "",
           lokasyonId: item.lokasyonId,
+          surucuId: row.surucuId ?? item.surucuId,
         };
 
         if (body.tarih && body.saat && body.yeniKm) {
