@@ -7,6 +7,7 @@ import { MoreOutlined, PrinterOutlined } from "@ant-design/icons";
 import { Controller, useFormContext } from "react-hook-form";
 import dayjs from "dayjs";
 import html2pdf from "html2pdf.js";
+import MarkaSelectbox from "../../../components/MarkaSelectbox";
 
 const { Text } = Typography;
 
@@ -42,27 +43,49 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
     }
   }, [watch("yilSecimiMarkaBakimMaliyet")]);
 
+  const [selectedMarkaId, setSelectedMarkaId] = useState(null);
+  const selectedMarkaName = watch("widgetMarka");
+
   const fetchData = async () => {
     setIsLoading(true);
-    const body = {
-      startYear: baslamaTarihi || dayjs().year(),
-    };
     try {
-      const response = await http.post("Graphs/GetGraphInfoByType?type=14", body);
+      if (selectedMarkaId) {
+        const body = {
+          type: 14,
+          intValue: selectedMarkaId,
+          stringValue: "",
+        };
+        const response = await http.post("GraphDetails/GetDetailsInfoByType", body);
 
-      if (response.data.statusCode === 401) {
-        navigate("/unauthorized");
-        return;
-      } else {
+        if (response.data.statusCode === 401) {
+          navigate("/unauthorized");
+          return;
+        }
         const apiResponse = response.data;
+        const transformedData = apiResponse
+          .filter((item) => item.aracModel && item.aracModel.trim() !== "")
+          .map((item) => ({
+            MARKA: item.aracModel,
+            ARAC_SAYISI: item.aracSayisi,
+          }));
+        setData(transformedData);
+      } else {
+        const body = {
+          startYear: baslamaTarihi || dayjs().year(),
+        };
+        const response = await http.post("Graphs/GetGraphInfoByType?type=14", body);
 
+        if (response.data.statusCode === 401) {
+          navigate("/unauthorized");
+          return;
+        }
+        const apiResponse = response.data;
         const transformedData = apiResponse
           .filter((item) => item.aracMarka && item.aracMarka.trim() !== "")
           .map((item) => ({
             MARKA: item.aracMarka,
             ARAC_SAYISI: item.aracSayisi,
           }));
-
         setData(transformedData);
       }
     } catch (error) {
@@ -73,10 +96,10 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
   };
 
   useEffect(() => {
-    if (baslamaTarihi) {
+    if (baslamaTarihi || selectedMarkaId) {
       fetchData();
     }
-  }, [baslamaTarihi]);
+  }, [baslamaTarihi, selectedMarkaId]);
 
   const downloadPDF = () => {
     const element = document.getElementById("marka-bakim-maliyet");
@@ -105,7 +128,7 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
             border: "1px solid #ccc",
           }}
         >
-          <p className="label">{`Marka: ${label}`}</p>
+          <p className="label">{`${selectedMarkaId ? "Model" : "Marka"}: ${label}`}</p>
           {payload.map((entry, index) => (
             <p key={`item-${index}`} style={{ color: entry.color }}>{`${entry.name}: ${entry.value.toLocaleString("tr-TR")}`}</p>
           ))}
@@ -212,7 +235,7 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
         }}
       >
         <Text
-          title={`Marka Bazında Araç Sayıları${baslamaTarihi ? ` (${baslamaTarihi})` : ""}`}
+          title={selectedMarkaId ? `${selectedMarkaName} - Model Bazında Araç Sayıları` : `Marka Bazında Araç Sayıları${baslamaTarihi ? ` (${baslamaTarihi})` : ""}`}
           style={{
             fontWeight: "500",
             fontSize: "17px",
@@ -222,24 +245,27 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
             maxWidth: "calc(100% - 50px)",
           }}
         >
-          Marka Bazında Araç Sayıları
-          {baslamaTarihi && ` (${baslamaTarihi})`}
+          {selectedMarkaId ? `${selectedMarkaName} - Model Bazında Araç Sayıları` : "Marka Bazında Araç Sayıları"}
+          {!selectedMarkaId && baslamaTarihi && ` (${baslamaTarihi})`}
         </Text>
-        <Popover placement="bottom" content={content} trigger="click">
-          <Button
-            type="text"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "0px 5px",
-              height: "32px",
-              zIndex: 3,
-            }}
-          >
-            <MoreOutlined style={{ cursor: "pointer", fontWeight: "500", fontSize: "16px" }} />
-          </Button>
-        </Popover>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", zIndex: 3 }}>
+          <MarkaSelectbox name1="widgetMarka" inputWidth="160px" onChange={(value) => setSelectedMarkaId(value || null)} />
+          <Popover placement="bottom" content={content} trigger="click">
+            <Button
+              type="text"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "0px 5px",
+                height: "32px",
+                zIndex: 3,
+              }}
+            >
+              <MoreOutlined style={{ cursor: "pointer", fontWeight: "500", fontSize: "16px" }} />
+            </Button>
+          </Popover>
+        </div>
       </div>
       {isLoading ? (
         <Spin />
@@ -310,7 +336,7 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
             }}
           >
             <Text
-              title={`Marka Bazında Araç Sayıları${baslamaTarihi ? ` (${baslamaTarihi})` : ""}`}
+              title={selectedMarkaId ? `${selectedMarkaName} - Model Bazında Araç Sayıları` : `Marka Bazında Araç Sayıları${baslamaTarihi ? ` (${baslamaTarihi})` : ""}`}
               style={{
                 fontWeight: "500",
                 fontSize: "17px",
@@ -320,8 +346,8 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
                 maxWidth: "calc(100% - 50px)",
               }}
             >
-              Marka Bazında Araç Sayıları
-              {baslamaTarihi && ` (${baslamaTarihi})`}
+              {selectedMarkaId ? `${selectedMarkaName} - Model Bazında Araç Sayıları` : "Marka Bazında Araç Sayıları"}
+              {!selectedMarkaId && baslamaTarihi && ` (${baslamaTarihi})`}
             </Text>
             <PrinterOutlined style={{ cursor: "pointer", fontSize: "20px" }} onClick={downloadPDF} />
           </div>
