@@ -150,6 +150,10 @@ const KmLog = ({ setDataStatus, selectedRowsData }) => {
       dataIndex: "saat",
     },
     {
+      title: "Sürücü",
+      dataIndex: "surucuIsim",
+    },
+    {
       title: "",
       dataIndex: "delete",
       render: (_, record) =>
