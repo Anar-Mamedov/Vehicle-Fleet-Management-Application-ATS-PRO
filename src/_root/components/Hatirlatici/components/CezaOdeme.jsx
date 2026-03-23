@@ -151,7 +151,7 @@ const CezaOdeme = () => {
       if (newData.length > 0) {
         setData(newData);
       } else {
-        message.warning("No data found.");
+        // message.warning("No data found.");
         setData([]);
       }
     } catch (error) {

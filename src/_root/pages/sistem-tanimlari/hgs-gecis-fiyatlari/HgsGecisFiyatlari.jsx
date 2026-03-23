@@ -159,7 +159,7 @@ const Yakit = () => {
       if (newData.length > 0) {
         setData(newData);
       } else {
-        message.warning("No data found.");
+        // message.warning("No data found.");
         setData([]);
       }
     } catch (error) {
@@ -234,7 +234,7 @@ const Yakit = () => {
       width: 120,
       ellipsis: true,
       visible: true,
-      
+
       sorter: (a, b) => {
         if (a.girisYeri === null) return -1;
         if (b.girisYeri === null) return 1;
@@ -285,7 +285,6 @@ const Yakit = () => {
         return a.aciklama - b.aciklama;
       },
     },
-
 
     // Add other columns as needed
   ];
