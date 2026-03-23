@@ -1,6 +1,10 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { Modal } from "antd";
+import { Modal, ConfigProvider } from "antd";
+import tr_TR from "antd/locale/tr_TR";
+import en_US from "antd/locale/en_US";
+import ru_RU from "antd/locale/ru_RU";
+import az_AZ from "antd/locale/az_AZ";
 import { useTranslation } from "react-i18next";
 import { getItemWithExpiration } from "./utils/expireToken";
 import { initDevToolsProtection } from "./utils/devToolsProtection";
@@ -172,7 +176,7 @@ const PublicRoute = ({ children }) => {
 
 const App = () => {
   const [showVersionUpdateModal, setShowVersionUpdateModal] = useState(false);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { hasUpdate, handleUpdate, dismissUpdate } = useVersionCheck(showVersionUpdateModal);
 
   // DevTools protection - Initialize on component mount
@@ -185,8 +189,22 @@ const App = () => {
     dismissUpdate();
   };
 
+  const getAntdLocale = () => {
+    switch (i18n.language) {
+      case "en":
+        return en_US;
+      case "ru":
+        return ru_RU;
+      case "az":
+        return az_AZ;
+      case "tr":
+      default:
+        return tr_TR;
+    }
+  };
+
   return (
-    <>
+    <ConfigProvider locale={getAntdLocale()}>
       <Modal
         title={t("versionUpdateTitle")}
         open={showVersionUpdateModal && hasUpdate}
@@ -309,7 +327,7 @@ const App = () => {
           </Route>
         </Routes>
       </Suspense>
-    </>
+    </ConfigProvider>
   );
 };
 
