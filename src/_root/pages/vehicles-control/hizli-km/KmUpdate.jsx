@@ -282,11 +282,13 @@ const EditableCell = ({ editable, children, dataIndex, record, handleSave, error
 
       case "surucuIsim": {
         childNode = editing ? (
-          <div onBlur={(e) => {
-            if (!e.currentTarget.contains(e.relatedTarget)) {
-              setEditing(false);
-            }
-          }}>
+          <div
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget)) {
+                setEditing(false);
+              }
+            }}
+          >
             <SurucuSelectbox
               name1="surucuIsim"
               onChange={(surucuId, option) => {
@@ -471,7 +473,7 @@ const KmUpdate = () => {
           },
         });
       } else {
-        message.warning("No data found.");
+        // message.warning("No data found.");
         setDataSource([]);
       }
     } catch (error) {

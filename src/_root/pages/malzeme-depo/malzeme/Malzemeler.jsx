@@ -242,7 +242,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
         if (newData.length > 0) {
           setData(newData);
         } else {
-          message.warning("No data found.");
+          // message.warning("No data found.");
           setData([]);
         }
       } catch (error) {

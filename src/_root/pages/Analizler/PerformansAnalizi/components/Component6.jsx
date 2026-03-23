@@ -1,6 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, ConfigProvider, Popover } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined, DownloadOutlined, MoreOutlined } from "@ant-design/icons";
+import {
+  HolderOutlined,
+  SearchOutlined,
+  MenuOutlined,
+  HomeOutlined,
+  ArrowDownOutlined,
+  ArrowUpOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  DownloadOutlined,
+  MoreOutlined,
+} from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -125,12 +136,12 @@ const Yakit = () => {
   });
   const navigate = useNavigate();
   const {
-      control,
-      watch,
-      setValue,
-      reset,
-      formState: { errors },
-    } = useFormContext();
+    control,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useFormContext();
   const [isExpandedModalVisible, setIsExpandedModalVisible] = useState(false); // Expanded modal visibility state
   const [popoverVisible, setPopoverVisible] = useState(false); // Popover için state
   const [tourVisible, setTourVisible] = useState(false); // Tour için state
@@ -138,14 +149,14 @@ const Yakit = () => {
   const [selectedRows, setSelectedRows] = useState([]);
 
   const lokasyonId = watch("locationValues");
-    const plakaValues = watch("plakaValues");
-    const aracTipiValues = watch("aracTipiValues");
-    const departmanValues = watch("departmanValues");
-    const baslangicTarihi = watch("baslangicTarihi") ? dayjs(watch("baslangicTarihi")).format("YYYY-MM-DD") : null;
-    const bitisTarihi = watch("bitisTarihi") ? dayjs(watch("bitisTarihi")).format("YYYY-MM-DD") : null;
-  
-    const startYear = baslangicTarihi ? dayjs(baslangicTarihi).year() : 0;
-    const endYear = bitisTarihi ? dayjs(bitisTarihi).year() : 0;
+  const plakaValues = watch("plakaValues");
+  const aracTipiValues = watch("aracTipiValues");
+  const departmanValues = watch("departmanValues");
+  const baslangicTarihi = watch("baslangicTarihi") ? dayjs(watch("baslangicTarihi")).format("YYYY-MM-DD") : null;
+  const bitisTarihi = watch("bitisTarihi") ? dayjs(watch("bitisTarihi")).format("YYYY-MM-DD") : null;
+
+  const startYear = baslangicTarihi ? dayjs(baslangicTarihi).year() : 0;
+  const endYear = bitisTarihi ? dayjs(bitisTarihi).year() : 0;
 
   // API Data Fetching with diff and setPointId
   const fetchData = async (diff, targetPage) => {
@@ -174,8 +185,11 @@ const Yakit = () => {
       } else {
         currentSetPointId = 0;
       }
-      
-      const response = await AxiosInstance.post(`PerformanceAnalysis/GetPerformanceAnalysisInfoByType?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=9`, body);
+
+      const response = await AxiosInstance.post(
+        `PerformanceAnalysis/GetPerformanceAnalysisInfoByType?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&type=9`,
+        body
+      );
 
       const total = response.data.recordCount;
       setTotalCount(total);
@@ -189,7 +203,7 @@ const Yakit = () => {
       if (newData.length > 0) {
         setData(newData);
       } else {
-        message.warning("No data found.");
+        // message.warning("No data found.");
         setData([]);
       }
     } catch (error) {
@@ -288,7 +302,7 @@ const Yakit = () => {
       key: "toplamKm",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık   
+      visible: true, // Varsayılan olarak açık
       sorter: (a, b) => {
         if (a.toplamKm === null) return -1;
         if (b.toplamKm === null) return 1;
@@ -301,7 +315,7 @@ const Yakit = () => {
       key: "toplamYakitTuketimi",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık   
+      visible: true, // Varsayılan olarak açık
       sorter: (a, b) => {
         if (a.toplamYakitTuketimi === null) return -1;
         if (b.toplamYakitTuketimi === null) return 1;
@@ -314,7 +328,7 @@ const Yakit = () => {
       key: "toplamKazaSayisi",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık   
+      visible: true, // Varsayılan olarak açık
       sorter: (a, b) => {
         if (a.toplamKazaSayisi === null) return -1;
         if (b.toplamKazaSayisi === null) return 1;
@@ -327,7 +341,7 @@ const Yakit = () => {
       key: "toplamCezaSayisi",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık   
+      visible: true, // Varsayılan olarak açık
       sorter: (a, b) => {
         if (a.toplamCezaSayisi === null) return -1;
         if (b.toplamCezaSayisi === null) return 1;
@@ -340,7 +354,7 @@ const Yakit = () => {
       key: "toplamSurucuSayisi",
       width: 120,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık   
+      visible: true, // Varsayılan olarak açık
       sorter: (a, b) => {
         if (a.toplamSurucuSayisi === null) return -1;
         if (b.toplamSurucuSayisi === null) return 1;
@@ -544,315 +558,315 @@ const Yakit = () => {
   const componentTitle = t("aracKullanimlari");
 
   // XLSX indirme fonksiyonunu ekleyin
-    const handleXLSXDownload = () => {
-      const formattedData = data.map((item) => {
-        const row = {};
-        columns.forEach((col) => {
-          const key = col.dataIndex;
-          row[col.title] = item[key];
-        });
-        return row;
+  const handleXLSXDownload = () => {
+    const formattedData = data.map((item) => {
+      const row = {};
+      columns.forEach((col) => {
+        const key = col.dataIndex;
+        row[col.title] = item[key];
       });
-  
-      const worksheet = XLSX.utils.json_to_sheet(formattedData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-  
-      const workbookOut = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
-      });
-  
-      // Dosya adını bileşenin başlığından alın ve Türkçe karakterleri dönüştürün
-      const fileName = `${normalizeText(componentTitle)}.xlsx`;
-  
-      saveAs(new Blob([workbookOut], { type: "application/octet-stream" }), fileName);
-    };
-  
-    const enterLoading = (index) => {
+      return row;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+    const workbookOut = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    // Dosya adını bileşenin başlığından alın ve Türkçe karakterleri dönüştürün
+    const fileName = `${normalizeText(componentTitle)}.xlsx`;
+
+    saveAs(new Blob([workbookOut], { type: "application/octet-stream" }), fileName);
+  };
+
+  const enterLoading = (index) => {
+    setLoadings((prevLoadings) => {
+      const newLoadings = [...prevLoadings];
+      newLoadings[index] = true;
+      return newLoadings;
+    });
+    setTimeout(() => {
       setLoadings((prevLoadings) => {
         const newLoadings = [...prevLoadings];
-        newLoadings[index] = true;
+        newLoadings[index] = false;
         return newLoadings;
       });
-      setTimeout(() => {
-        setLoadings((prevLoadings) => {
-          const newLoadings = [...prevLoadings];
-          newLoadings[index] = false;
-          return newLoadings;
-        });
-      }, 1000);
-    };
+    }, 1000);
+  };
 
-    const handleModalOpen = () => {
-      setIsExpandedModalVisible(true);
-      setPopoverVisible(false); // Modal açıldığında popover'ı kapatır
-    };
+  const handleModalOpen = () => {
+    setIsExpandedModalVisible(true);
+    setPopoverVisible(false); // Modal açıldığında popover'ı kapatır
+  };
 
-    const handleTourOpen = () => {
-      setTourVisible(true); // Tour'u açar
-      setPopoverVisible(false); // Popover'ı kapatır
-    };
+  const handleTourOpen = () => {
+    setTourVisible(true); // Tour'u açar
+    setPopoverVisible(false); // Popover'ı kapatır
+  };
 
-    const content = (
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <div style={{ cursor: "pointer" }} onClick={handleModalOpen}>
-          Büyüt
-        </div>
-        <div style={{ cursor: "pointer" }} onClick={handleTourOpen}>
-          Bilgi
-        </div>
-        <Button
-            type="primary"
-            icon={<DownloadOutlined />}
-            loading={loading[1]}
-            onClick={() => {
-            enterLoading(1);
-            handleXLSXDownload();
-            }}
-          >
-            İndir
-        </Button>
+  const content = (
+    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <div style={{ cursor: "pointer" }} onClick={handleModalOpen}>
+        Büyüt
       </div>
-    );
+      <div style={{ cursor: "pointer" }} onClick={handleTourOpen}>
+        Bilgi
+      </div>
+      <Button
+        type="primary"
+        icon={<DownloadOutlined />}
+        loading={loading[1]}
+        onClick={() => {
+          enterLoading(1);
+          handleXLSXDownload();
+        }}
+      >
+        İndir
+      </Button>
+    </div>
+  );
 
   return (
     <>
-    <ConfigProvider locale={trTR}>
-    <div
-        style={{
-          width: "100%",
-          height: "100%",
-          borderRadius: "5px",
-          backgroundColor: "white",
-          display: "flex",
-          flexDirection: "column",
-          gap: "5px",
-          border: "1px solid #f0f0f0",
-          filter: "drop-shadow(0 0 0.75rem rgba(0, 0, 0, 0.1))",
-        }}
-      >
+      <ConfigProvider locale={trTR}>
         <div
           style={{
-            padding: "10px",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div
-          style={{
-            display: "flex",
-            gap: "10px",
-            alignItems: "center",
             width: "100%",
-            maxWidth: "935px",
-            flexWrap: "wrap",
-          }}
-        >
-          <StyledButton onClick={() => setIsModalVisible(true)}>
-            <MenuOutlined />
-          </StyledButton>
-          {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
-          {/* Other toolbar components */}
-          <Text style={{ fontWeight: "500", fontSize: "17px" }}>
-            {componentTitle} {`(${baslangicTarihi && bitisTarihi ? `${formatDateWithLocale(baslangicTarihi)} / ${formatDateWithLocale(bitisTarihi)}` : ""})`}
-          </Text>
-          </div>
-          <Popover placement="bottom" content={content} trigger="click" open={popoverVisible} onOpenChange={(visible) => setPopoverVisible(visible)}>
-            <Button
-              type="text"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "0px 5px",
-                height: "32px",
-                zIndex: 3,
-              }}
-            >
-              <MoreOutlined style={{ cursor: "pointer", fontWeight: "500", fontSize: "16px" }} />
-            </Button>
-          </Popover>
-        </div>
-      {/* Modal for managing columns */}
-      <Modal title="Sütunları Yönet" centered width={800} open={isModalVisible} onOk={() => setIsModalVisible(false)} onCancel={() => setIsModalVisible(false)}>
-        <Text style={{ marginBottom: "15px" }}>Aşağıdaki Ekranlardan Sütunları Göster / Gizle ve Sıralamalarını Ayarlayabilirsiniz.</Text>
-        <div
-          style={{
+            height: "100%",
+            borderRadius: "5px",
+            backgroundColor: "white",
             display: "flex",
-            width: "100%",
-            justifyContent: "center",
-            marginTop: "10px",
+            flexDirection: "column",
+            gap: "5px",
+            border: "1px solid #f0f0f0",
+            filter: "drop-shadow(0 0 0.75rem rgba(0, 0, 0, 0.1))",
           }}
         >
-          <Button onClick={resetColumns} style={{ marginBottom: "15px" }}>
-            Sütunları Sıfırla
-          </Button>
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div
             style={{
-              width: "46%",
-              border: "1px solid #8080806e",
-              borderRadius: "8px",
               padding: "10px",
-            }}
-          >
-            <div
-              style={{
-                marginBottom: "20px",
-                borderBottom: "1px solid #80808051",
-                padding: "8px 8px 12px 8px",
-              }}
-            >
-              <Text style={{ fontWeight: 600 }}>Sütunları Göster / Gizle</Text>
-            </div>
-            <div style={{ height: "400px", overflow: "auto" }}>
-              {initialColumns.map((col) => (
-                <div style={{ display: "flex", gap: "10px" }} key={col.key}>
-                  <Checkbox checked={columns.find((column) => column.key === col.key)?.visible || false} onChange={(e) => toggleVisibility(col.key, e.target.checked)} />
-                  {col.title}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <DndContext
-            onDragEnd={handleDragEnd}
-            sensors={useSensors(
-              useSensor(PointerSensor),
-              useSensor(KeyboardSensor, {
-                coordinateGetter: sortableKeyboardCoordinates,
-              })
-            )}
-          >
-            <div
-              style={{
-                width: "46%",
-                border: "1px solid #8080806e",
-                borderRadius: "8px",
-                padding: "10px",
-              }}
-            >
-              <div
-                style={{
-                  marginBottom: "20px",
-                  borderBottom: "1px solid #80808051",
-                  padding: "8px 8px 12px 8px",
-                }}
-              >
-                <Text style={{ fontWeight: 600 }}>Sütunların Sıralamasını Ayarla</Text>
-              </div>
-              <div style={{ height: "400px", overflow: "auto" }}>
-                <SortableContext items={columns.filter((col) => col.visible).map((col) => col.key)} strategy={verticalListSortingStrategy}>
-                  {columns
-                    .filter((col) => col.visible)
-                    .map((col, index) => (
-                      <DraggableRow key={col.key} id={col.key} index={index} text={col.title} />
-                    ))}
-                </SortableContext>
-              </div>
-            </div>
-          </DndContext>
-        </div>
-      </Modal>
-
-      {/* Table */}
-      <div
-        style={{
-          flex: 1,
-          backgroundColor: "white",
-          padding: "10px",
-          height: "calc(100vh - 200px)",
-          borderRadius: "8px 8px 8px 8px",
-          filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
-          overflowY: "auto",
-        }}
-      >
-        <Spin spinning={loading}>
-          <Table
-            components={components}
-            rowSelection={rowSelection}
-            columns={filteredColumns}
-            dataSource={data}
-            pagination={{
-              current: currentPage,
-              total: totalCount,
-              pageSize: 10,
-              showSizeChanger: false,
-              showQuickJumper: true,
-              onChange: handleTableChange,
-              showTotal: (total, range) => `Toplam ${totalCount} kayıt`,
-            }}
-            scroll={{ y: "calc(100vh - 335px)" }}
-          />
-        </Spin>
-
-        {/* Expanded Modal */}
-                <Modal
-                  title={
-                    <div>
-                      <Text style={{ fontWeight: "500", fontSize: "17px" }}>
-                        {componentTitle} {`(${baslangicTarihi && bitisTarihi ? `${formatDateWithLocale(baslangicTarihi)} / ${formatDateWithLocale(bitisTarihi)}` : ""})`}
-                      </Text>
-                    </div>
-                  }
-                  centered
-                  open={isExpandedModalVisible}
-                  onOk={() => setIsExpandedModalVisible(false)}
-                  onCancel={() => setIsExpandedModalVisible(false)}
-                  width="90%"
-                  destroyOnClose
-                >
-                  <div>
-          <div
-            style={{
               display: "flex",
+              flexDirection: "row",
               alignItems: "center",
-              justifyContent: "space-between", // Sol ve sağ tarafı ayırır
-              marginBottom: "15px",
+              justifyContent: "space-between",
             }}
           >
-            {/* Sol tarafta MenuOutlined ve Arama Kutusu */}
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
                 gap: "10px",
+                alignItems: "center",
+                width: "100%",
+                maxWidth: "935px",
+                flexWrap: "wrap",
               }}
             >
               <StyledButton onClick={() => setIsModalVisible(true)}>
                 <MenuOutlined />
               </StyledButton>
-              <Input
-                style={{ width: "250px" }}
-                type="text"
-                placeholder="Arama yap..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onPressEnter={handleSearch}
-                suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
-              />
+              {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
+              {/* Other toolbar components */}
+              <Text style={{ fontWeight: "500", fontSize: "17px" }}>
+                {componentTitle} {`(${baslangicTarihi && bitisTarihi ? `${formatDateWithLocale(baslangicTarihi)} / ${formatDateWithLocale(bitisTarihi)}` : ""})`}
+              </Text>
             </div>
-        
-            {/* Sağ tarafta İndir butonu */}
-            <Button
-              type="primary"
-              icon={<DownloadOutlined />}
-              loading={loading[1]}
-              onClick={() => {
-                enterLoading(1);
-                handleXLSXDownload();
+            <Popover placement="bottom" content={content} trigger="click" open={popoverVisible} onOpenChange={(visible) => setPopoverVisible(visible)}>
+              <Button
+                type="text"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0px 5px",
+                  height: "32px",
+                  zIndex: 3,
+                }}
+              >
+                <MoreOutlined style={{ cursor: "pointer", fontWeight: "500", fontSize: "16px" }} />
+              </Button>
+            </Popover>
+          </div>
+          {/* Modal for managing columns */}
+          <Modal title="Sütunları Yönet" centered width={800} open={isModalVisible} onOk={() => setIsModalVisible(false)} onCancel={() => setIsModalVisible(false)}>
+            <Text style={{ marginBottom: "15px" }}>Aşağıdaki Ekranlardan Sütunları Göster / Gizle ve Sıralamalarını Ayarlayabilirsiniz.</Text>
+            <div
+              style={{
+                display: "flex",
+                width: "100%",
+                justifyContent: "center",
+                marginTop: "10px",
               }}
             >
-              İndir
-            </Button>
-          </div>
-                    <Spin spinning={loading}>
-                      <Table
+              <Button onClick={resetColumns} style={{ marginBottom: "15px" }}>
+                Sütunları Sıfırla
+              </Button>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <div
+                style={{
+                  width: "46%",
+                  border: "1px solid #8080806e",
+                  borderRadius: "8px",
+                  padding: "10px",
+                }}
+              >
+                <div
+                  style={{
+                    marginBottom: "20px",
+                    borderBottom: "1px solid #80808051",
+                    padding: "8px 8px 12px 8px",
+                  }}
+                >
+                  <Text style={{ fontWeight: 600 }}>Sütunları Göster / Gizle</Text>
+                </div>
+                <div style={{ height: "400px", overflow: "auto" }}>
+                  {initialColumns.map((col) => (
+                    <div style={{ display: "flex", gap: "10px" }} key={col.key}>
+                      <Checkbox checked={columns.find((column) => column.key === col.key)?.visible || false} onChange={(e) => toggleVisibility(col.key, e.target.checked)} />
+                      {col.title}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <DndContext
+                onDragEnd={handleDragEnd}
+                sensors={useSensors(
+                  useSensor(PointerSensor),
+                  useSensor(KeyboardSensor, {
+                    coordinateGetter: sortableKeyboardCoordinates,
+                  })
+                )}
+              >
+                <div
+                  style={{
+                    width: "46%",
+                    border: "1px solid #8080806e",
+                    borderRadius: "8px",
+                    padding: "10px",
+                  }}
+                >
+                  <div
+                    style={{
+                      marginBottom: "20px",
+                      borderBottom: "1px solid #80808051",
+                      padding: "8px 8px 12px 8px",
+                    }}
+                  >
+                    <Text style={{ fontWeight: 600 }}>Sütunların Sıralamasını Ayarla</Text>
+                  </div>
+                  <div style={{ height: "400px", overflow: "auto" }}>
+                    <SortableContext items={columns.filter((col) => col.visible).map((col) => col.key)} strategy={verticalListSortingStrategy}>
+                      {columns
+                        .filter((col) => col.visible)
+                        .map((col, index) => (
+                          <DraggableRow key={col.key} id={col.key} index={index} text={col.title} />
+                        ))}
+                    </SortableContext>
+                  </div>
+                </div>
+              </DndContext>
+            </div>
+          </Modal>
+
+          {/* Table */}
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: "white",
+              padding: "10px",
+              height: "calc(100vh - 200px)",
+              borderRadius: "8px 8px 8px 8px",
+              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
+              overflowY: "auto",
+            }}
+          >
+            <Spin spinning={loading}>
+              <Table
+                components={components}
+                rowSelection={rowSelection}
+                columns={filteredColumns}
+                dataSource={data}
+                pagination={{
+                  current: currentPage,
+                  total: totalCount,
+                  pageSize: 10,
+                  showSizeChanger: false,
+                  showQuickJumper: true,
+                  onChange: handleTableChange,
+                  showTotal: (total, range) => `Toplam ${totalCount} kayıt`,
+                }}
+                scroll={{ y: "calc(100vh - 335px)" }}
+              />
+            </Spin>
+
+            {/* Expanded Modal */}
+            <Modal
+              title={
+                <div>
+                  <Text style={{ fontWeight: "500", fontSize: "17px" }}>
+                    {componentTitle} {`(${baslangicTarihi && bitisTarihi ? `${formatDateWithLocale(baslangicTarihi)} / ${formatDateWithLocale(bitisTarihi)}` : ""})`}
+                  </Text>
+                </div>
+              }
+              centered
+              open={isExpandedModalVisible}
+              onOk={() => setIsExpandedModalVisible(false)}
+              onCancel={() => setIsExpandedModalVisible(false)}
+              width="90%"
+              destroyOnClose
+            >
+              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between", // Sol ve sağ tarafı ayırır
+                    marginBottom: "15px",
+                  }}
+                >
+                  {/* Sol tarafta MenuOutlined ve Arama Kutusu */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <StyledButton onClick={() => setIsModalVisible(true)}>
+                      <MenuOutlined />
+                    </StyledButton>
+                    <Input
+                      style={{ width: "250px" }}
+                      type="text"
+                      placeholder="Arama yap..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onPressEnter={handleSearch}
+                      suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+                    />
+                  </div>
+
+                  {/* Sağ tarafta İndir butonu */}
+                  <Button
+                    type="primary"
+                    icon={<DownloadOutlined />}
+                    loading={loading[1]}
+                    onClick={() => {
+                      enterLoading(1);
+                      handleXLSXDownload();
+                    }}
+                  >
+                    İndir
+                  </Button>
+                </div>
+                <Spin spinning={loading}>
+                  <Table
                     components={components}
                     rowSelection={rowSelection}
                     columns={filteredColumns}
@@ -868,12 +882,12 @@ const Yakit = () => {
                     }}
                     scroll={{ y: "calc(100vh - 335px)" }}
                   />
-                    </Spin>
-                  </div>
-                </Modal>
-      </div>
-    </div>
-    </ConfigProvider>
+                </Spin>
+              </div>
+            </Modal>
+          </div>
+        </div>
+      </ConfigProvider>
     </>
   );
 };

@@ -247,7 +247,7 @@ const IkameAracYonetimi = () => {
         if (newItems.length > 0) {
           setData(newItems);
         } else {
-          message.warning(t("veriYok"));
+          // message.warning(t("veriYok"));
           if (targetPage === 1) {
             setData([]);
           }

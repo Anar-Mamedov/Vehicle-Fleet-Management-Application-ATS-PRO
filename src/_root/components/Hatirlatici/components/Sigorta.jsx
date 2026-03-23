@@ -506,7 +506,7 @@ const Sigorta = () => {
           setData(formattedData);
           setCurrentPage(targetPage);
         } else {
-          message.warning("No data found.");
+          // message.warning("No data found.");
           setData([]);
         }
       }
