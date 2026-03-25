@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Tabs } from "antd";
-import { HomeOutlined, SettingOutlined, ToolOutlined, DatabaseOutlined, CodeOutlined, CarOutlined, LockOutlined } from "@ant-design/icons";
+import { HomeOutlined, SettingOutlined, ToolOutlined, DatabaseOutlined, CodeOutlined, CarOutlined, LockOutlined, LayoutOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import { t } from "i18next";
 import FirmaBilgileri from "./FirmaBilgileri/FirmaBilgileri";
@@ -11,6 +11,7 @@ import OtomatikKodlar from "./OtomatikKodlar/OtomatikKodlar";
 import YakitIslemleri from "./YakitIslemleri/YakitIslemleri";
 import TabloAyarlari from "./TabloAyarlari/TabloAyarlari";
 import SifreAyarlari from "./SifreAyarlari/SifreAyarlari";
+import AraYuzAyarlari from "./AraYuzAyarlari/AraYuzAyarlari";
 const StyledTabs = styled(Tabs)`
   .ant-tabs-tab-active {
     background-color: #e6f7ff; /* Soluk mavi arka plan */
@@ -106,6 +107,16 @@ function AyarlarTabs() {
         </div>
       ),
       children: activeKey === "8" && <SifreAyarlari />,
+    },
+    {
+      key: "9",
+      label: (
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+          <LayoutOutlined />
+          <div style={{ paddingTop: "2px" }}>{t("araYuzAyarlari") || "Ara Yüz Ayarları"}</div>
+        </div>
+      ),
+      children: activeKey === "9" && <AraYuzAyarlari />,
     },
   ];
 

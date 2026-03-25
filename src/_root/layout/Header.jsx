@@ -22,7 +22,7 @@ const CustomSpin = styled(Spin)`
   }
 `;
 
-const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
+const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed, hatirlaticiOpen, setHatirlaticiOpen, hatirlaticiPinnable }) => {
   const [data, setData] = useState(null);
   const [data1, setData1] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -375,9 +375,16 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed }) => {
           <CompanyLogo />
         </div>
         <div style={{ gap: "10px" }} className="flex gap-1 justify-between align-center">
-          <CustomSpin spinning={loading}>
-            <Hatirlatici data={data} getHatirlatici={getHatirlatici} data1={data1} getHatirlatici1={getHatirlatici1} loading={loading} />
-          </CustomSpin>
+          <Hatirlatici
+            data={data}
+            data1={data1}
+            loading={loading}
+            getHatirlatici={getHatirlatici}
+            getHatirlatici1={getHatirlatici1}
+            hatirlaticiOpen={hatirlaticiOpen}
+            setHatirlaticiOpen={setHatirlaticiOpen}
+            pinnable={hatirlaticiPinnable}
+          />
           <Bildirim reportResponse={reportResponse} setRaporModalVisible={setRaporModalVisible} updateReportData={updateReportData} />
           <Input className="search-input" placeholder={t("arama")} allowClear />
           {/* <Popover content={popoverContent} trigger="click">
@@ -406,6 +413,9 @@ HeaderComp.propTypes = {
   collapsed: PropTypes.bool,
   colorBgContainer: PropTypes.string,
   setCollapsed: PropTypes.func,
+  hatirlaticiOpen: PropTypes.bool,
+  setHatirlaticiOpen: PropTypes.func,
+  hatirlaticiPinnable: PropTypes.bool,
 };
 
 export default HeaderComp;
