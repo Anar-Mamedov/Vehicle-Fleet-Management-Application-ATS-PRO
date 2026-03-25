@@ -748,5 +748,17 @@
   "anomaliKural17": "Keçərsiz dəyər",
   "anomaliMantik17": "Litr ≤0 və ya Məbləğ ≤0",
   "anomaliParam17": "-",
-  "anomaliAlan17": "Litr/Məbləğ"
+  "anomaliAlan17": "Litr/Məbləğ",
+  "plakaArac": "Plaka / Nəqliyyat",
+  "gecisNoktasi": "Keçid Nöqtəsi",
+  "gerceklesenTutar": "Həyata Keçən Məbləğ",
+  "beklenenTutar": "Gözlənilən Məbləğ",
+  "tarifeUyumu": "Tarif Uyğunluğu",
+  "supheli": "Şübhəli",
+  "toplamGecis": "Ümumi Keçid",
+  "toplamGerceklesenTutar": "Ümumi Həyata Keçən Məbləğ",
+  "supheliKayit": "Şübhəli Qeyd",
+  "enYogunGuzergah": "Ən Sıx Marşrut",
+  "manuelIncelemeGerektiren": "Manual yoxlama tələb edən qeydlər",
+  "gecis": "Keçid"
 }

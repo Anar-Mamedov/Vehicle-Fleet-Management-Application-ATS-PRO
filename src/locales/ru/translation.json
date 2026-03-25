@@ -271,5 +271,17 @@
   "anomaliKural17": "Недопустимое значение",
   "anomaliMantik17": "Литры ≤0 или Сумма ≤0",
   "anomaliParam17": "-",
-  "anomaliAlan17": "Литры/Сумма"
+  "anomaliAlan17": "Литры/Сумма",
+  "plakaArac": "Номер / Транспорт",
+  "gecisNoktasi": "Точка Проезда",
+  "gerceklesenTutar": "Фактическая Сумма",
+  "beklenenTutar": "Ожидаемая Сумма",
+  "tarifeUyumu": "Соответствие Тарифу",
+  "supheli": "Подозрительный",
+  "toplamGecis": "Всего Проездов",
+  "toplamGerceklesenTutar": "Общая Фактическая Сумма",
+  "supheliKayit": "Подозрительные Записи",
+  "enYogunGuzergah": "Самый Загруженный Маршрут",
+  "manuelIncelemeGerektiren": "Записи, требующие ручной проверки",
+  "gecis": "Проезд"
 }

@@ -95,7 +95,7 @@ const CezaMaddesiTable = ({ setMadde, open, key }) => {
           },
         });
       } else {
-        message.warning("Veri bulunamadı.");
+        // message.warning("Veri bulunamadı.");
         setData([]);
       }
     } catch (error) {

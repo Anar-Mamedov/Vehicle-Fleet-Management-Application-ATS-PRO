@@ -337,7 +337,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
         if (newItems.length > 0) {
           setData(newItems);
         } else {
-          message.warning("Veri bulunamadı.");
+          // message.warning("Veri bulunamadı.");
           if (targetPage === 1) {
             setData([]);
           }
@@ -1714,7 +1714,9 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
                   {statistics.anormalTuketim === null || statistics.anormalTuketim === undefined ? "-" : `${formatStatisticValue(statistics.anormalTuketim)} ${t("arac")}`}
                 </div>
-                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel} {timeRangeLabel && <>&bull; %20 üzeri</>}</div>
+                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>
+                  {timeRangeLabel} {timeRangeLabel && <>&bull; %20 üzeri</>}
+                </div>
               </div>
 
               {/* Araç Başına Maliyet */}

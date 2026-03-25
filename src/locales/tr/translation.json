@@ -1520,5 +1520,17 @@
   "anomaliKural17": "Geçersiz değer",
   "anomaliMantik17": "Litre ≤0 veya Tutar ≤0",
   "anomaliParam17": "-",
-  "anomaliAlan17": "Litre/Tutar"
+  "anomaliAlan17": "Litre/Tutar",
+  "plakaArac": "Plaka / Araç",
+  "gecisNoktasi": "Geçiş Noktası",
+  "gerceklesenTutar": "Gerçekleşen Tutar",
+  "beklenenTutar": "Beklenen Tutar",
+  "tarifeUyumu": "Tarife Uyumu",
+  "supheli": "Şüpheli",
+  "toplamGecis": "Toplam Geçiş",
+  "toplamGerceklesenTutar": "Toplam Gerçekleşen Tutar",
+  "supheliKayit": "Şüpheli Kayıt",
+  "enYogunGuzergah": "En Yoğun Güzergah",
+  "manuelIncelemeGerektiren": "Manuel inceleme gerektiren kayıtlar",
+  "gecis": "Geçiş"
 }

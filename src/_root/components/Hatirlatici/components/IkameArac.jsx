@@ -104,7 +104,7 @@ const IkameArac = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  
+
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [updateId, setUpdateId] = useState(null);
 
@@ -136,7 +136,7 @@ const IkameArac = () => {
       if (newData.length > 0) {
         setData(newData);
       } else {
-        message.warning("Veri bulunamadı.");
+        // message.warning("Veri bulunamadı.");
         setData([]);
       }
     } catch (error) {
@@ -565,14 +565,7 @@ const IkameArac = () => {
         </div>
       </Modal>
 
-      {updateId && (
-        <UpdateModal
-          isOpen={updateModalVisible}
-          setIsOpen={setUpdateModalVisible}
-          id={updateId}
-          onRefresh={refreshTableData}
-        />
-      )}
+      {updateId && <UpdateModal isOpen={updateModalVisible} setIsOpen={setUpdateModalVisible} id={updateId} onRefresh={refreshTableData} />}
 
       <div
         style={{

@@ -7,9 +7,11 @@ import { CSS } from "@dnd-kit/utilities";
 import { Resizable } from "react-resizable";
 import "./ResizeStyle.css";
 import AxiosInstance from "../../../../api/http";
+import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import { useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
+import Filters from "./filter/Filters";
 import AddModal from "./add/AddModal";
 import UpdateModal from "./update/UpdateModal";
 import HgsEntegrasyon from "../HgsEntegrasyonu/HgsEntegrasyon";
@@ -131,7 +133,7 @@ const Yakit = () => {
     const savedScrollMode = localStorage.getItem(infiniteScrollKey);
     return savedScrollMode !== null ? JSON.parse(savedScrollMode) : false;
   });
-  
+
   const [pageSize, setPageSize] = useState(() => {
     const savedPageSize = localStorage.getItem(pageSizeHgsIslem);
     const initialSize = parseInt(savedPageSize, 10);
@@ -153,8 +155,72 @@ const Yakit = () => {
 
   const [selectedRows, setSelectedRows] = useState([]);
 
+  const [statistics, setStatistics] = useState({
+    toplamGecis: null,
+    toplamGerceklesenTutar: null,
+    supheliKayit: null,
+    enYogunGuzergah: null,
+  });
+  const [statisticsLoading, setStatisticsLoading] = useState(false);
+  const [timeRangeLabel, setTimeRangeLabel] = useState("Tümü");
+
+  const [body, setBody] = useState({
+    keyword: "",
+    filters: {},
+  });
+
+  const handleBodyChange = useCallback((type, newBody) => {
+    setBody((prevBody) => {
+      if (type === "filters") {
+        const updatedFilters =
+          typeof newBody === "function"
+            ? newBody(prevBody.filters)
+            : {
+                ...prevBody.filters,
+                ...newBody,
+              };
+        return {
+          ...prevBody,
+          filters: updatedFilters,
+        };
+      }
+      return {
+        ...prevBody,
+        [type]: newBody,
+      };
+    });
+    setCurrentPage(1);
+  }, []);
+
+  const fetchStatistics = async (customfilterOverride) => {
+    setStatisticsLoading(true);
+    const customFilters = customfilterOverride ?? (body.filters?.customfilter && Object.keys(body.filters.customfilter).length > 0 ? body.filters.customfilter : {});
+
+    try {
+      const [res1, res2, res3, res4] = await Promise.all([
+        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=1", customFilters),
+        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=2", customFilters),
+        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=3", customFilters),
+        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=4", customFilters),
+      ]);
+
+      setStatistics({
+        toplamGecis: res1.data,
+        toplamGerceklesenTutar: res2.data,
+        supheliKayit: res3.data,
+        enYogunGuzergah: res4.data,
+      });
+    } catch (error) {
+      console.error("İstatistik verisi çekme hatası:", error);
+    } finally {
+      setStatisticsLoading(false);
+    }
+  };
+
   // API Data Fetching with pagination, search, and sorting
-  const fetchData = async (diff, targetPage, currentSize = pageSize, customSortColumn = sortColumn, customSortDirection = sortDirection) => {
+  const fetchData = async (diff, targetPage, options = {}) => {
+    const { currentSize = pageSize, customSortColumn = sortColumn, customSortDirection = sortDirection, customfilterOverride } = options;
+
     const currentFetchId = lastFetchIdRef.current + 1;
     lastFetchIdRef.current = currentFetchId;
 
@@ -165,10 +231,21 @@ const Yakit = () => {
 
     try {
       const directionStr = customSortDirection === "ascend" ? "asc" : customSortDirection === "descend" ? "desc" : "";
-      
+
+      const effectiveCustomfilter = customfilterOverride ?? (body.filters?.customfilter || {});
+      const normalizedCustomfilter = {
+        baslangicTarih: effectiveCustomfilter?.baslangicTarih === "" ? null : (effectiveCustomfilter?.baslangicTarih ?? null),
+        bitisTarih: effectiveCustomfilter?.bitisTarih === "" ? null : (effectiveCustomfilter?.bitisTarih ?? null),
+        supheli: effectiveCustomfilter?.supheli ?? false,
+        lokasyonIds: Array.isArray(effectiveCustomfilter?.lokasyonIds) ? effectiveCustomfilter.lokasyonIds : [],
+        otoyolKodIds: Array.isArray(effectiveCustomfilter?.otoyolKodIds) ? effectiveCustomfilter.otoyolKodIds : [],
+        ...effectiveCustomfilter,
+      };
+
       const payload = {
+        ...normalizedCustomfilter,
         sortColumn: customSortColumn,
-        sortDirection: directionStr
+        sortDirection: directionStr,
       };
 
       const qSearch = searchTerm ? `&parameter=${encodeURIComponent(searchTerm)}` : "";
@@ -207,7 +284,7 @@ const Yakit = () => {
         if (newItems.length > 0) {
           setData(newItems);
         } else {
-          message.warning("Veri bulunamadı.");
+          // message.warning("Veri bulunamadı.");
           if (targetPage === 1) {
             setData([]);
           }
@@ -227,11 +304,12 @@ const Yakit = () => {
     if (!infiniteScrollEnabled) {
       setPaginationLoading(true);
     }
-    fetchData(0, 1, pageSize).finally(() => {
+    fetchData(0, 1).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
     });
+    fetchStatistics();
   }, [infiniteScrollEnabled]);
 
   useEffect(() => {
@@ -240,12 +318,13 @@ const Yakit = () => {
     };
   }, []);
 
-  const handleSearch = () => {
+  const handleSearch = (opts = {}) => {
     if (!infiniteScrollEnabled) setPaginationLoading(true);
     setCurrentPage(1);
-    fetchData(0, 1, pageSize).finally(() => {
+    fetchData(0, 1, opts).finally(() => {
       if (!infiniteScrollEnabled) setPaginationLoading(false);
     });
+    fetchStatistics(opts.customfilterOverride);
   };
 
   const handleTableChange = (pagination, filters, sorter) => {
@@ -254,19 +333,19 @@ const Yakit = () => {
       const newSortDirection = sorter.order || "";
       setSortColumn(newSortColumn);
       setSortDirection(newSortDirection);
-      
+
       if (!infiniteScrollEnabled) setPaginationLoading(true);
       setCurrentPage(1);
-      fetchData(0, 1, pageSize, newSortColumn, newSortDirection).finally(() => {
+      fetchData(0, 1, { customSortColumn: newSortColumn, customSortDirection: newSortDirection }).finally(() => {
         if (!infiniteScrollEnabled) setPaginationLoading(false);
       });
       return;
     }
 
-    const page = typeof pagination === "object" ? (pagination.current || 1) : pagination;
+    const page = typeof pagination === "object" ? pagination.current || 1 : pagination;
     const diff = page - currentPage;
     if (!infiniteScrollEnabled) setPaginationLoading(true);
-    fetchData(diff, page, pageSize).finally(() => {
+    fetchData(diff, page).finally(() => {
       if (!infiniteScrollEnabled) setPaginationLoading(false);
     });
   };
@@ -275,7 +354,7 @@ const Yakit = () => {
     if (!infiniteScrollEnabled) setPaginationLoading(true);
     localStorage.setItem(pageSizeHgsIslem, value.toString());
     setPageSize(value);
-    fetchData(0, 1, value).finally(() => {
+    fetchData(0, 1, { currentSize: value }).finally(() => {
       if (!infiniteScrollEnabled) setPaginationLoading(false);
     });
   };
@@ -295,7 +374,7 @@ const Yakit = () => {
 
     if (scrollBottom <= clientHeight * 0.2 && !loading && !isLoadingMore && !isLoadingPage && data.length < totalCount) {
       scrollTimeoutRef.current = setTimeout(() => {
-        fetchData(1, currentPage + 1, pageSize);
+        fetchData(1, currentPage + 1);
       }, 200);
     }
   };
@@ -367,13 +446,172 @@ const Yakit = () => {
   // Columns definition (adjust as needed)
   const initialColumns = [
     {
-      title: t("plaka"),
+      title: t("plakaArac"),
       dataIndex: "plaka",
       key: "plaka",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      render: (text, record) => (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <a onClick={() => onRowClick(record)} style={{ fontWeight: 600, color: "#1677ff", fontSize: "14px" }}>
+            {text}
+          </a>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            {[record.marka, record.model].filter(Boolean).join(" ") || "-"}
+          </Text>
+        </div>
+      ),
+      sorter: true,
+    },
+    {
+      title: t("surucu"),
+      dataIndex: "isim",
+      key: "isim",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+      render: (text) => (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <Text style={{ fontWeight: 500, color: "#333", fontSize: "14px" }}>{text || "-"}</Text>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            Sürücü
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: t("giris"),
+      key: "giris",
+      width: 180,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+      render: (_, record) => (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <Text style={{ fontWeight: 500, color: "#333", fontSize: "14px" }}>{record.girisYeri || "-"}</Text>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            {record.girisTarih ? dayjs(record.girisTarih).format("DD.MM.YYYY") : "-"} {record.girisSaat ? record.girisSaat : ""}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: t("cikis"),
+      key: "cikis",
+      width: 180,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+      render: (_, record) => (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <Text style={{ fontWeight: 500, color: "#333", fontSize: "14px" }}>{record.cikisYeri || "-"}</Text>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            {record.cikisTarih ? dayjs(record.cikisTarih).format("DD.MM.YYYY") : "-"} {record.cikisSaat ? record.cikisSaat : ""}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: t("gecisNoktasi"),
+      dataIndex: "otoYol",
+      key: "otoYol",
+      width: 180,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+    },
+    {
+      title: t("gecisKategorisi"),
+      dataIndex: "gecisKategorisi",
+      key: "gecisKategorisi",
+      width: 140,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+    },
+    {
+      title: t("gerceklesenTutar"),
+      dataIndex: "gecisUcreti",
+      key: "gecisUcreti",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+      render: (value) => <Text style={{ fontWeight: 500, color: "#333" }}>{value != null ? `₺${formatNumberWithLocale(value)}` : "-"}</Text>,
+    },
+    {
+      title: t("beklenenTutar"),
+      dataIndex: "beklenenTutar",
+      key: "beklenenTutar",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+      render: (value, record) => <Text style={{ fontWeight: 500, color: "#333" }}>{value != null ? `₺${formatNumberWithLocale(value)}` : "-"}</Text>,
+    },
+    {
+      title: t("fark"),
+      dataIndex: "fark",
+      key: "fark",
       width: 120,
       ellipsis: true,
       visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+      sorter: true,
+      render: (value) => <Text style={{ fontWeight: 500, color: "#333" }}>{value != null ? `₺${formatNumberWithLocale(value)}` : "-"}</Text>,
+    },
+    {
+      title: t("tarifeUyumu"),
+      dataIndex: "kayitTipi",
+      key: "tarifeUyumu",
+      width: 140,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+      render: (value) => {
+        if (value === 1) {
+          return (
+            <Tag style={{ display: "flex", alignItems: "center", gap: "4px", width: "max-content", backgroundColor: "#f6ffed", color: "#389e0d", borderColor: "#b7eb8f" }}>
+              <CheckOutlined /> Uyumlu
+            </Tag>
+          );
+        }
+        if (value === 2) {
+          return (
+            <Tag style={{ display: "flex", alignItems: "center", gap: "4px", width: "max-content", backgroundColor: "#fffbe6", color: "#d48806", borderColor: "#ffe58f" }}>
+              <CloseOutlined /> Şüpheli
+            </Tag>
+          );
+        }
+        return (
+          <Tag style={{ display: "flex", alignItems: "center", gap: "4px", width: "max-content", backgroundColor: "#f5f5f5", color: "#8c8c8c", borderColor: "#d9d9d9" }}>
+            - Bilgisiz
+          </Tag>
+        );
+      },
+    },
+    {
+      title: t("odeme"),
+      dataIndex: "odemeDurumu",
+      key: "odemeDurumu",
+      width: 130,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+      render: (text) => {
+        let color = "#1677ff"; // default blue
+        if (text === "Tahsil edildi" || text?.toLowerCase() === "ödendi") color = "#52c41a"; // green
+        return <Text style={{ color, fontWeight: 500 }}>{text || "Beklemede"}</Text>;
+      },
+    },
+    {
+      title: t("aciklama"),
+      dataIndex: "aciklama",
+      key: "aciklama",
+      width: 180,
+      ellipsis: true,
+      visible: true,
       sorter: true,
     },
     {
@@ -382,97 +620,12 @@ const Yakit = () => {
       key: "tarih",
       width: 120,
       ellipsis: true,
-      visible: true,
+      visible: false,
       sorter: true,
-        render: (text) => {
+      render: (text) => {
         if (!text) return "-";
         return dayjs(text).format("DD.MM.YYYY");
       },
-    },
-    {
-      title: t("surucuAdi"),
-      dataIndex: "isim",
-      key: "isim",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: true,
-    },
-    {
-      title: t("otoyol"),
-      dataIndex: "otoYol",
-      key: "otoYol",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("girisYeri"),
-      dataIndex: "girisYeri",
-      key: "girisYeri",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("girisTarih"),
-      dataIndex: "girisTarih",
-      key: "girisTarih",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: true,
-        render: (text) => {
-        if (!text) return "-";
-        return dayjs(text).format("DD.MM.YYYY");
-      },
-    },
-    {
-      title: t("girisSaat"),
-      dataIndex: "girisSaat",
-      key: "girisSaat",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("cikisYeri"),
-      dataIndex: "cikisYeri",
-      key: "cikisYeri",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("cikisTarih"),
-      dataIndex: "cikisTarih",
-      key: "cikisTarih",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: true,
-        render: (text) => {
-        if (!text) return "-";
-        return dayjs(text).format("DD.MM.YYYY");
-      },
-    },
-    {
-      title: t("cikisSaat"),
-      dataIndex: "cikisSaat",
-      key: "cikisSaat",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: true,
     },
     {
       title: t("odemeTuru"),
@@ -480,52 +633,7 @@ const Yakit = () => {
       key: "odemeTuru",
       width: 120,
       ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("gecisUcreti"),
-      dataIndex: "gecisUcreti",
-      key: "gecisUcreti",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-    
-      sorter: true,
-      render: (value) => {
-        // Ondalık sayıyı 2 haneli olarak formatlıyoruz
-        return value !== null ? value.toFixed(2) : "-";
-      },
-    },
-    {
-      title: t("odemeDurumu"),
-      dataIndex: "odemeDurumu",
-      key: "odemeDurumu",
-      width: 120,
-      ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("fisNo"),
-      dataIndex: "fisNo",
-      key: "fisNo",
-      width: 130,
-      ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("gecisKategorisi"),
-      dataIndex: "gecisKategorisi",
-      key: "gecisKategorisi",
-      width: 130,
-      ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
+      visible: false,
       sorter: true,
     },
     {
@@ -534,18 +642,7 @@ const Yakit = () => {
       key: "guzergah",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("aciklama"),
-      dataIndex: "aciklama",
-      key: "aciklama",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
+      visible: false,
       sorter: true,
     },
     {
@@ -554,8 +651,7 @@ const Yakit = () => {
       key: "ozelAlan1",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -564,8 +660,7 @@ const Yakit = () => {
       key: "ozelAlan2",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -574,8 +669,7 @@ const Yakit = () => {
       key: "ozelAlan3",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -584,8 +678,7 @@ const Yakit = () => {
       key: "ozelAlan4",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -594,8 +687,7 @@ const Yakit = () => {
       key: "ozelAlan5",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -604,8 +696,7 @@ const Yakit = () => {
       key: "ozelAlan6",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -614,8 +705,7 @@ const Yakit = () => {
       key: "ozelAlan7",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -624,8 +714,7 @@ const Yakit = () => {
       key: "ozelAlan8",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -634,8 +723,7 @@ const Yakit = () => {
       key: "ozelAlan9",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -644,8 +732,7 @@ const Yakit = () => {
       key: "ozelAlan10",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -654,8 +741,7 @@ const Yakit = () => {
       key: "ozelAlan11",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -664,12 +750,9 @@ const Yakit = () => {
       key: "ozelAlan12",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
-
-
     // Add other columns as needed
   ];
 
@@ -949,6 +1032,89 @@ const Yakit = () => {
         </div>
       </Modal>
 
+      {/* Statistics Cards */}
+      <Spin spinning={statisticsLoading} size="small">
+        <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+          {/* Toplam Geçiş */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "16px 20px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+              <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamGecis")}</span>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+              {statistics.toplamGecis != null ? formatNumberWithLocale(statistics.toplamGecis) : "-"}
+            </div>
+            <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
+          </div>
+
+          {/* Toplam Gerçekleşen Tutar */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "16px 20px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+              <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamGerceklesenTutar")}</span>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+              {statistics.toplamGerceklesenTutar != null ? `₺${formatNumberWithLocale(statistics.toplamGerceklesenTutar)}` : "-"}
+            </div>
+            <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
+          </div>
+
+          {/* Şüpheli Kayıt */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "16px 20px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+              <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("supheliKayit")}</span>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+              {statistics.supheliKayit != null ? formatNumberWithLocale(statistics.supheliKayit) : "-"}
+            </div>
+            <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{t("manuelIncelemeGerektiren")}</div>
+          </div>
+
+          {/* En Yoğun Güzergah */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "16px 20px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+              <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("enYogunGuzergah")}</span>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+              {statistics.enYogunGuzergah?.guzergahAdi ?? "-"}
+            </div>
+            <div style={{ fontSize: "12px", color: "#bfbfbf" }}>
+              {timeRangeLabel} {statistics.enYogunGuzergah?.gecisSayisi != null && `| ${formatNumberWithLocale(statistics.enYogunGuzergah.gecisSayisi)} ${t("gecis")}`}
+            </div>
+          </div>
+        </div>
+      </Spin>
+
       {/* Toolbar */}
       <div
         style={{
@@ -968,8 +1134,6 @@ const Yakit = () => {
             display: "flex",
             gap: "10px",
             alignItems: "center",
-            width: "100%",
-            maxWidth: "935px",
             flexWrap: "wrap",
           }}
         >
@@ -986,10 +1150,9 @@ const Yakit = () => {
             // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
             suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
           />
-          {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
-          {/* Other toolbar components */}
+          <Filters onChange={handleBodyChange} onApply={(customfilter) => handleSearch({ customfilterOverride: customfilter || {} })} onTimeRangeChange={setTimeRangeLabel} />
         </div>
-        <div style={{ display: "flex", gap: "25px" }}>
+        <div style={{ display: "flex", gap: "10px" }}>
           {/* <HgsEntegrasyon onRefresh={refreshTableData} /> */}
           <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
           <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
@@ -1001,7 +1164,7 @@ const Yakit = () => {
         style={{
           backgroundColor: "white",
           padding: "10px",
-          height: "calc(100vh - 200px)",
+          height: "calc(100vh - 310px)",
           borderRadius: "8px 8px 8px 8px",
           filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
         }}
@@ -1013,7 +1176,7 @@ const Yakit = () => {
             columns={filteredColumns}
             dataSource={data}
             pagination={false}
-            scroll={{ y: "calc(100vh - 335px)" }}
+            scroll={{ y: "calc(100vh - 445px)" }}
             onScroll={handleTableScroll}
             onChange={handleTableChange}
             footer={tableFooter}

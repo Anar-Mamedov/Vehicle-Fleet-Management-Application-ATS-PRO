@@ -321,7 +321,7 @@ const KiralikAraclarTablo = ({ customFields }) => {
         if (newItems.length > 0) {
           setData(newItems);
         } else {
-          message.warning("Veri bulunamadı.");
+          // message.warning("Veri bulunamadı.");
           if (targetPage === 1) {
             setData([]);
           }
