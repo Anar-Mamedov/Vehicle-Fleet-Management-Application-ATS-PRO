@@ -1244,5 +1244,8 @@
   "enYogunGuzergah": "Busiest Route",
   "manuelIncelemeGerektiren": "Records requiring manual review",
   "gecis": "Passage",
-  "kiralikAraclar": "Rental Vehicles"
+  "kiralikAraclar": "Rental Vehicles",
+  "hatirlaticiPillenebilir": "Pinnable Reminder",
+  "hatirlaticiPillenebilirAciklama": "When enabled, the reminder panel can be pinned to the right side of the screen. When disabled, it is shown as a dropdown menu.",
+  "araYuzAyarlari": "Interface Settings"
 }

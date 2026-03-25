@@ -1532,5 +1532,8 @@
   "supheliKayit": "Şüpheli Kayıt",
   "enYogunGuzergah": "En Yoğun Güzergah",
   "manuelIncelemeGerektiren": "Manuel inceleme gerektiren kayıtlar",
-  "gecis": "Geçiş"
+  "gecis": "Geçiş",
+  "hatirlaticiPillenebilir": "Hatırlatıcı Sabitlenebilir",
+  "hatirlaticiPillenebilirAciklama": "Açık olduğunda hatırlatıcı paneli ekranın sağ tarafına sabitlenebilir. Kapalı olduğunda açılır menü olarak gösterilir.",
+  "araYuzAyarlari": "Ara Yüz Ayarları"
 }

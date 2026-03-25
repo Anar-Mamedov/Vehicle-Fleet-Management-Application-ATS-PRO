@@ -761,5 +761,8 @@
   "enYogunGuzergah": "Ən Sıx Marşrut",
   "manuelIncelemeGerektiren": "Manual yoxlama tələb edən qeydlər",
   "gecis": "Keçid",
-  "kiralikAraclar": "Kirayə Nəqliyyat Vasitələri"
+  "kiralikAraclar": "Kirayə Nəqliyyat Vasitələri",
+  "hatirlaticiPillenebilir": "Xatırladıcı Sabitlənə Bilər",
+  "hatirlaticiPillenebilirAciklama": "Açıq olduqda xatırladıcı paneli ekranın sağ tərəfinə sabitlənə bilər. Bağlı olduqda açılan menyu olaraq göstərilir.",
+  "araYuzAyarlari": "İnterfeys Ayarları"
 }
