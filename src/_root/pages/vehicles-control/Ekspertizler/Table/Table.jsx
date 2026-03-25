@@ -703,7 +703,6 @@ const Sigorta = () => {
             gap: "10px",
             padding: "15px",
             borderRadius: "8px 8px 8px 8px",
-            filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
           }}
         >
           <div
@@ -746,7 +745,7 @@ const Sigorta = () => {
             padding: "10px",
             height: "calc(100vh - 200px)",
             borderRadius: "8px 8px 8px 8px",
-            // filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
+            //
           }}
         >
           <Spin spinning={loading}>

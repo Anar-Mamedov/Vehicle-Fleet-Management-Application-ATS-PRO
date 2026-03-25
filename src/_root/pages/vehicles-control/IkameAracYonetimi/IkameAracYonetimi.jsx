@@ -817,7 +817,6 @@ const IkameAracYonetimi = () => {
             gap: "10px",
             padding: "15px",
             borderRadius: "8px 8px 8px 8px",
-            filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
           }}
         >
           <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>

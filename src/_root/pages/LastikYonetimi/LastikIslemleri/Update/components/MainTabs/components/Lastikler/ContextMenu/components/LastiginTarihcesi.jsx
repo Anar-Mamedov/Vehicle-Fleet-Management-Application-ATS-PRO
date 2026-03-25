@@ -596,7 +596,6 @@ function LastiginTarihcesi({ vehicleId }) {
               gap: "10px",
               padding: "15px",
               borderRadius: "8px",
-              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
             }}
           >
             <div
@@ -630,7 +629,6 @@ function LastiginTarihcesi({ vehicleId }) {
               backgroundColor: "white",
               padding: "10px",
               borderRadius: "8px",
-              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
             }}
           >
             <Spin spinning={loading}>

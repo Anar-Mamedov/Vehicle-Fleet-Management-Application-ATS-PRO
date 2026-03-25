@@ -208,12 +208,18 @@ const YakitLimitleri = () => {
     // Çeyrek (3 aylık)
     const quarterStartMonth = Math.floor(month / 3) * 3;
     const startOfQuarter = dayjs().year(year).month(quarterStartMonth).startOf("month");
-    const endOfQuarter = dayjs().year(year).month(quarterStartMonth + 2).endOf("month");
+    const endOfQuarter = dayjs()
+      .year(year)
+      .month(quarterStartMonth + 2)
+      .endOf("month");
 
     // Yarım yıl (6 aylık)
     const halfYearStartMonth = month < 6 ? 0 : 6;
     const startOfHalfYear = dayjs().year(year).month(halfYearStartMonth).startOf("month");
-    const endOfHalfYear = dayjs().year(year).month(halfYearStartMonth + 5).endOf("month");
+    const endOfHalfYear = dayjs()
+      .year(year)
+      .month(halfYearStartMonth + 5)
+      .endOf("month");
 
     // Hafta (Pazartesi başlangıç)
     let startOfWeek, endOfWeek;
@@ -952,7 +958,6 @@ const YakitLimitleri = () => {
               gap: "10px",
               padding: "15px",
               borderRadius: "8px 8px 8px 8px",
-              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
             }}
           >
             <div
@@ -995,7 +1000,6 @@ const YakitLimitleri = () => {
               padding: "10px",
               height: "calc(100vh - 200px)",
               borderRadius: "8px 8px 8px 8px",
-              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
             }}
           >
             <Spin spinning={loading}>

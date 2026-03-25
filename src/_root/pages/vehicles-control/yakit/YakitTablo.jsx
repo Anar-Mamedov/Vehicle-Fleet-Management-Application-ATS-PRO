@@ -1804,7 +1804,6 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
               gap: "10px",
               padding: "15px",
               borderRadius: "8px 8px 8px 8px",
-              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
             }}
           >
             <div
@@ -1850,7 +1849,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
             padding: "10px",
             height: isSefer ? undefined : "calc(100vh - 290px)",
             borderRadius: "8px 8px 8px 8px",
-            // filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
+            //
           }}
         >
           <Spin spinning={loading || (!infiniteScrollEnabled && paginationLoading)}>
