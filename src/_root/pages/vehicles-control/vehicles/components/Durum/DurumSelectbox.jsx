@@ -14,6 +14,7 @@ const DURUM_OPTIONS = [
   { value: 4, label: t("periyodikBakimiGecenler"), color: "gold" },
   { value: 6, label: t("yenilemeSuresiYaklasanlar"), color: "grey" },
   { value: 9, label: t("ikameAraclar"), color: "cyan" },
+  { value: 10, label: t("kiralikAraclar"), color: "magenta" },
   { value: 8, label: t("tumAraclar"), color: "#000" },
 ];
 
