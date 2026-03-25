@@ -113,7 +113,7 @@ function AyarlarTabs() {
       label: (
         <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
           <LayoutOutlined />
-          <div style={{ paddingTop: "2px" }}>{t("araYuzAyarlari") || "Ara Yüz Ayarları"}</div>
+          <div style={{ paddingTop: "2px" }}>{t("araYuzAyarlari")}</div>
         </div>
       ),
       children: activeKey === "9" && <AraYuzAyarlari />,

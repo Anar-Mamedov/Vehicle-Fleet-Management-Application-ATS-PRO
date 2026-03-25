@@ -19,12 +19,12 @@ const AraYuzAyarlari = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 400 }}>
-        <Text>{t("hatirlaticiPillenebilir") || "Hatırlatıcı pillenebilir"}</Text>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Text>{t("hatirlaticiPillenebilir")}</Text>
         <Switch checked={hatirlaticiPinnable} onChange={handlePinnableChange} />
       </div>
       <Text type="secondary" style={{ fontSize: 12, marginTop: 8, display: "block" }}>
-        Açık olduğunda hatırlatıcı paneli ekranın sağ tarafına sabitlenebilir. Kapalı olduğunda açılır menü olarak gösterilir.
+        {t("hatirlaticiPillenebilirAciklama")}
       </Text>
     </div>
   );
