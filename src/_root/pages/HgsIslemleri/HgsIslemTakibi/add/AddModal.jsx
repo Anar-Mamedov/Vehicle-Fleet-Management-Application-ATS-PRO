@@ -106,41 +106,39 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const { handleSubmit, reset, setValue, watch } = methods;
 
   const onSubmit = handleSubmit((values) => {
-    const body = [
-      {
-        tarih: values.tarih,
-        saat: values.saat || "",
-        aracId: values.aracId,
-        surucuId: values.surucuId,
-        otoYolKodId: values.otoYolKodId,
-        girisTarih: values.girisTarih,
-        girisSaat: values.girisSaat ? dayjs(values.girisSaat).format("HH:mm") : null,
-        cikisTarih: values.cikisTarih,
-        cikisSaat: values.cikisSaat ? dayjs(values.cikisSaat).format("HH:mm") : null,
-        GirisYeri: values.GirisYeri || "",
-        CikisYeri: values.CikisYeri || "",
-        odemeTuruKodId: values.odemeTuruKodId,
-        gecisUcreti: values.gecisUcreti ? parseFloat(values.gecisUcreti.replace(",", ".")).toFixed(2) : null,
-        odemeDurumuKodId: values.odemeDurumuKodId,
-        fisNo: values.fisNo,
-        gecisKategorisiKodId: values.gecisKategorisiKodId,
-        guzergahId: values.guzergahId,
-        aciklama: values.aciklama,
-        ozelAlan1: values.ozelAlan1 || "",
-        ozelAlan2: values.ozelAlan2 || "",
-        ozelAlan3: values.ozelAlan3 || "",
-        ozelAlan4: values.ozelAlan4 || "",
-        ozelAlan5: values.ozelAlan5 || "",
-        ozelAlan6: values.ozelAlan6 || "",
-        ozelAlan7: values.ozelAlan7 || "",
-        ozelAlan8: values.ozelAlan8 || "",
-        ozelAlanKodId9: values.ozelAlanKodId9 ?? -1,
-        ozelAlanKodId10: values.ozelAlanKodId10 ?? -1,
-        ozelAlan11: values.ozelAlan11 ?? 0,
-        ozelAlan12: values.ozelAlan12 ?? 0,
-      }
-    ];
-  
+    const body = {
+      tarih: values.tarih,
+      saat: values.saat || "",
+      aracId: values.aracId,
+      surucuId: values.surucuId,
+      otoYolKodId: values.otoYolKodId,
+      girisTarih: values.girisTarih,
+      girisSaat: values.girisSaat ? dayjs(values.girisSaat).format("HH:mm") : null,
+      cikisTarih: values.cikisTarih,
+      cikisSaat: values.cikisSaat ? dayjs(values.cikisSaat).format("HH:mm") : null,
+      girisYeri: values.girisYeri || "",
+      cikisYeri: values.cikisYeri || "",
+      odemeTuruKodId: values.odemeTuruKodId,
+      gecisUcreti: values.gecisUcreti ? parseFloat(values.gecisUcreti.replace(",", ".")).toFixed(2) : null,
+      odemeDurumuKodId: values.odemeDurumuKodId,
+      fisNo: values.fisNo,
+      gecisKategorisiKodId: values.gecisKategorisiKodId,
+      guzergahId: values.guzergahId,
+      aciklama: values.aciklama,
+      ozelAlan1: values.ozelAlan1 || "",
+      ozelAlan2: values.ozelAlan2 || "",
+      ozelAlan3: values.ozelAlan3 || "",
+      ozelAlan4: values.ozelAlan4 || "",
+      ozelAlan5: values.ozelAlan5 || "",
+      ozelAlan6: values.ozelAlan6 || "",
+      ozelAlan7: values.ozelAlan7 || "",
+      ozelAlan8: values.ozelAlan8 || "",
+      ozelAlanKodId9: values.ozelAlanKodId9 ?? -1,
+      ozelAlanKodId10: values.ozelAlanKodId10 ?? -1,
+      ozelAlan11: values.ozelAlan11 ?? 0,
+      ozelAlan12: values.ozelAlan12 ?? 0,
+    };
+
     AddHgsItemService(body).then((res) => {
       if (res.data.statusCode === 200) {
         onRefresh();

@@ -28,38 +28,39 @@ const GeneralInfo = ({ isValid }) => {
       <div className="grid gap-2 border p-20">
         <div className="col-span-12">
           <div className="grid gap-1">
-          <div className="col-span-3">
+            <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label htmlFor="plaka">
                   {t("plaka")} <span className="text-danger">*</span>
                 </label>
-                  <Plaka required={true} />
+                <Plaka required={true} />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>
-                  {t("tarih")}<span className="text-danger">*</span>
+                  {t("tarih")}
+                  <span className="text-danger">*</span>
                 </label>
-                  <RecordDateInput name="tarih" required={true} />
+                <RecordDateInput name="tarih" required={true} />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("surucuAdi")}</label>
-                  <Driver name="surucuAdi" codeName="surucuAdi" />
+                <Driver name="surucuAdi" codeName="surucuAdi" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("otoyol")}</label>
-                  <Otoyol name="otoYolKodId" />
+                <Otoyol name="otoYolKodId" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("girisYeri")}</label>
-                  <TextInput name="GirisYeri" />
+                <TextInput name="girisYeri" />
               </div>
             </div>
             <div className="col-span-3">
@@ -74,14 +75,14 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("cikisYeri")}</label>
-                  <TextInput name="CikisYeri" />
+                <TextInput name="cikisYeri" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("cikisTarih-Saat")}</label>
                 <div className="flex gap-2">
-                  <DateInput name="cikisTarih"  />
+                  <DateInput name="cikisTarih" />
                   <TimeInput name="cikisSaat" />
                 </div>
               </div>
@@ -89,36 +90,36 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("odemeTuru")}</label>
-                  <OdemeTuru name="odemeTuruKodId" />
+                <OdemeTuru name="odemeTuruKodId" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("gecisUcreti")}</label>
-                  <TextInput name="gecisUcreti" />
+                <TextInput name="gecisUcreti" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("odemeDurumu")}</label>
-                  <OdemeDurumu name="odemeDurumuKodId" />
+                <OdemeDurumu name="odemeDurumuKodId" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("fisNo")}</label>
-                  <TextInput name="fisNo" />
+                <TextInput name="fisNo" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("gecisKategorisi")}</label>
-                  <GecisKategorisi name="gecisKategorisiKodId" />
+                <GecisKategorisi name="gecisKategorisiKodId" />
               </div>
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-              <label>{t("guzergah")}</label>
+                <label>{t("guzergah")}</label>
                 <Guzergah name="guzergahId" />
               </div>
             </div>
