@@ -1,7 +1,21 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Progress, ConfigProvider } from "antd";
 import { BsFillQuestionCircleFill } from "react-icons/bs";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined, DollarCircleOutlined, ClockCircleOutlined, CarOutlined, UserOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import {
+  HolderOutlined,
+  SearchOutlined,
+  MenuOutlined,
+  HomeOutlined,
+  ArrowDownOutlined,
+  ArrowUpOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  DollarCircleOutlined,
+  ClockCircleOutlined,
+  CarOutlined,
+  UserOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -888,9 +902,11 @@ const Ceza = () => {
                 <div>
                   <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("buAyToplamTutar")}</div>
                   <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>
-                    {statistics.buAyToplamTutar?.toplamTutar !== null && statistics.buAyToplamTutar?.toplamTutar !== undefined ? `₺${formatStatisticValue(statistics.buAyToplamTutar.toplamTutar)}` : "-"}
+                    {statistics.buAyToplamTutar?.toplamTutar !== null && statistics.buAyToplamTutar?.toplamTutar !== undefined
+                      ? `₺${formatStatisticValue(statistics.buAyToplamTutar.toplamTutar)}`
+                      : "-"}
                   </div>
-                  {(statistics.buAyToplamTutar?.cezaSayisi !== null && statistics.buAyToplamTutar?.cezaSayisi !== undefined) && (
+                  {statistics.buAyToplamTutar?.cezaSayisi !== null && statistics.buAyToplamTutar?.cezaSayisi !== undefined && (
                     <div style={{ fontSize: "13px", color: "#8c8c8c", marginTop: "4px", fontWeight: 400 }}>{statistics.buAyToplamTutar.cezaSayisi} kayıt</div>
                   )}
                 </div>
@@ -913,9 +929,11 @@ const Ceza = () => {
                 <div>
                   <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("odenmemisCeza")}</div>
                   <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>
-                    {statistics.odenmemisCeza?.odenmemisCezaSayisi !== null && statistics.odenmemisCeza?.odenmemisCezaSayisi !== undefined ? `${formatStatisticValue(statistics.odenmemisCeza.odenmemisCezaSayisi)} ${t("adet")}` : "-"}
+                    {statistics.odenmemisCeza?.odenmemisCezaSayisi !== null && statistics.odenmemisCeza?.odenmemisCezaSayisi !== undefined
+                      ? `${formatStatisticValue(statistics.odenmemisCeza.odenmemisCezaSayisi)} ${t("adet")}`
+                      : "-"}
                   </div>
-                  {(statistics.odenmemisCeza?.odenmemisTutar !== null && statistics.odenmemisCeza?.odenmemisTutar !== undefined) && (
+                  {statistics.odenmemisCeza?.odenmemisTutar !== null && statistics.odenmemisCeza?.odenmemisTutar !== undefined && (
                     <div style={{ fontSize: "13px", color: "#8c8c8c", marginTop: "4px", fontWeight: 400 }}>₺{formatStatisticValue(statistics.odenmemisCeza.odenmemisTutar)}</div>
                   )}
                 </div>
@@ -938,7 +956,7 @@ const Ceza = () => {
                 <div>
                   <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("enCokCezaAlanArac")}</div>
                   <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>{statistics.enCokCezaAlanArac?.enCokCezaAlanArac || "-"}</div>
-                  {(statistics.enCokCezaAlanArac?.cezaSayisi !== null && statistics.enCokCezaAlanArac?.cezaSayisi !== undefined) && (
+                  {statistics.enCokCezaAlanArac?.cezaSayisi !== null && statistics.enCokCezaAlanArac?.cezaSayisi !== undefined && (
                     <div style={{ fontSize: "13px", color: "#8c8c8c", marginTop: "4px", fontWeight: 400 }}>{statistics.enCokCezaAlanArac.cezaSayisi} kayıt</div>
                   )}
                 </div>
@@ -980,7 +998,7 @@ const Ceza = () => {
                 <div>
                   <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("enRiskliSurucu")}</div>
                   <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>{statistics.enRiskliSurucu?.enCokCezaAlanSurucu || "-"}</div>
-                  {(statistics.enRiskliSurucu?.cezaSayisi !== null && statistics.enRiskliSurucu?.cezaSayisi !== undefined) && (
+                  {statistics.enRiskliSurucu?.cezaSayisi !== null && statistics.enRiskliSurucu?.cezaSayisi !== undefined && (
                     <div style={{ fontSize: "13px", color: "#8c8c8c", marginTop: "4px", fontWeight: 400 }}>{statistics.enRiskliSurucu.cezaSayisi} kayıt</div>
                   )}
                 </div>
@@ -1000,7 +1018,6 @@ const Ceza = () => {
               gap: "10px",
               padding: "15px",
               borderRadius: "8px 8px 8px 8px",
-              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
             }}
           >
             <div
@@ -1043,7 +1060,6 @@ const Ceza = () => {
               padding: "10px",
               height: "calc(100vh - 305px)",
               borderRadius: "8px 8px 8px 8px",
-              filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
             }}
           >
             <Spin spinning={loading}>

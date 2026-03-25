@@ -1105,9 +1105,7 @@ const Yakit = () => {
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
               <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("enYogunGuzergah")}</span>
             </div>
-            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
-              {statistics.enYogunGuzergah?.guzergahAdi ?? "-"}
-            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{statistics.enYogunGuzergah?.guzergahAdi ?? "-"}</div>
             <div style={{ fontSize: "12px", color: "#bfbfbf" }}>
               {timeRangeLabel} {statistics.enYogunGuzergah?.gecisSayisi != null && `| ${formatNumberWithLocale(statistics.enYogunGuzergah.gecisSayisi)} ${t("gecis")}`}
             </div>
@@ -1126,7 +1124,6 @@ const Yakit = () => {
           gap: "10px",
           padding: "15px",
           borderRadius: "8px 8px 8px 8px",
-          filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
         }}
       >
         <div
@@ -1166,7 +1163,6 @@ const Yakit = () => {
           padding: "10px",
           height: "calc(100vh - 310px)",
           borderRadius: "8px 8px 8px 8px",
-          filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
         }}
       >
         <Spin spinning={loading || (!infiniteScrollEnabled && paginationLoading)}>
