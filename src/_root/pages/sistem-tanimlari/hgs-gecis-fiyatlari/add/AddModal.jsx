@@ -28,8 +28,8 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const onSubmit = handleSubmit((values) => {
     const body = {
       firmaId: values.firmaId,
-      girisYeriKodId: values.girisYeriKodId,
-      cikisYeriKodId: values.cikisYeriKodId,
+      girisYeri: values.girisYeri || "",
+      cikisYeri: values.cikisYeri || "",
       fiyat: values.fiyat,
       aciklama: values.aciklama,
     };

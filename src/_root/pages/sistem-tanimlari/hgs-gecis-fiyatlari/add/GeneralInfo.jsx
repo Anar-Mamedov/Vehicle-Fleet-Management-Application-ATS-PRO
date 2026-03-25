@@ -8,8 +8,6 @@ import TextInput from "../../../../components/form/inputs/TextInput";
 import CodeControl from "../../../../components/form/selects/CodeControl";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import Firma from "../../../../components/form/selects/Firma";
-import GirisYeri from "../../../HgsIslemleri/HgsIslemTakibi/components/ContextMenu/components/GirisYeri"
-import CikisYeri from "../../../HgsIslemleri/HgsIslemTakibi/components/ContextMenu/components/CikisYeri"
 
 const GeneralInfo = ({ isValid }) => {
   const validateStyle = {
@@ -32,13 +30,13 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("girisYeri")}</label>
-                  <GirisYeri name="girisYeriKodId" />
+                  <TextInput name="girisYeri" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("cikisYeri")}</label>
-                  <CikisYeri name="cikisYeriKodId" />
+                  <TextInput name="cikisYeri" />
               </div>
             </div>
             <div className="col-span-3">
