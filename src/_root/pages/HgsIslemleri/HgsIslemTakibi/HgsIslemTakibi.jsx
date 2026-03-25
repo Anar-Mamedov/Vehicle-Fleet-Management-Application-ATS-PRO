@@ -409,7 +409,7 @@ const Yakit = () => {
       width: 180,
       ellipsis: true,
       visible: true,
-      sorter: false,
+      sorter: true,
       render: (_, record) => (
         <div style={{ display: "flex", flexDirection: "column" }}>
           <Text style={{ fontWeight: 500, color: "#333", fontSize: "14px" }}>{record.girisYeri || "-"}</Text>
@@ -425,7 +425,7 @@ const Yakit = () => {
       width: 180,
       ellipsis: true,
       visible: true,
-      sorter: false,
+      sorter: true,
       render: (_, record) => (
         <div style={{ display: "flex", flexDirection: "column" }}>
           <Text style={{ fontWeight: 500, color: "#333", fontSize: "14px" }}>{record.cikisYeri || "-"}</Text>
@@ -474,7 +474,7 @@ const Yakit = () => {
       width: 150,
       ellipsis: true,
       visible: true,
-      sorter: false,
+      sorter: true,
       render: (value, record) => (
         <Text style={{ fontWeight: 500, color: "#333" }}>
           {value != null ? `₺${formatNumberWithLocale(value)}` : "-"}
@@ -488,7 +488,7 @@ const Yakit = () => {
       width: 120,
       ellipsis: true,
       visible: true,
-      sorter: false,
+      sorter: true,
       render: (value) => (
         <Text style={{ fontWeight: 500, color: "#333" }}>
           {value != null ? `₺${formatNumberWithLocale(value)}` : "-"}
@@ -502,7 +502,7 @@ const Yakit = () => {
       width: 140,
       ellipsis: true,
       visible: true,
-      sorter: false,
+      sorter: true,
       render: (value) => {
         if (value === 1) {
           return (
