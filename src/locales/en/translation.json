@@ -1231,5 +1231,10 @@
   "anomaliKural17": "Invalid value",
   "anomaliMantik17": "Liters ≤0 or Amount ≤0",
   "anomaliParam17": "-",
-  "anomaliAlan17": "Liters/Amount"
+  "anomaliAlan17": "Liters/Amount",
+  "plakaArac": "Plate / Vehicle",
+  "gecisNoktasi": "Crossing Point",
+  "gerceklesenTutar": "Actual Amount",
+  "beklenenTutar": "Expected Amount",
+  "tarifeUyumu": "Tariff Compliance"
 }

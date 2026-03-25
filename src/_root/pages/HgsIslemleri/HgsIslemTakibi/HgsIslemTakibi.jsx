@@ -7,6 +7,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Resizable } from "react-resizable";
 import "./ResizeStyle.css";
 import AxiosInstance from "../../../../api/http";
+import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import { useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
@@ -131,7 +132,7 @@ const Yakit = () => {
     const savedScrollMode = localStorage.getItem(infiniteScrollKey);
     return savedScrollMode !== null ? JSON.parse(savedScrollMode) : false;
   });
-  
+
   const [pageSize, setPageSize] = useState(() => {
     const savedPageSize = localStorage.getItem(pageSizeHgsIslem);
     const initialSize = parseInt(savedPageSize, 10);
@@ -165,10 +166,10 @@ const Yakit = () => {
 
     try {
       const directionStr = customSortDirection === "ascend" ? "asc" : customSortDirection === "descend" ? "desc" : "";
-      
+
       const payload = {
         sortColumn: customSortColumn,
-        sortDirection: directionStr
+        sortDirection: directionStr,
       };
 
       const qSearch = searchTerm ? `&parameter=${encodeURIComponent(searchTerm)}` : "";
@@ -254,7 +255,7 @@ const Yakit = () => {
       const newSortDirection = sorter.order || "";
       setSortColumn(newSortColumn);
       setSortDirection(newSortDirection);
-      
+
       if (!infiniteScrollEnabled) setPaginationLoading(true);
       setCurrentPage(1);
       fetchData(0, 1, pageSize, newSortColumn, newSortDirection).finally(() => {
@@ -263,7 +264,7 @@ const Yakit = () => {
       return;
     }
 
-    const page = typeof pagination === "object" ? (pagination.current || 1) : pagination;
+    const page = typeof pagination === "object" ? pagination.current || 1 : pagination;
     const diff = page - currentPage;
     if (!infiniteScrollEnabled) setPaginationLoading(true);
     fetchData(diff, page, pageSize).finally(() => {
@@ -367,13 +368,184 @@ const Yakit = () => {
   // Columns definition (adjust as needed)
   const initialColumns = [
     {
-      title: t("plaka"),
+      title: t("plakaArac"),
       dataIndex: "plaka",
       key: "plaka",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      render: (text, record) => (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <a onClick={() => onRowClick(record)} style={{ fontWeight: 600, color: "#1677ff", fontSize: "14px" }}>
+            {text}
+          </a>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            {[record.marka, record.model].filter(Boolean).join(" ") || "-"}
+          </Text>
+        </div>
+      ),
+      sorter: true,
+    },
+    {
+      title: t("surucu"),
+      dataIndex: "isim",
+      key: "isim",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+      render: (text) => (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <Text style={{ fontWeight: 500, color: "#333", fontSize: "14px" }}>{text || "-"}</Text>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            Sürücü
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: t("giris"),
+      key: "giris",
+      width: 180,
+      ellipsis: true,
+      visible: true,
+      sorter: false,
+      render: (_, record) => (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <Text style={{ fontWeight: 500, color: "#333", fontSize: "14px" }}>{record.girisYeri || "-"}</Text>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            {record.girisTarih ? dayjs(record.girisTarih).format("DD.MM.YYYY") : "-"} {record.girisSaat ? record.girisSaat : ""}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: t("cikis"),
+      key: "cikis",
+      width: 180,
+      ellipsis: true,
+      visible: true,
+      sorter: false,
+      render: (_, record) => (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <Text style={{ fontWeight: 500, color: "#333", fontSize: "14px" }}>{record.cikisYeri || "-"}</Text>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            {record.cikisTarih ? dayjs(record.cikisTarih).format("DD.MM.YYYY") : "-"} {record.cikisSaat ? record.cikisSaat : ""}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: t("gecisNoktasi"),
+      dataIndex: "otoYol",
+      key: "otoYol",
+      width: 180,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+    },
+    {
+      title: t("gecisKategorisi"),
+      dataIndex: "gecisKategorisi",
+      key: "gecisKategorisi",
+      width: 140,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+    },
+    {
+      title: t("gerceklesenTutar"),
+      dataIndex: "gecisUcreti",
+      key: "gecisUcreti",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+      render: (value) => (
+        <Text style={{ fontWeight: 500, color: "#333" }}>
+          {value != null ? `₺${formatNumberWithLocale(value)}` : "-"}
+        </Text>
+      ),
+    },
+    {
+      title: t("beklenenTutar"),
+      dataIndex: "beklenenTutar",
+      key: "beklenenTutar",
+      width: 150,
+      ellipsis: true,
+      visible: true,
+      sorter: false,
+      render: (value, record) => (
+        <Text style={{ fontWeight: 500, color: "#333" }}>
+          {value != null ? `₺${formatNumberWithLocale(value)}` : "-"}
+        </Text>
+      ),
+    },
+    {
+      title: t("fark"),
+      dataIndex: "fark",
+      key: "fark",
       width: 120,
       ellipsis: true,
       visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+      sorter: false,
+      render: (value) => (
+        <Text style={{ fontWeight: 500, color: "#333" }}>
+          {value != null ? `₺${formatNumberWithLocale(value)}` : "-"}
+        </Text>
+      ),
+    },
+    {
+      title: t("tarifeUyumu"),
+      dataIndex: "kayitTipi",
+      key: "tarifeUyumu",
+      width: 140,
+      ellipsis: true,
+      visible: true,
+      sorter: false,
+      render: (value) => {
+        if (value === 1) {
+          return (
+            <Tag style={{ display: "flex", alignItems: "center", gap: "4px", width: "max-content", backgroundColor: "#f6ffed", color: "#389e0d", borderColor: "#b7eb8f" }}>
+              <CheckOutlined /> Uyumlu
+            </Tag>
+          );
+        }
+        if (value === 2) {
+          return (
+            <Tag style={{ display: "flex", alignItems: "center", gap: "4px", width: "max-content", backgroundColor: "#fffbe6", color: "#d48806", borderColor: "#ffe58f" }}>
+              <CloseOutlined /> Şüpheli
+            </Tag>
+          );
+        }
+        return (
+          <Tag style={{ display: "flex", alignItems: "center", gap: "4px", width: "max-content", backgroundColor: "#f5f5f5", color: "#8c8c8c", borderColor: "#d9d9d9" }}>
+            - Bilgisiz
+          </Tag>
+        );
+      },
+    },
+    {
+      title: t("odeme"),
+      dataIndex: "odemeDurumu",
+      key: "odemeDurumu",
+      width: 130,
+      ellipsis: true,
+      visible: true,
+      sorter: true,
+      render: (text) => {
+        let color = "#1677ff"; // default blue
+        if (text === "Tahsil edildi" || text?.toLowerCase() === "ödendi") color = "#52c41a"; // green
+        return <Text style={{ color, fontWeight: 500 }}>{text || "Beklemede"}</Text>;
+      },
+    },
+    {
+      title: t("aciklama"),
+      dataIndex: "aciklama",
+      key: "aciklama",
+      width: 180,
+      ellipsis: true,
+      visible: true,
       sorter: true,
     },
     {
@@ -382,97 +554,12 @@ const Yakit = () => {
       key: "tarih",
       width: 120,
       ellipsis: true,
-      visible: true,
+      visible: false,
       sorter: true,
-        render: (text) => {
+      render: (text) => {
         if (!text) return "-";
         return dayjs(text).format("DD.MM.YYYY");
       },
-    },
-    {
-      title: t("surucuAdi"),
-      dataIndex: "isim",
-      key: "isim",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: true,
-    },
-    {
-      title: t("otoyol"),
-      dataIndex: "otoYol",
-      key: "otoYol",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("girisYeri"),
-      dataIndex: "girisYeri",
-      key: "girisYeri",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("girisTarih"),
-      dataIndex: "girisTarih",
-      key: "girisTarih",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: true,
-        render: (text) => {
-        if (!text) return "-";
-        return dayjs(text).format("DD.MM.YYYY");
-      },
-    },
-    {
-      title: t("girisSaat"),
-      dataIndex: "girisSaat",
-      key: "girisSaat",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("cikisYeri"),
-      dataIndex: "cikisYeri",
-      key: "cikisYeri",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("cikisTarih"),
-      dataIndex: "cikisTarih",
-      key: "cikisTarih",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      sorter: true,
-        render: (text) => {
-        if (!text) return "-";
-        return dayjs(text).format("DD.MM.YYYY");
-      },
-    },
-    {
-      title: t("cikisSaat"),
-      dataIndex: "cikisSaat",
-      key: "cikisSaat",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: true,
     },
     {
       title: t("odemeTuru"),
@@ -480,52 +567,7 @@ const Yakit = () => {
       key: "odemeTuru",
       width: 120,
       ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("gecisUcreti"),
-      dataIndex: "gecisUcreti",
-      key: "gecisUcreti",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-    
-      sorter: true,
-      render: (value) => {
-        // Ondalık sayıyı 2 haneli olarak formatlıyoruz
-        return value !== null ? value.toFixed(2) : "-";
-      },
-    },
-    {
-      title: t("odemeDurumu"),
-      dataIndex: "odemeDurumu",
-      key: "odemeDurumu",
-      width: 120,
-      ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("fisNo"),
-      dataIndex: "fisNo",
-      key: "fisNo",
-      width: 130,
-      ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("gecisKategorisi"),
-      dataIndex: "gecisKategorisi",
-      key: "gecisKategorisi",
-      width: 130,
-      ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
+      visible: false,
       sorter: true,
     },
     {
@@ -534,18 +576,7 @@ const Yakit = () => {
       key: "guzergah",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
-      sorter: true,
-    },
-    {
-      title: t("aciklama"),
-      dataIndex: "aciklama",
-      key: "aciklama",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
+      visible: false,
       sorter: true,
     },
     {
@@ -554,8 +585,7 @@ const Yakit = () => {
       key: "ozelAlan1",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -564,8 +594,7 @@ const Yakit = () => {
       key: "ozelAlan2",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -574,8 +603,7 @@ const Yakit = () => {
       key: "ozelAlan3",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -584,8 +612,7 @@ const Yakit = () => {
       key: "ozelAlan4",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -594,8 +621,7 @@ const Yakit = () => {
       key: "ozelAlan5",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -604,8 +630,7 @@ const Yakit = () => {
       key: "ozelAlan6",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -614,8 +639,7 @@ const Yakit = () => {
       key: "ozelAlan7",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -624,8 +648,7 @@ const Yakit = () => {
       key: "ozelAlan8",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -634,8 +657,7 @@ const Yakit = () => {
       key: "ozelAlan9",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -644,8 +666,7 @@ const Yakit = () => {
       key: "ozelAlan10",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -654,8 +675,7 @@ const Yakit = () => {
       key: "ozelAlan11",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
     {
@@ -664,12 +684,9 @@ const Yakit = () => {
       key: "ozelAlan12",
       width: 130,
       ellipsis: true,
-      visible: false, // Varsayılan olarak kapalı
-
+      visible: false,
       sorter: true,
     },
-
-
     // Add other columns as needed
   ];
 
