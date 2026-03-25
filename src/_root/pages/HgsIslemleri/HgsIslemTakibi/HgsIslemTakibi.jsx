@@ -446,7 +446,7 @@ const Yakit = () => {
   // Columns definition (adjust as needed)
   const initialColumns = [
     {
-      title: t("plakaArac"),
+      title: t("plaka"),
       dataIndex: "plaka",
       key: "plaka",
       width: 150,
