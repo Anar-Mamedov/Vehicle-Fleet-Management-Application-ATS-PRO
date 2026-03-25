@@ -1525,5 +1525,12 @@
   "gecisNoktasi": "Geçiş Noktası",
   "gerceklesenTutar": "Gerçekleşen Tutar",
   "beklenenTutar": "Beklenen Tutar",
-  "tarifeUyumu": "Tarife Uyumu"
+  "tarifeUyumu": "Tarife Uyumu",
+  "supheli": "Şüpheli",
+  "toplamGecis": "Toplam Geçiş",
+  "toplamGerceklesenTutar": "Toplam Gerçekleşen Tutar",
+  "supheliKayit": "Şüpheli Kayıt",
+  "enYogunGuzergah": "En Yoğun Güzergah",
+  "manuelIncelemeGerektiren": "Manuel inceleme gerektiren kayıtlar",
+  "gecis": "Geçiş"
 }

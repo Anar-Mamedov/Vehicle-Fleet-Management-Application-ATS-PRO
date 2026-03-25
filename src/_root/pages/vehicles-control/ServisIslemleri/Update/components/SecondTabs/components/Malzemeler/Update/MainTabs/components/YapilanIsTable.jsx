@@ -134,7 +134,7 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouse
         if (newData.length > 0) {
           setData(newData);
         } else {
-          message.warning("Veri bulunamadı.");
+          // message.warning("Veri bulunamadı.");
           setData([]);
         }
       } catch (error) {
@@ -197,14 +197,7 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouse
       <Button onClick={handleModalToggle}> + </Button>
       <Modal width={1200} centered title="Malzeme Listesi" destroyOnClose open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px", gap: "12px" }}>
-          <Search
-            style={{ width: "250px" }}
-            placeholder={t("aramaYap")}
-            onSearch={handleSearch}
-            enterButton
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <Search style={{ width: "250px" }} placeholder={t("aramaYap")} onSearch={handleSearch} enterButton value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           <AddModal onRefresh={handleAddModalRefresh} />
         </div>
         <Table

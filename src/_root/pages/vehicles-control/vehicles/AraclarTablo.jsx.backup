@@ -232,7 +232,7 @@ const Yakit = ({ ayarlarData }) => {
         console.log("Fetched page has no data, staying on current data set.");
       } else if (newData.length === 0) {
         // Initial load or filter resulted in no data
-        message.warning("Veri bulunamadı.");
+        // message.warning("Veri bulunamadı.");
         setData([]);
       }
     } catch (error) {

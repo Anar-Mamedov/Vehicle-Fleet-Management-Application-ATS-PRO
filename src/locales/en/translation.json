@@ -1236,5 +1236,12 @@
   "gecisNoktasi": "Crossing Point",
   "gerceklesenTutar": "Actual Amount",
   "beklenenTutar": "Expected Amount",
-  "tarifeUyumu": "Tariff Compliance"
+  "tarifeUyumu": "Tariff Compliance",
+  "supheli": "Suspicious",
+  "toplamGecis": "Total Passages",
+  "toplamGerceklesenTutar": "Total Actual Amount",
+  "supheliKayit": "Suspicious Records",
+  "enYogunGuzergah": "Busiest Route",
+  "manuelIncelemeGerektiren": "Records requiring manual review",
+  "gecis": "Passage"
 }

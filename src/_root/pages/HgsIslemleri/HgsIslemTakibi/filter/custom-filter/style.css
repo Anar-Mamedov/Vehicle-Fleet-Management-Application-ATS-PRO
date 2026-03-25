@@ -1,0 +1,14 @@
+/* In your CSS file or a stylesheet */
+.blue-dot-button {
+    position: relative;
+}
+
+.blue-dot {
+    width: 12px;
+    height: 12px;
+    background-color: #006cb8;
+    border-radius: 50%;
+    content: "";
+    display: block;
+    border: 1px solid #fff;
+}

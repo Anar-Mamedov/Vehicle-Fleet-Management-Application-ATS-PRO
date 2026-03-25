@@ -277,7 +277,7 @@ export function FirmaTablo({ workshopSelectedId, onSubmit, type = 0, statusValue
             total: total,
           }));
         } else {
-          message.warning("Veri bulunamadı.");
+          // message.warning("Veri bulunamadı.");
           setData([]);
           setPagination((prev) => ({
             ...prev,
@@ -323,7 +323,7 @@ export function FirmaTablo({ workshopSelectedId, onSubmit, type = 0, statusValue
             total: fetchedData.length,
           }));
         } else {
-          message.warning("Veri bulunamadı.");
+          // message.warning("Veri bulunamadı.");
           setPagination((prev) => ({
             ...prev,
             current: 1,

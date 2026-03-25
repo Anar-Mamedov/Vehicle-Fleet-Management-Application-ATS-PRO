@@ -11,6 +11,7 @@ import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import { useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
+import Filters from "./filter/Filters";
 import AddModal from "./add/AddModal";
 import UpdateModal from "./update/UpdateModal";
 import HgsEntegrasyon from "../HgsEntegrasyonu/HgsEntegrasyon";
@@ -154,8 +155,72 @@ const Yakit = () => {
 
   const [selectedRows, setSelectedRows] = useState([]);
 
+  const [statistics, setStatistics] = useState({
+    toplamGecis: null,
+    toplamGerceklesenTutar: null,
+    supheliKayit: null,
+    enYogunGuzergah: null,
+  });
+  const [statisticsLoading, setStatisticsLoading] = useState(false);
+  const [timeRangeLabel, setTimeRangeLabel] = useState("Tümü");
+
+  const [body, setBody] = useState({
+    keyword: "",
+    filters: {},
+  });
+
+  const handleBodyChange = useCallback((type, newBody) => {
+    setBody((prevBody) => {
+      if (type === "filters") {
+        const updatedFilters =
+          typeof newBody === "function"
+            ? newBody(prevBody.filters)
+            : {
+                ...prevBody.filters,
+                ...newBody,
+              };
+        return {
+          ...prevBody,
+          filters: updatedFilters,
+        };
+      }
+      return {
+        ...prevBody,
+        [type]: newBody,
+      };
+    });
+    setCurrentPage(1);
+  }, []);
+
+  const fetchStatistics = async (customfilterOverride) => {
+    setStatisticsLoading(true);
+    const customFilters = customfilterOverride ?? (body.filters?.customfilter && Object.keys(body.filters.customfilter).length > 0 ? body.filters.customfilter : {});
+
+    try {
+      const [res1, res2, res3, res4] = await Promise.all([
+        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=1", customFilters),
+        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=2", customFilters),
+        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=3", customFilters),
+        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=4", customFilters),
+      ]);
+
+      setStatistics({
+        toplamGecis: res1.data,
+        toplamGerceklesenTutar: res2.data,
+        supheliKayit: res3.data,
+        enYogunGuzergah: res4.data,
+      });
+    } catch (error) {
+      console.error("İstatistik verisi çekme hatası:", error);
+    } finally {
+      setStatisticsLoading(false);
+    }
+  };
+
   // API Data Fetching with pagination, search, and sorting
-  const fetchData = async (diff, targetPage, currentSize = pageSize, customSortColumn = sortColumn, customSortDirection = sortDirection) => {
+  const fetchData = async (diff, targetPage, options = {}) => {
+    const { currentSize = pageSize, customSortColumn = sortColumn, customSortDirection = sortDirection, customfilterOverride } = options;
+
     const currentFetchId = lastFetchIdRef.current + 1;
     lastFetchIdRef.current = currentFetchId;
 
@@ -167,7 +232,18 @@ const Yakit = () => {
     try {
       const directionStr = customSortDirection === "ascend" ? "asc" : customSortDirection === "descend" ? "desc" : "";
 
+      const effectiveCustomfilter = customfilterOverride ?? (body.filters?.customfilter || {});
+      const normalizedCustomfilter = {
+        baslangicTarih: effectiveCustomfilter?.baslangicTarih === "" ? null : (effectiveCustomfilter?.baslangicTarih ?? null),
+        bitisTarih: effectiveCustomfilter?.bitisTarih === "" ? null : (effectiveCustomfilter?.bitisTarih ?? null),
+        supheli: effectiveCustomfilter?.supheli ?? false,
+        lokasyonIds: Array.isArray(effectiveCustomfilter?.lokasyonIds) ? effectiveCustomfilter.lokasyonIds : [],
+        otoyolKodIds: Array.isArray(effectiveCustomfilter?.otoyolKodIds) ? effectiveCustomfilter.otoyolKodIds : [],
+        ...effectiveCustomfilter,
+      };
+
       const payload = {
+        ...normalizedCustomfilter,
         sortColumn: customSortColumn,
         sortDirection: directionStr,
       };
@@ -208,7 +284,7 @@ const Yakit = () => {
         if (newItems.length > 0) {
           setData(newItems);
         } else {
-          message.warning("Veri bulunamadı.");
+          // message.warning("Veri bulunamadı.");
           if (targetPage === 1) {
             setData([]);
           }
@@ -228,11 +304,12 @@ const Yakit = () => {
     if (!infiniteScrollEnabled) {
       setPaginationLoading(true);
     }
-    fetchData(0, 1, pageSize).finally(() => {
+    fetchData(0, 1).finally(() => {
       if (!infiniteScrollEnabled) {
         setPaginationLoading(false);
       }
     });
+    fetchStatistics();
   }, [infiniteScrollEnabled]);
 
   useEffect(() => {
@@ -241,12 +318,13 @@ const Yakit = () => {
     };
   }, []);
 
-  const handleSearch = () => {
+  const handleSearch = (opts = {}) => {
     if (!infiniteScrollEnabled) setPaginationLoading(true);
     setCurrentPage(1);
-    fetchData(0, 1, pageSize).finally(() => {
+    fetchData(0, 1, opts).finally(() => {
       if (!infiniteScrollEnabled) setPaginationLoading(false);
     });
+    fetchStatistics(opts.customfilterOverride);
   };
 
   const handleTableChange = (pagination, filters, sorter) => {
@@ -258,7 +336,7 @@ const Yakit = () => {
 
       if (!infiniteScrollEnabled) setPaginationLoading(true);
       setCurrentPage(1);
-      fetchData(0, 1, pageSize, newSortColumn, newSortDirection).finally(() => {
+      fetchData(0, 1, { customSortColumn: newSortColumn, customSortDirection: newSortDirection }).finally(() => {
         if (!infiniteScrollEnabled) setPaginationLoading(false);
       });
       return;
@@ -267,7 +345,7 @@ const Yakit = () => {
     const page = typeof pagination === "object" ? pagination.current || 1 : pagination;
     const diff = page - currentPage;
     if (!infiniteScrollEnabled) setPaginationLoading(true);
-    fetchData(diff, page, pageSize).finally(() => {
+    fetchData(diff, page).finally(() => {
       if (!infiniteScrollEnabled) setPaginationLoading(false);
     });
   };
@@ -276,7 +354,7 @@ const Yakit = () => {
     if (!infiniteScrollEnabled) setPaginationLoading(true);
     localStorage.setItem(pageSizeHgsIslem, value.toString());
     setPageSize(value);
-    fetchData(0, 1, value).finally(() => {
+    fetchData(0, 1, { currentSize: value }).finally(() => {
       if (!infiniteScrollEnabled) setPaginationLoading(false);
     });
   };
@@ -296,7 +374,7 @@ const Yakit = () => {
 
     if (scrollBottom <= clientHeight * 0.2 && !loading && !isLoadingMore && !isLoadingPage && data.length < totalCount) {
       scrollTimeoutRef.current = setTimeout(() => {
-        fetchData(1, currentPage + 1, pageSize);
+        fetchData(1, currentPage + 1);
       }, 200);
     }
   };
@@ -461,11 +539,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true,
       sorter: true,
-      render: (value) => (
-        <Text style={{ fontWeight: 500, color: "#333" }}>
-          {value != null ? `₺${formatNumberWithLocale(value)}` : "-"}
-        </Text>
-      ),
+      render: (value) => <Text style={{ fontWeight: 500, color: "#333" }}>{value != null ? `₺${formatNumberWithLocale(value)}` : "-"}</Text>,
     },
     {
       title: t("beklenenTutar"),
@@ -475,11 +549,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true,
       sorter: true,
-      render: (value, record) => (
-        <Text style={{ fontWeight: 500, color: "#333" }}>
-          {value != null ? `₺${formatNumberWithLocale(value)}` : "-"}
-        </Text>
-      ),
+      render: (value, record) => <Text style={{ fontWeight: 500, color: "#333" }}>{value != null ? `₺${formatNumberWithLocale(value)}` : "-"}</Text>,
     },
     {
       title: t("fark"),
@@ -489,11 +559,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true,
       sorter: true,
-      render: (value) => (
-        <Text style={{ fontWeight: 500, color: "#333" }}>
-          {value != null ? `₺${formatNumberWithLocale(value)}` : "-"}
-        </Text>
-      ),
+      render: (value) => <Text style={{ fontWeight: 500, color: "#333" }}>{value != null ? `₺${formatNumberWithLocale(value)}` : "-"}</Text>,
     },
     {
       title: t("tarifeUyumu"),
@@ -966,6 +1032,89 @@ const Yakit = () => {
         </div>
       </Modal>
 
+      {/* Statistics Cards */}
+      <Spin spinning={statisticsLoading} size="small">
+        <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+          {/* Toplam Geçiş */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "16px 20px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+              <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamGecis")}</span>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+              {statistics.toplamGecis != null ? formatNumberWithLocale(statistics.toplamGecis) : "-"}
+            </div>
+            <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
+          </div>
+
+          {/* Toplam Gerçekleşen Tutar */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "16px 20px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+              <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamGerceklesenTutar")}</span>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+              {statistics.toplamGerceklesenTutar != null ? `₺${formatNumberWithLocale(statistics.toplamGerceklesenTutar)}` : "-"}
+            </div>
+            <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
+          </div>
+
+          {/* Şüpheli Kayıt */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "16px 20px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+              <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("supheliKayit")}</span>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+              {statistics.supheliKayit != null ? formatNumberWithLocale(statistics.supheliKayit) : "-"}
+            </div>
+            <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{t("manuelIncelemeGerektiren")}</div>
+          </div>
+
+          {/* En Yoğun Güzergah */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "16px 20px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+              <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("enYogunGuzergah")}</span>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+              {statistics.enYogunGuzergah?.guzergahAdi ?? "-"}
+            </div>
+            <div style={{ fontSize: "12px", color: "#bfbfbf" }}>
+              {timeRangeLabel} {statistics.enYogunGuzergah?.gecisSayisi != null && `| ${formatNumberWithLocale(statistics.enYogunGuzergah.gecisSayisi)} ${t("gecis")}`}
+            </div>
+          </div>
+        </div>
+      </Spin>
+
       {/* Toolbar */}
       <div
         style={{
@@ -985,8 +1134,6 @@ const Yakit = () => {
             display: "flex",
             gap: "10px",
             alignItems: "center",
-            width: "100%",
-            maxWidth: "935px",
             flexWrap: "wrap",
           }}
         >
@@ -1003,10 +1150,9 @@ const Yakit = () => {
             // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
             suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
           />
-          {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
-          {/* Other toolbar components */}
+          <Filters onChange={handleBodyChange} onApply={(customfilter) => handleSearch({ customfilterOverride: customfilter || {} })} onTimeRangeChange={setTimeRangeLabel} />
         </div>
-        <div style={{ display: "flex", gap: "25px" }}>
+        <div style={{ display: "flex", gap: "10px" }}>
           {/* <HgsEntegrasyon onRefresh={refreshTableData} /> */}
           <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
           <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
@@ -1018,7 +1164,7 @@ const Yakit = () => {
         style={{
           backgroundColor: "white",
           padding: "10px",
-          height: "calc(100vh - 200px)",
+          height: "calc(100vh - 310px)",
           borderRadius: "8px 8px 8px 8px",
           filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.1))",
         }}
@@ -1030,7 +1176,7 @@ const Yakit = () => {
             columns={filteredColumns}
             dataSource={data}
             pagination={false}
-            scroll={{ y: "calc(100vh - 335px)" }}
+            scroll={{ y: "calc(100vh - 445px)" }}
             onScroll={handleTableScroll}
             onChange={handleTableChange}
             footer={tableFooter}
