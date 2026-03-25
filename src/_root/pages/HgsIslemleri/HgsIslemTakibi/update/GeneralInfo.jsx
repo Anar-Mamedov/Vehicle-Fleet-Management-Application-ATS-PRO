@@ -31,92 +31,93 @@ const GeneralInfo = ({ isValid }) => {
                 <label htmlFor="plaka">
                   {t("plaka")} <span className="text-danger">*</span>
                 </label>
-                  <Plaka required={true} />
+                <Plaka required={true} />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>
-                  {t("tarih")}<span className="text-danger">*</span>
+                  {t("tarih")}
+                  <span className="text-danger">*</span>
                 </label>
-                  <DateInput name="tarih" required={true} />
+                <DateInput name="tarih" required={true} />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("surucuAdi")}</label>
-                  <Driver name="isim"/>
+                <Driver name="isim" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("otoyol")}</label>
-                  <Otoyol name="otoYolKodId" />
+                <Otoyol name="otoYolKodId" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("girisYeri")}</label>
-                  <TextInput name="GirisYeri" />
+                <TextInput name="girisYeri" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("girisTarih-Saat")}</label>
-                  <div className="flex gap-2">
-                    <DateInput name="girisTarih" />
-                    <TextInput name="girisSaat" placeholder="SS:dd" />
-                  </div>
+                <div className="flex gap-2">
+                  <DateInput name="girisTarih" />
+                  <TextInput name="girisSaat" placeholder="SS:dd" />
+                </div>
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("cikisYeri")}</label>
-                  <TextInput name="CikisYeri" />
+                <TextInput name="cikisYeri" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
-                  <label>{t("cikisTarih-Saat")}</label>
-                  <div className="flex gap-2">
-                    <DateInput name="cikisTarih" />
-                    <TextInput name="cikisSaat" placeholder="SS:dd" />
-                  </div>
+                <label>{t("cikisTarih-Saat")}</label>
+                <div className="flex gap-2">
+                  <DateInput name="cikisTarih" />
+                  <TextInput name="cikisSaat" placeholder="SS:dd" />
+                </div>
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("odemeTuru")}</label>
-                  <OdemeTuru name="odemeTuruKodId" />
+                <OdemeTuru name="odemeTuruKodId" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("gecisUcreti")}</label>
-                  <TextInput name="gecisUcreti" />
+                <TextInput name="gecisUcreti" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("odemeDurumu")}</label>
-                  <OdemeDurumu name="odemeDurumuKodId" />
+                <OdemeDurumu name="odemeDurumuKodId" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("fisNo")}</label>
-                  <TextInput name="fisNo" />
+                <TextInput name="fisNo" />
               </div>
             </div>
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("gecisKategorisi")}</label>
-                  <GecisKategorisi name="gecisKategorisiKodId" />
+                <GecisKategorisi name="gecisKategorisiKodId" />
               </div>
             </div>
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
-              <label>{t("guzergah")}</label>
+                <label>{t("guzergah")}</label>
                 <Guzergah name="guzergahId" />
               </div>
             </div>

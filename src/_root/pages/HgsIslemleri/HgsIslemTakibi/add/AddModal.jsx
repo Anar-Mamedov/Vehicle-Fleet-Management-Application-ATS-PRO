@@ -117,8 +117,8 @@ const AddModal = ({ setStatus, onRefresh }) => {
         girisSaat: values.girisSaat ? dayjs(values.girisSaat).format("HH:mm") : null,
         cikisTarih: values.cikisTarih,
         cikisSaat: values.cikisSaat ? dayjs(values.cikisSaat).format("HH:mm") : null,
-        GirisYeri: values.GirisYeri || "",
-        CikisYeri: values.CikisYeri || "",
+        girisYeri: values.girisYeri || "",
+        cikisYeri: values.cikisYeri || "",
         odemeTuruKodId: values.odemeTuruKodId,
         gecisUcreti: values.gecisUcreti ? parseFloat(values.gecisUcreti.replace(",", ".")).toFixed(2) : null,
         odemeDurumuKodId: values.odemeDurumuKodId,
@@ -138,9 +138,9 @@ const AddModal = ({ setStatus, onRefresh }) => {
         ozelAlanKodId10: values.ozelAlanKodId10 ?? -1,
         ozelAlan11: values.ozelAlan11 ?? 0,
         ozelAlan12: values.ozelAlan12 ?? 0,
-      }
+      },
     ];
-  
+
     AddHgsItemService(body).then((res) => {
       if (res.data.statusCode === 200) {
         onRefresh();

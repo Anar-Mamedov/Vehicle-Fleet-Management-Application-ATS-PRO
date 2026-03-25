@@ -118,8 +118,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("girisSaat", data.girisSaat);
         setValue("cikisTarih", data.cikisTarih ? dayjs(data.cikisTarih) : null);
         setValue("cikisSaat", data.cikisSaat);
-        setValue("GirisYeri", data.GirisYeri);
-        setValue("CikisYeri", data.CikisYeri);
+        setValue("girisYeri", data.girisYeri);
+        setValue("cikisYeri", data.cikisYeri);
         setValue("odemeTuruKodId", data.odemeTuruKodId);
         setValue("odemeTuru", data.odemeTuru);
         setValue("gecisUcreti", data.gecisUcreti ? parseFloat(data.gecisUcreti.toString().replace(",", ".")).toFixed(2) : "");
@@ -146,7 +146,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("ozelAlan11", data.ozelAlan11);
         setValue("ozelAlan12", data.ozelAlan12);
       });
-
     }
   }, [selectedRow, drawerVisible]);
 
@@ -162,8 +161,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       girisSaat: values.girisSaat ? (dayjs.isDayjs(values.girisSaat) ? values.girisSaat.format("HH:mm") : values.girisSaat) : "",
       cikisTarih: values.cikisTarih,
       cikisSaat: values.cikisSaat ? (dayjs.isDayjs(values.cikisSaat) ? values.cikisSaat.format("HH:mm") : values.cikisSaat) : "",
-      GirisYeri: values.GirisYeri || "",
-      CikisYeri: values.CikisYeri || "",
+      girisYeri: values.girisYeri || "",
+      cikisYeri: values.cikisYeri || "",
       odemeTuruKodId: values.odemeTuruKodId,
       gecisUcreti: values.gecisUcreti ? (typeof values.gecisUcreti === "string" ? values.gecisUcreti.replace(",", ".") : values.gecisUcreti.toString().replace(",", ".")) : null,
       odemeDurumuKodId: values.odemeDurumuKodId,
@@ -193,7 +192,6 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setActiveKey("1");
       }
     });
-
   });
 
   const personalProps = {
