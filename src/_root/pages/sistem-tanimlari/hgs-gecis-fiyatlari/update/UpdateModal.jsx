@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -47,12 +47,12 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
     const body = {
       siraNo: values.siraNo || 0,
       firmaId: values.firmaId || 0,
-      girisYeriKodId: values.girisYeriKodId || 0,
-      cikisYeriKodId: values.cikisYeriKodId || 0,
+      girisYeri: values.girisYeri || "",
+      cikisYeri: values.cikisYeri || "",
       fiyat: values.fiyat || 0,
       aciklama: values.aciklama || "",
     };
-  
+
     UpdateHgsGecisFiyat(body).then((res) => {
       if (res.data.statusCode === 202) {
         onDrawerClose();

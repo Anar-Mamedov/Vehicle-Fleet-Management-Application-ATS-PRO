@@ -802,59 +802,6 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
       },
     },
     {
-      title: t("ortalamaTuketim"),
-      dataIndex: "ortalamaTuketim",
-      key: "ortalamaTuketim",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-      render: (text, record) => {
-        const { aracOnGorulenYakit, aracOnGorulenMinYakit, tuketim } = record;
-
-        // Eğer tuketim değeri 0 veya undefined ise hiçbir şey gösterme
-        if (tuketim === 0 || tuketim === undefined) {
-          return null;
-        }
-
-        // Ondalıklı sayıyı 2 basamağa yuvarla ve 2 basamaklı hale getir
-        // const formattedGerceklesen = tuketim.toFixed(Number(record?.ortalamaFormat));
-
-        const formattedGerceklesen = Number(tuketim).toLocaleString(localStorage.getItem("i18nextLng"), {
-          minimumFractionDigits: Number(record?.ortalamaFormat),
-          maximumFractionDigits: Number(record?.ortalamaFormat),
-        });
-
-        let icon = null;
-        if (aracOnGorulenMinYakit !== null && aracOnGorulenMinYakit !== 0) {
-          if (tuketim < aracOnGorulenMinYakit) {
-            icon = <ArrowDownOutlined style={{ color: "green", marginLeft: 4 }} />;
-          } else if (tuketim > aracOnGorulenYakit) {
-            icon = <ArrowUpOutlined style={{ color: "red", marginLeft: 4 }} />;
-          } else if (tuketim >= aracOnGorulenMinYakit && tuketim <= aracOnGorulenYakit) {
-            icon = <span style={{ marginLeft: 4 }}>~</span>;
-          }
-        } else if (aracOnGorulenYakit !== null && aracOnGorulenYakit !== 0) {
-          if (tuketim < aracOnGorulenYakit) {
-            icon = <ArrowDownOutlined style={{ color: "green", marginLeft: 4 }} />;
-          }
-        }
-
-        return (
-          <Tooltip title={`Gerçekleşen: ${formattedGerceklesen}`}>
-            <span style={{ display: "flex", justifyContent: "flex-end" }}>
-              {formattedGerceklesen}
-              {icon}
-            </span>
-          </Tooltip>
-        );
-      },
-      sorter: (a, b) => {
-        if (a.tuketim === null || a.tuketim === undefined) return -1;
-        if (b.tuketim === null || b.tuketim === undefined) return 1;
-        return a.tuketim - b.tuketim;
-      },
-    },
-    {
       title: t("fullDepo"),
       dataIndex: "fullDepo",
       key: "fullDepo",
@@ -1501,11 +1448,6 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                     })
                   : "";
               if (key === "miktar" && row.birim === "LITRE") value += " lt";
-            } else if (key === "ortalamaTuketim" && row.tuketim) {
-              value = Number(row.tuketim).toLocaleString(localStorage.getItem("i18nextLng"), {
-                minimumFractionDigits: Number(row.ortalamaFormat),
-                maximumFractionDigits: Number(row.ortalamaFormat),
-              });
             }
 
             // Extract title text from column title (which might be a React element)
@@ -1712,7 +1654,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                   </div>
                 </div>
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
-                  {statistics.anormalTuketim === null || statistics.anormalTuketim === undefined ? "-" : `${formatStatisticValue(statistics.anormalTuketim)} ${t("arac")}`}
+                  {statistics.anormalTuketim === null || statistics.anormalTuketim === undefined ? "-" : `${formatStatisticValue(statistics.anormalTuketim)} ${t("Kayit")}`}
                 </div>
                 <div style={{ fontSize: "12px", color: "#bfbfbf" }}>
                   {timeRangeLabel} {timeRangeLabel && <>&bull; %20 üzeri</>}
