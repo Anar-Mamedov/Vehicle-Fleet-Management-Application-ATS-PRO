@@ -483,6 +483,7 @@ const Yakit = () => {
     },
     {
       title: t("giris"),
+      dataIndex: "girisTarih",
       key: "giris",
       width: 180,
       ellipsis: true,
@@ -499,6 +500,7 @@ const Yakit = () => {
     },
     {
       title: t("cikis"),
+      dataIndex: "cikisTarih",
       key: "cikis",
       width: 180,
       ellipsis: true,
