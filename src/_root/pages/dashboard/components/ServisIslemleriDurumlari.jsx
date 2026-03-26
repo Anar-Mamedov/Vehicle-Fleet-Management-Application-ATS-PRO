@@ -173,6 +173,7 @@ function ServisIslemleriDurumlari(props = {}) {
 
   const yilSecimiValue = watch("yilSecimiToplamIsGucu");
   const startYear = dayjs(yilSecimiValue).year();
+  const chartTitle = `Servis İşlemleri (Durumlar) ${startYear || dayjs().year()}`;
 
   const getStatusName = (statusId) => {
     const labelKey = STATUS_CONFIG[statusId]?.labelKey;
@@ -246,7 +247,7 @@ function ServisIslemleriDurumlari(props = {}) {
     const element = document.getElementById("toplam-is-gucu");
     const opt = {
       margin: 10,
-      filename: "toplam-is-gucu.pdf",
+      filename: `${chartTitle}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
@@ -457,8 +458,7 @@ function ServisIslemleriDurumlari(props = {}) {
             maxWidth: "calc(100% - 50px)",
           }}
         >
-          Servis İşlemleri (Durumlar)
-          {` ${startYear}`}
+          {chartTitle}
         </Text>
         <Popover placement="bottom" content={content} trigger="click">
           <Button
@@ -571,8 +571,7 @@ function ServisIslemleriDurumlari(props = {}) {
               }}
               title={`Toplam Harcanan İş Gücü (${baslamaTarihi ? formatDate(baslamaTarihi) : ""} - ${bitisTarihi ? formatDate(bitisTarihi) : ""})`}
             >
-              Servis İşlemleri (Durumlar)
-              {` ${startYear}`}
+              {chartTitle}
             </div>
             <PrinterOutlined style={{ cursor: "pointer", fontSize: "20px" }} onClick={downloadPDF} />
           </div>
