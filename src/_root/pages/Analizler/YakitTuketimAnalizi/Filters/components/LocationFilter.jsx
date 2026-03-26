@@ -1,65 +1,40 @@
-import React, { useState, useEffect } from "react";
-import { Select, Button, Popover, Spin } from "antd";
-import AxiosInstance from "../../../../../../api/http";
-import { Controller, useFormContext } from "react-hook-form";
+import React, { useCallback, useRef, useState } from "react";
+import { Button, Popover } from "antd";
+import { useFormContext } from "react-hook-form";
 import { t } from "i18next";
+import LokasyonTable from "../../../../../components/LokasyonTable";
 
-const { Option } = Select;
-
-const LocationFilter = ({ onSubmit }) => {
+const LocationFilter = () => {
   const [open, setOpen] = useState(false);
-  const [options, setOptions] = useState([]);
-  const [selectedValues, setSelectedValues] = useState([]);
-  const [loading, setLoading] = useState(false); // Loading state
-  const {
-    control,
-    watch,
-    setValue,
-    getValues,
-    formState: { errors },
-  } = useFormContext();
+  const [selectedCount, setSelectedCount] = useState(0);
+  const selectedIdsRef = useRef([]);
+  const { setValue } = useFormContext();
 
-  const handleChange = (selectedValues) => {
-    // Seçilen değerleri doğrudan state'e ata
-    setSelectedValues(selectedValues);
-  };
-
-  useEffect(() => {
-    if (open) {
-      setLoading(true); // API isteği başladığında loading true yap
-      AxiosInstance.get("Location/GetLocationList")
-        .then((response) => {
-          // API'den gelen veriye göre options dizisini oluştur
-          const options = response.data.map((item) => ({
-            key: item.lokasyonId.toString(), // ID değerini key olarak kullan
-            value: item.lokasyonTanim, // Gösterilecek değer
-          }));
-          setOptions(options);
-          setLoading(false); // API isteği bittiğinde loading false yap
-        })
-        .catch((error) => {
-          console.log("API Error:", error);
-          setLoading(false); // Hata durumunda da loading false yap
-        });
+  const handleLokasyonChange = useCallback((selectedData) => {
+    if (!Array.isArray(selectedData) || selectedData.length === 0) {
+      selectedIdsRef.current = [];
+      setSelectedCount(0);
+      return;
     }
-  }, [open]);
 
-  const handleSubmit = () => {
+    const ids = selectedData
+      .map((item) => (typeof item === "object" && item !== null ? item.locationId : item))
+      .filter((id) => id !== undefined && id !== null);
+
+    selectedIdsRef.current = ids;
+    setSelectedCount(ids.length);
+  }, []);
+
+  const handleApply = () => {
+    setValue("locationValues", selectedIdsRef.current.join(","));
     setOpen(false);
-    // onSubmit(selectedValues); // onSubmit ile değerleri gönder
   };
 
-  useEffect(() => {
-    // Seçilen id'leri setValue ile ayarla
-    const selectedIdsString = selectedValues.join(",");
-    setValue("locationValues", selectedIdsString);
-  }, [selectedValues]);
-
-  const handleCancelClick = () => {
-    setSelectedValues([]);
+  const handleCancel = () => {
+    selectedIdsRef.current = [];
+    setSelectedCount(0);
     setValue("locationValues", "");
     setOpen(false);
-    // onSubmit([]);
   };
 
   const content = (
@@ -72,40 +47,13 @@ const LocationFilter = ({ onSubmit }) => {
           justifyContent: "space-between",
         }}
       >
-        <Button onClick={handleCancelClick}>İptal</Button>
-        <Button type="primary" onClick={handleSubmit}>
-          Uygula
+        <Button onClick={handleCancel}>{t("iptal")}</Button>
+        <Button type="primary" onClick={handleApply}>
+          {t("uygula")}
         </Button>
       </div>
       <div style={{ padding: "10px" }}>
-        <Select
-          mode="multiple"
-          style={{ width: "100%" }}
-          placeholder="Ara..."
-          value={selectedValues}
-          onChange={handleChange}
-          allowClear
-          notFoundContent={
-            loading ? (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "40px",
-                }}
-              >
-                <Spin size="small" />
-              </div>
-            ) : null
-          } // Spin burada gösterilecek
-        >
-          {options.map((option) => (
-            <Option key={option.key} value={option.value}>
-              {option.value}
-            </Option>
-          ))}
-        </Select>
+        <LokasyonTable fieldName="lokasyonFilter" multiSelect={true} onSubmit={handleLokasyonChange} style={{ width: "100%" }} />
       </div>
     </div>
   );
@@ -120,7 +68,7 @@ const LocationFilter = ({ onSubmit }) => {
           justifyContent: "center",
         }}
       >
-        Lokasyon
+        {t("lokasyon")}
         <div
           style={{
             marginLeft: "5px",
@@ -134,7 +82,7 @@ const LocationFilter = ({ onSubmit }) => {
             color: "white",
           }}
         >
-          {selectedValues.length}
+          {selectedCount}
         </div>
       </Button>
     </Popover>
