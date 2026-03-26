@@ -483,6 +483,7 @@ const Yakit = () => {
     },
     {
       title: t("giris"),
+      dataIndex: "girisTarih",
       key: "giris",
       width: 180,
       ellipsis: true,
@@ -499,6 +500,7 @@ const Yakit = () => {
     },
     {
       title: t("cikis"),
+      dataIndex: "cikisTarih",
       key: "cikis",
       width: 180,
       ellipsis: true,
@@ -1105,9 +1107,31 @@ const Yakit = () => {
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
               <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("enYogunGuzergah")}</span>
             </div>
-            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{statistics.enYogunGuzergah?.guzergahAdi ?? "-"}</div>
+            <Tooltip
+              title={
+                statistics.enYogunGuzergah?.girisYeri && statistics.enYogunGuzergah?.cikisYeri
+                  ? `${statistics.enYogunGuzergah.girisYeri} - ${statistics.enYogunGuzergah.cikisYeri}`
+                  : null
+              }
+            >
+              <div
+                style={{
+                  fontSize: "24px",
+                  fontWeight: 700,
+                  color: "#141414",
+                  marginBottom: "4px",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {statistics.enYogunGuzergah?.girisYeri && statistics.enYogunGuzergah?.cikisYeri
+                  ? `${statistics.enYogunGuzergah.girisYeri} - ${statistics.enYogunGuzergah.cikisYeri}`
+                  : "-"}
+              </div>
+            </Tooltip>
             <div style={{ fontSize: "12px", color: "#bfbfbf" }}>
-              {timeRangeLabel} {statistics.enYogunGuzergah?.gecisSayisi != null && `| ${formatNumberWithLocale(statistics.enYogunGuzergah.gecisSayisi)} ${t("gecis")}`}
+              {timeRangeLabel} {statistics.enYogunGuzergah?.toplamGecis != null && `| ${formatNumberWithLocale(statistics.enYogunGuzergah.toplamGecis)} ${t("gecis")}`}
             </div>
           </div>
         </div>

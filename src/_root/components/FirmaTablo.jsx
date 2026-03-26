@@ -425,8 +425,8 @@ export function FirmaTablo({ workshopSelectedId, onSubmit, type = 0, statusValue
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-      {control && <Controller name="firmaKodu" control={control} render={({ field }) => <Input {...field} placeholder={t("firmaKodu")} style={{ width: "160px" }} readOnly />} />}
+    <div style={{ display: "flex", alignItems: "center", gap: "5px", flex: "1" }}>
+      {control && <Controller name="firmaKodu" control={control} render={({ field }) => <Input {...field} placeholder={t("firmaKodu")} style={{ flex: "1" }} readOnly />} />}
       <Button onClick={handleModalToggle}>+</Button>
       <Button onClick={handleClearForms}>-</Button>
       <Modal width={1400} centered title={t("firma")} open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>

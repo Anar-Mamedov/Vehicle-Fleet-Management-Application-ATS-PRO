@@ -411,6 +411,7 @@
   "kiralamaTutar": "Rental Amount",
   "hesapNo": "Account No",
   "kiraBaslangicTarih": "Rental Start Date",
+  "kiraBitisTarih": "Rental End Date",
   "ilgili": "Related",
   "kiralamaSuresi": "Rental Duration",
   "garantiSure": "Warranty Period",

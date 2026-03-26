@@ -13,21 +13,21 @@ const { Text } = Typography;
 export function FirmaBilgileri() {
   const { control } = useFormContext();
   return (
-    <div style={{ display: "flex", gap: "10px" }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "370px", justifyContent: "space-between" }}>
-          <Text>{t("firmaKodu")}</Text>
+    <div style={{ display: "flex", gap: "10px", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: "1" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Text style={{ whiteSpace: "nowrap", minWidth: "100px" }}>{t("firmaKodu")}</Text>
           <FirmaTablo type={4} statusValue={1} />
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "370px", justifyContent: "space-between" }}>
-          <Text>{t("firmaTanimi")}</Text>
-          <TextInput name="firmaTanim" placeholder={t("firmaTanimi")} style={{ width: "250px" }} readonly />
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Text style={{ whiteSpace: "nowrap", minWidth: "100px" }}>{t("firmaTanimi")}</Text>
+          <TextInput name="firmaTanim" placeholder={t("firmaTanimi")} style={{ flex: "1" }} readonly />
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "370px", justifyContent: "space-between" }}>
-          <Text>{t("telefon") + " / " + t("ilgili")}</Text>
-          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            <NumberInput name="telefon" placeholder={t("telefon")} style={{ width: "121px" }} />
-            <TextInput name="ilgili" placeholder={t("ilgili")} style={{ width: "121px" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Text style={{ whiteSpace: "nowrap", minWidth: "100px" }}>{t("telefon") + " / " + t("ilgili")}</Text>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center", flex: "1" }}>
+            <NumberInput name="telefon" placeholder={t("telefon")} style={{ flex: "1" }} />
+            <TextInput name="ilgili" placeholder={t("ilgili")} style={{ flex: "1" }} />
           </div>
         </div>
       </div>
