@@ -42,6 +42,7 @@ const AddModal = ({ onRefresh }) => {
             setValue("krediTutar", res.data.krediTutar);
             setValue("krediIlkOdTarih", res.data.krediIlkOdTarih ? dayjs(res.data.krediIlkOdTarih) : null);
             setValue("kiraBaslangic", res.data.kiraBaslangic ? dayjs(res.data.kiraBaslangic) : null);
+            setValue("kiraBitis", res.data.kiraBitis ? dayjs(res.data.kiraBitis) : null);
           }
         })
         .catch((err) => {
@@ -59,6 +60,7 @@ const AddModal = ({ onRefresh }) => {
     const body = {
       dtyAracId: data.aracId,
       kiraBaslangic: values.kiraBaslangic ? dayjs(values.kiraBaslangic).format("YYYY-MM-DD") : null,
+      kiraBitis: values.kiraBitis ? dayjs(values.kiraBitis).format("YYYY-MM-DD") : null,
       krediIlkOdTarih: values.krediIlkOdTarih ? dayjs(values.krediIlkOdTarih).format("YYYY-MM-DD") : null,
       krediTutar: values.krediTutar || 0,
       krediAylikOdeme: values.krediAylikOdeme || 0,

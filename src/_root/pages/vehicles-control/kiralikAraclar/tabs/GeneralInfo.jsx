@@ -76,6 +76,13 @@ const GeneralInfo = () => {
 
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
+                <label>{t("kiraBitisTarih")}</label>
+                <DateInput name="kiraBitis" />
+              </div>
+            </div>
+
+            <div className="col-span-3">
+              <div className="flex flex-col gap-1">
                 <label>{t("ilgili")}</label>
                 <TextInput name="krediIlgili" />
               </div>
