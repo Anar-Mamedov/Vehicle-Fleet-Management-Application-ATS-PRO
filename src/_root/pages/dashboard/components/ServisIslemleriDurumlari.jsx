@@ -1,30 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Button, Popover, Spin, Typography, Modal, DatePicker, Tour } from "antd";
 import http from "../../../../api/http.jsx";
 import { MoreOutlined, PrinterOutlined } from "@ant-design/icons";
 import { Controller, useFormContext } from "react-hook-form";
 import dayjs from "dayjs";
 import html2pdf from "html2pdf.js";
-import chroma from "chroma-js";
-import styled from "styled-components";
 import ServisIslemleriDurumlariTable from "../../vehicles-control/ServisIslemleri/Table/Table.jsx";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
-// Styled component for the pie chart container
-const StyledResponsiveContainer = styled(ResponsiveContainer)`
-  &:focus {
-    outline: none !important;
-  }
-  .recharts-wrapper path:focus {
-    outline: none;
-  }
-`;
+const STATUS_CONFIG = {
+  1: { labelKey: "bekliyor", color: "#ff9800", order: 3 },
+  2: { labelKey: "devamEdiyor", color: "#2196f3", order: 2 },
+  3: { labelKey: "iptalEdildi", color: "#ff0000", order: 4 },
+  4: { labelKey: "tamamlandi", color: "#2bc770", order: 1 },
+};
 
 function ServisIslemleriDurumlari(props = {}) {
   const navigate = useNavigate(); // Initialize navigate
+  const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpandedModalVisible, setIsExpandedModalVisible] = useState(false); // Expanded modal visibility state
@@ -36,7 +32,6 @@ function ServisIslemleriDurumlari(props = {}) {
   const [bitisTarihi, setBitisTarihi] = useState();
   const [open, setOpen] = useState(false);
   const ref1 = useRef(null);
-  const [visibleSeries, setVisibleSeries] = useState({});
   const {
     control,
     watch,
@@ -47,11 +42,6 @@ function ServisIslemleriDurumlari(props = {}) {
   // Add new state for pie slice modal
   const [isPieSliceModalVisible, setIsPieSliceModalVisible] = useState(false);
   const [selectedDurumBilgisi, setSelectedDurumBilgisi] = useState(null);
-
-  useEffect(() => {
-    // `data` dizisi güncellendiğinde, `visibleSeries` durumunu da güncelle
-    setVisibleSeries(data.reduce((acc, item) => ({ ...acc, [item.name]: true }), {}));
-  }, [data]); // Bu useEffect, `data` dizisi her değiştiğinde tetiklenir
 
   const formatDateWithDayjs = (dateString) => {
     const formattedDate = dayjs(dateString);
@@ -184,12 +174,9 @@ function ServisIslemleriDurumlari(props = {}) {
   const yilSecimiValue = watch("yilSecimiToplamIsGucu");
   const startYear = dayjs(yilSecimiValue).year();
 
-  // Add mapping for durumBilgisi values
-  const durumBilgisiMapping = {
-    1: "Bekliyor",
-    2: "Devam Ediyor",
-    3: "İptal Edildi",
-    4: "Tamamlandı",
+  const getStatusName = (statusId) => {
+    const labelKey = STATUS_CONFIG[statusId]?.labelKey;
+    return labelKey ? t(labelKey) : `${t("durum")} ${statusId}`;
   };
 
   const fetchData = async () => {
@@ -203,22 +190,44 @@ function ServisIslemleriDurumlari(props = {}) {
         navigate("/unauthorized");
         return;
       } else {
-        // Transform the data
-        const transformedData = response.data.map((item) => ({
-          name: durumBilgisiMapping[item.durumBilgisi] || `Durum ${item.durumBilgisi}`,
-          value: Number(item.aracSayisi),
-        }));
+        const statusMap = new Map();
 
-        // Generate colors
-        const colors = generateColors(transformedData.length);
+        (response.data || []).forEach((item) => {
+          const statusId = Number(item.durumBilgisi);
+          const statusConfig = STATUS_CONFIG[statusId];
 
-        // Add colors to the transformed data
-        const dataWithColors = transformedData.map((item, index) => ({
-          ...item,
-          color: colors[index],
-        }));
+          // Some responses carry count as "adet", while others use "aracSayisi".
+          const rawValue = item.adet ?? item.aracSayisi ?? item.sayi ?? item.toplam ?? item.count ?? item.deger ?? 0;
+          const parsedValue = Number(rawValue);
+          const value = Number.isFinite(parsedValue) ? parsedValue : 0;
 
-        setData(dataWithColors);
+          if (!statusMap.has(statusId)) {
+            statusMap.set(statusId, {
+              statusId,
+              value,
+              color: statusConfig?.color || "#7f8c8d",
+              order: statusConfig?.order || 99,
+            });
+          } else {
+            const existing = statusMap.get(statusId);
+            existing.value += value;
+          }
+        });
+
+        const transformedData = Object.entries(STATUS_CONFIG)
+          .map(([statusId, config]) => {
+            const found = statusMap.get(Number(statusId));
+            return {
+              statusId: Number(statusId),
+              labelKey: config.labelKey,
+              color: config.color,
+              order: config.order,
+              value: found?.value || 0,
+            };
+          })
+          .sort((a, b) => a.order - b.order);
+
+        setData(transformedData);
       }
     } catch (error) {
       console.error("Failed to fetch data:", error);
@@ -246,128 +255,10 @@ function ServisIslemleriDurumlari(props = {}) {
     html2pdf().set(opt).from(element).save();
   };
 
-  const generateColors = (dataLength) => {
-    // Başlangıç, ara ve bitiş renkleri
-    const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#bd2400", "#131842"];
-
-    // Renk skalasını oluştur ve istenen sayıda renk üret
-    return chroma.scale(colors).mode("lch").colors(dataLength);
-  };
-
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    return (
-      <text x={x} y={y} fill="white" textAnchor={x > cx ? "start" : "end"} dominantBaseline="central">
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
-
   // Sayıyı formata dönüştüren fonksiyon
   function formatNumber(value) {
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
-
-  // Custom Tooltip function
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      // Formatlanmış sayıyı almak
-      let formattedValue = formatNumber(payload[0].value);
-
-      return (
-        <div
-          style={{
-            backgroundColor: "#fff",
-            padding: "5px",
-            border: "1px solid #ccc",
-          }}
-        >
-          <p>{`${payload[0].name} : ${formattedValue} adet`}</p>
-        </div>
-      );
-    }
-
-    return null;
-  };
-
-  const handleLegendClick = (name) => {
-    setVisibleSeries((prev) => ({
-      ...prev,
-      [name]: !prev[name],
-    }));
-  };
-
-  const CustomLegend = ({ payload }) => {
-    const handleToggleAll = () => {
-      const allVisible = Object.values(visibleSeries).every((value) => value);
-      const anyVisible = Object.values(visibleSeries).some((value) => value);
-
-      if (!anyVisible) {
-        // If no series are visible, set all to visible
-        const newVisibility = Object.keys(visibleSeries).reduce((acc, key) => {
-          acc[key] = true;
-          return acc;
-        }, {});
-        setVisibleSeries(newVisibility);
-      } else {
-        // Otherwise, toggle all based on the current state of allVisible
-        const newVisibility = Object.keys(visibleSeries).reduce((acc, key) => {
-          acc[key] = !allVisible;
-          return acc;
-        }, {});
-        setVisibleSeries(newVisibility);
-      }
-    };
-
-    return (
-      <ul
-        style={{
-          listStyle: "none",
-          padding: 0,
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "15px",
-          justifyContent: "center",
-          margin: 0,
-        }}
-      >
-        <li
-          style={{
-            cursor: "pointer",
-            color: Object.values(visibleSeries).every((value) => value) ? "black" : "gray",
-          }}
-          onClick={handleToggleAll}
-        >
-          Tümü
-        </li>
-        {payload.map((entry, index) => (
-          <li
-            key={`item-${index}`}
-            style={{
-              cursor: "pointer",
-              color: visibleSeries[entry.value] ? entry.color : "gray",
-            }}
-            onClick={() => handleLegendClick(entry.value)}
-          >
-            <span
-              style={{
-                display: "inline-block",
-                width: "10px",
-                height: "10px",
-                backgroundColor: visibleSeries[entry.value] ? entry.color : "gray",
-                marginRight: "5px",
-              }}
-            ></span>
-            {entry.value}
-          </li>
-        ))}
-      </ul>
-    );
-  };
 
   const showModal = (content) => {
     setModalContent(content);
@@ -465,15 +356,59 @@ function ServisIslemleriDurumlari(props = {}) {
     },
   ];
 
-  // Add new handler for pie slice click
-  const handlePieSliceClick = (entry) => {
-    // Find the durumBilgisi value by reverse mapping the name
-    const durumBilgisiEntry = Object.entries(durumBilgisiMapping).find(([key, value]) => value === entry.name);
-    if (durumBilgisiEntry) {
-      setSelectedDurumBilgisi(parseInt(durumBilgisiEntry[0]));
+  const handleStatusRowClick = (statusId) => {
+    if (statusId) {
+      setSelectedDurumBilgisi(statusId);
       setIsPieSliceModalVisible(true);
     }
   };
+
+  const totalCountForRatio = data.reduce((sum, row) => sum + Number(row.value || 0), 0);
+  const tableRows = data.map((row) => ({
+    ...row,
+    ratio: totalCountForRatio > 0 ? Math.round((Number(row.value || 0) / totalCountForRatio) * 100) : 0,
+  }));
+
+  const renderStatusTable = (containerId) => (
+    <div id={containerId} ref={containerId ? undefined : ref1} style={{ height: "100%", overflow: "auto" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr style={{ borderBottom: "1px solid #d9d9d9" }}>
+            <th style={{ textAlign: "left", padding: "8px 12px", fontSize: "15px", fontWeight: 600 }}>Durum</th>
+            <th style={{ textAlign: "left", padding: "8px 12px", fontSize: "15px", fontWeight: 600 }}>Adet</th>
+            <th style={{ textAlign: "left", padding: "8px 12px", fontSize: "15px", fontWeight: 600 }}>Oran</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tableRows.map((row) => (
+            <tr
+              key={row.statusId}
+              style={{ borderBottom: "1px solid #ececec", cursor: "pointer" }}
+              onClick={() => handleStatusRowClick(row.statusId)}
+              title={`${getStatusName(row.statusId)} detayını aç`}
+            >
+              <td style={{ padding: "12px", fontSize: "15px", fontWeight: 500 }}>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "12px",
+                    height: "12px",
+                    backgroundColor: row.color,
+                    border: "1px solid #222",
+                    marginRight: "10px",
+                    verticalAlign: "middle",
+                  }}
+                />
+                {getStatusName(row.statusId)}
+              </td>
+              <td style={{ padding: "12px", fontSize: "15px", fontWeight: 600 }}>{formatNumber(row.value)}</td>
+              <td style={{ padding: "12px", fontSize: "15px", fontWeight: 500 }}>%{row.ratio}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
     <div
@@ -533,38 +468,12 @@ function ServisIslemleriDurumlari(props = {}) {
       ) : (
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "7px",
+            padding: "0 10px 10px 10px",
             overflow: "auto",
-            height: "100vh",
+            height: "100%",
           }}
         >
-          <div style={{ width: "100%", height: "calc(100% - 5px)" }}>
-            <StyledResponsiveContainer ref={ref1} width="100%" height="100%">
-              <PieChart width={400} height={400}>
-                <Pie
-                  data={data.filter((entry) => visibleSeries[entry.name])}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={renderCustomizedLabel}
-                  outerRadius="90%"
-                  fill="#8884d8"
-                  dataKey="value"
-                  onClick={handlePieSliceClick} // Add click handler
-                >
-                  {data
-                    .filter((entry) => visibleSeries[entry.name])
-                    .map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} style={{ cursor: "pointer" }} />
-                    ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend content={<CustomLegend payload={data.map((entry, index) => ({ value: entry.name, color: entry.color }))} />} />
-              </PieChart>
-            </StyledResponsiveContainer>
-          </div>
+          {renderStatusTable("")}
         </div>
       )}
       <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
@@ -664,40 +573,16 @@ function ServisIslemleriDurumlari(props = {}) {
       >
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "7px",
             height: "calc(100vh - 180px)",
+            padding: "0 10px 10px 10px",
           }}
         >
-          <StyledResponsiveContainer id="toplam-is-gucu" width="100%" height="100%">
-            <PieChart width="100%" height="100%">
-              <Pie
-                data={data.filter((entry) => visibleSeries[entry.name])}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={renderCustomizedLabel}
-                outerRadius="90%"
-                fill="#8884d8"
-                dataKey="value"
-                onClick={handlePieSliceClick}
-              >
-                {data
-                  .filter((entry) => visibleSeries[entry.name])
-                  .map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} style={{ cursor: "pointer" }} />
-                  ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-              <Legend content={<CustomLegend payload={data.map((entry, index) => ({ value: entry.name, color: entry.color }))} />} />
-            </PieChart>
-          </StyledResponsiveContainer>
+          {renderStatusTable("toplam-is-gucu")}
         </div>
       </Modal>
       {/* Add new modal for pie slice click */}
       <Modal
-        title={`${durumBilgisiMapping[selectedDurumBilgisi]} Servis İşlemleri`}
+        title={`${getStatusName(selectedDurumBilgisi)} Servis İşlemleri`}
         centered
         open={isPieSliceModalVisible}
         onOk={() => setIsPieSliceModalVisible(false)}
