@@ -328,27 +328,40 @@ function ServisIslemleriDurumlari(props = {}) {
             maxHeight: "200px",
           }}
         >
+          <p>Bu alan, seçilen süre ve filtrelere göre servis işlemlerinin durum bazlı dağılımını gösterir.</p>
+          <p>Kayıtların kaç adet ve yüzde olarak Tamamlandı, Devam Ediyor, Bekliyor ve İptal Edildi durumlarında olduğunu özetler.</p>
+          <p>Bu görünüm aşağıdaki amaçlarla kullanılır:</p>
+          <ul>
+            <li>
+              <strong>Operasyon Takibi:</strong> Servis süreçlerinin mevcut durumunu hızlıca izlemek için.
+            </li>
+            <li>
+              <strong>İş Yükü Görünürlüğü:</strong> Devam eden ve bekleyen kayıt yoğunluğunu görmek için.
+            </li>
+            <li>
+              <strong>Süreç Performansı:</strong> Tamamlanan işlem oranını değerlendirmek için.
+            </li>
+            <li>
+              <strong>Kontrol ve Müdahale:</strong> Bekleyen veya iptal edilen kayıtları fark ederek aksiyon almak için.
+            </li>
+          </ul>
           <p>
-            Belirli bir süre zarfında tüm çalışanlar tarafından harcanan iş gücü toplamının atölyelere dağılımını ifade eder. Bu kavram, genellikle aşağıdaki amaçlar için
-            kullanılır:
+            <strong>Durum Tanımları:</strong>
           </p>
-          <ol>
+          <ul>
             <li>
-              <strong>Genel Verimlilik Analizi</strong>: Organizasyonun genel verimliliğini değerlendirmek için.
+              <strong>Tamamlandı:</strong> İşlemi tamamlanmış servis kayıtları
             </li>
             <li>
-              <strong>Proje ve Görev Takibi</strong>: Bir proje veya görev için harcanan toplam zamanı ve çabayı belirlemek için.
+              <strong>Devam Ediyor:</strong> Süreci halen devam eden servis kayıtları
             </li>
             <li>
-              <strong>Maliyet Kontrolü</strong>: İş gücü maliyetlerini kontrol etmek ve bütçelendirme yapmak için.
+              <strong>Bekliyor:</strong> Onay, parça, planlama veya işlem sırası bekleyen kayıtlar
             </li>
             <li>
-              <strong>Kaynak Yönetimi</strong>: Kaynakların etkin kullanımını planlamak ve optimize etmek için.
+              <strong>İptal Edildi:</strong> İşleme alınmadan sonlandırılmış servis kayıtları
             </li>
-            <li>
-              <strong>İş Yükü Dağılımı</strong>: Çalışanlar arasındaki iş yükü dağılımını değerlendirmek ve dengelemek için.
-            </li>
-          </ol>
+          </ul>
         </div>
       ),
 
