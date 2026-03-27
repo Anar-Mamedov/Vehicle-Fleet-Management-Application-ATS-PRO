@@ -26,6 +26,7 @@ import ContextMenu from "./components/ContextMenu/ContextMenu";
 import AddModal from "./AddModal";
 import Filters from "./filter/Filters";
 import FormattedDate from "../../../../_root/components/FormattedDate";
+import FormattedNumber from "../../../../hooks/FormattedNumber";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
@@ -618,6 +619,7 @@ const KiralikAraclarTablo = ({ customFields }) => {
         const numB = parseFloat(b.krediTutar);
         return numA - numB;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
 
     {
@@ -635,6 +637,7 @@ const KiralikAraclarTablo = ({ customFields }) => {
         const numB = parseFloat(b.krediAylikOdeme);
         return numA - numB;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
 
     {
