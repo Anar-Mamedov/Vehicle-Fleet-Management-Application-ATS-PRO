@@ -601,11 +601,6 @@ const Yakit = () => {
       ellipsis: true,
       visible: true,
       sorter: true,
-      render: (text) => {
-        let color = "#1677ff"; // default blue
-        if (text === "Tahsil edildi" || text?.toLowerCase() === "ödendi") color = "#52c41a"; // green
-        return <Text style={{ color, fontWeight: 500 }}>{text || "Beklemede"}</Text>;
-      },
     },
     {
       title: t("aciklama"),
