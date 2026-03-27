@@ -63,7 +63,7 @@ const Ceza = ({ visible, onClose, ids, selectedRowsData }) => {
       if (response.data.list.length > 0) {
         setDataSource(response.data.list);
       } else {
-        message.warning(t("kayitBulunamadi"));
+        // message.warning(t("kayitBulunamadi"));
         setDataSource([]);
       }
     } catch (error) {

@@ -172,7 +172,7 @@ const Onaylar = () => {
           setData(newData);
           setFilteredData(newData);
         } else {
-          message.warning(t("kayitBulunamadi"));
+          // message.warning(t("kayitBulunamadi"));
           setData([]);
           setFilteredData([]);
         }

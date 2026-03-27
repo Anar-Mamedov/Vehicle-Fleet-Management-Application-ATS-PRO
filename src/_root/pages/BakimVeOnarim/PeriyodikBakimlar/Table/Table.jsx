@@ -652,7 +652,7 @@ const Sigorta = () => {
           setData(formattedData);
           setCurrentPage(targetPage);
         } else {
-          message.warning(t("kayitBulunamadi"));
+          // message.warning(t("kayitBulunamadi"));
           setData([]);
         }
       } else {

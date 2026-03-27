@@ -58,7 +58,7 @@ const Harcama = ({ visible, onClose, ids, selectedRowsData }) => {
       if (formattedData.length > 0) {
         setDataSource(formattedData);
       } else {
-        message.warning(t("kayitBulunamadi"));
+        // message.warning(t("kayitBulunamadi"));
         setDataSource([]);
       }
     } catch (error) {

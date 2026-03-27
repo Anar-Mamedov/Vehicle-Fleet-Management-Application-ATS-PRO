@@ -58,7 +58,7 @@ const Sefer = ({ visible, onClose, ids, selectedRowsData }) => {
         setTotalDataCount(res.data.recordCount);
         setCurrentPage(targetPage);
       } else {
-        message.warning(t("kayitBulunamadi"));
+        // message.warning(t("kayitBulunamadi"));
         setDataSource([]);
       }
     } catch (error) {

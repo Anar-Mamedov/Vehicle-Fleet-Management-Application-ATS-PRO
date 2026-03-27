@@ -598,7 +598,7 @@ const MainTable = ({ ids, selectedRowsData }) => {
       if (formattedData.length > 0) {
         setData(formattedData);
       } else {
-        message.warning(t("kayitBulunamadi"));
+        // message.warning(t("kayitBulunamadi"));
         setData([]);
       }
     } catch (error) {
