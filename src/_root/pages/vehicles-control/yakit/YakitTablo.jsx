@@ -389,6 +389,39 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
 
   const timeRangeLabel = timeRangeLabels[selectedTimeRange] || "";
 
+  const formatCustomDateRangeLabel = (startDate, endDate) => {
+    const formatSingleDate = (value) => {
+      if (!value) return "";
+      const parsed = dayjs(value);
+      return parsed.isValid() ? parsed.format("DD.MM.YYYY") : String(value);
+    };
+
+    const formattedStart = formatSingleDate(startDate);
+    const formattedEnd = formatSingleDate(endDate);
+
+    if (formattedStart && formattedEnd) {
+      return `${formattedStart} - ${formattedEnd}`;
+    }
+    if (formattedStart) {
+      return `${formattedStart} - ...`;
+    }
+    if (formattedEnd) {
+      return `... - ${formattedEnd}`;
+    }
+    return "";
+  };
+
+  const customStartDate = body.filters?.customfilters?.baslangicTarih ?? null;
+  const customEndDate = body.filters?.customfilters?.bitisTarih ?? null;
+  const selectedTimeRangeStart = watch("baslangicTarih");
+  const selectedTimeRangeEnd = watch("bitisTarih");
+  const selectedTimeRangeStartStr = selectedTimeRangeStart ? dayjs(selectedTimeRangeStart).format("YYYY-MM-DD") : null;
+  const selectedTimeRangeEndStr = selectedTimeRangeEnd ? dayjs(selectedTimeRangeEnd).format("YYYY-MM-DD") : null;
+  const hasCustomDateRange = Boolean(customStartDate || customEndDate);
+  const isManualDateRangeSelected =
+    hasCustomDateRange && (customStartDate !== selectedTimeRangeStartStr || customEndDate !== selectedTimeRangeEndStr);
+  const displayTimeRangeLabel = isManualDateRangeSelected ? formatCustomDateRangeLabel(customStartDate, customEndDate) : timeRangeLabel;
+
   const fetchStatistics = async () => {
     setStatisticsLoading(true);
     const customFilters = body.filters && body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
@@ -1599,7 +1632,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                   <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamYakit")} (Litre)</span>
                 </div>
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{formatStatisticValue(statistics.toplamYakit)}</div>
-                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
+                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{displayTimeRangeLabel}</div>
               </div>
 
               {/* Toplam Tutar (₺) */}
@@ -1617,7 +1650,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                   <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamTutar")} (&#8378;)</span>
                 </div>
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{formatStatisticValue(statistics.toplamTutar)}</div>
-                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
+                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{displayTimeRangeLabel}</div>
               </div>
 
               {/* Anormal Tüketim */}
@@ -1657,7 +1690,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                   {statistics.anormalTuketim === null || statistics.anormalTuketim === undefined ? "-" : `${formatStatisticValue(statistics.anormalTuketim)} ${t("Kayit")}`}
                 </div>
                 <div style={{ fontSize: "12px", color: "#bfbfbf" }}>
-                  {timeRangeLabel} {timeRangeLabel && <>&bull; %20 üzeri</>}
+                  {displayTimeRangeLabel} {displayTimeRangeLabel && <>&bull; %20 üzeri</>}
                 </div>
               </div>
 
@@ -1680,7 +1713,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                     ? "-"
                     : `${formatStatisticValue(statistics.aracBasinaMaliyet)} ₺ / ${t("arac")}`}
                 </div>
-                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
+                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{displayTimeRangeLabel}</div>
               </div>
             </div>
           </Spin>
