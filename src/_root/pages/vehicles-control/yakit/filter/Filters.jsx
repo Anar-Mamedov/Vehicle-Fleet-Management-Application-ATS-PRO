@@ -8,7 +8,7 @@ import KodIDSelectbox from "../../../../components/KodIDSelectbox";
 import PlakaSelectbox from "../../../../components/PlakaSelectbox";
 import LokasyonTable from "../../../../components/LokasyonTable";
 import { t } from "i18next";
-import { Button } from "antd";
+import { Button, Switch } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 export default function Filters({ onChange }) {
@@ -24,6 +24,7 @@ export default function Filters({ onChange }) {
   const [lokasyonIds, setLokasyonIds] = useState([]);
   const [plakaIds, setPlakaIds] = useState([]);
   const [dateRangeCleared, setDateRangeCleared] = useState(false);
+  const [haftaSonu, setHaftaSonu] = useState(false);
 
   useEffect(() => {
     if (hasUserInteracted) {
@@ -98,10 +99,15 @@ export default function Filters({ onChange }) {
       preservedFilters.lokasyonIds = currentCustomFilters.lokasyonIds;
     }
 
+    if ("haftaSonu" in currentCustomFilters) {
+      preservedFilters.haftaSonu = currentCustomFilters.haftaSonu;
+    }
+
     // Merge the preserved filters with new custom filters
     const updatedCustomFilters = {
       ...preservedFilters,
       ...newFilters,
+      haftaSonu,
     };
 
     // Add date range filters if they exist and aren't cleared
@@ -119,7 +125,7 @@ export default function Filters({ onChange }) {
     onChange("filters", updatedFilters);
   };
 
-  const handleSearch = () => {
+  const applyFilters = (haftaSonuValue = haftaSonu) => {
     setHasUserInteracted(true);
 
     const mainFilterValues = {};
@@ -136,6 +142,8 @@ export default function Filters({ onChange }) {
       if (timeRangeFilters.baslangicTarih) mainFilterValues.baslangicTarih = timeRangeFilters.baslangicTarih;
       if (timeRangeFilters.bitisTarih) mainFilterValues.bitisTarih = timeRangeFilters.bitisTarih;
     }
+
+    mainFilterValues.haftaSonu = haftaSonuValue;
 
     const currentCustomFilters = { ...filters.customfilters };
 
@@ -163,6 +171,15 @@ export default function Filters({ onChange }) {
     setFilters(updatedFilters);
 
     onChange("filters", updatedFilters);
+  };
+
+  const handleSearch = () => {
+    applyFilters();
+  };
+
+  const handleHaftaSonuChange = (checked) => {
+    setHaftaSonu(checked);
+    applyFilters(checked);
   };
 
   return (
@@ -209,6 +226,10 @@ export default function Filters({ onChange }) {
       >
         {/* Ara */}
       </Button>
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <Switch size="small" checked={haftaSonu} onChange={handleHaftaSonuChange} />
+        <span style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{t("haftaSonu")}</span>
+      </div>
       <ZamanAraligi onDateChange={handleTimeRangeChange} />
       <CustomFilter onSubmit={handleCustomFilterSubmit} currentFilters={filters.customfilters} dateRange={timeRangeFilters} onDateRangeChange={handleTimeRangeChange} />
     </>

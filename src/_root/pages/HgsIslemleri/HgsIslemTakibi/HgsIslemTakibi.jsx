@@ -164,6 +164,22 @@ const Yakit = () => {
   const [statisticsLoading, setStatisticsLoading] = useState(false);
   const [timeRangeLabel, setTimeRangeLabel] = useState("Tümü");
 
+  const getFiniteNumber = (value) => {
+    if (value === null || value === undefined || value === "") return null;
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : null;
+  };
+
+  const formatSafeNumber = (value) => {
+    const parsedValue = getFiniteNumber(value);
+    return parsedValue === null ? "-" : formatNumberWithLocale(parsedValue);
+  };
+
+  const formatSafeCurrency = (value) => {
+    const parsedValue = getFiniteNumber(value);
+    return parsedValue === null ? "-" : `₺${formatNumberWithLocale(parsedValue)}`;
+  };
+
   const [body, setBody] = useState({
     keyword: "",
     filters: {},
@@ -236,10 +252,11 @@ const Yakit = () => {
       const normalizedCustomfilter = {
         baslangicTarih: effectiveCustomfilter?.baslangicTarih === "" ? null : (effectiveCustomfilter?.baslangicTarih ?? null),
         bitisTarih: effectiveCustomfilter?.bitisTarih === "" ? null : (effectiveCustomfilter?.bitisTarih ?? null),
-        supheli: effectiveCustomfilter?.supheli ?? false,
         lokasyonIds: Array.isArray(effectiveCustomfilter?.lokasyonIds) ? effectiveCustomfilter.lokasyonIds : [],
         otoyolKodIds: Array.isArray(effectiveCustomfilter?.otoyolKodIds) ? effectiveCustomfilter.otoyolKodIds : [],
         ...effectiveCustomfilter,
+        supheli: effectiveCustomfilter?.supheli ?? false,
+        haftaSonu: effectiveCustomfilter?.haftaSonu ?? false,
       };
 
       const payload = {
@@ -541,7 +558,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true,
       sorter: true,
-      render: (value) => <Text style={{ fontWeight: 500, color: "#333" }}>{value != null ? `₺${formatNumberWithLocale(value)}` : "-"}</Text>,
+      render: (value) => <Text style={{ fontWeight: 500, color: "#333" }}>{formatSafeCurrency(value)}</Text>,
     },
     {
       title: t("beklenenTutar"),
@@ -551,7 +568,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true,
       sorter: true,
-      render: (value, record) => <Text style={{ fontWeight: 500, color: "#333" }}>{value != null ? `₺${formatNumberWithLocale(value)}` : "-"}</Text>,
+      render: (value, record) => <Text style={{ fontWeight: 500, color: "#333" }}>{formatSafeCurrency(value)}</Text>,
     },
     {
       title: t("fark"),
@@ -561,7 +578,7 @@ const Yakit = () => {
       ellipsis: true,
       visible: true,
       sorter: true,
-      render: (value) => <Text style={{ fontWeight: 500, color: "#333" }}>{value != null ? `₺${formatNumberWithLocale(value)}` : "-"}</Text>,
+      render: (value) => <Text style={{ fontWeight: 500, color: "#333" }}>{formatSafeCurrency(value)}</Text>,
     },
     {
       title: t("tarifeUyumu"),
@@ -1046,7 +1063,7 @@ const Yakit = () => {
               <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamGecis")}</span>
             </div>
             <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
-              {statistics.toplamGecis != null ? formatNumberWithLocale(statistics.toplamGecis) : "-"}
+              {formatSafeNumber(statistics.toplamGecis)}
             </div>
             <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
           </div>
@@ -1065,7 +1082,7 @@ const Yakit = () => {
               <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamGerceklesenTutar")}</span>
             </div>
             <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
-              {statistics.toplamGerceklesenTutar != null ? `₺${formatNumberWithLocale(statistics.toplamGerceklesenTutar)}` : "-"}
+              {formatSafeCurrency(statistics.toplamGerceklesenTutar)}
             </div>
             <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{timeRangeLabel}</div>
           </div>
@@ -1084,7 +1101,7 @@ const Yakit = () => {
               <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("supheliKayit")}</span>
             </div>
             <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
-              {statistics.supheliKayit != null ? formatNumberWithLocale(statistics.supheliKayit) : "-"}
+              {formatSafeNumber(statistics.supheliKayit)}
             </div>
             <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{t("manuelIncelemeGerektiren")}</div>
           </div>
@@ -1126,7 +1143,7 @@ const Yakit = () => {
               </div>
             </Tooltip>
             <div style={{ fontSize: "12px", color: "#bfbfbf" }}>
-              {timeRangeLabel} {statistics.enYogunGuzergah?.toplamGecis != null && `| ${formatNumberWithLocale(statistics.enYogunGuzergah.toplamGecis)} ${t("gecis")}`}
+              {timeRangeLabel} {formatSafeNumber(statistics.enYogunGuzergah?.toplamGecis) !== "-" && `| ${formatSafeNumber(statistics.enYogunGuzergah?.toplamGecis)} ${t("gecis")}`}
             </div>
           </div>
         </div>
