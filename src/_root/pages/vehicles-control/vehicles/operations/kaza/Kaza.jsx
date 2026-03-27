@@ -62,7 +62,7 @@ const Kaza = ({ visible, onClose, ids, selectedRowsData }) => {
           setTotalDataCount(res.data.recordCount);
           setCurrentPage(tableParams.pagination.current);
         } else {
-          message.warning(t("kayitBulunamadi"));
+          // message.warning(t("kayitBulunamadi"));
           setDataSource([]);
         }
       } catch (error) {

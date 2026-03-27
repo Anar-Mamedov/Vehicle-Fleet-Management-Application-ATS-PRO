@@ -211,7 +211,7 @@ const ArizaBildirimi = () => {
         if (newData.length > 0) {
           setData(newData);
         } else {
-          message.warning(t("kayitBulunamadi"));
+          // message.warning(t("kayitBulunamadi"));
           setData([]);
         }
       } catch (error) {

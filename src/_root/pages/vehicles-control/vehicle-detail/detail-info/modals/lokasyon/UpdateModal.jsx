@@ -76,7 +76,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, aracID, recor
         // Set transferNedeni if available
         setValue("transferNedeni", logData?.transferNedeni || "");
       } else {
-        message.warning(t("kayitBulunamadi"));
+        // message.warning(t("kayitBulunamadi"));
       }
     } catch (error) {
       console.error("Error fetching location log data:", error);
