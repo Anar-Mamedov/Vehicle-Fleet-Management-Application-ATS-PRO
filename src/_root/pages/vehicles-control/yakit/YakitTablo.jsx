@@ -359,11 +359,16 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
   };
 
   const formatStatisticValue = (value) => {
-    if (value === null || value === undefined) return "-";
-    const strValue = String(value);
+    if (value === null || value === undefined || value === "") return "-";
+
+    const parsedValue = Number(value);
+    if (!Number.isFinite(parsedValue)) return "-";
+
+    const strValue = String(value).trim();
     const parts = strValue.split(".");
     const decimalDigits = parts.length > 1 ? parts[1].length : 0;
-    return Number(value).toLocaleString(localStorage.getItem("i18nextLng"), {
+
+    return parsedValue.toLocaleString(localStorage.getItem("i18nextLng"), {
       minimumFractionDigits: decimalDigits,
       maximumFractionDigits: decimalDigits,
     });
@@ -1687,7 +1692,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                   </div>
                 </div>
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
-                  {statistics.anormalTuketim === null || statistics.anormalTuketim === undefined ? "-" : `${formatStatisticValue(statistics.anormalTuketim)} ${t("Kayit")}`}
+                  {formatStatisticValue(statistics.anormalTuketim) === "-" ? "-" : `${formatStatisticValue(statistics.anormalTuketim)} ${t("Kayit")}`}
                 </div>
                 <div style={{ fontSize: "12px", color: "#bfbfbf" }}>
                   {displayTimeRangeLabel} {displayTimeRangeLabel && <>&bull; %20 üzeri</>}
@@ -1709,9 +1714,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                   <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("aracBasinaMaliyet")}</span>
                 </div>
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
-                  {statistics.aracBasinaMaliyet === null || statistics.aracBasinaMaliyet === undefined
-                    ? "-"
-                    : `${formatStatisticValue(statistics.aracBasinaMaliyet)} ₺ / ${t("arac")}`}
+                  {formatStatisticValue(statistics.aracBasinaMaliyet) === "-" ? "-" : `${formatStatisticValue(statistics.aracBasinaMaliyet)} ₺ / ${t("arac")}`}
                 </div>
                 <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{displayTimeRangeLabel}</div>
               </div>

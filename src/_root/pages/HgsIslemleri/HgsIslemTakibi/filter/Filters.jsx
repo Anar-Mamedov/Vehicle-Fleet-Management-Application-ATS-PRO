@@ -91,6 +91,7 @@ const getDateRange = (value) => {
 export default function Filters({ onChange, onApply, onTimeRangeChange }) {
   const [timeRange, setTimeRange] = React.useState("all");
   const [supheli, setSupheli] = React.useState(false);
+  const [haftaSonu, setHaftaSonu] = React.useState(false);
   const [lokasyonIds, setLokasyonIds] = React.useState([]);
   const [otoyolKodIds, setOtoyolKodIds] = React.useState([]);
   const [otoyolOptions, setOtoyolOptions] = React.useState([]);
@@ -139,6 +140,11 @@ export default function Filters({ onChange, onApply, onTimeRangeChange }) {
     setSupheli(checked);
   }, []);
 
+  const handleHaftaSonuChange = React.useCallback((checked) => {
+    shouldApplyRef.current = true;
+    setHaftaSonu(checked);
+  }, []);
+
   const handleOtoyolChange = React.useCallback((values) => {
     shouldApplyRef.current = true;
     setOtoyolKodIds(Array.isArray(values) ? values : []);
@@ -152,11 +158,12 @@ export default function Filters({ onChange, onApply, onTimeRangeChange }) {
         ...(state.customfilter || {}),
         ...dateRange,
         supheli,
+        haftaSonu,
         lokasyonIds,
         otoyolKodIds,
       },
     }));
-  }, [timeRange, supheli, lokasyonIds, otoyolKodIds]);
+  }, [timeRange, supheli, haftaSonu, lokasyonIds, otoyolKodIds]);
 
   React.useEffect(() => {
     onChange("filters", filters);
@@ -208,6 +215,14 @@ export default function Filters({ onChange, onApply, onTimeRangeChange }) {
           onChange={handleSupheliChange}
         />
         <Text style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{t("supheli")}</Text>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <Switch
+          size="small"
+          checked={haftaSonu}
+          onChange={handleHaftaSonuChange}
+        />
+        <Text style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{t("haftaSonu")}</Text>
       </div>
     </div>
   );
