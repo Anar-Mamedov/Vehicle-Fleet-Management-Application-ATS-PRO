@@ -25,17 +25,10 @@ const DateInput = ({ name, checked, readonly, required }) => {
             disabled={checked}
             readOnly={readonly}
             locale={dayjs.locale("tr")}
-            format="DD.MM.YYYY HH:mm"
+            format="DD.MM.YYYY"
             style={{ height: "30px", fontSize: "16px", width: "100%" }}
             onChange={(value) => {
-            // Eğer saat seçilmemişse, sistem saatini ekle
-            if (value && value.hour() === 0 && value.minute() === 0) {
-              const now = dayjs();
-              const updated = value.hour(now.hour()).minute(now.minute());
-              field.onChange(updated);
-            } else {
               field.onChange(value);
-            }
             }}
           />
           </ConfigProvider>
