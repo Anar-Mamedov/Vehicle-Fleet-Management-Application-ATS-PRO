@@ -261,6 +261,7 @@ const Ceza = () => {
   // Define handleSearch function
   const handleSearch = () => {
     fetchData(0, 1);
+    fetchStatistics();
   };
 
   const handleTableChange = (page) => {
@@ -746,11 +747,12 @@ const Ceza = () => {
     setStatisticsLoading(true);
     const customFilters = body.filters?.customfilter && Object.keys(body.filters.customfilter).length > 0 ? body.filters.customfilter : null;
     try {
+      const qSearch = searchTerm ? `&parameter=${encodeURIComponent(searchTerm)}` : "";
       const [res1, res2, res3, res4] = await Promise.all([
-        AxiosInstance.post("VehicleFineStatistics/GetInfoByType?type=1", customFilters),
-        AxiosInstance.post("VehicleFineStatistics/GetInfoByType?type=2", customFilters),
-        AxiosInstance.post("VehicleFineStatistics/GetInfoByType?type=3", customFilters),
-        AxiosInstance.post("VehicleFineStatistics/GetInfoByType?type=4", customFilters),
+        AxiosInstance.post(`VehicleFineStatistics/GetInfoByType?type=1${qSearch}`, customFilters),
+        AxiosInstance.post(`VehicleFineStatistics/GetInfoByType?type=2${qSearch}`, customFilters),
+        AxiosInstance.post(`VehicleFineStatistics/GetInfoByType?type=3${qSearch}`, customFilters),
+        AxiosInstance.post(`VehicleFineStatistics/GetInfoByType?type=4${qSearch}`, customFilters),
       ]);
       setStatistics({
         buAyToplamTutar: res1.data,

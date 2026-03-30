@@ -213,11 +213,12 @@ const Yakit = () => {
     const customFilters = customfilterOverride ?? (body.filters?.customfilter && Object.keys(body.filters.customfilter).length > 0 ? body.filters.customfilter : {});
 
     try {
+      const qSearch = searchTerm ? `&parameter=${encodeURIComponent(searchTerm)}` : "";
       const [res1, res2, res3, res4] = await Promise.all([
-        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=1", customFilters),
-        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=2", customFilters),
-        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=3", customFilters),
-        AxiosInstance.post("HgsOperationsStatistics/GetInfoByType?type=4", customFilters),
+        AxiosInstance.post(`HgsOperationsStatistics/GetInfoByType?type=1${qSearch}`, customFilters),
+        AxiosInstance.post(`HgsOperationsStatistics/GetInfoByType?type=2${qSearch}`, customFilters),
+        AxiosInstance.post(`HgsOperationsStatistics/GetInfoByType?type=3${qSearch}`, customFilters),
+        AxiosInstance.post(`HgsOperationsStatistics/GetInfoByType?type=4${qSearch}`, customFilters),
       ]);
 
       setStatistics({
