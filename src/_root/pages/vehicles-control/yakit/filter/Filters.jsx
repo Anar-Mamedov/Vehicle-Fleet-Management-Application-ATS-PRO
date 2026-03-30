@@ -228,7 +228,7 @@ export default function Filters({ onChange }) {
       </Button>
       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
         <Switch size="small" checked={haftaSonu} onChange={handleHaftaSonuChange} />
-        <span style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{t("haftaSonu")}</span>
+        <span style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{t("haftaSonlari")}</span>
       </div>
       <ZamanAraligi onDateChange={handleTimeRangeChange} />
       <CustomFilter onSubmit={handleCustomFilterSubmit} currentFilters={filters.customfilters} dateRange={timeRangeFilters} onDateRangeChange={handleTimeRangeChange} />
