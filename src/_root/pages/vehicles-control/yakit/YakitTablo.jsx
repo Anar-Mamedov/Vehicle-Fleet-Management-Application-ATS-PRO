@@ -433,10 +433,10 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
 
     try {
       const [res1, res2, res3, res4] = await Promise.all([
-        AxiosInstance.post("FuelStatistics/GetInfoByType?type=1", customFilters),
-        AxiosInstance.post("FuelStatistics/GetInfoByType?type=2", customFilters),
-        AxiosInstance.post("FuelStatistics/GetInfoByType?type=3", customFilters),
-        AxiosInstance.post("FuelStatistics/GetInfoByType?type=4", customFilters),
+        AxiosInstance.post(`FuelStatistics/GetInfoByType?type=1&parameter=${searchTerm}`, customFilters),
+        AxiosInstance.post(`FuelStatistics/GetInfoByType?type=2&parameter=${searchTerm}`, customFilters),
+        AxiosInstance.post(`FuelStatistics/GetInfoByType?type=3&parameter=${searchTerm}`, customFilters),
+        AxiosInstance.post(`FuelStatistics/GetInfoByType?type=4&parameter=${searchTerm}`, customFilters),
       ]);
 
       setStatistics({
@@ -505,6 +505,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
           setPaginationLoading(false);
         }
       });
+    fetchStatistics();
   };
 
   // Updated handleTableChange for pagination

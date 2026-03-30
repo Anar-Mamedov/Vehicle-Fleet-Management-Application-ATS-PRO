@@ -701,7 +701,7 @@ const GeneralInfo = ({ setIsValid, response }) => {
                 <Firma yakit={true} />
               </div>
             </div>
-            <div className="col-span-8">
+            <div className="col-span-12">
               <div className="flex flex-col gap-1">
                 <label>{t("istasyon")}</label>
                 {/* <CodeControl name="istasyon" codeName="istasyonKodId" id={203} /> */}

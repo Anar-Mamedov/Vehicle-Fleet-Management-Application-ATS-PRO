@@ -121,19 +121,20 @@ export default function Filters({ onChange, onApply, onTimeRangeChange }) {
       return;
     }
 
-    const selectedIds = selectedData
-      .map((item) => (typeof item === "object" && item !== null ? item.locationId : item))
-      .filter((id) => id !== undefined && id !== null);
+    const selectedIds = selectedData.map((item) => (typeof item === "object" && item !== null ? item.locationId : item)).filter((id) => id !== undefined && id !== null);
 
     setLokasyonIds(selectedIds);
   }, []);
 
-  const handleTimeRangeChange = React.useCallback((value) => {
-    shouldApplyRef.current = true;
-    setTimeRange(value);
-    const selectedOption = TIME_RANGE_OPTIONS.find((opt) => opt.value === value);
-    if (onTimeRangeChange) onTimeRangeChange(selectedOption?.label || "");
-  }, [onTimeRangeChange]);
+  const handleTimeRangeChange = React.useCallback(
+    (value) => {
+      shouldApplyRef.current = true;
+      setTimeRange(value);
+      const selectedOption = TIME_RANGE_OPTIONS.find((opt) => opt.value === value);
+      if (onTimeRangeChange) onTimeRangeChange(selectedOption?.label || "");
+    },
+    [onTimeRangeChange]
+  );
 
   const handleSupheliChange = React.useCallback((checked) => {
     shouldApplyRef.current = true;
@@ -186,13 +187,7 @@ export default function Filters({ onChange, onApply, onTimeRangeChange }) {
 
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }}>
-      <Select
-        style={{ width: "130px" }}
-        placeholder="Seçim Yap"
-        options={TIME_RANGE_OPTIONS}
-        value={timeRange}
-        onChange={handleTimeRangeChange}
-      />
+      <Select style={{ width: "130px" }} placeholder="Seçim Yap" options={TIME_RANGE_OPTIONS} value={timeRange} onChange={handleTimeRangeChange} />
       <LokasyonTable fieldName="lokasyonIds" multiSelect={true} onSubmit={handleLokasyonChange} style={{ width: "220px" }} />
       <Select
         style={{ width: "180px" }}
@@ -209,20 +204,12 @@ export default function Filters({ onChange, onApply, onTimeRangeChange }) {
         onChange={handleOtoyolChange}
       />
       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <Switch
-          size="small"
-          checked={supheli}
-          onChange={handleSupheliChange}
-        />
+        <Switch size="small" checked={supheli} onChange={handleSupheliChange} />
         <Text style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{t("supheli")}</Text>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <Switch
-          size="small"
-          checked={haftaSonu}
-          onChange={handleHaftaSonuChange}
-        />
-        <Text style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{t("haftaSonu")}</Text>
+        <Switch size="small" checked={haftaSonu} onChange={handleHaftaSonuChange} />
+        <Text style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{t("haftaSonlari")}</Text>
       </div>
     </div>
   );

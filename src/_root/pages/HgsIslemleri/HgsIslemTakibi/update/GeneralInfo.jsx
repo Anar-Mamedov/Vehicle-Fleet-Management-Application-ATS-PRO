@@ -94,7 +94,7 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-3">
               <div className="flex flex-col gap-1">
                 <label>{t("gecisUcreti")}</label>
-                <TextInput name="gecisUcreti" />
+                <NumberInput name="gecisUcreti" />
               </div>
             </div>
             <div className="col-span-3">
