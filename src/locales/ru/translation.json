@@ -292,5 +292,10 @@
   "hatirlaticiPillenebilir": "Закрепляемое Напоминание",
   "hatirlaticiPillenebilirAciklama": "Когда включено, панель напоминаний можно закрепить в правой части экрана. Когда выключено, отображается как выпадающее меню.",
   "araYuzAyarlari": "Настройки Интерфейса",
-  "kiraBitisTarih": "Дата Окончания Аренды"
+  "kiraBitisTarih": "Дата Окончания Аренды",
+  "suresiYaklasan": "Приближается Срок",
+  "suresiGecen": "Просрочено",
+  "nesne": "Объект",
+  "aracGrubu": "Группа ТС",
+  "guncel": "Текущий"
 }

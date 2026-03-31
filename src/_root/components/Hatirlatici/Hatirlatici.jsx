@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { Button, Badge, Popover, Typography, Spin, Divider, Modal } from "antd";
+import { Button, Badge, Popover, Typography, Spin, Divider, Modal, Table } from "antd";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import styled from "styled-components";
+import dayjs from "dayjs";
+import { formatNumberWithLocale } from "../../../hooks/FormattedNumber";
+import FormattedDate from "../FormattedDate";
+import AxiosInstance from "../../../api/http";
 import Sigorta from "./components/Sigorta";
 import TasitKarti from "./components/TasitKarti";
 import CezaOdeme from "./components/CezaOdeme";
@@ -120,10 +124,73 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
     { key: "onay", label: t("bekleyenOnaylar"), color: "#0e8ca8", bgColor: "rgba(14, 119, 168, 0.35)", dataKey: "onayBekleyenler", component: <OnayIslemleri /> },
   ];
 
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
+  const [statusModalTitle, setStatusModalTitle] = useState("");
+  const [statusModalData, setStatusModalData] = useState([]);
+  const [statusModalLoading, setStatusModalLoading] = useState(false);
+
+  const handleStatusClick = async (durum, title) => {
+    setStatusModalTitle(title);
+    setStatusModalVisible(true);
+    setStatusModalLoading(true);
+    setPopoverOpen(false);
+    try {
+      const response = await AxiosInstance.get(`Reminder/GetRemindersByStatus?durum=${durum}`);
+      const list = Array.isArray(response.data) ? response.data : response.data?.list || [];
+      setStatusModalData(list.map((item, i) => ({ ...item, _uid: i })));
+    } catch (error) {
+      console.error(error);
+      setStatusModalData([]);
+    } finally {
+      setStatusModalLoading(false);
+    }
+  };
+
+  const strSort = (field) => (a, b) => {
+    const valA = a[field];
+    const valB = b[field];
+    if (valA == null && valB == null) return 0;
+    if (valA == null) return 1;
+    if (valB == null) return -1;
+    return String(valA).localeCompare(String(valB));
+  };
+
+  const numSort = (field) => (a, b) => {
+    const valA = a[field];
+    const valB = b[field];
+    if (valA == null && valB == null) return 0;
+    if (valA == null) return 1;
+    if (valB == null) return -1;
+    return Number(valA) - Number(valB);
+  };
+
+  const dateSort = (field) => (a, b) => {
+    const valA = a[field];
+    const valB = b[field];
+    if (!valA && !valB) return 0;
+    if (!valA) return 1;
+    if (!valB) return -1;
+    return dayjs(valA).unix() - dayjs(valB).unix();
+  };
+
+  const statusTableColumns = [
+    { title: t("nesne"), dataIndex: "nesne", key: "nesne", width: 150, ellipsis: true, sorter: strSort("nesne") },
+    { title: t("grup"), dataIndex: "grup", key: "grup", width: 150, ellipsis: true, sorter: strSort("grup") },
+    { title: t("durum"), dataIndex: "durum", key: "durum", width: 120, ellipsis: true, sorter: strSort("durum") },
+    { title: t("aracGrubu"), dataIndex: "aracGrubu", key: "aracGrubu", width: 180, ellipsis: true, sorter: strSort("aracGrubu") },
+    { title: t("tarih"), dataIndex: "tarih", key: "tarih", width: 120, sorter: dateSort("tarih"), render: (value) => <FormattedDate date={value} /> },
+    { title: t("kalan"), dataIndex: "kalan", key: "kalan", width: 100, sorter: numSort("kalan"), render: (text) => formatNumberWithLocale(text) },
+    { title: t("birim"), dataIndex: "birim", key: "birim", width: 80, sorter: strSort("birim") },
+    { title: t("guncel"), dataIndex: "guncel", key: "guncel", width: 100, sorter: strSort("guncel") },
+    { title: t("modelYili"), dataIndex: "modelYili", key: "modelYili", width: 100, sorter: numSort("modelYili") },
+    { title: t("lokasyon"), dataIndex: "lokasyon", key: "lokasyon", width: 150, ellipsis: true, sorter: strSort("lokasyon") },
+    { title: t("aciklama"), dataIndex: "aciklama", key: "aciklama", width: 200, ellipsis: true, sorter: strSort("aciklama") },
+  ];
+
   const statusItems = [
-    { label: "Süresi Yaklaşan", color: "#008000", bgColor: "rgba(0,128,0,0.37)", dataKey: "yaklasanSure" },
-    { label: "Kritik Süre", color: "#e68901", bgColor: "rgba(255,173,0,0.24)", indicatorColor: "#ffad00", dataKey: "kritikSure" },
-    { label: "Süresi Geçen", color: "#ff0000", bgColor: "rgba(255,0,0,0.38)", dataKey: "gecenSure" },
+    { label: t("suresiYaklasan"), color: "#008000", bgColor: "rgba(0,128,0,0.37)", dataKey: "yaklasanSure", durum: "yaklasan" },
+    { label: t("kritikSure"), color: "#e68901", bgColor: "rgba(255,173,0,0.24)", indicatorColor: "#ffad00", dataKey: "kritikSure", durum: "kritik" },
+    { label: t("suresiGecen"), color: "#ff0000", bgColor: "rgba(255,0,0,0.38)", dataKey: "gecenSure", durum: "suresiGecti" },
   ];
 
   const popoverContent = (
@@ -134,7 +201,7 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
       <CustomSpin spinning={loading}>
         <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
           {statusItems.map((item) => (
-            <Row key={item.label} style={{ cursor: "default" }}>
+            <Row key={item.label} onClick={() => handleStatusClick(item.durum, item.label)}>
               <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                 <Indicator style={{ backgroundColor: item.indicatorColor || item.color }} />
                 <Text>{item.label}</Text>
@@ -198,6 +265,34 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
         )}
         <Modal title={modalTitle} destroyOnClose centered open={modalVisible} onCancel={() => setModalVisible(false)} footer={null} width="90%">
           {modalContent}
+        </Modal>
+
+        <Modal
+          title={statusModalTitle}
+          destroyOnClose
+          centered
+          open={statusModalVisible}
+          onCancel={() => {
+            setStatusModalVisible(false);
+            setStatusModalData([]);
+          }}
+          footer={null}
+          width="90%"
+        >
+          <Table
+            columns={statusTableColumns}
+            dataSource={statusModalData}
+            loading={statusModalLoading}
+            rowKey="_uid"
+            scroll={{ y: "calc(100vh - 400px)" }}
+            pagination={{
+              defaultPageSize: 10,
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "20", "50", "100"],
+              showQuickJumper: true,
+            }}
+            size="small"
+          />
         </Modal>
       </FormProvider>
     </div>

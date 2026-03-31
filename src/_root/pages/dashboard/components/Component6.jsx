@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Typography, Spin } from "antd";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { Modal, Typography, Spin, Table } from "antd";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
 
 import http from "../../../../api/http.jsx";
+import FormattedDate from "../../../../_root/components/FormattedDate";
+import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
 
-function Component5(updateApi) {
-  const navigate = useNavigate(); // Initialize navigate
+function Component5() {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [modalTitle, setModalTitle] = useState("");
-  const [modalContent, setModalContent] = useState(null);
+  const [modalData, setModalData] = useState([]);
+  const [modalLoading, setModalLoading] = useState(false);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -22,8 +28,8 @@ function Component5(updateApi) {
     try {
       const response = await http.post("Graphs/GetGraphInfoByType?type=12", body);
       if (response.data.statusCode === 401) {
-        navigate("/unauthorized"); // Redirect to /unauthorized
-        return; // Stop further execution
+        navigate("/unauthorized");
+        return;
       } else {
         setData(response.data);
       }
@@ -38,35 +44,92 @@ function Component5(updateApi) {
     fetchData();
   }, []);
 
-  const showModal = (title, content) => {
+  const fetchRemindersByStatus = async (durum, title) => {
     setModalTitle(title);
-    setModalContent(content);
     setIsModalVisible(true);
-  };
-
-  const handleOk = () => {
-    setIsModalVisible(false);
+    setModalLoading(true);
+    try {
+      const response = await http.get(`Reminder/GetRemindersByStatus?durum=${durum}`);
+      if (response.data.statusCode === 401) {
+        navigate("/unauthorized");
+        return;
+      }
+      const list = Array.isArray(response.data) ? response.data : response.data?.list || [];
+      setModalData(list.map((item, i) => ({ ...item, _uid: i })));
+    } catch (error) {
+      console.error("Failed to fetch reminders:", error);
+      setModalData([]);
+    } finally {
+      setModalLoading(false);
+    }
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
-  };
-  const getRandomColor = () => {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+    setModalData([]);
   };
 
-  const hexToRgba = (hex, opacity) => {
-    const bigint = parseInt(hex.slice(1), 16);
-    const r = (bigint >> 16) & 255;
-    const g = (bigint >> 8) & 255;
-    const b = bigint & 255;
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  const strSort = (field) => (a, b) => {
+    const valA = a[field];
+    const valB = b[field];
+    if (valA == null && valB == null) return 0;
+    if (valA == null) return 1;
+    if (valB == null) return -1;
+    return String(valA).localeCompare(String(valB));
   };
+
+  const numSort = (field) => (a, b) => {
+    const valA = a[field];
+    const valB = b[field];
+    if (valA == null && valB == null) return 0;
+    if (valA == null) return 1;
+    if (valB == null) return -1;
+    return Number(valA) - Number(valB);
+  };
+
+  const dateSort = (field) => (a, b) => {
+    const valA = a[field];
+    const valB = b[field];
+    if (!valA && !valB) return 0;
+    if (!valA) return 1;
+    if (!valB) return -1;
+    return dayjs(valA).unix() - dayjs(valB).unix();
+  };
+
+  const columns = [
+    { title: t("nesne"), dataIndex: "nesne", key: "nesne", width: 150, ellipsis: true, sorter: strSort("nesne") },
+    { title: t("grup"), dataIndex: "grup", key: "grup", width: 150, ellipsis: true, sorter: strSort("grup") },
+    { title: t("durum"), dataIndex: "durum", key: "durum", width: 120, ellipsis: true, sorter: strSort("durum") },
+    { title: t("aracGrubu"), dataIndex: "aracGrubu", key: "aracGrubu", width: 180, ellipsis: true, sorter: strSort("aracGrubu") },
+    { title: t("tarih"), dataIndex: "tarih", key: "tarih", width: 120, sorter: dateSort("tarih"), render: (value) => <FormattedDate date={value} /> },
+    { title: t("kalan"), dataIndex: "kalan", key: "kalan", width: 100, sorter: numSort("kalan"), render: (text) => formatNumberWithLocale(text) },
+    { title: t("birim"), dataIndex: "birim", key: "birim", width: 80, sorter: strSort("birim") },
+    { title: t("guncel"), dataIndex: "guncel", key: "guncel", width: 100, sorter: strSort("guncel") },
+    { title: t("modelYili"), dataIndex: "modelYili", key: "modelYili", width: 100, sorter: numSort("modelYili") },
+    { title: t("lokasyon"), dataIndex: "lokasyon", key: "lokasyon", width: 150, ellipsis: true, sorter: strSort("lokasyon") },
+    { title: t("aciklama"), dataIndex: "aciklama", key: "aciklama", width: 200, ellipsis: true, sorter: strSort("aciklama") },
+  ];
+
+  const statusItems = [
+    {
+      key: "yaklasanSure",
+      label: t("suresiYaklasan"),
+      color: "green",
+      durum: "yaklasan",
+    },
+    {
+      key: "kritikSure",
+      label: t("kritikSure"),
+      color: "#ffad00",
+      durum: "kritik",
+    },
+    {
+      key: "gecenSure",
+      label: t("suresiGecen"),
+      color: "red",
+      durum: "suresiGecti",
+    },
+  ];
 
   return (
     <div
@@ -82,7 +145,7 @@ function Component5(updateApi) {
       }}
     >
       <div style={{ padding: "10px" }}>
-        <Text style={{ fontWeight: "500", fontSize: "17px" }}> Hatırlatıcı </Text>
+        <Text style={{ fontWeight: "500", fontSize: "17px" }}> {t("hatirlatici")} </Text>
       </div>
       {isLoading ? (
         <Spin size="large" />
@@ -101,43 +164,58 @@ function Component5(updateApi) {
             alignContent: "center",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
-            <Text
+          {statusItems.map((item) => (
+            <div
+              key={item.key}
+              role="button"
+              tabIndex={0}
               style={{
-                color: "green",
-                fontSize: "50px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "column",
+                cursor: "pointer",
+              }}
+              onClick={() => fetchRemindersByStatus(item.durum, item.label)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") fetchRemindersByStatus(item.durum, item.label);
               }}
             >
-              {data?.yaklasanSure !== undefined ? data.yaklasanSure : ""}
-            </Text>
-            <Text> Süresi Yaklaşan </Text>
-          </div>
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
-            <Text
-              style={{
-                color: "#ffad00",
-                fontSize: "50px",
-              }}
-            >
-              {data?.kritikSure !== undefined ? data.kritikSure : ""}
-            </Text>
-            <Text> Kritik Süre </Text>
-          </div>
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
-            <Text
-              style={{
-                color: "red",
-                fontSize: "50px",
-              }}
-            >
-              {data?.gecenSure !== undefined ? data.gecenSure : ""}
-            </Text>
-            <Text> Süresi Geçen </Text>
-          </div>
+              <Text
+                style={{
+                  color: item.color,
+                  fontSize: "50px",
+                }}
+              >
+                {data?.[item.key] !== undefined ? data[item.key] : ""}
+              </Text>
+              <Text> {item.label} </Text>
+            </div>
+          ))}
         </div>
       )}
-      <Modal width="90%" centered title={modalTitle} open={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
-        <div>{modalContent}</div>
+      <Modal
+        width="90%"
+        centered
+        title={modalTitle}
+        open={isModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+      >
+        <Table
+          columns={columns}
+          dataSource={modalData}
+          loading={modalLoading}
+          rowKey="_uid"
+          scroll={{ y: "calc(100vh - 400px)" }}
+          pagination={{
+            defaultPageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100"],
+            showQuickJumper: true,
+          }}
+          size="small"
+        />
       </Modal>
     </div>
   );

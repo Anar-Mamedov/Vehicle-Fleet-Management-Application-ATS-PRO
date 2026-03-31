@@ -1539,5 +1539,10 @@
   "gecis": "Geçiş",
   "hatirlaticiPillenebilir": "Hatırlatıcı Sabitlenebilir",
   "hatirlaticiPillenebilirAciklama": "Açık olduğunda hatırlatıcı paneli ekranın sağ tarafına sabitlenebilir. Kapalı olduğunda açılır menü olarak gösterilir.",
-  "araYuzAyarlari": "Ara Yüz Ayarları"
+  "araYuzAyarlari": "Ara Yüz Ayarları",
+  "suresiYaklasan": "Süresi Yaklaşan",
+  "suresiGecen": "Süresi Geçen",
+  "nesne": "Nesne",
+  "aracGrubu": "Araç Grubu",
+  "guncel": "Güncel"
 }
