@@ -774,5 +774,6 @@
   "suresiGecen": "Müddəti Keçmiş",
   "nesne": "Obyekt",
   "aracGrubu": "Nəqliyyat Qrupu",
+  "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Giriş tarix və saatı, çıxış tarix və saatından böyük ola bilməz.",
   "guncel": "Cari"
 }

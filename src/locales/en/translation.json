@@ -1257,5 +1257,6 @@
   "suresiGecen": "Overdue",
   "nesne": "Object",
   "aracGrubu": "Vehicle Group",
+  "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Entry date and time cannot be later than exit date and time.",
   "guncel": "Current"
 }

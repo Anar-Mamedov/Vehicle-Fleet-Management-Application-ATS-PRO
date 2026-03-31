@@ -3,7 +3,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { TimePicker } from "antd";
 
-const TimeInput = ({ name, readonly, style, placeholder = "" }) => {
+const TimeInput = ({ name, readonly, style, placeholder = "", disabledTime }) => {
   const { control } = useFormContext();
 
   return (
@@ -17,6 +17,7 @@ const TimeInput = ({ name, readonly, style, placeholder = "" }) => {
           needConfirm={false}
           placeholder={placeholder}
           format="HH:mm"
+          disabledTime={disabledTime}
           disabled={readonly}
           style={{
             ...style,
@@ -30,6 +31,9 @@ const TimeInput = ({ name, readonly, style, placeholder = "" }) => {
 TimeInput.propTypes = {
   name: PropTypes.string,
   readonly: PropTypes.bool,
+  style: PropTypes.object,
+  placeholder: PropTypes.string,
+  disabledTime: PropTypes.func,
 };
 
 export default TimeInput;

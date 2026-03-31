@@ -13,6 +13,63 @@ import ResimUpload from "../../../../components/Resim/ResimUpload";
 import DosyaUpload from "../../../../components/Dosya/DosyaUpload";
 import dayjs from "dayjs";
 
+const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+const getTimeParts = (value) => {
+  if (!value) return null;
+
+  if (dayjs.isDayjs(value)) {
+    return { hour: value.hour(), minute: value.minute() };
+  }
+
+  if (typeof value === "string") {
+    const normalizedTime = value.trim();
+    const matchedTime = normalizedTime.match(TIME_REGEX);
+    if (!matchedTime) return null;
+
+    return {
+      hour: Number(matchedTime[1]),
+      minute: Number(matchedTime[2]),
+    };
+  }
+
+  return null;
+};
+
+const toDateTime = (dateValue, timeValue) => {
+  if (!dateValue) return null;
+
+  const date = dayjs(dateValue);
+  if (!date.isValid()) return null;
+
+  const timeParts = getTimeParts(timeValue);
+  if (!timeParts) return date.startOf("day");
+
+  return date.hour(timeParts.hour).minute(timeParts.minute).second(0).millisecond(0);
+};
+
+const toTimeDayjs = (value) => {
+  const timeParts = getTimeParts(value);
+  if (!timeParts) return null;
+
+  return dayjs().hour(timeParts.hour).minute(timeParts.minute).second(0).millisecond(0);
+};
+
+const formatTimeValue = (value) => {
+  if (!value) return null;
+
+  if (dayjs.isDayjs(value)) {
+    return value.format("HH:mm");
+  }
+
+  if (typeof value === "string") {
+    const normalizedTime = value.trim();
+    return TIME_REGEX.test(normalizedTime) ? normalizedTime : null;
+  }
+
+  return null;
+};
+
 const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const [isValid, setIsValid] = useState("normal");
   const [code, setCode] = useState("normal");
@@ -115,9 +172,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("isim", data.isim);
         setValue("otoYol", data.otoYol);
         setValue("girisTarih", data.girisTarih ? dayjs(data.girisTarih) : null);
-        setValue("girisSaat", data.girisSaat);
+        setValue("girisSaat", toTimeDayjs(data.girisSaat));
         setValue("cikisTarih", data.cikisTarih ? dayjs(data.cikisTarih) : null);
-        setValue("cikisSaat", data.cikisSaat);
+        setValue("cikisSaat", toTimeDayjs(data.cikisSaat));
         setValue("girisYeri", data.girisYeri);
         setValue("cikisYeri", data.cikisYeri);
         setValue("odemeTuruKodId", data.odemeTuruKodId);
@@ -150,6 +207,14 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
   }, [selectedRow, drawerVisible]);
 
   const onSubmit = handleSubmit((values) => {
+    const girisDateTime = toDateTime(values.girisTarih, values.girisSaat);
+    const cikisDateTime = toDateTime(values.cikisTarih, values.cikisSaat);
+
+    if (girisDateTime && cikisDateTime && girisDateTime.isAfter(cikisDateTime)) {
+      message.error(t("girisTarihSaatCikisTarihSaattenBuyukOlamaz"));
+      return;
+    }
+
     const body = {
       siraNo: values.siraNo || 1,
       tarih: values.tarih ? dayjs(values.tarih).format("YYYY-MM-DD") : null,
@@ -158,9 +223,9 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       surucuId: values.surucuId,
       otoYolKodId: values.otoYolKodId,
       girisTarih: values.girisTarih ? dayjs(values.girisTarih).format("YYYY-MM-DD") : null,
-      girisSaat: values.girisSaat ? (dayjs.isDayjs(values.girisSaat) ? values.girisSaat.format("HH:mm") : values.girisSaat) : "",
+      girisSaat: formatTimeValue(values.girisSaat) || "",
       cikisTarih: values.cikisTarih ? dayjs(values.cikisTarih).format("YYYY-MM-DD") : null,
-      cikisSaat: values.cikisSaat ? (dayjs.isDayjs(values.cikisSaat) ? values.cikisSaat.format("HH:mm") : values.cikisSaat) : "",
+      cikisSaat: formatTimeValue(values.cikisSaat) || "",
       girisYeri: values.girisYeri || "",
       cikisYeri: values.cikisYeri || "",
       odemeTuruKodId: values.odemeTuruKodId,

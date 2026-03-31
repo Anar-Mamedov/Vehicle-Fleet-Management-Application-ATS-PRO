@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
-import { Button, Modal, Tabs } from "antd";
+import { Button, message, Modal, Tabs } from "antd";
 import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import PersonalFields from "../../../../components/form/PersonalFields";
@@ -10,6 +10,56 @@ import { AddHgsItemService } from "../../../../../api/services/hgs-islem-takibi/
 import Iletisim from "./Iletisim";
 import { CodeItemValidateService, GetModuleCodeByCode } from "../../../../../api/services/code/services";
 import dayjs from "dayjs";
+
+const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+const getTimeParts = (value) => {
+  if (!value) return null;
+
+  if (dayjs.isDayjs(value)) {
+    return { hour: value.hour(), minute: value.minute() };
+  }
+
+  if (typeof value === "string") {
+    const normalizedTime = value.trim();
+    const matchedTime = normalizedTime.match(TIME_REGEX);
+    if (!matchedTime) return null;
+
+    return {
+      hour: Number(matchedTime[1]),
+      minute: Number(matchedTime[2]),
+    };
+  }
+
+  return null;
+};
+
+const toDateTime = (dateValue, timeValue) => {
+  if (!dateValue) return null;
+
+  const date = dayjs(dateValue);
+  if (!date.isValid()) return null;
+
+  const timeParts = getTimeParts(timeValue);
+  if (!timeParts) return date.startOf("day");
+
+  return date.hour(timeParts.hour).minute(timeParts.minute).second(0).millisecond(0);
+};
+
+const formatTimeValue = (value) => {
+  if (!value) return null;
+
+  if (dayjs.isDayjs(value)) {
+    return value.format("HH:mm");
+  }
+
+  if (typeof value === "string") {
+    const normalizedTime = value.trim();
+    return TIME_REGEX.test(normalizedTime) ? normalizedTime : null;
+  }
+
+  return null;
+};
 
 const AddModal = ({ setStatus, onRefresh }) => {
   const [openModal, setopenModal] = useState(false);
@@ -106,6 +156,14 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const { handleSubmit, reset, setValue, watch } = methods;
 
   const onSubmit = handleSubmit((values) => {
+    const girisDateTime = toDateTime(values.girisTarih, values.girisSaat);
+    const cikisDateTime = toDateTime(values.cikisTarih, values.cikisSaat);
+
+    if (girisDateTime && cikisDateTime && girisDateTime.isAfter(cikisDateTime)) {
+      message.error(t("girisTarihSaatCikisTarihSaattenBuyukOlamaz"));
+      return;
+    }
+
     const body = {
       tarih: values.tarih ? dayjs(values.tarih).format("YYYY-MM-DD") : null,
       saat: values.saat || "",
@@ -114,9 +172,9 @@ const AddModal = ({ setStatus, onRefresh }) => {
       hgsCard: values.hgsCard || "",
       otoYolKodId: values.otoYolKodId,
       girisTarih: values.girisTarih ? dayjs(values.girisTarih).format("YYYY-MM-DD") : null,
-      girisSaat: values.girisSaat ? dayjs(values.girisSaat).format("HH:mm") : null,
+      girisSaat: formatTimeValue(values.girisSaat),
       cikisTarih: values.cikisTarih ? dayjs(values.cikisTarih).format("YYYY-MM-DD") : null,
-      cikisSaat: values.cikisSaat ? dayjs(values.cikisSaat).format("HH:mm") : null,
+      cikisSaat: formatTimeValue(values.cikisSaat),
       girisYeri: values.girisYeri || "",
       cikisYeri: values.cikisYeri || "",
       odemeTuruKodId: values.odemeTuruKodId,

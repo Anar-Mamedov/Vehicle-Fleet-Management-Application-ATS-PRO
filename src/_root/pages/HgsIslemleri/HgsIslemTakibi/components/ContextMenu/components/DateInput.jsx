@@ -8,7 +8,7 @@ import { ConfigProvider, DatePicker } from "antd";
 
 dayjs.locale("tr");
 
-const DateInput = ({ name, checked, readonly, required }) => {
+const DateInput = ({ name, checked, readonly, required, disabledDate }) => {
   const { control } = useFormContext();
   return (
     <Controller
@@ -26,6 +26,7 @@ const DateInput = ({ name, checked, readonly, required }) => {
               readOnly={readonly}
               locale={dayjs.locale("tr")}
               format="DD.MM.YYYY"
+              disabledDate={disabledDate}
               style={{ height: "30px", fontSize: "16px", width: "100%" }}
               onChange={(e) => {
                 field.onChange(e);
@@ -44,6 +45,7 @@ DateInput.propTypes = {
   checked: PropTypes.bool,
   readonly: PropTypes.bool,
   required: PropTypes.bool,
+  disabledDate: PropTypes.func,
 };
 
 export default DateInput;

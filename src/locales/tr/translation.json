@@ -1544,5 +1544,6 @@
   "suresiGecen": "Süresi Geçen",
   "nesne": "Nesne",
   "aracGrubu": "Araç Grubu",
+  "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Giriş tarih ve saati, çıkış tarih ve saatinden büyük olamaz.",
   "guncel": "Güncel"
 }

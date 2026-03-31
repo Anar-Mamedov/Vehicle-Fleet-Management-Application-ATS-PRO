@@ -297,5 +297,6 @@
   "suresiGecen": "Просрочено",
   "nesne": "Объект",
   "aracGrubu": "Группа ТС",
+  "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Дата и время въезда не могут быть позже даты и времени выезда.",
   "guncel": "Текущий"
 }
