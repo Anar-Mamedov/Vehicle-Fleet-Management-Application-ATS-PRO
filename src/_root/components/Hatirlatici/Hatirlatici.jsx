@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Badge, Popover, Typography, Spin, Divider, Modal, Table } from "antd";
+import { Button, Badge, Popover, Typography, Spin, Divider, Modal, Table, Input } from "antd";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -128,16 +128,25 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
   const [statusModalTitle, setStatusModalTitle] = useState("");
   const [statusModalData, setStatusModalData] = useState([]);
   const [statusModalLoading, setStatusModalLoading] = useState(false);
+  const [statusSearchText, setStatusSearchText] = useState("");
 
   const handleStatusClick = async (durum, title) => {
     setStatusModalTitle(title);
     setStatusModalVisible(true);
     setStatusModalLoading(true);
+    setStatusSearchText("");
     setPopoverOpen(false);
     try {
       const response = await AxiosInstance.get(`Reminder/GetRemindersByStatus?durum=${durum}`);
       const list = Array.isArray(response.data) ? response.data : response.data?.list || [];
-      setStatusModalData(list.map((item, i) => ({ ...item, _uid: i })));
+      setStatusModalData(
+        list.map((item, i) => ({
+          ...item,
+          ilgiliKayit: item.ilgiliKayit ?? item.nesne ?? "",
+          sonTarih: item.sonTarih ?? item.tarih ?? null,
+          _uid: i,
+        }))
+      );
     } catch (error) {
       console.error(error);
       setStatusModalData([]);
@@ -218,8 +227,17 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
     return t(i18nKey, { defaultValue: rawValue });
   };
 
+  const filteredStatusModalData = statusModalData.filter((item) => {
+    if (!statusSearchText?.trim()) return true;
+
+    const keyword = statusSearchText.trim().toLocaleLowerCase("tr");
+    const searchableFields = [item.ilgiliKayit, item.grup, item.durum, item.sonTarih, item.kalan, item.birim, item.lokasyon, item.ekBilgi, item.aciklama];
+
+    return searchableFields.some((field) => String(field ?? "").toLocaleLowerCase("tr").includes(keyword));
+  });
+
   const statusTableColumns = [
-    { title: t("nesne"), dataIndex: "nesne", key: "nesne", width: 150, ellipsis: true, sorter: strSort("nesne") },
+    { title: t("ilgiliKayit"), dataIndex: "ilgiliKayit", key: "ilgiliKayit", width: 150, ellipsis: true, sorter: strSort("ilgiliKayit") },
     {
       title: t("grup"),
       dataIndex: "grup",
@@ -238,8 +256,7 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
       sorter: strSort("durum"),
       render: (value) => translateReminderValue(value, reminderStatusKeyMap),
     },
-    { title: t("aracGrubu"), dataIndex: "aracGrubu", key: "aracGrubu", width: 180, ellipsis: true, sorter: strSort("aracGrubu") },
-    { title: t("tarih"), dataIndex: "tarih", key: "tarih", width: 120, sorter: dateSort("tarih"), render: (value) => <FormattedDate date={value} /> },
+    { title: t("sonTarih"), dataIndex: "sonTarih", key: "sonTarih", width: 120, sorter: dateSort("sonTarih"), render: (value) => <FormattedDate date={value} /> },
     { title: t("kalan"), dataIndex: "kalan", key: "kalan", width: 100, sorter: numSort("kalan"), render: (text) => formatNumberWithLocale(text) },
     {
       title: t("birim"),
@@ -249,9 +266,8 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
       sorter: strSort("birim"),
       render: (value) => translateReminderValue(value, reminderUnitKeyMap),
     },
-    { title: t("guncel"), dataIndex: "guncel", key: "guncel", width: 100, sorter: strSort("guncel") },
-    { title: t("modelYili"), dataIndex: "modelYili", key: "modelYili", width: 100, sorter: numSort("modelYili") },
     { title: t("lokasyon"), dataIndex: "lokasyon", key: "lokasyon", width: 150, ellipsis: true, sorter: strSort("lokasyon") },
+    { title: t("ekBilgi"), dataIndex: "ekBilgi", key: "ekBilgi", width: 150, ellipsis: true, sorter: strSort("ekBilgi") },
     { title: t("aciklama"), dataIndex: "aciklama", key: "aciklama", width: 200, ellipsis: true, sorter: strSort("aciklama") },
   ];
 
@@ -343,13 +359,21 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
           onCancel={() => {
             setStatusModalVisible(false);
             setStatusModalData([]);
+            setStatusSearchText("");
           }}
           footer={null}
           width="90%"
         >
+          <Input
+            allowClear
+            value={statusSearchText}
+            onChange={(e) => setStatusSearchText(e.target.value)}
+            placeholder={`${t("arama")}...`}
+            style={{ width: 320, marginBottom: 12 }}
+          />
           <Table
             columns={statusTableColumns}
-            dataSource={statusModalData}
+            dataSource={filteredStatusModalData}
             loading={statusModalLoading}
             rowKey="_uid"
             scroll={{ y: "calc(100vh - 400px)" }}
