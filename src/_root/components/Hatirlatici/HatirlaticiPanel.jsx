@@ -272,7 +272,14 @@ const HatirlaticiPanel = ({ open, onClose }) => {
     try {
       const response = await AxiosInstance.get(`Reminder/GetRemindersByStatus?durum=${durum}`);
       const list = Array.isArray(response.data) ? response.data : response.data?.list || [];
-      setStatusModalData(list.map((item, i) => ({ ...item, _uid: i })));
+      setStatusModalData(
+        list.map((item, i) => ({
+          ...item,
+          ilgiliKayit: item.ilgiliKayit ?? item.nesne ?? "",
+          sonTarih: item.sonTarih ?? item.tarih ?? null,
+          _uid: i,
+        }))
+      );
     } catch (error) {
       console.error(error);
       setStatusModalData([]);
@@ -357,13 +364,17 @@ const HatirlaticiPanel = ({ open, onClose }) => {
     if (!statusSearchText?.trim()) return true;
 
     const keyword = statusSearchText.trim().toLocaleLowerCase("tr");
-    const searchableFields = [item.nesne, item.grup, item.durum, item.tarih, item.kalan, item.birim, item.lokasyon, item.ekBilgi, item.aciklama];
+    const searchableFields = [item.ilgiliKayit, item.grup, item.durum, item.sonTarih, item.kalan, item.birim, item.lokasyon, item.ekBilgi, item.aciklama];
 
-    return searchableFields.some((field) => String(field ?? "").toLocaleLowerCase("tr").includes(keyword));
+    return searchableFields.some((field) =>
+      String(field ?? "")
+        .toLocaleLowerCase("tr")
+        .includes(keyword)
+    );
   });
 
   const statusTableColumns = [
-    { title: t("ilgiliKayit"), dataIndex: "nesne", key: "nesne", width: 150, ellipsis: true, sorter: strSort("nesne") },
+    { title: t("ilgiliKayit"), dataIndex: "ilgiliKayit", key: "ilgiliKayit", width: 150, ellipsis: true, sorter: strSort("ilgiliKayit") },
     {
       title: t("grup"),
       dataIndex: "grup",
@@ -382,7 +393,7 @@ const HatirlaticiPanel = ({ open, onClose }) => {
       sorter: strSort("durum"),
       render: (value) => translateReminderValue(value, reminderStatusKeyMap),
     },
-    { title: t("sonTarih"), dataIndex: "tarih", key: "tarih", width: 120, sorter: dateSort("tarih"), render: (value) => <FormattedDate date={value} /> },
+    { title: t("sonTarih"), dataIndex: "sonTarih", key: "sonTarih", width: 120, sorter: dateSort("sonTarih"), render: (value) => <FormattedDate date={value} /> },
     { title: t("kalan"), dataIndex: "kalan", key: "kalan", width: 100, sorter: numSort("kalan"), render: (text) => formatNumberWithLocale(text) },
     {
       title: t("birim"),
