@@ -1255,8 +1255,17 @@
   "araYuzAyarlari": "Interface Settings",
   "suresiYaklasan": "Approaching Deadline",
   "suresiGecen": "Overdue",
+  "suresiGecti": "Expired",
+  "yaklasan": "Approaching",
   "nesne": "Object",
   "aracGrubu": "Vehicle Group",
+  "onayIslemleri": "Approval Operations",
+  "periyodikTarih": "Periodic Date",
+  "periyodikkm": "Periodic KM",
+  "egzosTarihi": "Exhaust Date",
+  "takografTarihi": "Tachograph Date",
+  "kiralikArac": "Rental Vehicle",
+  "stok": "Stock",
   "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Entry date and time cannot be later than exit date and time.",
   "guncel": "Current"
 }

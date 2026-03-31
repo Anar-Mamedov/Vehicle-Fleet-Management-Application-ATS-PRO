@@ -772,8 +772,18 @@
   "araYuzAyarlari": "İnterfeys Ayarları",
   "suresiYaklasan": "Müddəti Yaxınlaşan",
   "suresiGecen": "Müddəti Keçmiş",
+  "suresiGecti": "Müddəti Keçdi",
+  "yaklasan": "Yaxınlaşan",
+  "kritik": "Kritik",
   "nesne": "Obyekt",
   "aracGrubu": "Nəqliyyat Qrupu",
+  "onayIslemleri": "Təsdiq Əməliyyatları",
+  "periyodikTarih": "Periodik Tarix",
+  "periyodikkm": "Periodik KM",
+  "egzosTarihi": "Egzoz Tarixi",
+  "takografTarihi": "Taqoqraf Tarixi",
+  "kiralikArac": "Kirayə Nəqliyyat Vasitəsi",
+  "stok": "Stok",
   "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Giriş tarix və saatı, çıxış tarix və saatından böyük ola bilməz.",
   "guncel": "Cari"
 }

@@ -1542,8 +1542,16 @@
   "araYuzAyarlari": "Ara Yüz Ayarları",
   "suresiYaklasan": "Süresi Yaklaşan",
   "suresiGecen": "Süresi Geçen",
+  "suresiGecti": "Süresi Geçti",
+  "yaklasan": "Yaklaşan",
   "nesne": "Nesne",
   "aracGrubu": "Araç Grubu",
+  "periyodikTarih": "Periyodik Tarih",
+  "periyodikkm": "Periyodik KM",
+  "egzosTarihi": "Egzoz Tarihi",
+  "takografTarihi": "Takograf Tarihi",
+  "kiralikArac": "Kiralık Araç",
+  "stok": "Stok",
   "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Giriş tarih ve saati, çıkış tarih ve saatinden büyük olamaz.",
   "guncel": "Güncel"
 }

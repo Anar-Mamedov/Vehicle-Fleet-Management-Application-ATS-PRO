@@ -173,14 +173,82 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
     return dayjs(valA).unix() - dayjs(valB).unix();
   };
 
+  const reminderGroupKeyMap = {
+    onayislemleri: "onayIslemleri",
+    periyodiktarih: "periyodikTarih",
+    periyodikkm: "periyodikkm",
+    ikamearac: "ikameArac",
+    muayenetarihi: "muayeneTarihi",
+    egzostarihi: "egzosTarihi",
+    egzoztarihi: "egzozTarihi",
+    takograftarihi: "takografTarihi",
+    sozlesmetarihi: "sozlesmeTarihi",
+    vergitarihi: "vergiTarihi",
+    kiralikarac: "kiralikArac",
+    tasitkarti: "tasitKarti",
+    ceza: "ceza",
+    sigorta: "sigorta",
+    surucu: "surucu",
+    stok: "stok",
+  };
+
+  const reminderUnitKeyMap = {
+    gun: "gun",
+    adet: "adet",
+    km: "km",
+  };
+
+  const reminderStatusKeyMap = {
+    suresigecti: "suresiGecti",
+    suresigecen: "suresiGecen",
+    yaklasan: "yaklasan",
+    kritik: "kritik",
+  };
+
+  const translateReminderValue = (value, keyMap) => {
+    if (value === null || value === undefined || value === "") return "-";
+    if (value === "-") return "-";
+
+    const rawValue = String(value);
+    const normalizedValue = rawValue.trim().toLowerCase();
+    const i18nKey = keyMap[normalizedValue];
+
+    if (!i18nKey) return rawValue;
+
+    return t(i18nKey, { defaultValue: rawValue });
+  };
+
   const statusTableColumns = [
     { title: t("nesne"), dataIndex: "nesne", key: "nesne", width: 150, ellipsis: true, sorter: strSort("nesne") },
-    { title: t("grup"), dataIndex: "grup", key: "grup", width: 150, ellipsis: true, sorter: strSort("grup") },
-    { title: t("durum"), dataIndex: "durum", key: "durum", width: 120, ellipsis: true, sorter: strSort("durum") },
+    {
+      title: t("grup"),
+      dataIndex: "grup",
+      key: "grup",
+      width: 150,
+      ellipsis: true,
+      sorter: strSort("grup"),
+      render: (value) => translateReminderValue(value, reminderGroupKeyMap),
+    },
+    {
+      title: t("durum"),
+      dataIndex: "durum",
+      key: "durum",
+      width: 120,
+      ellipsis: true,
+      sorter: strSort("durum"),
+      render: (value) => translateReminderValue(value, reminderStatusKeyMap),
+    },
     { title: t("aracGrubu"), dataIndex: "aracGrubu", key: "aracGrubu", width: 180, ellipsis: true, sorter: strSort("aracGrubu") },
     { title: t("tarih"), dataIndex: "tarih", key: "tarih", width: 120, sorter: dateSort("tarih"), render: (value) => <FormattedDate date={value} /> },
     { title: t("kalan"), dataIndex: "kalan", key: "kalan", width: 100, sorter: numSort("kalan"), render: (text) => formatNumberWithLocale(text) },
-    { title: t("birim"), dataIndex: "birim", key: "birim", width: 80, sorter: strSort("birim") },
+    {
+      title: t("birim"),
+      dataIndex: "birim",
+      key: "birim",
+      width: 80,
+      sorter: strSort("birim"),
+      render: (value) => translateReminderValue(value, reminderUnitKeyMap),
+    },
     { title: t("guncel"), dataIndex: "guncel", key: "guncel", width: 100, sorter: strSort("guncel") },
     { title: t("modelYili"), dataIndex: "modelYili", key: "modelYili", width: 100, sorter: numSort("modelYili") },
     { title: t("lokasyon"), dataIndex: "lokasyon", key: "lokasyon", width: 150, ellipsis: true, sorter: strSort("lokasyon") },
