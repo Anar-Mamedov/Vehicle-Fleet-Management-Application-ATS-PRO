@@ -1,24 +1,101 @@
-import React, { useEffect, useState } from "react";
-import { Upload, Spin, message, Button, Popconfirm } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { Upload, Spin, message, Button, Popconfirm, Image } from "antd";
 import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useFormContext } from "react-hook-form";
 import AxiosInstance from "../../../api/http";
 
+const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png"];
+
 const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }) => {
   const { watch } = useFormContext();
   const [dosyalar, setDosyalar] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewCurrent, setPreviewCurrent] = useState(0);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const imagePreviewUrlsRef = useRef([]);
 
   // Form'dan "kapali" değerini izliyoruz
   const kapali = watch("kapali");
+
+  const normalizeExtension = (extension) => {
+    if (!extension) return "";
+    const trimmed = String(extension).trim().toLowerCase();
+    if (!trimmed) return "";
+    return trimmed.startsWith(".") ? trimmed : `.${trimmed}`;
+  };
+
+  const extractExtensionFromName = (fileName) => {
+    if (!fileName) return "";
+    const lowerName = String(fileName).toLowerCase();
+    const extensionIndex = lowerName.lastIndexOf(".");
+    if (extensionIndex < 0) return "";
+    return lowerName.slice(extensionIndex);
+  };
+
+  const getFileExtension = (file) => {
+    const extensionFromField = normalizeExtension(file?.dosyaUzanti);
+    if (extensionFromField) return extensionFromField;
+    return extractExtensionFromName(file?.dosyaAd);
+  };
+
+  const isPdfFile = (file) => getFileExtension(file) === ".pdf";
+
+  const isImageFile = (file) => {
+    const extension = getFileExtension(file);
+    return IMAGE_EXTENSIONS.includes(extension);
+  };
+
+  const updateImagePreviews = (previews) => {
+    imagePreviewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    imagePreviewUrlsRef.current = previews.map((item) => item.url);
+    setImagePreviews(previews);
+  };
+
+  const fetchImagePreviews = async (files) => {
+    const imageFiles = files.filter(isImageFile);
+    if (!imageFiles.length) {
+      updateImagePreviews([]);
+      return;
+    }
+
+    try {
+      const previews = await Promise.all(
+        imageFiles.map(async (file) => {
+          const body = {
+            fileId: file.tbDosyaId,
+            extension: file.dosyaUzanti,
+            fileName: file.dosyaAd,
+          };
+
+          const response = await AxiosInstance.post("Document/DownloadDocumentById", body, {
+            responseType: "blob",
+          });
+
+          return {
+            tbDosyaId: file.tbDosyaId,
+            dosyaAd: file.dosyaAd,
+            url: URL.createObjectURL(response.data),
+          };
+        })
+      );
+
+      updateImagePreviews(previews);
+    } catch (error) {
+      console.error("Resim önizleme hazırlanırken bir hata oluştu:", error);
+      updateImagePreviews([]);
+    }
+  };
 
   // 1) API'den gelen dosya listesini çekme
   const fetchDosyaIds = async () => {
     try {
       setLoading(true);
       const response = await AxiosInstance.get(`Document/GetDocumentsByRefGroup?refId=${selectedRowID}&refGroup=${refGroup}`);
-      setDosyalar(response.data);
+      const files = Array.isArray(response.data) ? response.data : [];
+      setDosyalar(files);
+      await fetchImagePreviews(files);
     } catch (error) {
       console.error("Dosya listesi alınırken bir hata oluştu:", error);
       message.error("Dosyalar yüklenirken bir hata oluştu.");
@@ -34,25 +111,48 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
     }
   }, [selectedRowID]);
 
-  // 3) Dosyayı indirme fonksiyonu
-  const handleDownloadFile = async (file) => {
+  useEffect(() => {
+    return () => {
+      imagePreviewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
+
+  const downloadDocumentBlob = async (file) => {
+    const extension = getFileExtension(file);
+    const requestBodies = [
+      { fileId: file.tbDosyaId, extension, fileName: file.dosyaAd },
+      { fileId: file.tbDosyaId, extension },
+      { fileId: file.tbDosyaId },
+    ];
+    let lastError = null;
+
+    for (const body of requestBodies) {
+      try {
+        const response = await AxiosInstance.post("Document/DownloadDocumentById", body, {
+          responseType: "blob",
+        });
+        return response.data;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    throw lastError;
+  };
+
+  // 3) Dosyayı indirme/açma fonksiyonu
+  const handleDownloadFile = async (file, pdfWindow = null) => {
     try {
-      const body = {
-        fileId: file.tbDosyaId,
-        extension: file.dosyaUzanti,
-        fileName: file.dosyaAd,
-      };
-
-      const response = await AxiosInstance.post("Document/DownloadDocumentById", body, {
-        responseType: "blob", // blob olarak çekiyoruz
-      });
-
-      const isPdf = file.dosyaUzanti?.toLowerCase() === ".pdf" || file.dosyaAd?.toLowerCase().endsWith(".pdf");
-      if (isPdf) {
-        const blobUrl = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
-        window.open(blobUrl, "_blank");
+      const fileBlob = await downloadDocumentBlob(file);
+      if (isPdfFile(file)) {
+        const blobUrl = URL.createObjectURL(new Blob([fileBlob], { type: "application/pdf" }));
+        if (pdfWindow && !pdfWindow.closed) {
+          pdfWindow.location.href = blobUrl;
+        } else {
+          window.open(blobUrl, "_blank");
+        }
       } else {
-        const downloadURL = URL.createObjectURL(response.data);
+        const downloadURL = URL.createObjectURL(fileBlob);
         const link = document.createElement("a");
         link.href = downloadURL;
         link.setAttribute("download", file.dosyaAd);
@@ -62,9 +162,31 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
         URL.revokeObjectURL(downloadURL);
       }
     } catch (error) {
+      if (pdfWindow && !pdfWindow.closed) {
+        pdfWindow.close();
+      }
       console.error("Dosya indirme hatası:", error);
       message.error("Dosya indirilirken bir hata oluştu.");
     }
+  };
+
+  const handleFileClick = (file) => {
+    if (isImageFile(file) && imagePreviews.length > 0) {
+      const selectedImageIndex = imagePreviews.findIndex((image) => image.tbDosyaId === file.tbDosyaId);
+      if (selectedImageIndex > -1) {
+        setPreviewCurrent(selectedImageIndex);
+        setPreviewVisible(true);
+        return;
+      }
+    }
+
+    if (isPdfFile(file)) {
+      const pdfWindow = window.open("about:blank", "_blank");
+      handleDownloadFile(file, pdfWindow);
+      return;
+    }
+
+    handleDownloadFile(file);
   };
 
   // 4) Dosya silme fonksiyonu
@@ -121,6 +243,23 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
 
   return (
     <div style={{ marginBottom: "35px" }}>
+      {imagePreviews.length > 0 && (
+        <div style={{ display: "none" }}>
+          <Image.PreviewGroup
+            preview={{
+              visible: previewVisible,
+              current: previewCurrent,
+              onVisibleChange: (visible) => setPreviewVisible(visible),
+              onChange: (current) => setPreviewCurrent(current),
+            }}
+          >
+            {imagePreviews.map((image) => (
+              <Image key={image.tbDosyaId} src={image.url} alt={image.dosyaAd} />
+            ))}
+          </Image.PreviewGroup>
+        </div>
+      )}
+
       {loading || deleting ? (
         <div
           style={{
@@ -140,7 +279,7 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
             dosyalar.map((file) => (
               <div
                 key={file.tbDosyaId}
-                onClick={() => handleDownloadFile(file)}
+                onClick={() => handleFileClick(file)}
                 style={{
                   cursor: "pointer",
                   display: "inline-flex",
