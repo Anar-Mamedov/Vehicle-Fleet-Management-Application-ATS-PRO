@@ -1252,5 +1252,20 @@
   "kiralikAraclar": "Rental Vehicles",
   "hatirlaticiPillenebilir": "Pinnable Reminder",
   "hatirlaticiPillenebilirAciklama": "When enabled, the reminder panel can be pinned to the right side of the screen. When disabled, it is shown as a dropdown menu.",
-  "araYuzAyarlari": "Interface Settings"
+  "araYuzAyarlari": "Interface Settings",
+  "suresiYaklasan": "Approaching Deadline",
+  "suresiGecen": "Overdue",
+  "suresiGecti": "Expired",
+  "yaklasan": "Approaching",
+  "nesne": "Object",
+  "aracGrubu": "Vehicle Group",
+  "onayIslemleri": "Approval Operations",
+  "periyodikTarih": "Periodic Date",
+  "periyodikkm": "Periodic KM",
+  "egzosTarihi": "Exhaust Date",
+  "takografTarihi": "Tachograph Date",
+  "kiralikArac": "Rental Vehicle",
+  "stok": "Stock",
+  "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Entry date and time cannot be later than exit date and time.",
+  "guncel": "Current"
 }
