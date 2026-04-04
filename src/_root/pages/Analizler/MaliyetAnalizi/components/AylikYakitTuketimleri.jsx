@@ -108,7 +108,7 @@ function AylikYakitTuketimleri() {
         >
           {t("aylikMaliyetler")} {startYear}
         </Text>
-        <Select value={parameterType} onChange={(value) => setParameterType(value)} style={{ width: 120 }}>
+        <Select value={parameterType} onChange={(value) => setParameterType(value)} style={{ width: 120, position: "relative", zIndex: 10 }}>
           {parameterOptions.map((option) => (
             <Option key={option.value} value={option.value}>
               {option.label}
