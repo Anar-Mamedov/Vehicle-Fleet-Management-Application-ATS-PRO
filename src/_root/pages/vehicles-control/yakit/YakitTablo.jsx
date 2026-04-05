@@ -257,6 +257,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAnomalyModalVisible, setIsAnomalyModalVisible] = useState(false);
+  const [isAnomalyDetailModalVisible, setIsAnomalyDetailModalVisible] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
 
   const fetchDataWithDurum = async (diff, targetPage, currentSize = pageSize) => {
@@ -374,6 +375,54 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
     });
   };
 
+  const formatAnomalyDate = (value) => {
+    if (!value) return "-";
+    const parsedValue = dayjs(value);
+    if (!parsedValue.isValid()) return "-";
+    return parsedValue.format("DD.MM.YYYY");
+  };
+
+  const anomalyRecords = Array.isArray(statistics.anormalTuketim) ? statistics.anormalTuketim : [];
+  const anomalyRecordCount = anomalyRecords.length;
+
+  const anomalyDetailColumns = [
+    {
+      title: t("plaka"),
+      dataIndex: "plaka",
+      key: "plaka",
+      width: 120,
+      render: (value) => value || "-",
+    },
+    {
+      title: t("tip"),
+      dataIndex: "tip",
+      key: "tip",
+      width: 90,
+      render: (value) => value ?? "-",
+    },
+    {
+      title: t("seviye"),
+      dataIndex: "severity",
+      key: "severity",
+      width: 90,
+      render: (value) => value ?? "-",
+    },
+    {
+      title: t("tarih"),
+      dataIndex: "tarihSaat",
+      key: "tarihSaat",
+      width: 130,
+      render: (value) => formatAnomalyDate(value),
+    },
+    {
+      title: t("mesaj"),
+      dataIndex: "mesaj",
+      key: "mesaj",
+      width: 420,
+      render: (value) => value || "-",
+    },
+  ];
+
   const selectedTimeRange = watch("timeRange");
 
   const timeRangeLabels = {
@@ -439,11 +488,13 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
         AxiosInstance.post(`FuelStatistics/GetInfoByType?type=4&parameter=${searchTerm}`, customFilters),
       ]);
 
+      const anomalyRecords = Array.isArray(res4.data) ? res4.data : [];
+
       setStatistics({
         toplamYakit: res1.data,
         toplamTutar: res2.data,
         aracBasinaMaliyet: res3.data,
-        anormalTuketim: res4.data,
+        anormalTuketim: anomalyRecords,
       });
     } catch (error) {
       console.error("İstatistik verisi çekme hatası:", error);
@@ -1668,7 +1719,17 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                   flex: "1",
                   border: "1px solid #f0f0f0",
                   position: "relative",
+                  cursor: "pointer",
                 }}
+                onClick={() => setIsAnomalyDetailModalVisible(true)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setIsAnomalyDetailModalVisible(true);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
               >
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -1685,7 +1746,19 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                           alignItems: "center",
                           justifyContent: "center",
                         }}
-                        onClick={() => setIsAnomalyModalVisible(true)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setIsAnomalyModalVisible(true);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            setIsAnomalyModalVisible(true);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
                       >
                         <BsFillQuestionCircleFill />
                       </div>
@@ -1693,7 +1766,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                   </div>
                 </div>
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
-                  {formatStatisticValue(statistics.anormalTuketim) === "-" ? "-" : `${formatStatisticValue(statistics.anormalTuketim)} ${t("Kayit")}`}
+                  {`${formatStatisticValue(anomalyRecordCount)} ${t("Kayit")}`}
                 </div>
                 <div style={{ fontSize: "12px", color: "#bfbfbf" }}>
                   {displayTimeRangeLabel} {displayTimeRangeLabel && <>&bull; %20 üzeri</>}
@@ -1725,6 +1798,22 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
 
         {/* Anomaly Rules Modal */}
         <AnomalyRulesModal visible={isAnomalyModalVisible} onCancel={() => setIsAnomalyModalVisible(false)} />
+        <Modal
+          title={`${t("anormalTuketim")} ${t("detay")}`}
+          open={isAnomalyDetailModalVisible}
+          onCancel={() => setIsAnomalyDetailModalVisible(false)}
+          footer={null}
+          width={1300}
+        >
+          <Table
+            rowKey={(record, index) => `${record?.aracId || "unknown"}-${record?.tarihSaat || "unknown"}-${index}`}
+            columns={anomalyDetailColumns}
+            dataSource={anomalyRecords}
+            pagination={{ pageSize: 10, showSizeChanger: true }}
+            scroll={{ x: 1200 }}
+            locale={{ emptyText: t("kayitBulunamadi") }}
+          />
+        </Modal>
 
         {/* Toolbar */}
         {isSefer ? (
