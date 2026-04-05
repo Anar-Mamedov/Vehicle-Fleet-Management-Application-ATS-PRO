@@ -30,6 +30,7 @@ import OperationsInfo from "./operations/OperationsInfo";
 import Filters from "./filter/Filters";
 import dayjs from "dayjs";
 import DurumSelect from "./components/Durum/DurumSelectbox";
+import VehicleStatisticsCards from "./components/VehicleStatisticsCards";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
@@ -420,6 +421,11 @@ const Yakit = ({ ayarlarData, customFields }) => {
     keyword: "",
     filters: {},
   });
+  const [statisticsRequest, setStatisticsRequest] = useState({
+    customFilters: null,
+    searchTerm: "",
+    requestId: 0,
+  });
 
   // Add a state to track whether filters have been applied
   const [filtersApplied, setFiltersApplied] = useState(false);
@@ -427,6 +433,14 @@ const Yakit = ({ ayarlarData, customFields }) => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
   const [openedRowIds, setOpenedRowIds] = useState(() => new Set(safeSessionStorage.getItem(visitedRowsSessionKey, [])));
+
+  const triggerStatisticsRefresh = useCallback((customFilters, searchValue) => {
+    setStatisticsRequest((prev) => ({
+      customFilters,
+      searchTerm: searchValue || "",
+      requestId: prev.requestId + 1,
+    }));
+  }, []);
 
   // Fixed page size options
   const pageSizeOptions = [20, 50, 100];
@@ -584,6 +598,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
           setPaginationLoading(false);
         }
       });
+      triggerStatisticsRefresh(customFilters, searchTerm);
 
       prevBodyRef.current = body; // Update ref after fetch starts
     }
@@ -607,6 +622,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
         setPaginationLoading(false);
       }
     });
+    triggerStatisticsRefresh(customFilters, searchTerm);
   };
 
   // Updated handleTableChange for pagination
@@ -784,8 +800,9 @@ const Yakit = ({ ayarlarData, customFields }) => {
           setPaginationLoading(false);
         }
       });
+      triggerStatisticsRefresh(customFilters, searchTerm);
     },
-    [infiniteScrollEnabled, body, selectedDurum, pageSize, searchTerm] // searchTerm eklendi
+    [infiniteScrollEnabled, body, selectedDurum, pageSize, searchTerm, triggerStatisticsRefresh] // searchTerm eklendi
   );
 
   // filtreleme işlemi için kullanılan useEffect
@@ -2379,6 +2396,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
         </div>
       </Modal>
       <FormProvider {...methods}>
+        <VehicleStatisticsCards request={statisticsRequest} />
         {/* Toolbar */}
         <div
           style={{
@@ -2434,7 +2452,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
           style={{
             backgroundColor: "white",
             padding: "10px",
-            height: "calc(100vh - 200px)",
+            height: "calc(100vh - 390px)",
             borderRadius: "8px 8px 8px 8px",
             //
           }}
@@ -2447,7 +2465,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
               dataSource={data}
               pagination={false}
               rowClassName={(record) => (openedRowIds.has(record.aracId) ? "visited-row" : "")}
-              scroll={{ y: "calc(100vh - 335px)" }}
+              scroll={{ y: "calc(100vh - 530px)" }}
               onScroll={handleTableScroll}
               footer={tableFooter}
             />
