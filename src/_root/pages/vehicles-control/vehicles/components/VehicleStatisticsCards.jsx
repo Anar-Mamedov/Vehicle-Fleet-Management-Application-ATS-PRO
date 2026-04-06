@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Spin } from "antd";
-import { CarOutlined, InfoCircleOutlined, ReloadOutlined, SafetyCertificateOutlined, ToolOutlined } from "@ant-design/icons";
+import { CarOutlined, EyeInvisibleOutlined, InfoCircleOutlined, SafetyCertificateOutlined, ToolOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import AxiosInstance from "../../../../../api/http";
 
@@ -85,6 +85,8 @@ const formatStatisticValue = (value) => {
   });
 };
 
+const CARD_BORDER_COLOR = "#f0f0f0";
+
 const VehicleStatisticsCards = ({ request }) => {
   const [loading, setLoading] = useState(false);
   const [statistics, setStatistics] = useState({
@@ -158,38 +160,38 @@ const VehicleStatisticsCards = ({ request }) => {
     {
       title: t("yenilemeAdayi"),
       subtitle: t("yasKmGiderSkoruOncelik"),
-      icon: <ReloadOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />,
+      icon: <EyeInvisibleOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />,
       showInfo: true,
     },
   ];
 
   return (
     <Spin spinning={loading} size="small">
-      <div style={{ display: "flex", gap: "18px", marginBottom: "15px", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "15px", marginBottom: "15px", flexWrap: "wrap" }}>
         {cardConfigs.map((card, index) => (
           <div
             key={`vehicle-stat-${index + 1}`}
             style={{
               backgroundColor: "white",
-              padding: "18px 20px",
-              borderRadius: "18px",
+              padding: "16px 20px",
+              borderRadius: "8px",
               flex: "1 1 260px",
-              border: "1px solid #e4e8ed",
-              boxShadow: "0 1px 3px rgba(16, 24, 40, 0.08)",
+              border: `1px solid ${CARD_BORDER_COLOR}`,
+              minHeight: "132px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "14px", fontWeight: 600, color: "#5d6786", lineHeight: "20px" }}>{card.title}</span>
+                <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>{card.title}</span>
                 {card.showInfo ? <InfoCircleOutlined style={{ color: "#8a94a8" }} /> : null}
               </div>
               <div
                 style={{
-                  width: "52px",
-                  height: "52px",
-                  borderRadius: "14px",
-                  border: "1px solid #e4e8ed",
-                  backgroundColor: "#f9fbfd",
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  border: `1px solid ${CARD_BORDER_COLOR}`,
+                  backgroundColor: "#fafafa",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -198,9 +200,9 @@ const VehicleStatisticsCards = ({ request }) => {
                 {card.icon}
               </div>
             </div>
-            <div style={{ fontSize: "24px", fontWeight: 700, color: "#111827", marginBottom: "12px", lineHeight: "30px" }}>{formatStatisticValue(statistics.values[index])}</div>
-            <div style={{ borderTop: "1px solid #eceff3", marginBottom: "14px" }} />
-            <div style={{ fontSize: "12px", color: "#6b7280", lineHeight: "18px" }}>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "8px", lineHeight: "30px" }}>{formatStatisticValue(statistics.values[index])}</div>
+            <div style={{ borderTop: `1px solid ${CARD_BORDER_COLOR}`, marginBottom: "10px" }} />
+            <div style={{ fontSize: "12px", color: "#8c8c8c", lineHeight: "18px", fontWeight: 400 }}>
               {card.subtitle}
             </div>
           </div>
