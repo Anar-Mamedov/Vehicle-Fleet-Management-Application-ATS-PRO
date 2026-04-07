@@ -8,6 +8,7 @@ import AxiosInstance from "../../../../../../../api/http";
 import PlakaSelectBox from "../../../../../../../_root/components/PlakaSelectbox";
 import SurucuSelectbox from "../../../../../../../_root/components/SurucuSelectbox";
 import TextInput from "../../../../../../../_root/components/form/inputs/TextInput";
+import NumberInput from "../../../../../../../_root/components/form/inputs/NumberInput";
 import CheckboxInput from "../../../../../../../_root/components/form/checkbox/CheckboxInput";
 import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
 import LokasyonTablo from "../../../../../../components/form/LokasyonTable";
@@ -465,6 +466,32 @@ export default function MainTabs({ modalOpen }) {
             <KodIDSelectbox name1="olayYeri" kodID={906} isRequired={false} />
           </div>
         </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "400px",
+            gap: "10px",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("tutar")}</Text>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "column wrap",
+              alignItems: "flex-start",
+              width: "100%",
+              maxWidth: "220px",
+            }}
+          >
+            <NumberInput name="tutar" min={0} />
+          </div>
+        </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "350px" }}>
         <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
@@ -680,9 +707,9 @@ export default function MainTabs({ modalOpen }) {
             gap: "10px",
             flexDirection: "row",
           }}
-        >
-          <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("policeNo")}</Text>
-          <div
+          >
+            <Text style={{ display: "flex", fontSize: "14px", flexDirection: "row" }}>{t("policeNo")}</Text>
+            <div
             style={{
               display: "flex",
               flexFlow: "column wrap",

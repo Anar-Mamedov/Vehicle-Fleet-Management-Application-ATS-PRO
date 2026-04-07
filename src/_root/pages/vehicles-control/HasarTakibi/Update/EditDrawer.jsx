@@ -40,6 +40,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       lokasyon: undefined,
       lokasyonID: undefined,
       policeNo: undefined,
+      tutar: undefined,
       aracKullanilabilir: undefined,
       kazayaKarisanBaskaAracVar: undefined,
       polisRaporuVar: undefined,
@@ -98,6 +99,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("lokasyon", item.lokasyon || undefined);
           setValue("lokasyonID", item.lokasyonId || undefined);
           setValue("policeNo", item.policeNo || undefined);
+          setValue("tutar", item.tutar ?? undefined);
           setValue("aracKullanilabilir", item.aracKullanilir || undefined);
           setValue("kazayaKarisanBaskaAracVar", item.kazaYapanBaskaArac || undefined);
           setValue("polisRaporuVar", item.polisRaporuVar || undefined);
@@ -154,6 +156,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       hasarBoyutuKodId: data.hasarBoyutuID || 0,
       lokasyonId: data.lokasyonID || 0,
       policeNo: data.policeNo || "",
+      tutar: Number(data.tutar || 0),
       aracKullanilir: data.aracKullanilabilir || false,
       kazaYapanBaskaArac: data.kazayaKarisanBaskaAracVar || false,
       polisRaporuVar: data.polisRaporuVar || false,
