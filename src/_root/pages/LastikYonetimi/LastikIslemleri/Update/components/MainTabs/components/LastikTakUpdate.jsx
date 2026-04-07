@@ -6,6 +6,7 @@ import PositionListSelect from "./PositionListSelect";
 import KodIDSelectbox from "../../../../../../../components/KodIDSelectbox";
 import LastikMarka from "../../../../../../../components/LastikMarka";
 import LastikModel from "../../../../../../../components/LastikModel";
+import NumberInput from "../../../../../../../components/form/inputs/NumberInput";
 import AxiosInstance from "../../../../../../../../api/http";
 import { t } from "i18next";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -68,6 +69,7 @@ export default function LastikTak({
       basinc: 0,
       montajKm: 0,
       montajTarihi: null,
+      tutar: 0,
       lastikAciklama: null,
     },
     mode: "onChange",
@@ -122,6 +124,7 @@ export default function LastikTak({
         setValue("basinc", data.basinc);
         setValue("montajKm", data.takildigiKm);
         setValue("montajTarihi", data.takilmaTarih ? dayjs(data.takilmaTarih).format("YYYY-MM-DD") : null);
+        setValue("tutar", data.tutar ?? 0);
         setValue("lastikAciklama", data.aciklama);
       }
     } catch (error) {
@@ -175,6 +178,7 @@ export default function LastikTak({
     /* disDerinligi: data.disDerinligi,
     basinc: data.basinc, */
     aciklama: data.lastikAciklama,
+    tutar: Number(data.tutar || 0),
     takildigiKm: data.montajKm,
     takilmaTarih: data.montajTarihi,
     durumId: 1,
@@ -405,6 +409,13 @@ export default function LastikTak({
                     <Text>{t("tip")}</Text>
                     <div style={{ width: "250px" }}>
                       <KodIDSelectbox name1="lastikTip" isRequired={false} kodID="705" />
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
+                    <Text>{t("tutar")}</Text>
+                    <div style={{ width: "250px" }}>
+                      <NumberInput name="tutar" min={0} />
                     </div>
                   </div>
                 </div>
