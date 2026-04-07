@@ -6,6 +6,7 @@ import AxiosInstance from "../../../../../../../../../api/http";
 import CreateModal from "./Insert/CreateModal";
 import EditModal from "./Update/EditModal";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
+import { formatNumberWithLocale } from "../../../../../../../../../hooks/FormattedNumber";
 
 export default function KontrolListesiTablo({ isActive, baslangicTarihi, onCountsRefresh }) {
   const [loading, setLoading] = useState(false);
@@ -104,6 +105,7 @@ export default function KontrolListesiTablo({ isActive, baslangicTarihi, onCount
       key: "miktar",
       width: 100,
       ellipsis: true,
+      render: (text) => formatNumberWithLocale(text),
     },
     {
       title: "Birim",
@@ -118,6 +120,7 @@ export default function KontrolListesiTablo({ isActive, baslangicTarihi, onCount
       key: "fiyat",
       width: 100,
       ellipsis: true,
+      render: (text) => formatNumberWithLocale(text),
     },
 
     {
@@ -126,6 +129,7 @@ export default function KontrolListesiTablo({ isActive, baslangicTarihi, onCount
       key: "toplam",
       width: 100,
       ellipsis: true,
+      render: (text) => formatNumberWithLocale(text),
     },
   ];
 

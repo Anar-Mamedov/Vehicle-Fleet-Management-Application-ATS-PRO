@@ -6,6 +6,7 @@ import AxiosInstance from "../../../../../../../../../api/http";
 import CreateModal from "./Insert/CreateModal";
 import EditModal from "./Update/EditModal";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
+import { formatNumberWithLocale } from "../../../../../../../../../hooks/FormattedNumber";
 
 export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
   const [loading, setLoading] = useState(false);
@@ -99,6 +100,7 @@ export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
       key: "iscilikUcreti",
       width: 100,
       ellipsis: true,
+      render: (text) => formatNumberWithLocale(text),
     },
     {
       title: "Tutar",
@@ -106,6 +108,7 @@ export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
       key: "toplam",
       width: 100,
       ellipsis: true,
+      render: (text) => formatNumberWithLocale(text),
     },
   ];
 
