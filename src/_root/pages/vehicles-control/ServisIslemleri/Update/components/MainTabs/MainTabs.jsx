@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row, Col, Checkbox, InputNumber, Radio } from "antd";
+import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row, Col, Checkbox, Radio } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
 import ServisKoduTablo from "./components/ServisKoduTablo.jsx";
 import styled from "styled-components";
@@ -15,6 +15,7 @@ import LokasyonTablo from "../../../../../../components/form/LokasyonTable";
 import ModalInput from "../../../../../../components/form/inputs/ModalInput";
 import IslemYapanTablo from "./components/IslemYapanTablo.jsx";
 import { t } from "i18next";
+import NumberInput from "../../../../../../components/form/inputs/NumberInput";
 
 const { Text, Link } = Typography;
 const { TextArea } = Input;
@@ -548,7 +549,7 @@ export default function MainTabs({ modalOpen }) {
                 width: "100%",
               }}
             >
-              <Controller name="aracKM" control={control} render={({ field }) => <InputNumber {...field} style={{ flex: 1 }} />} />
+              <NumberInput name="aracKM" style={{ flex: 1 }} />
             </div>
           </div>
         </div>
