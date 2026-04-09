@@ -35,6 +35,7 @@ jobs:
           VITE_VAKIFBANK_SCOPE: ${{ secrets.VAKIFBANK_SCOPE }}
           VITE_VAKIFBANK_CONSENT_ID: ${{ secrets.VAKIFBANK_CONSENT_ID }}
           VITE_VAKIFBANK_RESOURCE: ${{ secrets.VAKIFBANK_RESOURCE }}
+          VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         run: |
           set -e
           npm run build
