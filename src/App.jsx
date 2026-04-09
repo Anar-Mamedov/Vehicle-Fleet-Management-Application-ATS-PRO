@@ -45,6 +45,7 @@ const YakitLimitleri = lazyWithRetry(() => import("./_root/pages/vehicles-contro
 const KmUpdate = lazyWithRetry(() => import("./_root/pages/vehicles-control/hizli-km/KmUpdate"));
 const KiralikAraclar = lazyWithRetry(() => import("./_root/pages/vehicles-control/kiralikAraclar/KiralikAraclarTablo.jsx"));
 const IkameAracYonetimi = lazyWithRetry(() => import("./_root/pages/vehicles-control/IkameAracYonetimi/IkameAracYonetimi.jsx"));
+const Haritalar = lazyWithRetry(() => import("./_root/pages/Haritalar/Haritalar.jsx"));
 
 // hgs islemleri
 const HgsİslemTakibi = lazyWithRetry(() => import("./_root/pages/HgsIslemleri/HgsIslemTakibi/HgsIslemTakibi.jsx"));
@@ -230,6 +231,7 @@ const App = () => {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<RootLayout />}>
               <Route index element={<Dashboard />} />
+              <Route path="/haritalar" element={<Haritalar />} />
               
               <Route path="/araclar" element={<Vehicles />} />
               <Route path="/kiralik-araclar" element={<KiralikAraclar />} />

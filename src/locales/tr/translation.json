@@ -1569,5 +1569,15 @@
   "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Giriş tarih ve saati, çıkış tarih ve saatinden büyük olamaz.",
   "ilgiliKayit": "İlgili Kayıt",
   "ekBilgi": "Ek Bilgi",
-  "guncel": "Güncel"
+  "guncel": "Güncel",
+  "haritalar": "Haritalar",
+  "harita": "Harita",
+  "mapVehiclePositions": "Araç konumlarını harita üzerinde görüntüleyin.",
+  "mapRefresh": "Yenile",
+  "mapMissingEnvTitle": "Eksik harita ayarı",
+  "mapMissingEnvDescription": ".env dosyasında aşağıdaki değişkenleri tanımlayın:",
+  "mapApiError": "Araç konumları alınamadı",
+  "mapGoogleLoadError": "Google Haritalar yüklenemedi",
+  "mapLoading": "Harita yükleniyor...",
+  "mapNoVehicleData": "Gösterilecek araç konumu bulunamadı."
 }

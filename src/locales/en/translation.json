@@ -1283,5 +1283,15 @@
   "kiralikArac": "Rental Vehicle",
   "stok": "Stock",
   "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Entry date and time cannot be later than exit date and time.",
-  "guncel": "Current"
+  "guncel": "Current",
+  "haritalar": "Maps",
+  "harita": "Map",
+  "mapVehiclePositions": "View vehicle locations on the map.",
+  "mapRefresh": "Refresh",
+  "mapMissingEnvTitle": "Missing map configuration",
+  "mapMissingEnvDescription": "Define the following variables in your .env file:",
+  "mapApiError": "Vehicle locations could not be fetched",
+  "mapGoogleLoadError": "Google Maps failed to load",
+  "mapLoading": "Map is loading...",
+  "mapNoVehicleData": "No vehicle location data to display."
 }
