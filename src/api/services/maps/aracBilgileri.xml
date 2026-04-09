@@ -1,0 +1,759 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <soap:Body>
+        <GetVehicleStatusResponse xmlns="http://www.arvento.com/">
+            <GetVehicleStatusResult>
+                <xs:schema id="tblVehicleStatus" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+                    <xs:element name="tblVehicleStatus" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
+                        <xs:complexType>
+                            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                                <xs:element name="dtVehicleStatus">
+                                    <xs:complexType>
+                                        <xs:sequence>
+                                            <xs:element name="Device_x0020_No" type="xs:string" minOccurs="0" />
+                                            <xs:element name="GMT_x0020_Date_x002F_Time" type="xs:dateTime" minOccurs="0" />
+                                            <xs:element name="Latitude" type="xs:double" minOccurs="0" />
+                                            <xs:element name="Longitude" type="xs:double" minOccurs="0" />
+                                            <xs:element name="Speed" type="xs:double" minOccurs="0" />
+                                            <xs:element name="Address" type="xs:string" minOccurs="0" />
+                                            <xs:element name="Building_x0020__x002F__x0020_Region" type="xs:string" minOccurs="0" />
+                                            <xs:element name="Height" type="xs:string" minOccurs="0" />
+                                            <xs:element name="Number_x0020_Of_x0020_GPS_x0020_Satellites" type="xs:int" minOccurs="0" />
+                                            <xs:element name="Device_x0020_Power_x0020_Level" type="xs:double" minOccurs="0" />
+                                            <xs:element name="RSSI_x0020_Range" type="xs:int" minOccurs="0" />
+                                            <xs:element name="City" type="xs:string" minOccurs="0" />
+                                            <xs:element name="Town" type="xs:string" minOccurs="0" />
+                                        </xs:sequence>
+                                    </xs:complexType>
+                                </xs:element>
+                            </xs:choice>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:schema>
+                <diffgr:diffgram xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:diffgr="urn:schemas-microsoft-com:xml-diffgram-v1">
+                    <tblVehicleStatus xmlns="">
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus1" msdata:rowOrder="0" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>817438</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:38:59+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.764553</Latitude>
+                            <Longitude>38.279476</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Çocuk Parkı, 502. Sk., Mehmet Akif Mh., Adıyaman Merkez, Adıyaman, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>680</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>10</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.58</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>21</RSSI_x0020_Range>
+                            <City>Adıyaman</City>
+                            <Town>Adıyaman Merkez</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus2" msdata:rowOrder="1" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>972252</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:35:41+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>38.796768</Latitude>
+                            <Longitude>30.547718</Longitude>
+                            <Speed>0</Speed>
+                            <Address>TOKİ Çetinkaya Konutları, 3402. Sk., Battalgazi Mh., Afyonkarahisar Merkez, Afyonkarahisar, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>1004</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>9</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.63</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>12</RSSI_x0020_Range>
+                            <City>Afyonkarahisar</City>
+                            <Town>Afyonkarahisar Merkez</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus3" msdata:rowOrder="2" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>972267</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T08:43:50+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>41.121098</Latitude>
+                            <Longitude>28.773907</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Adnan Menderes Blv., Kayabaşı Mh., Başakşehir, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>168</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>7</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>14.19</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>15</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Başakşehir</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus4" msdata:rowOrder="3" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>972251</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:37:41+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>36.56266</Latitude>
+                            <Longitude>36.197075</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Gültepe Mh., İskenderun, Hatay, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>230</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>8</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.67</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>8</RSSI_x0020_Range>
+                            <City>Hatay</City>
+                            <Town>İskenderun</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus5" msdata:rowOrder="4" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>972257</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2025-12-26T07:21:52+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>41.075157</Latitude>
+                            <Longitude>28.80604</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Dolapdere Sanayi Sitesi, Dolapdere 25. Ada Sk., İkitelli OSB Mh., Başakşehir, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>102</Height>
+                            <Device_x0020_Power_x0020_Level>13.55</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>28</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Başakşehir</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus6" msdata:rowOrder="5" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>972265</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:42:46+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.21991</Latitude>
+                            <Longitude>37.389473</Longitude>
+                            <Speed>0</Speed>
+                            <Address>118110. Cd., Karacaören Mh., Şehitkamil, Gaziantep, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>971</Height>
+                            <Device_x0020_Power_x0020_Level>12.74</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>11</RSSI_x0020_Range>
+                            <City>Gaziantep</City>
+                            <Town>Şehitkamil</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus7" msdata:rowOrder="6" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>972274</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:34:28+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.918663</Latitude>
+                            <Longitude>32.506859</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Tramvay İşletme Müdürlüğü, Ahmet Kabaklı Cd., Sakarya Mh., Selçuklu, Konya, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>1024</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>7</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>11.93</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>27</RSSI_x0020_Range>
+                            <City>Konya</City>
+                            <Town>Selçuklu</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus8" msdata:rowOrder="7" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>972256</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T10:18:21+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.867126</Latitude>
+                            <Longitude>39.988426</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Oğlaklı Mh., Bağlar, Diyarbakır, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>878</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>12</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.55</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>10</RSSI_x0020_Range>
+                            <City>Diyarbakır</City>
+                            <Town>Bağlar</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus9" msdata:rowOrder="8" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>972269</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:36:04+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>38.360653</Latitude>
+                            <Longitude>38.183247</Longitude>
+                            <Speed>0</Speed>
+                            <Address>1. OSB Mh., Yeşilyurt, Malatya, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>932</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>8</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>9.8</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>15</RSSI_x0020_Range>
+                            <City>Malatya</City>
+                            <Town>Yeşilyurt</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus10" msdata:rowOrder="9" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>972276</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-01-07T14:12:52+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.589733</Latitude>
+                            <Longitude>36.839367</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Turgut Özal Blv., Maarif Mh., Onikişubat, Kahramanmaraş, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>526</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>10</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>13.11</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>15</RSSI_x0020_Range>
+                            <City>Kahramanmaraş</City>
+                            <Town>Onikişubat</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus11" msdata:rowOrder="10" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>972213</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2025-12-25T09:12:22+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>41.074997</Latitude>
+                            <Longitude>28.806236</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Dolapdere Sanayi Sitesi 14 Blok, Dolapdere Sanayi Sitesi, Dolapdere 25. Ada Sk., İkitelli OSB Mh., Başakşehir, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>101</Height>
+                            <Device_x0020_Power_x0020_Level>13.35</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>21</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Başakşehir</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus12" msdata:rowOrder="11" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>X100122086</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2023-05-04T14:39:43.609+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.777874</Latitude>
+                            <Longitude>30.555042</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Yeni Sanayi Sitesi, 3233. Sk., Sanayi Mh., Isparta Merkez, Isparta, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>1039</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>16</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>14.36</Device_x0020_Power_x0020_Level>
+                            <City>Isparta</City>
+                            <Town>Isparta Merkez</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus13" msdata:rowOrder="12" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200235063</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:43:03+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.150894</Latitude>
+                            <Longitude>37.390732</Longitude>
+                            <Speed>66</Speed>
+                            <Address>Gaziantep Kuzey Çıkışı-K15, Başpınar OSB Mh., Şehitkamil, Gaziantep, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>860</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>21</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>14.39</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>Gaziantep</City>
+                            <Town>Şehitkamil</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus14" msdata:rowOrder="13" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200235064</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:41:15+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>40.999489</Latitude>
+                            <Longitude>39.747036</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Sanayi Çarşısı Cd., Sanayi Mh., Ortahisar, Trabzon, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>13</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>14.42</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>Trabzon</City>
+                            <Town>Ortahisar</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus15" msdata:rowOrder="14" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200235065</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:36:41+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>39.940155</Latitude>
+                            <Longitude>34.030861</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Fatih Mh., Delice, Kırıkkale, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>661</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>18</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>13.11</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>3</RSSI_x0020_Range>
+                            <City>Kırıkkale</City>
+                            <Town>Delice</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus16" msdata:rowOrder="15" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200235066</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:32:24+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>41.114273</Latitude>
+                            <Longitude>28.252304</Longitude>
+                            <Speed>0</Speed>
+                            <Address>7141. Sk., Mimar Sinan Mh., Silivri, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Device_x0020_Power_x0020_Level>12.95</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>3</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Silivri</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus17" msdata:rowOrder="16" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200235067</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T06:33:06+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.572361</Latitude>
+                            <Longitude>36.917347</Longitude>
+                            <Speed>31</Speed>
+                            <Address>Ali Sezal Blv., Şazi Bey Mh., Onikişubat, Kahramanmaraş, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>517</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>18</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>14.4</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>Kahramanmaraş</City>
+                            <Town>Onikişubat</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus18" msdata:rowOrder="17" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200235068</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:41:24+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>36.757469</Latitude>
+                            <Longitude>28.801357</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Ege Mh., Dalaman, Muğla, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>8</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>19</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.71</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>4</RSSI_x0020_Range>
+                            <City>Muğla</City>
+                            <Town>Dalaman</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus19" msdata:rowOrder="18" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200235069</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:39:10+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>38.349102</Latitude>
+                            <Longitude>38.319244</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Yenihamam Mh., Battalgazi, Malatya, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>951</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>17</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>13.19</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>Malatya</City>
+                            <Town>Battalgazi</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus20" msdata:rowOrder="19" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200235071</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:40:09+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.867256</Latitude>
+                            <Longitude>39.988449</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Oğlaklı Mh., Bağlar, Diyarbakır, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>873</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>20</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>13.01</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>3</RSSI_x0020_Range>
+                            <City>Diyarbakır</City>
+                            <Town>Bağlar</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus21" msdata:rowOrder="20" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200235072</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:34:36+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>40.973228</Latitude>
+                            <Longitude>28.810822</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Atatürk Havalimanı, Yeşilköy Mh., Bakırköy, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>30</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>21</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>13.03</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Bakırköy</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus22" msdata:rowOrder="21" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200235073</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:39:52+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>41.054123</Latitude>
+                            <Longitude>28.762077</Longitude>
+                            <Speed>0</Speed>
+                            <Address>T. C Başbakanlık Toplu Konut Daire Başkanlığı İstanbul Hizmet Binası, T. C Başbakanlık Toplu Konut Daire Başkanlığı İçi Yolu, Atakent Mh., Küçükçekmece, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Device_x0020_Power_x0020_Level>13.1</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>2</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Küçükçekmece</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus23" msdata:rowOrder="22" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200235074</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:39:20+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>40.973186</Latitude>
+                            <Longitude>28.810802</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Atatürk Havalimanı, Yeşilköy Mh., Bakırköy, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>25</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>20</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.88</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Bakırköy</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus24" msdata:rowOrder="23" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200280570</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:36:25+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.816826</Latitude>
+                            <Longitude>38.601658</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Girne Küme Evleri, Girne Mh., Kahta, Adıyaman, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>785</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>14</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.87</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>Adıyaman</City>
+                            <Town>Kahta</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus25" msdata:rowOrder="24" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200280571</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:39:06+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>36.543041</Latitude>
+                            <Longitude>36.187519</Longitude>
+                            <Speed>0</Speed>
+                            <Address>63. Sk., Şekere Mh., Belen, Hatay, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>254</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>14</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.93</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>3</RSSI_x0020_Range>
+                            <City>Hatay</City>
+                            <Town>Belen</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus26" msdata:rowOrder="25" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200280572</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:41:19+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>39.914551</Latitude>
+                            <Longitude>32.84864</Longitude>
+                            <Speed>0</Speed>
+                            <Address>İnönü Blv., Devlet Mh., Çankaya, Ankara, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>869</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>14</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.62</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>Ankara</City>
+                            <Town>Çankaya</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus27" msdata:rowOrder="26" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200280573</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:39:46+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>39.826061</Latitude>
+                            <Longitude>33.556759</Longitude>
+                            <Speed>0</Speed>
+                            <Address>2646. Sk., Yuva Mh., Kırıkkale Merkez, Kırıkkale, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>798</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>14</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.89</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>Kırıkkale</City>
+                            <Town>Kırıkkale Merkez</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus28" msdata:rowOrder="27" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200280574</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:42:39+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>40.973228</Latitude>
+                            <Longitude>28.810595</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Atatürk Havalimanı, Yeşilköy Mh., Bakırköy, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>32</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>14</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>11.95</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>4</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Bakırköy</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus29" msdata:rowOrder="28" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200280575</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:38:17+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>36.207497</Latitude>
+                            <Longitude>36.148712</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Altınçay Mh., Antakya, Hatay, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>112</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>14</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>13</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>Hatay</City>
+                            <Town>Antakya</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus30" msdata:rowOrder="29" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200280576</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2025-06-10T15:25:02+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>41.054623</Latitude>
+                            <Longitude>28.762129</Longitude>
+                            <Speed>0</Speed>
+                            <Address>T. C Başbakanlık Toplu Konut Daire Başkanlığı İçi Yolu, Atakent Mh., Küçükçekmece, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Device_x0020_Power_x0020_Level>0</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>3</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Küçükçekmece</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus31" msdata:rowOrder="30" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200280577</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:43:04+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>41.065681</Latitude>
+                            <Longitude>28.804367</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Hp Grup Pompa İmalat, Demirciler Sanayi Sitesi, Demirciler B2 Blok Sk., İkitelli OSB Mh., Başakşehir, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>91</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>13</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>13.04</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Başakşehir</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus32" msdata:rowOrder="31" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200280578</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:32:53+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>39.91877</Latitude>
+                            <Longitude>32.847099</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Saraçoğlu AVM, 95. Cd., Namık Kemal Mh., Çankaya, Ankara, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>880</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>14</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.62</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>Ankara</City>
+                            <Town>Çankaya</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus33" msdata:rowOrder="32" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>K1200280579</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:42:58+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>40.916187</Latitude>
+                            <Longitude>43.267765</Longitude>
+                            <Speed>85</Speed>
+                            <Address>Ardahan Damal Yolu, Gönülalan Köyü, Arpaçay, Kars, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>1994</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>14</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>15.16</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>5</RSSI_x0020_Range>
+                            <City>Kars</City>
+                            <Town>Arpaçay</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus34" msdata:rowOrder="33" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C1000004146</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2025-06-26T06:30:26+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>41.054912</Latitude>
+                            <Longitude>28.762483</Longitude>
+                            <Speed>0</Speed>
+                            <Address>T. C Başbakanlık Toplu Konut Daire Başkanlığı İçi Yolu, Atakent Mh., Küçükçekmece, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>99</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>15</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.15</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>26</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Küçükçekmece</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus35" msdata:rowOrder="34" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C1000004147</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2025-08-29T12:07:33.461+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>40.992543</Latitude>
+                            <Longitude>28.824237</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Baz İstasyonu, Elif Naci Cd., Ataköy 7-8-9-10. Kısım Mh., Bakırköy, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>10</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>21</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>0</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>31</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Bakırköy</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus36" msdata:rowOrder="35" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C1000009953</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:43:06+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>41.031413</Latitude>
+                            <Longitude>29.167512</Longitude>
+                            <Speed>60.7</Speed>
+                            <Address>Şile Otoyolu, Aşağı Dudullu Mh., Ümraniye, İstanbul, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>109</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>24</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.38</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>27</RSSI_x0020_Range>
+                            <City>İstanbul</City>
+                            <Town>Ümraniye</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus37" msdata:rowOrder="36" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C1000009954</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:40:11+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>38.349955</Latitude>
+                            <Longitude>38.318655</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Cezmi Kartay Cd., Yenihamam Mh., Battalgazi, Malatya, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>953</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>24</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.45</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>27</RSSI_x0020_Range>
+                            <City>Malatya</City>
+                            <Town>Battalgazi</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus38" msdata:rowOrder="37" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C1000009956</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:42:49+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.57754</Latitude>
+                            <Longitude>36.921697</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Hayrullah Mh., Onikişubat, Kahramanmaraş, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>533</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>24</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.68</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>30</RSSI_x0020_Range>
+                            <City>Kahramanmaraş</City>
+                            <Town>Onikişubat</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus39" msdata:rowOrder="38" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C1000013419</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:43:05+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>40.889672</Latitude>
+                            <Longitude>29.712768</Longitude>
+                            <Speed>80.6</Speed>
+                            <Address>Kuzey Marmara Otoyolu, Kutluca Mh., Körfez, Kocaeli, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>431</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>27</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.61</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>28</RSSI_x0020_Range>
+                            <City>Kocaeli</City>
+                            <Town>Körfez</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus40" msdata:rowOrder="39" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C11L00003480</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:43:05+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>36.983284</Latitude>
+                            <Longitude>35.343924</Longitude>
+                            <Speed>20</Speed>
+                            <Address>Süleyman Vahit Cd., Cumhuriyet Mh., Yüreğir, Adana, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>17</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>18</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>14.98</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>25</RSSI_x0020_Range>
+                            <City>Adana</City>
+                            <Town>Yüreğir</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus41" msdata:rowOrder="40" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C11L00003481</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:41:25+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>39.918696</Latitude>
+                            <Longitude>32.847152</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Saraçoğlu AVM, 95. Cd., Namık Kemal Mh., Çankaya, Ankara, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>886</Height>
+                            <Device_x0020_Power_x0020_Level>14.89</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>24</RSSI_x0020_Range>
+                            <City>Ankara</City>
+                            <Town>Çankaya</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus42" msdata:rowOrder="41" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C11L00003482</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:38:04+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>39.825552</Latitude>
+                            <Longitude>32.849232</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Aşağı Dikmen Küme Evleri, Dumlupınar Mh., Çankaya, Ankara, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>973</Height>
+                            <Device_x0020_Power_x0020_Level>12.71</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>19</RSSI_x0020_Range>
+                            <City>Ankara</City>
+                            <Town>Çankaya</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus43" msdata:rowOrder="42" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C11L00003483</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:33:40+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.222084</Latitude>
+                            <Longitude>38.764024</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Abdulkadir Yüksel Blv., Seyrantepe Mh., Karaköprü, Şanlıurfa, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>753</Height>
+                            <Device_x0020_Power_x0020_Level>12.48</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>30</RSSI_x0020_Range>
+                            <City>Şanlıurfa</City>
+                            <Town>Karaköprü</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus44" msdata:rowOrder="43" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C11L00003484</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:37:19+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.221168</Latitude>
+                            <Longitude>37.398872</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Karacaören Mh., Şehitkamil, Gaziantep, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>952</Height>
+                            <Device_x0020_Power_x0020_Level>12.89</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>25</RSSI_x0020_Range>
+                            <City>Gaziantep</City>
+                            <Town>Şehitkamil</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus45" msdata:rowOrder="44" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C11L00003485</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:42:58+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>36.543168</Latitude>
+                            <Longitude>36.187632</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Şekere Mh., Belen, Hatay, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>242</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>18</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.66</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>15</RSSI_x0020_Range>
+                            <City>Hatay</City>
+                            <Town>Belen</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus46" msdata:rowOrder="45" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C11L00003486</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:41:19+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.051752</Latitude>
+                            <Longitude>35.29852</Longitude>
+                            <Speed>0</Speed>
+                            <Address>Uğur Mumcu Blv., Güzelyalı Mh., Çukurova, Adana, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>147</Height>
+                            <Device_x0020_Power_x0020_Level>12.66</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>24</RSSI_x0020_Range>
+                            <City>Adana</City>
+                            <Town>Çukurova</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus47" msdata:rowOrder="46" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C11L00003487</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:35:02+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.513068</Latitude>
+                            <Longitude>36.966892</Longitude>
+                            <Speed>0</Speed>
+                            <Address>80013. Sk., Karacasu Ferhuş Mh., Dulkadiroğlu, Kahramanmaraş, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>582</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>25</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.66</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>20</RSSI_x0020_Range>
+                            <City>Kahramanmaraş</City>
+                            <Town>Dulkadiroğlu</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus48" msdata:rowOrder="47" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C11L00003488</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:34:09+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>37.57202</Latitude>
+                            <Longitude>36.932184</Longitude>
+                            <Speed>0</Speed>
+                            <Address>74024. Sk., Yeni Şehir Mh., Dulkadiroğlu, Kahramanmaraş, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>550</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>25</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>12.76</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>30</RSSI_x0020_Range>
+                            <City>Kahramanmaraş</City>
+                            <Town>Dulkadiroğlu</Town>
+                        </dtVehicleStatus>
+                        <dtVehicleStatus diffgr:id="dtVehicleStatus49" msdata:rowOrder="48" diffgr:hasChanges="inserted">
+                            <Device_x0020_No>C11L00003489</Device_x0020_No>
+                            <GMT_x0020_Date_x002F_Time>2026-04-09T11:43:00+03:00</GMT_x0020_Date_x002F_Time>
+                            <Latitude>39.776664</Latitude>
+                            <Longitude>32.440926</Longitude>
+                            <Speed>66</Speed>
+                            <Address>Melih Gökçek Cd., Alcı Mh., Sincan, Ankara, Türkiye</Address>
+                            <Building_x0020__x002F__x0020_Region />
+                            <Height>843</Height>
+                            <Number_x0020_Of_x0020_GPS_x0020_Satellites>23</Number_x0020_Of_x0020_GPS_x0020_Satellites>
+                            <Device_x0020_Power_x0020_Level>14.89</Device_x0020_Power_x0020_Level>
+                            <RSSI_x0020_Range>31</RSSI_x0020_Range>
+                            <City>Ankara</City>
+                            <Town>Sincan</Town>
+                        </dtVehicleStatus>
+                    </tblVehicleStatus>
+                </diffgr:diffgram>
+            </GetVehicleStatusResult>
+        </GetVehicleStatusResponse>
+    </soap:Body>
+</soap:Envelope>
