@@ -17,6 +17,7 @@ const AddModal = ({ onRefresh }) => {
   const defaultValues = {
     krediKiralama: true, // Varsayılan olarak true, checkbox görünmüyor ama backend'e gönderiliyor
     krediUyar: false,
+    kiralikKmLimit: 0,
   };
   const methods = useForm({
     defaultValues: defaultValues,
@@ -40,6 +41,7 @@ const AddModal = ({ onRefresh }) => {
             setValue("krediSure", res.data.krediSure);
             setValue("krediAylikOdeme", res.data.krediAylikOdeme);
             setValue("krediTutar", res.data.krediTutar);
+            setValue("kiralikKmLimit", res.data.kiralikKmLimit);
             setValue("krediIlkOdTarih", res.data.krediIlkOdTarih ? dayjs(res.data.krediIlkOdTarih) : null);
             setValue("kiraBaslangic", res.data.kiraBaslangic ? dayjs(res.data.kiraBaslangic) : null);
             setValue("kiraBitis", res.data.kiraBitis ? dayjs(res.data.kiraBitis) : null);
@@ -65,6 +67,7 @@ const AddModal = ({ onRefresh }) => {
       krediTutar: values.krediTutar || 0,
       krediAylikOdeme: values.krediAylikOdeme || 0,
       krediSure: values.krediSure || 0,
+      kiralikKmLimit: values.kiralikKmLimit || 0,
       krediAciklama: values.krediAciklama || "",
       krediIlgili: values.krediIlgili || "",
       krediKiralama: true, // Varsayılan olarak her zaman true

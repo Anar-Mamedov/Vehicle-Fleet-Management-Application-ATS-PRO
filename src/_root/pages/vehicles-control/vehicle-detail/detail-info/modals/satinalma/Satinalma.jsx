@@ -18,6 +18,7 @@ const Satinalma = ({ visible, onClose, id }) => {
 
   const defaultValues = {
     kiralik: false,
+    kiralikKmLimit: 0,
   };
   const methods = useForm({
     defaultValues: defaultValues,
@@ -42,6 +43,7 @@ const Satinalma = ({ visible, onClose, id }) => {
       setValue("saFirma", res.data.saFirma);
       setValue("krediAylikOdeme", res.data.krediAylikOdeme);
       setValue("krediTutar", res.data.krediTutar);
+      setValue("kiralikKmLimit", res.data.kiralikKmLimit);
       setValue("amortismanOmur", res.data.amortismanOmur);
       setValue("amortismanDefterDeger", res.data.amortismanDefterDeger);
       setValue("saFiyat", res.data.saFiyat);
@@ -80,6 +82,7 @@ const Satinalma = ({ visible, onClose, id }) => {
       krediAylikOdeme: values.krediKiralama ? values.krediAylikOdeme || 0 : 0,
       saFirmaId: values.saFirmaId || 0,
       krediSure: values.krediKiralama ? values.krediSure || 0 : 0,
+      kiralikKmLimit: values.krediKiralama ? values.kiralikKmLimit || 0 : 0,
       saAdres: values.saAdres,
       saSehirIl: values.saSehirIl,
       saAciklama: values.saAciklama,
@@ -291,6 +294,12 @@ const Satinalma = ({ visible, onClose, id }) => {
                   <div className="flex flex-col gap-1">
                     <label>{t("kiralamaSuresi")}</label>
                     <NumberInput name="krediSure" checked={!watch("krediKiralama")} />
+                  </div>
+                </div>
+                <div className="col-span-3">
+                  <div className="flex flex-col gap-1">
+                    <label>{t("kmLimiti")}</label>
+                    <NumberInput name="kiralikKmLimit" checked={!watch("krediKiralama")} />
                   </div>
                 </div>
                 <div className="col-span-3">
