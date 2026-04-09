@@ -1,30 +1,10 @@
-import axios from "axios";
-
-const escapeXml = (value = "") =>
-  String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+import http from "../../http";
 
 const parseNumber = (value) => {
   if (value === null || value === undefined || value === "") return null;
   const parsed = Number(String(value).replace(",", "."));
   return Number.isFinite(parsed) ? parsed : null;
 };
-
-const buildSoapEnvelope = ({ username, pin1, pin2, language, xmlNamespace }) => `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Body>
-    <GetVehicleStatus xmlns="${escapeXml(xmlNamespace)}">
-      <Username>${escapeXml(username)}</Username>
-      <PIN1>${escapeXml(pin1)}</PIN1>
-      <PIN2>${escapeXml(pin2)}</PIN2>
-      <Language>${escapeXml(language)}</Language>
-    </GetVehicleStatus>
-  </soap:Body>
-</soap:Envelope>`;
 
 const extractFieldMap = (node) => {
   const result = {};
@@ -47,15 +27,25 @@ const normalizeVehicle = (fields, index) => {
 
   return {
     id: `${deviceNo}-${index}`,
+    deviceNo,
     plate: fields.Plate || fields.Vehicle_x0020_Plate || fields.VehiclePlate || deviceNo,
     address: fields.Address || "-",
     speed: parseNumber(fields.Speed) || 0,
     city: fields.City || "",
     town: fields.Town || "",
-    utcDateTime: fields.UTC_x0020_Date_x0020_Time || "",
+    utcDateTime: fields.GMT_x0020_Date_x002F_Time || fields.UTC_x0020_Date_x0020_Time || "",
     latitude,
     longitude,
   };
+};
+
+const getResponseText = (responseData) => {
+  if (typeof responseData === "string") return responseData;
+  if (responseData && typeof responseData === "object") {
+    if (typeof responseData.xml === "string") return responseData.xml;
+    if (typeof responseData.data === "string") return responseData.data;
+  }
+  return "";
 };
 
 const parseVehicleStatusResponse = (xmlText) => {
@@ -72,64 +62,37 @@ const parseVehicleStatusResponse = (xmlText) => {
     throw new Error(faultNode.textContent.trim());
   }
 
-  const vehicleNodes = Array.from(xmlDoc.getElementsByTagName("*")).filter((node) => node.localName === "VehicleStatus");
+  const allNodes = Array.from(xmlDoc.getElementsByTagName("*"));
+  const vehicleNodes = allNodes.filter((node) => node.localName === "dtVehicleStatus" || node.localName === "VehicleStatus");
+
+  if (vehicleNodes.length === 0) {
+    const errorNode = allNodes.find((node) => node.localName === "Error" && (node.textContent || "").trim());
+    if (errorNode) {
+      throw new Error((errorNode.textContent || "").trim());
+    }
+  }
 
   return vehicleNodes
     .map((node, index) => normalizeVehicle(extractFieldMap(node), index))
     .filter(Boolean);
 };
 
-export const getMissingVehicleStatusEnvVars = () => {
-  const envGroups = [
-    { label: "VITE_ARVENTO_VEHICLE_STATUS_URL", keys: ["VITE_ARVENTO_VEHICLE_STATUS_URL", "VITE_AVRENTO_VEHICLE_STATUS_URL"] },
-    { label: "VITE_ARVENTO_SOAP_ACTION", keys: ["VITE_ARVENTO_SOAP_ACTION", "VITE_AVRENTO_SOAP_ACTION"] },
-    { label: "VITE_ARVENTO_USERNAME", keys: ["VITE_ARVENTO_USERNAME", "VITE_AVRENTO_USERNAME"] },
-    { label: "VITE_ARVENTO_PIN1", keys: ["VITE_ARVENTO_PIN1", "VITE_AVRENTO_PIN1", "VITE_AVRENTO_PASSWORD"] },
-    { label: "VITE_ARVENTO_PIN2", keys: ["VITE_ARVENTO_PIN2", "VITE_AVRENTO_PIN2", "VITE_AVRENTO_CLIENT_ID"] },
-  ];
-
-  return envGroups
-    .filter(({ keys }) => !keys.some((key) => import.meta.env[key]))
-    .map(({ label }) => label);
-};
+export const getMissingVehicleStatusEnvVars = () => [];
 
 export const GetVehicleStatusService = async () => {
-  const endpoint = import.meta.env.VITE_ARVENTO_VEHICLE_STATUS_URL || import.meta.env.VITE_AVRENTO_VEHICLE_STATUS_URL;
-  const soapAction = import.meta.env.VITE_ARVENTO_SOAP_ACTION || import.meta.env.VITE_AVRENTO_SOAP_ACTION;
-  const username = import.meta.env.VITE_ARVENTO_USERNAME || import.meta.env.VITE_AVRENTO_USERNAME;
-  const pin1 = import.meta.env.VITE_ARVENTO_PIN1 || import.meta.env.VITE_AVRENTO_PIN1 || import.meta.env.VITE_AVRENTO_PASSWORD;
-  const pin2 = import.meta.env.VITE_ARVENTO_PIN2 || import.meta.env.VITE_AVRENTO_PIN2 || import.meta.env.VITE_AVRENTO_CLIENT_ID;
-  const language = import.meta.env.VITE_ARVENTO_LANGUAGE || "tr";
-  const xmlNamespace = import.meta.env.VITE_ARVENTO_XMLNS || "http://www.arvento.com/";
-  const authorization = import.meta.env.VITE_ARVENTO_AUTHORIZATION || import.meta.env.VITE_AVRENTO_AUTHORIZATION;
-
-  const missingKeys = getMissingVehicleStatusEnvVars();
-  if (missingKeys.length > 0) {
-    throw new Error(`Missing env vars: ${missingKeys.join(", ")}`);
+  let response;
+  try {
+    response = await http.get("/ArventoAracKonumBilgisi", { responseType: "text" });
+  } catch (error) {
+    if (error?.response?.status === 405) {
+      response = await http.post("/ArventoAracKonumBilgisi", null, { responseType: "text" });
+    } else {
+      throw error;
+    }
   }
 
-  const headers = {
-    "Content-Type": "text/xml; charset=utf-8",
-    SOAPAction: soapAction,
-  };
+  const xmlText = getResponseText(response?.data);
+  if (!xmlText) throw new Error("Vehicle status response is empty.");
 
-  if (authorization) {
-    headers.Authorization = authorization;
-  }
-
-  const payload = buildSoapEnvelope({
-    username,
-    pin1,
-    pin2,
-    language,
-    xmlNamespace,
-  });
-
-  const response = await axios.post(endpoint, payload, {
-    headers,
-    responseType: "text",
-    timeout: 30000,
-  });
-
-  return parseVehicleStatusResponse(response.data);
+  return parseVehicleStatusResponse(xmlText);
 };

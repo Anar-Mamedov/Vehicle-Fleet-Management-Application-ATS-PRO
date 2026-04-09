@@ -3,7 +3,7 @@ import { Alert, Button, Card, Space, Spin, Typography } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
 import { GoogleMap, InfoWindowF, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 import { useTranslation } from "react-i18next";
-import { GetVehicleStatusService, getMissingVehicleStatusEnvVars } from "../../../api/services/maps/vehicleStatusService";
+import { GetVehicleStatusService } from "../../../api/services/maps/vehicleStatusService";
 
 const { Title, Text } = Typography;
 
@@ -24,15 +24,7 @@ const Haritalar = () => {
   const [activeMarkerId, setActiveMarkerId] = useState(null);
 
   const mapApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-  const missingVehicleEnvVars = useMemo(() => getMissingVehicleStatusEnvVars(), []);
-  const missingEnvVars = useMemo(() => {
-    const allMissingVars = [...missingVehicleEnvVars];
-    if (!mapApiKey) {
-      allMissingVars.unshift("VITE_GOOGLE_MAPS_API_KEY");
-    }
-    return allMissingVars;
-  }, [mapApiKey, missingVehicleEnvVars]);
-  const isMapKeyMissing = missingEnvVars.includes("VITE_GOOGLE_MAPS_API_KEY");
+  const isMapKeyMissing = !mapApiKey;
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: "haritalar-google-map-script",
@@ -57,7 +49,7 @@ const Haritalar = () => {
   }, [vehicles]);
 
   const fetchVehicleData = useCallback(async () => {
-    if (missingEnvVars.length > 0) return;
+    if (isMapKeyMissing) return;
 
     setLoading(true);
     setErrorMessage("");
@@ -71,7 +63,7 @@ const Haritalar = () => {
     } finally {
       setLoading(false);
     }
-  }, [missingEnvVars.length, t]);
+  }, [isMapKeyMissing, t]);
 
   useEffect(() => {
     fetchVehicleData();
@@ -87,19 +79,10 @@ const Haritalar = () => {
             </Title>
             <Text type="secondary">{t("mapVehiclePositions")}</Text>
           </div>
-          <Button icon={<ReloadOutlined />} onClick={fetchVehicleData} loading={loading} disabled={missingEnvVars.length > 0}>
+          <Button icon={<ReloadOutlined />} onClick={fetchVehicleData} loading={loading} disabled={isMapKeyMissing}>
             {t("mapRefresh")}
           </Button>
         </Space>
-
-        {missingEnvVars.length > 0 && (
-          <Alert
-            type="warning"
-            showIcon
-            message={t("mapMissingEnvTitle")}
-            description={`${t("mapMissingEnvDescription")} ${missingEnvVars.join(", ")}`}
-          />
-        )}
 
         {errorMessage && <Alert type="error" showIcon message={t("mapApiError")} description={errorMessage} />}
 
@@ -143,7 +126,7 @@ const Haritalar = () => {
           )}
         </div>
 
-        {!loading && !errorMessage && !vehicles.length && missingEnvVars.length === 0 && <Alert type="info" showIcon message={t("mapNoVehicleData")} />}
+        {!loading && !errorMessage && !vehicles.length && !isMapKeyMissing && <Alert type="info" showIcon message={t("mapNoVehicleData")} />}
       </Space>
     </Card>
   );
