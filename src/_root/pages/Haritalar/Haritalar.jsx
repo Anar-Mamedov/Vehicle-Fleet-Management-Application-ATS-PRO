@@ -84,7 +84,16 @@ const Haritalar = () => {
           </Button>
         </Space>
 
-        {errorMessage && <Alert type="error" showIcon message={t("mapApiError")} description={errorMessage} />}
+        {errorMessage && (
+          <Alert
+            type="error"
+            showIcon
+            closable
+            onClose={() => setErrorMessage("")}
+            message={t("mapApiError")}
+            description={errorMessage}
+          />
+        )}
 
         {loadError && <Alert type="error" showIcon message={t("mapGoogleLoadError")} description={loadError.message} />}
 
