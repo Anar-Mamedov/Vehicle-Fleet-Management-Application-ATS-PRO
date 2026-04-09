@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, Modal, Typography, Input } from "antd";
-import { PieChartOutlined, CarOutlined } from "@ant-design/icons";
+import { PieChartOutlined, CarOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { MdOutlineSystemUpdateAlt } from "react-icons/md";
 import { LuWarehouse } from "react-icons/lu";
 import { FaGears } from "react-icons/fa6";
@@ -320,6 +320,11 @@ const Sidebar = ({ collapsed }) => {
         key: "l23jkhb4",
         icon: <HiOutlineClipboardList />,
         label: <Link to={"/talep-yonetimi"}>{t("talepYonetimi")}</Link>,
+      },
+      {
+        key: "haritalar",
+        icon: <EnvironmentOutlined />,
+        label: <Link to={"/haritalar"}>{t("harita")}</Link>,
       },
       /* {
       key: "13",

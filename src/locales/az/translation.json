@@ -802,5 +802,15 @@
   "kiralikArac": "Kirayə Nəqliyyat Vasitəsi",
   "stok": "Stok",
   "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Giriş tarix və saatı, çıxış tarix və saatından böyük ola bilməz.",
-  "guncel": "Cari"
+  "guncel": "Cari",
+  "haritalar": "Xəritələr",
+  "harita": "Xəritə",
+  "mapVehiclePositions": "Nəqliyyat vasitələrinin mövqelərini xəritədə göstərin.",
+  "mapRefresh": "Yenilə",
+  "mapMissingEnvTitle": "Xəritə ayarı çatışmır",
+  "mapMissingEnvDescription": ".env faylında aşağıdakı dəyişənləri təyin edin:",
+  "mapApiError": "Nəqliyyat mövqeləri alınmadı",
+  "mapGoogleLoadError": "Google Maps yüklənmədi",
+  "mapLoading": "Xəritə yüklənir...",
+  "mapNoVehicleData": "Göstəriləcək nəqliyyat mövqeyi tapılmadı."
 }

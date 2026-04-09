@@ -334,5 +334,15 @@
   "gun": "День",
   "km": "Км",
   "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Дата и время въезда не могут быть позже даты и времени выезда.",
-  "guncel": "Текущий"
+  "guncel": "Текущий",
+  "haritalar": "Карты",
+  "harita": "Карта",
+  "mapVehiclePositions": "Отображение местоположений транспорта на карте.",
+  "mapRefresh": "Обновить",
+  "mapMissingEnvTitle": "Отсутствует настройка карты",
+  "mapMissingEnvDescription": "Добавьте следующие переменные в файл .env:",
+  "mapApiError": "Не удалось получить местоположения транспорта",
+  "mapGoogleLoadError": "Не удалось загрузить Google Maps",
+  "mapLoading": "Карта загружается...",
+  "mapNoVehicleData": "Нет данных о местоположении транспорта."
 }

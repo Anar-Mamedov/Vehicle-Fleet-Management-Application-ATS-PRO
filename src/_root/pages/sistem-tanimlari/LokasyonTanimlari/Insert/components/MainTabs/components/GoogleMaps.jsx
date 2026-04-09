@@ -11,6 +11,7 @@ const containerStyle = {
 const libraries = ["places"];
 
 const GoogleMaps = () => {
+  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
   const [map, setMap] = useState(null);
   const [position, setPosition] = useState(null);
   const [autocomplete, setAutocomplete] = useState(null);
@@ -222,7 +223,7 @@ const GoogleMaps = () => {
   return (
     <>
       {position && (
-        <LoadScript googleMapsApiKey="AIzaSyDUqW8OQobjsng1Nm0XJKBs0LNvSgq0yfw" libraries={libraries}>
+        <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={libraries}>
           <Autocomplete onLoad={setAutocomplete} onPlaceChanged={onPlaceChanged}>
             <Controller
               name="searchQuery"
