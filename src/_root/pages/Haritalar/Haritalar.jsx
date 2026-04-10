@@ -5,6 +5,7 @@ import { GoogleMap, InfoWindowF, MarkerF, useJsApiLoader } from "@react-google-m
 import { useTranslation } from "react-i18next";
 import { GetVehicleStatusService } from "../../../api/services/maps/vehicleStatusService";
 import { formatNumberWithLocale } from "../../../hooks/FormattedNumber";
+import FormattedDate from "../../components/FormattedDate";
 
 const { Title, Text } = Typography;
 
@@ -53,6 +54,19 @@ const mapStatsIconWrapperStyle = {
   background: "#f9fafb",
 };
 
+const getMapDateTimeFormatByLanguage = () => {
+  const currentLang = localStorage.getItem("i18nextLng") || "tr";
+  const defaultDateTimeFormat = "DD.MM.YYYY HH:mm:ss";
+  const formatByLanguage = {
+    tr: defaultDateTimeFormat,
+    en: "MM/DD/YYYY HH:mm:ss",
+    ru: defaultDateTimeFormat,
+    az: defaultDateTimeFormat,
+  };
+
+  return formatByLanguage[currentLang] || defaultDateTimeFormat;
+};
+
 const Haritalar = () => {
   const { t } = useTranslation();
   const [vehicles, setVehicles] = useState([]);
@@ -62,6 +76,7 @@ const Haritalar = () => {
 
   const mapApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
   const isMapKeyMissing = !mapApiKey;
+  const mapDateTimeFormat = getMapDateTimeFormatByLanguage();
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: "haritalar-google-map-script",
@@ -207,16 +222,20 @@ const Haritalar = () => {
                   onMouseOver={() => setActiveMarkerId(vehicle.id)}
                   onMouseOut={() => setActiveMarkerId((prev) => (prev === vehicle.id ? null : prev))}
                 >
-                  {activeMarkerId === vehicle.id && (
-                    <InfoWindowF onCloseClick={() => setActiveMarkerId(null)}>
-                      <Space direction="vertical" size={2}>
-                        <Text strong>{`${t("plaka")}: ${vehicle.plate}`}</Text>
-                        <Text>{`${t("maxHiz")}: ${vehicle.speed}`}</Text>
-                        <Text>{`${t("adres")}: ${vehicle.address}`}</Text>
-                        {vehicle.utcDateTime && <Text>{`${t("tarih")}: ${vehicle.utcDateTime}`}</Text>}
-                      </Space>
-                    </InfoWindowF>
-                  )}
+                    {activeMarkerId === vehicle.id && (
+                      <InfoWindowF onCloseClick={() => setActiveMarkerId(null)}>
+                        <Space direction="vertical" size={2}>
+                          <Text strong>{`${t("cihazNo")}: ${vehicle.deviceNo || "-"}`}</Text>
+                          <Text>{`${t("maxHiz")}: ${vehicle.speed}`}</Text>
+                          <Text>{`${t("adres")}: ${vehicle.address}`}</Text>
+                          {vehicle.utcDateTime && (
+                            <Text>
+                              {t("tarih")}: <FormattedDate date={vehicle.utcDateTime} format={mapDateTimeFormat} />
+                            </Text>
+                          )}
+                        </Space>
+                      </InfoWindowF>
+                    )}
                 </MarkerF>
               ))}
             </GoogleMap>

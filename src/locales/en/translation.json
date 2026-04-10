@@ -33,6 +33,7 @@
   "genelBilgiler": "General Information",
   "ozelAlanlar": "Custom Fields",
   "plaka": "Plate",
+  "cihazNo": "Device No",
   "lokasyon": "Location",
   "lokasyonSec": "Select Location",
   "lokasyonlarSec": "Select Locations",
