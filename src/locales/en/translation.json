@@ -33,6 +33,7 @@
   "genelBilgiler": "General Information",
   "ozelAlanlar": "Custom Fields",
   "plaka": "Plate",
+  "cihazNo": "Device No",
   "lokasyon": "Location",
   "lokasyonSec": "Select Location",
   "lokasyonlarSec": "Select Locations",
@@ -1293,5 +1294,11 @@
   "mapApiError": "Vehicle locations could not be fetched",
   "mapGoogleLoadError": "Google Maps failed to load",
   "mapLoading": "Map is loading...",
-  "mapNoVehicleData": "No vehicle location data to display."
+  "mapNoVehicleData": "No vehicle location data to display.",
+  "mapTotalTrackedVehiclesTitle": "Total Tracked Vehicles",
+  "mapTotalTrackedVehiclesSubtitle": "GPS-active vehicles",
+  "mapMovingVehiclesTitle": "In Motion",
+  "mapMovingVehiclesSubtitle": "Vehicles active in the field",
+  "mapParkedVehiclesTitle": "Parked",
+  "mapParkedVehiclesSubtitle": "Ignition off / waiting"
 }

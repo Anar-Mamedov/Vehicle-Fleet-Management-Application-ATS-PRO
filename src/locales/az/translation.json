@@ -33,6 +33,7 @@
   "genelBilgiler": "Ümumi Məlumatlar",
   "ozelAlanlar": "Xüsusi Sahələr",
   "plaka": "Nömrə",
+  "cihazNo": "Cihaz No",
   "lokasyon": "Yerləşmə",
   "lokasyonSec": "Yerləşmə Seç",
   "lokasyonlarSec": "Yerləşmələr Seç",
@@ -812,5 +813,11 @@
   "mapApiError": "Nəqliyyat mövqeləri alınmadı",
   "mapGoogleLoadError": "Google Maps yüklənmədi",
   "mapLoading": "Xəritə yüklənir...",
-  "mapNoVehicleData": "Göstəriləcək nəqliyyat mövqeyi tapılmadı."
+  "mapNoVehicleData": "Göstəriləcək nəqliyyat mövqeyi tapılmadı.",
+  "mapTotalTrackedVehiclesTitle": "Ümumi İzlənən Nəqliyyat",
+  "mapTotalTrackedVehiclesSubtitle": "GPS aktiv nəqliyyatlar",
+  "mapMovingVehiclesTitle": "Hərəkətdə",
+  "mapMovingVehiclesSubtitle": "Sahədə anlıq nəqliyyat",
+  "mapParkedVehiclesTitle": "Park Vəziyyətində",
+  "mapParkedVehiclesSubtitle": "Kontak söndürülüb / gözləmə"
 }

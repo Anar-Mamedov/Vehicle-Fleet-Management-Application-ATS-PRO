@@ -90,6 +90,7 @@
   "talepNo": "№ Запроса",
   "talepBildirimi": "Уведомление о запросе",
   "plaka": "Номер",
+  "cihazNo": "Номер устройства",
   "aciklama": "Описание",
   "talepDurum": "Статус запроса",
   "talepOncelik": "Приоритет",
@@ -344,5 +345,11 @@
   "mapApiError": "Не удалось получить местоположения транспорта",
   "mapGoogleLoadError": "Не удалось загрузить Google Maps",
   "mapLoading": "Карта загружается...",
-  "mapNoVehicleData": "Нет данных о местоположении транспорта."
+  "mapNoVehicleData": "Нет данных о местоположении транспорта.",
+  "mapTotalTrackedVehiclesTitle": "Всего Отслеживаемых ТС",
+  "mapTotalTrackedVehiclesSubtitle": "ТС с активным GPS",
+  "mapMovingVehiclesTitle": "В Движении",
+  "mapMovingVehiclesSubtitle": "ТС, активные в поле",
+  "mapParkedVehiclesTitle": "На Стоянке",
+  "mapParkedVehiclesSubtitle": "Зажигание выкл. / ожидание"
 }

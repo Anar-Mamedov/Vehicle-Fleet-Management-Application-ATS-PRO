@@ -33,6 +33,7 @@
   "genelBilgiler": "Genel Bilgiler",
   "ozelAlanlar": "Özel Alanlar",
   "plaka": "Plaka",
+  "cihazNo": "Cihaz No",
   "lokasyon": "Lokasyon",
   "mulkiyet": "Mülkiyet",
   "departman": "Departman",
@@ -1579,5 +1580,11 @@
   "mapApiError": "Araç konumları alınamadı",
   "mapGoogleLoadError": "Google Haritalar yüklenemedi",
   "mapLoading": "Harita yükleniyor...",
-  "mapNoVehicleData": "Gösterilecek araç konumu bulunamadı."
+  "mapNoVehicleData": "Gösterilecek araç konumu bulunamadı.",
+  "mapTotalTrackedVehiclesTitle": "Toplam Takip Edilen Araç",
+  "mapTotalTrackedVehiclesSubtitle": "GPS aktif araçlar",
+  "mapMovingVehiclesTitle": "Hareket Halinde",
+  "mapMovingVehiclesSubtitle": "Anlık sahadaki araç",
+  "mapParkedVehiclesTitle": "Park Halinde",
+  "mapParkedVehiclesSubtitle": "Kontak kapalı / bekleme"
 }
