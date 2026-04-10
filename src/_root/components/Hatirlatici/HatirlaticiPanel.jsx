@@ -251,7 +251,15 @@ const HatirlaticiPanel = ({ open, onClose }) => {
     { key: "surucu", label: "Sürücü", color: "rgba(255,117,31,0.88)", bgColor: "rgb(255,117,31,0.20)", dataKey: "surucuHatirlaticiSayisi", component: <Surucu /> },
     { key: "vergi", label: "Vergi", color: "#921A40", bgColor: "rgba(146,26,64,0.48)", dataKey: "aracVergiHatirlaticiSayisi", component: <Vergi /> },
     { key: "muayene", label: "Muayene", color: "#987D9A", bgColor: "rgba(152,125,154,0.43)", dataKey: "aracMuayeneHatirlaticiSayisi", component: <Muayene /> },
-    { key: "sozlesme", label: "Sözleşme", color: "#EF5A6F", bgColor: "rgba(239,90,111,0.44)", dataKey: "aracSozlesmeHatirlaticiSayisi", component: <Sozlesme /> },
+    {
+      key: "sozlesme",
+      label: "Sözleşme",
+      modalTitle: t("kiralikAraclarSozlesmeKmLimiti"),
+      color: "#EF5A6F",
+      bgColor: "rgba(239,90,111,0.44)",
+      dataKey: "aracSozlesmeHatirlaticiSayisi",
+      component: <Sozlesme />,
+    },
     { key: "egzoz", label: "Egzoz", color: "#134B70", bgColor: "rgba(19,75,112,0.47)", dataKey: "aracEgzozHatiraticiSayisi", component: <Egzoz /> },
     { key: "bakim", label: "Periyodik Bakım", color: "#00cfaa", bgColor: "rgba(0,207,170,0.31)", dataKey: "periyodikBakimHatirlaticiSayisi", component: <PeriyodikBakim /> },
     { key: "takograf", label: "Takograf", color: "#6a0ea8", bgColor: "rgba(106, 14, 168, 0.35)", dataKey: "aracTakografHatirlaticiSayisi", component: <Takograf /> },
@@ -469,7 +477,7 @@ const HatirlaticiPanel = ({ open, onClose }) => {
                   return bUpdated - aUpdated;
                 })
                 .map((item) => (
-                  <Row key={item.key} onClick={() => handleRowClick(item.label, item.component, item.dataKey)}>
+                  <Row key={item.key} onClick={() => handleRowClick(item.modalTitle || item.label, item.component, item.dataKey)}>
                     <div style={{ display: "flex", alignItems: "center", gap: "5px", position: "relative" }}>
                       <Indicator style={{ backgroundColor: item.color }} />
                       <Text style={{ fontSize: 13 }}>{item.label}</Text>
