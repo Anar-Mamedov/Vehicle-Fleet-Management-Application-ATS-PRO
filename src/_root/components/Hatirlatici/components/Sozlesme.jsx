@@ -229,6 +229,19 @@ const Sozlesme = () => {
     fetchData(0, 1);
   }, []);
 
+  const formatNumberByApiPrecision = (value) => {
+    if (value === null || value === undefined || value === "") return "";
+
+    const numericValue = Number(value);
+    if (Number.isNaN(numericValue)) return value;
+
+    const decimalDigits = String(value).includes(".") ? String(value).split(".")[1].length : 0;
+    return numericValue.toLocaleString(localStorage.getItem("i18nextLng"), {
+      minimumFractionDigits: decimalDigits,
+      maximumFractionDigits: decimalDigits,
+    });
+  };
+
   // Columns definition (adjust as needed)
   const initialColumns = [
     {
@@ -318,6 +331,36 @@ const Sozlesme = () => {
         if (a.aracTip === null) return -1;
         if (b.aracTip === null) return 1;
         return a.aracTip.localeCompare(b.aracTip);
+      },
+    },
+
+    {
+      title: t("kmLimiti"),
+      dataIndex: "kiralikKmLimit",
+      key: "kiralikKmLimit",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      render: (value) => formatNumberByApiPrecision(value),
+      sorter: (a, b) => {
+        if (a.kiralikKmLimit === null) return -1;
+        if (b.kiralikKmLimit === null) return 1;
+        return (a.kiralikKmLimit || 0) - (b.kiralikKmLimit || 0);
+      },
+    },
+
+    {
+      title: t("guncelKm"),
+      dataIndex: "guncelKm",
+      key: "guncelKm",
+      width: 120,
+      ellipsis: true,
+      visible: true,
+      render: (value) => formatNumberByApiPrecision(value),
+      sorter: (a, b) => {
+        if (a.guncelKm === null) return -1;
+        if (b.guncelKm === null) return 1;
+        return (a.guncelKm || 0) - (b.guncelKm || 0);
       },
     },
 
