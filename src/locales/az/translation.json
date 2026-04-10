@@ -812,5 +812,11 @@
   "mapApiError": "Nəqliyyat mövqeləri alınmadı",
   "mapGoogleLoadError": "Google Maps yüklənmədi",
   "mapLoading": "Xəritə yüklənir...",
-  "mapNoVehicleData": "Göstəriləcək nəqliyyat mövqeyi tapılmadı."
+  "mapNoVehicleData": "Göstəriləcək nəqliyyat mövqeyi tapılmadı.",
+  "mapTotalTrackedVehiclesTitle": "Ümumi İzlənən Nəqliyyat",
+  "mapTotalTrackedVehiclesSubtitle": "GPS aktiv nəqliyyatlar",
+  "mapMovingVehiclesTitle": "Hərəkətdə",
+  "mapMovingVehiclesSubtitle": "Sahədə anlıq nəqliyyat",
+  "mapParkedVehiclesTitle": "Park Vəziyyətində",
+  "mapParkedVehiclesSubtitle": "Kontak söndürülüb / gözləmə"
 }

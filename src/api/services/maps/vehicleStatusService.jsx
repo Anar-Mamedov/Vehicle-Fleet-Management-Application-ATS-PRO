@@ -80,12 +80,13 @@ const parseVehicleStatusResponse = (xmlText) => {
 export const getMissingVehicleStatusEnvVars = () => [];
 
 export const GetVehicleStatusService = async () => {
+  const endpoint = "/Map/GetMapServiceResponseByName?serviceName=arvento";
   let response;
   try {
-    response = await http.get("/ArventoAracKonumBilgisi", { responseType: "text" });
+    response = await http.get(endpoint, { responseType: "text" });
   } catch (error) {
     if (error?.response?.status === 405) {
-      response = await http.post("/ArventoAracKonumBilgisi", null, { responseType: "text" });
+      response = await http.post(endpoint, null, { responseType: "text" });
     } else {
       throw error;
     }
