@@ -1,5 +1,4 @@
 import http from "../../http";
-import fallbackVehicleStatusXml from "./aracBilgileri.xml?raw";
 
 const parseNumber = (value) => {
   if (value === null || value === undefined || value === "") return null;
@@ -80,31 +79,20 @@ const parseVehicleStatusResponse = (xmlText) => {
 
 export const getMissingVehicleStatusEnvVars = () => [];
 
-const getFallbackVehicles = () => parseVehicleStatusResponse(fallbackVehicleStatusXml);
-
 export const GetVehicleStatusService = async () => {
   let response;
-
   try {
     response = await http.get("/ArventoAracKonumBilgisi", { responseType: "text" });
   } catch (error) {
     if (error?.response?.status === 405) {
-      try {
-        response = await http.post("/ArventoAracKonumBilgisi", null, { responseType: "text" });
-      } catch (postError) {
-        const fallbackVehicles = getFallbackVehicles();
-        if (fallbackVehicles.length) return fallbackVehicles;
-        throw postError;
-      }
+      response = await http.post("/ArventoAracKonumBilgisi", null, { responseType: "text" });
     } else {
-      const fallbackVehicles = getFallbackVehicles();
-      if (fallbackVehicles.length) return fallbackVehicles;
       throw error;
     }
   }
 
   const xmlText = getResponseText(response?.data);
-  if (!xmlText) return [];
+  if (!xmlText) throw new Error("Vehicle status response is empty.");
 
   return parseVehicleStatusResponse(xmlText);
 };
