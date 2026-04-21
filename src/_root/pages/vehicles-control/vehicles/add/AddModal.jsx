@@ -112,6 +112,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     aracCinsi: undefined,
     renkID: null,
     renk: undefined,
+    lokasyon: "",
     lokasyonId: null,
     mulkiyet: "",
     departmanID: null,

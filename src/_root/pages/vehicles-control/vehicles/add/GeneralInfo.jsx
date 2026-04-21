@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { useFormContext } from "react-hook-form";
 import { t } from "i18next";
 import TextInput from "../../../../components/form/inputs/TextInput";
 import CodeControl from "../../../../components/form/selects/CodeControl";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
-import Location from "../../../../components/form/tree/Location";
+import LokasyonTablo from "../../../../components/form/LokasyonTable";
+import ModalInput from "../../../../components/form/inputs/ModalInput";
 import Marka from "../../../../components/form/selects/Marka";
 import Model from "../../../../components/form/selects/Model";
 import Driver from "../../../../components/form/selects/Driver";
@@ -16,6 +18,18 @@ import DatePickerSelectYear from "../../../../components/form/inputs/DatePickerS
 const ALWAYS_REQUIRED_FIELDS = ["plaka", "aracTip", "lokasyon", "marka", "model", "yakitTip"];
 
 const GeneralInfo = ({ isValid, mandatoryFields }) => {
+  const { setValue } = useFormContext();
+  const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
+
+  const handleLokasyonPlusClick = () => {
+    setIsLokasyonModalOpen(true);
+  };
+
+  const handleLokasyonMinusClick = () => {
+    setValue("lokasyon", null);
+    setValue("lokasyonId", null);
+  };
+
   const validateStyle = {
     borderColor: isValid === "error" ? "#dc3545" : isValid === "success" ? "#23b545" : "#000",
   };
@@ -61,7 +75,21 @@ const GeneralInfo = ({ isValid, mandatoryFields }) => {
             <label>
               {t("lokasyon")} {isRequired("lokasyon") && <span className="text-danger">*</span>}
             </label>
-            <Location required={isRequired("lokasyon")} />
+            <ModalInput
+              name="lokasyon"
+              readonly={true}
+              required={isRequired("lokasyon")}
+              onPlusClick={handleLokasyonPlusClick}
+              onMinusClick={handleLokasyonMinusClick}
+            />
+            <LokasyonTablo
+              isModalVisible={isLokasyonModalOpen}
+              setIsModalVisible={setIsLokasyonModalOpen}
+              onSubmit={(selectedData) => {
+                setValue("lokasyon", selectedData.location);
+                setValue("lokasyonId", selectedData.key);
+              }}
+            />
           </div>
         </div>
       </div>
