@@ -30,6 +30,8 @@ const arrayMove = (array, from, to) => {
 };
 
 const pxToWch = (px) => Math.ceil(px / 7); // 1 wch ≈ 7px
+const normalizeFilterValue = (value) => (value === null || value === undefined ? "" : value);
+const hasFilterValue = (value) => normalizeFilterValue(value).toString().trim() !== "";
 
 function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoaded = false, onRefreshParent }) {
   // Context'ten rapor verilerini al
@@ -224,9 +226,9 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
     // Sütunlardaki default filter değerlerini ekle
     cols.forEach((col) => {
       if (!combinedFilters[col.dataIndex]) {
-        const defaultFilter1 = col.isFilter?.trim() || "";
-        const defaultFilter2 = col.isFilter1?.trim() || "";
-        if (defaultFilter1 !== "" || defaultFilter2 !== "") {
+        const defaultFilter1 = normalizeFilterValue(col.isFilter);
+        const defaultFilter2 = normalizeFilterValue(col.isFilter1);
+        if (hasFilterValue(defaultFilter1) || hasFilterValue(defaultFilter2)) {
           combinedFilters[col.dataIndex] = [defaultFilter1, defaultFilter2];
         }
       }
@@ -239,11 +241,11 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
 
       // Sayısal sütunlar için filtreleme
       if (column.isNumber) {
-        if (val1 !== "" || val2 !== "") {
+        if (hasFilterValue(val1) || hasFilterValue(val2)) {
           filteredData = filteredData.filter((row) => {
             const cellValue = parseFloat(row[colKey]) || 0;
-            const minVal = val1 !== "" ? parseFloat(val1) : null;
-            const maxVal = val2 !== "" ? parseFloat(val2) : null;
+            const minVal = hasFilterValue(val1) ? parseFloat(val1) : null;
+            const maxVal = hasFilterValue(val2) ? parseFloat(val2) : null;
 
             if (minVal !== null && cellValue < minVal) return false;
             if (maxVal !== null && cellValue > maxVal) return false;
@@ -331,7 +333,7 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
     // 1) Update columnFilters
     const newFilters = {
       ...columnFilters,
-      [dataIndex]: [selectedKeys[0] || "", selectedKeys[1] || ""],
+      [dataIndex]: [normalizeFilterValue(selectedKeys[0]), normalizeFilterValue(selectedKeys[1])],
     };
 
     const filtered = applyAllFilters(newFilters, columns, originalData);
@@ -346,10 +348,10 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
       if (col.dataIndex === dataIndex) {
         const updated = { ...col };
         if (typeof updated.isFilter !== "undefined") {
-          updated.isFilter = selectedKeys[0] || "";
+          updated.isFilter = normalizeFilterValue(selectedKeys[0]);
         }
         if (typeof updated.isFilter1 !== "undefined") {
-          updated.isFilter1 = selectedKeys[1] || "";
+          updated.isFilter1 = normalizeFilterValue(selectedKeys[1]);
         }
         return updated;
       }
@@ -589,13 +591,13 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
               <InputNumber
                 placeholder="Min Değer"
                 value={selectedKeys[0]}
-                onChange={(value) => setSelectedKeys([value !== null ? value : "", selectedKeys[1] || ""])}
+                onChange={(value) => setSelectedKeys([normalizeFilterValue(value), normalizeFilterValue(selectedKeys[1])])}
                 style={{ width: "100%", marginBottom: 8 }}
               />
               <InputNumber
                 placeholder="Max Değer"
                 value={selectedKeys[1]}
-                onChange={(value) => setSelectedKeys([selectedKeys[0] || "", value !== null ? value : ""])}
+                onChange={(value) => setSelectedKeys([normalizeFilterValue(selectedKeys[0]), normalizeFilterValue(value)])}
                 style={{ width: "100%", marginBottom: 8 }}
               />
               <Space>
@@ -698,7 +700,7 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
 
     filterIcon: () => {
       const vals = columnFilters[dataIndex] || [];
-      const isFiltered = vals.some((v) => v && v.toString().trim() !== "");
+      const isFiltered = vals.some(hasFilterValue);
       return <SearchOutlined style={{ color: isFiltered ? "#1890ff" : undefined }} />;
     },
   });
