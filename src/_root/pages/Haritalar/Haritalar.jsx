@@ -26,6 +26,8 @@ const mapContainerStyle = {
 };
 
 const defaultCenter = { lat: 39.0, lng: 35.0 };
+const movingMarkerGradient = ["#3B82F6", "#1D4ED8"];
+const parkedMarkerGradient = ["#FF6B57", "#D93A2D"];
 
 const mapStatsRowStyle = {
   display: "flex",
@@ -67,6 +69,35 @@ const getMapDateTimeFormatByLanguage = () => {
   return formatByLanguage[currentLang] || defaultDateTimeFormat;
 };
 
+const getVehicleMarkerSvg = ([gradientStart, gradientEnd]) => `
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <defs>
+    <linearGradient id="pinGradient" x1="32" y1="2" x2="32" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="${gradientStart}"/>
+      <stop offset="1" stop-color="${gradientEnd}"/>
+    </linearGradient>
+    <filter id="pinShadow" x="8" y="0" width="48" height="62" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <g filter="url(#pinShadow)">
+    <path d="M32 4C21.5 4 13 12.5 13 23C13 36.6 27.9 52.6 31 56.1C31.5 56.7 32.5 56.7 33 56.1C36.1 52.6 51 36.6 51 23C51 12.5 42.5 4 32 4Z" fill="url(#pinGradient)"/>
+  </g>
+  <circle cx="32" cy="23" r="14" fill="#FFFFFF" fill-opacity="0.95"/>
+  <g transform="translate(20 16)">
+    <path d="M5 14.5C5 11.9 7.1 9.8 9.7 9.8H14.3C16.9 9.8 19 11.9 19 14.5V17.2H5V14.5Z" fill="#1F2937"/>
+    <path d="M8.6 11.2L9.9 8.2C10.1 7.7 10.6 7.4 11.2 7.4H12.8C13.4 7.4 13.9 7.7 14.1 8.2L15.4 11.2H8.6Z" fill="#374151"/>
+    <rect x="6.4" y="12.1" width="3.9" height="1.7" rx="0.8" fill="#93C5FD"/>
+    <rect x="13.7" y="12.1" width="3.9" height="1.7" rx="0.8" fill="#93C5FD"/>
+    <circle cx="8.1" cy="17.7" r="2.1" fill="#111827"/>
+    <circle cx="15.9" cy="17.7" r="2.1" fill="#111827"/>
+    <circle cx="8.1" cy="17.7" r="0.9" fill="#9CA3AF"/>
+    <circle cx="15.9" cy="17.7" r="0.9" fill="#9CA3AF"/>
+  </g>
+</svg>`;
+
+const getVehicleMarkerUrl = (gradientColors) => `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(getVehicleMarkerSvg(gradientColors))}`;
+
 const Haritalar = () => {
   const { t } = useTranslation();
   const [vehicles, setVehicles] = useState([]);
@@ -83,13 +114,23 @@ const Haritalar = () => {
     googleMapsApiKey: mapApiKey || "",
   });
 
-  const markerIcon = useMemo(() => {
+  const markerIcons = useMemo(() => {
     if (!isLoaded || !window.google) return undefined;
 
+    const scaledSize = new window.google.maps.Size(34, 34);
+    const anchor = new window.google.maps.Point(17, 34);
+
     return {
-      url: "/images/Araba.svg",
-      scaledSize: new window.google.maps.Size(34, 34),
-      anchor: new window.google.maps.Point(17, 34),
+      moving: {
+        url: getVehicleMarkerUrl(movingMarkerGradient),
+        scaledSize,
+        anchor,
+      },
+      parked: {
+        url: getVehicleMarkerUrl(parkedMarkerGradient),
+        scaledSize,
+        anchor,
+      },
     };
   }, [isLoaded]);
 
@@ -218,7 +259,7 @@ const Haritalar = () => {
                 <MarkerF
                   key={vehicle.id}
                   position={{ lat: vehicle.latitude, lng: vehicle.longitude }}
-                  icon={markerIcon}
+                  icon={Number(vehicle.speed) > 0 ? markerIcons?.moving : markerIcons?.parked}
                   onMouseOver={() => setActiveMarkerId(vehicle.id)}
                   onMouseOut={() => setActiveMarkerId((prev) => (prev === vehicle.id ? null : prev))}
                 >
