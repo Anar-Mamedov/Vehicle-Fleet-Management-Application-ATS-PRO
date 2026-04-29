@@ -16,15 +16,10 @@ const TarihFilter = ({ onDateChange }) => {
 
   const handleSubmit = () => {
     setOpen(false);
-    // OnDateChange fonksiyonuna startDate ve endDate'i gönderiyoruz
-    onDateChange(startDate, endDate);
-  };
-
-  useEffect(() => {
-    // React state'lerinden alınan değerleri react-hook-form ile set et
     setValue("baslangicTarihi", startDate);
     setValue("bitisTarihi", endDate);
-  }, [startDate, endDate]);
+    onDateChange?.(startDate, endDate);
+  };
 
   const handleCancelClick = () => {
     setStartDate(null);
