@@ -25,6 +25,7 @@ import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
+import FormattedNumber from "../../../../../hooks/FormattedNumber";
 
 const localeMap = {
   tr: trTR,
@@ -398,6 +399,7 @@ const MalzemeHareketleri = () => {
         width: 150,
         ellipsis: true,
         visible: true,
+        render: (text) => <FormattedNumber num={text} />,
         sorter: (a, b) => {
           if (a.miktar === null) return -1;
           if (b.miktar === null) return 1;
@@ -424,6 +426,7 @@ const MalzemeHareketleri = () => {
         width: 120,
         ellipsis: true,
         visible: true,
+        render: (text) => <FormattedNumber num={text} />,
         sorter: (a, b) => {
           if (a.fiyat === null) return -1;
           if (b.fiyat === null) return 1;
@@ -437,6 +440,7 @@ const MalzemeHareketleri = () => {
         width: 120,
         ellipsis: true,
         visible: true,
+        render: (text) => <FormattedNumber num={text} />,
         sorter: (a, b) => {
           if (a.toplam === null) return -1;
           if (b.toplam === null) return 1;

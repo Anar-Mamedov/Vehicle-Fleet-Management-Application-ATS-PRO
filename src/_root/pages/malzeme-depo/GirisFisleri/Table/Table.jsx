@@ -22,6 +22,7 @@ import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
+import FormattedNumber from "../../../../../hooks/FormattedNumber";
 
 const localeMap = {
   tr: trTR,
@@ -366,7 +367,7 @@ const GirisFisleri = () => {
         visible: true,
         render: (text, record) => (
           <div className="">
-            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
+            <FormattedNumber num={text} minimumFractionDigits={Number(record?.tutarFormat)} maximumFractionDigits={Number(record?.tutarFormat)} />
           </div>
         ),
         sorter: (a, b) => {
@@ -384,7 +385,7 @@ const GirisFisleri = () => {
         visible: true,
         render: (text, record) => (
           <div className="">
-            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
+            <FormattedNumber num={text} minimumFractionDigits={Number(record?.tutarFormat)} maximumFractionDigits={Number(record?.tutarFormat)} />
           </div>
         ),
         sorter: (a, b) => {
@@ -402,7 +403,7 @@ const GirisFisleri = () => {
         visible: true,
         render: (text, record) => (
           <div className="">
-            <span>{Number(text).toFixed(Number(record?.tutarFormat))} </span>
+            <FormattedNumber num={text} minimumFractionDigits={Number(record?.tutarFormat)} maximumFractionDigits={Number(record?.tutarFormat)} />
           </div>
         ),
         sorter: (a, b) => {
