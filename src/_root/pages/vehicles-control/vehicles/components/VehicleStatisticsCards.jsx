@@ -201,7 +201,6 @@ const VehicleStatisticsCards = ({ request }) => {
               </div>
             </div>
             <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "8px", lineHeight: "30px" }}>{formatStatisticValue(statistics.values[index])}</div>
-            <div style={{ borderTop: `1px solid ${CARD_BORDER_COLOR}`, marginBottom: "10px" }} />
             <div style={{ fontSize: "12px", color: "#8c8c8c", lineHeight: "18px", fontWeight: 400 }}>
               {card.subtitle}
             </div>
