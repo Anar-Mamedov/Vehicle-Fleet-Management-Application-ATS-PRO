@@ -173,14 +173,16 @@ const VehicleStatisticsCards = ({ request }) => {
             key={`vehicle-stat-${index + 1}`}
             style={{
               backgroundColor: "white",
-              padding: "16px 20px",
+              padding: "10px 16px",
               borderRadius: "8px",
               flex: "1 1 260px",
               border: `1px solid ${CARD_BORDER_COLOR}`,
-              minHeight: "132px",
+              height: "112px",
+              boxSizing: "border-box",
+              overflow: "hidden",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>{card.title}</span>
                 {card.showInfo ? <InfoCircleOutlined style={{ color: "#8a94a8" }} /> : null}
@@ -200,7 +202,7 @@ const VehicleStatisticsCards = ({ request }) => {
                 {card.icon}
               </div>
             </div>
-            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "8px", lineHeight: "30px" }}>{formatStatisticValue(statistics.values[index])}</div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px", lineHeight: "28px" }}>{formatStatisticValue(statistics.values[index])}</div>
             <div style={{ fontSize: "12px", color: "#8c8c8c", lineHeight: "18px", fontWeight: 400 }}>
               {card.subtitle}
             </div>
