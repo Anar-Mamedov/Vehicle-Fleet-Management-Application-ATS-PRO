@@ -8,6 +8,14 @@ import dayjs from "dayjs";
 
 const { Text } = Typography;
 
+const singleLineTextStyle = {
+  display: "block",
+  maxWidth: "100%",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
 function ComponentSingleCard() {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -86,8 +94,8 @@ function ComponentSingleCard() {
             height: "100%",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <Text style={{ fontWeight: "500", fontSize: "35px", color: "white" }}>
+          <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0, width: "100%" }}>
+            <Text style={{ ...singleLineTextStyle, fontWeight: "500", fontSize: "35px", color: "white" }}>
               {value !== null && value !== undefined ? (
                 <>
                   {Number(value).toLocaleString("tr-TR", {
@@ -100,7 +108,7 @@ function ComponentSingleCard() {
                 ""
               )}
             </Text>
-            <Text style={{ color: "white", fontSize: "15px", fontWeight: "400" }}>{label}</Text>
+            <Text style={{ ...singleLineTextStyle, color: "white", fontSize: "15px", fontWeight: "400" }}>{label}</Text>
           </div>
         </div>
       )}
