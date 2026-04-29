@@ -24,6 +24,7 @@ import azAZ from "antd/lib/locale/az_AZ";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import * as XLSX from "xlsx";
+import FormattedNumber from "../../../../hooks/FormattedNumber";
 
 const localeMap = {
   tr: trTR,
@@ -409,7 +410,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
             root.render(<AutoClickModal />);
           }}
         >
-          {text}
+          <FormattedNumber num={text} />
         </Button>
       ),
       sorter: (a, b) => {
@@ -438,6 +439,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       width: 100,
       ellipsis: true,
       visible: true,
+      render: (text) => <FormattedNumber num={text} />,
       sorter: (a, b) => {
         if (a.fiyat === null) return -1;
         if (b.fiyat === null) return 1;
@@ -529,6 +531,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       width: 100,
       ellipsis: true,
       visible: true,
+      render: (text) => <FormattedNumber num={text} />,
       sorter: (a, b) => {
         if (a.kritikMiktar === null) return -1;
         if (b.kritikMiktar === null) return 1;
@@ -574,6 +577,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       width: 120,
       ellipsis: true,
       visible: true,
+      render: (text) => <FormattedNumber num={text} />,
       sorter: (a, b) => {
         if (a.sonFiyat === null) return -1;
         if (b.sonFiyat === null) return 1;
@@ -596,6 +600,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       width: 100,
       ellipsis: true,
       visible: true,
+      render: (text) => <FormattedNumber num={text} />,
       sorter: (a, b) => {
         if (a.kdvOran === null) return -1;
         if (b.kdvOran === null) return 1;
@@ -609,6 +614,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       width: 100,
       ellipsis: true,
       visible: true,
+      render: (text) => <FormattedNumber num={text} />,
       sorter: (a, b) => {
         if (a.girenMiktar === null) return -1;
         if (b.girenMiktar === null) return 1;
@@ -622,6 +628,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       width: 100,
       ellipsis: true,
       visible: true,
+      render: (text) => <FormattedNumber num={text} />,
       sorter: (a, b) => {
         if (a.cikanMiktar === null) return -1;
         if (b.cikanMiktar === null) return 1;
