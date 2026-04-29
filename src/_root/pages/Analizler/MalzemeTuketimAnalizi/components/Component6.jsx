@@ -12,6 +12,7 @@ import {
   DownloadOutlined,
   MoreOutlined,
 } from "@ant-design/icons";
+import TarihFilter from "../Filters/components/TarihFilter.jsx";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -174,8 +175,8 @@ const Yakit = () => {
 
   const [selectedRows, setSelectedRows] = useState([]);
 
-  const baslangicTarihi = watch("baslangicTarihi") ? dayjs(watch("baslangicTarihi")).toISOString() : null;
-  const bitisTarihi = watch("bitisTarihi") ? dayjs(watch("bitisTarihi")).toISOString() : null;
+  const baslangicTarihi = watch("baslangicTarihi") ? dayjs(watch("baslangicTarihi")).format("YYYY-MM-DD") : null;
+  const bitisTarihi = watch("bitisTarihi") ? dayjs(watch("bitisTarihi")).format("YYYY-MM-DD") : null;
 
   // API Data Fetching with diff and setPointId
   const fetchData = async (diff, targetPage) => {
@@ -852,6 +853,7 @@ const Yakit = () => {
               <StyledButton onClick={() => setIsModalVisible(true)}>
                 <MenuOutlined />
               </StyledButton>
+              <TarihFilter onDateChange={() => fetchData(0, 1)} />
               <Filters onChange={handleBodyChange} />
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
@@ -982,7 +984,7 @@ const Yakit = () => {
                   onChange: handleTableChange,
                   showTotal: (total, range) => `Toplam ${totalCount} kayıt`,
                 }}
-                scroll={{ y: "calc(100vh - 540px)" }}
+                scroll={{ y: "calc(100vh - 485px)" }}
               />
             </Spin>
 
