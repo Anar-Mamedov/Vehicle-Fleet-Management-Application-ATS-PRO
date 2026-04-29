@@ -375,6 +375,10 @@ const Sidebar = ({ collapsed }) => {
             key: "3jh4b5j3h5",
             label: <Link to={"/cost-analysis"}>{t("maliyetAnalizleri")}</Link>,
           },
+          {
+            key: "extremes-analysis",
+            label: <Link to={"/extremes-analysis"}>Enler Analizi</Link>,
+          },
         ],
       },
       {
