@@ -982,7 +982,7 @@ const Yakit = () => {
                   onChange: handleTableChange,
                   showTotal: (total, range) => `Toplam ${totalCount} kayıt`,
                 }}
-                scroll={{ y: "calc(100vh - 450px)" }}
+                scroll={{ y: "calc(100vh - 540px)" }}
               />
             </Spin>
 
