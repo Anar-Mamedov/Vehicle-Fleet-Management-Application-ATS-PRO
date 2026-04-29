@@ -43,7 +43,6 @@ const widgetTitles = {
   widget2: "En Çok Tüketilen Malzeme",
   widget3: "En Çok Tüketim Yapan Araç",
   widget4: "Araç Başına Ortalama Malzeme Maliyeti",
-  widget6: "Malzeme Tüketimleri",
 };
 
 const defaultItems = [
@@ -51,20 +50,7 @@ const defaultItems = [
   { id: "widget2", x: 3, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
   { id: "widget3", x: 6, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
   { id: "widget4", x: 9, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
-  { id: "widget6", x: 0, y: 1, width: 12, height: 5, minW: 3, minH: 5 },
 ];
-
-const normalizeDashboardItems = (items) =>
-  items.map((item) => {
-    if (item.id !== "widget6") return item;
-
-    return {
-      ...item,
-      y: item.y > 1 ? 1 : item.y,
-      height: Math.max(item.height || 0, 5),
-      minH: Math.max(item.minH || 0, 5),
-    };
-  });
 
 function MainDashboard() {
   const [reorganize, setReorganize] = useState();
@@ -74,7 +60,6 @@ function MainDashboard() {
     widget2: false,
     widget3: false,
     widget4: false,
-    widget6: false,
   });
 
   const methods = useForm({
@@ -231,20 +216,6 @@ function MainDashboard() {
               </FormProvider>
             );
             break;
-          case "widget6":
-            root.render(
-              <FormProvider {...methods}>
-                <I18nextProvider i18n={i18n}>
-                  <ConfigProvider locale={trTR}>
-                    <BrowserRouter>
-                      <Component6 />
-                    </BrowserRouter>
-                  </ConfigProvider>
-                </I18nextProvider>
-              </FormProvider>
-            );
-            break;
-
           default:
             break;
         }
@@ -257,7 +228,6 @@ function MainDashboard() {
         widget2: false,
         widget3: false,
         widget4: false,
-        widget6: false,
       };
       newGridItems.forEach((item) => {
         if (Object.prototype.hasOwnProperty.call(newChecked, item.id)) {
@@ -273,7 +243,7 @@ function MainDashboard() {
     grid.engine.float = reorganize;
 
     const handleDashboardChange = () => {
-      const storedItems = normalizeDashboardItems(JSON.parse(localStorage.getItem(selectedDashboard)) || []);
+      const storedItems = JSON.parse(localStorage.getItem(selectedDashboard)) || [];
       const itemsToLoad = storedItems.length > 0 ? storedItems : defaultItems;
 
       const checked = {
@@ -281,7 +251,6 @@ function MainDashboard() {
         widget2: false,
         widget3: false,
         widget4: false,
-        widget6: false,
       };
       itemsToLoad.forEach((item) => {
         if (Object.prototype.hasOwnProperty.call(checked, item.id)) {
@@ -460,10 +429,6 @@ function MainDashboard() {
       <Checkbox name="widget4" onChange={handleCheckboxChange} checked={checkedWidgets.widget4}>
         Araç Başına Ortalama Malzeme Maliyeti
       </Checkbox>
-      <Checkbox name="widget6" onChange={handleCheckboxChange} checked={checkedWidgets.widget6}>
-        Araçlar Arası Yakıt Tüketimi ve Gider Karşılaştırması
-      </Checkbox>
-
       <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
         <Button danger onClick={handleReset}>
           Widgetları Sıfırla
@@ -475,7 +440,7 @@ function MainDashboard() {
   return (
     <FormProvider {...methods}>
       <ConfigProvider locale={trTR}>
-        <div className="App">
+        <div className="App" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <div
             style={{
               width: "100%",
@@ -484,6 +449,7 @@ function MainDashboard() {
               justifyContent: "space-between",
               gap: "10px",
               marginBottom: "10px",
+              flexShrink: 0,
             }}
           >
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "10px" }}>
@@ -545,8 +511,11 @@ function MainDashboard() {
               </Popover>
             </div>
           </div>
-          <div style={{ overflow: "auto", height: "calc(100vh - 185px)" }}>
+          <div style={{ flexShrink: 0 }}>
             <div className="grid-stack"></div>
+          </div>
+          <div style={{ flex: 1, minHeight: 0 }}>
+            <Component6 />
           </div>
         </div>
       </ConfigProvider>

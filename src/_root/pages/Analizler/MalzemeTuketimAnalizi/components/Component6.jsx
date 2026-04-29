@@ -812,13 +812,12 @@ const Yakit = () => {
           style={{
             width: "100%",
             height: "100%",
-            borderRadius: "5px",
+            borderRadius: "8px",
             backgroundColor: "white",
             display: "flex",
             flexDirection: "column",
             gap: "5px",
             border: "1px solid #f0f0f0",
-            filter: "drop-shadow(0 0 0.75rem rgba(0, 0, 0, 0.1))",
           }}
         >
           <Text
@@ -961,12 +960,11 @@ const Yakit = () => {
           <div
             style={{
               flex: 1,
+              minHeight: 0,
               backgroundColor: "white",
               padding: "10px",
-              height: "calc(100vh - 165px)",
               borderRadius: "8px 8px 8px 8px",
-
-              overflowY: "auto",
+              overflow: "hidden",
             }}
           >
             <Spin spinning={loading}>
@@ -984,7 +982,7 @@ const Yakit = () => {
                   onChange: handleTableChange,
                   showTotal: (total, range) => `Toplam ${totalCount} kayıt`,
                 }}
-                scroll={{ y: "calc(100vh - 290px)" }}
+                scroll={{ y: "calc(100vh - 450px)" }}
               />
             </Spin>
 
