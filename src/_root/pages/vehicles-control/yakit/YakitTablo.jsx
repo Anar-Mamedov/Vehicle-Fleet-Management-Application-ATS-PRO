@@ -12,6 +12,10 @@ import {
   CloseOutlined,
   ExclamationOutlined,
   FileExcelOutlined,
+  ThunderboltOutlined,
+  FileTextOutlined,
+  WarningOutlined,
+  CalculatorOutlined,
 } from "@ant-design/icons";
 import { FaExclamation, FaCheck, FaTimes } from "react-icons/fa";
 import { BsFillQuestionCircleFill } from "react-icons/bs";
@@ -1678,47 +1682,59 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
               <div
                 style={{
                   backgroundColor: "white",
-                  padding: "16px 20px",
+                  padding: "10px 16px",
                   borderRadius: "8px",
                   flex: "1",
                   border: "1px solid #f0f0f0",
+                  height: "112px",
+                  boxSizing: "border-box",
+                  overflow: "hidden",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
-                  <span style={{ color: "#1890ff", fontSize: "14px" }}>&#9889;</span>
-                  <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamYakit")} (Litre)</span>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+                  <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>{t("toplamYakit")} (Litre)</span>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <ThunderboltOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
+                  </div>
                 </div>
-                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{formatStatisticValue(statistics.toplamYakit)}</div>
-                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{displayTimeRangeLabel}</div>
+                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px", lineHeight: "28px" }}>{formatStatisticValue(statistics.toplamYakit)}</div>
+                <div style={{ fontSize: "12px", color: "#8c8c8c", lineHeight: "18px", fontWeight: 400 }}>{displayTimeRangeLabel}</div>
               </div>
 
               {/* Toplam Tutar (₺) */}
               <div
                 style={{
                   backgroundColor: "white",
-                  padding: "16px 20px",
+                  padding: "10px 16px",
                   borderRadius: "8px",
                   flex: "1",
                   border: "1px solid #f0f0f0",
+                  height: "112px",
+                  boxSizing: "border-box",
+                  overflow: "hidden",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
-                  <span style={{ color: "#1890ff", fontSize: "14px" }}>&#128196;</span>
-                  <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("toplamTutar")} (&#8378;)</span>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+                  <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>{t("toplamTutar")} (₺)</span>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <FileTextOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
+                  </div>
                 </div>
-                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>{formatStatisticValue(statistics.toplamTutar)}</div>
-                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{displayTimeRangeLabel}</div>
+                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px", lineHeight: "28px" }}>{formatStatisticValue(statistics.toplamTutar)}</div>
+                <div style={{ fontSize: "12px", color: "#8c8c8c", lineHeight: "18px", fontWeight: 400 }}>{displayTimeRangeLabel}</div>
               </div>
 
               {/* Anormal Tüketim */}
               <div
                 style={{
                   backgroundColor: "white",
-                  padding: "16px 20px",
+                  padding: "10px 16px",
                   borderRadius: "8px",
                   flex: "1",
                   border: "1px solid #f0f0f0",
-                  position: "relative",
+                  height: "112px",
+                  boxSizing: "border-box",
+                  overflow: "hidden",
                   cursor: "pointer",
                 }}
                 onClick={() => setIsAnomalyDetailModalVisible(true)}
@@ -1731,32 +1747,14 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                 role="button"
                 tabIndex={0}
               >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span style={{ color: "#ff4d4f", fontSize: "14px" }}>&#9888;</span>
-                    <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("anormalTuketim")}</span>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>{t("anormalTuketim")}</span>
                     <Tooltip title={t("anomaliKurallariNasilCalisir")}>
                       <div
-                        style={{
-                          cursor: "pointer",
-                          color: "#1890ff",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setIsAnomalyModalVisible(true);
-                        }}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            setIsAnomalyModalVisible(true);
-                          }
-                        }}
+                        style={{ cursor: "pointer", color: "#1890ff", display: "flex", alignItems: "center" }}
+                        onClick={(event) => { event.stopPropagation(); setIsAnomalyModalVisible(true); }}
+                        onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); setIsAnomalyModalVisible(true); } }}
                         role="button"
                         tabIndex={0}
                       >
@@ -1764,11 +1762,14 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
                       </div>
                     </Tooltip>
                   </div>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <WarningOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
+                  </div>
                 </div>
-                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px", lineHeight: "28px" }}>
                   {`${formatStatisticValue(anomalyRecordCount)} ${t("Kayit")}`}
                 </div>
-                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>
+                <div style={{ fontSize: "12px", color: "#8c8c8c", lineHeight: "18px", fontWeight: 400 }}>
                   {displayTimeRangeLabel} {displayTimeRangeLabel && <>&bull; %20 üzeri</>}
                 </div>
               </div>
@@ -1777,20 +1778,25 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
               <div
                 style={{
                   backgroundColor: "white",
-                  padding: "16px 20px",
+                  padding: "10px 16px",
                   borderRadius: "8px",
                   flex: "1",
                   border: "1px solid #f0f0f0",
+                  height: "112px",
+                  boxSizing: "border-box",
+                  overflow: "hidden",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
-                  <span style={{ color: "#1890ff", fontSize: "14px" }}>&#128207;</span>
-                  <span style={{ fontSize: "13px", color: "#8c8c8c" }}>{t("aracBasinaMaliyet")}</span>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+                  <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>{t("aracBasinaMaliyet")}</span>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <CalculatorOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
+                  </div>
                 </div>
-                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px" }}>
+                <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px", lineHeight: "28px" }}>
                   {formatStatisticValue(statistics.aracBasinaMaliyet) === "-" ? "-" : `${formatStatisticValue(statistics.aracBasinaMaliyet)} ₺ / ${t("arac")}`}
                 </div>
-                <div style={{ fontSize: "12px", color: "#bfbfbf" }}>{displayTimeRangeLabel}</div>
+                <div style={{ fontSize: "12px", color: "#8c8c8c", lineHeight: "18px", fontWeight: 400 }}>{displayTimeRangeLabel}</div>
               </div>
             </div>
           </Spin>
