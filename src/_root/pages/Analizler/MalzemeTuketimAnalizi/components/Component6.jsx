@@ -963,7 +963,7 @@ const Yakit = () => {
               flex: 1,
               backgroundColor: "white",
               padding: "10px",
-              height: "calc(100vh - 200px)",
+              height: "calc(100vh - 165px)",
               borderRadius: "8px 8px 8px 8px",
 
               overflowY: "auto",
@@ -984,7 +984,7 @@ const Yakit = () => {
                   onChange: handleTableChange,
                   showTotal: (total, range) => `Toplam ${totalCount} kayıt`,
                 }}
-                scroll={{ y: "calc(100vh - 335px)" }}
+                scroll={{ y: "calc(100vh - 290px)" }}
               />
             </Spin>
 
@@ -1063,7 +1063,7 @@ const Yakit = () => {
                       onChange: handleTableChange,
                       showTotal: (total, range) => `Toplam ${totalCount} kayıt`,
                     }}
-                    scroll={{ y: "calc(100vh - 335px)" }}
+                    scroll={{ y: "calc(100vh - 290px)" }}
                   />
                 </Spin>
               </div>

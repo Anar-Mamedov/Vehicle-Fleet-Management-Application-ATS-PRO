@@ -51,8 +51,20 @@ const defaultItems = [
   { id: "widget2", x: 3, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
   { id: "widget3", x: 6, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
   { id: "widget4", x: 9, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
-  { id: "widget6", x: 0, y: 8, width: 12, height: 4, minW: 3, minH: 2 },
+  { id: "widget6", x: 0, y: 1, width: 12, height: 5, minW: 3, minH: 5 },
 ];
+
+const normalizeDashboardItems = (items) =>
+  items.map((item) => {
+    if (item.id !== "widget6") return item;
+
+    return {
+      ...item,
+      y: item.y > 1 ? 1 : item.y,
+      height: Math.max(item.height || 0, 5),
+      minH: Math.max(item.minH || 0, 5),
+    };
+  });
 
 function MainDashboard() {
   const [reorganize, setReorganize] = useState();
@@ -117,7 +129,7 @@ function MainDashboard() {
       minRow: 1,
       cellHeight: "auto", // Widgetlerin otomatik yüksekliğini ayarla
       draggable: {
-        handle: ".widget-header", // Dragging handle to move widgets
+        handle: ".widget-header, .analysis-card-drag-handle", // Dragging handle to move widgets
       },
     });
 
@@ -261,7 +273,7 @@ function MainDashboard() {
     grid.engine.float = reorganize;
 
     const handleDashboardChange = () => {
-      const storedItems = JSON.parse(localStorage.getItem(selectedDashboard)) || [];
+      const storedItems = normalizeDashboardItems(JSON.parse(localStorage.getItem(selectedDashboard)) || []);
       const itemsToLoad = storedItems.length > 0 ? storedItems : defaultItems;
 
       const checked = {
@@ -281,6 +293,8 @@ function MainDashboard() {
 
       if (!storedItems.length) {
         localStorage.setItem(selectedDashboard, JSON.stringify(itemsToLoad));
+      } else {
+        localStorage.setItem(selectedDashboard, JSON.stringify(storedItems));
       }
     };
 

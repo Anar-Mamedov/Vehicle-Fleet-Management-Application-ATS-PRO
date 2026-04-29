@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from "react";
 import bg from "/images/bg-card.png";
-import { Spin, Typography } from "antd";
+import { Spin, Tooltip, Typography } from "antd";
 import { useFormContext } from "react-hook-form";
 import AxiosInstance from "../../../../../api/http.jsx";
 import { t } from "i18next";
 import dayjs from "dayjs";
 
 const { Text } = Typography;
+
+const singleLineTextStyle = {
+  display: "block",
+  maxWidth: "100%",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
 
 function ComponentSingleCard() {
   const [data, setData] = useState(null);
@@ -52,7 +60,11 @@ function ComponentSingleCard() {
     fetchData();
   }, [lokasyonId, baslangicTarihi, bitisTarihi]);
 
-  const renderCard = (data, label, backgroundColor, loading) => (
+  const renderCard = (data, label, backgroundColor, loading) => {
+    const materialSummary = `${data?.malzemeKod || "-"} ${data?.tanim || "-"} ${data?.toplamMiktar || "0"} ${data?.birim || ""}`;
+    const totalText = `Toplam Tutar: ${data?.toplamTutar?.toLocaleString() || "0"} ₺`;
+
+    return (
     <div
       style={{
         width: "100%",
@@ -88,31 +100,22 @@ function ComponentSingleCard() {
             textAlign: "left",
           }}
         >
-          <Text style={{ fontWeight: "bold", fontSize: "18px", color: "white" }}>
-            {data?.malzemeKod || "-"}
-          </Text>
+          <Tooltip title={materialSummary}>
+            <Text className="analysis-card-drag-handle" style={{ ...singleLineTextStyle, fontSize: "20px", fontWeight: "bold", color: "#e0e0e0", marginTop: "5px" }}>{materialSummary}</Text>
+          </Tooltip>
+  
+          <Tooltip title={totalText}>
+            <Text style={{ ...singleLineTextStyle, fontSize: "16px", color: "#e0e0e0", marginTop: "5px" }}>{totalText}</Text>
+          </Tooltip>
 
-          <Text style={{ fontWeight: "bold", fontSize: "18px", color: "white" }}>
-            {data?.tanim || "-"}
-          </Text>
-  
-          <Text style={{ fontSize: "20px", fontWeight: "bold", color: "#e0e0e0", marginTop: "5px" }}>
-            {`${data?.toplamMiktar || "0"} ${data?.birim || ""}`}
-          </Text>
-  
-          <Text style={{ fontSize: "16px", color: "#e0e0e0", marginTop: "5px" }}>
-            Toplam Tutar: {data?.toplamTutar?.toLocaleString() || "0"} ₺
-          </Text>
-  
-          {label && (
-            <Text style={{ marginTop: "10px", fontSize: "14px", color: "white", opacity: 0.8 }}>
-              {label}
-            </Text>
-          )}
+          <Tooltip title={label}>
+            <Text style={{ ...singleLineTextStyle, marginTop: "5px", fontSize: "14px", color: "white", opacity: 0.8 }}>{label}</Text>
+          </Tooltip>
         </div>
       )}
     </div>
-  );
+    );
+  };
 
   return (
     <div style={{ width: "100%", height: "100%" }}>

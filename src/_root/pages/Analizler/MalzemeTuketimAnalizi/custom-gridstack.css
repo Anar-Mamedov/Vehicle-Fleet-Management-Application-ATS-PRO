@@ -31,6 +31,15 @@
   justify-self: center;
 }
 
+#widget2 .widget-header,
+#widget3 .widget-header {
+  pointer-events: none;
+}
+
+.analysis-card-drag-handle {
+  cursor: grab;
+}
+
 .grid-stack-item .widget-body {
   inset: 7px;
   overflow-x: hidden;
