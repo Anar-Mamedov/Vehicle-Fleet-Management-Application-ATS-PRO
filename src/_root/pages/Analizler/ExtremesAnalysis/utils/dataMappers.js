@@ -1,8 +1,13 @@
-import { monthNames } from "./constants";
+import { t } from "i18next";
 import { getVehicleSubTitle, getVehicleTitle, safeText } from "./formatters";
 
 export const normalizeArray = (data) => (Array.isArray(data) ? data : []);
 export const hasErrorShape = (data) => data && typeof data === "object" && data.status === false;
+
+const getMonthName = (monthIndex) => {
+  const months = ["", "ocak", "subat", "mart", "nisan", "mayis", "haziran", "temmuz", "agustos", "eylul", "ekim", "kasim", "aralik"];
+  return months[monthIndex] ? t(months[monthIndex]) : String(monthIndex);
+};
 
 const getTypeValue = (type, item = {}) => {
   switch (type) {
@@ -35,7 +40,7 @@ export const toChartData = (items, type) =>
 export const toType12ChartData = (items) =>
   normalizeArray(items).map((item, index) => ({
     key: `12-${index}`,
-    plate: `${monthNames[item.ay] || item.ay}. ${safeText(item.bakimTanim)}`,
+    plate: `${getMonthName(item.ay)}. ${safeText(item.bakimTanim)}`,
     model: `Sıra ${safeText(item.sira)} • Bakım ID ${safeText(item.bakimId)}`,
     value: Number(item.tekrarSayisi) || 0,
     original: item,
@@ -55,7 +60,7 @@ export const toRepeatedFaultLineData = (items) => {
     const month = item.ay;
     if (!accumulator[month]) {
       accumulator[month] = {
-        month: monthNames[month] || String(month),
+        month: getMonthName(month),
         sira1: 0,
         sira2: 0,
         sira3: 0,
