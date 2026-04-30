@@ -377,7 +377,7 @@ const Sidebar = ({ collapsed }) => {
           },
           {
             key: "extremes-analysis",
-            label: <Link to={"/extremes-analysis"}>Enler Analizi</Link>,
+            label: <Link to={"/extremes-analysis"}>En’ler Analizi</Link>,
           },
         ],
       },
