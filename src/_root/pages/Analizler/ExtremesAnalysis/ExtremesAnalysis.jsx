@@ -6,7 +6,6 @@ import DetailTablesSection from "./components/DetailTablesSection";
 import ExpenseDetailModal from "./components/ExpenseDetailModal";
 import FailureDetailModal from "./components/FailureDetailModal";
 import KpiCardsGrid from "./components/KpiCardsGrid";
-import PageHeaderCard from "./components/PageHeaderCard";
 import RankingChartsGrid from "./components/RankingChartsGrid";
 import { emptyFilters } from "./utils/constants";
 import { hasErrorShape, toChartData, toRepeatedFaultLineData } from "./utils/dataMappers";
@@ -119,8 +118,6 @@ export default function ExtremesAnalysis() {
           fetchSelectOptions={fetchSelectOptions}
           fetchAnalysisData={fetchAnalysisData}
         />
-
-        <PageHeaderCard />
 
         {errorMessage ? <Alert type="warning" showIcon message={errorMessage} /> : null}
 
