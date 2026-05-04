@@ -25,12 +25,11 @@ export default function OperatingExpenseTable({ data, onRefresh }) {
           </div>
         ),
       },
-      { title: "Toplam Maliyet", dataIndex: "toplamMaliyet", key: "toplamMaliyet", width: 140, render: (value, record) => formatCurrency(value ?? record.toplamMaliyetTutar) },
+      { title: "Toplam Gider", dataIndex: "toplamMaliyet", key: "toplamMaliyet", width: 140, render: (value, record) => formatCurrency(value ?? record.toplamMaliyetTutar) },
       { title: "Yakıt", dataIndex: "toplamYakitTutar", key: "toplamYakitTutar", width: 120, render: formatCurrency },
-      { title: "Bakım", dataIndex: "toplamBakimTutar", key: "toplamBakimTutar", width: 120, render: formatCurrency },
-      { title: "Arıza", dataIndex: "toplamArizaTutar", key: "toplamArizaTutar", width: 120, render: formatCurrency },
-      { title: "Sigorta", dataIndex: "toplamSigortaTutar", key: "toplamSigortaTutar", width: 120, render: formatCurrency },
-      { title: "Harcama", dataIndex: "toplamHarcamaTutar", key: "toplamHarcamaTutar", width: 120, render: formatCurrency },
+      { title: "Servis Gideri", dataIndex: "toplamServisTutar", key: "toplamServisTutar", width: 140, render: formatCurrency },
+      { title: "HGS", dataIndex: "toplamHgsTutar", key: "toplamHgsTutar", width: 120, render: formatCurrency },
+      { title: "Sigorta / Vergi", dataIndex: "toplamSigortaTutar", key: "toplamSigortaTutar", width: 150, render: formatCurrency },
       { title: "Kullanım (km)", dataIndex: "toplamKm", key: "toplamKm", width: 130, render: formatNumber },
       {
         title: "Gider / km",
@@ -56,12 +55,11 @@ export default function OperatingExpenseTable({ data, onRefresh }) {
     const rows = normalizeArray(data).map((record) => ({
       [vehicleColumnTitle]: safeText(record.plaka),
       "Araç Bilgisi": getVehicleSubTitle(record),
-      "Toplam Maliyet": formatCurrency(record.toplamMaliyet ?? record.toplamMaliyetTutar),
+      "Toplam Gider": formatCurrency(record.toplamMaliyet ?? record.toplamMaliyetTutar),
       Yakıt: formatCurrency(record.toplamYakitTutar),
-      Bakım: formatCurrency(record.toplamBakimTutar),
-      Arıza: formatCurrency(record.toplamArizaTutar),
-      Sigorta: formatCurrency(record.toplamSigortaTutar),
-      Harcama: formatCurrency(record.toplamHarcamaTutar),
+      "Servis Gideri": formatCurrency(record.toplamServisTutar),
+      HGS: formatCurrency(record.toplamHgsTutar),
+      "Sigorta / Vergi": formatCurrency(record.toplamSigortaTutar),
       "Kullanım (km)": formatNumber(record.toplamKm),
       "Gider / km": `${formatDecimalCurrency(record.toplamGiderKm)} / km`,
     }));

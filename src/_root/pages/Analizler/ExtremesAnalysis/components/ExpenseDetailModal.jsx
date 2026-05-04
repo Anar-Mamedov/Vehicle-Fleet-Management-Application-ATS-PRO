@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Space, Tooltip, Typography } from "antd";
+import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
 import { dividerBorder, flexDisplay, spaceBetween } from "../utils/constants";
 import { formatCurrency, getVehicleSubTitle, getVehicleTitle } from "../utils/formatters";
@@ -7,13 +8,15 @@ import { formatCurrency, getVehicleSubTitle, getVehicleTitle } from "../utils/fo
 const { Text } = Typography;
 
 export default function ExpenseDetailModal({ open, onCancel, item }) {
+  const { t } = useTranslation();
+
   const rows = [
-    ["Yakıt", item.toplamYakitTutar],
-    ["Bakım", item.toplamBakimTutar],
-    ["Arıza", item.toplamArizaTutar],
-    ["Sigorta", item.toplamSigortaTutar],
-    ["Harcama", item.toplamHarcamaTutar],
-    ["Toplam Maliyet", item.toplamMaliyetTutar],
+    [t("yakit"), item.toplamYakitTutar],
+    [t("servisGideri"), item.toplamServisTutar],
+    [t("harcama"), item.toplamHarcamaTutar],
+    [t("hgs"), item.toplamHgsTutar],
+    [`${t("sigorta")} / ${t("vergi")}`, item.toplamSigortaTutar],
+    [t("toplamMaliyet"), item.toplamMaliyetTutar],
   ];
 
   return (
@@ -42,8 +45,8 @@ ExpenseDetailModal.propTypes = {
     model: PropTypes.string,
     yil: PropTypes.number,
     toplamYakitTutar: PropTypes.number,
-    toplamBakimTutar: PropTypes.number,
-    toplamArizaTutar: PropTypes.number,
+    toplamServisTutar: PropTypes.number,
+    toplamHgsTutar: PropTypes.number,
     toplamSigortaTutar: PropTypes.number,
     toplamHarcamaTutar: PropTypes.number,
     toplamMaliyetTutar: PropTypes.number,
