@@ -9,7 +9,7 @@ import ScrollRankingCard from "./ScrollRankingCard";
 import { chartColors } from "../utils/constants";
 import { formatCurrency, formatDecimalCurrency, formatNumber } from "../utils/formatters";
 
-export default function RankingChartsGrid({ type6Data, type7Data, type8Data, type9Data, type10Data, type11Data, type12LineData }) {
+export default function RankingChartsGrid({ type6Data, type7Data, type8Data, type9Data, type10Data, type11Data, type12Data }) {
   return (
     <>
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
@@ -39,7 +39,7 @@ export default function RankingChartsGrid({ type6Data, type7Data, type8Data, typ
           <AreaRankingCard title="En Uzun Süre Serviste Kalan Araçlar" icon={ClockCircleOutlined} data={type11Data} color={chartColors.teal} softColor="#ccfbf1" formatter={(value) => `${formatNumber(value)} saat`} unitLabel="Servis süresi" gradientId="grad-extreme-service" />
         </Col>
         <Col xs={24} xl={8}>
-          <RepeatedFaultsLineCard data={type12LineData} />
+          <RepeatedFaultsLineCard data={type12Data} />
         </Col>
       </Row>
     </>
@@ -59,12 +59,5 @@ RankingChartsGrid.propTypes = {
   type9Data: PropTypes.arrayOf(chartItemShape).isRequired,
   type10Data: PropTypes.arrayOf(chartItemShape).isRequired,
   type11Data: PropTypes.arrayOf(chartItemShape).isRequired,
-  type12LineData: PropTypes.arrayOf(
-    PropTypes.shape({
-      month: PropTypes.string,
-      sira1: PropTypes.number,
-      sira2: PropTypes.number,
-      sira3: PropTypes.number,
-    })
-  ).isRequired,
+  type12Data: PropTypes.arrayOf(chartItemShape).isRequired,
 };

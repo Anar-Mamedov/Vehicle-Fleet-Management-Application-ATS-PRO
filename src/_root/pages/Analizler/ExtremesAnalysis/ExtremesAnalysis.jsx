@@ -8,7 +8,7 @@ import FailureDetailModal from "./components/FailureDetailModal";
 import KpiCardsGrid from "./components/KpiCardsGrid";
 import RankingChartsGrid from "./components/RankingChartsGrid";
 import { emptyFilters } from "./utils/constants";
-import { hasErrorShape, toChartData, toRepeatedFaultLineData } from "./utils/dataMappers";
+import { hasErrorShape, toChartData } from "./utils/dataMappers";
 
 export default function ExtremesAnalysis() {
   const [filters, setFilters] = useState(emptyFilters);
@@ -93,7 +93,7 @@ export default function ExtremesAnalysis() {
       type9Data: toChartData(analysisData[9], 9),
       type10Data: toChartData(analysisData[10], 10),
       type11Data: toChartData(analysisData[11], 11),
-      type12LineData: toRepeatedFaultLineData(analysisData[12]),
+      type12Data: toChartData(analysisData[12], 12),
     }),
     [analysisData]
   );
