@@ -8,7 +8,7 @@ import FailureDetailModal from "./components/FailureDetailModal";
 import KpiCardsGrid from "./components/KpiCardsGrid";
 import RankingChartsGrid from "./components/RankingChartsGrid";
 import { emptyFilters } from "./utils/constants";
-import { hasErrorShape, toChartData, toRepeatedFaultLineData } from "./utils/dataMappers";
+import { hasErrorShape, toChartData } from "./utils/dataMappers";
 
 export default function ExtremesAnalysis() {
   const [filters, setFilters] = useState(emptyFilters);
@@ -30,6 +30,8 @@ export default function ExtremesAnalysis() {
     }),
     [filters]
   );
+
+  const getEmptyValueByType = useCallback((type) => (type <= 5 ? null : []), []);
 
   const fetchSelectOptions = useCallback(async () => {
     setTypeLoading(true);
@@ -62,7 +64,7 @@ export default function ExtremesAnalysis() {
           nextData[type] = result.value.data;
         } else {
           failedTypes.push(type);
-          nextData[type] = type <= 5 ? null : [];
+          nextData[type] = getEmptyValueByType(type);
         }
       });
 
@@ -75,7 +77,27 @@ export default function ExtremesAnalysis() {
     } finally {
       setLoading(false);
     }
-  }, [requestBody]);
+  }, [getEmptyValueByType, requestBody]);
+
+  const refreshAnalysisType = useCallback(
+    async (type) => {
+      try {
+        const response = await AxiosInstance.post(`ModuleAnalysis/ExtremesAnalysis/GetInfoByType?type=${type}`, requestBody);
+        if (!hasErrorShape(response.data)) {
+          setAnalysisData((prev) => ({ ...prev, [type]: response.data }));
+          setErrorMessage("");
+          return;
+        }
+      } catch (error) {
+        setErrorMessage(error?.response?.data?.message || `Analiz yenilenemedi: Type ${type}`);
+        return;
+      }
+
+      setAnalysisData((prev) => ({ ...prev, [type]: getEmptyValueByType(type) }));
+      setErrorMessage(`Analiz yenilenemedi: Type ${type}`);
+    },
+    [getEmptyValueByType, requestBody]
+  );
 
   useEffect(() => {
     fetchSelectOptions();
@@ -93,7 +115,7 @@ export default function ExtremesAnalysis() {
       type9Data: toChartData(analysisData[9], 9),
       type10Data: toChartData(analysisData[10], 10),
       type11Data: toChartData(analysisData[11], 11),
-      type12LineData: toRepeatedFaultLineData(analysisData[12]),
+      type12Data: toChartData(analysisData[12], 12),
     }),
     [analysisData]
   );
@@ -123,8 +145,8 @@ export default function ExtremesAnalysis() {
 
         <Spin spinning={loading}>
           <KpiCardsGrid type1={type1} type2={type2} type3={type3} type4={type4} type5={type5} onExpenseClick={() => setExpenseModalOpen(true)} onFailureClick={() => setFailureModalOpen(true)} />
-          <RankingChartsGrid {...chartData} />
-          <DetailTablesSection failureData={analysisData[13]} expenseData={analysisData[14]} />
+          <RankingChartsGrid {...chartData} onRefreshType={refreshAnalysisType} />
+          <DetailTablesSection failureData={analysisData[13]} expenseData={analysisData[14]} onRefreshType={refreshAnalysisType} />
         </Spin>
       </Space>
 

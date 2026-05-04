@@ -1,9 +1,33 @@
 import React from "react";
+import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import "dayjs/locale/tr";
 import "dayjs/locale/en";
 import "dayjs/locale/ru";
 import "dayjs/locale/az";
+
+const defaultDateFormat = "DD.MM.YYYY";
+
+const dateFormats = {
+  tr: defaultDateFormat,
+  en: "MM/DD/YYYY",
+  ru: defaultDateFormat,
+  az: defaultDateFormat,
+};
+
+export const formatDateByLocale = (text, customFormat, fallback = "-") => {
+  if (!text) return fallback;
+
+  const currentLang = localStorage.getItem("i18nextLng") || "tr";
+
+  dayjs.locale(currentLang);
+
+  const formatToUse = customFormat || dateFormats[currentLang] || defaultDateFormat;
+
+  const parsed = dayjs(text);
+  if (!parsed.isValid()) return fallback;
+  return parsed.format(formatToUse);
+};
 
 /**
  * Tarih formatlaması için yeniden kullanılabilir bileşen
@@ -15,38 +39,29 @@ import "dayjs/locale/az";
  * @returns {JSX.Element} Formatlanmış tarih
  */
 const FormattedDate = ({ date, format, fallback = "-", className, style, ...props }) => {
-  // Tarih formatlaması için yardımcı fonksiyon
-  const formatDateByLocale = (text, customFormat) => {
-    if (!text) return fallback;
-
-    const currentLang = localStorage.getItem("i18nextLng") || "tr";
-
-    // dayjs locale'ini ayarla
-    dayjs.locale(currentLang);
-
-    // Dile göre tarih formatı (eğer özel format verilmemişse)
-    const dateFormats = {
-      tr: "DD.MM.YYYY",
-      en: "MM/DD/YYYY",
-      ru: "DD.MM.YYYY",
-      az: "DD.MM.YYYY",
-    };
-
-    // Özel format varsa onu kullan, yoksa dile göre format kullan
-    const formatToUse = customFormat || dateFormats[currentLang] || "DD.MM.YYYY";
-
-    const parsed = dayjs(text);
-    if (!parsed.isValid()) return fallback;
-    return parsed.format(formatToUse);
-  };
-
-  const formattedDate = formatDateByLocale(date, format);
+  const formattedDate = formatDateByLocale(date, format, fallback);
 
   return (
     <span className={className} style={style} {...props}>
       {formattedDate}
     </span>
   );
+};
+
+FormattedDate.propTypes = {
+  date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date), PropTypes.number]),
+  format: PropTypes.string,
+  fallback: PropTypes.string,
+  className: PropTypes.string,
+  style: PropTypes.object,
+};
+
+FormattedDate.defaultProps = {
+  date: null,
+  format: undefined,
+  fallback: "-",
+  className: undefined,
+  style: undefined,
 };
 
 export default FormattedDate;

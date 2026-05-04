@@ -23,6 +23,8 @@ const getTypeValue = (type, item = {}) => {
       return Number(item.maliyetPerKm) || 0;
     case 11:
       return (Number(item.servisSuresiDk) || 0) / 60;
+    case 12:
+      return Number(item.toplamTutar) || 0;
     default:
       return 0;
   }

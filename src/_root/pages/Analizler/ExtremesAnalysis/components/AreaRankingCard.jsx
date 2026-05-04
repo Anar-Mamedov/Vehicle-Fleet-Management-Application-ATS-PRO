@@ -2,7 +2,9 @@ import React from "react";
 import { Card, Empty, Space, Typography } from "antd";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis } from "recharts";
 import PropTypes from "prop-types";
+import CardActionMenu from "./CardActionMenu";
 import { cardBorder, chartColors } from "../utils/constants";
+import { downloadVehicleChartPdf } from "../utils/exporters";
 
 const { Text, Title } = Typography;
 
@@ -52,8 +54,26 @@ CustomAreaTooltip.defaultProps = {
   payload: [],
 };
 
-export default function AreaRankingCard({ title, icon, data, color, softColor, formatter, unitLabel, gradientId }) {
+export default function AreaRankingCard({ title, icon, data, color, softColor, formatter, unitLabel, gradientId, onRefresh }) {
   const Icon = icon;
+
+  const renderChart = (height) => (
+    <ResponsiveContainer width="100%" height={height}>
+      <AreaChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity={0.32} />
+            <stop offset="100%" stopColor={softColor} stopOpacity={0.05} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid stroke={chartColors.grid} horizontal vertical={false} />
+        <XAxis dataKey="plate" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 700, fill: "#0f172a" }} />
+        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#64748b" }} />
+        <RechartsTooltip content={<CustomAreaTooltip formatter={formatter} />} />
+        <Area type="monotone" dataKey="value" stroke={color} strokeWidth={3} fill={`url(#${gradientId})`} dot={{ r: 3, strokeWidth: 2, fill: color, stroke: "#fff" }} activeDot={{ r: 5, strokeWidth: 2, fill: color, stroke: "#fff" }} />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
 
   return (
     <Card
@@ -68,30 +88,20 @@ export default function AreaRankingCard({ title, icon, data, color, softColor, f
             {title}
           </Title>
         </Space>
-        <Text type="secondary" style={{ fontSize: 12 }}>
-          {unitLabel}
-        </Text>
+        <Space size={10}>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {unitLabel}
+          </Text>
+          <CardActionMenu
+            infoTitle={title}
+            renderFullscreenContent={() => renderChart(560)}
+            onRefresh={onRefresh}
+            onDownload={() => downloadVehicleChartPdf({ title, subtitle: unitLabel, data, formatter })}
+          />
+        </Space>
       </div>
 
-      {data.length ? (
-        <ResponsiveContainer width="100%" height={292}>
-          <AreaChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={color} stopOpacity={0.32} />
-                <stop offset="100%" stopColor={softColor} stopOpacity={0.05} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid stroke={chartColors.grid} horizontal vertical={false} />
-            <XAxis dataKey="plate" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 700, fill: "#0f172a" }} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#64748b" }} />
-            <RechartsTooltip content={<CustomAreaTooltip formatter={formatter} />} />
-            <Area type="monotone" dataKey="value" stroke={color} strokeWidth={3} fill={`url(#${gradientId})`} dot={{ r: 3, strokeWidth: 2, fill: color, stroke: "#fff" }} activeDot={{ r: 5, strokeWidth: 2, fill: color, stroke: "#fff" }} />
-          </AreaChart>
-        </ResponsiveContainer>
-      ) : (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Veri yok" />
-      )}
+      {data.length ? renderChart(292) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Veri yok" />}
     </Card>
   );
 }
@@ -112,4 +122,5 @@ AreaRankingCard.propTypes = {
   formatter: PropTypes.func.isRequired,
   unitLabel: PropTypes.string.isRequired,
   gradientId: PropTypes.string.isRequired,
+  onRefresh: PropTypes.func.isRequired,
 };
