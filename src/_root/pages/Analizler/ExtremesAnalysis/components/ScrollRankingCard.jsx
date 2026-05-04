@@ -3,6 +3,7 @@ import { Card, Empty, Space, Tooltip, Typography } from "antd";
 import PropTypes from "prop-types";
 import CardActionMenu from "./CardActionMenu";
 import { cardBorder } from "../utils/constants";
+import { downloadVehicleChartPdf } from "../utils/exporters";
 
 const { Text, Title } = Typography;
 
@@ -10,8 +11,8 @@ export default function ScrollRankingCard({ title, icon, data, color, softColor,
   const Icon = icon;
   const maxValue = useMemo(() => Math.max(...data.map((item) => item.value), 1), [data]);
 
-  const renderList = (height) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10, height, overflowY: "auto", paddingRight: 4 }}>
+  const renderList = (height, scrollable = true) => (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, height, overflowY: scrollable ? "auto" : "visible", paddingRight: 4 }}>
       {data.slice(0, 10).map((item, index) => {
         const percent = Math.max((item.value / maxValue) * 100, 8);
         const isTop = index < 3;
@@ -52,15 +53,16 @@ export default function ScrollRankingCard({ title, icon, data, color, softColor,
           <Text type="secondary" style={{ fontSize: 12 }}>
             {unitLabel}
           </Text>
-          <CardActionMenu infoTitle={title} renderFullscreenContent={() => renderList(560)} onRefresh={onRefresh} />
+          <CardActionMenu
+            infoTitle={title}
+            renderFullscreenContent={() => renderList(560)}
+            onRefresh={onRefresh}
+            onDownload={() => downloadVehicleChartPdf({ title, subtitle: unitLabel, data, formatter })}
+          />
         </Space>
       </div>
 
-      {data.length ? (
-        renderList(340)
-      ) : (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Veri yok" />
-      )}
+      {data.length ? renderList(340) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Veri yok" />}
     </Card>
   );
 }

@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 import CardActionMenu from "./CardActionMenu";
 import { cardBorder } from "../utils/constants";
+import { downloadVehicleChartPdf } from "../utils/exporters";
 
 const { Text, Title } = Typography;
 
@@ -13,8 +14,8 @@ export default function RepeatedFaultsLineCard({ data, onRefresh }) {
   const maxValue = useMemo(() => Math.max(...data.map((item) => item.value), 1), [data]);
 
   const formatCurrency = (value) => `₺${formatNumberWithLocale(value)}`;
-  const renderList = (height) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10, height, overflowY: "auto", paddingRight: 6 }}>
+  const renderList = (height, scrollable = true) => (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, height, overflowY: scrollable ? "auto" : "visible", paddingRight: 6 }}>
       {data.slice(0, 10).map((item) => {
         const percent = Math.max((item.value / maxValue) * 100, 12);
 
@@ -63,15 +64,22 @@ export default function RepeatedFaultsLineCard({ data, onRefresh }) {
           <Text type="secondary" style={{ fontSize: 12, whiteSpace: "nowrap" }}>
             {t("toplamHgsTutari")}
           </Text>
-          <CardActionMenu infoTitle={t("enYuksekHgsMaliyetiOlanAraclar")} renderFullscreenContent={() => renderList(560)} onRefresh={onRefresh} />
+          <CardActionMenu
+            infoTitle={t("enYuksekHgsMaliyetiOlanAraclar")}
+            renderFullscreenContent={() => renderList(560)}
+            onRefresh={onRefresh}
+            onDownload={() =>
+              downloadVehicleChartPdf({
+                title: t("enYuksekHgsMaliyetiOlanAraclar"),
+                subtitle: t("toplamHgsTutari"),
+                data,
+                formatter: formatCurrency,
+              })}
+          />
         </Space>
       </div>
 
-      {data.length ? (
-        renderList(340)
-      ) : (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("veriYok")} />
-      )}
+      {data.length ? renderList(340) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("veriYok")} />}
     </Card>
   );
 }

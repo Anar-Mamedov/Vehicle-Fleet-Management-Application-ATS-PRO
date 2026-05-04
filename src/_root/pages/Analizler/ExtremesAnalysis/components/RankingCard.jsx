@@ -4,6 +4,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip as RechartsT
 import PropTypes from "prop-types";
 import CardActionMenu from "./CardActionMenu";
 import { cardBorder, chartColors, dividerBorder, flexDisplay, mutedTextColor, spaceBetween, titleTextColor } from "../utils/constants";
+import { downloadVehicleChartPdf } from "../utils/exporters";
 
 const { Text } = Typography;
 
@@ -53,15 +54,16 @@ export default function RankingCard({ title, icon, data, color, formatter, unitL
       extra={
         <Space size={10}>
           <Text type="secondary">{unitLabel}</Text>
-          <CardActionMenu infoTitle={title} renderFullscreenContent={() => renderChart(560)} onRefresh={onRefresh} />
+          <CardActionMenu
+            infoTitle={title}
+            renderFullscreenContent={() => renderChart(560)}
+            onRefresh={onRefresh}
+            onDownload={() => downloadVehicleChartPdf({ title, subtitle: unitLabel, data: chartData, formatter })}
+          />
         </Space>
       }
     >
-      {chartData.length ? (
-        renderChart(300)
-      ) : (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Veri yok" />
-      )}
+      {chartData.length ? renderChart(300) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Veri yok" />}
     </Card>
   );
 }

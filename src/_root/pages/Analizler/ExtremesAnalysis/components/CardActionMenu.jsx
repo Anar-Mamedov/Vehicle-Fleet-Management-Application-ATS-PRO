@@ -54,7 +54,7 @@ InfoModalContent.propTypes = {
   title: PropTypes.string.isRequired,
 };
 
-export default function CardActionMenu({ infoTitle, renderFullscreenContent, onRefresh }) {
+export default function CardActionMenu({ infoTitle, renderFullscreenContent, onRefresh, onDownload }) {
   const [infoOpen, setInfoOpen] = useState(false);
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
 
@@ -82,6 +82,9 @@ export default function CardActionMenu({ infoTitle, renderFullscreenContent, onR
             }
             if (key === "refresh" && typeof onRefresh === "function") {
               onRefresh();
+            }
+            if (key === "download" && typeof onDownload === "function") {
+              onDownload();
             }
           },
         }}
@@ -132,9 +135,11 @@ CardActionMenu.propTypes = {
   infoTitle: PropTypes.string.isRequired,
   renderFullscreenContent: PropTypes.func,
   onRefresh: PropTypes.func,
+  onDownload: PropTypes.func,
 };
 
 CardActionMenu.defaultProps = {
   renderFullscreenContent: undefined,
   onRefresh: undefined,
+  onDownload: undefined,
 };

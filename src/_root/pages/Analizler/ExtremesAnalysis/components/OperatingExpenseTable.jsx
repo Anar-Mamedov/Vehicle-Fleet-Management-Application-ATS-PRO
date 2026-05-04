@@ -5,6 +5,7 @@ import CardActionMenu from "./CardActionMenu";
 import { cardBorder, mutedTextColor, vehicleColumnTitle } from "../utils/constants";
 import { formatCurrency, formatDecimalCurrency, formatNumber, getVehicleSubTitle, safeText } from "../utils/formatters";
 import { normalizeArray } from "../utils/dataMappers";
+import { downloadJsonAsXlsx } from "../utils/exporters";
 
 const { Text } = Typography;
 
@@ -51,8 +52,25 @@ export default function OperatingExpenseTable({ data, onRefresh }) {
     <Table rowKey={(_, index) => `expense-${index}`} columns={columns} dataSource={normalizeArray(data)} pagination={false} scroll={{ x: 1180, y: scrollY }} size="middle" />
   );
 
+  const handleDownload = () => {
+    const rows = normalizeArray(data).map((record) => ({
+      [vehicleColumnTitle]: safeText(record.plaka),
+      "Araç Bilgisi": getVehicleSubTitle(record),
+      "Toplam Maliyet": formatCurrency(record.toplamMaliyet ?? record.toplamMaliyetTutar),
+      Yakıt: formatCurrency(record.toplamYakitTutar),
+      Bakım: formatCurrency(record.toplamBakimTutar),
+      Arıza: formatCurrency(record.toplamArizaTutar),
+      Sigorta: formatCurrency(record.toplamSigortaTutar),
+      Harcama: formatCurrency(record.toplamHarcamaTutar),
+      "Kullanım (km)": formatNumber(record.toplamKm),
+      "Gider / km": `${formatDecimalCurrency(record.toplamGiderKm)} / km`,
+    }));
+
+    downloadJsonAsXlsx(rows, "En Çok İşletme Gideri Olan Araçlar");
+  };
+
   return (
-    <Card bordered={false} style={{ borderRadius: 20, border: cardBorder }} title="En Çok İşletme Gideri Olan Araçlar" extra={<CardActionMenu infoTitle="En Çok İşletme Gideri Olan Araçlar" renderFullscreenContent={() => renderTable("62vh")} onRefresh={onRefresh} />}>
+    <Card bordered={false} style={{ borderRadius: 20, border: cardBorder }} title="En Çok İşletme Gideri Olan Araçlar" extra={<CardActionMenu infoTitle="En Çok İşletme Gideri Olan Araçlar" renderFullscreenContent={() => renderTable("62vh")} onRefresh={onRefresh} onDownload={handleDownload} />}>
       {renderTable(undefined)}
     </Card>
   );

@@ -4,6 +4,7 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip as Rechart
 import PropTypes from "prop-types";
 import CardActionMenu from "./CardActionMenu";
 import { cardBorder, chartColors } from "../utils/constants";
+import { downloadVehicleChartPdf } from "../utils/exporters";
 
 const { Text, Title } = Typography;
 
@@ -91,15 +92,16 @@ export default function AreaRankingCard({ title, icon, data, color, softColor, f
           <Text type="secondary" style={{ fontSize: 12 }}>
             {unitLabel}
           </Text>
-          <CardActionMenu infoTitle={title} renderFullscreenContent={() => renderChart(560)} onRefresh={onRefresh} />
+          <CardActionMenu
+            infoTitle={title}
+            renderFullscreenContent={() => renderChart(560)}
+            onRefresh={onRefresh}
+            onDownload={() => downloadVehicleChartPdf({ title, subtitle: unitLabel, data, formatter })}
+          />
         </Space>
       </div>
 
-      {data.length ? (
-        renderChart(292)
-      ) : (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Veri yok" />
-      )}
+      {data.length ? renderChart(292) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Veri yok" />}
     </Card>
   );
 }
