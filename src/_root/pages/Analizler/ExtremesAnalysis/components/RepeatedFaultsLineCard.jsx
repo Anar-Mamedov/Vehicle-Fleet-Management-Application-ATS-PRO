@@ -4,14 +4,47 @@ import { Card, Empty, Space, Tooltip, Typography } from "antd";
 import { t } from "i18next";
 import PropTypes from "prop-types";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
+import CardActionMenu from "./CardActionMenu";
 import { cardBorder } from "../utils/constants";
 
 const { Text, Title } = Typography;
 
-export default function RepeatedFaultsLineCard({ data }) {
+export default function RepeatedFaultsLineCard({ data, onRefresh }) {
   const maxValue = useMemo(() => Math.max(...data.map((item) => item.value), 1), [data]);
 
   const formatCurrency = (value) => `₺${formatNumberWithLocale(value)}`;
+  const renderList = (height) => (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, height, overflowY: "auto", paddingRight: 6 }}>
+      {data.slice(0, 10).map((item) => {
+        const percent = Math.max((item.value / maxValue) * 100, 12);
+
+        return (
+          <Tooltip key={item.key} title={`${item.plate} • ${item.model} • ${formatCurrency(item.value)}`}>
+            <div
+              style={{
+                borderRadius: 18,
+                border: "1px solid #8cecf4",
+                background: "linear-gradient(180deg, #f8feff 0%, #f1fcff 100%)",
+                boxShadow: "0 8px 18px rgba(32, 197, 207, 0.06)",
+                padding: "12px 14px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
+                <div style={{ minWidth: 0, fontSize: 13, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {item.plate}
+                </div>
+                <div style={{ flexShrink: 0, fontSize: 13, fontWeight: 700, color: "#20c5cf", whiteSpace: "nowrap" }}>{formatCurrency(item.value)}</div>
+              </div>
+
+              <div style={{ height: 10, borderRadius: 999, background: "#c8f1f5", overflow: "hidden" }}>
+                <div style={{ width: `${percent}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #20c5cf 0%, #28c5c8 100%)" }} />
+              </div>
+            </div>
+          </Tooltip>
+        );
+      })}
+    </div>
+  );
 
   return (
     <Card
@@ -26,42 +59,16 @@ export default function RepeatedFaultsLineCard({ data }) {
             {t("enYuksekHgsMaliyetiOlanAraclar")}
           </Title>
         </Space>
-        <Text type="secondary" style={{ fontSize: 12, whiteSpace: "nowrap" }}>
-          {t("toplamHgsTutari")}
-        </Text>
+        <Space size={10}>
+          <Text type="secondary" style={{ fontSize: 12, whiteSpace: "nowrap" }}>
+            {t("toplamHgsTutari")}
+          </Text>
+          <CardActionMenu infoTitle={t("enYuksekHgsMaliyetiOlanAraclar")} renderFullscreenContent={() => renderList(560)} onRefresh={onRefresh} />
+        </Space>
       </div>
 
       {data.length ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, height: 340, overflowY: "auto", paddingRight: 6 }}>
-          {data.slice(0, 10).map((item) => {
-            const percent = Math.max((item.value / maxValue) * 100, 12);
-
-            return (
-              <Tooltip key={item.key} title={`${item.plate} • ${item.model} • ${formatCurrency(item.value)}`}>
-                <div
-                  style={{
-                    borderRadius: 18,
-                    border: "1px solid #8cecf4",
-                    background: "linear-gradient(180deg, #f8feff 0%, #f1fcff 100%)",
-                    boxShadow: "0 8px 18px rgba(32, 197, 207, 0.06)",
-                    padding: "12px 14px",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
-                    <div style={{ minWidth: 0, fontSize: 13, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {item.plate}
-                    </div>
-                    <div style={{ flexShrink: 0, fontSize: 13, fontWeight: 700, color: "#20c5cf", whiteSpace: "nowrap" }}>{formatCurrency(item.value)}</div>
-                  </div>
-
-                  <div style={{ height: 10, borderRadius: 999, background: "#c8f1f5", overflow: "hidden" }}>
-                    <div style={{ width: `${percent}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #20c5cf 0%, #28c5c8 100%)" }} />
-                  </div>
-                </div>
-              </Tooltip>
-            );
-          })}
-        </div>
+        renderList(340)
       ) : (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("veriYok")} />
       )}
@@ -78,4 +85,5 @@ RepeatedFaultsLineCard.propTypes = {
       value: PropTypes.number,
     })
   ).isRequired,
+  onRefresh: PropTypes.func.isRequired,
 };

@@ -1,13 +1,14 @@
 import React, { useMemo } from "react";
 import { Card, Progress, Table, Typography } from "antd";
 import PropTypes from "prop-types";
+import CardActionMenu from "./CardActionMenu";
 import { cardBorder, mutedTextColor, vehicleColumnTitle } from "../utils/constants";
 import { formatCurrency, formatDecimalCurrency, formatNumber, getVehicleSubTitle, safeText } from "../utils/formatters";
 import { normalizeArray } from "../utils/dataMappers";
 
 const { Text } = Typography;
 
-export default function OperatingExpenseTable({ data }) {
+export default function OperatingExpenseTable({ data, onRefresh }) {
   const columns = useMemo(
     () => [
       {
@@ -46,15 +47,20 @@ export default function OperatingExpenseTable({ data }) {
     []
   );
 
+  const renderTable = (scrollY) => (
+    <Table rowKey={(_, index) => `expense-${index}`} columns={columns} dataSource={normalizeArray(data)} pagination={false} scroll={{ x: 1180, y: scrollY }} size="middle" />
+  );
+
   return (
-    <Card bordered={false} style={{ borderRadius: 20, border: cardBorder }} title="En Çok İşletme Gideri Olan Araçlar">
-      <Table rowKey={(_, index) => `expense-${index}`} columns={columns} dataSource={normalizeArray(data)} pagination={false} scroll={{ x: 1180 }} size="middle" />
+    <Card bordered={false} style={{ borderRadius: 20, border: cardBorder }} title="En Çok İşletme Gideri Olan Araçlar" extra={<CardActionMenu infoTitle="En Çok İşletme Gideri Olan Araçlar" renderFullscreenContent={() => renderTable("62vh")} onRefresh={onRefresh} />}>
+      {renderTable(undefined)}
     </Card>
   );
 }
 
 OperatingExpenseTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({ plaka: PropTypes.string })),
+  onRefresh: PropTypes.func.isRequired,
 };
 
 OperatingExpenseTable.defaultProps = {

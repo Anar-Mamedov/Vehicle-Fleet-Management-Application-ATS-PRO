@@ -1,13 +1,39 @@
 import React, { useMemo } from "react";
 import { Card, Empty, Space, Tooltip, Typography } from "antd";
 import PropTypes from "prop-types";
+import CardActionMenu from "./CardActionMenu";
 import { cardBorder } from "../utils/constants";
 
 const { Text, Title } = Typography;
 
-export default function ScrollRankingCard({ title, icon, data, color, softColor, formatter, unitLabel }) {
+export default function ScrollRankingCard({ title, icon, data, color, softColor, formatter, unitLabel, onRefresh }) {
   const Icon = icon;
   const maxValue = useMemo(() => Math.max(...data.map((item) => item.value), 1), [data]);
+
+  const renderList = (height) => (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, height, overflowY: "auto", paddingRight: 4 }}>
+      {data.slice(0, 10).map((item, index) => {
+        const percent = Math.max((item.value / maxValue) * 100, 8);
+        const isTop = index < 3;
+
+        return (
+          <Tooltip key={item.key} title={`${item.plate} • ${item.model} • ${formatter(item.value)}`}>
+            <div style={{ padding: "10px 12px", borderRadius: 14, border: `1px solid ${isTop ? softColor : "#e5e7eb"}`, background: "#ffffff" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
+                <div title={item.plate} style={{ minWidth: 0, fontSize: 13, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {item.plate}
+                </div>
+                <div style={{ flexShrink: 0, fontSize: 13, fontWeight: 700, color, whiteSpace: "nowrap" }}>{formatter(item.value)}</div>
+              </div>
+              <div style={{ height: 8, background: softColor, borderRadius: 999, overflow: "hidden" }}>
+                <div style={{ width: `${percent}%`, height: "100%", background: color, borderRadius: 999 }} />
+              </div>
+            </div>
+          </Tooltip>
+        );
+      })}
+    </div>
+  );
 
   return (
     <Card
@@ -22,34 +48,16 @@ export default function ScrollRankingCard({ title, icon, data, color, softColor,
             {title}
           </Title>
         </Space>
-        <Text type="secondary" style={{ fontSize: 12 }}>
-          {unitLabel}
-        </Text>
+        <Space size={10}>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {unitLabel}
+          </Text>
+          <CardActionMenu infoTitle={title} renderFullscreenContent={() => renderList(560)} onRefresh={onRefresh} />
+        </Space>
       </div>
 
       {data.length ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, height: 340, overflowY: "auto", paddingRight: 4 }}>
-          {data.slice(0, 10).map((item, index) => {
-            const percent = Math.max((item.value / maxValue) * 100, 8);
-            const isTop = index < 3;
-
-            return (
-              <Tooltip key={item.key} title={`${item.plate} • ${item.model} • ${formatter(item.value)}`}>
-                <div style={{ padding: "10px 12px", borderRadius: 14, border: `1px solid ${isTop ? softColor : "#e5e7eb"}`, background: "#ffffff" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
-                    <div title={item.plate} style={{ minWidth: 0, fontSize: 13, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {item.plate}
-                    </div>
-                    <div style={{ flexShrink: 0, fontSize: 13, fontWeight: 700, color, whiteSpace: "nowrap" }}>{formatter(item.value)}</div>
-                  </div>
-                  <div style={{ height: 8, background: softColor, borderRadius: 999, overflow: "hidden" }}>
-                    <div style={{ width: `${percent}%`, height: "100%", background: color, borderRadius: 999 }} />
-                  </div>
-                </div>
-              </Tooltip>
-            );
-          })}
-        </div>
+        renderList(340)
       ) : (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Veri yok" />
       )}
@@ -72,4 +80,5 @@ ScrollRankingCard.propTypes = {
   softColor: PropTypes.string.isRequired,
   formatter: PropTypes.func.isRequired,
   unitLabel: PropTypes.string.isRequired,
+  onRefresh: PropTypes.func.isRequired,
 };

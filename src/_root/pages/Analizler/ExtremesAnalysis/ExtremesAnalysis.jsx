@@ -31,6 +31,8 @@ export default function ExtremesAnalysis() {
     [filters]
   );
 
+  const getEmptyValueByType = useCallback((type) => (type <= 5 ? null : []), []);
+
   const fetchSelectOptions = useCallback(async () => {
     setTypeLoading(true);
     setBrandLoading(true);
@@ -62,7 +64,7 @@ export default function ExtremesAnalysis() {
           nextData[type] = result.value.data;
         } else {
           failedTypes.push(type);
-          nextData[type] = type <= 5 ? null : [];
+          nextData[type] = getEmptyValueByType(type);
         }
       });
 
@@ -75,7 +77,27 @@ export default function ExtremesAnalysis() {
     } finally {
       setLoading(false);
     }
-  }, [requestBody]);
+  }, [getEmptyValueByType, requestBody]);
+
+  const refreshAnalysisType = useCallback(
+    async (type) => {
+      try {
+        const response = await AxiosInstance.post(`ModuleAnalysis/ExtremesAnalysis/GetInfoByType?type=${type}`, requestBody);
+        if (!hasErrorShape(response.data)) {
+          setAnalysisData((prev) => ({ ...prev, [type]: response.data }));
+          setErrorMessage("");
+          return;
+        }
+      } catch (error) {
+        setErrorMessage(error?.response?.data?.message || `Analiz yenilenemedi: Type ${type}`);
+        return;
+      }
+
+      setAnalysisData((prev) => ({ ...prev, [type]: getEmptyValueByType(type) }));
+      setErrorMessage(`Analiz yenilenemedi: Type ${type}`);
+    },
+    [getEmptyValueByType, requestBody]
+  );
 
   useEffect(() => {
     fetchSelectOptions();
@@ -123,8 +145,8 @@ export default function ExtremesAnalysis() {
 
         <Spin spinning={loading}>
           <KpiCardsGrid type1={type1} type2={type2} type3={type3} type4={type4} type5={type5} onExpenseClick={() => setExpenseModalOpen(true)} onFailureClick={() => setFailureModalOpen(true)} />
-          <RankingChartsGrid {...chartData} />
-          <DetailTablesSection failureData={analysisData[13]} expenseData={analysisData[14]} />
+          <RankingChartsGrid {...chartData} onRefreshType={refreshAnalysisType} />
+          <DetailTablesSection failureData={analysisData[13]} expenseData={analysisData[14]} onRefreshType={refreshAnalysisType} />
         </Spin>
       </Space>
 

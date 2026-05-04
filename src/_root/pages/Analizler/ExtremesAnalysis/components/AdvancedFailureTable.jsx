@@ -2,13 +2,14 @@ import React, { useMemo } from "react";
 import { Card, Space, Table, Tag, Typography } from "antd";
 import { EnvironmentOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
+import CardActionMenu from "./CardActionMenu";
 import { cardBorder, mutedTextColor, vehicleColumnTitle } from "../utils/constants";
 import { formatCurrency, formatNumber, getVehicleSubTitle, safeText } from "../utils/formatters";
 import { normalizeArray } from "../utils/dataMappers";
 
 const { Text } = Typography;
 
-export default function AdvancedFailureTable({ data }) {
+export default function AdvancedFailureTable({ data, onRefresh }) {
   const columns = useMemo(
     () => [
       {
@@ -48,15 +49,20 @@ export default function AdvancedFailureTable({ data }) {
     []
   );
 
+  const renderTable = (scrollY) => (
+    <Table rowKey={(_, index) => `failure-${index}`} columns={columns} dataSource={normalizeArray(data)} pagination={false} scroll={{ x: 1160, y: scrollY }} size="middle" />
+  );
+
   return (
-    <Card bordered={false} style={{ borderRadius: 20, border: cardBorder }} title="En Çok Arıza Yapan Araçlar">
-      <Table rowKey={(_, index) => `failure-${index}`} columns={columns} dataSource={normalizeArray(data)} pagination={false} scroll={{ x: 1160 }} size="middle" />
+    <Card bordered={false} style={{ borderRadius: 20, border: cardBorder }} title="En Çok Arıza Yapan Araçlar" extra={<CardActionMenu infoTitle="En Çok Arıza Yapan Araçlar" renderFullscreenContent={() => renderTable("62vh")} onRefresh={onRefresh} />}>
+      {renderTable(undefined)}
     </Card>
   );
 }
 
 AdvancedFailureTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({ plaka: PropTypes.string })),
+  onRefresh: PropTypes.func.isRequired,
 };
 
 AdvancedFailureTable.defaultProps = {
