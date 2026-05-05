@@ -9,6 +9,7 @@ import { DeleteFuelCardService, GetFuelListByVehicleIdService } from "../../../.
 import DragAndDropContext from "../../../../../components/drag-drop-table/DragAndDropContext";
 import SortableHeaderCell from "../../../../../components/drag-drop-table/SortableHeaderCell";
 import Content from "../../../../../components/drag-drop-table/DraggableCheckbox";
+import FormattedNumber from "../../../../../../hooks/FormattedNumber";
 import AddModal from "./add/AddModal";
 import UpdateModal from "./update/UpdateModal";
 
@@ -479,6 +480,8 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
 
   // Custom loading icon
   const customIcon = <LoadingOutlined style={{ fontSize: 36 }} className="text-primary" spin />;
+  const quantityFormat = Number.isFinite(Number(dataSource[0]?.miktarFormat)) ? Number(dataSource[0]?.miktarFormat) : undefined;
+  const amountFormat = Number.isFinite(Number(dataSource[0]?.tutarFormat)) ? Number(dataSource[0]?.tutarFormat) : undefined;
 
   if (!visible) return null;
 
@@ -551,12 +554,14 @@ const Yakit = ({ visible, onClose, ids, selectedRowsData }) => {
         <div className="col-span-3 p-10 border">
           <h3 className="text-secondary">{t("toplamMaliyet")}</h3>
           <p>
-            {total?.total_cost} {t("tl")}
+            <FormattedNumber num={total?.total_cost} minimumFractionDigits={amountFormat} maximumFractionDigits={amountFormat} /> {t("tl")}
           </p>
         </div>
         <div className="col-span-3 p-10 border">
           <h3 className="text-secondary">{t("toplamMiktar")}</h3>
-          <p>{total?.total_quantity} Lt</p>
+          <p>
+            <FormattedNumber num={total?.total_quantity} minimumFractionDigits={quantityFormat} maximumFractionDigits={quantityFormat} /> Lt
+          </p>
         </div>
         <div className="col-span-3 p-10 border">
           <h3 className="text-secondary">

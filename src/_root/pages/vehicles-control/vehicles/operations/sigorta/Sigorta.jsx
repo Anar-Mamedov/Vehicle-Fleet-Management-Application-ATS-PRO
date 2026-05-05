@@ -8,6 +8,7 @@ import { PlakaContext } from "../../../../../../context/plakaSlice";
 import DragAndDropContext from "../../../../../components/drag-drop-table/DragAndDropContext";
 import SortableHeaderCell from "../../../../../components/drag-drop-table/SortableHeaderCell";
 import AxiosInstance from "../../../../../../api/http";
+import FormattedNumber from "../../../../../../hooks/FormattedNumber";
 import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
 import Content from "../../../../../components/drag-drop-table/DraggableCheckbox";
@@ -149,6 +150,10 @@ const Sigorta = ({ visible, onClose, ids, selectedRowsData }) => {
       title: t("tutar"),
       dataIndex: "tutar",
       key: 8,
+      render: (text, record) => {
+        const amountFormat = Number.isFinite(Number(record?.tutarFormat)) ? Number(record?.tutarFormat) : undefined;
+        return <FormattedNumber num={text} minimumFractionDigits={amountFormat} maximumFractionDigits={amountFormat} />;
+      },
     },
     {
       title: t("firma"),
