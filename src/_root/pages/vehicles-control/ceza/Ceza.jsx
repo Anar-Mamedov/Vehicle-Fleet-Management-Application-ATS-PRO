@@ -29,6 +29,7 @@ import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
 import Filters from "./filter/Filters";
 import RiskCalculationModal from "./components/RiskCalculationModal";
+import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
@@ -1000,8 +1001,10 @@ const Ceza = () => {
                 <div>
                   <div style={{ fontSize: "13px", color: "#8c8c8c", marginBottom: "8px" }}>{t("enRiskliSurucu")}</div>
                   <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414" }}>{statistics.enRiskliSurucu?.enCokCezaAlanSurucu || "-"}</div>
-                  {statistics.enRiskliSurucu?.cezaSayisi !== null && statistics.enRiskliSurucu?.cezaSayisi !== undefined && (
-                    <div style={{ fontSize: "13px", color: "#8c8c8c", marginTop: "4px", fontWeight: 400 }}>{statistics.enRiskliSurucu.cezaSayisi} kayıt</div>
+                  {statistics.enRiskliSurucu?.riskSkoru !== null && statistics.enRiskliSurucu?.riskSkoru !== undefined && (
+                    <div style={{ fontSize: "13px", color: "#8c8c8c", marginTop: "4px", fontWeight: 400 }}>
+                      {t("riskSkoru", { defaultValue: "Risk Skoru" })}: {formatNumberWithLocale(statistics.enRiskliSurucu.riskSkoru)}
+                    </div>
                   )}
                 </div>
                 <UserOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />
