@@ -1,11 +1,7 @@
 import React, { useState } from "react";
-import { Button, Badge, Popover, Typography, Spin, Divider, Modal, Table, Input } from "antd";
+import { Button, Badge, Popover, Typography, Spin, Divider, Modal } from "antd";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import styled from "styled-components";
-import dayjs from "dayjs";
-import { formatNumberWithLocale } from "../../../hooks/FormattedNumber";
-import FormattedDate from "../FormattedDate";
-import AxiosInstance from "../../../api/http";
 import Sigorta from "./components/Sigorta";
 import TasitKarti from "./components/TasitKarti";
 import CezaOdeme from "./components/CezaOdeme";
@@ -21,6 +17,7 @@ import PeriyodikBakim from "./components/PeriyodikBakim";
 import Takograf from "./components/Takograf";
 import OnayIslemleri from "../../pages/SistemAyarlari/OnaylamaIslemleri/OnaylamaIslemleri";
 import IkameArac from "./components/IkameArac";
+import StatusReminderModal from "./components/StatusReminderModal";
 import { FormProvider, useForm } from "react-hook-form";
 import { t } from "i18next";
 
@@ -134,150 +131,14 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
 
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [statusModalTitle, setStatusModalTitle] = useState("");
-  const [statusModalData, setStatusModalData] = useState([]);
-  const [statusModalLoading, setStatusModalLoading] = useState(false);
-  const [statusSearchText, setStatusSearchText] = useState("");
+  const [statusModalDurum, setStatusModalDurum] = useState(null);
 
-  const handleStatusClick = async (durum, title) => {
+  const handleStatusClick = (durum, title) => {
     setStatusModalTitle(title);
+    setStatusModalDurum(durum);
     setStatusModalVisible(true);
-    setStatusModalLoading(true);
-    setStatusSearchText("");
     setPopoverOpen(false);
-    try {
-      const response = await AxiosInstance.get(`Reminder/GetRemindersByStatus?durum=${durum}`);
-      const list = Array.isArray(response.data) ? response.data : response.data?.list || [];
-      setStatusModalData(
-        list.map((item, i) => ({
-          ...item,
-          ilgiliKayit: item.ilgiliKayit ?? item.nesne ?? "",
-          sonTarih: item.sonTarih ?? item.tarih ?? null,
-          _uid: i,
-        }))
-      );
-    } catch (error) {
-      console.error(error);
-      setStatusModalData([]);
-    } finally {
-      setStatusModalLoading(false);
-    }
   };
-
-  const strSort = (field) => (a, b) => {
-    const valA = a[field];
-    const valB = b[field];
-    if (valA == null && valB == null) return 0;
-    if (valA == null) return 1;
-    if (valB == null) return -1;
-    return String(valA).localeCompare(String(valB));
-  };
-
-  const numSort = (field) => (a, b) => {
-    const valA = a[field];
-    const valB = b[field];
-    if (valA == null && valB == null) return 0;
-    if (valA == null) return 1;
-    if (valB == null) return -1;
-    return Number(valA) - Number(valB);
-  };
-
-  const dateSort = (field) => (a, b) => {
-    const valA = a[field];
-    const valB = b[field];
-    if (!valA && !valB) return 0;
-    if (!valA) return 1;
-    if (!valB) return -1;
-    return dayjs(valA).unix() - dayjs(valB).unix();
-  };
-
-  const reminderGroupKeyMap = {
-    onayislemleri: "onayIslemleri",
-    periyodiktarih: "periyodikTarih",
-    periyodikkm: "periyodikkm",
-    ikamearac: "ikameArac",
-    muayenetarihi: "muayeneTarihi",
-    egzostarihi: "egzosTarihi",
-    egzoztarihi: "egzozTarihi",
-    takograftarihi: "takografTarihi",
-    sozlesmetarihi: "sozlesmeTarihi",
-    vergitarihi: "vergiTarihi",
-    kiralikarac: "kiralikArac",
-    tasitkarti: "tasitKarti",
-    ceza: "ceza",
-    sigorta: "sigorta",
-    surucu: "surucu",
-    stok: "stok",
-  };
-
-  const reminderUnitKeyMap = {
-    gun: "gun",
-    adet: "adet",
-    km: "km",
-  };
-
-  const reminderStatusKeyMap = {
-    suresigecti: "suresiGecti",
-    suresigecen: "suresiGecen",
-    yaklasan: "yaklasan",
-    kritik: "kritik",
-  };
-
-  const translateReminderValue = (value, keyMap) => {
-    if (value === null || value === undefined || value === "") return "-";
-    if (value === "-") return "-";
-
-    const rawValue = String(value);
-    const normalizedValue = rawValue.trim().toLowerCase();
-    const i18nKey = keyMap[normalizedValue];
-
-    if (!i18nKey) return rawValue;
-
-    return t(i18nKey, { defaultValue: rawValue });
-  };
-
-  const filteredStatusModalData = statusModalData.filter((item) => {
-    if (!statusSearchText?.trim()) return true;
-
-    const keyword = statusSearchText.trim().toLocaleLowerCase("tr");
-    const searchableFields = [item.ilgiliKayit, item.grup, item.durum, item.sonTarih, item.kalan, item.birim, item.lokasyon, item.ekBilgi, item.aciklama];
-
-    return searchableFields.some((field) => String(field ?? "").toLocaleLowerCase("tr").includes(keyword));
-  });
-
-  const statusTableColumns = [
-    { title: t("ilgiliKayit"), dataIndex: "ilgiliKayit", key: "ilgiliKayit", width: 150, ellipsis: true, sorter: strSort("ilgiliKayit") },
-    {
-      title: t("grup"),
-      dataIndex: "grup",
-      key: "grup",
-      width: 150,
-      ellipsis: true,
-      sorter: strSort("grup"),
-      render: (value) => translateReminderValue(value, reminderGroupKeyMap),
-    },
-    {
-      title: t("durum"),
-      dataIndex: "durum",
-      key: "durum",
-      width: 120,
-      ellipsis: true,
-      sorter: strSort("durum"),
-      render: (value) => translateReminderValue(value, reminderStatusKeyMap),
-    },
-    { title: t("sonTarih"), dataIndex: "sonTarih", key: "sonTarih", width: 120, sorter: dateSort("sonTarih"), render: (value) => <FormattedDate date={value} /> },
-    { title: t("kalan"), dataIndex: "kalan", key: "kalan", width: 100, sorter: numSort("kalan"), render: (text) => formatNumberWithLocale(text) },
-    {
-      title: t("birim"),
-      dataIndex: "birim",
-      key: "birim",
-      width: 80,
-      sorter: strSort("birim"),
-      render: (value) => translateReminderValue(value, reminderUnitKeyMap),
-    },
-    { title: t("lokasyon"), dataIndex: "lokasyon", key: "lokasyon", width: 150, ellipsis: true, sorter: strSort("lokasyon") },
-    { title: t("ekBilgi"), dataIndex: "ekBilgi", key: "ekBilgi", width: 150, ellipsis: true, sorter: strSort("ekBilgi") },
-    { title: t("aciklama"), dataIndex: "aciklama", key: "aciklama", width: 200, ellipsis: true, sorter: strSort("aciklama") },
-  ];
 
   const statusItems = [
     { label: t("suresiYaklasan"), color: "#008000", bgColor: "rgba(0,128,0,0.37)", dataKey: "yaklasanSure", durum: "yaklasan" },
@@ -359,41 +220,12 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
           {modalContent}
         </Modal>
 
-        <Modal
-          title={statusModalTitle}
-          destroyOnClose
-          centered
+        <StatusReminderModal
           open={statusModalVisible}
-          onCancel={() => {
-            setStatusModalVisible(false);
-            setStatusModalData([]);
-            setStatusSearchText("");
-          }}
-          footer={null}
-          width="90%"
-        >
-          <Input
-            allowClear
-            value={statusSearchText}
-            onChange={(e) => setStatusSearchText(e.target.value)}
-            placeholder={`${t("arama")}...`}
-            style={{ width: 320, marginBottom: 12 }}
-          />
-          <Table
-            columns={statusTableColumns}
-            dataSource={filteredStatusModalData}
-            loading={statusModalLoading}
-            rowKey="_uid"
-            scroll={{ y: "calc(100vh - 400px)" }}
-            pagination={{
-              defaultPageSize: 10,
-              showSizeChanger: true,
-              pageSizeOptions: ["10", "20", "50", "100"],
-              showQuickJumper: true,
-            }}
-            size="small"
-          />
-        </Modal>
+          title={statusModalTitle}
+          durum={statusModalDurum}
+          onClose={() => setStatusModalVisible(false)}
+        />
       </FormProvider>
     </div>
   );
