@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Typography, Spin, Divider, Modal, Button, Switch, Popover, Table, Input } from "antd";
-import { CloseOutlined, ReloadOutlined, FilterOutlined } from "@ant-design/icons";
+import { Typography, Spin, Divider, Modal, Button, Switch, Popover, Table, Input, message } from "antd";
+import { CloseOutlined, ReloadOutlined, FilterOutlined, FileExcelOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import * as XLSX from "xlsx";
 import { formatNumberWithLocale } from "../../../hooks/FormattedNumber";
 import FormattedDate from "../FormattedDate";
 import styled from "styled-components";
@@ -416,6 +417,45 @@ const HatirlaticiPanel = ({ open, onClose }) => {
     { title: t("aciklama"), dataIndex: "aciklama", key: "aciklama", width: 200, ellipsis: true, sorter: strSort("aciklama") },
   ];
 
+  const handleDownloadStatusXLSX = () => {
+    try {
+      if (!filteredStatusModalData?.length) {
+        message.warning(t("kayitBulunamadi", { defaultValue: "İndirilecek kayıt bulunamadı" }));
+        return;
+      }
+
+      const xlsxData = filteredStatusModalData.map((item) => ({
+        [t("ilgiliKayit")]: item.ilgiliKayit ?? "",
+        [t("grup")]: translateReminderValue(item.grup, reminderGroupKeyMap),
+        [t("durum")]: translateReminderValue(item.durum, reminderStatusKeyMap),
+        [t("sonTarih")]: item.sonTarih ? dayjs(item.sonTarih).format("DD.MM.YYYY") : "",
+        [t("kalan")]: item.kalan ?? "",
+        [t("birim")]: translateReminderValue(item.birim, reminderUnitKeyMap),
+        [t("lokasyon")]: item.lokasyon ?? "",
+        [t("ekBilgi")]: item.ekBilgi ?? "",
+        [t("aciklama")]: item.aciklama ?? "",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(xlsxData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, statusModalTitle || "Liste");
+
+      const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+      const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${statusModalTitle || "Liste"}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("XLSX indirme hatası:", error);
+      message.error("Excel indirme hatası: " + (error.message || "Bilinmeyen hata"));
+    }
+  };
+
   const statusItems = [
     { label: t("suresiYaklasan"), color: "#008000", bgColor: "rgba(0,128,0,0.37)", dataKey: "yaklasanSure", durum: "yaklasan" },
     { label: t("kritikSure"), color: "#e68901", bgColor: "rgba(255,173,0,0.24)", indicatorColor: "#ffad00", dataKey: "kritikSure", durum: "kritik" },
@@ -520,13 +560,23 @@ const HatirlaticiPanel = ({ open, onClose }) => {
         footer={null}
         width="90%"
       >
-        <Input
-          allowClear
-          value={statusSearchText}
-          onChange={(e) => setStatusSearchText(e.target.value)}
-          placeholder={`${t("arama")}...`}
-          style={{ width: 320, marginBottom: 12 }}
-        />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, gap: 12 }}>
+          <Input
+            allowClear
+            value={statusSearchText}
+            onChange={(e) => setStatusSearchText(e.target.value)}
+            placeholder={`${t("arama")}...`}
+            style={{ width: 320 }}
+          />
+          <Button
+            style={{ display: "flex", alignItems: "center" }}
+            onClick={handleDownloadStatusXLSX}
+            icon={<FileExcelOutlined />}
+            disabled={!filteredStatusModalData?.length}
+          >
+            {t("indir", { defaultValue: "İndir" })}
+          </Button>
+        </div>
         <Table
           columns={statusTableColumns}
           dataSource={filteredStatusModalData}
