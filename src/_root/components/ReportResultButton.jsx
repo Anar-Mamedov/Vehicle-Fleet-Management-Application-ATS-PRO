@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import PropTypes from "prop-types";
 import { Button, message } from "antd";
-import { unset } from "lodash";
 
 const REPORT_BASE_URL = "http://report.atspro.net/result";
 
