@@ -132,11 +132,18 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
   }, []);
 
   useEffect(() => {
-    let fark;
-    if (watch("varisKm")) {
-      fark = watch("varisKm") - watch("cikisKm");
-    } else {
-      fark = 0;
+    const varisKm = watch("varisKm");
+    const cikisKm = watch("cikisKm");
+    let fark = 0;
+    if (varisKm !== undefined && varisKm !== null && varisKm !== "") {
+      const varisNum = Number(varisKm);
+      const cikisNum = Number(cikisKm || 0);
+      if (!isNaN(varisNum) && !isNaN(cikisNum)) {
+        fark = Math.round(varisNum - cikisNum);
+        if (fark < 0) {
+          fark = 0;
+        }
+      }
     }
     setValue("farkKm", fark);
   }, [watch("varisKm"), watch("cikisKm")]);
