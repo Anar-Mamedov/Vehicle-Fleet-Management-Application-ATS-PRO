@@ -130,7 +130,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       surucuKod: values.surucuKod,
       aktif: values.aktif,
       isim: values.isim,
-      lokasyonId: values.lokasyonId || -1,
+      lokasyonId: values.lokasyonId || 0,
       departmanKodId: values.departmanKodId || -1,
       adres: values.adres,
       surucuTipKodId: values.surucuTipKodId || -1,
