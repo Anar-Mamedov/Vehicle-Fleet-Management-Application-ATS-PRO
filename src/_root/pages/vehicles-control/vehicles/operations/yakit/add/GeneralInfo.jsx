@@ -20,6 +20,7 @@ import MaterialType from "../../../../../../components/form/selects/MaterialType
 import CheckboxInput from "../../../../../../components/form/checkbox/CheckboxInput";
 import YakitTank from "../../../../../../components/form/selects/YakitlTank";
 import TextInput from "../../../../../../components/form/inputs/TextInput";
+import FormattedNumber from "../../../../../../../hooks/FormattedNumber";
 import UpdateModal from "../../../../../yakit-yonetim/yakit-tanim/UpdateModal";
 
 dayjs.locale("tr");
@@ -38,6 +39,21 @@ const getDecimalSeparator = () => {
     default:
       return ","; // Default to comma for other languages
   }
+};
+
+const getFractionDigits = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return undefined;
+  }
+
+  const normalizedValue = String(value).trim().replace(",", ".");
+  const decimalPart = normalizedValue.split(".")[1];
+
+  return decimalPart ? decimalPart.length : 0;
+};
+
+const getHistoryFormat = (value) => {
+  return getFractionDigits(value);
 };
 
 const GeneralInfo = ({ setIsValid, response }) => {
@@ -761,11 +777,10 @@ const GeneralInfo = ({ setIsValid, response }) => {
       )}
 
       {/* --------- SON 3 YAKIT KAYDI GÖRSEL --------- */}
-      {watch("plaka") && history.length >= 3 && (
+      {/* {watch("plaka") && history.length >= 3 && (
         <div className="grid gap-1 border p-10 mt-10">
           <div className="col-span-12">
             <div className="grid">
-              {/* 3 kaydın eskisi gibi yan yana gösterimi */}
               <div className="col-span-2 flex flex-col" style={{ textAlign: "center" }}>
                 <p style={{ fontSize: "14px" }}>{dayjs(history[2]?.tarih).format("DD.MM.YYYY")}</p>
                 <div>
@@ -773,9 +788,21 @@ const GeneralInfo = ({ setIsValid, response }) => {
                 </div>
                 <p style={{ fontSize: "14px" }}>{history[2]?.sonAlinanKm} km</p>
                 <p style={{ fontSize: "14px" }}>
-                  {history[2]?.miktar} Lt. {history[2]?.fullDepo && <CheckOutlined className="text-success" />}
+                  <FormattedNumber
+                    num={history[2]?.miktar}
+                    minimumFractionDigits={getHistoryFormat(history[2]?.miktar)}
+                    maximumFractionDigits={getHistoryFormat(history[2]?.miktar)}
+                  />{" "}
+                  Lt. {history[2]?.fullDepo && <CheckOutlined className="text-success" />}
                 </p>
-                <p style={{ fontSize: "14px" }}>{history[2]?.tuketim} Lt.Km..</p>
+                <p style={{ fontSize: "14px" }}>
+                  <FormattedNumber
+                    num={history[2]?.tuketim}
+                    minimumFractionDigits={getHistoryFormat(history[2]?.tuketim)}
+                    maximumFractionDigits={getHistoryFormat(history[2]?.tuketim)}
+                  />{" "}
+                  Lt.Km..
+                </p>
               </div>
               <div className="col-span-1 mt-20" style={{ textAlign: "center" }}>
                 <img src="/images/yol.svg" alt="" style={{ width: "70%" }} />
@@ -789,9 +816,21 @@ const GeneralInfo = ({ setIsValid, response }) => {
                 </div>
                 <p style={{ fontSize: "14px" }}>{history[1]?.sonAlinanKm} km</p>
                 <p style={{ fontSize: "14px" }}>
-                  {history[1]?.miktar} Lt. {history[1]?.fullDepo && <CheckOutlined className="text-success" />}
+                  <FormattedNumber
+                    num={history[1]?.miktar}
+                    minimumFractionDigits={getHistoryFormat(history[1]?.miktar)}
+                    maximumFractionDigits={getHistoryFormat(history[1]?.miktar)}
+                  />{" "}
+                  Lt. {history[1]?.fullDepo && <CheckOutlined className="text-success" />}
                 </p>
-                <p style={{ fontSize: "14px" }}>{history[1]?.tuketim} Lt.Km..</p>
+                <p style={{ fontSize: "14px" }}>
+                  <FormattedNumber
+                    num={history[1]?.tuketim}
+                    minimumFractionDigits={getHistoryFormat(history[1]?.tuketim)}
+                    maximumFractionDigits={getHistoryFormat(history[1]?.tuketim)}
+                  />{" "}
+                  Lt.Km..
+                </p>
               </div>
               <div className="col-span-1 mt-20" style={{ textAlign: "center" }}>
                 <img src="/images/yol.svg" alt="" style={{ width: "70%" }} />
@@ -805,9 +844,21 @@ const GeneralInfo = ({ setIsValid, response }) => {
                 </div>
                 <p style={{ fontSize: "14px" }}>{history[0]?.sonAlinanKm} km</p>
                 <p style={{ fontSize: "14px" }}>
-                  {history[0]?.miktar} Lt. {history[0]?.fullDepo && <CheckOutlined className="text-success" />}
+                  <FormattedNumber
+                    num={history[0]?.miktar}
+                    minimumFractionDigits={getHistoryFormat(history[0]?.miktar)}
+                    maximumFractionDigits={getHistoryFormat(history[0]?.miktar)}
+                  />{" "}
+                  Lt. {history[0]?.fullDepo && <CheckOutlined className="text-success" />}
                 </p>
-                <p style={{ fontSize: "14px" }}>{history[0]?.tuketim} Lt.Km..</p>
+                <p style={{ fontSize: "14px" }}>
+                  <FormattedNumber
+                    num={history[0]?.tuketim}
+                    minimumFractionDigits={getHistoryFormat(history[0]?.tuketim)}
+                    maximumFractionDigits={getHistoryFormat(history[0]?.tuketim)}
+                  />{" "}
+                  Lt.Km..
+                </p>
               </div>
               <div className="col-span-1 mt-20" style={{ textAlign: "center" }}>
                 <img src="/images/yol.svg" alt="" style={{ width: "70%" }} />
@@ -821,7 +872,7 @@ const GeneralInfo = ({ setIsValid, response }) => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       <div
         className="grid gap-4 border p-10 mt-10"
