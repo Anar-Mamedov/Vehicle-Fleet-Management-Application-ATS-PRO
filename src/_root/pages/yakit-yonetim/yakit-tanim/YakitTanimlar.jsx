@@ -61,7 +61,7 @@ const YakitTanimlar = () => {
     },
     {
       title: t("yakitTip"),
-      dataIndex: "yakitTipKodText",
+      dataIndex: "malzemeTipKodText",
       key: 4,
     },
     {
