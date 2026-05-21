@@ -136,8 +136,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id }) => {
         setValue("birimKodId", res.data.birimKodId);
         setValue("fiyat", res.data.fiyat);
         setValue("kdvOran", res.data.kdvOran);
-        setValue("malzemeTipKodText", res.data.yakitTipKodText);
-        setValue("malzemeTipKodId", res.data.yakitKodId);
+        setValue("malzemeTipKodText", res.data.malzemeTipKodText);
+        setValue("malzemeTipKodId", res.data.malzemeTipKodId);
         setValue("girenMiktar", res.data.girenMiktar);
         setValue("cikanMiktar", res.data.cikanMiktar);
         setValue("stokMiktar", res.data.girenMiktar - res.data.cikanMiktar);
