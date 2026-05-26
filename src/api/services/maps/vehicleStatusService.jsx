@@ -77,6 +77,80 @@ const parseVehicleStatusResponse = (xmlText) => {
     .filter(Boolean);
 };
 
+const parseVehicleStatusJsonResponse = (json) => {
+  if (json && json.resultStatus !== undefined && json.resultStatus !== 0) {
+    throw new Error(json.message || "Vehicle status JSON response error.");
+  }
+
+  let list = [];
+  if (Array.isArray(json)) {
+    list = json;
+  } else if (json && Array.isArray(json.data)) {
+    list = json.data;
+  } else {
+    return [];
+  }
+
+  return list
+    .map((item, index) => {
+      const latitude = parseNumber(item.latitude ?? item.Latitude);
+      const longitude = parseNumber(item.longitude ?? item.Longitude);
+
+      if (latitude === null || longitude === null) {
+        return null;
+      }
+
+      const deviceNo =
+        item.imei ||
+        item.Imei ||
+        item.deviceNo ||
+        item.DeviceNo ||
+        (item.vehicleID ? String(item.vehicleID) : null) ||
+        (item.VehicleID ? String(item.VehicleID) : null) ||
+        `vehicle-${index + 1}`;
+
+      return {
+        id: `${deviceNo}-${index}`,
+        deviceNo,
+        plate: item.plate || item.Plate || deviceNo,
+        address: item.address || item.Address || item.tag || item.Tag || "-",
+        speed: parseNumber(item.speed ?? item.Speed) || 0,
+        city: item.city || item.City || "",
+        town: item.town || item.Town || "",
+        utcDateTime:
+          item.locationDateTime ||
+          item.LocationDateTime ||
+          item.statusDateTime ||
+          item.StatusDateTime ||
+          item.deviceDateTime ||
+          item.DeviceDateTime ||
+          "",
+        latitude,
+        longitude,
+      };
+    })
+    .filter(Boolean);
+};
+
+const tryParseJson = (rawData) => {
+  if (typeof rawData === "object" && rawData) {
+    if ("resultStatus" in rawData || "data" in rawData) {
+      return rawData;
+    }
+  }
+  if (typeof rawData === "string") {
+    const trimmed = rawData.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      try {
+        return JSON.parse(trimmed);
+      } catch {
+        return null;
+      }
+    }
+  }
+  return null;
+};
+
 export const getMissingVehicleStatusEnvVars = () => [];
 
 export const GetVehicleStatusService = async () => {
@@ -92,7 +166,15 @@ export const GetVehicleStatusService = async () => {
     }
   }
 
-  const xmlText = getResponseText(response?.data);
+  const rawData = response?.data;
+  if (!rawData) throw new Error("Vehicle status response is empty.");
+
+  const parsedJson = tryParseJson(rawData);
+  if (parsedJson) {
+    return parseVehicleStatusJsonResponse(parsedJson);
+  }
+
+  const xmlText = getResponseText(rawData);
   if (!xmlText) throw new Error("Vehicle status response is empty.");
 
   return parseVehicleStatusResponse(xmlText);
