@@ -1064,6 +1064,21 @@ const Yakit = ({ ayarlarData, customFields }) => {
     },
 
     {
+      title: t("renk"),
+      dataIndex: "renk",
+      key: "renk",
+      width: 120,
+      ellipsis: true,
+      visible: false, // Varsayılan olarak açık
+
+      sorter: (a, b) => {
+        if (a.renk === null) return -1;
+        if (b.renk === null) return 1;
+        return a.renk.localeCompare(b.renk);
+      },
+    },
+
+    {
       title: t("yakitTuketimi"),
       dataIndex: "ortalamaTuketim",
       key: "ortalamaTuketim",
