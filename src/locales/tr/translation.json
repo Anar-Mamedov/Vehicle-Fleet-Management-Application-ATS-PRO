@@ -1,4 +1,7 @@
 {
+  "periyot": "Periyot",
+  "sonUygulama": "Son Uygulama",
+  "sonrakiHedef": "Sonraki Hedef",
   "orjinYazilim": "Orjin Yazılım",
   "araclar": "Araçlar",
   "aracDetayKarti": "ARAÇ DETAY KARTI",
@@ -1639,5 +1642,6 @@
   "extremesInfoOperatingExpenseDescription": "Araç bazında toplam işletme giderlerini ve gider kırılımlarını gösteren detay listesidir.",
   "extremesInfoOperatingExpenseCalculation": "Yakıt, servis, arıza, sigorta, harcama ve kullanım verileri araç bazında toplanır.",
   "extremesInfoOperatingExpenseInterpretation": "Toplam gider, gider/km ve km bilgileri birlikte yorumlanmalıdır. Sadece toplam tutara bakmak yanıltıcı olabilir.",
-  "extremesInfoOperatingExpenseAction": "Yüksek giderli araçlarda gider dağılımı incelenerek maliyet kaynağı tespit edilmelidir."
+  "extremesInfoOperatingExpenseAction": "Yüksek giderli araçlarda gider dağılımı incelenerek maliyet kaynağı tespit edilmelidir.",
+  "yaklasanBakim": "Yaklaşan Bakım"
 }

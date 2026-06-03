@@ -17,6 +17,65 @@ import FormattedNumber, { formatNumberWithLocale } from "../../../../hooks/Forma
 
 const { Text } = Typography;
 
+// Hücrelerde ikincil (gri) alt başlık metni için ortak stil
+const subTextStyle = { color: "#8c8c8c", fontSize: 12, lineHeight: "16px" };
+const cellWrapperStyle = { display: "flex", flexDirection: "column", lineHeight: "18px" };
+
+const renderYaklasanBakimCell = (remainingKm, remainingDays) => {
+  if (remainingKm === null && remainingDays === null) return "-";
+
+  // 1. Gecikmiş (Overdue)
+  if ((remainingKm !== null && remainingKm < 0) || (remainingDays !== null && remainingDays < 0)) {
+    const kmText = remainingKm !== null && remainingKm < 0 ? `${formatNumberWithLocale(Math.abs(remainingKm))} km` : "";
+    const dayText = remainingDays !== null && remainingDays < 0 ? `${Math.abs(remainingDays)} gün` : "";
+    const detailText = [kmText, dayText].filter(Boolean).join(" / ");
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: "#ff4d4f" }}>
+          Gecikmiş ({detailText})
+        </span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#ff4d4f", borderRadius: "2px" }} />
+      </div>
+    );
+  }
+
+  // 2. Bugün (Today)
+  if (remainingDays === 0 || remainingKm === 0) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: "#ff6b6b" }}>Bugün</span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#ff6b6b", borderRadius: "2px" }} />
+      </div>
+    );
+  }
+
+  // 3. Yaklaşan (Upcoming)
+  const normalizedKmDays = remainingKm !== null ? remainingKm / 40 : Infinity;
+  const normalizedDays = remainingDays !== null ? remainingDays : Infinity;
+
+  if (normalizedKmDays < normalizedDays) {
+    // KM bazında daha yakın
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: "#faad14" }}>
+          {formatNumberWithLocale(remainingKm)} km sonra
+        </span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#faad14", borderRadius: "2px" }} />
+      </div>
+    );
+  } else {
+    // Gün bazında daha yakın
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: "#595959" }}>
+          {remainingDays} gün sonra
+        </span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#d9d9d9", borderRadius: "2px" }} />
+      </div>
+    );
+  }
+};
+
 const StyledButton = styled(Button)`
   display: flex;
   align-items: center;
@@ -226,44 +285,24 @@ const PeriyodikBakim = () => {
       title: t("plaka"),
       dataIndex: "plaka",
       key: "plaka",
-      width: 120,
+      width: 190,
       ellipsis: true,
-      visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
+      visible: true, // Varsayılan olarak açık
+      render: (text, record) => {
+        const altBilgi = [record.marka, record.model].filter(Boolean).join(" ");
+        return (
+          <div style={cellWrapperStyle}>
+            <a onClick={() => onRowClick(record)} style={{ fontWeight: 600 }}>
+              {text || "-"}
+            </a>
+            {altBilgi && <span style={subTextStyle}>{altBilgi}</span>}
+          </div>
+        );
+      },
       sorter: (a, b) => {
         if (a.plaka === null) return -1;
         if (b.plaka === null) return 1;
         return a.plaka.localeCompare(b.plaka);
-      },
-    },
-
-    {
-      title: t("marka"),
-      dataIndex: "marka",
-      key: "marka",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.marka === null) return -1;
-        if (b.marka === null) return 1;
-        return a.marka.localeCompare(b.marka);
-      },
-    },
-
-    {
-      title: t("model"),
-      dataIndex: "model",
-      key: "model",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.model === null) return -1;
-        if (b.model === null) return 1;
-        return a.model.localeCompare(b.model);
       },
     },
 
@@ -298,69 +337,19 @@ const PeriyodikBakim = () => {
     },
 
     {
-      title: t("hedefTarih"),
-      dataIndex: "hedefTarih",
-      key: "hedefTarih",
-      width: 110,
+      title: t("sonrakiHedef"),
+      key: "sonrakiHedef",
+      width: 160,
       ellipsis: true,
-      sorter: (a, b) => {
-        if (a.hedefTarih === null) return -1;
-        if (b.hedefTarih === null) return 1;
-        return a.hedefTarih.localeCompare(b.hedefTarih);
-      },
-
       visible: true, // Varsayılan olarak açık
-      render: (text) => formatDate(text),
+      render: (_, record) => (
+        <div style={cellWrapperStyle}>
+          <span>{`${t("km").toLocaleUpperCase()}: ${formatNumberWithLocale(record.hedefKm)}`}</span>
+          {record.hedefTarih && <span style={subTextStyle}>{formatDate(record.hedefTarih)}</span>}
+        </div>
+      ),
+      sorter: (a, b) => (a.hedefKm ?? 0) - (b.hedefKm ?? 0),
     },
-
-    /* {
-      title: t("herTarih"),
-      dataIndex: "herTarih",
-      key: "herTarih",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-      render: (text, record) => {
-        return record.herTarih ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />;
-      },
-      sorter: (a, b) => {
-        const aValue = a.herTarih === true ? 1 : 0;
-        const bValue = b.herTarih === true ? 1 : 0;
-        return bValue - aValue;
-      },
-    }, */
-
-    {
-      title: t("hedefKm"),
-      dataIndex: "hedefKm",
-      key: "hedefKm",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-      render: (value) => <FormattedNumber num={value} minimumFractionDigits={0} maximumFractionDigits={0} />,
-      sorter: (a, b) => {
-        if (a.hedefKm === null) return -1;
-        if (b.hedefKm === null) return 1;
-        return a.hedefKm - b.hedefKm;
-      },
-    },
-
-    /* {
-      title: t("herKm"),
-      dataIndex: "herKm",
-      key: "herKm",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-      render: (text, record) => {
-        return record.herKm ? <CheckOutlined style={{ color: "green" }} /> : <CloseOutlined style={{ color: "red" }} />;
-      },
-      sorter: (a, b) => {
-        const aValue = a.herKm === true ? 1 : 0;
-        const bValue = b.herKm === true ? 1 : 0;
-        return bValue - aValue;
-      },
-    }, */
 
     {
       title: t("guncelKm"),
@@ -378,16 +367,36 @@ const PeriyodikBakim = () => {
     },
 
     {
-      title: "Kalan Gün",
-      dataIndex: "kalanGun",
-      key: "kalanGun",
-      width: 110,
+      title: t("kalan") || "Kalan",
+      key: "periyot",
+      width: 140,
       ellipsis: true,
       visible: true,
-      render: (_, record) => renderRemainingValue(calculateRemainingDays(record.hedefTarih)),
+      render: (_, record) => {
+        const remainingKm = calculateRemainingKm(record.hedefKm, record.currentKm);
+        const remainingDays = calculateRemainingDays(record.hedefTarih);
+        return (
+          <div style={cellWrapperStyle}>
+            <span>
+              {remainingKm !== null ? (
+                <>
+                  {t("km").toLocaleUpperCase()}: {renderRemainingValue(remainingKm)}
+                </>
+              ) : (
+                "-"
+              )}
+            </span>
+            {remainingDays !== null && (
+              <span style={subTextStyle}>
+                {renderRemainingValue(remainingDays)} Gün
+              </span>
+            )}
+          </div>
+        );
+      },
       sorter: (a, b) => {
-        const aVal = calculateRemainingDays(a.hedefTarih);
-        const bVal = calculateRemainingDays(b.hedefTarih);
+        const aVal = calculateRemainingKm(a.hedefKm, a.currentKm);
+        const bVal = calculateRemainingKm(b.hedefKm, b.currentKm);
         if (aVal === null) return -1;
         if (bVal === null) return 1;
         return aVal - bVal;
@@ -395,13 +404,16 @@ const PeriyodikBakim = () => {
     },
 
     {
-      title: "Kalan KM",
-      dataIndex: "kalanKm",
-      key: "kalanKm",
-      width: 120,
+      title: t("yaklasanBakim") || "Yaklaşan Bakım",
+      key: "yaklasanBakim",
+      width: 200,
       ellipsis: true,
       visible: true,
-      render: (_, record) => renderRemainingValue(calculateRemainingKm(record.hedefKm, record.currentKm)),
+      render: (_, record) => {
+        const remainingKm = calculateRemainingKm(record.hedefKm, record.currentKm);
+        const remainingDays = calculateRemainingDays(record.hedefTarih);
+        return renderYaklasanBakimCell(remainingKm, remainingDays);
+      },
       sorter: (a, b) => {
         const aVal = calculateRemainingKm(a.hedefKm, a.currentKm);
         const bVal = calculateRemainingKm(b.hedefKm, b.currentKm);
@@ -525,6 +537,10 @@ const PeriyodikBakim = () => {
     let order = savedOrder ? JSON.parse(savedOrder) : [];
     let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
     let widths = savedWidths ? JSON.parse(savedWidths) : {};
+
+    // Artık var olmayan (eski) sütun anahtarlarını ayıkla
+    const validKeys = initialColumns.map((col) => col.key);
+    order = order.filter((key) => validKeys.includes(key));
 
     initialColumns.forEach((col) => {
       if (!order.includes(col.key)) {
