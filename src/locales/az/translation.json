@@ -1,4 +1,7 @@
 {
+  "periyot": "Periyot",
+  "sonUygulama": "Son Tətbiq",
+  "sonrakiHedef": "Növbəti Hədəf",
   "orjinYazilim": "Orjin Proqramı",
   "araclar": "Avtomobillər",
   "aracDetayKarti": "AVTOMOBİL DETAL KARTI",
@@ -406,6 +409,7 @@
   "eskiKm": "Köhnə KM",
   "yeniAracGiris": "Yeni Avtomobil Girişi",
   "gun": "Gün",
+  "km": "km",
   "hasarIndirimi": "Ziyan Endirimi",
   "yukle": "Yüklə",
   "kiralamaBilgiler": "Kirayə Məlumatları",
@@ -872,5 +876,7 @@
   "extremesInfoOperatingExpenseDescription": "Bu detallı siyahı nəqliyyat vasitəsi bazasında ümumi istismar xərclərini və xərc qırılımlarını göstərir.",
   "extremesInfoOperatingExpenseCalculation": "Yanacaq, servis, nasazlıq, sığorta, digər xərclər və istifadə məlumatları nəqliyyat vasitəsi bazasında toplanır.",
   "extremesInfoOperatingExpenseInterpretation": "Ümumi xərc xərc/km və yürüş məlumatı ilə birlikdə şərh olunmalıdır. Yalnız ümumi məbləğə baxmaq yanıltıcı ola bilər.",
-  "extremesInfoOperatingExpenseAction": "Yüksək xərcli nəqliyyat vasitələrində xərc bölgüsü yoxlanaraq xərc mənbəyi müəyyən edilməlidir."
+  "extremesInfoOperatingExpenseAction": "Yüksək xərcli nəqliyyat vasitələrində xərc bölgüsü yoxlanaraq xərc mənbəyi müəyyən edilməlidir.",
+  "yaklasanBakim": "Yaxınlaşan Baxım",
+  "kalan": "Qalan"
 }

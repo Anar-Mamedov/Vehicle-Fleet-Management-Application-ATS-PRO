@@ -1,4 +1,7 @@
 {
+  "periyot": "Period",
+  "sonUygulama": "Last Service",
+  "sonrakiHedef": "Next Target",
   "orjinYazilim": "Orjin Software",
   "araclar": "Vehicles",
   "aracDetayKarti": "VEHICLE DETAIL CARD",
@@ -1353,5 +1356,6 @@
   "extremesInfoOperatingExpenseDescription": "This detail list shows total operating expense and expense breakdowns on a vehicle basis.",
   "extremesInfoOperatingExpenseCalculation": "Fuel, service, failure, insurance, miscellaneous expense, and usage data are aggregated per vehicle.",
   "extremesInfoOperatingExpenseInterpretation": "Total expense should be interpreted together with cost/km and mileage. Looking only at total amount may be misleading.",
-  "extremesInfoOperatingExpenseAction": "For high-expense vehicles, inspect the expense distribution to identify the source of the cost."
+  "extremesInfoOperatingExpenseAction": "For high-expense vehicles, inspect the expense distribution to identify the source of the cost.",
+  "yaklasanBakim": "Upcoming Maintenance"
 }

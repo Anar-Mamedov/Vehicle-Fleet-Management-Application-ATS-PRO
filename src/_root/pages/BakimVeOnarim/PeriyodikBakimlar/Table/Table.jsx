@@ -17,10 +17,70 @@ import Filters from "./filter/Filters";
 import dayjs from "dayjs";
 import BreadcrumbComp from "../../../../components/breadcrumb/Breadcrumb.jsx";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 
 import { t } from "i18next";
 
 const { Text } = Typography;
+
+// Hücrelerde ikincil (gri) alt başlık metni için ortak stil
+const subTextStyle = { color: "#8c8c8c", fontSize: 12, lineHeight: "16px" };
+const cellWrapperStyle = { display: "flex", flexDirection: "column", lineHeight: "18px" };
+
+const renderYaklasanBakimCell = (remainingKm, remainingDays) => {
+  if (remainingKm === null && remainingDays === null) return "-";
+
+  // 1. Gecikmiş (Overdue)
+  if ((remainingKm !== null && remainingKm < 0) || (remainingDays !== null && remainingDays < 0)) {
+    const kmText = remainingKm !== null && remainingKm < 0 ? `${formatNumberWithLocale(Math.abs(remainingKm))} km` : "";
+    const dayText = remainingDays !== null && remainingDays < 0 ? `${Math.abs(remainingDays)} gün` : "";
+    const detailText = [kmText, dayText].filter(Boolean).join(" / ");
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: "#ff4d4f" }}>
+          Gecikmiş ({detailText})
+        </span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#ff4d4f", borderRadius: "2px" }} />
+      </div>
+    );
+  }
+
+  // 2. Bugün (Today)
+  if (remainingDays === 0 || remainingKm === 0) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: "#ff6b6b" }}>Bugün</span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#ff6b6b", borderRadius: "2px" }} />
+      </div>
+    );
+  }
+
+  // 3. Yaklaşan (Upcoming)
+  const normalizedKmDays = remainingKm !== null ? remainingKm / 40 : Infinity;
+  const normalizedDays = remainingDays !== null ? remainingDays : Infinity;
+
+  if (normalizedKmDays < normalizedDays) {
+    // KM bazında daha yakın
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: "#faad14" }}>
+          {formatNumberWithLocale(remainingKm)} km sonra
+        </span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#faad14", borderRadius: "2px" }} />
+      </div>
+    );
+  } else {
+    // Gün bazında daha yakın
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: "#595959" }}>
+          {remainingDays} gün sonra
+        </span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#d9d9d9", borderRadius: "2px" }} />
+      </div>
+    );
+  }
+};
 
 const breadcrumb = [{ href: "/", title: <HomeOutlined /> }, { title: t("periyodikBakimlar") }];
 
@@ -206,12 +266,20 @@ const Sigorta = () => {
       title: t("plaka"),
       dataIndex: "plaka",
       key: "plaka",
-      width: 120,
+      width: 190,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-      render: (text, record) => (
-        <a onClick={() => onRowClick(record)}>{text}</a> // Updated this line
-      ),
+      render: (text, record) => {
+        const altBilgi = [record.marka, record.model].filter(Boolean).join(" ");
+        return (
+          <div style={cellWrapperStyle}>
+            <a onClick={() => onRowClick(record)} style={{ fontWeight: 600 }}>
+              {text || "-"}
+            </a>
+            {altBilgi && <span style={subTextStyle}>{altBilgi}</span>}
+          </div>
+        );
+      },
       sorter: (a, b) => {
         if (a.plaka === null) return -1;
         if (b.plaka === null) return 1;
@@ -220,28 +288,18 @@ const Sigorta = () => {
     },
 
     {
-      title: t("marka"),
-      dataIndex: "marka",
-      key: "marka",
-      width: 150,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.marka === null) return -1;
-        if (b.marka === null) return 1;
-        return a.marka.localeCompare(b.marka);
-      },
-    },
-
-    {
       title: t("bakimTanimi"),
       dataIndex: "bakimTanimi",
       key: "bakimTanimi",
-      width: 190,
+      width: 240,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-
+      render: (text, record) => (
+        <div style={cellWrapperStyle}>
+          <span style={{ fontWeight: 600 }}>{text || "-"}</span>
+          {record.bakimKodu && <span style={subTextStyle}>{record.bakimKodu}</span>}
+        </div>
+      ),
       sorter: (a, b) => {
         if (a.bakimTanimi === null) return -1;
         if (b.bakimTanimi === null) return 1;
@@ -250,232 +308,71 @@ const Sigorta = () => {
     },
 
     {
-      title: t("sonBakim"),
-      key: "sonBakim",
-      visible: true, // Varsayılan olarak açık
-      className: "parent-column-header parent-column-header-left",
-      children: [
-        {
-          title: t("sonKm"),
-          dataIndex: "sonKm",
-          key: "sonKm",
-          width: 120,
-          ellipsis: true,
-          visible: true, // Varsayılan olarak açık
-
-          sorter: (a, b) => {
-            if (a.sonKm === null) return -1;
-            if (b.sonKm === null) return 1;
-            return a.sonKm - b.sonKm;
-          },
-          onHeaderCell: (column) => ({
-            style: { borderLeft: "2px solid #000" },
-          }),
-          onCell: (record) => ({
-            style: { borderLeft: "2px solid #000" },
-          }),
-        },
-
-        {
-          title: t("sonTarih"),
-          dataIndex: "sonTarih",
-          key: "sonTarih",
-          width: 110,
-          ellipsis: true,
-          sorter: (a, b) => {
-            if (a.sonTarih === null) return -1;
-            if (b.sonTarih === null) return 1;
-            return a.sonTarih.localeCompare(b.sonTarih);
-          },
-
-          visible: true, // Varsayılan olarak açık
-          render: (text) => formatDate(text),
-          onHeaderCell: (column) => ({
-            style: { borderRight: "2px solid #000" },
-          }),
-          onCell: (record) => ({
-            style: { borderRight: "2px solid #000" },
-          }),
-        },
-      ],
-    },
-
-    {
-      title: t("bakimSikligi"),
-      key: "bakimSikligi",
-      visible: true, // Varsayılan olarak açık
-      className: "parent-column-header",
-      children: [
-        {
-          title: t("herKm"),
-          dataIndex: "herKm",
-          key: "herKm",
-          width: 120,
-          ellipsis: true,
-          visible: true, // Varsayılan olarak açık
-
-          sorter: (a, b) => {
-            if (a.herKm === null) return -1;
-            if (b.herKm === null) return 1;
-            return a.herKm - b.herKm;
-          },
-        },
-
-        {
-          title: t("herGun"),
-          dataIndex: "herGun",
-          key: "herGun",
-          width: 120,
-          ellipsis: true,
-          visible: true, // Varsayılan olarak açık
-
-          sorter: (a, b) => {
-            if (a.herGun === null) return -1;
-            if (b.herGun === null) return 1;
-            return a.herGun - b.herGun;
-          },
-          onHeaderCell: (column) => ({
-            style: { borderRight: "2px solid #000" },
-          }),
-          onCell: (record) => ({
-            style: { borderRight: "2px solid #000" },
-          }),
-        },
-      ],
-    },
-
-    {
-      title: t("sonrakiBakimZamani"),
-      key: "sonrakiBakimZamani",
-      visible: true, // Varsayılan olarak açık
-      className: "parent-column-header",
-      children: [
-        {
-          title: t("hedefKm"),
-          dataIndex: "hedefKm",
-          key: "hedefKm",
-          width: 120,
-          ellipsis: true,
-          visible: true, // Varsayılan olarak açık
-
-          sorter: (a, b) => {
-            if (a.hedefKm === null) return -1;
-            if (b.hedefKm === null) return 1;
-            return a.hedefKm - b.hedefKm;
-          },
-        },
-
-        {
-          title: t("hedefTarih"),
-          dataIndex: "hedefTarih",
-          key: "hedefTarih",
-          width: 110,
-          ellipsis: true,
-          sorter: (a, b) => {
-            if (a.hedefTarih === null) return -1;
-            if (b.hedefTarih === null) return 1;
-            return a.hedefTarih.localeCompare(b.hedefTarih);
-          },
-
-          visible: true, // Varsayılan olarak açık
-          render: (text) => formatDate(text),
-          onHeaderCell: (column) => ({
-            style: { borderRight: "2px solid #000" },
-          }),
-          onCell: (record) => ({
-            style: { borderRight: "2px solid #000" },
-          }),
-        },
-      ],
-    },
-
-    {
-      title: t("kalanKm"),
-      dataIndex: "kalanKm",
-      key: "kalanKm",
-      width: 120,
+      title: t("periyot"),
+      key: "periyot",
+      width: 180,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.kalanKm === null) return -1;
-        if (b.kalanKm === null) return 1;
-        return a.kalanKm - b.kalanKm;
+      render: (_, record) => {
+        const parcalar = [];
+        if (record.herKm) parcalar.push(`${formatNumberWithLocale(record.herKm)} ${t("km").toLocaleLowerCase()}`);
+        if (record.herGun) parcalar.push(`${formatNumberWithLocale(record.herGun)} ${t("gun").toLocaleLowerCase()}`);
+        return parcalar.length ? parcalar.join(" / ") : "-";
       },
+      sorter: (a, b) => (a.herKm ?? 0) - (b.herKm ?? 0),
     },
 
     {
-      title: t("kalanSure"),
-      dataIndex: "kalanSure",
-      key: "kalanSure",
-      width: 120,
+      title: t("sonUygulama"),
+      key: "sonUygulama",
+      width: 160,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.kalanSure === null) return -1;
-        if (b.kalanSure === null) return 1;
-        return a.kalanSure - b.kalanSure;
-      },
+      render: (_, record) => (
+        <div style={cellWrapperStyle}>
+          <span>{`${t("km").toLocaleUpperCase()}: ${formatNumberWithLocale(record.sonKm)}`}</span>
+          {record.sonTarih && <span style={subTextStyle}>{formatDate(record.sonTarih)}</span>}
+        </div>
+      ),
+      sorter: (a, b) => (a.sonKm ?? 0) - (b.sonKm ?? 0),
     },
 
     {
-      title: <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>{t("aciklama")}</div>,
+      title: t("sonrakiHedef"),
+      key: "sonrakiHedef",
+      width: 160,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+      render: (_, record) => (
+        <div style={cellWrapperStyle}>
+          <span>{`${t("km").toLocaleUpperCase()}: ${formatNumberWithLocale(record.hedefKm)}`}</span>
+          {record.hedefTarih && <span style={subTextStyle}>{formatDate(record.hedefTarih)}</span>}
+        </div>
+      ),
+      sorter: (a, b) => (a.hedefKm ?? 0) - (b.hedefKm ?? 0),
+    },
+
+    {
+      title: t("yaklasanBakim") || "Yaklaşan Bakım",
+      key: "yaklasanBakim",
+      width: 200,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+      render: (_, record) => renderYaklasanBakimCell(record.kalanKm, record.kalanSure),
+      sorter: (a, b) => (a.kalanKm ?? 0) - (b.kalanKm ?? 0),
+    },
+
+    {
+      title: t("aciklama"),
       dataIndex: "aciklama",
       key: "aciklama",
       width: 240,
       ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
+      visible: false,
       sorter: (a, b) => {
         if (a.aciklama === null) return -1;
         if (b.aciklama === null) return 1;
         return a.aciklama.localeCompare(b.aciklama);
-      },
-    },
-
-    {
-      title: t("model"),
-      dataIndex: "model",
-      key: "model",
-      width: 150,
-      ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.model === null) return -1;
-        if (b.model === null) return 1;
-        return a.model.localeCompare(b.model);
-      },
-    },
-
-    {
-      title: t("bakimKodu"),
-      dataIndex: "bakimKodu",
-      key: "bakimKodu",
-      width: 150,
-      ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.bakimKodu === null) return -1;
-        if (b.bakimKodu === null) return 1;
-        return a.bakimKodu.localeCompare(b.bakimKodu);
-      },
-    },
-
-    {
-      title: t("servisTipi"),
-      dataIndex: "servisTipi",
-      key: "servisTipi",
-      width: 190,
-      ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.servisTipi === null) return -1;
-        if (b.servisTipi === null) return 1;
-        return a.servisTipi.localeCompare(b.servisTipi);
       },
     },
 
@@ -485,8 +382,7 @@ const Sigorta = () => {
       key: "aktif",
       width: 83,
       ellipsis: true,
-      visible: false, // Varsayılan olarak açık
-
+      visible: false,
       sorter: (a, b) => {
         if (a.aktif === null) return -1;
         if (b.aktif === null) return 1;
@@ -732,13 +628,17 @@ const Sigorta = () => {
 
   // filtrelenmiş sütunları local storage'dan alıp state'e atıyoruz
   const [columns, setColumns] = useState(() => {
-    const savedOrder = localStorage.getItem("columnOrderPeryodikBakim");
-    const savedVisibility = localStorage.getItem("columnVisibilityPeryodikBakim");
-    const savedWidths = localStorage.getItem("columnWidthsPeryodikBakim");
+    const savedOrder = localStorage.getItem("columnOrderPeryodikBakimV2");
+    const savedVisibility = localStorage.getItem("columnVisibilityPeryodikBakimV2");
+    const savedWidths = localStorage.getItem("columnWidthsPeryodikBakimV2");
 
     let order = savedOrder ? JSON.parse(savedOrder) : [];
     let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
     let widths = savedWidths ? JSON.parse(savedWidths) : {};
+
+    // Artık var olmayan (eski) sütun anahtarlarını ayıkla
+    const validKeys = initialColumns.map((col) => col.key);
+    order = order.filter((key) => validKeys.includes(key));
 
     initialColumns.forEach((col) => {
       if (!order.includes(col.key)) {
@@ -752,9 +652,9 @@ const Sigorta = () => {
       }
     });
 
-    localStorage.setItem("columnOrderPeryodikBakim", JSON.stringify(order));
-    localStorage.setItem("columnVisibilityPeryodikBakim", JSON.stringify(visibility));
-    localStorage.setItem("columnWidthsPeryodikBakim", JSON.stringify(widths));
+    localStorage.setItem("columnOrderPeryodikBakimV2", JSON.stringify(order));
+    localStorage.setItem("columnVisibilityPeryodikBakimV2", JSON.stringify(visibility));
+    localStorage.setItem("columnWidthsPeryodikBakimV2", JSON.stringify(widths));
 
     return order.map((key) => {
       const column = initialColumns.find((col) => col.key === key);
@@ -765,9 +665,9 @@ const Sigorta = () => {
 
   // sütunları local storage'a kaydediyoruz
   useEffect(() => {
-    localStorage.setItem("columnOrderPeryodikBakim", JSON.stringify(columns.map((col) => col.key)));
+    localStorage.setItem("columnOrderPeryodikBakimV2", JSON.stringify(columns.map((col) => col.key)));
     localStorage.setItem(
-      "columnVisibilityPeryodikBakim",
+      "columnVisibilityPeryodikBakimV2",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -779,7 +679,7 @@ const Sigorta = () => {
       )
     );
     localStorage.setItem(
-      "columnWidthsPeryodikBakim",
+      "columnWidthsPeryodikBakimV2",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -855,9 +755,9 @@ const Sigorta = () => {
   // sütunları sıfırlamak için kullanılan fonksiyon
 
   function resetColumns() {
-    localStorage.removeItem("columnOrderPeryodikBakim");
-    localStorage.removeItem("columnVisibilityPeryodikBakim");
-    localStorage.removeItem("columnWidthsPeryodikBakim");
+    localStorage.removeItem("columnOrderPeryodikBakimV2");
+    localStorage.removeItem("columnVisibilityPeryodikBakimV2");
+    localStorage.removeItem("columnWidthsPeryodikBakimV2");
     localStorage.removeItem("ozelAlanlarPeryodikBakim");
     window.location.reload();
   }
