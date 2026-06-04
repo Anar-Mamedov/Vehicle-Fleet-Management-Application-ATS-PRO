@@ -96,7 +96,7 @@ const HatirlaticiPanel = ({ open, onClose }) => {
   const [countdown, setCountdown] = useState(AUTO_REFRESH_INTERVAL);
   const [updatedKeys, setUpdatedKeys] = useState(() => {
     try {
-      const saved = localStorage.getItem("hatirlatici_updated_keys");
+      const saved = sessionStorage.getItem("hatirlatici_updated_keys");
       return saved ? new Set(JSON.parse(saved)) : new Set();
     } catch {
       return new Set();
@@ -106,7 +106,7 @@ const HatirlaticiPanel = ({ open, onClose }) => {
   const prevDataRef = useRef(
     (() => {
       try {
-        const saved = localStorage.getItem("hatirlatici_prev_data");
+        const saved = sessionStorage.getItem("hatirlatici_prev_data");
         return saved ? JSON.parse(saved) : null;
       } catch {
         return null;
@@ -149,12 +149,12 @@ const HatirlaticiPanel = ({ open, onClose }) => {
                 newUpdated.add(key);
               }
             });
-            localStorage.setItem("hatirlatici_updated_keys", JSON.stringify([...newUpdated]));
+            sessionStorage.setItem("hatirlatici_updated_keys", JSON.stringify([...newUpdated]));
             return newUpdated;
           });
         }
         prevDataRef.current = { ...reminderRes.data };
-        localStorage.setItem("hatirlatici_prev_data", JSON.stringify(reminderRes.data));
+        sessionStorage.setItem("hatirlatici_prev_data", JSON.stringify(reminderRes.data));
         setData(reminderRes.data);
       }
       if (graphRes.data) setData1(graphRes.data);
@@ -229,7 +229,7 @@ const HatirlaticiPanel = ({ open, onClose }) => {
       setUpdatedKeys((prev) => {
         const next = new Set(prev);
         next.delete(dataKey);
-        localStorage.setItem("hatirlatici_updated_keys", JSON.stringify([...next]));
+        sessionStorage.setItem("hatirlatici_updated_keys", JSON.stringify([...next]));
         return next;
       });
     }
