@@ -56,30 +56,70 @@ const renderYaklasanBakimCell = (remainingKm, remainingDays) => {
   }
 
   // 3. Yaklaşan (Upcoming)
-  const normalizedKmDays = remainingKm !== null ? remainingKm / 40 : Infinity;
-  const normalizedDays = remainingDays !== null ? remainingDays : Infinity;
+  if (remainingKm !== null && remainingDays !== null) {
+    const isCritical = remainingDays < 30 || remainingKm < 1200;
+    const lineColor = isCritical ? "#faad14" : "#d9d9d9";
+    const textColor = isCritical ? "#faad14" : "#595959";
 
-  if (normalizedKmDays < normalizedDays) {
-    // KM bazında daha yakın
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <span style={{ fontWeight: 600, color: "#faad14" }}>
-          {formatNumberWithLocale(remainingKm)} km sonra
+        <span style={{ fontWeight: 600, color: textColor }}>
+          {formatNumberWithLocale(remainingKm)} km / {remainingDays} gün sonra
         </span>
-        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#faad14", borderRadius: "2px" }} />
-      </div>
-    );
-  } else {
-    // Gün bazında daha yakın
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <span style={{ fontWeight: 600, color: "#595959" }}>
-          {remainingDays} gün sonra
-        </span>
-        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#d9d9d9", borderRadius: "2px" }} />
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
       </div>
     );
   }
+
+  if (remainingKm !== null) {
+    const isCritical = remainingKm < 1200;
+    const lineColor = isCritical ? "#faad14" : "#d9d9d9";
+    const textColor = isCritical ? "#faad14" : "#595959";
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: textColor }}>
+          {formatNumberWithLocale(remainingKm)} km sonra
+        </span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
+      </div>
+    );
+  }
+
+  if (remainingDays !== null) {
+    const isCritical = remainingDays < 30;
+    const lineColor = isCritical ? "#faad14" : "#d9d9d9";
+    const textColor = isCritical ? "#faad14" : "#595959";
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: textColor }}>
+          {remainingDays} gün sonra
+        </span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
+      </div>
+    );
+  }
+
+  return "-";
+};
+
+// Kalan gün ve kalan km hesaplama yardımcıları
+const calculateRemainingDays = (targetDate) => {
+  if (!targetDate) return null;
+  try {
+    const today = dayjs().startOf("day");
+    const target = dayjs(targetDate).startOf("day");
+    return target.diff(today, "day");
+  } catch (error) {
+    console.error("Error calculating remaining days:", error);
+    return null;
+  }
+};
+
+const calculateRemainingKm = (hedefKm, currentKm) => {
+  if (hedefKm === null || hedefKm === undefined || currentKm === null || currentKm === undefined) return null;
+  const diff = Number(hedefKm) - Number(currentKm);
+  if (Number.isNaN(diff)) return null;
+  return diff;
 };
 
 const breadcrumb = [{ href: "/", title: <HomeOutlined /> }, { title: t("periyodikBakimlar") }];
@@ -358,8 +398,18 @@ const Sigorta = () => {
       width: 200,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-      render: (_, record) => renderYaklasanBakimCell(record.kalanKm, record.kalanSure),
-      sorter: (a, b) => (a.kalanKm ?? 0) - (b.kalanKm ?? 0),
+      render: (_, record) => {
+        const remainingKm = record.isHerKm !== false ? record.kalanKm : null;
+        const remainingDays = record.isHerTarih !== false ? record.kalanSure : null;
+        return renderYaklasanBakimCell(remainingKm, remainingDays);
+      },
+      sorter: (a, b) => {
+        const aVal = a.isHerKm !== false ? a.kalanKm : null;
+        const bVal = b.isHerKm !== false ? b.kalanKm : null;
+        if (aVal === null) return -1;
+        if (bVal === null) return 1;
+        return aVal - bVal;
+      },
     },
 
     {

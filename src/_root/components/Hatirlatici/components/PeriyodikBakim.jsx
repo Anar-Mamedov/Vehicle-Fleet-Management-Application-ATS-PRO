@@ -50,30 +50,50 @@ const renderYaklasanBakimCell = (remainingKm, remainingDays) => {
   }
 
   // 3. Yaklaşan (Upcoming)
-  const normalizedKmDays = remainingKm !== null ? remainingKm / 40 : Infinity;
-  const normalizedDays = remainingDays !== null ? remainingDays : Infinity;
+  if (remainingKm !== null && remainingDays !== null) {
+    const isCritical = remainingDays < 30 || remainingKm < 1200;
+    const lineColor = isCritical ? "#faad14" : "#d9d9d9";
+    const textColor = isCritical ? "#faad14" : "#595959";
 
-  if (normalizedKmDays < normalizedDays) {
-    // KM bazında daha yakın
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <span style={{ fontWeight: 600, color: "#faad14" }}>
-          {formatNumberWithLocale(remainingKm)} km sonra
+        <span style={{ fontWeight: 600, color: textColor }}>
+          {formatNumberWithLocale(remainingKm)} km / {remainingDays} gün sonra
         </span>
-        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#faad14", borderRadius: "2px" }} />
-      </div>
-    );
-  } else {
-    // Gün bazında daha yakın
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <span style={{ fontWeight: 600, color: "#595959" }}>
-          {remainingDays} gün sonra
-        </span>
-        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#d9d9d9", borderRadius: "2px" }} />
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
       </div>
     );
   }
+
+  if (remainingKm !== null) {
+    const isCritical = remainingKm < 1200;
+    const lineColor = isCritical ? "#faad14" : "#d9d9d9";
+    const textColor = isCritical ? "#faad14" : "#595959";
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: textColor }}>
+          {formatNumberWithLocale(remainingKm)} km sonra
+        </span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
+      </div>
+    );
+  }
+
+  if (remainingDays !== null) {
+    const isCritical = remainingDays < 30;
+    const lineColor = isCritical ? "#faad14" : "#d9d9d9";
+    const textColor = isCritical ? "#faad14" : "#595959";
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontWeight: 600, color: textColor }}>
+          {remainingDays} gün sonra
+        </span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
+      </div>
+    );
+  }
+
+  return "-";
 };
 
 const StyledButton = styled(Button)`
