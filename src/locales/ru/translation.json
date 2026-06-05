@@ -407,5 +407,10 @@
   "extremesInfoOperatingExpenseDescription": "Этот детальный список показывает общие эксплуатационные затраты и их структуру по каждому транспортному средству.",
   "extremesInfoOperatingExpenseCalculation": "Данные по топливу, сервису, неисправностям, страховке, прочим расходам и использованию агрегируются по каждому транспортному средству.",
   "extremesInfoOperatingExpenseInterpretation": "Общие расходы следует оценивать вместе со значением расход/км и пробегом. Оценка только по общей сумме может вводить в заблуждение.",
-  "extremesInfoOperatingExpenseAction": "Для транспорта с высокими расходами проверьте структуру затрат, чтобы определить их источник."
+  "extremesInfoOperatingExpenseAction": "Для транспорта с высокими расходами проверьте структуру затрат, чтобы определить их источник.",
+  "menuSectionOperations": "Операции",
+  "menuSectionInventory": "Запасы и логистика",
+  "menuSectionAnalysis": "Аналитика и отчётность",
+  "menuSectionSystem": "Система",
+  "menuNoResults": "Ничего не найдено"
 }

@@ -155,7 +155,7 @@ const KodYonetimi = () => {
       </div> */}
       <div className="sistem">
         <Layout style={{ height: "90vh" }}>
-          <Sider width={200} style={{ padding: "10px" }}>
+          <Sider width={250} style={{ padding: "10px" }}>
             <div style={codeTitle}>{t("kodGruplari")}</div>
             <Input value={searchCode} onChange={(e) => setSearchCode(e.target.value)} placeholder={t("arama")} />
             <Menu mode="inline" style={{ height: "90%", borderRight: 0, overflow: "auto", marginTop: 10 }} onClick={({ key }) => handleCodeClick(key)} items={updatedList} />

@@ -1357,5 +1357,10 @@
   "extremesInfoOperatingExpenseCalculation": "Fuel, service, failure, insurance, miscellaneous expense, and usage data are aggregated per vehicle.",
   "extremesInfoOperatingExpenseInterpretation": "Total expense should be interpreted together with cost/km and mileage. Looking only at total amount may be misleading.",
   "extremesInfoOperatingExpenseAction": "For high-expense vehicles, inspect the expense distribution to identify the source of the cost.",
-  "yaklasanBakim": "Upcoming Maintenance"
+  "yaklasanBakim": "Upcoming Maintenance",
+  "menuSectionOperations": "Operations",
+  "menuSectionInventory": "Inventory & Logistics",
+  "menuSectionAnalysis": "Analytics & Reporting",
+  "menuSectionSystem": "System",
+  "menuNoResults": "No results found"
 }
