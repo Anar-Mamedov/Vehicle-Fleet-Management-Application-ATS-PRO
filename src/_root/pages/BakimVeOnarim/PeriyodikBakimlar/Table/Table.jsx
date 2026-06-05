@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, Progress, message } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, CheckOutlined, CloseOutlined, HomeOutlined } from "@ant-design/icons";
+import { HolderOutlined, SearchOutlined, MenuOutlined, CheckOutlined, CloseOutlined, HomeOutlined, FileTextOutlined, WarningOutlined, BellOutlined, DashboardOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -297,6 +297,19 @@ const Sigorta = () => {
   const [label, setLabel] = useState("Yükleniyor..."); // Başlangıç değeri özel alanlar için
   const [totalDataCount, setTotalDataCount] = useState(0); // Tüm veriyi tutan state
   const [pageSize, setPageSize] = useState(10); // Başlangıçta sayfa başına 10 kayıt göster
+  const [statisticsLoading, setStatisticsLoading] = useState(false);
+  const [statistics, setStatistics] = useState({
+    toplamTanim: null,
+    kritikGecikmis: null,
+    yaklasanBakim: null,
+    sadeceKm: null,
+  });
+
+  const formatStatisticValue = (value) => {
+    if (value === null || value === undefined) return "-";
+    return formatNumberWithLocale(value);
+  };
+
   const [editDrawer1Visible, setEditDrawer1Visible] = useState(false);
   const [editDrawer1Data, setEditDrawer1Data] = useState(null);
 
@@ -615,12 +628,14 @@ const Sigorta = () => {
   // ana tablo api isteği için kullanılan useEffect
   useEffect(() => {
     fetchEquipmentData(0, 1);
+    fetchStatistics();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (body !== prevBodyRef.current) {
       fetchEquipmentData(0, 1);
+      fetchStatistics();
       prevBodyRef.current = body;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -708,6 +723,30 @@ const Sigorta = () => {
     }
   };
 
+  const fetchStatistics = async () => {
+    setStatisticsLoading(true);
+    try {
+      const customFilters = body.filters?.customfilter || {};
+      const [res1, res2, res3, res4] = await Promise.all([
+        AxiosInstance.post(`PeriodicMaintenanceStatistics/GetInfoByType?type=1&parameter=${searchTerm}`, customFilters),
+        AxiosInstance.post(`PeriodicMaintenanceStatistics/GetInfoByType?type=2&parameter=${searchTerm}`, customFilters),
+        AxiosInstance.post(`PeriodicMaintenanceStatistics/GetInfoByType?type=3&parameter=${searchTerm}`, customFilters),
+        AxiosInstance.post(`PeriodicMaintenanceStatistics/GetInfoByType?type=4&parameter=${searchTerm}`, customFilters),
+      ]);
+
+      setStatistics({
+        toplamTanim: res1.data,
+        kritikGecikmis: res2.data,
+        yaklasanBakim: res3.data,
+        sadeceKm: res4.data,
+      });
+    } catch (error) {
+      console.error("İstatistik verisi çekme hatası:", error);
+    } finally {
+      setStatisticsLoading(false);
+    }
+  };
+
   // filtreleme işlemi için kullanılan useEffect
   const handleBodyChange = useCallback((type, newBody) => {
     setBody((state) => ({
@@ -764,7 +803,8 @@ const Sigorta = () => {
 
     // Verileri yeniden çekmek için `fetchEquipmentData` fonksiyonunu çağır
     fetchEquipmentData(0, 1);
-  }, []); // Remove body and currentPage from dependencies
+    fetchStatistics();
+  }, [body, searchTerm]); // Remove body and currentPage from dependencies
 
   // filtrelenmiş sütunları local storage'dan alıp state'e atıyoruz
   const [columns, setColumns] = useState(() => {
@@ -999,6 +1039,101 @@ const Sigorta = () => {
           </DndContext>
         </div>
       </Modal>
+      <Spin spinning={statisticsLoading} size="small">
+        <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+          {/* Toplam Tanım */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "10px 16px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+              height: "112px",
+              boxSizing: "border-box",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+              <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>Toplam Tanım</span>
+              <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <FileTextOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
+              </div>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px", lineHeight: "28px" }}>{formatStatisticValue(statistics.toplamTanim)}</div>
+            <div style={{ fontSize: "12px", color: "#8c8c8c", lineHeight: "18px", fontWeight: 400 }}>Aktif bakım planı sayısı</div>
+          </div>
+
+          {/* Kritik / Gecikmiş */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "10px 16px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+              height: "112px",
+              boxSizing: "border-box",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+              <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>Kritik / Gecikmiş</span>
+              <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <WarningOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
+              </div>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px", lineHeight: "28px" }}>{formatStatisticValue(statistics.kritikGecikmis)}</div>
+            <div style={{ fontSize: "12px", color: "#8c8c8c", lineHeight: "18px", fontWeight: 400 }}>Hemen planlanması gerekenler</div>
+          </div>
+
+          {/* Yaklaşan Bakım */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "10px 16px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+              height: "112px",
+              boxSizing: "border-box",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+              <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>Yaklaşan Bakım</span>
+              <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <BellOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
+              </div>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px", lineHeight: "28px" }}>{formatStatisticValue(statistics.yaklasanBakim)}</div>
+            <div style={{ fontSize: "12px", color: "#8c8c8c", lineHeight: "18px", fontWeight: 400 }}>Uyarı eşiğine giren kayıtlar</div>
+          </div>
+
+          {/* Sadece KM Planı */}
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "10px 16px",
+              borderRadius: "8px",
+              flex: "1",
+              border: "1px solid #f0f0f0",
+              height: "112px",
+              boxSizing: "border-box",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+              <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>Sadece KM Planı</span>
+              <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <DashboardOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
+              </div>
+            </div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", marginBottom: "4px", lineHeight: "28px" }}>{formatStatisticValue(statistics.sadeceKm)}</div>
+            <div style={{ fontSize: "12px", color: "#8c8c8c", lineHeight: "18px", fontWeight: 400 }}>Tarih kontrolü olmayan tanımlar</div>
+          </div>
+        </div>
+      </Spin>
       <div
         style={{
           backgroundColor: "white",
