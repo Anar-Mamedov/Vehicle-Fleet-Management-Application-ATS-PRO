@@ -1,21 +1,25 @@
 import { CloseOutlined, FilterOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Drawer, Row, Typography, Select, Space, Input, DatePicker } from "antd";
+import { Button, Col, Drawer, Row, Typography, Select, Space, DatePicker } from "antd";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import "./style.css";
-import { Controller, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import dayjs from "dayjs";
 import "dayjs/locale/tr"; // For Turkish locale
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import advancedFormat from "dayjs/plugin/advancedFormat";
-import DatePickerComponent from "./components/DatePickerComponent";
+import LokasyonTable from "../../../../../../components/LokasyonTable";
+import MarkaSelectbox from "../../../../../../components/MarkaSelectbox";
+import ModelSelectbox from "../../../../../../components/ModelSelectbox";
+import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
+import ServisKoduTablo from "../../../../../../components/ServisKoduTablo";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(advancedFormat);
 
 dayjs.locale("tr"); // use Turkish locale
 
-const { Text, Link } = Typography;
+const { Text } = Typography;
 
 const StyledCloseOutlined = styled(CloseOutlined)`
   svg {
@@ -35,20 +39,24 @@ const CloseButton = styled.div`
   cursor: pointer;
 `;
 
+const FILTER_OPTIONS = [
+  { value: "bakimIds", label: "Bakım Tanımı" },
+  { value: "servisTipiKodIds", label: "Servis Tipi" },
+  { value: "lokasyonIds", label: "Lokasyon" },
+  { value: "markaIds", label: "Marka" },
+  { value: "modelIds", label: "Model" },
+];
+
+
+
 export default function CustomFilter({ onSubmit }) {
-  const {
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useFormContext();
+  const { watch, unregister } = useFormContext();
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [newObjectsAdded, setNewObjectsAdded] = useState(false);
   const [filtersExist, setFiltersExist] = useState(false);
-  const [inputValues, setInputValues] = useState({});
-  const [filters, setFilters] = useState({});
-  const [filterValues, setFilterValues] = useState({});
+  const [selectedFilters, setSelectedFilters] = useState({});
+  const [selectedValues, setSelectedValues] = useState({});
   const [isInitialMount, setIsInitialMount] = useState(true);
 
   const [startDate, setStartDate] = useState(null);
@@ -77,22 +85,26 @@ export default function CustomFilter({ onSubmit }) {
 
   useEffect(() => {
     if (isInitialMount) return;
-
-    // Always submit after initial mount when dates change (including null)
     handleSubmit();
   }, [startDate, endDate]);
 
-  // Create a state variable to store selected values for each row
-  const [selectedValues, setSelectedValues] = useState({});
+  const handleFilterTypeChange = (value, rowId) => {
+    setSelectedFilters((prev) => ({ ...prev, [rowId]: value }));
+    setSelectedValues((prev) => ({ ...prev, [rowId]: [] }));
 
-  // Tarih seçimi yapıldığında veya filtreler eklenip kaldırıldığında düğmenin stilini değiştirmek için bir durum
-  const isFilterApplied = newObjectsAdded || filtersExist || startDate || endDate;
+    // Clean up react-hook-form fields of the old filter type
+    unregister(`marka-${rowId}`);
+    unregister(`marka-${rowId}ID`);
+    unregister(`model-${rowId}`);
+    unregister(`model-${rowId}ID`);
+    unregister(`servisTip-${rowId}`);
+    unregister(`servisTip-${rowId}ID`);
+    unregister(`bakim-${rowId}`);
+    unregister(`lokasyon-${rowId}`);
+  };
 
-  const handleSelectChange = (value, rowId) => {
-    setSelectedValues((prevSelectedValues) => ({
-      ...prevSelectedValues,
-      [rowId]: value,
-    }));
+  const handleValueChange = (values, rowId) => {
+    setSelectedValues((prev) => ({ ...prev, [rowId]: values }));
   };
 
   const showDrawer = () => {
@@ -104,17 +116,16 @@ export default function CustomFilter({ onSubmit }) {
   };
 
   const handleSubmit = () => {
-    // Combine selected values, input values for each row, and date range
-    const filterData = rows.reduce((acc, row) => {
-      const selectedValue = selectedValues[row.id] || "";
-      const inputValue = inputValues[`input-${row.id}`] || "";
-      if (selectedValue && inputValue) {
-        acc[selectedValue] = inputValue;
-      }
-      return acc;
-    }, {});
+    const filterData = {};
 
-    // Add date range to the filterData object if dates are selected
+    rows.forEach((row) => {
+      const filterKey = selectedFilters[row.id];
+      const values = selectedValues[row.id];
+      if (filterKey && values && values.length > 0) {
+        filterData[filterKey] = values;
+      }
+    });
+
     if (startDate) {
       filterData.baslangicTarih = startDate.format("YYYY-MM-DD");
     }
@@ -123,14 +134,32 @@ export default function CustomFilter({ onSubmit }) {
     }
 
     console.log(filterData);
-    // You can now submit or process the filterData object as needed.
     onSubmit(filterData);
     setOpen(false);
   };
 
   const handleCancelClick = (rowId) => {
-    setFilters({});
     setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
+    setSelectedFilters((prev) => {
+      const updated = { ...prev };
+      delete updated[rowId];
+      return updated;
+    });
+    setSelectedValues((prev) => {
+      const updated = { ...prev };
+      delete updated[rowId];
+      return updated;
+    });
+
+    // Clean up react-hook-form fields
+    unregister(`marka-${rowId}`);
+    unregister(`marka-${rowId}ID`);
+    unregister(`model-${rowId}`);
+    unregister(`model-${rowId}ID`);
+    unregister(`servisTip-${rowId}`);
+    unregister(`servisTip-${rowId}ID`);
+    unregister(`bakim-${rowId}`);
+    unregister(`lokasyon-${rowId}`);
 
     const filtersRemaining = rows.length > 1;
     setFiltersExist(filtersRemaining);
@@ -139,39 +168,31 @@ export default function CustomFilter({ onSubmit }) {
     }
   };
 
-  const handleInputChange = (e, rowId) => {
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [`input-${rowId}`]: e.target.value,
-    }));
-  };
-
-  const handleDateChange = (date, rowId) => {
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [`input-${rowId}`]: date ? date.format("YYYY-MM-DD") : "",
-    }));
-  };
-
   const handleAddFilterClick = () => {
     const newRow = { id: Date.now() };
     setRows((prevRows) => [...prevRows, newRow]);
-
     setNewObjectsAdded(true);
     setFiltersExist(true);
-    setInputValues((prevInputValues) => ({
-      ...prevInputValues,
-      [newRow.id]: "", // Set an empty input value for the new row
-    }));
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
+  const getAvailableOptions = (currentRowId) => {
+    const usedFilters = Object.entries(selectedFilters)
+      .filter(([rowId]) => String(rowId) !== String(currentRowId))
+      .map(([, value]) => value);
+
+    return FILTER_OPTIONS.filter((opt) => !usedFilters.includes(opt.value));
   };
 
-  const onSearch = (value) => {
-    console.log("search:", value);
+  const getSelectedMarkaIds = () => {
+    const markaRow = Object.entries(selectedFilters).find(([_, value]) => value === "markaIds");
+    if (markaRow) {
+      const rowId = markaRow[0];
+      return selectedValues[rowId] || [];
+    }
+    return [];
   };
+
+  const isFilterApplied = newObjectsAdded || filtersExist || startDate || endDate;
 
   return (
     <>
@@ -252,44 +273,58 @@ export default function CustomFilter({ onSubmit }) {
                 <Select
                   style={{ width: "100%", marginBottom: "10px" }}
                   showSearch
-                  placeholder={`Seçim Yap`}
-                  optionFilterProp="children"
-                  onChange={(value) => handleSelectChange(value, row.id)}
-                  value={selectedValues[row.id] || undefined}
-                  onSearch={onSearch}
+                  placeholder="Seçim Yap"
+                  optionFilterProp="label"
+                  onChange={(value) => handleFilterTypeChange(value, row.id)}
+                  value={selectedFilters[row.id] || undefined}
                   filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
-                  options={[
-                    {
-                      value: "bakimKodu",
-                      label: "Bakım Kodu",
-                    },
-                    {
-                      value: "servisTipi",
-                      label: "Servis Tipi",
-                    },
-                    {
-                      value: "lokasyon",
-                      label: "Lokasyon",
-                    },
-                    {
-                      value: "marka",
-                      label: "Marka",
-                    },
-                    {
-                      value: "model",
-                      label: "Model",
-                    },
-                  ]}
+                  options={getAvailableOptions(row.id)}
                 />
-                <Input
-                  placeholder="Arama Yap"
-                  name={`input-${row.id}`}
-                  value={inputValues[`input-${row.id}`] || ""}
-                  onChange={(e) => handleInputChange(e, row.id)}
-                  style={{ display: selectedValues[row.id] === "tebligBaslangicTarih" || selectedValues[row.id] === "tebligBitisTarih" ? "none" : "block" }}
-                />
-                {(selectedValues[row.id] === "tebligBaslangicTarih" || selectedValues[row.id] === "tebligBitisTarih") && (
-                  <DatePickerComponent value={inputValues[`input-${row.id}`]} onChange={(date) => handleDateChange(date, row.id)} />
+                {selectedFilters[row.id] && selectedFilters[row.id] === "lokasyonIds" && (
+                  <LokasyonTable
+                    fieldName={`lokasyon-${row.id}`}
+                    multiSelect={true}
+                    onSubmit={(selectedData) => {
+                      const ids = (selectedData || []).map((item) => item.locationId);
+                      handleValueChange(ids, row.id);
+                    }}
+                    workshopSelectedId={selectedValues[row.id] || []}
+                  />
+                )}
+                {selectedFilters[row.id] && selectedFilters[row.id] === "markaIds" && (
+                  <MarkaSelectbox
+                    name1={`marka-${row.id}`}
+                    multiSelect={true}
+                    onChange={(values) => handleValueChange(values, row.id)}
+                  />
+                )}
+                {selectedFilters[row.id] && selectedFilters[row.id] === "modelIds" && (
+                  <ModelSelectbox
+                    name1={`model-${row.id}`}
+                    multiSelect={true}
+                    markaId={getSelectedMarkaIds()}
+                    onChange={(values) => handleValueChange(values, row.id)}
+                  />
+                )}
+                {selectedFilters[row.id] && selectedFilters[row.id] === "servisTipiKodIds" && (
+                  <KodIDSelectbox
+                    name1={`servisTip-${row.id}`}
+                    kodID={103}
+                    placeholder="Servis Tipi Seçiniz"
+                    multiSelect={true}
+                    onChange={(values) => handleValueChange(values, row.id)}
+                  />
+                )}
+                {selectedFilters[row.id] && selectedFilters[row.id] === "bakimIds" && (
+                  <ServisKoduTablo
+                    fieldName={`bakim-${row.id}`}
+                    multiSelect={true}
+                    onSubmit={(selectedData) => {
+                      const ids = (selectedData || []).map((item) => item.key);
+                      handleValueChange(ids, row.id);
+                    }}
+                    workshopSelectedId={selectedValues[row.id] || []}
+                  />
                 )}
               </Col>
             </Col>
