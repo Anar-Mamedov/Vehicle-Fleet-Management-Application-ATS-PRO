@@ -1643,5 +1643,10 @@
   "extremesInfoOperatingExpenseCalculation": "Yakıt, servis, arıza, sigorta, harcama ve kullanım verileri araç bazında toplanır.",
   "extremesInfoOperatingExpenseInterpretation": "Toplam gider, gider/km ve km bilgileri birlikte yorumlanmalıdır. Sadece toplam tutara bakmak yanıltıcı olabilir.",
   "extremesInfoOperatingExpenseAction": "Yüksek giderli araçlarda gider dağılımı incelenerek maliyet kaynağı tespit edilmelidir.",
-  "yaklasanBakim": "Yaklaşan Bakım"
+  "yaklasanBakim": "Yaklaşan Bakım",
+  "menuSectionOperations": "Operasyonlar",
+  "menuSectionInventory": "Envanter & Lojistik",
+  "menuSectionAnalysis": "Analiz & Raporlama",
+  "menuSectionSystem": "Sistem",
+  "menuNoResults": "Sonuç bulunamadı"
 }

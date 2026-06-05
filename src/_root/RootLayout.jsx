@@ -57,7 +57,7 @@ const RootLayout = () => {
 
   return (
     <Layout style={{ height: "100vh", overflow: "hidden" }}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
+      <Sider trigger={null} collapsible collapsed={collapsed} className="main-layout-sider">
         <Sidebar collapsed={collapsed} />
       </Sider>
       <Layout>

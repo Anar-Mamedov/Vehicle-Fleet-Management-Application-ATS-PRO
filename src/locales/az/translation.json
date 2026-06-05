@@ -878,5 +878,10 @@
   "extremesInfoOperatingExpenseInterpretation": "Ümumi xərc xərc/km və yürüş məlumatı ilə birlikdə şərh olunmalıdır. Yalnız ümumi məbləğə baxmaq yanıltıcı ola bilər.",
   "extremesInfoOperatingExpenseAction": "Yüksək xərcli nəqliyyat vasitələrində xərc bölgüsü yoxlanaraq xərc mənbəyi müəyyən edilməlidir.",
   "yaklasanBakim": "Yaxınlaşan Baxım",
-  "kalan": "Qalan"
+  "kalan": "Qalan",
+  "menuSectionOperations": "Əməliyyatlar",
+  "menuSectionInventory": "İnventar & Logistika",
+  "menuSectionAnalysis": "Analiz & Hesabat",
+  "menuSectionSystem": "Sistem",
+  "menuNoResults": "Nəticə tapılmadı"
 }

@@ -7,10 +7,7 @@
   z-index: 2003 !important;
 } */
 
-.ant-menu-dark .ant-menu-item-selected,
-.ant-menu-dark > .ant-menu .ant-menu-item-selected {
-  background-color: var(--gray-600) !important;
-}
+/* Custom selected state defined below */
 
 .ant-menu-dark .ant-menu-item:not(.ant-menu-item-disabled):focus-visible,
 .ant-menu-dark > .ant-menu .ant-menu-item:not(.ant-menu-item-disabled):focus-visible,
@@ -98,16 +95,336 @@
   background-color: transparent !important;
 }
 
-/* .ant-menu-dark,
-.ant-menu-dark > .ant-menu,
-.ant-menu-dark.ant-menu-inline .ant-menu-sub.ant-menu-inline,
-.ant-menu-dark > .ant-menu.ant-menu-inline .ant-menu-sub.ant-menu-inline {
-  background: transparent !important;
-} */
+/* ============================================================
+   Sidebar — minimalist modern dark theme
+   ============================================================ */
 
+/* Sider shell */
+.main-layout-sider {
+  background: linear-gradient(180deg, #0f1729 0%, #0a0f1c 100%) !important;
+  border-right: 1px solid rgba(148, 163, 184, 0.08) !important;
+}
+
+.main-layout-sider .ant-layout-sider-children {
+  background: transparent !important;
+}
+
+/* Sidebar Menu styling */
+.sidebar-menu-container .ant-menu,
+.sidebar-footer .ant-menu {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Search box (dark) */
+.sidebar-search-wrap {
+  padding: 4px 12px 10px !important;
+}
+
+.sidebar-search.ant-input-affix-wrapper,
+.sidebar-search.ant-input {
+  background-color: rgba(148, 163, 184, 0.08) !important;
+  border: 1px solid rgba(148, 163, 184, 0.12) !important;
+  border-radius: 10px !important;
+  color: #e2e8f0 !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  transition: border-color 0.2s ease, background-color 0.2s ease !important;
+}
+
+.sidebar-search.ant-input-affix-wrapper:hover,
+.sidebar-search.ant-input-affix-wrapper-focused,
+.sidebar-search.ant-input:hover,
+.sidebar-search.ant-input:focus {
+  border-color: rgba(246, 151, 14, 0.5) !important;
+  background-color: rgba(148, 163, 184, 0.12) !important;
+  box-shadow: none !important;
+}
+
+.sidebar-search .ant-input {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+}
+
+.sidebar-search input::placeholder,
+.sidebar-search .ant-input::placeholder {
+  color: #64748b !important;
+}
+
+.sidebar-search .ant-input-prefix,
+.sidebar-search .ant-input-suffix,
+.sidebar-search .anticon {
+  color: #64748b !important;
+}
+
+/* Hide search when the sider is collapsed */
+.main-layout-sider.ant-layout-sider-collapsed .sidebar-search-wrap {
+  display: none !important;
+}
+
+/* Group Title Styling — doubles as a section separator */
+.sidebar-menu-container .ant-menu-item-group-title {
+  color: #475569 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  margin: 14px 16px 2px 16px !important;
+  padding: 14px 4px 4px 4px !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.08) !important;
+}
+
+/* Collapsed: hide the section titles (only icons remain) */
+.main-layout-sider.ant-layout-sider-collapsed .ant-menu-item-group-title {
+  display: none !important;
+}
+
+/* Menu Item & Submenu Title Styles */
+.sidebar-menu-container .ant-menu-item,
+.sidebar-menu-container .ant-menu-submenu-title,
+.sidebar-footer .ant-menu-item {
+  color: #94a3b8 !important;
+  font-weight: 500 !important;
+  border-radius: 10px !important;
+  margin: 3px 12px !important;
+  width: calc(100% - 24px) !important;
+  height: 42px !important;
+  line-height: 42px !important;
+  transition: background-color 0.2s ease, color 0.2s ease !important;
+}
+
+.sidebar-menu-container .ant-menu-item .ant-menu-item-icon,
+.sidebar-menu-container .ant-menu-submenu-title .ant-menu-item-icon,
+.sidebar-footer .ant-menu-item .ant-menu-item-icon {
+  color: #64748b !important;
+  transition: color 0.2s ease, transform 0.2s ease !important;
+}
+
+/* Hover style */
+.sidebar-menu-container .ant-menu-item:hover,
+.sidebar-menu-container .ant-menu-submenu-title:hover,
+.sidebar-footer .ant-menu-item:hover {
+  background-color: rgba(148, 163, 184, 0.08) !important;
+  color: #f1f5f9 !important;
+}
+
+.sidebar-menu-container .ant-menu-item:hover .ant-menu-item-icon,
+.sidebar-menu-container .ant-menu-submenu-title:hover .ant-menu-item-icon,
+.sidebar-footer .ant-menu-item:hover .ant-menu-item-icon {
+  color: #f1f5f9 !important;
+  transform: scale(1.12) !important;
+}
+
+/* Expanded Submenu Title (subtle highlight, not a heavy block) */
+.sidebar-menu-container .ant-menu-submenu-open > .ant-menu-submenu-title {
+  background-color: rgba(148, 163, 184, 0.06) !important;
+  color: #f1f5f9 !important;
+}
+
+.sidebar-menu-container .ant-menu-submenu-open > .ant-menu-submenu-title .ant-menu-item-icon,
+.sidebar-menu-container .ant-menu-submenu-open > .ant-menu-submenu-title .ant-menu-submenu-arrow {
+  color: #f1f5f9 !important;
+}
+
+/* Group that contains the active page — amber hint on its title */
+.sidebar-menu-container .ant-menu-submenu-selected > .ant-menu-submenu-title,
+.sidebar-menu-container .ant-menu-submenu-selected > .ant-menu-submenu-title .ant-menu-item-icon {
+  color: #f6970e !important;
+}
+
+/* Selected Leaf Item (active) — amber tinted pill with accent bar */
+.sidebar-menu-container .ant-menu-item-selected,
+.sidebar-footer .ant-menu-item-selected,
 .ant-menu-dark .ant-menu-item-selected,
 .ant-menu-dark > .ant-menu .ant-menu-item-selected {
-  background-color: #6c757d !important;
+  background-color: rgba(246, 151, 14, 0.13) !important;
+  color: #f6970e !important;
+  font-weight: 600 !important;
+  box-shadow: inset 3px 0 0 #f6970e !important;
+}
+
+.sidebar-menu-container .ant-menu-item-selected .ant-menu-item-icon,
+.sidebar-footer .ant-menu-item-selected .ant-menu-item-icon {
+  color: #f6970e !important;
+}
+
+/* Selected item hover keeps the amber tint */
+.sidebar-menu-container .ant-menu-item-selected:hover,
+.sidebar-footer .ant-menu-item-selected:hover {
+  background-color: rgba(246, 151, 14, 0.18) !important;
+  color: #f6970e !important;
+}
+
+/* Top-level menu items and footer menu items styling */
+.sidebar-menu-container > .ant-menu > .ant-menu-item,
+.sidebar-menu-container > .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title,
+.sidebar-footer .ant-menu-item {
+  padding-left: 16px !important;
+  font-size: 14.5px !important;
+}
+
+.sidebar-menu-container > .ant-menu > .ant-menu-item .ant-menu-item-icon,
+.sidebar-menu-container > .ant-menu > .ant-menu-submenu > .ant-menu-submenu-title .ant-menu-item-icon,
+.sidebar-footer .ant-menu-item .ant-menu-item-icon {
+  font-size: 19px !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Submenu container line and padding */
+/* Level 2 submenu container */
+.sidebar-menu-container .ant-menu-sub {
+  position: relative !important;
+  padding-left: 0px !important;
+  margin-left: 0px !important;
+  background: transparent !important;
+}
+
+/* Level 2 vertical connector line */
+.sidebar-menu-container .ant-menu-sub::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  left: 38px !important; /* Aligned with top-level icon center (12px margin + 16px padding + 10px half-width of 20px icon) */
+  top: 4px !important;
+  bottom: 22px !important; /* Stops near the center of the last item */
+  width: 1.5px !important;
+  background-color: rgba(148, 163, 184, 0.15) !important; /* Subtle hairline connector */
+  z-index: 1 !important;
+}
+
+/* Level 2 items layout (margin starts with a gap on the right of the vertical line) */
+.sidebar-menu-container .ant-menu-sub .ant-menu-item,
+.sidebar-menu-container .ant-menu-sub .ant-menu-submenu-title {
+  margin: 2px 12px 2px 49px !important; /* 10px gap from the 39px right edge of the 38px line */
+  width: calc(100% - 61px) !important; /* 100% - 49px left - 12px right */
+  height: 38px !important;
+  line-height: 38px !important;
+  border-radius: 8px !important;
+  padding-left: 12px !important; /* content starts at 49px margin + 12px padding */
+}
+
+/* Level 3 submenu container */
+.sidebar-menu-container .ant-menu-sub .ant-menu-sub {
+  position: relative !important;
+  padding-left: 0px !important;
+  margin-left: 0px !important;
+  background: transparent !important;
+}
+
+/* Level 3 vertical connector line */
+.sidebar-menu-container .ant-menu-sub .ant-menu-sub::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  left: 68px !important; /* Aligned with Level 2 icon/text center */
+  top: 4px !important;
+  bottom: 22px !important;
+  width: 1.5px !important;
+  background-color: rgba(148, 163, 184, 0.15) !important; /* Subtle hairline connector */
+  z-index: 1 !important;
+}
+
+/* Level 3 items layout */
+.sidebar-menu-container .ant-menu-sub .ant-menu-sub .ant-menu-item {
+  margin: 2px 12px 2px 79px !important; /* 10px gap from the 69px right edge of the 68px line */
+  width: calc(100% - 91px) !important; /* 100% - 79px left - 12px right */
+  height: 38px !important;
+  line-height: 38px !important;
+  border-radius: 8px !important;
+  padding-left: 12px !important; /* content starts at 79px margin + 12px padding */
+}
+
+/* Sub-items icon size */
+.sidebar-menu-container .ant-menu-sub .ant-menu-item-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Sub-items text style */
+.sidebar-menu-container .ant-menu-sub .ant-menu-item {
+  font-size: 13.5px !important;
+}
+
+/* Submenu selected item pill styling — amber tint with accent bar */
+.sidebar-menu-container .ant-menu-sub .ant-menu-item-selected {
+  background-color: rgba(246, 151, 14, 0.13) !important;
+  color: #f6970e !important;
+  box-shadow: inset 2px 0 0 #f6970e !important;
+}
+
+.sidebar-menu-container .ant-menu-sub .ant-menu-item-selected .ant-menu-item-icon {
+  color: #f6970e !important;
+}
+
+/* Smooth arrow transition */
+.ant-menu-submenu-arrow {
+  color: #64748b !important;
+  transition: transform 0.25s ease, color 0.25s ease !important;
+}
+
+/* Thin scrollbar that only appears on hover */
+.sidebar-menu-container {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s ease;
+}
+.sidebar-menu-container:hover {
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+.sidebar-menu-container::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-menu-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-menu-container::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+.sidebar-menu-container:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.35);
+}
+
+/* Search match highlight */
+.sidebar-search-hl {
+  background-color: rgba(246, 151, 14, 0.28) !important;
+  color: #fbbf24 !important;
+  padding: 0 1px !important;
+  border-radius: 3px !important;
+}
+
+/* Empty search state */
+.sidebar-no-results {
+  color: #64748b;
+  font-size: 13px;
+  text-align: center;
+  padding: 28px 16px;
+}
+
+/* Active item entrance animation */
+@keyframes sidebarItemPop {
+  from {
+    transform: scale(0.98);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.sidebar-menu-container .ant-menu-item-selected {
+  animation: sidebarItemPop 0.22s ease !important;
 }
 
 .ant-table-cell a {
@@ -118,12 +435,12 @@
   height: 100vh !important;
   overflow: hidden !important;
 }
-.ant-layout-sider {
+.main-layout-sider {
   width: 250px !important;
   max-width: 250px !important;
   flex: 0 0 250px !important;
 }
-.ant-layout-sider-collapsed {
+.main-layout-sider.ant-layout-sider-collapsed {
   width: 80px !important;
   max-width: 80px !important;
   flex: 0 0 80px !important;
