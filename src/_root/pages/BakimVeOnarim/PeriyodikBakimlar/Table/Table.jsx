@@ -27,40 +27,100 @@ const { Text } = Typography;
 const subTextStyle = { color: "#8c8c8c", fontSize: 12, lineHeight: "16px" };
 const cellWrapperStyle = { display: "flex", flexDirection: "column", lineHeight: "18px" };
 
-const renderYaklasanBakimCell = (remainingKm, remainingDays) => {
+const getDurumDetails = (durum) => {
+  const normalized = (durum || "").trim().toLowerCase();
+  if (normalized === "kritik") {
+    return {
+      text: "Kritik",
+      color: "#ff4d4f",
+      tagBg: "#fff1f0",
+      tagBorder: "#ffa39e",
+      tagTextColor: "#ff4d4f"
+    };
+  }
+  if (normalized === "yaklaşıyor" || normalized === "yaklasıyor" || normalized === "yaklaşan" || normalized === "yaklasan") {
+    return {
+      text: "Yaklaşıyor",
+      color: "#faad14",
+      tagBg: "#fffbe6",
+      tagBorder: "#ffe58f",
+      tagTextColor: "#d46b08"
+    };
+  }
+  if (normalized === "gecikmiş" || normalized === "gecikmis") {
+    return {
+      text: "Gecikmiş",
+      color: "#ff4d4f",
+      tagBg: "#fff1f0",
+      tagBorder: "#ffa39e",
+      tagTextColor: "#ff4d4f"
+    };
+  }
+  // normal / noraml / others
+  return {
+    text: "Normal",
+    color: "#595959",
+    tagBg: "#f0f2f5",
+    tagBorder: "#d9d9d9",
+    tagTextColor: "#595959"
+  };
+};
+
+const renderYaklasanBakimCell = (remainingKm, remainingDays, durum) => {
   if (remainingKm === null && remainingDays === null) return "-";
 
+  const normalized = (durum || "").trim().toLowerCase();
+
+  // Get colors based on durum
+  let textColor = "#595959";
+  let lineColor = "#b0b7c3";
+
+  if (normalized === "kritik") {
+    textColor = "#ff4d4f";
+    lineColor = "#ff4d4f";
+  } else if (normalized === "yaklaşıyor" || normalized === "yaklasıyor" || normalized === "yaklaşan" || normalized === "yaklasan") {
+    textColor = "#d46b08";
+    lineColor = "#faad14";
+  } else if (normalized === "gecikmiş" || normalized === "gecikmis") {
+    textColor = "#ff4d4f";
+    lineColor = "#ff4d4f";
+  } else if (normalized === "normal" || normalized === "noraml") {
+    textColor = "#595959";
+    lineColor = "#b0b7c3";
+  } else {
+    // Fallback: If durum isn't mapped, use original calculations
+    const isCritical = (remainingKm !== null && remainingKm < 1200) || (remainingDays !== null && remainingDays < 30);
+    textColor = isCritical ? "#faad14" : "#595959";
+    lineColor = isCritical ? "#faad14" : "#d9d9d9";
+  }
+
   // 1. Gecikmiş (Overdue)
-  if ((remainingKm !== null && remainingKm < 0) || (remainingDays !== null && remainingDays < 0)) {
+  if (normalized === "gecikmiş" || normalized === "gecikmis" || (remainingKm !== null && remainingKm < 0) || (remainingDays !== null && remainingDays < 0)) {
     const kmText = remainingKm !== null && remainingKm < 0 ? `${formatNumberWithLocale(Math.abs(remainingKm))} km` : "";
     const dayText = remainingDays !== null && remainingDays < 0 ? `${Math.abs(remainingDays)} gün` : "";
     const detailText = [kmText, dayText].filter(Boolean).join(" / ");
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <span style={{ fontWeight: 600, color: "#ff4d4f" }}>
-          Gecikmiş ({detailText})
+        <span style={{ fontWeight: 600, color: textColor }}>
+          Gecikmiş {detailText ? `(${detailText})` : ""}
         </span>
-        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#ff4d4f", borderRadius: "2px" }} />
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
       </div>
     );
   }
 
-  // 2. Bugün (Today)
-  if (remainingDays === 0 || remainingKm === 0) {
+  // 2. Bugün (Today) / Kritik
+  if (normalized === "kritik" || remainingDays === 0 || remainingKm === 0) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <span style={{ fontWeight: 600, color: "#ff6b6b" }}>Bugün</span>
-        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: "#ff6b6b", borderRadius: "2px" }} />
+        <span style={{ fontWeight: 600, color: textColor }}>Bugün</span>
+        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
       </div>
     );
   }
 
-  // 3. Yaklaşan (Upcoming)
+  // 3. Yaklaşan / Normal
   if (remainingKm !== null && remainingDays !== null) {
-    const isCritical = remainingDays < 30 || remainingKm < 1200;
-    const lineColor = isCritical ? "#faad14" : "#d9d9d9";
-    const textColor = isCritical ? "#faad14" : "#595959";
-
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
         <span style={{ fontWeight: 600, color: textColor }}>
@@ -72,9 +132,6 @@ const renderYaklasanBakimCell = (remainingKm, remainingDays) => {
   }
 
   if (remainingKm !== null) {
-    const isCritical = remainingKm < 1200;
-    const lineColor = isCritical ? "#faad14" : "#d9d9d9";
-    const textColor = isCritical ? "#faad14" : "#595959";
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
         <span style={{ fontWeight: 600, color: textColor }}>
@@ -86,9 +143,6 @@ const renderYaklasanBakimCell = (remainingKm, remainingDays) => {
   }
 
   if (remainingDays !== null) {
-    const isCritical = remainingDays < 30;
-    const lineColor = isCritical ? "#faad14" : "#d9d9d9";
-    const textColor = isCritical ? "#faad14" : "#595959";
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
         <span style={{ fontWeight: 600, color: textColor }}>
@@ -383,12 +437,17 @@ const Sigorta = () => {
       width: 160,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-      render: (_, record) => (
-        <div style={cellWrapperStyle}>
-          <span>{`${t("km").toLocaleUpperCase()}: ${formatNumberWithLocale(record.hedefKm)}`}</span>
-          {record.hedefTarih && <span style={subTextStyle}>{formatDate(record.hedefTarih)}</span>}
-        </div>
-      ),
+      render: (_, record) => {
+        const showKm = record.isHerKm === true;
+        const showDate = record.isHerTarih === true;
+        if (!showKm && !showDate) return "-";
+        return (
+          <div style={cellWrapperStyle}>
+            {showKm && <span>{`${t("km").toLocaleUpperCase()}: ${formatNumberWithLocale(record.hedefKm)}`}</span>}
+            {showDate && record.hedefTarih && <span style={subTextStyle}>{formatDate(record.hedefTarih)}</span>}
+          </div>
+        );
+      },
       sorter: (a, b) => (a.hedefKm ?? 0) - (b.hedefKm ?? 0),
     },
 
@@ -401,7 +460,7 @@ const Sigorta = () => {
       render: (_, record) => {
         const remainingKm = record.isHerKm !== false ? record.kalanKm : null;
         const remainingDays = record.isHerTarih !== false ? record.kalanSure : null;
-        return renderYaklasanBakimCell(remainingKm, remainingDays);
+        return renderYaklasanBakimCell(remainingKm, remainingDays, record.durum);
       },
       sorter: (a, b) => {
         const aVal = a.isHerKm !== false ? a.kalanKm : null;
@@ -409,6 +468,37 @@ const Sigorta = () => {
         if (aVal === null) return -1;
         if (bVal === null) return 1;
         return aVal - bVal;
+      },
+    },
+
+    {
+      title: t("durum") || "Durum",
+      dataIndex: "durum",
+      key: "durum",
+      width: 130,
+      ellipsis: true,
+      visible: true, // Varsayılan olarak açık
+      render: (text) => {
+        const details = getDurumDetails(text);
+        return (
+          <Tag
+            style={{
+              backgroundColor: details.tagBg,
+              borderColor: details.tagBorder,
+              color: details.tagTextColor,
+              fontWeight: 600,
+              borderRadius: "6px",
+              padding: "2px 8px",
+            }}
+          >
+            {details.text}
+          </Tag>
+        );
+      },
+      sorter: (a, b) => {
+        if (a.durum === null) return -1;
+        if (b.durum === null) return 1;
+        return a.durum.localeCompare(b.durum);
       },
     },
 
