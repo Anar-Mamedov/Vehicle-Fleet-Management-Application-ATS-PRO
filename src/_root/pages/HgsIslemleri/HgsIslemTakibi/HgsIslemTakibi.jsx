@@ -534,24 +534,6 @@ const Yakit = () => {
       ),
     },
     {
-      title: t("gecisNoktasi"),
-      dataIndex: "otoYol",
-      key: "otoYol",
-      width: 180,
-      ellipsis: true,
-      visible: true,
-      sorter: true,
-    },
-    {
-      title: t("gecisKategorisi"),
-      dataIndex: "gecisKategorisi",
-      key: "gecisKategorisi",
-      width: 140,
-      ellipsis: true,
-      visible: true,
-      sorter: true,
-    },
-    {
       title: t("gerceklesenTutar"),
       dataIndex: "gecisUcreti",
       key: "gecisUcreti",
@@ -868,10 +850,13 @@ const Yakit = () => {
     localStorage.setItem("columnVisibilityHgsIslemTalebi", JSON.stringify(visibility));
     localStorage.setItem("columnWidthsHgsIslemTalebi", JSON.stringify(widths));
 
-    return order.map((key) => {
-      const column = initialColumns.find((col) => col.key === key);
-      return { ...column, visible: visibility[key], width: widths[key] };
-    });
+    return order
+      .map((key) => {
+        const column = initialColumns.find((col) => col.key === key);
+        if (!column) return null;
+        return { ...column, visible: visibility[key], width: widths[key] };
+      })
+      .filter(Boolean);
   });
 
   // Save columns to localStorage
