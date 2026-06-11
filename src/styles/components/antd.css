@@ -240,7 +240,6 @@
   background-color: rgba(246, 151, 14, 0.13) !important;
   color: #f6970e !important;
   font-weight: 600 !important;
-  box-shadow: inset 3px 0 0 #f6970e !important;
 }
 
 .sidebar-menu-container .ant-menu-item-selected .ant-menu-item-icon,
@@ -359,7 +358,6 @@
 .sidebar-menu-container .ant-menu-sub .ant-menu-item-selected {
   background-color: rgba(246, 151, 14, 0.13) !important;
   color: #f6970e !important;
-  box-shadow: inset 2px 0 0 #f6970e !important;
 }
 
 .sidebar-menu-container .ant-menu-sub .ant-menu-item-selected .ant-menu-item-icon {
