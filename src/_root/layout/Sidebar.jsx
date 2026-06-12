@@ -631,6 +631,30 @@ const Sidebar = ({ collapsed }) => {
               },
             ],
           },
+          {
+            key: "settings_modal_trigger",
+            icon: <SettingOutlined />,
+            label: (
+              <button
+                type="button"
+                onClick={showModal}
+                style={{
+                  background: "transparent",
+                  border: 0,
+                  padding: 0,
+                  color: "inherit",
+                  cursor: "pointer",
+                  width: "100%",
+                  textAlign: "left",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                {t("ayarlar") || "Ayarlar"}
+              </button>
+            ),
+          },
           /*{
           key: "53874",
           label: t("aktarimlar"),
@@ -868,42 +892,6 @@ const Sidebar = ({ collapsed }) => {
           ) : (
             <Menu mode="inline" theme="dark" inlineCollapsed={collapsed} openKeys={openKeys} selectedKeys={[selectedKey]} onOpenChange={onOpenChange} items={visibleItems} />
           )}
-        </div>
-
-        {/* Ayarlar kısmı - en altta sabit */}
-        <div style={{ flexShrink: 0, borderTop: "1px solid #1e293b", padding: "8px 0" }} className="sidebar-footer">
-          <Menu
-            mode="inline"
-            theme="dark"
-            inlineCollapsed={collapsed}
-            selectable={false}
-            items={[
-              {
-                key: "settings_footer",
-                icon: <SettingOutlined />,
-                label: (
-                  <button
-                    type="button"
-                    onClick={showModal}
-                    style={{
-                      background: "transparent",
-                      border: 0,
-                      padding: 0,
-                      color: "inherit",
-                      cursor: "pointer",
-                      width: "100%",
-                      textAlign: "left",
-                      height: "100%",
-                      display: "flex",
-                      alignItems: "center"
-                    }}
-                  >
-                    {t("ayarlar") || "Ayarlar"}
-                  </button>
-                )
-              }
-            ]}
-          />
         </div>
       </div>
       <Modal

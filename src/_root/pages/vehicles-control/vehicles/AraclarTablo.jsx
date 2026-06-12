@@ -2467,7 +2467,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
           style={{
             backgroundColor: "white",
             padding: "10px",
-            height: "calc(100vh - 360px)",
+            height: "calc(100vh - 320px)",
             borderRadius: "8px 8px 8px 8px",
             //
           }}
@@ -2480,7 +2480,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
               dataSource={data}
               pagination={false}
               rowClassName={(record) => (openedRowIds.has(record.aracId) ? "visited-row" : "")}
-              scroll={{ y: "calc(100vh - 500px)" }}
+              scroll={{ y: "calc(100vh - 460px)" }}
               onScroll={handleTableScroll}
               footer={tableFooter}
             />

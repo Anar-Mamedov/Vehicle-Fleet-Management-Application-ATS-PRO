@@ -5,6 +5,7 @@ import { useFormContext } from "react-hook-form";
 import AxiosInstance from "../../../../../api/http.jsx";
 import { t } from "i18next";
 import dayjs from "dayjs";
+import FormattedNumber from "../../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
 
@@ -86,9 +87,7 @@ function ComponentSingleCard() {
             <Text style={{ fontWeight: "500", fontSize: "35px", color: "white" }}>
               {value !== null && value !== undefined ? (
                 <>
-                  {Number(value).toLocaleString("tr-TR", {
-                    maximumFractionDigits: 2,
-                  })}
+                  <FormattedNumber num={value} maximumFractionDigits={2} />
                   {unit && <span style={{ fontSize: "20px" }}> ({unit})</span>}
                 </>
               ) : (

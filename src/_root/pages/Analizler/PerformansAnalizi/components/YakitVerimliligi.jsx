@@ -24,6 +24,7 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import trTR from "antd/lib/locale/tr_TR";
 import { t } from "i18next";
+import FormattedNumber from "../../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
 
@@ -308,6 +309,7 @@ const Yakit = () => {
         if (b.toplamKm === null) return 1;
         return a.toplamKm - b.toplamKm;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
     {
       title: t("bakimSayisi"),
@@ -321,6 +323,7 @@ const Yakit = () => {
         if (b.bakimSayisi === null) return 1;
         return a.bakimSayisi - b.bakimSayisi;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
     {
       title: t("bakimMaliyeti"),
@@ -334,6 +337,7 @@ const Yakit = () => {
         if (b.bakimMaliyeti === null) return 1;
         return a.bakimMaliyeti - b.bakimMaliyeti;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
     {
       title: t("arizaSayisi"),
@@ -347,6 +351,7 @@ const Yakit = () => {
         if (b.arizaSayisi === null) return 1;
         return a.arizaSayisi - b.arizaSayisi;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
     {
       title: t("arizaMaliyeti"),
@@ -360,6 +365,7 @@ const Yakit = () => {
         if (b.arizaMaliyeti === null) return 1;
         return a.arizaMaliyeti - b.arizaMaliyeti;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
     {
       title: t("bakimVerimliligi"),
@@ -373,6 +379,7 @@ const Yakit = () => {
         if (b.bakimVerimliligi === null) return 1;
         return a.bakimVerimliligi - b.bakimVerimliligi;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
 
     // Add other columns as needed
