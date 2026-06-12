@@ -24,6 +24,7 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import trTR from "antd/lib/locale/tr_TR";
 import { t } from "i18next";
+import FormattedNumber from "../../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
 
@@ -308,6 +309,7 @@ const Yakit = () => {
         if (b.toplamKm === null) return 1;
         return a.toplamKm - b.toplamKm;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
     {
       title: "Yakıt Tüketimi",
@@ -321,6 +323,7 @@ const Yakit = () => {
         if (b.toplamYakitTuketimi === null) return 1;
         return a.toplamYakitTuketimi - b.toplamYakitTuketimi;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
     {
       title: "Kaza Sayısı",
@@ -334,6 +337,7 @@ const Yakit = () => {
         if (b.toplamKazaSayisi === null) return 1;
         return a.toplamKazaSayisi - b.toplamKazaSayisi;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
     {
       title: "Ceza Sayısı",
@@ -347,6 +351,7 @@ const Yakit = () => {
         if (b.toplamCezaSayisi === null) return 1;
         return a.toplamCezaSayisi - b.toplamCezaSayisi;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
     {
       title: "Sürücü Sayısı",
@@ -360,6 +365,7 @@ const Yakit = () => {
         if (b.toplamSurucuSayisi === null) return 1;
         return a.toplamSurucuSayisi - b.toplamSurucuSayisi;
       },
+      render: (text) => <FormattedNumber num={text} />,
     },
 
     // Add other columns as needed

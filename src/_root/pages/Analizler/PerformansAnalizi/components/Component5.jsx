@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Spin, Typography, Select } from "antd";
+import { Spin, Typography } from "antd";
 import AxiosInstance from "../../../../../api/http.jsx";
 import { useFormContext } from "react-hook-form";
 import dayjs from "dayjs";
 import { t } from "i18next";
+import FormattedNumber, { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
-const { Option } = Select;
 
 function YillikYakitTuketimleri() {
   const [data, setData] = useState([]);
@@ -100,13 +100,6 @@ function YillikYakitTuketimleri() {
         >
           {t("filoYasiGrafigi")} {startYear} - {endYear}
         </Text>
-        <Select value={parameterType} onChange={(value) => setParameterType(value)} style={{ width: 120 }}>
-          {parameterOptions.map((option) => (
-            <Option key={option.value} value={option.value}>
-              {option.label}
-            </Option>
-          ))}
-        </Select>
       </div>
       {isLoading ? (
         <Spin />
@@ -134,14 +127,9 @@ function YillikYakitTuketimleri() {
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="yasGrubu" />
-                <YAxis />
+                <YAxis tickFormatter={(value) => formatNumberWithLocale(value)} />
                 <Tooltip
-                  formatter={(value) =>
-                    Number(value).toLocaleString("tr-TR", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  }
+                  formatter={(value) => <FormattedNumber num={value} minimumFractionDigits={2} maximumFractionDigits={2} />}
                 />
                 <Legend />
                 <Bar dataKey="aracSayisi" fill="#00b7ce" name={parameterTypeNameMap[parameterType]} />
