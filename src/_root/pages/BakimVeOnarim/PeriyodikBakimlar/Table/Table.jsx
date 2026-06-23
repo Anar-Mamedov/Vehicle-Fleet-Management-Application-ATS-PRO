@@ -1,6 +1,17 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, Progress, message } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, CheckOutlined, CloseOutlined, HomeOutlined, FileTextOutlined, WarningOutlined, BellOutlined, DashboardOutlined } from "@ant-design/icons";
+import {
+  HolderOutlined,
+  SearchOutlined,
+  MenuOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  HomeOutlined,
+  FileTextOutlined,
+  WarningOutlined,
+  BellOutlined,
+  DashboardOutlined,
+} from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -35,7 +46,7 @@ const getDurumDetails = (durum) => {
       color: "#ff4d4f",
       tagBg: "#fff1f0",
       tagBorder: "#ffa39e",
-      tagTextColor: "#ff4d4f"
+      tagTextColor: "#ff4d4f",
     };
   }
   if (normalized === "yaklaşıyor" || normalized === "yaklasıyor" || normalized === "yaklasiyor" || normalized === "yaklaşan" || normalized === "yaklasan") {
@@ -44,7 +55,7 @@ const getDurumDetails = (durum) => {
       color: "#faad14",
       tagBg: "#fffbe6",
       tagBorder: "#ffe58f",
-      tagTextColor: "#d46b08"
+      tagTextColor: "#d46b08",
     };
   }
   if (normalized === "gecikmiş" || normalized === "gecikmis") {
@@ -53,7 +64,7 @@ const getDurumDetails = (durum) => {
       color: "#ff4d4f",
       tagBg: "#fff1f0",
       tagBorder: "#ffa39e",
-      tagTextColor: "#ff4d4f"
+      tagTextColor: "#ff4d4f",
     };
   }
   // normal / noraml / others
@@ -62,7 +73,7 @@ const getDurumDetails = (durum) => {
     color: "#595959",
     tagBg: "#f0f2f5",
     tagBorder: "#d9d9d9",
-    tagTextColor: "#595959"
+    tagTextColor: "#595959",
   };
 };
 
@@ -112,9 +123,7 @@ const renderYaklasanBakimCell = (remainingKm, remainingDays, durum) => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-      <span style={{ fontWeight: 600, color: textColor }}>
-        {displayText}
-      </span>
+      <span style={{ fontWeight: 600, color: textColor }}>{displayText}</span>
       <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
     </div>
   );
@@ -1020,7 +1029,18 @@ const Sigorta = () => {
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
               <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>Toplam Tanım</span>
-              <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  border: "1px solid #f0f0f0",
+                  backgroundColor: "#fafafa",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <FileTextOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
               </div>
             </div>
@@ -1043,7 +1063,18 @@ const Sigorta = () => {
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
               <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>Kritik / Gecikmiş</span>
-              <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  border: "1px solid #f0f0f0",
+                  backgroundColor: "#fafafa",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <WarningOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
               </div>
             </div>
@@ -1066,7 +1097,18 @@ const Sigorta = () => {
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
               <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>Yaklaşan Bakım</span>
-              <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  border: "1px solid #f0f0f0",
+                  backgroundColor: "#fafafa",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <BellOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
               </div>
             </div>
@@ -1089,7 +1131,18 @@ const Sigorta = () => {
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
               <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>Sadece KM Planı</span>
-              <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid #f0f0f0", backgroundColor: "#fafafa", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  border: "1px solid #f0f0f0",
+                  backgroundColor: "#fafafa",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <DashboardOutlined style={{ fontSize: 22, color: "#6b7a8a" }} />
               </div>
             </div>
@@ -1144,7 +1197,7 @@ const Sigorta = () => {
         style={{
           backgroundColor: "white",
           padding: "10px",
-          height: "calc(100vh - 200px)",
+          height: "calc(100vh - 330px)",
           borderRadius: "8px 8px 8px 8px",
         }}
       >
@@ -1164,7 +1217,7 @@ const Sigorta = () => {
               showQuickJumper: true,
               onChange: (page) => handleTableChange(page),
             }}
-            scroll={{ y: "calc(100vh - 400px)" }}
+            scroll={{ y: "calc(100vh - 470px)" }}
             rowClassName={(record) => (record.IST_DURUM_ID === 0 ? "boldRow" : "")}
           />
         </Spin>
