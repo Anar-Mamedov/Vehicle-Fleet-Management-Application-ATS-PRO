@@ -417,5 +417,8 @@
   "gecikmis": "Просрочено",
   "gunSonra": "через {{count}} дн.",
   "kmSonra": "через {{count}} км",
-  "kmVeGunSonra": "через {{km}} км / {{days}} дн."
+  "kmVeGunSonra": "через {{km}} км / {{days}} дн.",
+  "gunGecti": "{{count}} дн. просрочено",
+  "kmGecti": "{{count}} км просрочено",
+  "kmVeGunGecti": "{{km}} км / {{days}} дн. просрочено"
 }

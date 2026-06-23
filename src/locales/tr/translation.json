@@ -1653,5 +1653,8 @@
   "gecikmis": "Gecikmiş",
   "gunSonra": "{{count}} gün sonra",
   "kmSonra": "{{count}} km sonra",
-  "kmVeGunSonra": "{{km}} km / {{days}} gün sonra"
+  "kmVeGunSonra": "{{km}} km / {{days}} gün sonra",
+  "gunGecti": "{{count}} gün geçti",
+  "kmGecti": "{{count}} km geçti",
+  "kmVeGunGecti": "{{km}} km / {{days}} gün geçti"
 }

@@ -1367,5 +1367,8 @@
   "gecikmis": "Overdue",
   "gunSonra": "in {{count}} days",
   "kmSonra": "in {{count}} km",
-  "kmVeGunSonra": "in {{km}} km / {{days}} days"
+  "kmVeGunSonra": "in {{km}} km / {{days}} days",
+  "gunGecti": "{{count}} days overdue",
+  "kmGecti": "{{count}} km overdue",
+  "kmVeGunGecti": "{{km}} km / {{days}} days overdue"
 }

@@ -888,5 +888,8 @@
   "gecikmis": "Müddəti Keçmiş",
   "gunSonra": "{{count}} gün sonra",
   "kmSonra": "{{count}} km sonra",
-  "kmVeGunSonra": "{{km}} km / {{days}} gün sonra"
+  "kmVeGunSonra": "{{km}} km / {{days}} gün sonra",
+  "gunGecti": "{{count}} gün keçdi",
+  "kmGecti": "{{count}} km keçdi",
+  "kmVeGunGecti": "{{km}} km / {{days}} gün keçdi"
 }

@@ -106,17 +106,24 @@ const renderYaklasanBakimCell = (remainingKm, remainingDays, durum) => {
   }
 
   let displayText = "";
+  const isOverdue = normalized === "gecikmiş" || normalized === "gecikmis";
 
   if (remainingKm !== null && remainingDays !== null) {
     const kmVal = remainingKm < 0 ? `(${formatNumberWithLocale(Math.abs(remainingKm))})` : formatNumberWithLocale(remainingKm);
     const daysVal = remainingDays < 0 ? `(${Math.abs(remainingDays)})` : remainingDays;
-    displayText = t("kmVeGunSonra", { km: kmVal, days: daysVal });
+    displayText = isOverdue
+      ? t("kmVeGunGecti", { km: kmVal, days: daysVal })
+      : t("kmVeGunSonra", { km: kmVal, days: daysVal });
   } else if (remainingKm !== null) {
     const kmVal = remainingKm < 0 ? `(${formatNumberWithLocale(Math.abs(remainingKm))})` : formatNumberWithLocale(remainingKm);
-    displayText = t("kmSonra", { count: kmVal });
+    displayText = isOverdue
+      ? t("kmGecti", { count: kmVal })
+      : t("kmSonra", { count: kmVal });
   } else if (remainingDays !== null) {
     const daysVal = remainingDays < 0 ? `(${Math.abs(remainingDays)})` : remainingDays;
-    displayText = t("gunSonra", { count: daysVal });
+    displayText = isOverdue
+      ? t("gunGecti", { count: daysVal })
+      : t("gunSonra", { count: daysVal });
   } else {
     return "-";
   }
