@@ -883,5 +883,10 @@
   "menuSectionInventory": "İnventar & Logistika",
   "menuSectionAnalysis": "Analiz & Hesabat",
   "menuSectionSystem": "Sistem",
-  "menuNoResults": "Nəticə tapılmadı"
+  "menuNoResults": "Nəticə tapılmadı",
+  "yaklasiyor": "Yaxınlaşan",
+  "gecikmis": "Müddəti Keçmiş",
+  "gunSonra": "{{count}} gün sonra",
+  "kmSonra": "{{count}} km sonra",
+  "kmVeGunSonra": "{{km}} km / {{days}} gün sonra"
 }

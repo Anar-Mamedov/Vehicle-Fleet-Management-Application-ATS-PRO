@@ -412,5 +412,10 @@
   "menuSectionInventory": "Запасы и логистика",
   "menuSectionAnalysis": "Аналитика и отчётность",
   "menuSectionSystem": "Система",
-  "menuNoResults": "Ничего не найдено"
+  "menuNoResults": "Ничего не найдено",
+  "yaklasiyor": "Приближается",
+  "gecikmis": "Просрочено",
+  "gunSonra": "через {{count}} дн.",
+  "kmSonra": "через {{count}} км",
+  "kmVeGunSonra": "через {{km}} км / {{days}} дн."
 }
