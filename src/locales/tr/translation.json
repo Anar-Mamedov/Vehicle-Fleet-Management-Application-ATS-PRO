@@ -1648,5 +1648,10 @@
   "menuSectionInventory": "Envanter & Lojistik",
   "menuSectionAnalysis": "Analiz & Raporlama",
   "menuSectionSystem": "Sistem",
-  "menuNoResults": "Sonuç bulunamadı"
+  "menuNoResults": "Sonuç bulunamadı",
+  "yaklasiyor": "Yaklaşıyor",
+  "gecikmis": "Gecikmiş",
+  "gunSonra": "{{count}} gün sonra",
+  "kmSonra": "{{count}} km sonra",
+  "kmVeGunSonra": "{{km}} km / {{days}} gün sonra"
 }

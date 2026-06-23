@@ -25,16 +25,16 @@ const getDurumDetails = (durum) => {
   const normalized = (durum || "").trim().toLowerCase();
   if (normalized === "kritik") {
     return {
-      text: "Kritik",
+      text: t("kritik"),
       color: "#ff4d4f",
       tagBg: "#fff1f0",
       tagBorder: "#ffa39e",
       tagTextColor: "#ff4d4f"
     };
   }
-  if (normalized === "yaklaşıyor" || normalized === "yaklasıyor" || normalized === "yaklaşan" || normalized === "yaklasan") {
+  if (normalized === "yaklaşıyor" || normalized === "yaklasıyor" || normalized === "yaklasiyor" || normalized === "yaklaşan" || normalized === "yaklasan") {
     return {
-      text: "Yaklaşıyor",
+      text: t("yaklasiyor"),
       color: "#faad14",
       tagBg: "#fffbe6",
       tagBorder: "#ffe58f",
@@ -43,7 +43,7 @@ const getDurumDetails = (durum) => {
   }
   if (normalized === "gecikmiş" || normalized === "gecikmis") {
     return {
-      text: "Gecikmiş",
+      text: t("gecikmis"),
       color: "#ff4d4f",
       tagBg: "#fff1f0",
       tagBorder: "#ffa39e",
@@ -52,7 +52,7 @@ const getDurumDetails = (durum) => {
   }
   // normal / noraml / others
   return {
-    text: "Normal",
+    text: t("normal"),
     color: "#595959",
     tagBg: "#f0f2f5",
     tagBorder: "#d9d9d9",
@@ -72,7 +72,7 @@ const renderYaklasanBakimCell = (remainingKm, remainingDays, durum) => {
   if (normalized === "kritik") {
     textColor = "#ff4d4f";
     lineColor = "#ff4d4f";
-  } else if (normalized === "yaklaşıyor" || normalized === "yaklasıyor" || normalized === "yaklaşan" || normalized === "yaklasan") {
+  } else if (normalized === "yaklaşıyor" || normalized === "yaklasıyor" || normalized === "yaklasiyor" || normalized === "yaklaşan" || normalized === "yaklasan") {
     textColor = "#d46b08";
     lineColor = "#faad14";
   } else if (normalized === "gecikmiş" || normalized === "gecikmis") {
@@ -88,66 +88,30 @@ const renderYaklasanBakimCell = (remainingKm, remainingDays, durum) => {
     lineColor = isCritical ? "#faad14" : "#d9d9d9";
   }
 
-  // 1. Gecikmiş (Overdue)
-  if (normalized === "gecikmiş" || normalized === "gecikmis" || (remainingKm !== null && remainingKm < 0) || (remainingDays !== null && remainingDays < 0)) {
-    const kmText = remainingKm !== null && remainingKm < 0 ? `${formatNumberWithLocale(Math.abs(remainingKm))} km` : "";
-    const dayText = remainingDays !== null && remainingDays < 0 ? `${Math.abs(remainingDays)} gün` : "";
-    const detailText = [kmText, dayText].filter(Boolean).join(" / ");
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <span style={{ fontWeight: 600, color: textColor }}>
-          Gecikmiş {detailText ? `(${detailText})` : ""}
-        </span>
-        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
-      </div>
-    );
-  }
+  let displayText = "";
 
-  // 2. Bugün (Today) / Kritik
-  if (normalized === "kritik" || remainingDays === 0 || remainingKm === 0) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <span style={{ fontWeight: 600, color: textColor }}>Bugün</span>
-        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
-      </div>
-    );
-  }
-
-  // 3. Yaklaşan / Normal
   if (remainingKm !== null && remainingDays !== null) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <span style={{ fontWeight: 600, color: textColor }}>
-          {formatNumberWithLocale(remainingKm)} km / {remainingDays} gün sonra
-        </span>
-        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
-      </div>
-    );
+    const kmVal = remainingKm < 0 ? `(${formatNumberWithLocale(Math.abs(remainingKm))})` : formatNumberWithLocale(remainingKm);
+    const daysVal = remainingDays < 0 ? `(${Math.abs(remainingDays)})` : remainingDays;
+    displayText = t("kmVeGunSonra", { km: kmVal, days: daysVal });
+  } else if (remainingKm !== null) {
+    const kmVal = remainingKm < 0 ? `(${formatNumberWithLocale(Math.abs(remainingKm))})` : formatNumberWithLocale(remainingKm);
+    displayText = t("kmSonra", { count: kmVal });
+  } else if (remainingDays !== null) {
+    const daysVal = remainingDays < 0 ? `(${Math.abs(remainingDays)})` : remainingDays;
+    displayText = t("gunSonra", { count: daysVal });
+  } else {
+    return "-";
   }
 
-  if (remainingKm !== null) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <span style={{ fontWeight: 600, color: textColor }}>
-          {formatNumberWithLocale(remainingKm)} km sonra
-        </span>
-        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
-      </div>
-    );
-  }
-
-  if (remainingDays !== null) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <span style={{ fontWeight: 600, color: textColor }}>
-          {remainingDays} gün sonra
-        </span>
-        <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
-      </div>
-    );
-  }
-
-  return "-";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+      <span style={{ fontWeight: 600, color: textColor }}>
+        {displayText}
+      </span>
+      <div style={{ height: "4px", width: "100%", maxWidth: "120px", backgroundColor: lineColor, borderRadius: "2px" }} />
+    </div>
+  );
 };
 
 const StyledButton = styled(Button)`
@@ -447,8 +411,8 @@ const PeriyodikBakim = () => {
       ellipsis: true,
       visible: true,
       render: (_, record) => {
-        const remainingKm = calculateRemainingKm(record.hedefKm, record.currentKm);
-        const remainingDays = calculateRemainingDays(record.hedefTarih);
+        const remainingKm = record.isHerKm === true ? calculateRemainingKm(record.hedefKm, record.currentKm) : null;
+        const remainingDays = record.isHerTarih === true ? calculateRemainingDays(record.hedefTarih) : null;
         return (
           <div style={cellWrapperStyle}>
             <span>
@@ -469,8 +433,8 @@ const PeriyodikBakim = () => {
         );
       },
       sorter: (a, b) => {
-        const aVal = calculateRemainingKm(a.hedefKm, a.currentKm);
-        const bVal = calculateRemainingKm(b.hedefKm, b.currentKm);
+        const aVal = a.isHerKm === true ? calculateRemainingKm(a.hedefKm, a.currentKm) : null;
+        const bVal = b.isHerKm === true ? calculateRemainingKm(b.hedefKm, b.currentKm) : null;
         if (aVal === null) return -1;
         if (bVal === null) return 1;
         return aVal - bVal;
@@ -484,13 +448,13 @@ const PeriyodikBakim = () => {
       ellipsis: true,
       visible: true,
       render: (_, record) => {
-        const remainingKm = calculateRemainingKm(record.hedefKm, record.currentKm);
-        const remainingDays = calculateRemainingDays(record.hedefTarih);
+        const remainingKm = record.isHerKm === true ? calculateRemainingKm(record.hedefKm, record.currentKm) : null;
+        const remainingDays = record.isHerTarih === true ? calculateRemainingDays(record.hedefTarih) : null;
         return renderYaklasanBakimCell(remainingKm, remainingDays, record.durum);
       },
       sorter: (a, b) => {
-        const aVal = calculateRemainingKm(a.hedefKm, a.currentKm);
-        const bVal = calculateRemainingKm(b.hedefKm, b.currentKm);
+        const aVal = a.isHerKm === true ? calculateRemainingKm(a.hedefKm, a.currentKm) : null;
+        const bVal = b.isHerKm === true ? calculateRemainingKm(b.hedefKm, b.currentKm) : null;
         if (aVal === null) return -1;
         if (bVal === null) return 1;
         return aVal - bVal;

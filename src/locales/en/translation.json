@@ -1362,5 +1362,10 @@
   "menuSectionInventory": "Inventory & Logistics",
   "menuSectionAnalysis": "Analytics & Reporting",
   "menuSectionSystem": "System",
-  "menuNoResults": "No results found"
+  "menuNoResults": "No results found",
+  "yaklasiyor": "Approaching",
+  "gecikmis": "Overdue",
+  "gunSonra": "in {{count}} days",
+  "kmSonra": "in {{count}} km",
+  "kmVeGunSonra": "in {{km}} km / {{days}} days"
 }
