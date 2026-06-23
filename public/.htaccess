@@ -11,3 +11,39 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
 </IfModule>
+
+# ==================================================================
+# HTTP Guvenlik Header'lari  (Pentest 3.1.6 - Missing HTTP Security Headers)
+# Bunlar HTTP response header'laridir; Apache mod_headers tarafindan eklenir.
+# ==================================================================
+<IfModule mod_headers.c>
+  # --- Kirma riski OLMAYAN, dogrudan aktif header'lar ---
+
+  # MIME type sniffing'i engeller
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Clickjacking korumasi (3. parti sitelerde iframe'lenmeyi engeller)
+  Header always set X-Frame-Options "SAMEORIGIN"
+
+  # Referrer bilgisini sinirlar
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # HTTPS'i tarayicida zorunlu kilar (1 yil). 'preload' bilincli olarak eklenmedi (geri donusu zor).
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+  # Tarayici ozelliklerini kisitlar. geolocation, Google Maps "konumum" icin self birakildi.
+  Header always set Permissions-Policy "geolocation=(self), camera=(), microphone=(), payment=(), usb=()"
+
+  # --- Content-Security-Policy ---
+  # DIKKAT: Asagidaki satir REPORT-ONLY modundadir => HICBIR SEYI ENGELLEMEZ,
+  # sadece ihlalleri tarayici konsoluna RAPORLAR. Uygulama normal calismaya devam eder.
+  # Konsolda CSP ihlali kalmayana kadar izleyin; temizlenince enforce etmek icin
+  # "Content-Security-Policy-Report-Only" yerine "Content-Security-Policy" yazin.
+  #
+  # Kaynaklar bu projeye gore ayarlandi:
+  #   API'ler     : api.atspro.com.tr, dim.atspro.net, apigw.vakifbank.com.tr, ai-chat-anar.vercel.app
+  #   Google Maps : *.googleapis.com, *.gstatic.com, *.google.com, *.ggpht.com
+  #   inline style: styled-components + antd gerektiriyor ('unsafe-inline')
+  #   blob:/data: : resim/dosya onizleme (URL.createObjectURL) ve PDF uretimi
+  Header always set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.ggpht.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.atspro.com.tr https://dim.atspro.net https://apigw.vakifbank.com.tr:8443 https://ai-chat-anar.vercel.app https://maps.googleapis.com https://*.googleapis.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+</IfModule>

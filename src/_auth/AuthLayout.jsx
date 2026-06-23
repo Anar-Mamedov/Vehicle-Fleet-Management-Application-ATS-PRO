@@ -123,7 +123,6 @@ const AuthLayout = () => {
   }, []);
 
   const onFinish = (values) => {
-    console.log("Success:", values);
     onSubmit(values);
   };
   const onFinishFailed = (errorInfo) => {

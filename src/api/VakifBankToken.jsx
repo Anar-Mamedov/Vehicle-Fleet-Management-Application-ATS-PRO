@@ -25,7 +25,6 @@ export async function getVakifbankToken() {
       }
   
       const data = await response.json();
-      console.log("Token Alındı:", data);
       return data;
     } catch (error) {
       console.error("Token alma hatası:", error);
