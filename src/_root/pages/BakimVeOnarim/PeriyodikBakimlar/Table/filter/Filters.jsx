@@ -1,9 +1,7 @@
 import React from "react";
-import ConditionFilter from "./ConditionFilter";
-import LocationFilter from "./LocationFilter";
-import TypeFilter from "./TypeFilter";
 import CustomFilter from "./custom-filter/CustomFilter";
 import ZamanAraligi from "./ZamanAraligi";
+import DurumFilter from "./DurumFilter";
 
 export default function Filters({ onChange }) {
   const [filters, setFilters] = React.useState({
@@ -35,6 +33,7 @@ export default function Filters({ onChange }) {
       {/*  }*/}
       {/*/>*/}
       <ZamanAraligi />
+      <DurumFilter />
       <CustomFilter onSubmit={(newFilters) => setFilters((state) => ({ ...state, customfilter: newFilters }))} />
     </>
   );

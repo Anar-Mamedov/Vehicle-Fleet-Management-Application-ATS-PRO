@@ -64,6 +64,7 @@ export default function CustomFilter({ onSubmit }) {
 
   const startDateSelected = watch("startDate");
   const endDateSelected = watch("endDate");
+  const durumSelected = watch("durumFilter");
 
   useEffect(() => {
     if (isInitialMount) {
@@ -86,7 +87,7 @@ export default function CustomFilter({ onSubmit }) {
   useEffect(() => {
     if (isInitialMount) return;
     handleSubmit();
-  }, [startDate, endDate]);
+  }, [startDate, endDate, durumSelected]);
 
   const handleFilterTypeChange = (value, rowId) => {
     setSelectedFilters((prev) => ({ ...prev, [rowId]: value }));
@@ -131,6 +132,10 @@ export default function CustomFilter({ onSubmit }) {
     }
     if (endDate) {
       filterData.bitisTarih = endDate.format("YYYY-MM-DD");
+    }
+
+    if (durumSelected && durumSelected !== "all") {
+      filterData.durum = durumSelected;
     }
 
     console.log(filterData);
@@ -192,7 +197,7 @@ export default function CustomFilter({ onSubmit }) {
     return [];
   };
 
-  const isFilterApplied = newObjectsAdded || filtersExist || startDate || endDate;
+  const isFilterApplied = newObjectsAdded || filtersExist || startDate || endDate || (durumSelected && durumSelected !== "all");
 
   return (
     <>
