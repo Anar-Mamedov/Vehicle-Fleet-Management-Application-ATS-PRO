@@ -141,7 +141,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const methods = useForm({
     defaultValues: defaultValues,
   });
-  const { handleSubmit, reset, watch, setValue } = methods;
+  const { handleSubmit, reset, watch } = methods;
 
   useEffect(() => {
     if (watch("plaka")) {
@@ -179,6 +179,13 @@ const AddModal = ({ setStatus, onRefresh }) => {
         });
     }
   }, [isModalOpen]);
+
+  const handleInvalidSubmit = (formErrors) => {
+    const errorFieldNames = Object.keys(formErrors);
+    const hasGeneralInfoError = errorFieldNames.some((fieldName) => !fieldName.startsWith("ozelAlan"));
+
+    setActiveKey(hasGeneralInfoError ? "1" : "2");
+  };
 
   const handleOk = handleSubmit(async (value) => {
     setLoading(true);
@@ -249,7 +256,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     } finally {
       setLoading(false);
     }
-  });
+  }, handleInvalidSubmit);
 
   const personalProps = {
     form: "Arac",
@@ -262,11 +269,13 @@ const AddModal = ({ setStatus, onRefresh }) => {
     {
       key: "1",
       label: t("genelBilgiler"),
+      forceRender: true,
       children: <GeneralInfo isValid={isValid} mandatoryFields={mandatoryFields} />,
     },
     {
       key: "2",
       label: t("ozelAlanlar"),
+      forceRender: true,
       children: <PersonalFields personalProps={personalProps} />,
     },
   ];
