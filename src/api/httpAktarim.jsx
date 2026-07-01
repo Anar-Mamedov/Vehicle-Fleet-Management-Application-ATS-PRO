@@ -1,4 +1,5 @@
 import axios from "axios";
+import { handleUnauthorizedResponse } from "./http";
 import { getItemWithExpiration } from "../utils/expireToken";
 
 const httpAktarim = axios.create({
@@ -13,5 +14,12 @@ httpAktarim.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+httpAktarim.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => handleUnauthorizedResponse(error, httpAktarim)
+);
 
 export default httpAktarim;
