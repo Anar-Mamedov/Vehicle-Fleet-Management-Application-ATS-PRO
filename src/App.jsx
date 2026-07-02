@@ -1,4 +1,5 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
+import PropTypes from "prop-types";
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { Modal, ConfigProvider } from "antd";
 import tr_TR from "antd/locale/tr_TR";
@@ -6,7 +7,8 @@ import en_US from "antd/locale/en_US";
 import ru_RU from "antd/locale/ru_RU";
 import az_AZ from "antd/locale/az_AZ";
 import { useTranslation } from "react-i18next";
-import { getItemWithExpiration } from "./utils/expireToken";
+import { clearAuthStorage, getItemWithExpiration } from "./utils/expireToken";
+import { refreshAccessToken } from "./api/http";
 import { initDevToolsProtection } from "./utils/devToolsProtection";
 import { useVersionCheck } from "./hooks/useVersionCheck";
 import AuthLayout from "./_auth/AuthLayout";
@@ -151,29 +153,130 @@ const LoadingSpinner = () => (
 
 // ProtectedRoute bileşeni: Auth durumunu kontrol eder ve yetkisiz ziyaretçileri login'e yönlendirir.
 const ProtectedRoute = ({ children }) => {
-  const token = getItemWithExpiration("token");
   const companyKey = localStorage.getItem("companyKey");
+  const [authStatus, setAuthStatus] = useState(() => {
+    if (!companyKey) {
+      return "missingCompanyKey";
+    }
 
-  if (!token && !companyKey) {
+    return getItemWithExpiration("token") ? "authenticated" : "checking";
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!companyKey) {
+      setAuthStatus("missingCompanyKey");
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    if (getItemWithExpiration("token")) {
+      setAuthStatus("authenticated");
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setAuthStatus("checking");
+    refreshAccessToken()
+      .then(() => {
+        if (isMounted) {
+          setAuthStatus("authenticated");
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          clearAuthStorage();
+          setAuthStatus("unauthenticated");
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [companyKey]);
+
+  if (authStatus === "checking") {
+    return <LoadingSpinner />;
+  }
+
+  if (authStatus === "missingCompanyKey") {
     return <Navigate to="/CompanyKeyPage" replace />;
   }
-  if (!token && companyKey) {
+
+  if (authStatus === "unauthenticated") {
     return <Navigate to="/login" replace />;
   }
 
   return children ? children : <Outlet />;
 };
 
+ProtectedRoute.propTypes = {
+  children: PropTypes.node,
+};
+
 // PublicRoute bileşeni: Zaten giriş yapmış olan kullanıcıları ana sayfaya yönlendirir.
 const PublicRoute = ({ children }) => {
-  const token = getItemWithExpiration("token");
   const companyKey = localStorage.getItem("companyKey");
+  const [authStatus, setAuthStatus] = useState(() => {
+    if (!companyKey) {
+      return "unauthenticated";
+    }
 
-  if (token && companyKey) {
+    return getItemWithExpiration("token") ? "authenticated" : "checking";
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!companyKey) {
+      setAuthStatus("unauthenticated");
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    if (getItemWithExpiration("token")) {
+      setAuthStatus("authenticated");
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setAuthStatus("checking");
+    refreshAccessToken()
+      .then(() => {
+        if (isMounted) {
+          setAuthStatus("authenticated");
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          clearAuthStorage();
+          setAuthStatus("unauthenticated");
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [companyKey]);
+
+  if (authStatus === "checking") {
+    return <LoadingSpinner />;
+  }
+
+  if (authStatus === "authenticated" && companyKey) {
     return <Navigate to="/" replace />;
   }
 
   return children ? children : <Outlet />;
+};
+
+PublicRoute.propTypes = {
+  children: PropTypes.node,
 };
 
 const App = () => {

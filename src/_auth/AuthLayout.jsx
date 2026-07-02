@@ -146,15 +146,17 @@ const AuthLayout = () => {
 
     try {
       const response = await LoginUserService(body);
-      if (response?.data.accessToken) {
+      if (response?.data?.siraNo === 0) {
+        message.error("Kullanıcı adı veya şifre hatalıdır.");
+        return;
+      }
+
+      if (response?.status >= 200 && response?.status < 300) {
         setIsSuccess(true);
-        setItemWithExpiration("token", response?.data.accessToken, 24, response?.data.siraNo, data.remember, response?.data.refreshToken);
+        setItemWithExpiration("token", true, 24, response?.data?.siraNo, data.remember);
         navigate("/");
       }
-      if (response?.data.siraNo === 0) {
-        message.error("Kullanıcı adı veya şifre hatalıdır.");
-      }
-    } catch (error) {
+    } catch {
       setIsError(true);
     } finally {
       setIsLoading(false);

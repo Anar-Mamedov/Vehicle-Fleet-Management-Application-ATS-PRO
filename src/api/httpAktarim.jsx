@@ -1,17 +1,21 @@
 import axios from "axios";
 import { handleUnauthorizedResponse } from "./http";
-import { getItemWithExpiration } from "../utils/expireToken";
 
 const httpAktarim = axios.create({
   baseURL: import.meta.env.VITE_AKTARIM_BASE_URL,
+  withCredentials: true,
   headers: { "Content-type": "application/json" },
 });
 
-httpAktarim.interceptors.request.use(async (config) => {
-  const token = await getItemWithExpiration("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+httpAktarim.interceptors.request.use((config) => {
+  const clientIdentifier = localStorage.getItem("companyKey");
+
+  config.headers = config.headers || {};
+
+  if (clientIdentifier) {
+    config.headers.clientIdentifier = clientIdentifier;
   }
+
   return config;
 });
 

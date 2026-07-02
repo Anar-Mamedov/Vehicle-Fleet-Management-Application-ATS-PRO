@@ -22,12 +22,12 @@ const RootLayout = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = getItemWithExpiration("token");
+    const hasSession = getItemWithExpiration("token");
 
-    if (!token) {
+    if (!hasSession) {
       navigate("/login");
     }
-  }, []);
+  }, [navigate]);
 
   // Ayarlar modalından pinnable değiştiğinde yakalamak için
   useEffect(() => {

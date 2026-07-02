@@ -1,4 +1,7 @@
-const AUTH_STORAGE_KEYS = ["token", "refreshToken", "id"];
+const SENSITIVE_AUTH_STORAGE_KEYS = ["token", "refreshToken"];
+const AUTH_STORAGE_KEYS = [...SENSITIVE_AUTH_STORAGE_KEYS, "id"];
+
+let hasAuthenticatedSession = false;
 
 const getStorageByRemember = (remember) => (remember === true ? localStorage : sessionStorage);
 
@@ -10,25 +13,42 @@ const setJsonItem = (storage, key, value) => {
   }
 };
 
-export function setItemWithExpiration(key, value, expirationHours, id, remember, refreshToken) {
+const clearSensitiveAuthStorage = () => {
+  SENSITIVE_AUTH_STORAGE_KEYS.forEach((key) => {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  });
+};
+
+clearSensitiveAuthStorage();
+
+export function setItemWithExpiration(key, value, expirationHours, id, remember) {
   /* const now = new Date();
   const expirationTime = now.getTime() + expirationHours * 60 * 60 * 1000; */
 
   const storage = getStorageByRemember(remember);
   const otherStorage = getOtherStorageByRemember(remember);
 
-  AUTH_STORAGE_KEYS.forEach((storageKey) => {
-    storage.removeItem(storageKey);
-    otherStorage.removeItem(storageKey);
-  });
+  clearSensitiveAuthStorage();
+  storage.removeItem("id");
+  otherStorage.removeItem("id");
 
-  setJsonItem(storage, key, value);
+  if (key === "token") {
+    hasAuthenticatedSession = Boolean(value);
+  }
   setJsonItem(storage, "id", id);
-  setJsonItem(storage, "refreshToken", refreshToken);
   // localStorage.setItem(`${key}_expire`, expirationTime.toString());
 }
 
 export function getItemWithExpiration(key) {
+  if (key === "token") {
+    return hasAuthenticatedSession;
+  }
+
+  if (key === "refreshToken") {
+    return null;
+  }
+
   const item = localStorage.getItem(key) || sessionStorage.getItem(key);
   /* const itemExpire = localStorage.getItem(`${key}_expire`);
 
@@ -53,15 +73,16 @@ export function getItemWithExpiration(key) {
   return JSON.parse(item);
 }
 
-export function setAuthTokens(accessToken, refreshToken, id) {
-  const storage = localStorage.getItem("token") ? localStorage : sessionStorage;
+export function setAuthTokens(id) {
+  const storage = localStorage.getItem("id") ? localStorage : sessionStorage;
 
-  setJsonItem(storage, "token", accessToken);
-  setJsonItem(storage, "refreshToken", refreshToken);
+  clearSensitiveAuthStorage();
+  hasAuthenticatedSession = true;
   setJsonItem(storage, "id", id);
 }
 
 export function clearAuthStorage() {
+  hasAuthenticatedSession = false;
   AUTH_STORAGE_KEYS.forEach((key) => {
     localStorage.removeItem(key);
     sessionStorage.removeItem(key);

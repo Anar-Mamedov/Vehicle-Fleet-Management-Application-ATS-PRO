@@ -23,6 +23,8 @@ const getAuthValue = (data, keys) => {
   return key ? data[key] : null;
 };
 
+const getClientIdentifier = () => localStorage.getItem("companyKey");
+
 const redirectToLogin = () => {
   clearAuthStorage();
   if (window.location.pathname !== "/login") {
@@ -32,19 +34,13 @@ const redirectToLogin = () => {
 
 const requestNewToken = async () => {
   const response = await AxiosInstance.post(AUTH_REFRESH_URL, undefined, { skipAuthRefresh: true, withCredentials: true });
-  const accessToken = getAuthValue(response?.data, ["accessToken", "token"]);
-  const newRefreshToken = getAuthValue(response?.data, ["refreshToken"]);
   const id = getAuthValue(response?.data, ["siraNo", "id", "userId"]);
 
-  if (!accessToken) {
-    throw new Error("Refresh token response did not include access token.");
-  }
-
-  setAuthTokens(accessToken, newRefreshToken, id);
-  return accessToken;
+  setAuthTokens(id);
+  return true;
 };
 
-const refreshAccessToken = () => {
+export const refreshAccessToken = () => {
   if (!refreshTokenRequest) {
     refreshTokenRequest = requestNewToken().finally(() => {
       refreshTokenRequest = null;
@@ -61,18 +57,10 @@ export const handleUnauthorizedResponse = async (error, axiosInstance) => {
     return Promise.reject(error);
   }
 
-  const token = getItemWithExpiration("token");
-  if (!token) {
-    redirectToLogin();
-    return Promise.reject(error);
-  }
-
   originalRequest._retry = true;
 
   try {
-    const accessToken = await refreshAccessToken();
-    originalRequest.headers = originalRequest.headers || {};
-    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+    await refreshAccessToken();
     return axiosInstance(originalRequest);
   } catch (refreshError) {
     redirectToLogin();
@@ -80,17 +68,20 @@ export const handleUnauthorizedResponse = async (error, axiosInstance) => {
   }
 };
 
-AxiosInstance.interceptors.request.use(async (config) => {
-  const token = await getItemWithExpiration("token");
+AxiosInstance.interceptors.request.use((config) => {
+  const hasSession = getItemWithExpiration("token");
+  const clientIdentifier = getClientIdentifier();
 
-  // Redirect to home if user has a valid token and tries to access login page
-  if (token && window.location.pathname === "/login") {
-    window.location.href = "/";
-    return config;
+  config.headers = config.headers || {};
+
+  if (clientIdentifier) {
+    config.headers.clientIdentifier = clientIdentifier;
   }
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // Redirect to home if user has an authenticated session and tries to access login page
+  if (hasSession && window.location.pathname === "/login") {
+    window.location.href = "/";
+    return config;
   }
 
   return config;
