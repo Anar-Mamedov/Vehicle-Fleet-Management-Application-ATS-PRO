@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { UserOutlined } from "@ant-design/icons";
 import { Avatar, Typography, Popover, Spin } from "antd";
 import AxiosInstance from "../../../api/http";
+import { LogoutUserService } from "../../../api/service";
+import { clearAuthStorage } from "../../../utils/expireToken";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 
@@ -65,11 +67,9 @@ function KullaniciProfil() {
     };
   }, [fetchUserAndPhoto]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    sessionStorage.removeItem("token");
-    localStorage.removeItem("id");
-    sessionStorage.removeItem("id");
+  const handleLogout = async () => {
+    await LogoutUserService().catch(() => null);
+    clearAuthStorage();
     navigate("/login");
   };
 

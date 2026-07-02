@@ -1,47 +1,24 @@
-export const uploadPhoto = async (id, group, files, isForDefault) => {
-  const token = JSON.parse(localStorage.getItem("token"));
-  if (!token) {
-    throw new Error("Authentication token not found.");
-  }
+import AxiosInstance from "../api/http";
+import { getItemWithExpiration } from "./expireToken";
 
-  const response = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/Photo/UploadPhoto?refId=${id}&refGroup=${group}&isForDefault=${isForDefault}`, {
-    method: "POST",
+export const uploadPhoto = async (id, group, files, isForDefault) => {
+  const response = await AxiosInstance.post(`Photo/UploadPhoto?refId=${id}&refGroup=${group}&isForDefault=${isForDefault}`, files, {
     headers: {
-      Authorization: `Bearer ${token}`,
-      "User-Id": JSON.parse(localStorage.getItem("id")) || JSON.parse(sessionStorage.getItem("id")),
+      "Content-Type": "multipart/form-data",
+      "User-Id": getItemWithExpiration("id"),
     },
-    body: files,
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to upload image. Status: ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  return data;
+  return response.data;
 };
 
 export const uploadFile = async (id, group, files) => {
-  const token = JSON.parse(localStorage.getItem("token")) || JSON.parse(sessionStorage.getItem("token"));
-  if (!token) {
-    throw new Error("Authentication token not found.");
-  }
-
-  const response = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/Document/UploadDocument?refId=${id}&refGroup=${group}`, {
-    method: "POST",
+  const response = await AxiosInstance.post(`Document/UploadDocument?refId=${id}&refGroup=${group}`, files, {
     headers: {
-      Authorization: `Bearer ${token}`,
-      "User-Id": JSON.parse(localStorage.getItem("id")) || JSON.parse(sessionStorage.getItem("id")),
+      "Content-Type": "multipart/form-data",
+      "User-Id": getItemWithExpiration("id"),
     },
-    body: files,
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to upload document. Status: ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  return data;
+  return response.data;
 };

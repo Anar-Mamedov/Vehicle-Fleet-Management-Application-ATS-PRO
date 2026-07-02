@@ -16,7 +16,11 @@ import {
 
 // login
 export const LoginUserService = (data) => {
-  return http.post("/Login", data);
+  return http.post("/Auth/Login", data, { skipAuthRefresh: true, withCredentials: true });
+};
+
+export const LogoutUserService = () => {
+  return http.post("/Auth/Logout", undefined, { skipAuthRefresh: true, withCredentials: true });
 };
 
 // Vehicle/GetUserId   demo
