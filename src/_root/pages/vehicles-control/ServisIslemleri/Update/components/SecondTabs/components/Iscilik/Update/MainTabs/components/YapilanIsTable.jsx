@@ -10,6 +10,7 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState([]);
+  const dataRef = useRef([]);
   const [loading, setLoading] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -71,14 +72,14 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
   ];
 
   const fetchData = useCallback(
-    (diff = 0, targetPage = pagination.current) => {
+    (diff = 0, targetPage = 1) => {
       setLoading(true);
 
       let currentSetPointId = 0;
       if (diff > 0) {
-        currentSetPointId = data[data.length - 1]?.isTanimId || 0;
+        currentSetPointId = dataRef.current[dataRef.current.length - 1]?.isTanimId || 0;
       } else if (diff < 0) {
-        currentSetPointId = data[0]?.isTanimId || 0;
+        currentSetPointId = dataRef.current[0]?.isTanimId || 0;
       }
 
       AxiosInstance.get(`WorkCard/GetWorkCardsList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`)
@@ -88,6 +89,7 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
             ...item,
             key: item.isTanimId,
           }));
+          dataRef.current = fetchedData;
           setData(fetchedData);
           setPagination((prev) => ({
             ...prev,
@@ -97,7 +99,7 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit }) {
         })
         .finally(() => setLoading(false));
     },
-    [searchTerm, data, pagination]
+    [searchTerm]
   );
 
   const handleModalToggle = () => {
