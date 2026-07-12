@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -11,6 +11,15 @@ import { GetEmployeeByIdService, UpdateEmployeeService } from "../../../../../ap
 import dayjs from "dayjs";
 import KisiselBilgiler from "../add/KisiselBilgiler";
 import { uploadPhoto } from "../../../../../utils/upload";
+
+const getValidDate = (value) => {
+  if (!value) return null;
+
+  const parsedDate = dayjs(value);
+  return parsedDate.isValid() ? parsedDate : null;
+};
+
+const formatDateForApi = (value) => getValidDate(value)?.format("YYYY-MM-DD") ?? null;
 
 const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const [isValid, setIsValid] = useState("normal");
@@ -135,7 +144,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("ehliyetSinifi", res.data.ehliyetSinifi);
         setValue("ehliyetNo", res.data.ehliyetNo);
         setValue("kanGrubu", res.data.kanGrubu);
-        setValue("dogumTarihi", dayjs(res.data.dogumTarihi));
+        setValue("dogumTarihi", getValidDate(res.data.dogumTarihi));
         setValue("anneAdi", res.data.anneAdi);
         setValue("babaAdi", res.data.babaAdi);
         setValue("tcKimlikNo", res.data.tcKimlikNo);
@@ -150,8 +159,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("fax", res.data.fax);
         setValue("email", res.data.email);
         setValue("web", res.data.web);
-        setValue("iseBaslamaTarihi", dayjs(res.data.iseBaslamaTarihi));
-        setValue("isetenAyrilmaTarihi", dayjs(res.data.isetenAyrilmaTarihi));
+        setValue("iseBaslamaTarihi", getValidDate(res.data.iseBaslamaTarihi));
+        setValue("isetenAyrilmaTarihi", getValidDate(res.data.isetenAyrilmaTarihi));
         setValue("aktif", res.data.aktif);
         setPersonelId(res.data.personelId);
         setValue("ozelAlan1", res?.data.ozelAlan1);
@@ -189,7 +198,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       ehliyetSinifi: values.ehliyetSinifi,
       ehliyetNo: values.ehliyetNo,
       kanGrubu: values.kanGrubu,
-      dogumTarihi: dayjs(values.dogumTarihi).format("YYYY-MM-DD"),
+      dogumTarihi: formatDateForApi(values.dogumTarihi),
       anneAdi: values.anneAdi,
       babaAdi: values.babaAdi,
       tcKimlikNo: values.tcKimlikNo,
@@ -206,8 +215,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       aciklama: values.aciklama,
       gsm: values.gsm,
       aktif: values.aktif,
-      iseBaslamaTarihi: dayjs(values.iseBaslamaTarihi).format("YYYY-MM-DD"),
-      isetenAyrilmaTarihi: dayjs(values.isetenAyrilmaTarihi).format("YYYY-MM-DD"),
+      iseBaslamaTarihi: formatDateForApi(values.iseBaslamaTarihi),
+      isetenAyrilmaTarihi: formatDateForApi(values.isetenAyrilmaTarihi),
       ozelAlan1: values.ozelAlan1 || "",
       ozelAlan2: values.ozelAlan2 || "",
       ozelAlan3: values.ozelAlan3 || "",

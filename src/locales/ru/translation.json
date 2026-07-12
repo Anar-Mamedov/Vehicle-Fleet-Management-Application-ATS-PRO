@@ -420,5 +420,6 @@
   "kmVeGunSonra": "через {{km}} км / {{days}} дн.",
   "gunGecti": "{{count}} дн. просрочено",
   "kmGecti": "{{count}} км просрочено",
-  "kmVeGunGecti": "{{km}} км / {{days}} дн. просрочено"
+  "kmVeGunGecti": "{{km}} км / {{days}} дн. просрочено",
+  "istenAyrilmaTarih": "Дата увольнения"
 }

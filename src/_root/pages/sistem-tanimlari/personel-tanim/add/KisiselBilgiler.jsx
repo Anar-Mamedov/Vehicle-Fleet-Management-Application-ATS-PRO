@@ -1,11 +1,8 @@
+import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { t } from "i18next";
-import { ConfigProvider, DatePicker, Input, Select } from "antd";
-import dayjs from "dayjs";
-import "dayjs/locale/tr";
-import tr_TR from "antd/lib/locale/tr_TR";
-
-dayjs.locale("tr");
+import { Input, Select } from "antd";
+import DateInput from "../../../../components/form/date/DateInput";
 
 const KisiselBilgiler = () => {
   const { control } = useFormContext();
@@ -87,23 +84,7 @@ const KisiselBilgiler = () => {
             <label htmlFor="dogumTarihi" className="text-info">
               {t("dogumTarihi")}
             </label>
-            <Controller
-              name="dogumTarihi"
-              control={control}
-              render={({ field }) => (
-                <ConfigProvider locale={tr_TR}>
-                  <DatePicker
-                    {...field}
-                    placeholder=""
-                    locale={dayjs.locale("tr")}
-                    format="DD.MM.YYYY"
-                    onChange={(e) => {
-                      field.onChange(e);
-                    }}
-                  />
-                </ConfigProvider>
-              )}
-            />
+            <DateInput name="dogumTarihi" />
           </div>
         </div>
         <div className="col-span-4">
@@ -143,23 +124,7 @@ const KisiselBilgiler = () => {
             <label htmlFor="iseBaslamaTarihi" className="text-info">
               {t("iseBaslamaTarihi")}
             </label>
-            <Controller
-              name="iseBaslamaTarihi"
-              control={control}
-              render={({ field }) => (
-                <ConfigProvider locale={tr_TR}>
-                  <DatePicker
-                    {...field}
-                    placeholder=""
-                    locale={dayjs.locale("tr")}
-                    format="DD.MM.YYYY"
-                    onChange={(e) => {
-                      field.onChange(e);
-                    }}
-                  />
-                </ConfigProvider>
-              )}
-            />
+            <DateInput name="iseBaslamaTarihi" />
           </div>
         </div>
         <div className="col-span-4">
@@ -198,25 +163,9 @@ const KisiselBilgiler = () => {
         <div className="col-span-4">
           <div className="flex flex-col gap-1">
             <label htmlFor="isetenAyrilmaTarihi" className="text-info">
-              {t("isetenAyrilmaTarihi")}
+              {t("istenAyrilmaTarih")}
             </label>
-            <Controller
-              name="isetenAyrilmaTarihi"
-              control={control}
-              render={({ field }) => (
-                <ConfigProvider locale={tr_TR}>
-                  <DatePicker
-                    {...field}
-                    placeholder=""
-                    locale={dayjs.locale("tr")}
-                    format="DD.MM.YYYY"
-                    onChange={(e) => {
-                      field.onChange(e);
-                    }}
-                  />
-                </ConfigProvider>
-              )}
-            />
+            <DateInput name="isetenAyrilmaTarihi" />
           </div>
         </div>
         <div className="col-span-4">
