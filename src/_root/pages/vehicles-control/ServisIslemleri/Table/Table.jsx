@@ -47,6 +47,12 @@ const timeFormatMap = {
   az: "HH:mm",
 };
 
+const approvalTranslationKeyById = {
+  1: "bekliyor",
+  2: "onaylandi",
+  3: "onaylanmadi",
+};
+
 const { Text } = Typography;
 
 const StyledButton = styled(Button)`
@@ -729,17 +735,16 @@ const Ceza = ({ statusId1 }) => {
 
     {
       title: t("onay"),
-      dataIndex: "onay",
+      dataIndex: "onayId",
       key: "onay",
       width: 120,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.onay === null) return -1;
-        if (b.onay === null) return 1;
-        return a.onay.localeCompare(b.onay);
+      render: (onayId) => {
+        const translationKey = approvalTranslationKeyById[Number(onayId)];
+        return translationKey ? t(translationKey) : "";
       },
+      sorter: (a, b) => (Number(a.onayId) || 0) - (Number(b.onayId) || 0),
     },
 
     // Diğer kolonlarınız...

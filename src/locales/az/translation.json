@@ -568,6 +568,7 @@
   "siraNo": "Sıra No",
   "beklemede": "Gözləmədə",
   "onaylandi": "Təsdiqləndi",
+  "onaylanmadi": "Təsdiqlənmədi",
   "reddedildi": "Rədd edildi",
   "tamamlandi": "Tamamlandı",
   "dusuk": "Aşağı",
@@ -892,5 +893,6 @@
   "kmVeGunSonra": "{{km}} km / {{days}} gün sonra",
   "gunGecti": "{{count}} gün keçdi",
   "kmGecti": "{{count}} km keçdi",
-  "kmVeGunGecti": "{{km}} km / {{days}} gün keçdi"
+  "kmVeGunGecti": "{{km}} km / {{days}} gün keçdi",
+  "onay": "Təsdiq"
 }

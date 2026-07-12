@@ -1064,6 +1064,7 @@
   "iptalEdildi": "Canceled",
   "beklemede": "Pending",
   "onaylandi": "Approved",
+  "onaylanmadi": "Not Approved",
   "reddedildi": "Rejected",
   "tamamlandi": "Completed",
   "dusuk": "Low",

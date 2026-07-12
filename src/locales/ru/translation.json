@@ -79,6 +79,7 @@
   "siraNo": "Порядковый номер",
   "beklemede": "В ожидании",
   "onaylandi": "Утверждено",
+  "onaylanmadi": "Не утверждено",
   "reddedildi": "Отклонено",
   "tamamlandi": "Завершено",
   "dusuk": "Низкий",
@@ -421,5 +422,6 @@
   "gunGecti": "{{count}} дн. просрочено",
   "kmGecti": "{{count}} км просрочено",
   "kmVeGunGecti": "{{km}} км / {{days}} дн. просрочено",
-  "istenAyrilmaTarih": "Дата увольнения"
+  "istenAyrilmaTarih": "Дата увольнения",
+  "onay": "Одобрение"
 }

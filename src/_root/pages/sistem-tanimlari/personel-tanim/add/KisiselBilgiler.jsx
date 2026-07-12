@@ -53,11 +53,7 @@ const KisiselBilgiler = () => {
               name="tcKimlikNo"
               control={control}
               render={({ field }) => (
-                <Input
-                  onChange={(e) => {
-                    field.onChange(e.target.value);
-                  }}
-                />
+                <Input {...field} value={field.value ?? ""} />
               )}
             />
           </div>
