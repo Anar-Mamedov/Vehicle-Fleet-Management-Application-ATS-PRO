@@ -101,6 +101,7 @@ const ArizaBildirimleri = lazyWithRetry(() => import("./_root/pages/BakimVeOnari
 
 const Raporlar = lazyWithRetry(() => import("./_root/pages/raporlar/RaporYonetimi.jsx"));
 const KodYonetimi = lazyWithRetry(() => import("./_root/pages/kod-yonetimi/KodYonetimi"));
+const DokumanYonetimi = lazyWithRetry(() => import("./_root/pages/DokumanYonetimi/DokumanYonetimi.jsx"));
 const Hazirlaniyor = lazyWithRetry(() => import("./_root/pages/Hazirlaniyor"));
 
 const ServisIslemleri = lazyWithRetry(() => import("./_root/pages/vehicles-control/ServisIslemleri/ServisIslemleri"));
@@ -409,7 +410,8 @@ const App = () => {
               <Route path="/raporlar" element={<Raporlar />} />
               <Route path="/hazirlaniyor" element={<Hazirlaniyor />} />
               
-              {/* Sistem Ayarlari */}
+              {/* Yönetim */}
+              <Route path="/dokuman-yonetimi" element={<DokumanYonetimi />} />
               <Route path="/user_definitions" element={<KullaniciTanimlari />} />
               <Route path="/onayAyarlari" element={<Onaylar />} />
               <Route path="/onaylama-islemleri" element={<OnaylamaIslemleri />} />

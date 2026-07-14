@@ -30,7 +30,7 @@ import SurucuInput from "../../../components/form/inputs/SurucuInput";
 import AddSurucu from "./detail-info/modals/surucu/AddModalForInput";
 import AddLokasyon from "./detail-info/modals/lokasyon/AddModalForInput";
 import ResimUpload from "./Resim/ResimUpload";
-import DosyaUpload from "./Dosya/DosyaUpload";
+import DosyaUpload from "../../../components/Dosya/DosyaUpload";
 import DurumTarihcesi from "./DurumTarihce/DurumTarihcesi";
 import Textarea from "../../../components/form/inputs/Textarea";
 import KodIDSelectbox from "../../../components/form/selects/KodIDSelectbox";
@@ -526,7 +526,7 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
     {
       key: "4",
       label: `[${fileCount}] ${t("ekliBelgeler")}`,
-      children: <DosyaUpload selectedRowID={selectedId} setDosyaUploaded={setDosyaUploaded} setFileCount={setFileCount} />,
+      children: <DosyaUpload selectedRowID={selectedId} setDosyaUploaded={setDosyaUploaded} setFileCount={setFileCount} refGroup="Arac" />,
     },
   ];
 

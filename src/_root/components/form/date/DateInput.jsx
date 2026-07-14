@@ -8,13 +8,13 @@ import { ConfigProvider, DatePicker } from "antd";
 
 dayjs.locale("tr");
 
-const DateInput = ({ name, checked, readonly, required, style, placeholder = "", onBlur }) => {
+const DateInput = ({ name, checked, readonly, required, requiredMessage, style, placeholder = "", onBlur }) => {
   const { control } = useFormContext();
   return (
     <Controller
       name={name}
       control={control}
-      rules={{ required: required ? "Bu alan boş bırakılamaz!" : false }}
+      rules={{ required: required ? requiredMessage || "Bu alan boş bırakılamaz!" : false }}
       render={({ field, fieldState }) => (
         <>
           <ConfigProvider locale={tr_TR}>
@@ -50,6 +50,7 @@ DateInput.propTypes = {
   checked: PropTypes.bool,
   readonly: PropTypes.bool,
   required: PropTypes.bool,
+  requiredMessage: PropTypes.string,
   onBlur: PropTypes.func,
 };
 

@@ -37,7 +37,8 @@ import {
   CheckSquareOutlined,
   BookOutlined,
   AppstoreOutlined,
-  UsergroupAddOutlined
+  UsergroupAddOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import { MdOutlineSystemUpdateAlt } from "react-icons/md";
 import { LuWarehouse } from "react-icons/lu";
@@ -602,8 +603,13 @@ const Sidebar = ({ collapsed }) => {
       {
         key: "50",
         icon: <FaGears />,
-        label: t("sistemAyarari"),
+        label: t("yonetim"),
         children: [
+          {
+            key: "document_management",
+            icon: <FileTextOutlined />,
+            label: <Link to={`/dokuman-yonetimi`}>{t("dokumanYonetimi")}</Link>,
+          },
           {
             key: "52",
             icon: <UsergroupAddOutlined />,
