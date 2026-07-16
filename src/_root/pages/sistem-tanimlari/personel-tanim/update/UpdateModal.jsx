@@ -11,6 +11,7 @@ import { GetEmployeeByIdService, UpdateEmployeeService } from "../../../../../ap
 import dayjs from "dayjs";
 import KisiselBilgiler from "../add/KisiselBilgiler";
 import { uploadPhoto } from "../../../../../utils/upload";
+import DosyaUpload from "../../../../components/Dosya/DosyaUpload";
 
 const getValidDate = (value) => {
   if (!value) return null;
@@ -270,6 +271,11 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       key: "4",
       label: t("ozelAlanlar"),
       children: <PersonalFields personalProps={personalProps} />,
+    },
+    {
+      key: "5",
+      label: t("ekliBelgeler"),
+      children: <DosyaUpload selectedRowID={selectedRow?.key} refGroup="PERSONEL" />,
     },
   ];
 

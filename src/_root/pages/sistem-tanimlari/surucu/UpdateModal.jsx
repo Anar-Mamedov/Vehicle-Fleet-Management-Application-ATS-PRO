@@ -13,6 +13,7 @@ import KisiselBilgiler from "./tabs/KisiselBilgiler";
 import KimlikBilgiler from "./tabs/KimlikBilgiler";
 import EhliyetBilgiler from "./tabs/EhliyetBilgiler";
 import MeslekiYeterlilik from "./tabs/MeslekiYeterlilik";
+import DosyaUpload from "../../../components/Dosya/DosyaUpload";
 
 const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const [isValid, setIsValid] = useState("normal");
@@ -341,6 +342,11 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       key: "6",
       label: t("ozelAlanlar"),
       children: <PersonalFields personalProps={personalProps} />,
+    },
+    {
+      key: "7",
+      label: t("ekliBelgeler"),
+      children: <DosyaUpload selectedRowID={selectedRow?.key} refGroup="SURUCU" />,
     },
   ];
 
