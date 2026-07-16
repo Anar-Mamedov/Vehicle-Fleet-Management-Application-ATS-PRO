@@ -7,6 +7,7 @@ import Depo from "../../../../components/form/selects/Depo";
 import TextInput from "../../../../components/form/inputs/TextInput";
 import CheckboxInput from "../../../../components/form/checkbox/CheckboxInput";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
+import BarcodeInput from "../../../../components/form/inputs/BarcodeInput";
 
 const GeneralInfo = ({ isValid }) => {
   const { control, setValue } = useFormContext();
@@ -126,7 +127,7 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("barkodNo")}</label>
-                <TextInput name="barKodNo" />
+                <BarcodeInput name="barKodNo" />
               </div>
             </div>
             <div className="col-span-6">

@@ -7,6 +7,7 @@ import Birim from "../../../../components/form/Birim";
 import MalzemeTipi from "../../../../components/form/MalzemeTipi";
 import Depo from "../../../../components/form/selects/Depo";
 import FirmaUnvani from "../../../../components/form/FirmaUnvani";
+import BarcodeInput from "../../../../components/form/inputs/BarcodeInput";
 
 const GeneralInfo = ({ isValid }) => {
   const {
@@ -146,7 +147,7 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("barkodNo")}</label>
-                <Controller name="barKodNo" control={control} render={({ field }) => <Input {...field} onChange={(e) => field.onChange(e.target.value)} />} />
+                <BarcodeInput name="barKodNo" />
               </div>
             </div>
             <div className="col-span-6">

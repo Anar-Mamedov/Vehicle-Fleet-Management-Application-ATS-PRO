@@ -1,4 +1,8 @@
 {
+  "barkodNo": "Номер штрихкода",
+  "barkodOlusturVeYazdir": "Создать и распечатать штрихкод",
+  "barkodDegeriGerekli": "Введите значение для создания штрихкода.",
+  "barkodOlusturulamadi": "Не удалось создать штрихкод или запустить печать.",
   "periyot": "Период",
   "sonUygulama": "Последнее обслуживание",
   "sonrakiHedef": "Следующая цель",
