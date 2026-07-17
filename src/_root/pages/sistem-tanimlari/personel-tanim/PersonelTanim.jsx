@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip } from "antd";
 import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
@@ -128,6 +128,7 @@ const Yakit = () => {
   const navigate = useNavigate();
 
   const [selectedRows, setSelectedRows] = useState([]);
+  const currentPageRequestRef = useRef({ diff: 0, setPointId: 0, targetPage: 1, parameter: "" });
 
   // API Data Fetching with diff and setPointId
   const fetchData = async (diff, targetPage) => {
@@ -155,6 +156,13 @@ const Yakit = () => {
         ...item,
         key: item.personelId, // Assign key directly from siraNo
       }));
+
+      currentPageRequestRef.current = {
+        diff,
+        setPointId: currentSetPointId,
+        targetPage,
+        parameter: searchTerm,
+      };
 
       if (newData.length > 0) {
         setData(newData);
@@ -209,6 +217,30 @@ const Yakit = () => {
     setSelectedRows([]);
     fetchData(0, 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const refreshCurrentPageData = useCallback(async () => {
+    setSelectedRowKeys([]);
+    setSelectedRows([]);
+    setLoading(true);
+
+    try {
+      const { diff, setPointId, targetPage, parameter } = currentPageRequestRef.current;
+      const response = await AxiosInstance.get(`Employee/GetEmployeeList?diff=${diff}&setPointId=${setPointId}&parameter=${parameter}`);
+      const newData = response.data.list.map((item) => ({
+        ...item,
+        key: item.personelId,
+      }));
+
+      setTotalCount(response.data.recordCount);
+      setCurrentPage(targetPage);
+      setData(newData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      message.error("An error occurred while fetching data.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   // Columns definition (adjust as needed)
@@ -1162,7 +1194,7 @@ const Yakit = () => {
             scroll={{ y: "calc(100vh - 335px)" }}
           />
         </Spin>
-        <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshTableData} />
+        <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshCurrentPageData} />
       </div>
     </>
   );

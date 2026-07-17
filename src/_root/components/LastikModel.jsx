@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { Select, Input } from "antd";
-import AxiosInstance from "../../api/http";
+import { Button, Divider, Input, message, Select, Spin } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import PropTypes from "prop-types";
+import { AddLastikModelService, GetLastikModelListService } from "../../api/services/lastiktanim_services";
 
 import { t } from "i18next";
 
@@ -26,7 +27,18 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function LastikModel({ name1, isRequired, watchName, lastikMarkaId, multiSelect = false, onChange, inputWidth, dropdownWidth, placeholder }) {
+export default function LastikModel({
+  name1,
+  isRequired,
+  watchName,
+  lastikMarkaId,
+  multiSelect = false,
+  onChange,
+  inputWidth,
+  dropdownWidth,
+  placeholder,
+  allowAdd = false,
+}) {
   const {
     control,
     setValue,
@@ -36,6 +48,7 @@ export default function LastikModel({ name1, isRequired, watchName, lastikMarkaI
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectKey, setSelectKey] = useState(0);
+  const [newModel, setNewModel] = useState("");
 
   // Watch the value of the brand ID field using watch function
   const brandId = watch(`${watchName}ID`) || lastikMarkaId;
@@ -62,7 +75,7 @@ export default function LastikModel({ name1, isRequired, watchName, lastikMarkaI
     setLoading(true);
     try {
       const markId = Array.isArray(brandId) ? brandId : [brandId];
-      const response = await AxiosInstance.get(`TyreModel/GetTyreModelList?id=${markId}`);
+      const response = await GetLastikModelListService(markId);
       if (response && response.data) {
         setOptions(response.data);
       }
@@ -73,10 +86,43 @@ export default function LastikModel({ name1, isRequired, watchName, lastikMarkaI
     }
   };
 
+  const addModel = async () => {
+    const model = newModel.trim();
+    if (!model || !isBrandIdValid()) {
+      return;
+    }
+
+    const modelExists = options.some((option) => option.model?.trim().toLowerCase() === model.toLowerCase());
+    if (modelExists) {
+      message.warning(t("lastikSecenegiZatenVar"));
+      return;
+    }
+
+    const markaId = Array.isArray(brandId) ? brandId[0] : brandId;
+    setLoading(true);
+    try {
+      const response = await AddLastikModelService(model, Number(markaId));
+      const statusCode = response?.data?.statusCode;
+      if (statusCode && ![200, 201, 202].includes(statusCode)) {
+        message.error(t("lastikSecenegiEklenemedi"));
+        return;
+      }
+
+      setNewModel("");
+      await fetchData();
+      message.success(t("lastikSecenegiEklendi"));
+    } catch {
+      message.error(t("lastikSecenegiEklenemedi"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Reset the model selection when brand changes
   useEffect(() => {
     setValue(name1, null);
     setValue(`${name1}ID`, null);
+    setNewModel("");
     setSelectKey((prevKey) => prevKey + 1);
   }, [brandId, setValue, name1]);
 
@@ -120,6 +166,32 @@ export default function LastikModel({ name1, isRequired, watchName, lastikMarkaI
                 }
               }}
               loading={loading}
+              dropdownRender={(menu) => (
+                <Spin spinning={loading}>
+                  {menu}
+                  {allowAdd && (
+                    <>
+                      <Divider style={{ margin: "8px 0" }} />
+                      <div style={{ display: "flex", gap: "10px", padding: "0 8px 4px", width: "100%" }}>
+                        <Input
+                          value={newModel}
+                          onChange={(event) => setNewModel(event.target.value)}
+                          onKeyDown={(event) => {
+                            event.stopPropagation();
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              addModel();
+                            }
+                          }}
+                        />
+                        <Button type="text" icon={<PlusOutlined />} onClick={addModel}>
+                          {t("ekle")}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </Spin>
+              )}
               options={options.map((item) => ({
                 value: item.siraNo,
                 label: item.model,
@@ -179,6 +251,7 @@ LastikModel.propTypes = {
   inputWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   dropdownWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   placeholder: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  allowAdd: PropTypes.bool,
 };
 
 LastikModel.defaultProps = {

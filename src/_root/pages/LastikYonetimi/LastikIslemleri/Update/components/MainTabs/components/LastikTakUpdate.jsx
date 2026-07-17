@@ -387,14 +387,14 @@ export default function LastikTak({
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
                     <Text>{t("marka")}</Text>
                     <div style={{ width: "250px" }}>
-                      <LastikMarka name1="marka" isRequired={false} />
+                      <LastikMarka name1="marka" isRequired={false} allowAdd />
                     </div>
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
                     <Text>{t("model")}</Text>
                     <div style={{ width: "250px" }}>
-                      <LastikModel name1="model" isRequired={false} watchName="marka" />
+                      <LastikModel name1="model" isRequired={false} watchName="marka" allowAdd />
                     </div>
                   </div>
 

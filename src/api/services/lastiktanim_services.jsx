@@ -23,3 +23,19 @@ export const UpdateLastikService = async (data) => {
 export const GetLastikByIdService = async (id) => {
   return await http.get(`/Tyre/GetTyreById?id=${id}`);
 };
+
+export const GetLastikMarkaListService = async () => {
+  return await http.get(`/TyreMark/GetTyreMarkList`);
+};
+
+export const AddLastikMarkaService = async (marka) => {
+  return await http.post(`/TyreMark/AddMark`, { marka });
+};
+
+export const GetLastikModelListService = async (markaId) => {
+  return await http.get(`/TyreModel/GetTyreModelList?id=${markaId}`);
+};
+
+export const AddLastikModelService = async (model, markaId) => {
+  return await http.post(`/TyreModel/AddModel`, { model, markaId });
+};

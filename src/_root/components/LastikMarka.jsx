@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Controller, useFormContext } from "react-hook-form";
-import { Select, Input } from "antd";
-import AxiosInstance from "../../api/http";
+import { Button, Divider, Input, message, Select, Spin } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
+import { AddLastikMarkaService, GetLastikMarkaListService } from "../../api/services/lastiktanim_services";
 
 import { t } from "i18next";
 
@@ -26,7 +27,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function LastikMarka({ name1, isRequired, multiSelect = false, inputWidth, dropdownWidth, placeholder, onChange }) {
+export default function LastikMarka({ name1, isRequired, multiSelect = false, inputWidth, dropdownWidth, placeholder, onChange, allowAdd = false }) {
   const {
     control,
     setValue,
@@ -34,11 +35,12 @@ export default function LastikMarka({ name1, isRequired, multiSelect = false, in
   } = useFormContext();
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [newMarka, setNewMarka] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await AxiosInstance.get(`TyreMark/GetTyreMarkList`);
+      const response = await GetLastikMarkaListService();
       if (response && response.data) {
         setOptions(response.data);
       }
@@ -49,7 +51,37 @@ export default function LastikMarka({ name1, isRequired, multiSelect = false, in
     }
   };
 
-  // add new status to selectbox end
+  const addMarka = async () => {
+    const marka = newMarka.trim();
+    if (!marka) {
+      return;
+    }
+
+    const markaExists = options.some((option) => option.marka?.trim().toLowerCase() === marka.toLowerCase());
+    if (markaExists) {
+      message.warning(t("lastikSecenegiZatenVar"));
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await AddLastikMarkaService(marka);
+      const statusCode = response?.data?.statusCode;
+      if (statusCode && ![200, 201, 202].includes(statusCode)) {
+        message.error(t("lastikSecenegiEklenemedi"));
+        return;
+      }
+
+      setNewMarka("");
+      await fetchData();
+      message.success(t("lastikSecenegiEklendi"));
+    } catch {
+      message.error(t("lastikSecenegiEklenemedi"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <StyledDiv
       style={{
@@ -102,6 +134,32 @@ export default function LastikMarka({ name1, isRequired, multiSelect = false, in
                 }
               }}
               loading={loading}
+              dropdownRender={(menu) => (
+                <Spin spinning={loading}>
+                  {menu}
+                  {allowAdd && (
+                    <>
+                      <Divider style={{ margin: "8px 0" }} />
+                      <div style={{ display: "flex", gap: "10px", padding: "0 8px 4px", width: "100%" }}>
+                        <Input
+                          value={newMarka}
+                          onChange={(event) => setNewMarka(event.target.value)}
+                          onKeyDown={(event) => {
+                            event.stopPropagation();
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              addMarka();
+                            }
+                          }}
+                        />
+                        <Button type="text" icon={<PlusOutlined />} onClick={addMarka}>
+                          {t("ekle")}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </Spin>
+              )}
               options={options.map((item) => ({
                 value: item.siraNo,
                 label: item.marka,
@@ -157,5 +215,6 @@ LastikMarka.propTypes = {
   inputWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   dropdownWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onChange: PropTypes.func,
+  allowAdd: PropTypes.bool,
   placeholder: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 };

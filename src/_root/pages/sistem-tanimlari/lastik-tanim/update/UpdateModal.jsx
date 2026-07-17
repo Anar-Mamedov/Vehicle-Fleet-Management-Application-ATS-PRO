@@ -105,13 +105,13 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("marka")}</label>
-                <LastikMarka name1="marka" isRequired={false} />
+                <LastikMarka name1="marka" isRequired={false} allowAdd />
               </div>
             </div>
             <div className="col-span-4">
               <div className="flex flex-col gap-1">
                 <label>{t("model")}</label>
-                <LastikModel name1="model" isRequired={false} watchName="marka" />
+                <LastikModel name1="model" isRequired={false} watchName="marka" allowAdd />
               </div>
             </div>
             <div className="col-span-4">

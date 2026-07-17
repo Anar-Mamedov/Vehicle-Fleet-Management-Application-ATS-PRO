@@ -132,7 +132,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
                   <label>
                     {t("marka")} <span style={{ color: "red" }}>*</span>
                   </label>
-                  <LastikMarka name1="marka" isRequired={true} />
+                  <LastikMarka name1="marka" isRequired={true} allowAdd />
                 </div>
               </div>
               <div className="col-span-4">
@@ -140,7 +140,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
                   <label>
                     {t("model")} <span style={{ color: "red" }}>*</span>
                   </label>
-                  <LastikModel name1="model" isRequired={true} watchName="marka" />
+                  <LastikModel name1="model" isRequired={true} watchName="marka" allowAdd />
                 </div>
               </div>
               <div className="col-span-4">

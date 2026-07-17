@@ -3,6 +3,8 @@ import { Typography, Space, message, InputNumber, Input, DatePicker, Button, Mod
 import AxleListSelect from "./AxleListSelect";
 import PositionListSelect from "./PositionListSelect";
 import KodIDSelectbox from "../../../../../../../components/KodIDSelectbox";
+import LastikMarka from "../../../../../../../components/LastikMarka";
+import LastikModel from "../../../../../../../components/LastikModel";
 import StoksuzLastikTablo from "../../../../../../../components/StoksuzLastikTablo";
 import AxiosInstance from "../../../../../../../../api/http";
 import { t } from "i18next";
@@ -37,8 +39,10 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
         setValue("lastikOmru", data.tahminiOmurKm);
         setValue("marka", data.lastikMarka);
         setValue("markaID", data.lastikMarkaId);
-        setValue("model", data.lastikModel);
-        setValue("modelID", data.lastikModelId);
+        setTimeout(() => {
+          setValue("model", data.lastikModel);
+          setValue("modelID", data.lastikModelId);
+        }, 100);
         setValue("disDerinligi", data.disDerinligi);
         setValue("basinc", data.basinc);
         setValue("montajKm", data.takildigiKm);
@@ -354,14 +358,14 @@ export default function LastikTak({ aracId, wheelInfo, axleList, positionList, s
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
                     <Text>{t("marka")}</Text>
                     <div style={{ width: "250px" }}>
-                      <KodIDSelectbox name1="marka" isRequired={false} kodID="700" />
+                      <LastikMarka name1="marka" isRequired={false} allowAdd />
                     </div>
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "350px" }}>
                     <Text>{t("model")}</Text>
                     <div style={{ width: "250px" }}>
-                      <KodIDSelectbox name1="model" isRequired={false} kodID="701" />
+                      <LastikModel name1="model" isRequired={false} watchName="marka" allowAdd />
                     </div>
                   </div>
 
