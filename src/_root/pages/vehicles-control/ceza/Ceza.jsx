@@ -37,6 +37,8 @@ import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
+import ExcelExportButton from "../../../components/ExcelExportButton";
+import { GetVehicleFinesReportService } from "../../../../api/services/vehicles/operations_services";
 
 const localeMap = {
   tr: trTR,
@@ -795,6 +797,36 @@ const Ceza = () => {
   }, []);
   // filtreleme işlemi için kullanılan useEffect son
 
+  const requestExcelReport = () => {
+    const customFilters = body.filters?.customfilter;
+    const reportFilters = customFilters && Object.keys(customFilters).length > 0 ? customFilters : null;
+
+    return GetVehicleFinesReportService(searchTerm, reportFilters);
+  };
+
+  const formatExcelCellValue = (value, row, column) => {
+    if (column.dataIndex === "tarih" || column.dataIndex === "tebligTarih" || column.dataIndex === "odemeTarih") {
+      return formatDate(value);
+    }
+
+    if (column.dataIndex === "saat") {
+      return formatTime(value);
+    }
+
+    if (column.dataIndex === "tutar") {
+      const valueParts = String(value ?? "").split(".");
+      const decimalDigits = valueParts.length > 1 ? Math.min(valueParts[1].length, 20) : 0;
+
+      return formatNumberWithLocale(value, decimalDigits, decimalDigits);
+    }
+
+    if (column.dataIndex === "odeme") {
+      return normalizePaid(row.odeme) ? t("odendi") : t("odenmedi");
+    }
+
+    return value;
+  };
+
   return (
     <>
       <ConfigProvider locale={currentLocale}>
@@ -1054,6 +1086,13 @@ const Ceza = () => {
               {/* Other toolbar components */}
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
+              <ExcelExportButton
+                request={requestExcelReport}
+                columns={filteredColumns}
+                fileName="Cezalar_Listesi.xlsx"
+                sheetName={t("cezalar")}
+                formatCellValue={formatExcelCellValue}
+              />
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} moduleFormName={moduleFormName} />
               <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
             </div>

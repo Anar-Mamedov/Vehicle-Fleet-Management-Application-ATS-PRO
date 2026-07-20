@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef, useContext, isValidElement } from "react";
+import React, { useCallback, useEffect, useState, useRef, useContext } from "react";
 import { Link } from "react-router-dom";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select, Pagination, Switch, Popconfirm, InputNumber, Popover, Progress } from "antd";
 import {
@@ -11,7 +11,6 @@ import {
   CheckOutlined,
   CloseOutlined,
   ExclamationOutlined,
-  FileExcelOutlined,
 } from "@ant-design/icons";
 import { FaExclamation, FaCheck, FaTimes } from "react-icons/fa";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
@@ -26,29 +25,16 @@ import ContextMenu from "./components/ContextMenu/ContextMenu";
 import AddModal from "./AddModal";
 import Filters from "./filter/Filters";
 import FormattedDate from "../../../../_root/components/FormattedDate";
-import FormattedNumber from "../../../../hooks/FormattedNumber";
+import FormattedNumber, { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 import UpdateModal from "./UpdateModal";
-import * as XLSX from "xlsx";
+import ExcelExportButton from "../../../components/ExcelExportButton";
+import { GetRentalVehiclesReportService } from "../../../../api/services/rental_vehicle_services";
 
 const { Text } = Typography;
 const { Option } = Select;
-
-function extractTextFromElement(element) {
-  let text = "";
-  if (typeof element === "string") {
-    text = element;
-  } else if (Array.isArray(element)) {
-    text = element.map((child) => extractTextFromElement(child)).join("");
-  } else if (isValidElement(element)) {
-    text = extractTextFromElement(element.props.children);
-  } else if (element !== null && element !== undefined) {
-    text = element.toString();
-  }
-  return text;
-}
 
 // Add a key for localStorage
 const tabloPageSize = "tabloPageSizeSigorta";
@@ -196,8 +182,6 @@ const KiralikAraclarTablo = ({ customFields }) => {
     const savedScrollMode = localStorage.getItem(infiniteScrollKey);
     return savedScrollMode !== null ? JSON.parse(savedScrollMode) : false;
   });
-  const [xlsxLoading, setXlsxLoading] = useState(false);
-
   // Add this state to prevent duplicate requests
   const [isLoadingPage, setIsLoadingPage] = useState(false);
   // Add ref to track last fetch ID for deduplication
@@ -964,94 +948,28 @@ const KiralikAraclarTablo = ({ customFields }) => {
     });
   };
 
-  // Function to handle CSV download
-  const handleDownloadXLSX = async () => {
-    try {
-      setXlsxLoading(true);
+  const requestExcelReport = () => {
+    const customFilters = body.filters?.customfilters;
+    const reportFilters = customFilters && Object.keys(customFilters).length > 0 ? customFilters : { status: 1 };
+    const filtersWithStatus = Object.prototype.hasOwnProperty.call(reportFilters, "status") ? reportFilters : { ...reportFilters, status: 1 };
 
-      // Get custom filters if they exist
-      const exportCustomFilters = body.filters && body.filters.customfilters && Object.keys(body.filters.customfilters).length > 0 ? body.filters.customfilters : null;
+    return GetRentalVehiclesReportService(searchTerm, filtersWithStatus);
+  };
 
-      const response = await AxiosInstance.post(`Insurance/GetInsuranceReportList?parameter=${searchTerm}`, exportCustomFilters);
-
-      if (response?.data?.list) {
-        const xlsxData = response.data.list.map((row) => {
-          const xlsxRow = {};
-
-          // Only process visible columns
-          filteredColumns.forEach((col) => {
-            const key = col.dataIndex;
-            if (!key) return;
-
-            let value = row[key];
-
-            // Format special values
-            if (key === "tarih") {
-              value = formatDate(value);
-            } else if (key === "aktif") {
-              value = value ? "Evet" : "Hayır";
-            } else if (key === "baslangicTarih" || key === "bitisTarih") {
-              value = formatDate(value);
-            } else if (key === "tutar" || key === "aracBedeli") {
-              try {
-                // Ensure format is a valid number between 0 and 20
-                const format = row.tutarFormat ? Math.min(Math.max(Number(row.tutarFormat), 0), 20) : 2;
-
-                value =
-                  value !== null && value !== undefined
-                    ? Number(value).toLocaleString(localStorage.getItem("i18nextLng") || "tr-TR", {
-                        minimumFractionDigits: format,
-                        maximumFractionDigits: format,
-                      })
-                    : "";
-              } catch (error) {
-                console.error(`Error formatting value for ${key}:`, error);
-                value = value !== null && value !== undefined ? value.toString() : "";
-              }
-            }
-
-            // Extract title text from column title (which might be a React element)
-            xlsxRow[extractTextFromElement(col.title)] = value !== null && value !== undefined ? value.toString() : "";
-          });
-
-          return xlsxRow;
-        });
-
-        // Create and download Excel file
-        const worksheet = XLSX.utils.json_to_sheet(xlsxData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Sigorta Listesi");
-
-        // Set column widths
-        worksheet["!cols"] = filteredColumns
-          .filter((col) => col.dataIndex)
-          .map((col) => ({
-            wpx: col.width ? col.width * 0.8 : 100,
-          }));
-
-        // Download the file
-        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-        const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "Sigorta_Listesi.xlsx";
-        link.style.visibility = "hidden";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        setXlsxLoading(false);
-      } else {
-        console.error("API yanıtı beklenen formatta değil");
-        message.error("Excel indirme işlemi başarısız oldu: API yanıtı beklenen formatta değil");
-        setXlsxLoading(false);
-      }
-    } catch (error) {
-      setXlsxLoading(false);
-      console.error("XLSX indirme hatası:", error);
-      message.error(navigator.onLine ? "Excel indirme hatası: " + (error.message || "Bilinmeyen hata") : "Internet Bağlantısı Mevcut Değil.");
+  const formatExcelCellValue = (value, row, column) => {
+    if (column.dataIndex === "kiraBaslangic" || column.dataIndex === "kiraBitis" || column.dataIndex === "krediIlkOdTarih") {
+      return formatDate(value);
     }
+
+    if (column.dataIndex === "krediTutar" || column.dataIndex === "krediAylikOdeme") {
+      const numberValue = row[column.dataIndex];
+      const valueParts = String(numberValue ?? "").split(".");
+      const decimalDigits = valueParts.length > 1 ? Math.min(valueParts[1].length, 20) : 0;
+
+      return formatNumberWithLocale(numberValue, decimalDigits, decimalDigits);
+    }
+
+    return value;
   };
 
   return (
@@ -1181,6 +1099,13 @@ const KiralikAraclarTablo = ({ customFields }) => {
             {/* Other toolbar components */}
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
+            <ExcelExportButton
+              request={requestExcelReport}
+              columns={filteredColumns}
+              fileName="Kiralik_Araclar_Listesi.xlsx"
+              sheetName={t("kiralikAraclar")}
+              formatCellValue={formatExcelCellValue}
+            />
             <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
             <AddModal onRefresh={refreshTableData} />
           </div>

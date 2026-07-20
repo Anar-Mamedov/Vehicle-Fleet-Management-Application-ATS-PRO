@@ -21,6 +21,9 @@ import trTR from "antd/lib/locale/tr_TR";
 import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
+import ExcelExportButton from "../../../components/ExcelExportButton";
+import { GetAccidentsReportService } from "../../../../api/services/vehicles/operations_services";
+import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 
 const localeMap = {
   tr: trTR,
@@ -638,6 +641,29 @@ const Kaza = () => {
   }, []);
   // filtreleme işlemi için kullanılan useEffect son
 
+  const requestExcelReport = () => {
+    const customFilters = body.filters?.customfilter;
+    const reportFilters = customFilters && Object.keys(customFilters).length > 0 ? customFilters : null;
+
+    return GetAccidentsReportService(searchTerm, reportFilters);
+  };
+
+  const formatExcelCellValue = (value, row, column) => {
+    if (column.dataIndex === "kazaTarih" || column.dataIndex === "faturaTarih") {
+      return formatDate(value);
+    }
+
+    if (column.dataIndex === "faturaTutar") {
+      const amount = row.faturaTutar;
+      const valueParts = String(amount ?? "").split(".");
+      const decimalDigits = valueParts.length > 1 ? Math.min(valueParts[1].length, 20) : 0;
+
+      return formatNumberWithLocale(amount, decimalDigits, decimalDigits);
+    }
+
+    return value;
+  };
+
   return (
     <>
       <ConfigProvider locale={currentLocale}>
@@ -767,6 +793,13 @@ const Kaza = () => {
               {/* Other toolbar components */}
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
+              <ExcelExportButton
+                request={requestExcelReport}
+                columns={filteredColumns}
+                fileName="Kazalar_Listesi.xlsx"
+                sheetName={t("kazalar")}
+                formatCellValue={formatExcelCellValue}
+              />
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
               <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
             </div>

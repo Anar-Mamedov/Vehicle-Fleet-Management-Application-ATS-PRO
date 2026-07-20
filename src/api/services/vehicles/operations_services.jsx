@@ -116,6 +116,10 @@ export const GetAccidentsListService = async (search, page, data) => {
   return await http.get(`/Accident/GetAccidentsList?page=${page}&parameter=${search}`, data);
 };
 
+export const GetAccidentsReportService = async (search, data) => {
+  return await http.post(`/Accident/GetAccidentsReport?parameter=${encodeURIComponent(search)}`, data);
+};
+
 export const GetActiveInsuranceListService = async (id, search, diff, currentSetPointId) => {
   return await http.get(`/Insurance/GetActiveInsuranceList?vehicleId=${id}&diff=${diff}&setPointId=${currentSetPointId}&parameter=${search}`);
 };
@@ -165,4 +169,8 @@ export const UpdateVehicleFineItemService = async (data) => {
 
 export const GetVehicleFinesListService = async (search, page, data) => {
   return await http.get(`/VehicleFines/GetVehicleFinesList?page=${page}&parameter=${search}`, data);
+};
+
+export const GetVehicleFinesReportService = async (search, data) => {
+  return await http.post(`/VehicleFines/GetVehicleFinesReport?parameter=${encodeURIComponent(search)}`, data);
 };

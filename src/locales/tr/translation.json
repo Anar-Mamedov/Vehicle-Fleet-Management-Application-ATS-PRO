@@ -121,6 +121,7 @@
   "arama": "Arama",
   "kapat": "Kapat",
   "indir": "İndir",
+  "excelIndirmeHatasi": "Excel indirme işlemi başarısız oldu.",
   "qrKod": "QR Kodu",
   "aracQrKodu": "Araç QR Kodu",
   "toplamMaliyet": "Toplam Maliyet",

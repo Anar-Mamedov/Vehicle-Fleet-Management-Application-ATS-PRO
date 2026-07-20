@@ -18,6 +18,9 @@ import enUS from "antd/lib/locale/en_US";
 import ruRU from "antd/lib/locale/ru_RU";
 import azAZ from "antd/lib/locale/az_AZ";
 import LastikTakUpdate from "../../LastikIslemleri/Update/components/MainTabs/components/LastikTakUpdate.jsx";
+import ExcelExportButton from "../../../../components/ExcelExportButton.jsx";
+import { GetTyreInventoryReportService } from "../../../../../api/services/tyre_inventory_services.jsx";
+import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber.jsx";
 
 const localeMap = {
   tr: trTR,
@@ -884,6 +887,39 @@ const LastikEnvanteri = () => {
   }, []);
   // filtreleme işlemi için kullanılan useEffect son
 
+  const requestExcelReport = () => {
+    const reportFilters = body.filters || {};
+
+    return GetTyreInventoryReportService(searchTerm, reportFilters);
+  };
+
+  const formatExcelCellValue = (value, row, column) => {
+    if (column.dataIndex === "takilmaTarih") {
+      return formatDate(value);
+    }
+
+    if (column.dataIndex === "lastikOmru") {
+      const percentage = calculateTireUsagePercentage(row);
+      const statusText = row.tahminiOmurKm ? ` - ${getTireStatusText(percentage)}` : "";
+
+      return `${Math.round(percentage)}%${statusText}`;
+    }
+
+    if (column.dataIndex === "aksPozisyon" || column.dataIndex === "pozisyonNo") {
+      return value ? t(value) : "";
+    }
+
+    if (column.dataIndex === "takildigiKm" || column.dataIndex === "tahminiOmurKm") {
+      const numberValue = row[column.dataIndex];
+      const valueParts = String(numberValue ?? "").split(".");
+      const decimalDigits = valueParts.length > 1 ? Math.min(valueParts[1].length, 20) : 0;
+
+      return formatNumberWithLocale(numberValue, decimalDigits, decimalDigits);
+    }
+
+    return value;
+  };
+
   return (
     <>
       <ConfigProvider locale={currentLocale}>
@@ -1011,6 +1047,13 @@ const LastikEnvanteri = () => {
               {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
               {/* Other toolbar components */}
               <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}></Button>
+              <ExcelExportButton
+                request={requestExcelReport}
+                columns={filteredColumns}
+                fileName="Lastik_Envanteri_Listesi.xlsx"
+                sheetName={t("lastikler")}
+                formatCellValue={formatExcelCellValue}
+              />
             </div>
             {/* <div style={{ display: "flex", gap: "10px" }}>
               <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
