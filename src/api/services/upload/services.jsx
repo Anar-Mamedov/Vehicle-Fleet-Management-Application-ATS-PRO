@@ -20,6 +20,12 @@ export const GetDocumentsListService = async (setPointId, diff, parameter) => {
   });
 };
 
+export const GetDocumentReminderListService = async (setPointId, diff, parameter) => {
+  return await http.post(`/DocumentReminder/GetDocumentReminderList`, undefined, {
+    params: { setPointId, diff, parameter },
+  });
+};
+
 export const DownloadDocumentByIdService = async (data) => {
   return await http.post(`/Document/DownloadDocumentById`, data, { responseType: "blob" });
 };

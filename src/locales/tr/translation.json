@@ -1698,6 +1698,8 @@
   "dosyaDetayBelgeTipleriAlinamadi": "Belge tipleri alınamadı.",
   "yonetim": "Yönetim",
   "dokumanYonetimi": "Doküman Yönetimi",
+  "dokumanHatirlatici": "Dokümanlar",
+  "dokumanHatirlaticiListesiAlinamadi": "Doküman hatırlatıcı listesi alınamadı.",
   "dokumanYonetimiAciklama": "Tüm modüllere bağlı dokümanları tek ekranda görüntüleyin ve arayın.",
   "dokumanAramaPlaceholder": "Dosya adı, belge no veya kayıt no ara...",
   "dokumanListesiAlinamadi": "Doküman listesi alınamadı.",

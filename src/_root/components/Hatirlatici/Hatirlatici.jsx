@@ -17,6 +17,7 @@ import PeriyodikBakim from "./components/PeriyodikBakim";
 import Takograf from "./components/Takograf";
 import OnayIslemleri from "../../pages/SistemAyarlari/OnaylamaIslemleri/OnaylamaIslemleri";
 import IkameArac from "./components/IkameArac";
+import DokumanHatirlatici from "./components/DokumanHatirlatici";
 import StatusReminderModal from "./components/StatusReminderModal";
 import { FormProvider, useForm } from "react-hook-form";
 import { t } from "i18next";
@@ -110,6 +111,15 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
     { key: "yakit", label: "Yakıt Tüketimi", color: "rgb(202,108,0)", bgColor: "rgb(202,108,0,0.35)", dataKey: "yakitTuketimiHatirlaticiSayisi", component: <YakitTuketimi /> },
     { key: "kiralama", label: "Kiralama", color: "rgba(0,196,255,0.88)", bgColor: "rgb(0,196,255,0.35)", dataKey: "kiralamaHatirlaticiSayisi", component: <Kiralama /> },
     { key: "stok", label: "Stok", color: "rgba(0,59,209,0.88)", bgColor: "rgb(0,59,209,0.20)", dataKey: "stokHatirlaticiSayisi", component: <Stok /> },
+    {
+      key: "dokuman",
+      label: t("dokumanHatirlatici"),
+      color: "#1677ff",
+      bgColor: "rgba(22,119,255,0.20)",
+      dataKey: "dokumanHatirlaticiSayisi",
+      fallbackDataKey: "dosyaHatirlaticiSayisi",
+      component: <DokumanHatirlatici />,
+    },
     { key: "ikame", label: "İkame Araçlar", color: "rgba(0,128,128,0.88)", bgColor: "rgba(0,128,128,0.20)", dataKey: "ikameAracHatirlaticiSayisi", component: <IkameArac /> },
     { key: "surucu", label: "Sürücü", color: "rgba(255,117,31,0.88)", bgColor: "rgb(255,117,31,0.20)", dataKey: "surucuHatirlaticiSayisi", component: <Surucu /> },
     { key: "vergi", label: "Vergi", color: "#921A40", bgColor: "rgba(146,26,64,0.48)", dataKey: "aracVergiHatirlaticiSayisi", component: <Vergi /> },
@@ -186,7 +196,7 @@ const Hatirlatici = ({ data, data1, loading, getHatirlatici, getHatirlatici1, ha
                   color: item.color,
                 }}
               >
-                {data?.[item.dataKey]}
+                {data?.[item.dataKey] ?? data?.[item.fallbackDataKey] ?? 0}
               </Text>
             </Row>
           ))}

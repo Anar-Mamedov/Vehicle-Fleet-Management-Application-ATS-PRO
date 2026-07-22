@@ -1414,6 +1414,8 @@
   "dosyaDetayBelgeTipleriAlinamadi": "Document types could not be retrieved.",
   "yonetim": "Management",
   "dokumanYonetimi": "Document Management",
+  "dokumanHatirlatici": "Documents",
+  "dokumanHatirlaticiListesiAlinamadi": "The document reminder list could not be retrieved.",
   "dokumanYonetimiAciklama": "View and search documents linked to all modules from a single screen.",
   "dokumanAramaPlaceholder": "Search file name, document number, or record number...",
   "dokumanListesiAlinamadi": "The document list could not be retrieved.",
