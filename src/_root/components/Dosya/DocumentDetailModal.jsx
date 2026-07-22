@@ -7,14 +7,14 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import dayjs from "dayjs";
 import DateInput from "../form/date/DateInput";
+import KodIDSelectbox from "../KodIDSelectbox";
 import { GetDocumentInfoByIdService, UpdateDocumentService } from "../../../api/services/upload/services";
-import DocumentTypeSelect from "./DocumentTypeSelect";
 
 const { TextArea } = Input;
 
 const DEFAULT_VALUES = {
   dosyaTip: null,
-  dosyaTipKodId: 0,
+  dosyaTipID: 0,
   dosyaBelgeNo: "",
   dosyaBaslangicTarih: null,
   dosyaBitisTarih: null,
@@ -192,7 +192,7 @@ const DocumentDetailModal = ({ open, file, visual, onClose, onPreview, onDownloa
         setDocumentInfo(info);
         reset({
           dosyaTip: info.dosyaTip || null,
-          dosyaTipKodId: info.dosyaTipKodId || 0,
+          dosyaTipID: info.dosyaTipKodId || 0,
           dosyaBelgeNo: info.dosyaBelgeNo || "",
           dosyaBaslangicTarih: toDayjsOrNull(info.dosyaBaslangicTarih),
           dosyaBitisTarih: toDayjsOrNull(info.dosyaBitisTarih),
@@ -233,7 +233,7 @@ const DocumentDetailModal = ({ open, file, visual, onClose, onPreview, onDownloa
 
     const body = {
       tbDosyaId: documentInfo.tbDosyaId,
-      dosyaTipKodId: Number(values.dosyaTipKodId) || 0,
+      dosyaTipKodId: Number(values.dosyaTipID) || 0,
       dosyaBelgeNo: values.dosyaBelgeNo?.trim() || "",
       dosyaBaslangicTarih: toIsoOrNull(values.dosyaBaslangicTarih),
       dosyaBitisTarih: toIsoOrNull(values.dosyaBitisTarih),
@@ -291,7 +291,7 @@ const DocumentDetailModal = ({ open, file, visual, onClose, onPreview, onDownloa
             <FormGrid>
               <FormField>
                 <FieldLabel>{t("dosyaDetayBelgeTipi")}</FieldLabel>
-                <DocumentTypeSelect />
+                <KodIDSelectbox name1="dosyaTip" kodID={915} placeholder={t("seciniz")} />
               </FormField>
 
               <FormField>
