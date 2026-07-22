@@ -1300,6 +1300,7 @@
   "takografTarihi": "Tachograph Date",
   "kiralikArac": "Rental Vehicle",
   "stok": "Stock",
+  "dosya": "File",
   "girisTarihSaatCikisTarihSaattenBuyukOlamaz": "Entry date and time cannot be later than exit date and time.",
   "guncel": "Current",
   "haritalar": "Maps",

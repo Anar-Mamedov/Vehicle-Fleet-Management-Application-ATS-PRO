@@ -25,6 +25,7 @@ const reminderGroupKeyMap = {
   sigorta: "sigorta",
   surucu: "surucu",
   stok: "stok",
+  dosya: "dosya",
 };
 
 const reminderUnitKeyMap = {
