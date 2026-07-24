@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Controller, useFormContext } from "react-hook-form";
+import PropTypes from "prop-types";
 import { t } from "i18next";
 import { Checkbox, Input, Select } from "antd";
 import CodeControl from "../../../../components/form/selects/CodeControl";
@@ -9,7 +10,7 @@ import CheckboxInput from "../../../../components/form/checkbox/CheckboxInput";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import BarcodeInput from "../../../../components/form/inputs/BarcodeInput";
 
-const GeneralInfo = ({ isValid }) => {
+const GeneralInfo = ({ isValid, onBarcodeSave }) => {
   const { control, setValue } = useFormContext();
 
   useEffect(() => {
@@ -127,7 +128,7 @@ const GeneralInfo = ({ isValid }) => {
             <div className="col-span-6">
               <div className="flex flex-col gap-1">
                 <label>{t("barkodNo")}</label>
-                <BarcodeInput name="barKodNo" />
+                <BarcodeInput name="barKodNo" onSave={onBarcodeSave} />
               </div>
             </div>
             <div className="col-span-6">
@@ -194,6 +195,11 @@ const GeneralInfo = ({ isValid }) => {
       </div>
     </>
   );
+};
+
+GeneralInfo.propTypes = {
+  isValid: PropTypes.string,
+  onBarcodeSave: PropTypes.func,
 };
 
 export default GeneralInfo;

@@ -9,6 +9,40 @@ import { AddMaterialService } from "../../../../api/services/malzeme/services";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import GeneralInfo from "./tabs/GeneralInfo";
 
+const createMaterialBody = (values) => ({
+  malzemeKod: values.malzemeKod,
+  tanim: values.tanim,
+  birimKodId: values.birimKodId || 0,
+  malzemeTipKodId: values.malzemeTipKodId || 0,
+  fiyat: values.fiyat || 0,
+  seriNo: values.seriNo,
+  barKodNo: values.barKodNo,
+  depoId: values.girisDepoSiraNo || 0,
+  bolum: values.bolum,
+  raf: values.raf,
+  kritikMiktar: values.kritikMiktar || 0,
+  kdvOran: values.kdvOran || 0,
+  aktif: values.aktif,
+  yedekParca: values.yedekParca,
+  sarfMlz: values.sarfMlz,
+  demirBas: values.demirBas,
+  olcu: values.olcu,
+  malzemeTip: "MALZEME",
+  ozelAlan1: values.ozelAlan1 || "",
+  ozelAlan2: values.ozelAlan2 || "",
+  ozelAlan3: values.ozelAlan3 || "",
+  ozelAlan4: values.ozelAlan4 || "",
+  ozelAlan5: values.ozelAlan5 || "",
+  ozelAlan6: values.ozelAlan6 || "",
+  ozelAlan7: values.ozelAlan7 || "",
+  ozelAlan8: values.ozelAlan8 || "",
+  ozelAlanKodId9: values.ozelAlanKodId9 || 0,
+  ozelAlanKodId10: values.ozelAlanKodId10 || 0,
+  ozelAlan11: values.ozelAlan11 || 0,
+  ozelAlan12: values.ozelAlan12 || 0,
+  kdvDahilHaric: values.kdvDahilHaric === "dahil" || values.kdvDahilHaric === "Dahil",
+});
+
 const AddModal = ({ setStatus, onRefresh }) => {
   const isFirstRender = useRef(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -153,11 +187,49 @@ const AddModal = ({ setStatus, onRefresh }) => {
     setFields,
   };
 
+  const saveMaterial = async (values, closeAfterSave = true) => {
+    setLoading(true);
+
+    try {
+      const response = await AddMaterialService(createMaterialBody(values));
+      if (response?.data.statusCode !== 200) {
+        return false;
+      }
+
+      onRefresh();
+      if (closeAfterSave) {
+        setIsModalOpen(false);
+      }
+      return true;
+    } catch {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBarcodeSave = async (barcodeValue) => {
+    if (isValid === "error") {
+      return false;
+    }
+
+    let isSaved = false;
+    await handleSubmit(async (values) => {
+      isSaved = await saveMaterial({ ...values, barKodNo: barcodeValue }, false);
+    })();
+
+    if (isSaved) {
+      window.setTimeout(() => setIsModalOpen(false), 0);
+    }
+
+    return isSaved;
+  };
+
   const items = [
     {
       key: "1",
       label: "Genel Bilgiler",
-      children: <GeneralInfo isValid={isValid} />,
+      children: <GeneralInfo isValid={isValid} onBarcodeSave={handleBarcodeSave} />,
     },
     {
       key: "2",
@@ -166,48 +238,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
     },
   ];
 
-  const onSubmit = handleSubmit((values) => {
-    const body = {
-      malzemeKod: values.malzemeKod,
-      tanim: values.tanim,
-      birimKodId: values.birimKodId || 0,
-      malzemeTipKodId: values.malzemeTipKodId || 0,
-      fiyat: values.fiyat || 0,
-      seriNo: values.seriNo,
-      barKodNo: values.barKodNo,
-      depoId: values.girisDepoSiraNo || 0,
-      bolum: values.bolum,
-      raf: values.raf,
-      kritikMiktar: values.kritikMiktar || 0,
-      kdvOran: values.kdvOran || 0,
-      aktif: values.aktif,
-      yedekParca: values.yedekParca,
-      sarfMlz: values.sarfMlz,
-      demirBas: values.demirBas,
-      olcu: values.olcu,
-      malzemeTip: "MALZEME",
-      ozelAlan1: values.ozelAlan1 || "",
-      ozelAlan2: values.ozelAlan2 || "",
-      ozelAlan3: values.ozelAlan3 || "",
-      ozelAlan4: values.ozelAlan4 || "",
-      ozelAlan5: values.ozelAlan5 || "",
-      ozelAlan6: values.ozelAlan6 || "",
-      ozelAlan7: values.ozelAlan7 || "",
-      ozelAlan8: values.ozelAlan8 || "",
-      ozelAlanKodId9: values.ozelAlanKodId9 || 0,
-      ozelAlanKodId10: values.ozelAlanKodId10 || 0,
-      ozelAlan11: values.ozelAlan11 || 0,
-      ozelAlan12: values.ozelAlan12 || 0,
-      kdvDahilHaric: values.kdvDahilHaric === "dahil" || values.kdvDahilHaric === "Dahil" ? true : false,
-    };
-
-    AddMaterialService(body).then((res) => {
-      if (res?.data.statusCode === 200) {
-        onRefresh();
-        setIsModalOpen(false);
-      }
-    });
-  });
+  const onSubmit = handleSubmit((values) => saveMaterial(values));
 
   const footer = [
     loading ? (
@@ -248,6 +279,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
 
 AddModal.propTypes = {
   setStatus: PropTypes.func,
+  onRefresh: PropTypes.func.isRequired,
 };
 
 export default AddModal;

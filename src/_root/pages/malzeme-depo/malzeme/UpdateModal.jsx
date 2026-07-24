@@ -13,6 +13,45 @@ import PhotoUpload from "../../../components/upload/PhotoUpload";
 import FileUpload from "../../../components/upload/FileUpload";
 import dayjs from "dayjs";
 
+const createMaterialUpdateBody = (values, materialId) => ({
+  malzemeId: materialId,
+  tanim: values.tanim,
+  stokMiktar: values.stokMiktar || 0,
+  birimKodId: values.birimKodId || 0,
+  malzemeTipKodId: values.malzemeTipKodId || 0,
+  fiyat: values.fiyat || 0,
+  firmaId: values.firmaId || 0,
+  tedarikci: values.malzemtedarikcieKod,
+  tedarikciFiyat: values.tedarikciFiyat || 0,
+  tedarikciIskontoOran: values.tedarikciIskontoOran || 0,
+  seriNo: values.seriNo,
+  barKodNo: values.barKodNo,
+  depoId: Number(values.girisDepoSiraNo) || Number(values.depoId),
+  bolum: values.bolum,
+  raf: values.raf,
+  kritikMiktar: values.kritikMiktar || 0,
+  sonMiktar: values.sonMiktar || 0,
+  kdvOran: values.kdvOran || 0,
+  aktif: values.aktif,
+  yedekParca: values.yedekParca,
+  sarfMlz: values.sarfMlz,
+  demirBas: values.demirBas,
+  olcu: values.olcu,
+  kdvDahilHaric: values.kdvDH === "dahil" || values.kdvDH === "Dahil",
+  ozelAlan1: values.ozelAlan1 || "",
+  ozelAlan2: values.ozelAlan2 || "",
+  ozelAlan3: values.ozelAlan3 || "",
+  ozelAlan4: values.ozelAlan4 || "",
+  ozelAlan5: values.ozelAlan5 || "",
+  ozelAlan6: values.ozelAlan6 || "",
+  ozelAlan7: values.ozelAlan7 || "",
+  ozelAlan8: values.ozelAlan8 || "",
+  ozelAlanKodId9: values.ozelAlanKodId9 || -1,
+  ozelAlanKodId10: values.ozelAlanKodId10 || -1,
+  ozelAlan11: values.ozelAlan11 || 0,
+  ozelAlan12: values.ozelAlan12 || 0,
+});
+
 const UpdateModal = ({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const [isValid, setIsValid] = useState("normal");
   const [code, setCode] = useState("normal");
@@ -189,7 +228,7 @@ const UpdateModal = ({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) =
     {
       key: "1",
       label: "Genel Bilgiler",
-      children: <GeneralInfo isValid={isValid} />,
+      children: <GeneralInfo isValid={isValid} onBarcodeSave={handleBarcodeSave} />,
     },
     {
       key: "2",
@@ -270,60 +309,44 @@ const UpdateModal = ({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) =
     }
   }, [selectedRow, drawerVisible]);
 
-  const onSubmit = handleSubmit((values) => {
-    const body = {
-      malzemeId: selectedRow?.key,
-      tanim: values.tanim,
-      stokMiktar: values.stokMiktar || 0,
-      birimKodId: values.birimKodId || 0,
-      malzemeTipKodId: values.malzemeTipKodId || 0,
-      fiyat: values.fiyat || 0,
-      firmaId: values.firmaId || 0,
-      tedarikci: values.malzemtedarikcieKod,
-      tedarikciFiyat: values.tedarikciFiyat || 0,
-      tedarikciIskontoOran: values.tedarikciIskontoOran || 0,
-      seriNo: values.seriNo,
-      barKodNo: values.barKodNo,
-      depoId: Number(values.girisDepoSiraNo) || Number(values.depoId),
-      bolum: values.bolum,
-      raf: values.raf,
-      kritikMiktar: values.kritikMiktar || 0,
-      sonMiktar: values.sonMiktar || 0,
-      kdvOran: values.kdvOran || 0,
-      aktif: values.aktif,
-      yedekParca: values.yedekParca,
-      sarfMlz: values.sarfMlz,
-      demirBas: values.demirBas,
-      olcu: values.olcu,
-      kdvDahilHaric: values.kdvDH === "dahil" || values.kdvDH === "Dahil" ? true : false,
-      ozelAlan1: values.ozelAlan1 || "",
-      ozelAlan2: values.ozelAlan2 || "",
-      ozelAlan3: values.ozelAlan3 || "",
-      ozelAlan4: values.ozelAlan4 || "",
-      ozelAlan5: values.ozelAlan5 || "",
-      ozelAlan6: values.ozelAlan6 || "",
-      ozelAlan7: values.ozelAlan7 || "",
-      ozelAlan8: values.ozelAlan8 || "",
-      ozelAlanKodId9: values.ozelAlanKodId9 || -1,
-      ozelAlanKodId10: values.ozelAlanKodId10 || -1,
-      ozelAlan11: values.ozelAlan11 || 0,
-      ozelAlan12: values.ozelAlan12 || 0,
-    };
+  async function saveMaterial(values, { closeAfterSave = true, uploadAttachments = true } = {}) {
+    try {
+      const response = await UpdateMaterialCardService(createMaterialUpdateBody(values, selectedRow?.key));
+      if (response?.data.statusCode !== 202) {
+        return false;
+      }
 
-    UpdateMaterialCardService(body).then((res) => {
-      if (res?.data.statusCode === 202) {
-        onRefresh();
+      if (uploadAttachments) {
+        uploadImages();
+        uploadFiles();
+      }
+
+      onRefresh();
+      if (closeAfterSave) {
         onDrawerClose();
         reset(defaultValues);
         setActiveKey("1");
-        onRefresh();
       }
-    });
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
-    uploadImages();
-    uploadFiles();
-    onRefresh();
-  });
+  async function handleBarcodeSave(barcodeValue) {
+    if (isValid === "error") {
+      return false;
+    }
+
+    let isSaved = false;
+    await handleSubmit(async (values) => {
+      isSaved = await saveMaterial({ ...values, barKodNo: barcodeValue }, { closeAfterSave: false, uploadAttachments: false });
+    })();
+
+    return isSaved;
+  }
+
+  const onSubmit = handleSubmit((values) => saveMaterial(values));
 
   const footer = [
     <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit} disabled={isValid === "success" ? false : isValid === "error" ? true : false}>
@@ -334,7 +357,6 @@ const UpdateModal = ({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) =
       className="btn btn-min cancel-btn"
       onClick={() => {
         onDrawerClose();
-        onRefresh();
         setActiveKey("1");
       }}
     >
@@ -357,9 +379,9 @@ const UpdateModal = ({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) =
 
 UpdateModal.propTypes = {
   selectedRow: PropTypes.object,
-  onDrawerClose: PropTypes.func,
+  onDrawerClose: PropTypes.func.isRequired,
   drawerVisible: PropTypes.bool,
-  onRefresh: PropTypes.func,
+  onRefresh: PropTypes.func.isRequired,
 };
 
 export default UpdateModal;

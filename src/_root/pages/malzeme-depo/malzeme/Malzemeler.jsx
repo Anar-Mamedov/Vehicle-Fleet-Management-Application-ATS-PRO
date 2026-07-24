@@ -65,6 +65,15 @@ function extractTextFromElement(element) {
   return text;
 }
 
+function getSetPointId(data, diff, isCikisTransfer) {
+  if (diff === 0) {
+    return 0;
+  }
+
+  const referenceRecord = diff > 0 ? data[data.length - 1] : data[0];
+  return isCikisTransfer ? referenceRecord?.siraNo || 0 : referenceRecord?.malzemeId || 0;
+}
+
 const StyledButton = styled(Button)`
   display: flex;
   align-items: center;
@@ -185,6 +194,10 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
     keyword: "",
     filters: {},
   });
+  const currentPageRequestRef = useRef({
+    setPointId: 0,
+    diff: 0,
+  });
 
   useEffect(() => {
     if (body !== prevBodyRef.current) {
@@ -196,34 +209,10 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
 
   // API Data Fetching with diff and setPointId
   const fetchData = useCallback(
-    async (diff, targetPage, customfilterOverride) => {
+    async (diff, targetPage, customfilterOverride, setPointIdOverride) => {
       setLoading(true);
       try {
-        let currentSetPointId = 0;
-
-        if (isCikisTransfer) {
-          // For isCikisTransfer = true, use siraNo
-          if (diff > 0) {
-            // Moving forward
-            currentSetPointId = data[data.length - 1]?.siraNo || 0;
-          } else if (diff < 0) {
-            // Moving backward
-            currentSetPointId = data[0]?.siraNo || 0;
-          } else {
-            currentSetPointId = 0;
-          }
-        } else {
-          // For isCikisTransfer = false, use malzemeId (original logic)
-          if (diff > 0) {
-            // Moving forward
-            currentSetPointId = data[data.length - 1]?.malzemeId || 0;
-          } else if (diff < 0) {
-            // Moving backward
-            currentSetPointId = data[0]?.malzemeId || 0;
-          } else {
-            currentSetPointId = 0;
-          }
-        }
+        const currentSetPointId = setPointIdOverride ?? getSetPointId(data, diff, isCikisTransfer);
 
         const endpoint = isCikisTransfer
           ? `WareHouseManagement/GetMaterialListByWareHouseId?setPointId=${currentSetPointId}&diff=${diff}&parameter=${searchTerm}&wareHouseId=${wareHouseId || 0}`
@@ -234,6 +223,10 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
         const total = response.data.total_count;
         setTotalCount(total);
         setCurrentPage(targetPage);
+        currentPageRequestRef.current = {
+          setPointId: currentSetPointId,
+          diff,
+        };
 
         const newData = response.data.materialList.map((item) => ({
           ...item,
@@ -311,8 +304,9 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
   const refreshTableData = useCallback(() => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
-    fetchData(0, 1);
-  }, []);
+    const { setPointId, diff } = currentPageRequestRef.current;
+    fetchData(diff, currentPage, undefined, setPointId);
+  }, [currentPage, fetchData]);
 
   // Columns definition (adjust as needed)
   const initialColumns = [
@@ -1225,13 +1219,13 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
               <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
                 {t("indir")}
               </Button>
+              {!isSelectionMode && (
+                <>
+                  <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+                  <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+                </>
+              )}
             </div>
-            {!isSelectionMode && (
-              <div style={{ display: "flex", gap: "10px" }}>
-                <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-                <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
-              </div>
-            )}
           </div>
 
           <div
