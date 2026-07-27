@@ -64,10 +64,16 @@ const printPageStyle = `
     padding: 1.5mm 2mm 0;
     color: #000;
     font-family: Arial, sans-serif;
-    font-size: 10pt;
+    font-size: 7pt;
     font-weight: 600;
     line-height: 1.2;
     text-align: center;
+  }
+
+  .barcode-material-info-text {
+    display: block;
+    width: 100%;
+    overflow: hidden;
     text-overflow: clip;
     white-space: nowrap;
   }
@@ -419,7 +425,11 @@ const BarcodeInput = ({ name, onSave }) => {
         </div>
       )}
       <div ref={printAreaRef} className="barcode-print-area" aria-hidden="true" style={{ position: "fixed", top: 0, left: "-10000px", pointerEvents: "none", background: "#fff" }}>
-        {materialInfo && <div className="barcode-material-info">{materialInfo}</div>}
+        {materialInfo && (
+          <div className="barcode-material-info">
+            <span className="barcode-material-info-text">{materialInfo}</span>
+          </div>
+        )}
         <svg ref={barcodeRef} />
       </div>
     </>

@@ -176,6 +176,9 @@ describe("BarcodeInput", () => {
     expect(pageStyle).toContain("size: 60mm 30mm");
     expect(pageStyle).toContain("width: 60mm !important");
     expect(pageStyle).toContain("height: 30mm !important");
+    expect(pageStyle).toContain("font-size: 7pt");
+    expect(pageStyle).toContain("padding: 1.5mm 2mm 0");
+    expect(pageStyle).toContain(".barcode-material-info-text");
     expect(pageStyle).toContain("white-space: nowrap");
     expect(pageStyle).toContain("text-overflow: clip");
   });
@@ -187,7 +190,8 @@ describe("BarcodeInput", () => {
     });
 
     const materialInfo = screen.getByText("MLZ99 - Silecek");
-    expect(materialInfo).toHaveClass("barcode-material-info");
+    expect(materialInfo).toHaveClass("barcode-material-info-text");
+    expect(materialInfo.parentElement).toHaveClass("barcode-material-info");
   });
 
   it("generates, validates, saves, and prints a unique timestamp barcode when the input is empty", async () => {
