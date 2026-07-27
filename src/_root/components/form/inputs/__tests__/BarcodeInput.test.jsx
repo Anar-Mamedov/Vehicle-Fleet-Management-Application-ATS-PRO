@@ -39,9 +39,15 @@ vi.mock("antd", () => ({
 
 import BarcodeInput from "../BarcodeInput";
 
-const renderBarcodeInput = ({ defaultValue = "", onSave, onFormSubmit } = {}) => {
+const renderBarcodeInput = ({ defaultValue = "", materialCode = "", materialDescription = "", onSave, onFormSubmit } = {}) => {
   const BarcodeInputForm = () => {
-    const methods = useForm({ defaultValues: { barKodNo: defaultValue } });
+    const methods = useForm({
+      defaultValues: {
+        barKodNo: defaultValue,
+        ...(materialCode ? { malzemeKod: materialCode } : {}),
+        ...(materialDescription ? { tanim: materialDescription } : {}),
+      },
+    });
 
     return (
       <FormProvider {...methods}>
@@ -170,6 +176,18 @@ describe("BarcodeInput", () => {
     expect(pageStyle).toContain("size: 60mm 30mm");
     expect(pageStyle).toContain("width: 60mm !important");
     expect(pageStyle).toContain("height: 30mm !important");
+    expect(pageStyle).toContain("white-space: nowrap");
+    expect(pageStyle).toContain("text-overflow: clip");
+  });
+
+  it("prints the material code and description on one clipped line", () => {
+    renderBarcodeInput({
+      materialCode: "MLZ99",
+      materialDescription: "Silecek",
+    });
+
+    const materialInfo = screen.getByText("MLZ99 - Silecek");
+    expect(materialInfo).toHaveClass("barcode-material-info");
   });
 
   it("generates, validates, saves, and prints a unique timestamp barcode when the input is empty", async () => {

@@ -46,6 +46,7 @@ const printPageStyle = `
     position: static !important;
     inset: auto !important;
     display: flex !important;
+    flex-direction: column;
     width: 60mm !important;
     height: 30mm !important;
     box-sizing: border-box;
@@ -55,10 +56,28 @@ const printPageStyle = `
     background: #fff;
   }
 
+  .barcode-material-info {
+    flex: 0 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 1.5mm 2mm 0;
+    color: #000;
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
   .barcode-print-area svg {
     display: block;
+    flex: 1 1 auto;
     width: 100%;
-    height: 100%;
+    height: auto;
+    min-height: 0;
     max-width: none;
   }
 `;
@@ -116,6 +135,8 @@ const getBarcodeFormValidationMessageKey = (value, initialBarcodeValue, validati
 const BarcodeInput = ({ name, onSave }) => {
   const { clearErrors, control, getFieldState, setError, setValue } = useFormContext();
   const currentBarcodeValue = useWatch({ control, name });
+  const materialCode = useWatch({ control, name: "malzemeKod" });
+  const materialDescription = useWatch({ control, name: "tanim" });
   const printAreaRef = useRef(null);
   const barcodeRef = useRef(null);
   const generationInProgressRef = useRef(false);
@@ -127,6 +148,10 @@ const BarcodeInput = ({ name, onSave }) => {
   const hasUserEditedRef = useRef(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [barcodeValidationStatus, setBarcodeValidationStatus] = useState("idle");
+  const materialInfo = [materialCode, materialDescription]
+    .map((value) => String(value ?? "").trim())
+    .filter(Boolean)
+    .join(" - ");
 
   useEffect(() => {
     if (!hasUserEditedRef.current) {
@@ -394,6 +419,7 @@ const BarcodeInput = ({ name, onSave }) => {
         </div>
       )}
       <div ref={printAreaRef} className="barcode-print-area" aria-hidden="true" style={{ position: "fixed", top: 0, left: "-10000px", pointerEvents: "none", background: "#fff" }}>
+        {materialInfo && <div className="barcode-material-info">{materialInfo}</div>}
         <svg ref={barcodeRef} />
       </div>
     </>
