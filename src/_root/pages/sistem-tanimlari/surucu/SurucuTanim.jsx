@@ -15,6 +15,8 @@ import UpdateModal from "./UpdateModal";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
+import ExcelExportButton from "../../../components/ExcelExportButton";
+import { GetDriversReportService } from "../../../../api/services/sistem-tanimlari/surucu_services";
 
 const { Text } = Typography;
 
@@ -698,6 +700,12 @@ const Yakit = () => {
           {/* Other toolbar components */}
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
+          <ExcelExportButton
+            request={() => GetDriversReportService(searchTerm)}
+            columns={filteredColumns}
+            fileName="Suruculer_Listesi.xlsx"
+            sheetName={t("suruculer")}
+          />
           <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
           <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
         </div>

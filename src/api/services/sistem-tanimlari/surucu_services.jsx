@@ -4,6 +4,10 @@ export const GetDriverListService = async (search, page, data) => {
   return await http.get(`/Driver/GetDriverList?page=${page}&parameter=${search}`, data);
 };
 
+export const GetDriversReportService = async (search) => {
+  return await http.get(`/Driver/GetDriversReport?parameter=${encodeURIComponent(search)}`);
+};
+
 export const AddDriverService = async (data) => {
   return await http.post(`/Driver/AddDriver`, data);
 };

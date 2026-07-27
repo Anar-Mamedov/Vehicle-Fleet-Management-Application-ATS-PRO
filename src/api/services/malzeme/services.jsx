@@ -4,6 +4,10 @@ export const GetMaterialListService = async (search, page, data) => {
   return await http.post(`/Material/GetMaterialList?page=${page}&parameter=${search}`, data);
 };
 
+export const GetMaterialsReportService = async (search, data) => {
+  return await http.post(`/Material/GetMaterialsReport?parameter=${encodeURIComponent(search)}`, data);
+};
+
 export const GetWareHouseListByTipService = async (type) => {
   return await http.get(`/WareHouse/GetWareHouseListByTip?tip=${type}`);
 };

@@ -15,6 +15,8 @@ import UpdateModal from "./update/UpdateModal";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
+import ExcelExportButton from "../../../components/ExcelExportButton";
+import { GetEmployeesReportService } from "../../../../api/services/personel_services";
 
 const { Text } = Typography;
 
@@ -1163,6 +1165,17 @@ const Yakit = () => {
           {/* Other toolbar components */}
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
+          <ExcelExportButton
+            request={() => GetEmployeesReportService(searchTerm)}
+            columns={filteredColumns}
+            fileName="Personel_Listesi.xlsx"
+            sheetName={t("personel")}
+            formatCellValue={(value, row, column) => {
+              const cellValue = row[column.dataIndex] ?? value;
+              return ["dogumTarihi", "iseBaslamaTarihi", "isetenAyrilmaTarihi"].includes(column.dataIndex) ? formatDate(cellValue) : cellValue;
+            }}
+            getRows={(response) => (Array.isArray(response?.data) ? response.data : response?.data?.employeeList || response?.data?.list)}
+          />
           <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
           <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
         </div>

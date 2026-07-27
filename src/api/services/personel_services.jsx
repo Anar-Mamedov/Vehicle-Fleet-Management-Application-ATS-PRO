@@ -12,6 +12,10 @@ export const SearchEmployeeListService = async (page, parameter) => {
   return await http.get(`/Employee/GetEmployeeList?page=${page}&parameter=${parameter}`);
 };
 
+export const GetEmployeesReportService = async (search) => {
+  return await http.get(`/Employee/GetEmployeesReport?parameter=${encodeURIComponent(search)}`);
+};
+
 export const DeleteFirmaService = async (id) => {
   return await http.get(`/Employee/DeleteCompanyItem?id=${id}`);
 };
