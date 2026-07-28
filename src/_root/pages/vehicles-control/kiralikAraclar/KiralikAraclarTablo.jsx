@@ -177,6 +177,7 @@ const KiralikAraclarTablo = ({ customFields }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false); // Added for infinite scrolling
   const [infiniteScrollEnabled, setInfiniteScrollEnabled] = useState(() => {
     const savedScrollMode = localStorage.getItem(infiniteScrollKey);
@@ -278,6 +279,7 @@ const KiralikAraclarTablo = ({ customFields }) => {
 
       const total = response.data.recordCount;
       setTotalCount(total);
+      setTotalPages(response.data.page || 0);
 
       if (targetPage !== undefined) {
         setCurrentPage(targetPage);
@@ -902,13 +904,13 @@ const KiralikAraclarTablo = ({ customFields }) => {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             {!infiniteScrollEnabled && (
-              <Pagination
-                simple={{ readOnly: true }}
-                current={currentPage}
-                total={totalCount}
-                pageSize={pageSize}
-                onChange={handleTableChange}
-                showSizeChanger={false}
+            <Pagination
+              simple={{ readOnly: true }}
+              current={currentPage}
+              total={totalPages}
+              pageSize={1}
+              onChange={(page) => handleTableChange(page, pageSize)}
+              showSizeChanger={false}
                 // showQuickJumper
                 size="small"
               />
