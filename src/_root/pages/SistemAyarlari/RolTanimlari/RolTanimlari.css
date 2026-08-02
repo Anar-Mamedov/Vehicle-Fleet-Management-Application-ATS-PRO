@@ -450,21 +450,8 @@
 }
 
 .role-users-heading {
-  display: flex;
   flex: 0 0 auto;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
   margin-bottom: 16px;
-}
-
-.role-users-add-button {
-  flex: 0 0 auto;
-}
-
-.role-users-add-button.ant-btn-primary:disabled,
-.role-users-add-button.ant-btn-primary.ant-btn-disabled {
-  color: var(--white) !important;
 }
 
 .role-users-heading h2 {
@@ -701,9 +688,6 @@
     flex-direction: column;
   }
 
-  .role-users-heading {
-    align-items: flex-start;
-  }
 }
 
 @media (max-width: 640px) {

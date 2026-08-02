@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { PlusOutlined } from "@ant-design/icons";
-import { Alert, Button, Spin } from "antd";
+import { Alert, Spin } from "antd";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { GetUsersByRoleIdService } from "../../../../api/services/roles/services";
@@ -88,13 +87,8 @@ export default function RoleUsersTab({ active, roleId }) {
   return (
     <section aria-labelledby="role-users-heading" className="role-users-section" role="tabpanel">
       <div className="role-users-heading">
-        <div>
-          <h2 id="role-users-heading">{t("rolKullanicilarBaslik")}</h2>
-          <p>{t("rolKullanicilarAciklama")}</p>
-        </div>
-        <Button aria-label={t("rolKullaniciEkle")} className="role-users-add-button" disabled icon={<PlusOutlined />} type="primary">
-          {t("rolKullaniciEkle")}
-        </Button>
+        <h2 id="role-users-heading">{t("rolKullanicilarBaslik")}</h2>
+        <p>{t("rolKullanicilarAciklama")}</p>
       </div>
 
       {loadError && <Alert showIcon type="error" message={t("rolKullanicilariYuklenemedi")} />}

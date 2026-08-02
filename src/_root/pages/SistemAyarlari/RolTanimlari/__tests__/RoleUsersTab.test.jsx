@@ -37,7 +37,7 @@ describe("role users tab", () => {
     render(<RoleUsersTab active roleId={8} />);
 
     expect(await screen.findByText("Loreal test")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "rolKullaniciEkle" })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: "rolKullaniciEkle" })).not.toBeInTheDocument();
     expect(screen.getByText("loreal@example.com")).toBeInTheDocument();
     expect(screen.getByText("loreal.pentest")).toBeInTheDocument();
     expect(getUsersByRoleIdMock).toHaveBeenCalledWith(8);
