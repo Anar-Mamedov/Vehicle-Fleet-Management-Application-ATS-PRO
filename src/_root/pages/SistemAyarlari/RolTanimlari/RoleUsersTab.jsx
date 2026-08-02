@@ -49,12 +49,14 @@ export default function RoleUsersTab({ active, roleId }) {
   const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    if (!active || !roleId || loaded) {
+    if (!active || !roleId) {
       return undefined;
     }
 
     let ignore = false;
+    setUsers([]);
     setLoading(true);
+    setLoaded(false);
     setLoadError(false);
 
     GetUsersByRoleIdService(roleId)
@@ -78,7 +80,7 @@ export default function RoleUsersTab({ active, roleId }) {
     return () => {
       ignore = true;
     };
-  }, [active, loaded, roleId]);
+  }, [active, roleId]);
 
   if (!active) {
     return null;

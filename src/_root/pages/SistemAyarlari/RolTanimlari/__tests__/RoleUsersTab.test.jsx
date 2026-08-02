@@ -49,6 +49,25 @@ describe("role users tab", () => {
     expect(getUsersByRoleIdMock).not.toHaveBeenCalled();
   });
 
+  it("refetches users every time the users tab becomes active", async () => {
+    getUsersByRoleIdMock
+      .mockResolvedValueOnce({ data: [{ siraNo: 1, kullaniciKod: "first", isim: "First", aktif: true }] })
+      .mockResolvedValueOnce({ data: [{ siraNo: 2, kullaniciKod: "second", isim: "Second", aktif: true }] });
+
+    const { rerender } = render(<RoleUsersTab active roleId={8} />);
+
+    expect(await screen.findByText("First")).toBeInTheDocument();
+
+    rerender(<RoleUsersTab active={false} roleId={8} />);
+    rerender(<RoleUsersTab active roleId={8} />);
+
+    expect(await screen.findByText("Second")).toBeInTheDocument();
+    expect(screen.queryByText("First")).not.toBeInTheDocument();
+    expect(getUsersByRoleIdMock).toHaveBeenCalledTimes(2);
+    expect(getUsersByRoleIdMock).toHaveBeenNthCalledWith(1, 8);
+    expect(getUsersByRoleIdMock).toHaveBeenNthCalledWith(2, 8);
+  });
+
   it("derives the user type from admin and driver flags", () => {
     expect(getRoleUserType({ admin: true, isDriver: true }).translationKey).toBe("rolKullaniciYonetici");
     expect(getRoleUserType({ admin: false, isDriver: true }).translationKey).toBe("rolKullaniciSurucu");
