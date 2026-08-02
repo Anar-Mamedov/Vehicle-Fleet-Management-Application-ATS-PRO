@@ -49,9 +49,128 @@ import i18n, { t } from "i18next";
 import Draggable from "react-draggable";
 import Ayarlar from "../pages/Ayarlar/Ayarlar";
 import versionData from "../../version.json";
+import { GetClientModulesService } from "../../api/services/clientInfo/services";
 
 import PropTypes from "prop-types";
 const { Text } = Typography;
+
+export const MENU_MODULE_BY_KEY = {
+  1: "yonetimPaneli",
+  2: "filoYonetimi",
+  3: "arac",
+  4: "yakitGirisleri",
+  6: "gorevTakibi",
+  7: "sigortalar",
+  8: "harcamalar",
+  9: "kazalar",
+  10: "cezalar",
+  12: "hizliKmGuncelleme",
+  14: "yakitTanimlari",
+  19: "bakimServis",
+  20: "periyodikBakimlar",
+  21: "servisIslemleri",
+  31: "stokMalzeme",
+  32: "malzemeTanimlari",
+  34: "cikisFisleri",
+  35: "transferFisleri",
+  38: "raporlar",
+  39: "sistemTanimlari",
+  40: "firmalar",
+  41: "suruculer",
+  42: "personeller",
+  43: "servisTanimlari",
+  44: "guzergahlar",
+  45: "lastikTanimlari",
+  46: "cezaTanimlari",
+  47: "markaModeller",
+  48: "sehirler",
+  49: "isKartlari",
+  50: ["genel", "yonetim"],
+  52: "kullaniciTanimlari",
+  53: "kodYonetimi",
+  121: "ekspertizler",
+  3653: "aksTanimlari",
+  401: "lokasyonlar",
+  541: "onayAyarlari",
+  542: "onayIslemleri",
+  837: "depoTanimlari",
+  "2bskfa": "hgsGecisIslemleri",
+  "2v34789": "analizler",
+  "3j2h4b5kj2h34": "girisFisleri",
+  "3j4h5v34": "performansAnalizi",
+  "3jb4m5j3b5": "malzemeAnalizi",
+  "3jh4b5j3h5": "maliyetAnalizi",
+  "3jkh45": "yakitLimitleri",
+  "4jk3l56": "lastikEnvanteri",
+  "48ashjd6": "kiralikAraclar",
+  "2435897xcv": "yakitIslemleri",
+  "2980345df": "yakitAnalizi",
+  "365df3": "lastikIslemleri",
+  "373b24kj5hb": "malzemeHareketleri",
+  "798asd5fasd": "hgsGecisUcretleri",
+  document_management: "dokumanYonetimi",
+  "ds897g6": "lastikYonetimi",
+  "extremes-analysis": "enlerAnalizi",
+  haritalar: "harita",
+  ikameAracYonetimi1: "ikameAraclar",
+  kj234h5b: "hasarTakibi",
+  kjh564bg34511: "arizaBildirimleri",
+  l23jkhb4: "talepYonetimi",
+  settings_modal_trigger: "ayarlar",
+};
+
+const hasModuleAccess = (moduleNames, availableModuleNames) => {
+  if (Array.isArray(moduleNames)) {
+    return moduleNames.some((moduleName) => availableModuleNames.has(moduleName));
+  }
+
+  return Boolean(moduleNames) && availableModuleNames.has(moduleNames);
+};
+
+export const filterMenuItemsByModules = (menuItems, availableModuleNames) => {
+  return menuItems
+    .map((item) => {
+      if (item.type === "group") {
+        return item;
+      }
+
+      const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+
+      if (hasChildren) {
+        const moduleName = MENU_MODULE_BY_KEY[item.key];
+
+        if (moduleName && !hasModuleAccess(moduleName, availableModuleNames)) {
+          return null;
+        }
+
+        const visibleChildren = filterMenuItemsByModules(item.children, availableModuleNames);
+
+        return visibleChildren.length > 0 ? { ...item, children: visibleChildren } : null;
+      }
+
+      const moduleName = MENU_MODULE_BY_KEY[item.key];
+      return hasModuleAccess(moduleName, availableModuleNames) ? item : null;
+    })
+    .filter(Boolean);
+};
+
+export const removeEmptyMenuGroups = (menuItems) => {
+  return menuItems.filter((item, index) => {
+    if (item.type !== "group") {
+      return true;
+    }
+
+    for (let nextIndex = index + 1; nextIndex < menuItems.length; nextIndex += 1) {
+      if (menuItems[nextIndex].type === "group") {
+        return false;
+      }
+
+      return true;
+    }
+
+    return false;
+  });
+};
 
 // Label içeriğinden düz metin çıkarır
 const getItemLabelText = (label) => {
@@ -210,6 +329,27 @@ const Sidebar = ({ collapsed }) => {
     right: 0,
   });
   const [searchValue, setSearchValue] = useState("");
+  const [clientModules, setClientModules] = useState(null);
+
+  useEffect(() => {
+    let ignore = false;
+
+    GetClientModulesService()
+      .then((response) => {
+        if (!ignore) {
+          setClientModules(Array.isArray(response.data) ? response.data : []);
+        }
+      })
+      .catch(() => {
+        if (!ignore) {
+          setClientModules([]);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const showModal = React.useCallback(() => {
     setOpen(true);
@@ -699,12 +839,21 @@ const Sidebar = ({ collapsed }) => {
     [i18n.language, showModal]
   );
 
-  const visibleItems = React.useMemo(() => filterMenuItems(items, searchValue.trim()), [items, searchValue]);
+  const authorizedItems = React.useMemo(() => {
+    if (!Array.isArray(clientModules)) {
+      return [];
+    }
+
+    const availableModuleNames = new Set(clientModules.map((module) => module.menuAdi).filter(Boolean));
+    return removeEmptyMenuGroups(filterMenuItemsByModules(items, availableModuleNames));
+  }, [clientModules, items]);
+
+  const visibleItems = React.useMemo(() => filterMenuItems(authorizedItems, searchValue.trim()), [authorizedItems, searchValue]);
   const countedItems = React.useMemo(() => addCountBadges(visibleItems), [visibleItems]);
 
   const findActiveKeys = React.useCallback(() => {
     const findInItems = (path) => {
-      for (const item of items) {
+      for (const item of authorizedItems) {
         // Check if this item matches the path
         if (item.label?.props?.to === path) {
           return { menuKey: item.key, parentKeys: [] };
@@ -734,7 +883,7 @@ const Sidebar = ({ collapsed }) => {
     };
 
     return findInItems(location.pathname);
-  }, [items, location.pathname]);
+  }, [authorizedItems, location.pathname]);
 
   const { menuKey, parentKeys } = findActiveKeys();
   const [selectedKey, setSelectedKey] = useState(menuKey || "1");
@@ -811,7 +960,7 @@ const Sidebar = ({ collapsed }) => {
     const relations = {};
     const mainMenuKeys = [];
 
-    items.forEach((item) => {
+    authorizedItems.forEach((item) => {
       mainMenuKeys.push(item.key);
       if (item.children) {
         item.children.forEach((child) => {
