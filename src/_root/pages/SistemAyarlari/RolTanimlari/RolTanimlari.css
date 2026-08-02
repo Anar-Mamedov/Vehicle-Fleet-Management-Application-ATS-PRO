@@ -170,7 +170,9 @@
 .role-form-modal .ant-modal-body {
   flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .role-form-modal .ant-modal-footer {
@@ -182,10 +184,9 @@
 
 .role-form-modal .ant-modal-body > form {
   display: flex;
-  height: 100%;
-  min-height: 0;
+  min-height: 100%;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .role-form-title {
@@ -323,10 +324,9 @@
 
 .role-permissions-section {
   display: flex;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   padding: 18px 28px 0;
 }
 
@@ -357,19 +357,17 @@
 }
 
 .role-permissions-section > .ant-spin-nested-loading {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
 }
 
 .role-permissions-section > .ant-spin-nested-loading > .ant-spin-container {
-  height: 100%;
-  min-height: 0;
+  height: auto;
 }
 
 .role-permissions-table-wrap {
-  height: 100%;
-  min-height: 0;
-  overflow: auto;
+  height: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   border: 1px solid #dfe6ef;
   border-radius: 12px 12px 0 0;
 }
@@ -445,10 +443,9 @@
 
 .role-users-section {
   display: flex;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   padding: 22px 28px 0;
 }
 
@@ -488,19 +485,17 @@
 }
 
 .role-users-section > .ant-spin-nested-loading {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
 }
 
 .role-users-section > .ant-spin-nested-loading > .ant-spin-container {
-  height: 100%;
-  min-height: 0;
+  height: auto;
 }
 
 .role-users-table-wrap {
-  height: 100%;
-  min-height: 0;
-  overflow: auto;
+  height: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   border: 1px solid #dfe6ef;
   border-radius: 12px;
 }
