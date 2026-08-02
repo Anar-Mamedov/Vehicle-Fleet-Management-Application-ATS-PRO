@@ -116,6 +116,7 @@ export const MENU_MODULE_BY_KEY = {
   kj234h5b: "hasarTakibi",
   kjh564bg34511: "arizaBildirimleri",
   l23jkhb4: "talepYonetimi",
+  role_definitions: ["rolTanimlari", "yonetim"],
   settings_modal_trigger: "ayarlar",
 };
 
@@ -754,6 +755,11 @@ const Sidebar = ({ collapsed }) => {
             key: "52",
             icon: <UsergroupAddOutlined />,
             label: <Link to={`/user_definitions`}>{t("kullaniciTanimlari")}</Link>,
+          },
+          {
+            key: "role_definitions",
+            icon: <SafetyOutlined />,
+            label: <Link to={`/rol-tanimlari`}>{t("rolTanimlari")}</Link>,
           },
           {
             key: "53",

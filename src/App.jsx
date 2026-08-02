@@ -115,6 +115,7 @@ const ExtremesAnalysis = lazyWithRetry(() => import("./_root/pages/Analizler/Ext
 
 // sistem Ayarlari
 const KullaniciTanimlari = lazyWithRetry(() => import("./_root/pages/SistemAyarlari/KullaniciTanimlari/KullaniciTanimlari.jsx"));
+const RolTanimlari = lazyWithRetry(() => import("./_root/pages/SistemAyarlari/RolTanimlari/RolTanimlari.jsx"));
 const Onaylar = lazyWithRetry(() => import("./_root/pages/SistemAyarlari/Onaylar/Onaylar.jsx"));
 const OnaylamaIslemleri = lazyWithRetry(() => import("./_root/pages/SistemAyarlari/OnaylamaIslemleri/OnaylamaIslemleri.jsx"));
 
@@ -413,6 +414,7 @@ const App = () => {
               {/* Yönetim */}
               <Route path="/dokuman-yonetimi" element={<DokumanYonetimi />} />
               <Route path="/user_definitions" element={<KullaniciTanimlari />} />
+              <Route path="/rol-tanimlari" element={<RolTanimlari />} />
               <Route path="/onayAyarlari" element={<Onaylar />} />
               <Route path="/onaylama-islemleri" element={<OnaylamaIslemleri />} />
               
