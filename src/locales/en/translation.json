@@ -1474,6 +1474,7 @@
   "rolKoduBenzersizligiKontrolEdilemedi": "Role code availability could not be checked.",
   "rolAktif": "Active",
   "rolYoneticiRolu": "Manager Role",
+  "rolVarsayilanRolu": "Default Role",
   "rolYetkiler": "Permissions",
   "rolYetkilerAciklama": "Configure module-based access and operation permissions.",
   "rolEkranModul": "Screen / Module",

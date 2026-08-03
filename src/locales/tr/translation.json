@@ -1721,6 +1721,7 @@
   "rolKoduBenzersizligiKontrolEdilemedi": "Rol kodunun benzersizliği kontrol edilemedi.",
   "rolAktif": "Aktif",
   "rolYoneticiRolu": "Yönetici Rolü",
+  "rolVarsayilanRolu": "Varsayılan Rol",
   "rolYetkiler": "Yetkiler",
   "rolYetkilerAciklama": "Modül bazlı erişim ve işlem yetkilerini düzenleyin.",
   "rolEkranModul": "Ekran / Modül",

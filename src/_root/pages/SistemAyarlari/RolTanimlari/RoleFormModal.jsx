@@ -16,6 +16,7 @@ const DEFAULT_VALUES = {
   aciklama: "",
   durum: true,
   yonetici: false,
+  varsayilan: false,
 };
 
 const MODULE_TRANSLATION_KEYS = {
@@ -88,6 +89,7 @@ export default function RoleFormModal({ open, role, onClose, onSaved }) {
       aciklama: role?.aciklama ?? "",
       durum: role?.durum ?? true,
       yonetici: role?.yonetici ?? false,
+      varsayilan: role?.varsayilan ?? false,
     });
     setPermissionGroups([]);
     setPreservedAuths([]);
@@ -238,6 +240,16 @@ export default function RoleFormModal({ open, role, onClose, onSaved }) {
                       {t("rolYoneticiRolu")}
                       <InfoCircleOutlined />
                     </span>
+                    <Switch checked={Boolean(field.value)} onChange={field.onChange} />
+                  </label>
+                )}
+              />
+              <Controller
+                name="varsayilan"
+                control={control}
+                render={({ field }) => (
+                  <label className="role-form-switch-row">
+                    <span>{t("rolVarsayilanRolu")}</span>
                     <Switch checked={Boolean(field.value)} onChange={field.onChange} />
                   </label>
                 )}

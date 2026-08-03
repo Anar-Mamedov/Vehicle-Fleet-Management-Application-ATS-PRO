@@ -10,6 +10,27 @@ import AxiosInstance from "../../../../../api/http.jsx";
 import Tablar from "./components/Tablar.jsx";
 import { t } from "i18next";
 
+const getUserRoleIds = (user) => {
+  if (Array.isArray(user?.roleIds)) {
+    return user.roleIds;
+  }
+
+  return user?.roleId ? [user.roleId] : [];
+};
+
+const getUserRoleNames = (user) => {
+  if (Array.isArray(user?.roleAdlari)) {
+    return user.roleAdlari;
+  }
+
+  if (Array.isArray(user?.roleNames)) {
+    return user.roleNames;
+  }
+
+  const roleName = user?.roleAdi ?? user?.rolAdi;
+  return roleName ? [roleName] : [];
+};
+
 export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, onRefresh }) {
   const [, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
@@ -20,7 +41,8 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
 
   const methods = useForm({
     defaultValues: {
-      rolSelect: null,
+      role: [],
+      roleID: [],
       mail: "",
       kullaniciKod: "",
       isim: "",
@@ -58,6 +80,8 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("paraf", item.paraf);
           setValue("color", item.kullaniciRengi);
           setValue("aktif", item.aktif);
+          setValue("role", getUserRoleNames(item));
+          setValue("roleID", getUserRoleIds(item));
           // ... Diğer setValue çağrıları
 
           setLoading(false); // Yükleme tamamlandığında
@@ -94,6 +118,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       telefon: data.telefonNo,
       paraf: data.paraf,
       kullaniciRengi: data.color ? (/^#[0-9A-F]{6}$/i.test(data.color) ? data.color : data.color.toHexString()) : null,
+      roleIds: (Array.isArray(data.roleID) ? data.roleID : []).map(Number),
     };
 
     // Şifre değeri varsa payload'a ekle

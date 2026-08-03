@@ -54,14 +54,15 @@ describe("role permission mapping", () => {
       { yetkiKod: "yonetim", yetkiTanim: "-", goruntule: true },
       { yetkiKod: "LEGACY", yetkiTanim: "legacyModule", goruntule: true },
     ]);
-    const values = { roleAdi: " Test Rol ", roleKodu: " TEST ", aciklama: " Açıklama ", durum: true, yonetici: false };
+    const values = { roleAdi: " Test Rol ", roleKodu: " TEST ", aciklama: " Açıklama ", durum: true, yonetici: false, varsayilan: true };
 
     const createPayload = buildRolePayload(values, 0, groups, preservedAuths);
     const updatePayload = buildRolePayload(values, 8, groups, preservedAuths);
 
-    expect(createPayload).toMatchObject({ siraNo: 0, roleAdi: "Test Rol", roleKodu: "TEST", aciklama: "Açıklama" });
+    expect(createPayload).toMatchObject({ siraNo: 0, roleAdi: "Test Rol", roleKodu: "TEST", aciklama: "Açıklama", varsayilan: true });
     expect(createPayload.roleAuths.every((roleAuth) => roleAuth.rolSiraNo === 0)).toBe(true);
     expect(updatePayload.siraNo).toBe(8);
+    expect(updatePayload.varsayilan).toBe(true);
     expect(updatePayload.roleAuths.every((roleAuth) => roleAuth.rolSiraNo === 8)).toBe(true);
     [createPayload, updatePayload].forEach((payload) => {
       expect(payload.roleAuths.some((roleAuth) => roleAuth.yetkiKod === "yonetim")).toBe(false);

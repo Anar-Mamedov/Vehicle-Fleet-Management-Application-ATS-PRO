@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row, Col, Checkbox, InputNumber, Radio, ColorPicker, Switch } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
-import RolSelectBox from "./components/RolSelectBox";
+import RoleSelectbox from "../../../../../../components/RoleSelectbox";
 import styled from "styled-components";
 
 import dayjs from "dayjs";
@@ -207,7 +207,10 @@ export default function MainTabs({ modalOpen }) {
         <Controller name="aktif" control={control} render={({ field }) => <Switch {...field} />} />
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", width: "100%", flexDirection: "column", justifyContent: "space-between", gap: "8px" }}>
-        <Text style={{ fontSize: "14px", color: "#000000a4" }}>{t("rolTanimi")}</Text>
+        <Text style={{ fontSize: "14px", color: "#000000a4", display: "flex" }}>
+          {t("rolTanimi")}
+          <span style={{ color: "red" }}>*</span>
+        </Text>
         <div
           style={{
             display: "flex",
@@ -218,7 +221,7 @@ export default function MainTabs({ modalOpen }) {
             width: "100%",
           }}
         >
-          <RolSelectBox />
+          <RoleSelectbox name1="role" isRequired />
         </div>
       </div>
       <div style={{ display: "flex", gap: "15px", width: "100%", alignItems: "flex-start" }}>

@@ -156,6 +156,7 @@ export const buildRolePayload = (values, roleId, groups, preservedAuths = []) =>
     roleAdi: String(values.roleAdi ?? "").trim(),
     roleKodu: String(values.roleKodu ?? "").trim(),
     yonetici: Boolean(values.yonetici),
+    varsayilan: Boolean(values.varsayilan),
     durum: Boolean(values.durum),
     aciklama: String(values.aciklama ?? "").trim(),
     roleAuths: [...currentPermissions, ...preservedPermissions],
