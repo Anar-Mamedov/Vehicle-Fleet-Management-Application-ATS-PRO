@@ -1,5 +1,5 @@
 const PERMISSION_FIELDS = ["goruntule", "ekle", "degistir", "sil"];
-const TEMPORARILY_HIDDEN_PARENT_MENU_NAMES = new Set(["yonetim"]);
+const EXCLUDED_PARENT_MENU_NAMES = new Set(["yonetim"]);
 
 const normalizeText = (value) =>
   String(value ?? "")
@@ -17,6 +17,8 @@ const normalizePermissionName = (value) =>
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]/g, "");
+
+const isExcludedParentMenuName = (value) => EXCLUDED_PARENT_MENU_NAMES.has(normalizePermissionName(value));
 
 const matchesRoleAuth = (roleAuth, module) => {
   const usesApiFieldOrder =
@@ -94,9 +96,7 @@ export const createRolePermissionState = (clientModules, roleAuths = []) => {
 export const getVisibleRolePermissionGroups = (groups) => {
   const permissionGroups = Array.isArray(groups) ? groups : [];
   const hiddenParentIds = new Set(
-    permissionGroups
-      .filter((group) => TEMPORARILY_HIDDEN_PARENT_MENU_NAMES.has(normalizePermissionName(group.menuAdi)))
-      .map((group) => Number(group.anaMenuId))
+    permissionGroups.filter((group) => isExcludedParentMenuName(group.menuAdi)).map((group) => Number(group.anaMenuId))
   );
 
   return permissionGroups.filter((group) => !hiddenParentIds.has(Number(group.anaMenuId)));
@@ -144,7 +144,12 @@ const normalizeRoleAuth = (roleAuth, roleId) => ({
 
 export const buildRolePayload = (values, roleId, groups, preservedAuths = []) => {
   const normalizedRoleId = Number(roleId) || 0;
-  const currentPermissions = groups.flatMap((group) => group.permissions).map((permission) => normalizeRoleAuth(permission, normalizedRoleId));
+  const currentPermissions = getVisibleRolePermissionGroups(groups)
+    .flatMap((group) => group.permissions)
+    .map((permission) => normalizeRoleAuth(permission, normalizedRoleId));
+  const preservedPermissions = preservedAuths
+    .filter((roleAuth) => !isExcludedParentMenuName(roleAuth.yetkiKod) && !isExcludedParentMenuName(roleAuth.yetkiTanim))
+    .map((roleAuth) => normalizeRoleAuth(roleAuth, normalizedRoleId));
 
   return {
     siraNo: normalizedRoleId,
@@ -153,6 +158,6 @@ export const buildRolePayload = (values, roleId, groups, preservedAuths = []) =>
     yonetici: Boolean(values.yonetici),
     durum: Boolean(values.durum),
     aciklama: String(values.aciklama ?? "").trim(),
-    roleAuths: [...currentPermissions, ...preservedAuths.map((roleAuth) => normalizeRoleAuth(roleAuth, normalizedRoleId))],
+    roleAuths: [...currentPermissions, ...preservedPermissions],
   };
 };

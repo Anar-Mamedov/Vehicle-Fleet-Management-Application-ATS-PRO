@@ -49,7 +49,11 @@ describe("role permission mapping", () => {
   });
 
   it("uses zero IDs for create and the role ID for update payloads", () => {
-    const { groups, preservedAuths } = createRolePermissionState(modules, [{ yetkiKod: "LEGACY", yetkiTanim: "legacyModule", goruntule: true }]);
+    const { groups, preservedAuths } = createRolePermissionState(modules, [
+      { yetkiKod: "dokumanYonetimi", yetkiTanim: "00004", goruntule: true },
+      { yetkiKod: "yonetim", yetkiTanim: "-", goruntule: true },
+      { yetkiKod: "LEGACY", yetkiTanim: "legacyModule", goruntule: true },
+    ]);
     const values = { roleAdi: " Test Rol ", roleKodu: " TEST ", aciklama: " Açıklama ", durum: true, yonetici: false };
 
     const createPayload = buildRolePayload(values, 0, groups, preservedAuths);
@@ -59,6 +63,10 @@ describe("role permission mapping", () => {
     expect(createPayload.roleAuths.every((roleAuth) => roleAuth.rolSiraNo === 0)).toBe(true);
     expect(updatePayload.siraNo).toBe(8);
     expect(updatePayload.roleAuths.every((roleAuth) => roleAuth.rolSiraNo === 8)).toBe(true);
+    [createPayload, updatePayload].forEach((payload) => {
+      expect(payload.roleAuths.some((roleAuth) => roleAuth.yetkiKod === "yonetim")).toBe(false);
+      expect(payload.roleAuths.some((roleAuth) => roleAuth.yetkiKod === "dokumanYonetimi")).toBe(false);
+    });
     expect(updatePayload.roleAuths.find((roleAuth) => roleAuth.yetkiKod === "LEGACY")).toEqual({
       rolSiraNo: 8,
       yetkiKod: "LEGACY",
