@@ -21,20 +21,20 @@ const normalizePermissionName = (value) =>
 const isExcludedParentMenuName = (value) => EXCLUDED_PARENT_MENU_NAMES.has(normalizePermissionName(value));
 
 const matchesRoleAuth = (roleAuth, module) => {
-  const usesApiFieldOrder =
-    normalizePermissionName(roleAuth.yetkiKod) === normalizePermissionName(module.menuAdi) && normalizeText(roleAuth.yetkiTanim) === normalizeText(module.sayfaKod);
-  const usesDocumentedFieldOrder =
+  const usesExpectedFieldOrder =
     normalizeText(roleAuth.yetkiKod) === normalizeText(module.sayfaKod) && normalizePermissionName(roleAuth.yetkiTanim) === normalizePermissionName(module.menuAdi);
+  const usesLegacyReversedFieldOrder =
+    normalizePermissionName(roleAuth.yetkiKod) === normalizePermissionName(module.menuAdi) && normalizeText(roleAuth.yetkiTanim) === normalizeText(module.sayfaKod);
 
-  return usesApiFieldOrder || usesDocumentedFieldOrder;
+  return usesExpectedFieldOrder || usesLegacyReversedFieldOrder;
 };
 
 const toPermission = (module, roleAuth) => ({
   key: `${module.siraNo}-${module.sayfaKod}-${module.menuAdi}`,
   moduleOrder: Number(module.siraNo) || 0,
   menuAdi: String(module.menuAdi ?? ""),
-  yetkiKod: String(module.menuAdi ?? ""),
-  yetkiTanim: String(module.sayfaKod ?? ""),
+  yetkiKod: String(module.sayfaKod ?? ""),
+  yetkiTanim: String(module.menuAdi ?? ""),
   goruntule: Boolean(roleAuth?.goruntule),
   ekle: Boolean(roleAuth?.ekle),
   degistir: Boolean(roleAuth?.degistir),

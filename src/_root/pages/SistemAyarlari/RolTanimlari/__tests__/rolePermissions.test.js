@@ -24,7 +24,7 @@ describe("role permission mapping", () => {
     expect(permissions.find((permission) => permission.menuAdi === "ayarlarA")?.sil).toBe(false);
     expect(permissions.find((permission) => permission.menuAdi === "ayarlarB")?.sil).toBe(true);
     expect(permissions.find((permission) => permission.menuAdi === "arac")?.goruntule).toBe(true);
-    expect(permissions.find((permission) => permission.menuAdi === "arac")).toMatchObject({ yetkiKod: "arac", yetkiTanim: "00012" });
+    expect(permissions.find((permission) => permission.menuAdi === "arac")).toMatchObject({ yetkiKod: "00012", yetkiTanim: "arac" });
     expect(result.groups.find((group) => group.menuAdi === "yonetim")?.anaMenuId).toBe(267);
     expect(result.preservedAuths).toEqual([roleAuths[2]]);
   });
@@ -65,8 +65,9 @@ describe("role permission mapping", () => {
     expect(updatePayload.varsayilan).toBe(true);
     expect(updatePayload.roleAuths.every((roleAuth) => roleAuth.rolSiraNo === 8)).toBe(true);
     [createPayload, updatePayload].forEach((payload) => {
-      expect(payload.roleAuths.some((roleAuth) => roleAuth.yetkiKod === "yonetim")).toBe(false);
-      expect(payload.roleAuths.some((roleAuth) => roleAuth.yetkiKod === "dokumanYonetimi")).toBe(false);
+      expect(payload.roleAuths.some((roleAuth) => roleAuth.yetkiTanim === "yonetim")).toBe(false);
+      expect(payload.roleAuths.some((roleAuth) => roleAuth.yetkiTanim === "dokumanYonetimi")).toBe(false);
+      expect(payload.roleAuths.find((roleAuth) => roleAuth.yetkiTanim === "arac")).toMatchObject({ yetkiKod: "00012", yetkiTanim: "arac" });
     });
     expect(updatePayload.roleAuths.find((roleAuth) => roleAuth.yetkiKod === "LEGACY")).toEqual({
       rolSiraNo: 8,
