@@ -1035,5 +1035,20 @@
   "rolKullaniciStandart": "İstifadəçi",
   "rolKullaniciEkle": "İstifadəçi Əlavə Et",
   "rolKullanicilariYuklenemedi": "Rola bağlı istifadəçiləri yükləmək mümkün olmadı.",
-  "rolKullaniciKaydiBulunamadi": "Bu rola bağlı istifadəçi tapılmadı."
+  "rolKullaniciKaydiBulunamadi": "Bu rola bağlı istifadəçi tapılmadı.",
+  "toplamSurucu": "Ümumi Sürücü",
+  "listelenenToplamSurucuKaydi": "Siyahıdakı ümumi sürücü qeydi",
+  "mobilKullanimOrani": "Mobil İstifadə Nisbəti",
+  "mobilErisimiAktifSuruculer": "Mobil girişi aktiv olan sürücülər",
+  "cezaPuaniBulunan": "Cəza Xalı Olan",
+  "cezaPuaniSifirdanBuyukSuruculer": "Cəza xalı 0-dan böyük olan sürücülər",
+  "mobil": "Mobil",
+  "riskSkoru": "Risk Xalı",
+  "tumSurucuTipleri": "Bütün Sürücü Tipləri",
+  "tumLokasyonlar": "Bütün Yerləşmələr",
+  "surucuAramaPlaceholder": "Sürücü adı, kodu və ya telefonu ilə axtar",
+  "surucuKod": "Sürücü Kodu",
+  "aramaYap": "Axtarış...",
+  "suruculer": "Sürücülər",
+  "cezaPuani": "Cəza Xalı"
 }

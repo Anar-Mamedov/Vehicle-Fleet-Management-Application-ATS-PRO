@@ -12,3 +12,12 @@
     height: 100%;
     cursor: col-resize;
 }
+
+/* Sürücü listesi tablosu başlık stili */
+.surucu-listesi-tablo .ant-table-thead > tr > th {
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7a8a;
+}

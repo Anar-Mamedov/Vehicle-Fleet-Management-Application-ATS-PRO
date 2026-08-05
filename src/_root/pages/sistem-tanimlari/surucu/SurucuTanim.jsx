@@ -1,24 +1,47 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip } from "antd";
-import { HolderOutlined, SearchOutlined, MenuOutlined, HomeOutlined, ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, Avatar, message } from "antd";
+import { HolderOutlined, SearchOutlined, MenuOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Resizable } from "react-resizable";
+import { FormProvider, useForm } from "react-hook-form";
+import styled from "styled-components";
+import { t } from "i18next";
 import "./ResizeStyle.css";
 import AxiosInstance from "../../../../api/http";
-import { useFormContext } from "react-hook-form";
-import styled from "styled-components";
+import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
+import DriverStatisticsCards from "./components/DriverStatisticsCards";
+import Filters, { DEFAULT_DRIVER_FILTERS } from "./filter/Filters";
 import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
-import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
-import { t } from "i18next";
 import ExcelExportButton from "../../../components/ExcelExportButton";
 import { GetDriversReportService } from "../../../../api/services/sistem-tanimlari/surucu_services";
 
 const { Text } = Typography;
+
+const SECONDARY_TEXT_COLOR = "#8c8c8c";
+
+const secondaryLineStyle = {
+  fontSize: "12px",
+  color: SECONDARY_TEXT_COLOR,
+  lineHeight: "18px",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+const primaryLineStyle = {
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+const tagStyle = {
+  borderRadius: "12px",
+  margin: 0,
+};
 
 const StyledButton = styled(Button)`
   display: flex;
@@ -27,6 +50,46 @@ const StyledButton = styled(Button)`
   padding: 0px 8px;
   height: 32px !important;
 `;
+
+const buildFilterPayload = (filters) => ({
+  lokasyonIds: filters?.lokasyonIds || [],
+  surucuTipIds: filters?.surucuTipIds || [],
+  status: filters?.status || 0,
+});
+
+const getInitials = (name) => {
+  if (!name) return "";
+
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join("")
+    .toLocaleUpperCase("tr-TR");
+};
+
+// Excel'de tabloda görünen değerler yazılır (boolean alanlar Aktif/Pasif, iletişimde ekrandaki telefon)
+const formatExcelCellValue = (value, row, column) => {
+  if (column.key === "mobilErisim" || column.key === "aktif") {
+    return value ? t("aktif") : t("pasif");
+  }
+
+  if (column.key === "iletisim") {
+    return row.telefon1 || row.gsm || row.telefon2 || "";
+  }
+
+  return value;
+};
+
+// Ceza puanı arttıkça uyarı rengi koyulaşır
+const getCezaPuaniColor = (cezaPuani) => {
+  const puan = Number(cezaPuani) || 0;
+
+  if (puan >= 30) return "error";
+  if (puan >= 15) return "warning";
+  return "default";
+};
 
 // Sütunların boyutlarını ayarlamak için kullanılan component
 
@@ -90,11 +153,6 @@ const DraggableRow = ({ id, text, index, moveRow, className, style, visible, onV
 
   return (
     <div ref={setNodeRef} style={styleWithTransform} {...restProps} {...attributes}>
-      {/* <Checkbox
-        checked={visible}
-        onChange={(e) => onVisibilityChange(index, e.target.checked)}
-        style={{ marginLeft: "auto" }}
-      /> */}
       <div
         {...listeners}
         style={{
@@ -119,76 +177,98 @@ const Yakit = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false); // Set initial loading state to false
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchTimeout, setSearchTimeout] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0); // Total data count
-  const [pageSize, setPageSize] = useState(10); // Page size
   const [drawer, setDrawer] = useState({
     visible: false,
     data: null,
   });
-  const navigate = useNavigate();
+  const [statisticsRequest, setStatisticsRequest] = useState({
+    searchTerm: "",
+    filters: buildFilterPayload(DEFAULT_DRIVER_FILTERS),
+    requestId: 0,
+  });
 
   const [selectedRows, setSelectedRows] = useState([]);
-  const currentPageRequestRef = useRef({ diff: 0, setPointId: 0, targetPage: 1, parameter: "" });
+  const methods = useForm();
+
+  // İstekler her zaman güncel arama/filtre değerleriyle çalışsın diye ref üzerinde tutuluyor
+  const searchTermRef = useRef("");
+  const filtersRef = useRef(DEFAULT_DRIVER_FILTERS);
+  const dataRef = useRef([]);
+  const currentPageRequestRef = useRef({ diff: 0, setPointId: 0, targetPage: 1 });
+
+  const triggerStatisticsRefresh = useCallback(() => {
+    setStatisticsRequest((prev) => ({
+      searchTerm: searchTermRef.current,
+      filters: buildFilterPayload(filtersRef.current),
+      requestId: prev.requestId + 1,
+    }));
+  }, []);
 
   // API Data Fetching with diff and setPointId
-  const fetchData = async (diff, targetPage) => {
+  const fetchData = useCallback(async (diff, targetPage) => {
     setLoading(true);
     try {
+      const currentList = dataRef.current;
       let currentSetPointId = 0;
 
       if (diff > 0) {
         // Moving forward
-        currentSetPointId = data[data.length - 1]?.surucuId || 0;
+        currentSetPointId = currentList[currentList.length - 1]?.surucuId || 0;
       } else if (diff < 0) {
         // Moving backward
-        currentSetPointId = data[0]?.surucuId || 0;
-      } else {
-        currentSetPointId = 0;
+        currentSetPointId = currentList[0]?.surucuId || 0;
       }
 
-      const response = await AxiosInstance.get(`Driver/GetDriverList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`);
+      const response = await AxiosInstance.post(
+        `Driver/GetDriverList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${encodeURIComponent(searchTermRef.current)}`,
+        buildFilterPayload(filtersRef.current)
+      );
 
-      const total = response.data.recordCount;
-      setTotalCount(total);
+      setTotalCount(response.data.recordCount);
       setCurrentPage(targetPage);
 
-      const newData = response.data.list.map((item) => ({
+      const newData = (response.data.list || []).map((item) => ({
         ...item,
-        key: item.surucuId, // Assign key directly from siraNo
+        key: item.surucuId,
       }));
 
       currentPageRequestRef.current = {
         diff,
         setPointId: currentSetPointId,
         targetPage,
-        parameter: searchTerm,
       };
 
-      if (newData.length > 0) {
-        setData(newData);
-      } else {
-        // message.warning("No data found.");
-        setData([]);
-      }
+      dataRef.current = newData;
+      setData(newData);
     } catch (error) {
       console.error("Error fetching data:", error);
       message.error("An error occurred while fetching data.");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchData]);
 
   // Search handling
-  // Define handleSearch function
   const handleSearch = () => {
+    searchTermRef.current = searchTerm;
     fetchData(0, 1);
+    triggerStatisticsRefresh();
+  };
+
+  // Filtreler yalnızca arama butonuna basıldığında uygulanır
+  const handleFilterChange = (field, value) => {
+    if (field !== "filters") return;
+
+    filtersRef.current = value;
+    searchTermRef.current = searchTerm;
+    fetchData(0, 1);
+    triggerStatisticsRefresh();
   };
 
   const handleTableChange = (page) => {
@@ -218,8 +298,8 @@ const Yakit = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
     fetchData(0, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    triggerStatisticsRefresh();
+  }, [fetchData, triggerStatisticsRefresh]);
 
   const refreshCurrentPageData = useCallback(async () => {
     setSelectedRowKeys([]);
@@ -227,97 +307,91 @@ const Yakit = () => {
     setLoading(true);
 
     try {
-      const { diff, setPointId, targetPage, parameter } = currentPageRequestRef.current;
-      const response = await AxiosInstance.get(`Driver/GetDriverList?diff=${diff}&setPointId=${setPointId}&parameter=${parameter}`);
-      const newData = response.data.list.map((item) => ({
+      const { diff, setPointId, targetPage } = currentPageRequestRef.current;
+      const response = await AxiosInstance.post(
+        `Driver/GetDriverList?diff=${diff}&setPointId=${setPointId}&parameter=${encodeURIComponent(searchTermRef.current)}`,
+        buildFilterPayload(filtersRef.current)
+      );
+
+      const newData = (response.data.list || []).map((item) => ({
         ...item,
         key: item.surucuId,
       }));
 
       setTotalCount(response.data.recordCount);
       setCurrentPage(targetPage);
+      dataRef.current = newData;
       setData(newData);
+      triggerStatisticsRefresh();
     } catch (error) {
       console.error("Error fetching data:", error);
       message.error("An error occurred while fetching data.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [triggerStatisticsRefresh]);
 
   // Columns definition (adjust as needed)
   const initialColumns = [
     {
-      title: t("surucuKod"),
-      dataIndex: "surucuKod",
-      key: "surucuKod",
-      width: 120,
-      ellipsis: true,
-      visible: true,
-      render: (text, record) => <a onClick={() => onRowClick(record)}>{text}</a>,
-      sorter: (a, b) => {
-        if (a.surucuKod === null) return -1;
-        if (b.surucuKod === null) return 1;
-        return a.surucuKod.localeCompare(b.surucuKod);
-      },
-    },
-
-    {
-      title: t("isim"),
+      title: t("surucu"),
       dataIndex: "isim",
-      key: "isim",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
+      key: "surucu",
+      width: 270,
+      visible: true,
       sorter: (a, b) => {
         if (a.isim === null) return -1;
         if (b.isim === null) return 1;
         return a.isim.localeCompare(b.isim);
       },
+      render: (text, record) => (
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <Avatar style={{ backgroundColor: "#f0f2f5", color: "#5d6786", flexShrink: 0 }}>{getInitials(record.isim)}</Avatar>
+          <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+            <a onClick={() => onRowClick(record)} style={{ ...primaryLineStyle, fontWeight: 600 }}>
+              {record.isim}
+            </a>
+            <span style={secondaryLineStyle}>{record.surucuKod}</span>
+            {record.gorev ? <span style={secondaryLineStyle}>{record.gorev}</span> : null}
+          </div>
+        </div>
+      ),
     },
+
     {
       title: t("lokasyon"),
       dataIndex: "lokasyon",
       key: "lokasyon",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
+      width: 170,
+      visible: true,
       sorter: (a, b) => {
         if (a.lokasyon === null) return -1;
         if (b.lokasyon === null) return 1;
         return a.lokasyon.localeCompare(b.lokasyon);
       },
+      render: (text, record) => (
+        <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <span style={primaryLineStyle}>{record.lokasyon || "-"}</span>
+          {record.departman ? <span style={secondaryLineStyle}>{record.departman}</span> : null}
+        </div>
+      ),
     },
 
     {
-      title: t("departman"),
-      dataIndex: "departman",
-      key: "departman",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
+      title: t("iletisim"),
+      dataIndex: "telefon1",
+      key: "iletisim",
+      width: 210,
+      visible: true,
+      render: (text, record) => {
+        const telefon = record.telefon1 || record.gsm || record.telefon2;
 
-      sorter: (a, b) => {
-        if (a.departman === null) return -1;
-        if (b.departman === null) return 1;
-        return a.departman - b.departman;
-      },
-    },
-
-    {
-      title: t("adres"),
-      dataIndex: "adres",
-      key: "adres",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.adres === null) return -1;
-        if (b.adres === null) return 1;
-        return a.adres - b.adres;
+        return (
+          <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+            <span style={primaryLineStyle}>{telefon || "-"}</span>
+            {record.email ? <span style={secondaryLineStyle}>{record.email}</span> : null}
+          </div>
+        );
       },
     },
 
@@ -325,145 +399,72 @@ const Yakit = () => {
       title: t("surucuTip"),
       dataIndex: "surucuTip",
       key: "surucuTip",
-      width: 120,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
+      width: 160,
+      visible: true,
       sorter: (a, b) => {
         if (a.surucuTip === null) return -1;
         if (b.surucuTip === null) return 1;
-        return a.surucuTip - b.surucuTip;
+        return a.surucuTip.localeCompare(b.surucuTip);
       },
+      render: (text) => (text ? <Tag style={tagStyle}>{text}</Tag> : "-"),
     },
 
     {
-      title: t("gorev"),
-      dataIndex: "gorev",
-      key: "gorev",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.gorev === null) return -1;
-        if (b.gorev === null) return 1;
-        return a.gorev.localeCompare(b.gorev);
-      },
+      title: t("mobil"),
+      dataIndex: "mobilErisim",
+      key: "mobilErisim",
+      width: 120,
+      visible: true,
+      sorter: (a, b) => Number(a.mobilErisim) - Number(b.mobilErisim),
+      render: (mobilErisim) => (
+        <Tag color={mobilErisim ? "processing" : "default"} style={tagStyle}>
+          {mobilErisim ? t("aktif") : t("pasif")}
+        </Tag>
+      ),
     },
 
     {
-      title: t("il"),
-      dataIndex: "il",
-      key: "il",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.il === null) return -1;
-        if (b.il === null) return 1;
-        return a.il.localeCompare(b.il);
-      },
+      title: t("cezaPuani"),
+      dataIndex: "cezaPuani",
+      key: "cezaPuani",
+      width: 160,
+      visible: true,
+      sorter: (a, b) => (Number(a.cezaPuani) || 0) - (Number(b.cezaPuani) || 0),
+      render: (cezaPuani, record) => (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
+          <Tag color={getCezaPuaniColor(cezaPuani)} style={tagStyle}>{`${t("puan")}: ${formatNumberWithLocale(cezaPuani ?? 0)}`}</Tag>
+          <span style={secondaryLineStyle}>{`${t("riskSkoru")}: ${formatNumberWithLocale(record.risSkoru ?? 0)}`}</span>
+        </div>
+      ),
     },
 
     {
-      title: t("ilce"),
-      dataIndex: "ilce",
-      key: "ilce",
-      width: 130,
-      ellipsis: true,
-      visible: true, // Varsayılan olarak açık
-
-      sorter: (a, b) => {
-        if (a.ilce === null) return -1;
-        if (b.ilce === null) return 1;
-        return a.ilce.localeCompare(b.ilce);
-      },
+      title: t("durum"),
+      dataIndex: "aktif",
+      key: "aktif",
+      width: 110,
+      visible: true,
+      sorter: (a, b) => Number(a.aktif) - Number(b.aktif),
+      render: (aktif) => (
+        <Tag color={aktif ? "success" : "error"} style={tagStyle}>
+          {aktif ? t("aktif") : t("pasif")}
+        </Tag>
+      ),
     },
-
-    // Add other columns as needed
   ];
-
-  // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için
-
-  // Intl.DateTimeFormat kullanarak tarih formatlama
-  const formatDate = (date) => {
-    if (!date) return "";
-
-    // Örnek bir tarih formatla ve ay formatını belirle
-    const sampleDate = new Date(2021, 0, 21); // Ocak ayı için örnek bir tarih
-    const sampleFormatted = new Intl.DateTimeFormat(navigator.language).format(sampleDate);
-
-    let monthFormat;
-    if (sampleFormatted.includes("January")) {
-      monthFormat = "long"; // Tam ad ("January")
-    } else if (sampleFormatted.includes("Jan")) {
-      monthFormat = "short"; // Üç harfli kısaltma ("Jan")
-    } else {
-      monthFormat = "2-digit"; // Sayısal gösterim ("01")
-    }
-
-    // Kullanıcı için tarihi formatla
-    const formatter = new Intl.DateTimeFormat(navigator.language, {
-      year: "numeric",
-      month: monthFormat,
-      day: "2-digit",
-    });
-    return formatter.format(new Date(date));
-  };
-
-  const formatTime = (time) => {
-    if (!time || time.trim() === "") return ""; // `trim` metodu ile baştaki ve sondaki boşlukları temizle
-
-    try {
-      // Saati ve dakikayı parçalara ayır, boşlukları temizle
-      const [hours, minutes] = time
-        .trim()
-        .split(":")
-        .map((part) => part.trim());
-
-      // Saat ve dakika değerlerinin geçerliliğini kontrol et
-      const hoursInt = parseInt(hours, 10);
-      const minutesInt = parseInt(minutes, 10);
-      if (isNaN(hoursInt) || isNaN(minutesInt) || hoursInt < 0 || hoursInt > 23 || minutesInt < 0 || minutesInt > 59) {
-        // throw new Error("Invalid time format"); // hata fırlatır ve uygulamanın çalışmasını durdurur
-        console.error("Invalid time format:", time);
-        // return time; // Hatalı formatı olduğu gibi döndür
-        return ""; // Hata durumunda boş bir string döndür
-      }
-
-      // Geçerli tarih ile birlikte bir Date nesnesi oluştur ve sadece saat ve dakika bilgilerini ayarla
-      const date = new Date();
-      date.setHours(hoursInt, minutesInt, 0);
-
-      // Kullanıcının lokal ayarlarına uygun olarak saat ve dakikayı formatla
-      // `hour12` seçeneğini belirtmeyerek Intl.DateTimeFormat'ın kullanıcının yerel ayarlarına göre otomatik seçim yapmasına izin ver
-      const formatter = new Intl.DateTimeFormat(navigator.language, {
-        hour: "numeric",
-        minute: "2-digit",
-        // hour12 seçeneği burada belirtilmiyor; böylece otomatik olarak kullanıcının sistem ayarlarına göre belirleniyor
-      });
-
-      // Formatlanmış saati döndür
-      return formatter.format(date);
-    } catch (error) {
-      console.error("Error formatting time:", error);
-      return ""; // Hata durumunda boş bir string döndür
-      // return time; // Hatalı formatı olduğu gibi döndür
-    }
-  };
-
-  // tarihleri kullanıcının local ayarlarına bakarak formatlayıp ekrana o şekilde yazdırmak için sonu
 
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
-    const savedOrder = localStorage.getItem("columnOrderSurucu");
-    const savedVisibility = localStorage.getItem("columnVisibilitySurucu");
-    const savedWidths = localStorage.getItem("columnWidthsSurucu");
+    const savedOrder = localStorage.getItem("columnOrderSurucuListesi");
+    const savedVisibility = localStorage.getItem("columnVisibilitySurucuListesi");
+    const savedWidths = localStorage.getItem("columnWidthsSurucuListesi");
 
     let order = savedOrder ? JSON.parse(savedOrder) : [];
     let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
     let widths = savedWidths ? JSON.parse(savedWidths) : {};
+
+    // Tanımı kaldırılmış sütunlar kayıtlı ayarlardan temizlenir
+    order = order.filter((key) => initialColumns.some((col) => col.key === key));
 
     initialColumns.forEach((col) => {
       if (!order.includes(col.key)) {
@@ -477,9 +478,9 @@ const Yakit = () => {
       }
     });
 
-    localStorage.setItem("columnOrderSurucu", JSON.stringify(order));
-    localStorage.setItem("columnVisibilitySurucu", JSON.stringify(visibility));
-    localStorage.setItem("columnWidthsSurucu", JSON.stringify(widths));
+    localStorage.setItem("columnOrderSurucuListesi", JSON.stringify(order));
+    localStorage.setItem("columnVisibilitySurucuListesi", JSON.stringify(visibility));
+    localStorage.setItem("columnWidthsSurucuListesi", JSON.stringify(widths));
 
     return order.map((key) => {
       const column = initialColumns.find((col) => col.key === key);
@@ -489,9 +490,9 @@ const Yakit = () => {
 
   // Save columns to localStorage
   useEffect(() => {
-    localStorage.setItem("columnOrderSurucu", JSON.stringify(columns.map((col) => col.key)));
+    localStorage.setItem("columnOrderSurucuListesi", JSON.stringify(columns.map((col) => col.key)));
     localStorage.setItem(
-      "columnVisibilitySurucu",
+      "columnVisibilitySurucuListesi",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -503,7 +504,7 @@ const Yakit = () => {
       )
     );
     localStorage.setItem(
-      "columnWidthsSurucu",
+      "columnWidthsSurucuListesi",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -568,9 +569,9 @@ const Yakit = () => {
 
   // Reset columns
   const resetColumns = () => {
-    localStorage.removeItem("columnOrderSurucu");
-    localStorage.removeItem("columnVisibilitySurucu");
-    localStorage.removeItem("columnWidthsSurucu");
+    localStorage.removeItem("columnOrderSurucuListesi");
+    localStorage.removeItem("columnVisibilitySurucuListesi");
+    localStorage.removeItem("columnWidthsSurucuListesi");
     window.location.reload();
   };
 
@@ -660,86 +661,89 @@ const Yakit = () => {
         </div>
       </Modal>
 
-      {/* Toolbar */}
-      <div
-        style={{
-          backgroundColor: "white",
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
-          marginBottom: "15px",
-          gap: "10px",
-          padding: "15px",
-          borderRadius: "8px 8px 8px 8px",
-        }}
-      >
+      <FormProvider {...methods}>
+        {/* KPI kutuları */}
+        <DriverStatisticsCards request={statisticsRequest} />
+
+        {/* Toolbar */}
         <div
           style={{
+            backgroundColor: "white",
             display: "flex",
-            gap: "10px",
-            alignItems: "center",
-            width: "100%",
-            maxWidth: "935px",
             flexWrap: "wrap",
+            justifyContent: "space-between",
+            marginBottom: "15px",
+            gap: "10px",
+            padding: "15px",
+            borderRadius: "8px 8px 8px 8px",
           }}
         >
-          <StyledButton onClick={() => setIsModalVisible(true)}>
-            <MenuOutlined />
-          </StyledButton>
-          <Input
-            style={{ width: "250px" }}
-            type="text"
-            placeholder="Arama yap..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onPressEnter={handleSearch}
-            // prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
-            suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
-          />
-          {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
-          {/* Other toolbar components */}
-        </div>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <ExcelExportButton
-            request={() => GetDriversReportService(searchTerm)}
-            columns={filteredColumns}
-            fileName="Suruculer_Listesi.xlsx"
-            sheetName={t("suruculer")}
-          />
-          <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-          <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
-        </div>
-      </div>
-
-      {/* Table */}
-      <div
-        style={{
-          backgroundColor: "white",
-          padding: "10px",
-          height: "calc(100vh - 200px)",
-          borderRadius: "8px 8px 8px 8px",
-        }}
-      >
-        <Spin spinning={loading}>
-          <Table
-            components={components}
-            rowSelection={rowSelection}
-            columns={filteredColumns}
-            dataSource={data}
-            pagination={{
-              current: currentPage,
-              total: totalCount,
-              pageSize: 10,
-              showSizeChanger: false,
-              showQuickJumper: true,
-              onChange: handleTableChange,
-              showTotal: (total) => `Toplam ${total}`,
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              alignItems: "center",
+              flexWrap: "wrap",
             }}
-            scroll={{ y: "calc(100vh - 335px)" }}
-          />
-        </Spin>
-        <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshCurrentPageData} />
-      </div>
+          >
+            <StyledButton onClick={() => setIsModalVisible(true)}>
+              <MenuOutlined />
+            </StyledButton>
+            <Input
+              style={{ width: "300px" }}
+              type="text"
+              placeholder={t("surucuAramaPlaceholder")}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onPressEnter={handleSearch}
+              suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
+            />
+            <Filters onChange={handleFilterChange} />
+          </div>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <ExcelExportButton
+              request={() => GetDriversReportService(searchTermRef.current, buildFilterPayload(filtersRef.current))}
+              columns={filteredColumns}
+              fileName="Suruculer_Listesi.xlsx"
+              sheetName={t("suruculer")}
+              formatCellValue={formatExcelCellValue}
+            />
+            <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+            <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div
+          style={{
+            backgroundColor: "white",
+            padding: "10px",
+            height: "calc(100vh - 327px)",
+            borderRadius: "8px 8px 8px 8px",
+          }}
+        >
+          <Spin spinning={loading}>
+            <Table
+              className="surucu-listesi-tablo"
+              components={components}
+              rowSelection={rowSelection}
+              columns={filteredColumns}
+              dataSource={data}
+              pagination={{
+                current: currentPage,
+                total: totalCount,
+                pageSize: 10,
+                showSizeChanger: false,
+                showQuickJumper: true,
+                onChange: handleTableChange,
+                showTotal: (total) => `Toplam ${total}`,
+              }}
+              scroll={{ y: "calc(100vh - 462px)" }}
+            />
+          </Spin>
+          <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshCurrentPageData} />
+        </div>
+      </FormProvider>
     </>
   );
 };

@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 
 const { Search } = Input;
 
-export default function LokasyonTablo({ workshopSelectedId, onSubmit, multiSelect = false, fieldName = "lokasyon", style = {} }) {
+export default function LokasyonTablo({ workshopSelectedId, onSubmit, multiSelect = false, fieldName = "lokasyon", style = {}, placeholder }) {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false);
   const [treeData, setTreeData] = useState([]);
@@ -233,7 +233,7 @@ export default function LokasyonTablo({ workshopSelectedId, onSubmit, multiSelec
               <Input
                 {...field}
                 status={error ? "error" : ""}
-                placeholder={multiSelect ? t("lokasyonlarSec") : t("lokasyonSec")}
+                placeholder={placeholder || (multiSelect ? t("lokasyonlarSec") : t("lokasyonSec"))}
                 readOnly={true}
                 suffix={
                   field.value ? (
@@ -280,4 +280,5 @@ LokasyonTablo.propTypes = {
   onSubmit: PropTypes.func,
   multiSelect: PropTypes.bool,
   fieldName: PropTypes.string,
+  placeholder: PropTypes.string,
 };

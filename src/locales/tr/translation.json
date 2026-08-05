@@ -1754,5 +1754,16 @@
   "rolKullaniciStandart": "Kullanıcı",
   "rolKullaniciEkle": "Kullanıcı Ekle",
   "rolKullanicilariYuklenemedi": "Role bağlı kullanıcılar yüklenemedi.",
-  "rolKullaniciKaydiBulunamadi": "Bu role bağlı kullanıcı bulunamadı."
+  "rolKullaniciKaydiBulunamadi": "Bu role bağlı kullanıcı bulunamadı.",
+  "toplamSurucu": "Toplam Sürücü",
+  "listelenenToplamSurucuKaydi": "Listelenen toplam sürücü kaydı",
+  "mobilKullanimOrani": "Mobil Kullanım Oranı",
+  "mobilErisimiAktifSuruculer": "Mobil erişimi aktif olan sürücüler",
+  "cezaPuaniBulunan": "Ceza Puanı Bulunan",
+  "cezaPuaniSifirdanBuyukSuruculer": "Ceza puanı 0'dan büyük olan sürücüler",
+  "mobil": "Mobil",
+  "riskSkoru": "Risk Skoru",
+  "tumSurucuTipleri": "Tüm Sürücü Tipleri",
+  "tumLokasyonlar": "Tüm Lokasyonlar",
+  "surucuAramaPlaceholder": "Sürücü adı, kodu veya telefon ile ara"
 }

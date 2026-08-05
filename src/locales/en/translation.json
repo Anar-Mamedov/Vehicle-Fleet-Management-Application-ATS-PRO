@@ -1508,5 +1508,16 @@
   "rolKullaniciStandart": "User",
   "rolKullaniciEkle": "Add User",
   "rolKullanicilariYuklenemedi": "Users assigned to the role could not be loaded.",
-  "rolKullaniciKaydiBulunamadi": "No users are assigned to this role."
+  "rolKullaniciKaydiBulunamadi": "No users are assigned to this role.",
+  "toplamSurucu": "Total Drivers",
+  "listelenenToplamSurucuKaydi": "Total listed driver records",
+  "mobilKullanimOrani": "Mobile Usage Rate",
+  "mobilErisimiAktifSuruculer": "Drivers with active mobile access",
+  "cezaPuaniBulunan": "With Penalty Points",
+  "cezaPuaniSifirdanBuyukSuruculer": "Drivers with penalty points greater than 0",
+  "mobil": "Mobile",
+  "riskSkoru": "Risk Score",
+  "tumSurucuTipleri": "All Driver Types",
+  "tumLokasyonlar": "All Locations",
+  "surucuAramaPlaceholder": "Search by driver name, code or phone"
 }
