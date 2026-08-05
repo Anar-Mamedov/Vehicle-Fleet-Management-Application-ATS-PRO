@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, Avatar, message } from "antd";
+import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message } from "antd";
 import { HolderOutlined, SearchOutlined, MenuOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -13,6 +13,7 @@ import AxiosInstance from "../../../../api/http";
 import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
 import DriverStatisticsCards from "./components/DriverStatisticsCards";
+import SurucuAvatar from "./components/SurucuAvatar";
 import Filters, { DEFAULT_DRIVER_FILTERS } from "./filter/Filters";
 import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
@@ -56,18 +57,6 @@ const buildFilterPayload = (filters) => ({
   surucuTipIds: filters?.surucuTipIds || [],
   status: filters?.status || 0,
 });
-
-const getInitials = (name) => {
-  if (!name) return "";
-
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part.charAt(0))
-    .join("")
-    .toLocaleUpperCase("tr-TR");
-};
 
 // Excel'de tabloda görünen değerler yazılır (boolean alanlar Aktif/Pasif, iletişimde ekrandaki telefon)
 const formatExcelCellValue = (value, row, column) => {
@@ -346,7 +335,7 @@ const Yakit = () => {
       },
       render: (text, record) => (
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <Avatar style={{ backgroundColor: "#f0f2f5", color: "#5d6786", flexShrink: 0 }}>{getInitials(record.isim)}</Avatar>
+          <SurucuAvatar surucuId={record.surucuId} isim={record.isim} />
           <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
             <a onClick={() => onRowClick(record)} style={{ ...primaryLineStyle, fontWeight: 600 }}>
               {record.isim}
