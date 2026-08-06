@@ -64,8 +64,12 @@ const formatExcelCellValue = (value, row, column) => {
     return value ? t("aktif") : t("pasif");
   }
 
-  if (column.key === "iletisim") {
+  if (column.key === "iletisimTelefon") {
     return row.telefon1 || row.gsm || row.telefon2 || "";
+  }
+
+  if (column.key === "cezaPuaniDeger" || column.key === "riskSkoru") {
+    return value ?? 0;
   }
 
   return value;
@@ -328,6 +332,12 @@ const Yakit = () => {
       key: "surucu",
       width: 270,
       visible: true,
+      // Hücrede isim + kod + görev gösterildiği için Excel'de üç ayrı sütuna açılır
+      excelColumns: [
+        { title: t("surucu"), dataIndex: "isim", key: "surucuIsim", width: 200 },
+        { title: t("surucuKod"), dataIndex: "surucuKod", key: "surucuKod", width: 130 },
+        { title: t("gorev"), dataIndex: "gorev", key: "gorev", width: 160 },
+      ],
       sorter: (a, b) => {
         if (a.isim === null) return -1;
         if (b.isim === null) return 1;
@@ -353,6 +363,11 @@ const Yakit = () => {
       key: "lokasyon",
       width: 170,
       visible: true,
+      // Hücrede lokasyon + departman gösterildiği için Excel'de iki ayrı sütuna açılır
+      excelColumns: [
+        { title: t("lokasyon"), dataIndex: "lokasyon", key: "lokasyonAd", width: 160 },
+        { title: t("departman"), dataIndex: "departman", key: "departman", width: 160 },
+      ],
       sorter: (a, b) => {
         if (a.lokasyon === null) return -1;
         if (b.lokasyon === null) return 1;
@@ -372,6 +387,11 @@ const Yakit = () => {
       key: "iletisim",
       width: 210,
       visible: true,
+      // Hücrede telefon + e-posta gösterildiği için Excel'de iki ayrı sütuna açılır
+      excelColumns: [
+        { title: t("telefon"), dataIndex: "telefon1", key: "iletisimTelefon", width: 150 },
+        { title: t("email"), dataIndex: "email", key: "iletisimEmail", width: 200 },
+      ],
       render: (text, record) => {
         const telefon = record.telefon1 || record.gsm || record.telefon2;
 
@@ -418,6 +438,11 @@ const Yakit = () => {
       key: "cezaPuani",
       width: 160,
       visible: true,
+      // Hücrede ceza puanı + risk skoru gösterildiği için Excel'de iki ayrı sütuna açılır
+      excelColumns: [
+        { title: t("cezaPuani"), dataIndex: "cezaPuani", key: "cezaPuaniDeger", width: 130 },
+        { title: t("riskSkoru"), dataIndex: "risSkoru", key: "riskSkoru", width: 130 },
+      ],
       sorter: (a, b) => (Number(a.cezaPuani) || 0) - (Number(b.cezaPuani) || 0),
       render: (cezaPuani, record) => (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>

@@ -47,6 +47,16 @@ const getCellValue = (row, dataIndex) => {
   return row?.[dataIndex];
 };
 
+// Tabloda tek hücrede birden fazla veri gösteren sütunlar Excel'de ayrı sütunlara açılır
+const getExportColumns = (columns) =>
+  columns.flatMap((column) => {
+    if (Array.isArray(column.excelColumns)) {
+      return column.excelColumns.filter((excelColumn) => excelColumn.dataIndex);
+    }
+
+    return column.dataIndex ? [column] : [];
+  });
+
 const getDefaultRows = (response) => {
   if (Array.isArray(response?.data)) {
     return response.data;
@@ -73,7 +83,7 @@ export default function ExcelExportButton({ request, columns, fileName, sheetNam
         throw new TypeError("Excel export response must contain an array of rows.");
       }
 
-      const exportColumns = columns.filter((column) => column.dataIndex);
+      const exportColumns = getExportColumns(columns);
       const headers = exportColumns.map(getColumnTitle);
       const exportRows = rows.map((row) =>
         exportColumns.reduce((exportRow, column) => {
@@ -118,6 +128,15 @@ ExcelExportButton.propTypes = {
   columns: PropTypes.arrayOf(
     PropTypes.shape({
       dataIndex: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
+      excelColumns: PropTypes.arrayOf(
+        PropTypes.shape({
+          dataIndex: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
+          excelTitle: PropTypes.string,
+          key: PropTypes.string,
+          title: PropTypes.node,
+          width: PropTypes.number,
+        })
+      ),
       excelTitle: PropTypes.string,
       key: PropTypes.string,
       title: PropTypes.node,

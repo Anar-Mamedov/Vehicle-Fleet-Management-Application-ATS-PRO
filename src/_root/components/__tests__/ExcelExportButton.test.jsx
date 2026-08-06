@@ -86,4 +86,44 @@ describe("ExcelExportButton", () => {
     expect(mocks.appendSheet).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({ "!cols": [{ wpx: 96 }, { wpx: 80 }] }), "Cezalar");
     expect(mocks.writeFile).toHaveBeenCalledWith(expect.any(Object), "Cezalar_Listesi.xlsx", { compression: true });
   });
+
+  it("expands columns that declare excelColumns into separate excel columns", async () => {
+    const request = vi.fn().mockResolvedValue({
+      data: {
+        list: [{ isim: "Demo Sürücü", surucuKod: "SRC0327", cezaPuani: 12, risSkoru: 4 }],
+      },
+    });
+    const columns = [
+      {
+        title: "Sürücü",
+        dataIndex: "isim",
+        key: "surucu",
+        width: 270,
+        excelColumns: [
+          { title: "Sürücü", dataIndex: "isim", key: "surucuIsim", width: 200 },
+          { title: "Sürücü Kodu", dataIndex: "surucuKod", key: "surucuKod", width: 130 },
+        ],
+      },
+      {
+        title: "Ceza Puanı",
+        dataIndex: "cezaPuani",
+        key: "cezaPuani",
+        width: 160,
+        excelColumns: [
+          { title: "Ceza Puanı", dataIndex: "cezaPuani", key: "cezaPuaniDeger", width: 130 },
+          { title: "Risk Skoru", dataIndex: "risSkoru", key: "riskSkoru", width: 130 },
+        ],
+      },
+    ];
+
+    render(<ExcelExportButton request={request} columns={columns} fileName="Suruculer_Listesi.xlsx" sheetName="Sürücüler" />);
+
+    fireEvent.click(screen.getByRole("button", { name: /indir/i }));
+
+    await waitFor(() => expect(mocks.writeFile).toHaveBeenCalled());
+    expect(mocks.jsonToSheet).toHaveBeenCalledWith([{ Sürücü: "Demo Sürücü", "Sürücü Kodu": "SRC0327", "Ceza Puanı": 12, "Risk Skoru": 4 }], {
+      header: ["Sürücü", "Sürücü Kodu", "Ceza Puanı", "Risk Skoru"],
+    });
+    expect(mocks.appendSheet).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({ "!cols": [{ wpx: 160 }, { wpx: 104 }, { wpx: 104 }, { wpx: 104 }] }), "Sürücüler");
+  });
 });
