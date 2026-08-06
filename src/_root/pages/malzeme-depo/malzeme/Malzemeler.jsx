@@ -300,7 +300,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       title: t("malzemeKodu"),
       dataIndex: "malzemeKod",
       key: "malzemeKod",
-      width: 120,
+      width: 70.796875,
       ellipsis: true,
       visible: true,
       render: (text, record) => (
@@ -318,7 +318,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       title: t("malzemeTanimi"),
       dataIndex: "tanim",
       key: "tanim",
-      width: 130,
+      width: 174.515625,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
@@ -344,7 +344,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       title: t("stokMiktar"),
       dataIndex: "stokMiktar",
       key: "stokMiktar",
-      width: 100,
+      width: 70.1875,
       ellipsis: true,
       visible: true,
       render: (text, record) => (
@@ -403,7 +403,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       title: t("birim"),
       dataIndex: "birim",
       key: "birim",
-      width: 100,
+      width: 68.078125,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
@@ -416,7 +416,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       title: t("fiyat"),
       dataIndex: "fiyat",
       key: "fiyat",
-      width: 100,
+      width: 61.984375,
       ellipsis: true,
       visible: true,
       render: (text) => <FormattedNumber num={text} />,
@@ -430,7 +430,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       title: t("tedarikci"),
       dataIndex: "tedarikci",
       key: "tedarikci",
-      width: 150,
+      width: 94.515625,
       ellipsis: true,
       visible: true,
       sorter: (a, b) => {
@@ -445,7 +445,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "seriNo",
       width: 100,
       ellipsis: true,
-      visible: true,
+      visible: false,
       sorter: (a, b) => {
         if (a.seriNo === null) return -1;
         if (b.seriNo === null) return 1;
@@ -458,7 +458,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "barkodNo",
       width: 100,
       ellipsis: true,
-      visible: true,
+      visible: false,
       sorter: (a, b) => {
         if (a.barkodNo === null) return -1;
         if (b.barkodNo === null) return 1;
@@ -471,7 +471,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "depo",
       width: 150,
       ellipsis: true,
-      visible: true,
+      visible: false,
       sorter: (a, b) => {
         if (a.depo === null) return -1;
         if (b.depo === null) return 1;
@@ -484,7 +484,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "bolum",
       width: 120,
       ellipsis: true,
-      visible: true,
+      visible: false,
       sorter: (a, b) => {
         if (a.bolum === null) return -1;
         if (b.bolum === null) return 1;
@@ -497,7 +497,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "raf",
       width: 100,
       ellipsis: true,
-      visible: true,
+      visible: false,
       sorter: (a, b) => {
         if (a.raf === null) return -1;
         if (b.raf === null) return 1;
@@ -508,7 +508,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       title: t("kritikMiktar"),
       dataIndex: "kritikMiktar",
       key: "kritikMiktar",
-      width: 100,
+      width: 56.28125,
       ellipsis: true,
       visible: true,
       render: (text) => <FormattedNumber num={text} />,
@@ -522,7 +522,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       title: t("sonAlisTarihi"),
       dataIndex: "sonAlisTarih",
       key: "sonAlisTarih",
-      width: 120,
+      width: 56.421875,
       ellipsis: true,
       visible: true,
       render: (text) => {
@@ -543,7 +543,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "sonAlinanFirma",
       width: 150,
       ellipsis: true,
-      visible: true,
+      visible: false,
       sorter: (a, b) => {
         if (a.sonAlinanFirma === null) return -1;
         if (b.sonAlinanFirma === null) return 1;
@@ -556,7 +556,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "sonFiyat",
       width: 120,
       ellipsis: true,
-      visible: true,
+      visible: false,
       render: (text) => <FormattedNumber num={text} />,
       sorter: (a, b) => {
         if (a.sonFiyat === null) return -1;
@@ -570,7 +570,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "aktif",
       width: 80,
       ellipsis: true,
-      visible: true,
+      visible: false,
       render: (text, record) => <Checkbox checked={record.aktif} readOnly />,
     },
     {
@@ -579,7 +579,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "kdvOran",
       width: 100,
       ellipsis: true,
-      visible: true,
+      visible: false,
       render: (text) => <FormattedNumber num={text} />,
       sorter: (a, b) => {
         if (a.kdvOran === null) return -1;
@@ -591,7 +591,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       title: t("girenMiktar"),
       dataIndex: "girenMiktar",
       key: "girenMiktar",
-      width: 100,
+      width: 50.734375,
       ellipsis: true,
       visible: true,
       render: (text) => <FormattedNumber num={text} />,
@@ -605,7 +605,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       title: t("cikanMiktar"),
       dataIndex: "cikanMiktar",
       key: "cikanMiktar",
-      width: 100,
+      width: 45.765625,
       ellipsis: true,
       visible: true,
       render: (text) => <FormattedNumber num={text} />,
@@ -621,7 +621,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "yedekParca",
       width: 100,
       ellipsis: true,
-      visible: true,
+      visible: false,
       render: (text, record) => <Checkbox checked={record.yedekParca} readOnly />,
     },
     {
@@ -630,7 +630,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "sarfMlz",
       width: 100,
       ellipsis: true,
-      visible: true,
+      visible: false,
       render: (text, record) => <Checkbox checked={record.sarfMlz} readOnly />,
     },
     {
@@ -639,7 +639,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "demirBas",
       width: 100,
       ellipsis: true,
-      visible: true,
+      visible: false,
       render: (text, record) => <Checkbox checked={record.demirBas} readOnly />,
     },
     /* {
@@ -666,7 +666,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
       key: "aciklama",
       width: 200,
       ellipsis: true,
-      visible: true,
+      visible: false,
       sorter: (a, b) => {
         if (a.aciklama === null) return -1;
         if (b.aciklama === null) return 1;
@@ -692,7 +692,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
           key: `ozelAlan${i}`,
           width: 120,
           ellipsis: true,
-          visible: true,
+          visible: false,
           sorter: (a, b) => {
             if (a[`ozelAlan${i}`] === null) return -1;
             if (b[`ozelAlan${i}`] === null) return 1;
@@ -712,7 +712,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
           key: `ozelAlan${i}`,
           width: 120,
           ellipsis: true,
-          visible: true,
+          visible: false,
           sorter: (a, b) => {
             if (a[`ozelAlan${i}`] === null) return -1;
             if (b[`ozelAlan${i}`] === null) return 1;
@@ -732,7 +732,7 @@ const Malzemeler = ({ isSelectionMode = false, onRowSelect, wareHouseId, isCikis
           key: `ozelAlan${i}`,
           width: 120,
           ellipsis: true,
-          visible: true,
+          visible: false,
           sorter: (a, b) => {
             if (a[`ozelAlan${i}`] === null) return -1;
             if (b[`ozelAlan${i}`] === null) return 1;
