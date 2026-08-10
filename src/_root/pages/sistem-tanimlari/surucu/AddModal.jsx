@@ -8,11 +8,9 @@ import { t } from "i18next";
 import { GetModuleCodeByCode, CodeItemValidateService } from "../../../../api/services/code/services";
 import { AddDriverService } from "../../../../api/services/sistem-tanimlari/services";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
-import GeneralInfo from "./tabs/GeneralInfo";
-import KisiselBilgiler from "./tabs/KisiselBilgiler";
-import KimlikBilgiler from "./tabs/KimlikBilgiler";
-import EhliyetBilgiler from "./tabs/EhliyetBilgiler";
-import MeslekiYeterlilik from "./tabs/MeslekiYeterlilik";
+import TemelBilgiler from "./tabs/TemelBilgiler";
+import EhliyetVeMeslekiBelgeler from "./tabs/EhliyetVeMeslekiBelgeler";
+import DetayBilgiler from "./tabs/DetayBilgiler";
 
 const AddModal = ({ setStatus, onRefresh }) => {
   const isFirstRender = useRef(true);
@@ -101,6 +99,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
 
   const defaultValues = {
     aktif: true,
+    mobilErisim: false,
   };
   const methods = useForm({
     defaultValues: defaultValues,
@@ -125,93 +124,83 @@ const AddModal = ({ setStatus, onRefresh }) => {
     }
   }, [watch("surucuKod")]);
 
-  const onSubmit = handleSubmit((values) => {
+  const formatDate = (value) => (value ? dayjs(value).format("YYYY-MM-DD") : null);
+
+  const onSubmit = handleSubmit(async (values) => {
     const body = {
       surucuKod: values.surucuKod,
-      aktif: values.aktif,
       isim: values.isim,
+      aktif: values.aktif,
       lokasyonId: values.lokasyonId || 0,
       departmanKodId: values.departmanKodId || -1,
-      adres: values.adres,
       surucuTipKodId: values.surucuTipKodId || -1,
       gorevKodId: values.gorevKodId || -1,
-      il: values.il,
-      ilce: values.ilce,
-      telefon1: values.telefon1,
-      telefon2: values.telefon2,
-      fax: values.fax,
+      unvan: values.unvan,
+      mobilErisim: values.mobilErisim || false,
       gsm: values.gsm,
       cezaPuani: values.cezaPuani,
       sifre: values.sifre,
-      kanGrubu: values.kanGrubu,
-      sskNo: values.sskNo,
-      vergiNo: values.vergiNo,
+      iseBaslamaTarih: formatDate(values.iseBaslamaTarih),
+      dogumTarihi: formatDate(values.dogumTarihi),
+      tcKimlikNo: values.tcKimlikNo,
       egitimDurumu: values.egitimDurumu,
       mezunOlduguOkul: values.mezunOlduguOkul,
       mezunOlduguBolum: values.mezunOlduguBolum,
-      iseBaslamaTarih: dayjs(values.iseBaslamaTarih).format("YYYY-MM-DD"),
-      istenAyrilmaTarih: dayjs(values.istenAyrilmaTarih).format("YYYY-MM-DD"),
-      mezuniyetTarih: dayjs(values.mezuniyetTarih).format("YYYY-MM-DD"),
-      tcKimlikNo: values.tcKimlikNo,
-      kimlikSeriNo: values.kimlikSeriNo,
-      babaAdi: values.babaAdi,
-      anaAdi: values.anaAdi,
-      dogumYeri: values.dogumYeri,
-      dini: values.dini,
-      kimlikKayitNo: values.kimlikKayitNo,
-      dogumTarihi: dayjs(values.dogumTarihi).format("YYYY-MM-DD"),
-      medeniHali: values.medeniHali,
-      kayitliOlduguIl: values.kayitliOlduguIl,
-      kayitliOlduguIlce: values.kayitliOlduguIlce,
-      mahalleKoy: values.mahalleKoy,
-      kimlikCiltNo: values.kimlikCiltNo,
-      kimlikAileSiraNo: values.kimlikAileSiraNo,
-      kimlikSiraNo: values.kimlikSiraNo,
-      kimlikVerildigiYer: values.kimlikVerildigiYer,
-      kimlikVerilisNedeni: values.kimlikVerilisNedeni,
-      kimlikVerilisTarihi: dayjs(values.kimlikVerilisTarihi).format("YYYY-MM-DD"),
-      myb: values.myb,
-      mybVerilisTarih: dayjs(values.mybVerilisTarih).format("YYYY-MM-DD"),
-      mybBelgeNo: values.mybBelgeNo,
-      mybKapsadigiDigerMyb: values.mybKapsadigiDigerMyb,
-      mybTuru: values.mybTuru,
-      mybBitisTarih: dayjs(values.mybBitisTarih).format("YYYY-MM-DD"),
-      srcPiskoteknik: values.srcPiskoteknik,
-      srcPiskoteknikVerilisTarihi: dayjs(values.srcPiskoteknikVerilisTarihi).format("YYYY-MM-DD"),
+      mezuniyetTarih: formatDate(values.mezuniyetTarih),
+      isSicilNo: values.isSicilNo,
+      kanGrubu: values.kanGrubu,
+      kiyafetBedeni: values.kiyafetBedeni,
+      acilDurumKisi: values.acilDurumKisi,
+      acilDurumTelefonu: values.acilDurumTelefonu,
+      ileriSurusEgitimi: values.ileriSurusEgitimi || false,
+      yukEmniyetEgitimi: values.yukEmniyetEgitimi || false,
+      src: values.src || false,
+      srcTuru: values.srcTuru,
+      srcBelgeNo: values.srcBelgeNo,
+      srcVerilisTarih: formatDate(values.srcVerilisTarih),
+      srcBitisTarih: formatDate(values.srcBitisTarih),
+      srcPiskoteknik: values.srcPiskoteknik || false,
+      srcPiskoteknikVerilisTarihi: formatDate(values.srcPiskoteknikVerilisTarihi),
       srcPiskoteknikBelgeNo: values.srcPiskoteknikBelgeNo,
-      srcPiskoteknikBitisTarihi: dayjs(values.srcPiskoteknikBitisTarihi).format("YYYY-MM-DD"),
+      srcPiskoteknikBitisTarihi: formatDate(values.srcPiskoteknikBitisTarihi),
+      takografKarti: values.takografKarti || false,
+      takografKartNo: values.takografKartNo,
+      takografVerilisTarih: formatDate(values.takografVerilisTarih),
+      takografBitisTarih: formatDate(values.takografBitisTarih),
       aciklama: values.aciklama,
       sinif: values.sinif,
       ehliyetVerildigiIlIlce: values.ehliyetVerildigiIlIlce,
-      ehliyetBelgeTarihi: dayjs(values.ehliyetBelgeTarihi).format("YYYY-MM-DD"),
+      ehliyetVerilisTarih: formatDate(values.ehliyetVerilisTarih),
+      ehliyetYenilemeTarih: formatDate(values.ehliyetYenilemeTarih),
       ehliyetSeriNo: values.ehliyetSeriNo,
-      ehliyetKullandigiChiazProtez: values.ehliyetKullandigiChiazProtez,
       ehliyetNo: values.ehliyetNo,
-      ozelAlan1: values.ozelAlan1,
-      ozelAlan2: values.ozelAlan2,
-      ozelAlan3: values.ozelAlan3,
-      ozelAlan4: values.ozelAlan4,
-      ozelAlan5: values.ozelAlan5,
-      ozelAlan6: values.ozelAlan6,
-      ozelAlan7: values.ozelAlan7,
-      ozelAlan8: values.ozelAlan8,
+      ozelAlan1: values.ozelAlan1 || "",
+      ozelAlan2: values.ozelAlan2 || "",
+      ozelAlan3: values.ozelAlan3 || "",
+      ozelAlan4: values.ozelAlan4 || "",
+      ozelAlan5: values.ozelAlan5 || "",
+      ozelAlan6: values.ozelAlan6 || "",
+      ozelAlan7: values.ozelAlan7 || "",
+      ozelAlan8: values.ozelAlan8 || "",
       ozelAlanKodId9: values.ozelAlanKodId9 || -1,
       ozelAlanKodId10: values.ozelAlanKodId10 || -1,
-      ozelAlan11: values.ozelAlan11 || -1,
-      ozelAlan12: values.ozelAlan12 || -1,
+      ozelAlan11: values.ozelAlan11 || 0,
+      ozelAlan12: values.ozelAlan12 || 0,
       email: values.email,
     };
 
-    AddDriverService(body).then((res) => {
+    setLoading(true);
+    try {
+      const res = await AddDriverService(body);
       if (res.data.statusCode === 200) {
         onRefresh();
         reset(defaultValues);
         setopenModal(false);
         setActiveKey("1");
-        setLoading(false);
       }
-    });
-    onRefresh();
+    } finally {
+      setLoading(false);
+    }
   });
 
   const personalProps = {
@@ -223,31 +212,21 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const items = [
     {
       key: "1",
-      label: t("genelBilgiler"),
-      children: <GeneralInfo isValid={isValid} />,
+      label: t("temelBilgiler"),
+      children: <TemelBilgiler isValid={isValid} />,
     },
     {
       key: "2",
-      label: t("kisiselBilgiler"),
-      children: <KisiselBilgiler />,
+      label: t("ehliyetVeMeslekiBelgeler"),
+      children: <EhliyetVeMeslekiBelgeler />,
     },
     {
       key: "3",
-      label: t("kimlikBIlgiler"),
-      children: <KimlikBilgiler />,
+      label: t("detayBilgiler"),
+      children: <DetayBilgiler />,
     },
     {
       key: "4",
-      label: t("ehliyetBilgiler"),
-      children: <EhliyetBilgiler />,
-    },
-    {
-      key: "5",
-      label: t("meslekiYeterlilik"),
-      children: <MeslekiYeterlilik />,
-    },
-    {
-      key: "6",
       label: t("ozelAlanlar"),
       children: <PersonalFields personalProps={personalProps} />,
     },

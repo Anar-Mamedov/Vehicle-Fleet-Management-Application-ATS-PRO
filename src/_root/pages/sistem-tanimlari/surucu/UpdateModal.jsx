@@ -8,16 +8,15 @@ import { CodeItemValidateService } from "../../../../api/services/code/services"
 import { GetDriverByIdService, UpdateDriverService } from "../../../../api/services/sistem-tanimlari/surucu_services";
 import { uploadPhoto } from "../../../../utils/upload";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
-import GeneralInfoUpdate from "./tabs/GeneralInfoUpdate";
-import KisiselBilgiler from "./tabs/KisiselBilgiler";
-import KimlikBilgiler from "./tabs/KimlikBilgiler";
-import EhliyetBilgiler from "./tabs/EhliyetBilgiler";
-import MeslekiYeterlilik from "./tabs/MeslekiYeterlilik";
+import TemelBilgiler from "./tabs/TemelBilgiler";
+import EhliyetVeMeslekiBelgeler from "./tabs/EhliyetVeMeslekiBelgeler";
+import DetayBilgiler from "./tabs/DetayBilgiler";
 import DosyaUpload from "../../../components/Dosya/DosyaUpload";
 
 const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const [isValid, setIsValid] = useState("normal");
   const [surucuId, setSurucuId] = useState(0);
+  const [sonGirisZamani, setSonGirisZamani] = useState(null);
   const [images, setImages] = useState([]);
   const [imagesURL, setImagesURL] = useState([]);
   const [fields, setFields] = useState([
@@ -126,69 +125,56 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("isim", res.data.isim);
         setValue("lokasyonId", res.data.lokasyonId);
         setValue("lokasyon", res.data.lokasyon);
-        setValue("adres", res.data.adres);
         setValue("surucuTipKodId", res.data.surucuTipKodId);
         setValue("surucuTip", res.data.surucuTip);
         setValue("gorevKodId", res.data.gorevKodId);
         setValue("gorev", res.data.gorev);
-        setValue("ilce", res.data.ilce);
-        setValue("il", res.data.il);
-        setValue("telefon1", res.data.telefon1);
-        setValue("telefon2", res.data.telefon2);
+        setValue("unvan", res.data.unvan);
+        setValue("mobilErisim", res.data.mobilErisim);
         setValue("gsm", res.data.gsm);
-        setValue("fax", res.data.fax);
         setValue("aktif", res.data.aktif);
         setValue("departmanKodId", res.data.departmanKodId);
         setValue("departman", res.data.departman);
         setValue("cezaPuani", res.data.cezaPuani);
         setValue("sifre", res.data.sifre);
-        setValue("kanGrubu", res.data.kanGrubu);
-        setValue("sskNo", res.data.sskNo);
-        setValue("vergiNo", res.data.vergiNo);
+        setValue("iseBaslamaTarih", res.data.iseBaslamaTarih ? dayjs(res.data.iseBaslamaTarih) : null);
+        setValue("dogumTarihi", res.data.dogumTarihi ? dayjs(res.data.dogumTarihi) : null);
+        setValue("tcKimlikNo", res.data.tcKimlikNo);
         setValue("egitimDurumu", res.data.egitimDurumu);
         setValue("mezunOlduguOkul", res.data.mezunOlduguOkul);
         setValue("mezunOlduguBolum", res.data.mezunOlduguBolum);
-        setValue("tcKimlikNo", res.data.tcKimlikNo);
-        setValue("kimlikSeriNo", res.data.kimlikSeriNo);
-        setValue("iseBaslamaTarih", res.data.iseBaslamaTarih ? dayjs(res.data.iseBaslamaTarih) : null);
-        setValue("istenAyrilmaTarih", res.data.istenAyrilmaTarih ? dayjs(res.data.istenAyrilmaTarih) : null);
         setValue("mezuniyetTarih", res.data.mezuniyetTarih ? dayjs(res.data.mezuniyetTarih) : null);
-        setValue("babaAdi", res.data.babaAdi);
-        setValue("anaAdi", res.data.anaAdi);
-        setValue("dogumYeri", res.data.dogumYeri);
-        setValue("dini", res.data.dini);
-        setValue("kimlikKayitNo", res.data.kimlikKayitNo);
-        setValue("kayitliOlduguIl", res.data.kayitliOlduguIl);
-        setValue("medeniHali", res.data.medeniHali);
-        setValue("dogumTarihi", res.data.dogumTarihi ? dayjs(res.data.dogumTarihi) : null);
-        setValue("kayitliOlduguIlce", res.data.kayitliOlduguIlce);
-        setValue("mahalleKoy", res.data.mahalleKoy);
-        setValue("kimlikCiltNo", res.data.kimlikCiltNo);
-        setValue("kimlikAileSiraNo", res.data.kimlikAileSiraNo);
-        setValue("kimlikSiraNo", res.data.kimlikSiraNo);
-        setValue("kimlikVerildigiYer", res.data.kimlikVerildigiYer);
-        setValue("kimlikVerilisNedeni", res.data.kimlikVerilisNedeni);
-        setValue("kimlikVerilisTarihi", res.data.kimlikVerilisTarihi ? dayjs(res.data.kimlikVerilisTarihi) : null);
-        setValue("myb", res.data.myb);
-        setValue("mybBelgeNo", res.data.mybBelgeNo);
-        setValue("mybKapsadigiDigerMyb", res.data.mybKapsadigiDigerMyb);
-        setValue("mybTuru", res.data.mybTuru);
-        setValue("mybVerilisTarih", res.data.mybVerilisTarih ? dayjs(res.data.mybVerilisTarih) : null);
-        setValue("mybBitisTarih", res.data.mybBitisTarih ? dayjs(res.data.mybBitisTarih) : null);
+        setValue("isSicilNo", res.data.isSicilNo);
+        setValue("kanGrubu", res.data.kanGrubu);
+        setValue("kiyafetBedeni", res.data.kiyafetBedeni);
+        setValue("acilDurumKisi", res.data.acilDurumKisi);
+        setValue("acilDurumTelefonu", res.data.acilDurumTelefonu);
+        setValue("ileriSurusEgitimi", res.data.ileriSurusEgitimi);
+        setValue("yukEmniyetEgitimi", res.data.yukEmniyetEgitimi);
+        setValue("src", res.data.src);
+        setValue("srcTuru", res.data.srcTuru);
+        setValue("srcBelgeNo", res.data.srcBelgeNo);
+        setValue("srcVerilisTarih", res.data.srcVerilisTarih ? dayjs(res.data.srcVerilisTarih) : null);
+        setValue("srcBitisTarih", res.data.srcBitisTarih ? dayjs(res.data.srcBitisTarih) : null);
         setValue("srcPiskoteknikVerilisTarihi", res.data.srcPiskoteknikVerilisTarihi ? dayjs(res.data.srcPiskoteknikVerilisTarihi) : null);
         setValue("srcPiskoteknikBitisTarihi", res.data.srcPiskoteknikBitisTarihi ? dayjs(res.data.srcPiskoteknikBitisTarihi) : null);
         setValue("srcPiskoteknik", res.data.srcPiskoteknik);
         setValue("srcPiskoteknikBelgeNo", res.data.srcPiskoteknikBelgeNo);
+        setValue("takografKarti", res.data.takografKarti);
+        setValue("takografKartNo", res.data.takografKartNo);
+        setValue("takografVerilisTarih", res.data.takografVerilisTarih ? dayjs(res.data.takografVerilisTarih) : null);
+        setValue("takografBitisTarih", res.data.takografBitisTarih ? dayjs(res.data.takografBitisTarih) : null);
         setValue("aciklama", res.data.aciklama);
         setValue("sinif", res.data.sinif);
         setValue("ehliyetVerildigiIlIlce", res.data.ehliyetVerildigiIlIlce);
-        setValue("ehliyetBelgeTarihi", res.data.ehliyetBelgeTarihi ? dayjs(res.data.ehliyetBelgeTarihi) : null);
+        setValue("ehliyetVerilisTarih", res.data.ehliyetVerilisTarih ? dayjs(res.data.ehliyetVerilisTarih) : null);
+        setValue("ehliyetYenilemeTarih", res.data.ehliyetYenilemeTarih ? dayjs(res.data.ehliyetYenilemeTarih) : null);
         setValue("ehliyetSeriNo", res.data.ehliyetSeriNo);
-        setValue("ehliyetKullandigiChiazProtez", res.data.ehliyetKullandigiChiazProtez);
         setValue("ehliyetNo", res.data.ehliyetNo);
         setValue("isim", res.data.isim);
         setValue("email", res.data.email);
         setSurucuId(res.data.surucuId);
+        setSonGirisZamani(res.data.sonGirisZamani || null);
         setValue("ozelAlan1", res?.data.ozelAlan1);
         setValue("ozelAlan2", res?.data.ozelAlan2);
         setValue("ozelAlan3", res?.data.ozelAlan3);
@@ -223,60 +209,46 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       aktif: values.aktif,
       lokasyonId: values.lokasyonId || 0,
       departmanKodId: values.departmanKodId || -1,
-      adres: values.adres,
       surucuTipKodId: values.surucuTipKodId || -1,
       gorevKodId: values.gorevKodId || -1,
-      il: values.il,
-      ilce: values.ilce,
-      telefon1: values.telefon1,
-      telefon2: values.telefon2,
-      fax: values.fax,
+      unvan: values.unvan,
+      mobilErisim: values.mobilErisim || false,
       gsm: values.gsm,
       cezaPuani: values.cezaPuani,
       sifre: values.sifre,
-      kanGrubu: values.kanGrubu,
-      sskNo: values.sskNo,
-      vergiNo: values.vergiNo,
+      iseBaslamaTarih: values.iseBaslamaTarih ? dayjs(values.iseBaslamaTarih).format("YYYY-MM-DD") : null,
+      dogumTarihi: values.dogumTarihi ? dayjs(values.dogumTarihi).format("YYYY-MM-DD") : null,
+      tcKimlikNo: values.tcKimlikNo,
       egitimDurumu: values.egitimDurumu,
       mezunOlduguOkul: values.mezunOlduguOkul,
       mezunOlduguBolum: values.mezunOlduguBolum,
-      iseBaslamaTarih: values.iseBaslamaTarih ? dayjs(values.iseBaslamaTarih).format("YYYY-MM-DD") : null,
-      istenAyrilmaTarih: values.istenAyrilmaTarih ? dayjs(values.istenAyrilmaTarih).format("YYYY-MM-DD") : null,
       mezuniyetTarih: values.mezuniyetTarih ? dayjs(values.mezuniyetTarih).format("YYYY-MM-DD") : null,
-      tcKimlikNo: values.tcKimlikNo,
-      kimlikSeriNo: values.kimlikSeriNo,
-      babaAdi: values.babaAdi,
-      anaAdi: values.anaAdi,
-      dogumYeri: values.dogumYeri,
-      dini: values.dini,
-      kimlikKayitNo: values.kimlikKayitNo,
-      dogumTarihi: values.dogumTarihi ? dayjs(values.dogumTarihi).format("YYYY-MM-DD") : null,
-      medeniHali: values.medeniHali,
-      kayitliOlduguIl: values.kayitliOlduguIl,
-      kayitliOlduguIlce: values.kayitliOlduguIlce,
-      mahalleKoy: values.mahalleKoy,
-      kimlikCiltNo: values.kimlikCiltNo,
-      kimlikAileSiraNo: values.kimlikAileSiraNo,
-      kimlikSiraNo: values.kimlikSiraNo,
-      kimlikVerildigiYer: values.kimlikVerildigiYer,
-      kimlikVerilisNedeni: values.kimlikVerilisNedeni,
-      kimlikVerilisTarihi: values.kimlikVerilisTarihi ? dayjs(values.kimlikVerilisTarihi).format("YYYY-MM-DD") : null,
-      myb: values.myb,
-      mybVerilisTarih: values.mybVerilisTarih ? dayjs(values.mybVerilisTarih).format("YYYY-MM-DD") : null,
-      mybBelgeNo: values.mybBelgeNo,
-      mybKapsadigiDigerMyb: values.mybKapsadigiDigerMyb,
-      mybTuru: values.mybTuru,
-      mybBitisTarih: values.mybBitisTarih ? dayjs(values.mybBitisTarih).format("YYYY-MM-DD") : null,
-      srcPiskoteknik: values.srcPiskoteknik,
+      isSicilNo: values.isSicilNo,
+      kanGrubu: values.kanGrubu,
+      kiyafetBedeni: values.kiyafetBedeni,
+      acilDurumKisi: values.acilDurumKisi,
+      acilDurumTelefonu: values.acilDurumTelefonu,
+      ileriSurusEgitimi: values.ileriSurusEgitimi || false,
+      yukEmniyetEgitimi: values.yukEmniyetEgitimi || false,
+      src: values.src || false,
+      srcTuru: values.srcTuru,
+      srcBelgeNo: values.srcBelgeNo,
+      srcVerilisTarih: values.srcVerilisTarih ? dayjs(values.srcVerilisTarih).format("YYYY-MM-DD") : null,
+      srcBitisTarih: values.srcBitisTarih ? dayjs(values.srcBitisTarih).format("YYYY-MM-DD") : null,
+      srcPiskoteknik: values.srcPiskoteknik || false,
       srcPiskoteknikVerilisTarihi: values.srcPiskoteknikVerilisTarihi ? dayjs(values.srcPiskoteknikVerilisTarihi).format("YYYY-MM-DD") : null,
       srcPiskoteknikBelgeNo: values.srcPiskoteknikBelgeNo,
       srcPiskoteknikBitisTarihi: values.srcPiskoteknikBitisTarihi ? dayjs(values.srcPiskoteknikBitisTarihi).format("YYYY-MM-DD") : null,
+      takografKarti: values.takografKarti || false,
+      takografKartNo: values.takografKartNo,
+      takografVerilisTarih: values.takografVerilisTarih ? dayjs(values.takografVerilisTarih).format("YYYY-MM-DD") : null,
+      takografBitisTarih: values.takografBitisTarih ? dayjs(values.takografBitisTarih).format("YYYY-MM-DD") : null,
       aciklama: values.aciklama,
       sinif: values.sinif,
       ehliyetVerildigiIlIlce: values.ehliyetVerildigiIlIlce,
-      ehliyetBelgeTarihi: values.ehliyetBelgeTarihi ? dayjs(values.ehliyetBelgeTarihi).format("YYYY-MM-DD") : null,
+      ehliyetVerilisTarih: values.ehliyetVerilisTarih ? dayjs(values.ehliyetVerilisTarih).format("YYYY-MM-DD") : null,
+      ehliyetYenilemeTarih: values.ehliyetYenilemeTarih ? dayjs(values.ehliyetYenilemeTarih).format("YYYY-MM-DD") : null,
       ehliyetSeriNo: values.ehliyetSeriNo,
-      ehliyetKullandigiChiazProtez: values.ehliyetKullandigiChiazProtez,
       ehliyetNo: values.ehliyetNo,
       ozelAlan1: values.ozelAlan1 || "",
       ozelAlan2: values.ozelAlan2 || "",
@@ -315,36 +287,26 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
   const items = [
     {
       key: "1",
-      label: t("genelBilgiler"),
-      children: <GeneralInfoUpdate isValid={isValid} setImages={setImages} urls={imagesURL} />,
+      label: t("temelBilgiler"),
+      children: <TemelBilgiler isValid={isValid} setImages={setImages} urls={imagesURL} sonGirisZamani={sonGirisZamani} />,
     },
     {
       key: "2",
-      label: t("kisiselBilgiler"),
-      children: <KisiselBilgiler />,
+      label: t("ehliyetVeMeslekiBelgeler"),
+      children: <EhliyetVeMeslekiBelgeler />,
     },
     {
       key: "3",
-      label: t("kimlikBIlgiler"),
-      children: <KimlikBilgiler />,
+      label: t("detayBilgiler"),
+      children: <DetayBilgiler />,
     },
     {
       key: "4",
-      label: t("ehliyetBilgiler"),
-      children: <EhliyetBilgiler />,
-    },
-    {
-      key: "5",
-      label: t("meslekiYeterlilik"),
-      children: <MeslekiYeterlilik />,
-    },
-    {
-      key: "6",
       label: t("ozelAlanlar"),
       children: <PersonalFields personalProps={personalProps} />,
     },
     {
-      key: "7",
+      key: "5",
       label: t("ekliBelgeler"),
       children: <DosyaUpload selectedRowID={selectedRow?.key} refGroup="SURUCU" />,
     },
