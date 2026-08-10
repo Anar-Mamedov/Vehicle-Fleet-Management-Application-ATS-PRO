@@ -47,7 +47,9 @@ const TemelBilgiler = ({ isValid, setImages, urls = NO_PHOTOS, sonGirisZamani })
           setFileList(objectUrls);
           setProfileImage(objectUrls[0]?.url);
         } else {
+          // Fotoğrafı olmayan bir sürücüye geçildiğinde önceki kaydın fotoğrafı ekranda kalmamalı
           setFileList([]);
+          setProfileImage(null);
         }
       } catch (error) {
         console.error("Error fetching images:", error);

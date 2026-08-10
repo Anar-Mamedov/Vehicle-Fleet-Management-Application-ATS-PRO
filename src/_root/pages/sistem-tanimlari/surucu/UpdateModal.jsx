@@ -3,7 +3,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
-import { Button, Modal, Tabs } from "antd";
+import { Button, Modal, Spin, Tabs } from "antd";
 import { CodeItemValidateService } from "../../../../api/services/code/services";
 import { GetDriverByIdService, UpdateDriverService } from "../../../../api/services/sistem-tanimlari/surucu_services";
 import { uploadPhoto } from "../../../../utils/upload";
@@ -17,6 +17,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
   const [isValid, setIsValid] = useState("normal");
   const [surucuId, setSurucuId] = useState(0);
   const [sonGirisZamani, setSonGirisZamani] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [images, setImages] = useState([]);
   const [imagesURL, setImagesURL] = useState([]);
   const [fields, setFields] = useState([
@@ -117,9 +118,21 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
   }, [watch("surucuKod")]);
 
   useEffect(() => {
+    if (!drawerVisible) return undefined;
+
+    // Yeni sürücü açılırken önceki kaydın bilgileri ekranda kalmasın diye form sıfırlanıp yükleniyor durumuna geçilir
+    reset(defaultValues);
+    setImagesURL([]);
+    setSonGirisZamani(null);
+    setDetailLoading(true);
+
+    // Hızlı sürücü değişiminde geç gelen yanıtın yeni kaydın üstüne yazmaması için istek iptal edilmiş sayılır
+    let isCurrentRequest = true;
+
     const fetchData = async () => {
       try {
         const res = await GetDriverByIdService(selectedRow?.key);
+        if (!isCurrentRequest) return;
 
         setValue("surucuKod", res.data.surucuKod);
         setValue("isim", res.data.isim);
@@ -193,12 +206,16 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setImagesURL([...images, res.data.defPhotoInfo]);
       } catch (error) {
         console.error("Error updating driver:", error);
+      } finally {
+        if (isCurrentRequest) setDetailLoading(false);
       }
     };
 
-    if (drawerVisible) {
-      fetchData();
-    }
+    fetchData();
+
+    return () => {
+      isCurrentRequest = false;
+    };
   }, [selectedRow, drawerVisible]);
 
   const onSubmit = handleSubmit((values) => {
@@ -313,7 +330,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
   ];
 
   const footer = [
-    <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit}>
+    <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit} disabled={detailLoading}>
       {t("guncelle")}
     </Button>,
     <Button
@@ -330,11 +347,18 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
     </Button>,
   ];
 
+  // Detay yüklenirken form boş olduğu için başlıkta tablodan gelen isim gösterilir
+  const modalTitle = `${watch("isim") || selectedRow?.isim || ""} - ${t("guncellemeEkrani")}`;
+
   return (
-    <Modal title={`${watch("isim")} - ${t("guncellemeEkrani")}`} open={drawerVisible} onCancel={() => onDrawerClose()} maskClosable={false} footer={footer} width={1200}>
+    <Modal title={modalTitle} open={drawerVisible} onCancel={() => onDrawerClose()} maskClosable={false} footer={footer} width={1200}>
       <FormProvider {...methods}>
         <form>
-          <Tabs defaultActiveKey="1" items={items} />
+          <Spin spinning={detailLoading}>
+            <div style={{ minHeight: "420px" }}>
+              <Tabs defaultActiveKey="1" items={items} />
+            </div>
+          </Spin>
         </form>
       </FormProvider>
     </Modal>
