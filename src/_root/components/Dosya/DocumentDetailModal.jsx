@@ -150,13 +150,13 @@ const toDayjsOrNull = (value) => {
   return parsedDate.isValid() ? parsedDate : null;
 };
 
-const toIsoOrNull = (value) => {
+const toApiDateOrNull = (value) => {
   if (!value) {
     return null;
   }
 
   const parsedDate = dayjs(value);
-  return parsedDate.isValid() ? parsedDate.toISOString() : null;
+  return parsedDate.isValid() ? parsedDate.format("YYYY-MM-DD") : null;
 };
 
 const DocumentDetailModal = ({ open, file, visual, onClose, onPreview, onDownload, onUpdated }) => {
@@ -235,8 +235,8 @@ const DocumentDetailModal = ({ open, file, visual, onClose, onPreview, onDownloa
       tbDosyaId: documentInfo.tbDosyaId,
       dosyaTipKodId: Number(values.dosyaTipID) || 0,
       dosyaBelgeNo: values.dosyaBelgeNo?.trim() || "",
-      dosyaBaslangicTarih: toIsoOrNull(values.dosyaBaslangicTarih),
-      dosyaBitisTarih: toIsoOrNull(values.dosyaBitisTarih),
+      dosyaBaslangicTarih: toApiDateOrNull(values.dosyaBaslangicTarih),
+      dosyaBitisTarih: toApiDateOrNull(values.dosyaBitisTarih),
       dosyaHatirlatmaSuresi: values.dosyaHatirlat ? Number(values.dosyaHatirlatmaSuresi) || 0 : 0,
       dosyaHatirlat: Boolean(values.dosyaHatirlat),
       dosyaAciklama: values.dosyaAciklama?.trim() || "",
