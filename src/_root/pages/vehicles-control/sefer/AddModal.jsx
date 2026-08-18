@@ -259,7 +259,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
           setIsOpen(true);
         }}
       >
-        <PlusOutlined /> {t("ekle")}
+        <PlusOutlined /> {t("yeniOperasyon")}
       </Button>
       <Modal
         title={t("yeniGorevGirisi")}

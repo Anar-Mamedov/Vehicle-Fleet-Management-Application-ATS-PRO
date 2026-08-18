@@ -91,8 +91,16 @@ export const UpdateExpeditionItemService = async (data) => {
   return await http.post(`/Expeditions/UpdateExpeditionItem`, data);
 };
 
-export const GetExpeditionsListService = async (search, page, data) => {
-  return await http.get(`/Expeditions/GetExpeditionsList?page=${page}&parameter=${search}`, data);
+export const GetExpeditionsListService = async (diff, setPointId, search, filters) => {
+  return await http.post(`/Expeditions/GetExpeditionsList?diff=${diff}&setPointId=${setPointId}&parameter=${encodeURIComponent(search)}`, filters);
+};
+
+export const GetExpeditionReportService = async (search, filters) => {
+  return await http.post(`/Expeditions/GetExpeditionReport?parameter=${encodeURIComponent(search)}`, filters);
+};
+
+export const GetExpeditionStatisticsByTypeService = async (type, search, filters) => {
+  return await http.post(`/ExpeditionStatistics/GetInfoByType?type=${type}&parameter=${encodeURIComponent(search)}`, filters);
 };
 
 // kazalar

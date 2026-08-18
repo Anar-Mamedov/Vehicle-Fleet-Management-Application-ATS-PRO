@@ -103,8 +103,9 @@ export default function ExcelExportButton({ request, columns, fileName, sheetNam
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, sheetName.slice(0, 31));
       XLSX.writeFile(workbook, fileName.endsWith(".xlsx") ? fileName : `${fileName}.xlsx`, { compression: true });
-    } catch {
-      message.error(t("excelIndirmeHatasi"));
+    } catch (error) {
+      // Sayfa, kullanıcıya gösterilecek özel bir mesaj gönderdiyse (ör. tarih aralığı uyarısı) o mesaj yazılır
+      message.error(error?.userMessage || t("excelIndirmeHatasi"));
     } finally {
       setLoading(false);
     }
