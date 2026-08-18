@@ -5,10 +5,10 @@ import { DownloadOutlined, EyeOutlined } from "@ant-design/icons";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import dayjs from "dayjs";
 import DateInput from "../form/date/DateInput";
 import KodIDSelectbox from "../KodIDSelectbox";
 import { GetDocumentInfoByIdService, UpdateDocumentService } from "../../../api/services/upload/services";
+import { formatDateForApi, toDayjsOrNull } from "../../../utils/dateUtils";
 
 const { TextArea } = Input;
 
@@ -141,24 +141,6 @@ const Footer = styled.div`
   margin-top: 18px;
 `;
 
-const toDayjsOrNull = (value) => {
-  if (!value) {
-    return null;
-  }
-
-  const parsedDate = dayjs(value);
-  return parsedDate.isValid() ? parsedDate : null;
-};
-
-const toApiDateOrNull = (value) => {
-  if (!value) {
-    return null;
-  }
-
-  const parsedDate = dayjs(value);
-  return parsedDate.isValid() ? parsedDate.format("YYYY-MM-DD") : null;
-};
-
 const DocumentDetailModal = ({ open, file, visual, onClose, onPreview, onDownload, onUpdated }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -235,8 +217,8 @@ const DocumentDetailModal = ({ open, file, visual, onClose, onPreview, onDownloa
       tbDosyaId: documentInfo.tbDosyaId,
       dosyaTipKodId: Number(values.dosyaTipID) || 0,
       dosyaBelgeNo: values.dosyaBelgeNo?.trim() || "",
-      dosyaBaslangicTarih: toApiDateOrNull(values.dosyaBaslangicTarih),
-      dosyaBitisTarih: toApiDateOrNull(values.dosyaBitisTarih),
+      dosyaBaslangicTarih: formatDateForApi(values.dosyaBaslangicTarih),
+      dosyaBitisTarih: formatDateForApi(values.dosyaBitisTarih),
       dosyaHatirlatmaSuresi: values.dosyaHatirlat ? Number(values.dosyaHatirlatmaSuresi) || 0 : 0,
       dosyaHatirlat: Boolean(values.dosyaHatirlat),
       dosyaAciklama: values.dosyaAciklama?.trim() || "",

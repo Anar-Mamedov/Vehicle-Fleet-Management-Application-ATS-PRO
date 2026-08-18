@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { FormProvider, useForm, Controller } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import { t } from "i18next";
-import { Button, message, Modal, Select, Tabs, Tag, Checkbox } from "antd";
+import { Button, message, Modal, Tabs, Tag } from "antd";
 import { LoadingOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import AxiosInstance from "../../../../api/http";
 import PlakaSelectbox from "../../../../_root/components/PlakaSelectbox";
@@ -11,11 +11,14 @@ import DateInput from "../../../../_root/components/form/date/DateInput";
 import NumberInput from "../../../../_root/components/form/inputs/NumberInput";
 import TextInput from "../../../../_root/components/form/inputs/TextInput";
 import Textarea from "../../../../_root/components/form/inputs/Textarea";
+import SelectInput from "../../../../_root/components/form/selects/SelectInput";
+import CheckboxInput from "../../../../_root/components/form/checkbox/CheckboxInput";
 import KodIDSelectbox from "../../../../_root/components/KodIDSelectbox";
 import YakitTipSelectbox from "../../../../_root/components/YakitTipSelectbox";
 import SigortaSelectbox from "../../../../_root/components/SigortaSelectbox";
 import DosyaUpload from "../../../../_root/components/Dosya/DosyaUpload";
 import ResimUpload from "../../../../_root/components/Resim/ResimUpload";
+import { formatDateForApi, toDayjsOrNull } from "../../../../utils/dateUtils";
 
 const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
   const [loading, setLoading] = useState(false);
@@ -55,7 +58,7 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
   };
 
   const methods = useForm({ defaultValues });
-  const { handleSubmit, reset, watch, setValue, control } = methods;
+  const { handleSubmit, reset, watch, setValue } = methods;
 
   const baslangicTarih = watch("baslangicTarih");
   const bitisTarih = watch("bitisTarih");
@@ -110,8 +113,8 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
           ikamePlaka: item.ikamePlaka ?? "",
           marka: item.ikameMarka || item.marka || null,
           markaID: item.markaId || null,
-          baslangicTarih: item.baslangicTarih ? dayjs(item.baslangicTarih) : null,
-          bitisTarih: item.bitisTarih ? dayjs(item.bitisTarih) : null,
+          baslangicTarih: toDayjsOrNull(item.baslangicTarih),
+          bitisTarih: toDayjsOrNull(item.bitisTarih),
           tedarikci: item.tedarikci ?? "",
           aracTipKodId: item.aracTip || null,
           aracTipKodIdID: item.aracTipKodId || null,
@@ -127,7 +130,7 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
           yakitPolitikasi: item.yakitPolitikasi || null,
           aciklama: item.aciklama ?? "",
           iadeEdildi: item.durum === false,
-          iadeTarihi: item.iadeTarihi ? dayjs(item.iadeTarihi) : null,
+          iadeTarihi: toDayjsOrNull(item.iadeTarihi),
           iadekm: item.iadekm ?? 0,
           iadeAciklama: item.iadeAciklama ?? "",
         });
@@ -166,8 +169,8 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
       ikamePlaka: values.ikamePlaka || "",
       ikameMarka: values.marka || "",
       markaId: values.markaID || 0,
-      baslangicTarih: values.baslangicTarih ? dayjs(values.baslangicTarih).toISOString() : null,
-      bitisTarih: values.bitisTarih ? dayjs(values.bitisTarih).toISOString() : null,
+      baslangicTarih: formatDateForApi(values.baslangicTarih),
+      bitisTarih: formatDateForApi(values.bitisTarih),
       tedarikci: values.tedarikci || "",
       aracTipKodId: values.aracTipKodIdID || 0,
       km: values.km || 0,
@@ -179,7 +182,7 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
       yakitPolitikasi: values.yakitPolitikasi || "",
       aciklama: values.aciklama || "",
       iadeEdildi: Boolean(values.iadeEdildi),
-      iadeTarihi: values.iadeEdildi && values.iadeTarihi ? dayjs(values.iadeTarihi).toISOString() : null,
+      iadeTarihi: values.iadeEdildi ? formatDateForApi(values.iadeTarihi) : null,
       iadekm: values.iadekm || 0,
       iadeAciklama: values.iadeAciklama || "",
     };
@@ -360,20 +363,13 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
                   <div className="col-span-4">
                     <div className="flex flex-col gap-1">
                       <label>{t("hgsEtiketi")}</label>
-                      <Controller
+                      <SelectInput
                         name="hgs"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            allowClear
-                            placeholder={t("seciniz")}
-                            options={[
-                              { label: t("var"), value: "Var" },
-                              { label: t("yok"), value: "Yok" },
-                            ]}
-                          />
-                        )}
+                        placeholder={t("seciniz")}
+                        options={[
+                          { label: t("var"), value: "Var" },
+                          { label: t("yok"), value: "Yok" },
+                        ]}
                       />
                     </div>
                   </div>
@@ -393,22 +389,15 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
                   <div className="col-span-4">
                     <div className="flex flex-col gap-1">
                       <label>{t("yakitPolitikasi")}</label>
-                      <Controller
+                      <SelectInput
                         name="yakitPolitikasi"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            allowClear
-                            placeholder={t("seciniz")}
-                            options={[
-                              { label: t("ayniSeviye"), value: "ayniSeviye" },
-                              { label: t("fullFull"), value: "fullFull" },
-                              { label: t("serbest"), value: "serbest" },
-                              { label: t("bosBos"), value: "bosBos" },
-                            ]}
-                          />
-                        )}
+                        placeholder={t("seciniz")}
+                        options={[
+                          { label: t("ayniSeviye"), value: "ayniSeviye" },
+                          { label: t("fullFull"), value: "fullFull" },
+                          { label: t("serbest"), value: "serbest" },
+                          { label: t("bosBos"), value: "bosBos" },
+                        ]}
                       />
                     </div>
                   </div>
@@ -423,16 +412,9 @@ const UpdateModal = ({ id, isOpen, setIsOpen, onRefresh }) => {
                     label: t("iadeBilgileri"),
                     children: (
                       <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: 16 }}>
-                        <div style={{ marginBottom: 16 }}>
-                          <Controller
-                            name="iadeEdildi"
-                            control={control}
-                            render={({ field }) => (
-                              <Checkbox checked={field.value} onChange={(e) => field.onChange(e.target.checked)}>
-                                {t("iadeEdildi")}
-                              </Checkbox>
-                            )}
-                          />
+                        <div className="flex gap-2" style={{ marginBottom: 16 }}>
+                          <CheckboxInput name="iadeEdildi" />
+                          <label>{t("iadeEdildi")}</label>
                         </div>
                         {iadeEdildi && (
                           <div className="grid gap-1">

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { FormProvider, useForm, Controller } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import { t } from "i18next";
-import { Button, message, Modal, Select } from "antd";
+import { Button, message, Modal } from "antd";
 import { PlusOutlined, LoadingOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import AxiosInstance from "../../../../api/http";
 import PlakaSelectbox from "../../../../_root/components/PlakaSelectbox";
@@ -11,9 +11,11 @@ import DateInput from "../../../../_root/components/form/date/DateInput";
 import NumberInput from "../../../../_root/components/form/inputs/NumberInput";
 import TextInput from "../../../../_root/components/form/inputs/TextInput";
 import Textarea from "../../../../_root/components/form/inputs/Textarea";
+import SelectInput from "../../../../_root/components/form/selects/SelectInput";
 import KodIDSelectbox from "../../../../_root/components/KodIDSelectbox";
 import YakitTipSelectbox from "../../../../_root/components/YakitTipSelectbox";
 import SigortaSelectbox from "../../../../_root/components/SigortaSelectbox";
+import { formatDateForApi } from "../../../../utils/dateUtils";
 
 const AddModal = ({ onRefresh }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,7 +47,7 @@ const AddModal = ({ onRefresh }) => {
   };
 
   const methods = useForm({ defaultValues });
-  const { handleSubmit, reset, watch, setValue, control } = methods;
+  const { handleSubmit, reset, watch, setValue } = methods;
 
   const baslangicTarih = watch("baslangicTarih");
   const bitisTarih = watch("bitisTarih");
@@ -68,8 +70,8 @@ const AddModal = ({ onRefresh }) => {
       ikamePlaka: values.ikamePlaka || "",
       ikameMarka: values.marka || "",
       markaId: values.markaID || 0,
-      baslangicTarih: values.baslangicTarih ? dayjs(values.baslangicTarih).toISOString() : null,
-      bitisTarih: values.bitisTarih ? dayjs(values.bitisTarih).toISOString() : null,
+      baslangicTarih: formatDateForApi(values.baslangicTarih),
+      bitisTarih: formatDateForApi(values.bitisTarih),
       tedarikci: values.tedarikci || "",
       aracTipKodId: values.aracTipKodIdID || 0,
       km: values.km || 0,
@@ -254,20 +256,13 @@ const AddModal = ({ onRefresh }) => {
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label>{t("hgsEtiketi")}</label>
-                    <Controller
+                    <SelectInput
                       name="hgs"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          allowClear
-                          placeholder={t("seciniz")}
-                          options={[
-                            { label: t("var"), value: "Var" },
-                            { label: t("yok"), value: "Yok" },
-                          ]}
-                        />
-                      )}
+                      placeholder={t("seciniz")}
+                      options={[
+                        { label: t("var"), value: "Var" },
+                        { label: t("yok"), value: "Yok" },
+                      ]}
                     />
                   </div>
                 </div>
@@ -287,22 +282,15 @@ const AddModal = ({ onRefresh }) => {
                 <div className="col-span-4">
                   <div className="flex flex-col gap-1">
                     <label>{t("yakitPolitikasi")}</label>
-                    <Controller
+                    <SelectInput
                       name="yakitPolitikasi"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          allowClear
-                          placeholder={t("seciniz")}
-                          options={[
-                            { label: t("ayniSeviye"), value: "ayniSeviye" },
-                            { label: t("fullFull"), value: "fullFull" },
-                            { label: t("serbest"), value: "serbest" },
-                            { label: t("bosBos"), value: "bosBos" },
-                          ]}
-                        />
-                      )}
+                      placeholder={t("seciniz")}
+                      options={[
+                        { label: t("ayniSeviye"), value: "ayniSeviye" },
+                        { label: t("fullFull"), value: "fullFull" },
+                        { label: t("serbest"), value: "serbest" },
+                        { label: t("bosBos"), value: "bosBos" },
+                      ]}
                     />
                   </div>
                 </div>

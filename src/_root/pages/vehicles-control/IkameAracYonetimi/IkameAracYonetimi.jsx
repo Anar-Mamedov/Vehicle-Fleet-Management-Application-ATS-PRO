@@ -10,6 +10,7 @@ import AxiosInstance from "../../../../api/http";
 import { useForm, FormProvider } from "react-hook-form";
 import styled from "styled-components";
 import FormattedDate from "../../../../_root/components/FormattedDate";
+import { compareDatesForSorter } from "../../../../utils/dateUtils";
 import { t } from "i18next";
 import Filters from "./filter/Filters";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
@@ -459,13 +460,7 @@ const IkameAracYonetimi = () => {
       ellipsis: true,
       visible: true,
       render: (value) => <FormattedDate date={value} />,
-      sorter: (a, b) => {
-        const dateA = a.baslangicTarih ? new Date(a.baslangicTarih) : null;
-        const dateB = b.baslangicTarih ? new Date(b.baslangicTarih) : null;
-        if (!dateA) return -1;
-        if (!dateB) return 1;
-        return dateA.getTime() - dateB.getTime();
-      },
+      sorter: (a, b) => compareDatesForSorter(a.baslangicTarih, b.baslangicTarih),
     },
     {
       title: t("bpitisTarihi"),
@@ -475,13 +470,7 @@ const IkameAracYonetimi = () => {
       ellipsis: true,
       visible: true,
       render: (value) => <FormattedDate date={value} />,
-      sorter: (a, b) => {
-        const dateA = a.bitisTarih ? new Date(a.bitisTarih) : null;
-        const dateB = b.bitisTarih ? new Date(b.bitisTarih) : null;
-        if (!dateA) return -1;
-        if (!dateB) return 1;
-        return dateA.getTime() - dateB.getTime();
-      },
+      sorter: (a, b) => compareDatesForSorter(a.bitisTarih, b.bitisTarih),
     },
 
     {
