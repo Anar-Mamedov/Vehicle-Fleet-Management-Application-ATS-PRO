@@ -1122,5 +1122,21 @@
   "kmCikis": "Çıxış KM",
   "kmVaris": "Varış KM",
   "saatKisa": "s",
-  "dakikaKisa": "dq"
+  "dakikaKisa": "dq",
+  "operasyonGuncelleme": "Əməliyyat Yeniləmə",
+  "operasyonBilgileri": "Əməliyyat Məlumatları",
+  "aracVeSurucuBilgileri": "Avtomobil və Sürücü Məlumatları",
+  "tarihSaatVeRotaBilgileri": "Tarix, Saat və Marşrut Məlumatları",
+  "ekBilgiler": "Əlavə Məlumatlar",
+  "operasyonSorumlusu": "Əməliyyat Məsulu",
+  "operasyonHareketleri": "Əməliyyat Hərəkətləri",
+  "isEmriNo": "İş Əmri No",
+  "seferSayisi": "Səfər Sayı",
+  "dorseSec": "Dorse seçin",
+  "surucuSecin": "Sürücü seçin",
+  "personelSeciniz": "Personal seçin",
+  "vazgec": "İmtina",
+  "firmaSecin": "Firma seçin",
+  "guzergahSecin": "Marşrut seçin",
+  "plakaSecin": "Nömrə seçin"
 }

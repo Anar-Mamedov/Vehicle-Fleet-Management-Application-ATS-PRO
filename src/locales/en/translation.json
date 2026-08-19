@@ -1579,5 +1579,21 @@
   "kmCikis": "Departure KM",
   "kmVaris": "Arrival KM",
   "saatKisa": "h",
-  "dakikaKisa": "m"
+  "dakikaKisa": "m",
+  "operasyonGuncelleme": "Update Operation",
+  "operasyonBilgileri": "Operation Details",
+  "aracVeSurucuBilgileri": "Vehicle and Driver Details",
+  "tarihSaatVeRotaBilgileri": "Date, Time and Route Details",
+  "ekBilgiler": "Additional Details",
+  "operasyonSorumlusu": "Operation Supervisor",
+  "operasyonHareketleri": "Operation Movements",
+  "isEmriNo": "Work Order No",
+  "seferSayisi": "Trip Count",
+  "dorseSec": "Select trailer",
+  "surucuSecin": "Select driver",
+  "personelSeciniz": "Select employee",
+  "vazgec": "Cancel",
+  "firmaSecin": "Select company",
+  "guzergahSecin": "Select route",
+  "plakaSecin": "Select plate"
 }

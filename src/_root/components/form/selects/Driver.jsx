@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Select } from "antd";
 import { CodeControlByUrlService } from "../../../../api/services/code/services";
 
-const Driver = ({ name, codeName, required, disabled }) => {
+const Driver = ({ name, codeName, required, disabled, placeholder = "" }) => {
   const [data, setData] = useState([]);
   const { watch, setValue, control } = useFormContext();
 
@@ -26,6 +26,7 @@ const Driver = ({ name, codeName, required, disabled }) => {
             showSearch
             allowClear
             disabled={disabled ?? false}
+            placeholder={placeholder}
             optionFilterProp="children"
             className={fieldState.error ? "input-error" : ""}
             filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
@@ -41,7 +42,8 @@ const Driver = ({ name, codeName, required, disabled }) => {
               if (e === undefined) {
                 const selectedOption = data.find((option) => option.surucuId === e);
                 if (!selectedOption) {
-                  name ? setValue(name, "") : setValue("surucu", "");
+                  // Temizlendiğinde boş string yazılırsa antd alanı dolu sayar ve placeholder görünmez; her zaman null yazılır
+                  name ? setValue(name, null) : setValue("surucu", null);
                 }
               } else {
                 const selectedOption = data.find((option) => option.surucuId === e);
@@ -59,6 +61,7 @@ const Driver = ({ name, codeName, required, disabled }) => {
 };
 
 Driver.propTypes = {
+  placeholder: PropTypes.string,
   name: PropTypes.string,
   codeName: PropTypes.string,
   required: PropTypes.bool,

@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Select, Spin } from "antd";
 import { CodeControlByUrlService } from "../../../../api/services/code/services";
 
-const Firma = ({ name, codeName, checked, required, yakit = false, firmaType = 2 }) => {
+const Firma = ({ name, codeName, checked, required, yakit = false, firmaType = 2, placeholder = "" }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const { setValue, watch, control } = useFormContext();
@@ -34,6 +34,7 @@ const Firma = ({ name, codeName, checked, required, yakit = false, firmaType = 2
             showSearch
             allowClear
             disabled={checked}
+            placeholder={placeholder}
             optionFilterProp="children"
             className={fieldState.error ? "input-error" : ""}
             filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
@@ -62,7 +63,8 @@ const Firma = ({ name, codeName, checked, required, yakit = false, firmaType = 2
               if (value === undefined) {
                 setValue("tedarikciKod", "");
                 setValue("unvan", "");
-                name ? setValue(name, "") : setValue("unvan", "");
+                // Temizlendiğinde boş string yazılırsa antd alanı dolu sayar ve placeholder görünmez; her zaman null yazılır
+                name ? setValue(name, null) : setValue("unvan", null);
               } else {
                 const selected = data.find((opt) => opt.firmaId === value);
                 if (selected) {
@@ -81,6 +83,7 @@ const Firma = ({ name, codeName, checked, required, yakit = false, firmaType = 2
 };
 
 Firma.propTypes = {
+  placeholder: PropTypes.string,
   name: PropTypes.string,
   codeName: PropTypes.string,
   checked: PropTypes.bool,

@@ -12,6 +12,10 @@ import { CodeItemValidateService } from "../../../../api/service";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import GeneralInfo from "./tabs/GeneralInfo";
 
+// Boş bırakılan tarih/saat alanları servise "Invalid Date" olarak gitmemeli
+const formatDateValue = (value) => (value && dayjs(value).isValid() ? dayjs(value).format("YYYY-MM-DD") : null);
+const formatTimeValue = (value) => (value && dayjs(value).isValid() ? dayjs(value).format("HH:mm:ss") : null);
+
 const AddModal = ({ setStatus, onRefresh }) => {
   const isFirstRender = useRef(true);
   const { data, plaka, setPlaka } = useContext(PlakaContext);
@@ -147,19 +151,25 @@ const AddModal = ({ setStatus, onRefresh }) => {
 
   const onSubmit = handleSubmit((values) => {
     const body = {
-      aracId: values.plaka,
+      aracId: values.aracId || 0,
       surucuId1: values.surucuId1 || 0,
       surucuId2: values.surucuId2 || 0,
-      aciklama: values.aciklama,
-      seferNo: values.seferNo,
+      aciklama: values.aciklama || "",
+      seferNo: values.seferNo || "",
+      firmaId: values.firmaId || 0,
+      seferSorumlusu: values.seferSorumlusu || "",
+      seferYeriKodId: values.seferYeriID || 0,
+      projeKodId: values.projeID || 0,
+      departmanKodId: values.departmanID || 0,
+      isEmriNo: values.isEmriNo || "",
       dorseId: values.dorseId || 0,
       guzergahId: values.guzergahId || 0,
-      seferTipKodId: values.seferTipKodId || 0,
-      seferDurumKodId: values.seferDurumKodId || 0,
-      cikisTarih: dayjs(values.cikisTarih).format("YYYY-MM-DD"),
-      varisTarih: dayjs(values.varisTarih).format("YYYY-MM-DD"),
-      cikisSaat: dayjs(values.cikisSaat).format("HH:mm:ss"),
-      varisSaat: dayjs(values.varisSaat).format("HH:mm:ss"),
+      seferTipKodId: values.seferTipID || 0,
+      seferDurumKodId: values.seferDurumID || 0,
+      cikisTarih: formatDateValue(values.cikisTarih),
+      varisTarih: formatDateValue(values.varisTarih),
+      cikisSaat: formatTimeValue(values.cikisSaat),
+      varisSaat: formatTimeValue(values.varisSaat),
       seferAdedi: values.seferAdedi || 0,
       cikisKm: values.cikisKm || 0,
       varisKm: values.varisKm || 0,

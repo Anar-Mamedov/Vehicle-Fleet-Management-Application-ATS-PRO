@@ -8,13 +8,25 @@ import { GetExpeditionItemByIdService, UpdateExpeditionItemService } from "../..
 import { GetDocumentsByRefGroupService, GetPhotosByRefGroupService } from "../../../../api/services/upload/services";
 import { CodeItemValidateService } from "../../../../api/services/code/services";
 import { Modal, Tabs, Button } from "antd";
+import { AppstoreOutlined, CheckOutlined, CloseOutlined, ControlOutlined, FileDoneOutlined, FileTextOutlined, PaperClipOutlined, PictureOutlined, ProfileOutlined, SwapOutlined } from "@ant-design/icons";
 import GeneralInfo from "./tabs/GeneralInfo";
+import { sectionIconStyle } from "./components/uiStyles";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import DosyaUpload from "../../../components/Dosya/DosyaUpload";
 import ResimUpload from "../../../components/Resim/ResimUpload";
 import Yakit from "../yakit/Yakit";
 import Harcamalar from "../harcama/Harcama";
 import TasimaRotaBilgileri from "./tabs/TasimaRota/TasimaRota";
+
+// Servis boş değerleri "" olarak döndürüyor; select'e boş string yazılırsa antd alanı dolu sayar ve placeholder görünmez
+const toNullable = (value) => (value === "" || value === undefined ? null : value);
+
+// Kod/kayıt kimliklerinde 0 "seçim yok" demektir, select'e null yazılır
+const toNullableId = (value) => (value === 0 || value === "" || value === undefined ? null : value);
+
+// Boş bırakılan tarih/saat alanları servise "Invalid Date" olarak gitmemeli
+const formatDateValue = (value) => (value && dayjs(value).isValid() ? dayjs(value).format("YYYY-MM-DD") : null);
+const formatTimeValue = (value) => (value && dayjs(value).isValid() ? dayjs(value).format("HH:mm:ss") : null);
 
 const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const { data, plaka } = useContext(PlakaContext);
@@ -151,8 +163,19 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
   useEffect(() => {
     if (drawerVisible && selectedRow) {
       GetExpeditionItemByIdService(selectedRow?.key).then((res) => {
-        setValue("plaka", res?.data.plaka);
+        setValue("plaka", toNullable(res?.data.plaka));
+        setValue("aracId", toNullableId(res?.data.aracId));
         setValue("seferNo", res?.data.seferNo);
+        setValue("firmaId", toNullableId(res?.data.firmaId));
+        setValue("firma", toNullable(res?.data.firma));
+        setValue("seferSorumlusu", toNullable(res?.data.seferSorumlusu));
+        setValue("seferYeriID", toNullableId(res?.data.seferYeriKodId));
+        setValue("seferYeri", toNullable(res?.data.seferYeri));
+        setValue("projeID", toNullableId(res?.data.projeKodId));
+        setValue("proje", toNullable(res?.data.proje));
+        setValue("departmanID", toNullableId(res?.data.departmanKodId));
+        setValue("departman", toNullable(res?.data.departman));
+        setValue("isEmriNo", res?.data.isEmriNo);
         setCode(res?.data.seferNo);
         if (dayjs(res?.data.cikisTarih).isValid()) {
           setValue("cikisTarih", dayjs(res?.data.cikisTarih));
@@ -176,18 +199,18 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
           setValue("varisSaat", null);
         }
         setValue("aciklama", res?.data.aciklama);
-        setValue("surucuId1", res?.data.surucuId1);
-        setValue("surucu1", res?.data.surucuIsim1);
-        setValue("surucuId2", res?.data.surucuId2);
-        setValue("surucu2", res?.data.surucuIsim2);
-        setValue("dorseId", res?.data.dorseId);
-        setValue("dorsePlaka", res?.data.dorsePlaka);
-        setValue("guzergahId", res?.data.guzergahId);
-        setValue("guzergah", res?.data.guzergah);
-        setValue("seferDurumKodId", res?.data.seferDurumKodId);
-        setValue("seferDurum", res?.data.seferDurum);
-        setValue("seferTipKodId", res?.data.seferTipKodId);
-        setValue("seferTip", res?.data.seferTip);
+        setValue("surucuId1", toNullableId(res?.data.surucuId1));
+        setValue("surucu1", toNullable(res?.data.surucuIsim1));
+        setValue("surucuId2", toNullableId(res?.data.surucuId2));
+        setValue("surucu2", toNullable(res?.data.surucuIsim2));
+        setValue("dorseId", toNullableId(res?.data.dorseId));
+        setValue("dorsePlaka", toNullable(res?.data.dorsePlaka));
+        setValue("guzergahId", toNullableId(res?.data.guzergahId));
+        setValue("guzergah", toNullable(res?.data.guzergah));
+        setValue("seferDurumID", toNullableId(res?.data.seferDurumKodId));
+        setValue("seferDurum", toNullable(res?.data.seferDurum));
+        setValue("seferTipID", toNullableId(res?.data.seferTipKodId));
+        setValue("seferTip", toNullable(res?.data.seferTip));
         setValue("seferAdedi", res?.data.seferAdedi);
         setValue("varisKm", res?.data.varisKm);
         setValue("farkKm", res?.data.farkKm);
@@ -242,17 +265,25 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
   const onSubmit = handleSubmit((values) => {
     const body = {
       siraNo: selectedRow?.key,
+      seferNo: values.seferNo || "",
       surucuId1: values.surucuId1 || 0,
       surucuId2: values.surucuId2 || 0,
-      aciklama: values.aciklama,
+      aracId: values.aracId || 0,
+      firmaId: values.firmaId || 0,
+      seferSorumlusu: values.seferSorumlusu || "",
+      seferYeriKodId: values.seferYeriID || 0,
+      projeKodId: values.projeID || 0,
+      departmanKodId: values.departmanID || 0,
+      isEmriNo: values.isEmriNo || "",
+      aciklama: values.aciklama || "",
       dorseId: values.dorseId || 0,
       guzergahId: values.guzergahId || 0,
-      seferTipKodId: values.seferTipKodId || 0,
-      seferDurumKodId: values.seferDurumKodId || 0,
-      cikisTarih: dayjs(values.cikisTarih).format("YYYY-MM-DD"),
-      varisTarih: dayjs(values.varisTarih).format("YYYY-MM-DD"),
-      cikisSaat: dayjs(values.cikisSaat).format("HH:mm:ss"),
-      varisSaat: dayjs(values.varisSaat).format("HH:mm:ss"),
+      seferTipKodId: values.seferTipID || 0,
+      seferDurumKodId: values.seferDurumID || 0,
+      cikisTarih: formatDateValue(values.cikisTarih),
+      varisTarih: formatDateValue(values.varisTarih),
+      cikisSaat: formatTimeValue(values.cikisSaat),
+      varisSaat: formatTimeValue(values.varisSaat),
       seferAdedi: values.seferAdedi || 0,
       cikisKm: values.cikisKm || 0,
       varisKm: values.varisKm || 0,
@@ -295,22 +326,13 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     {
       key: "1",
       label: t("genelBilgiler"),
-      children: <GeneralInfo isValid={isValid} />,
-    },
-
-    {
-      key: "5",
-      label: t("yakitGiderleri"),
-      children: <Yakit key={yakitKey} selectedRow={selectedRow} seferId={selectedRow?.key} isSefer={true} tableHeight="calc(100vh - 440px)" />,
-    },
-    {
-      key: "6",
-      label: t("harcamalar"),
-      children: <Harcamalar key={harcamaKey} selectedRow={selectedRow} seferId={selectedRow?.key} isSefer={true} tableHeight="calc(100vh - 440px)" />,
+      icon: <AppstoreOutlined />,
+      children: <GeneralInfo isValid={isValid} isUpdate />,
     },
     {
       key: "7",
-      label: t("tasima/RotaBilgileri"),
+      label: t("operasyonHareketleri"),
+      icon: <SwapOutlined />,
       children: (
         <TasimaRotaBilgileri
           key={tasimaRotaKey}
@@ -323,41 +345,68 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       ),
     },
     {
+      key: "5",
+      label: t("yakitGiderleri"),
+      icon: <FileTextOutlined />,
+      children: <Yakit key={yakitKey} selectedRow={selectedRow} seferId={selectedRow?.key} isSefer={true} tableHeight="calc(100vh - 440px)" />,
+    },
+    {
+      key: "6",
+      label: t("harcamalar"),
+      icon: <FileDoneOutlined />,
+      children: <Harcamalar key={harcamaKey} selectedRow={selectedRow} seferId={selectedRow?.key} isSefer={true} tableHeight="calc(100vh - 440px)" />,
+    },
+    {
       key: "2",
       label: t("ozelAlanlar"),
+      icon: <ControlOutlined />,
       children: <PersonalFields personalProps={personalProps} />,
     },
     {
       key: "3",
-      label: `[${imageUrls.length}] ${t("resimler")}`,
+      label: t("resimler"),
+      icon: <PictureOutlined />,
       children: <ResimUpload selectedRowID={selectedRow?.key} refGroup="SEFER" />,
     },
     {
       key: "4",
-      label: `[${filesUrl.length}] ${t("ekliBelgeler")}`,
+      label: t("ekliBelgeler"),
+      icon: <PaperClipOutlined />,
       children: <DosyaUpload selectedRowID={selectedRow?.key} refGroup="SEFER" />,
     },
   ];
 
+  const handleClose = () => {
+    onDrawerClose();
+    onRefresh();
+    setActiveKey("1");
+  };
+
   const footer = [
-    <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit}>
-      {t("guncelle")}
+    <Button key="back" icon={<CloseOutlined />} onClick={handleClose}>
+      {t("vazgec")}
     </Button>,
-    <Button
-      key="back"
-      className="btn btn-min cancel-btn"
-      onClick={() => {
-        onDrawerClose();
-        onRefresh();
-        setActiveKey("1");
-      }}
-    >
-      {t("kapat")}
+    <Button key="submit" className="btn btn-min primary-btn" icon={<CheckOutlined />} onClick={onSubmit}>
+      {t("guncelle")}
     </Button>,
   ];
 
+  // Başlıkta operasyon numarası ve güncel durumu birlikte gösterilir
+  const seferNo = watch("seferNo");
+  const seferDurum = watch("seferDurum");
+
+  const modalTitle = (
+    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <span style={sectionIconStyle}>
+        <ProfileOutlined />
+      </span>
+      <span style={{ fontSize: "16px", fontWeight: 600, color: "#141414" }}>{t("operasyonGuncelleme")}</span>
+      {seferNo ? <span style={{ fontSize: "14px", fontWeight: 400, color: "#8c8c8c" }}>{`(${[seferNo, seferDurum].filter(Boolean).join(" / ")})`}</span> : null}
+    </div>
+  );
+
   return (
-    <Modal title={t("gorevBilgisiGuncelle")} open={drawerVisible} onCancel={() => onDrawerClose()} maskClosable={false} footer={footer} width={1200}>
+    <Modal title={modalTitle} open={drawerVisible} onCancel={() => onDrawerClose()} maskClosable={false} footer={footer} width={1400}>
       <FormProvider {...methods}>
         <form>
           <Tabs activeKey={activeKey} onChange={setActiveKey} items={items} />
@@ -372,6 +421,10 @@ UpdateModal.propTypes = {
   setUpdateModal: PropTypes.func,
   setStatus: PropTypes.func,
   id: PropTypes.number,
+  selectedRow: PropTypes.object,
+  onDrawerClose: PropTypes.func,
+  drawerVisible: PropTypes.bool,
+  onRefresh: PropTypes.func,
 };
 
 export default UpdateModal;

@@ -670,5 +670,21 @@
   "kmCikis": "Км выезда",
   "kmVaris": "Км прибытия",
   "saatKisa": "ч",
-  "dakikaKisa": "м"
+  "dakikaKisa": "м",
+  "operasyonGuncelleme": "Обновление Операции",
+  "operasyonBilgileri": "Данные Операции",
+  "aracVeSurucuBilgileri": "Данные Транспорта и Водителя",
+  "tarihSaatVeRotaBilgileri": "Дата, Время и Маршрут",
+  "ekBilgiler": "Дополнительные Данные",
+  "operasyonSorumlusu": "Ответственный за Операцию",
+  "operasyonHareketleri": "Движения Операции",
+  "isEmriNo": "Номер Наряда",
+  "seferSayisi": "Количество Рейсов",
+  "dorseSec": "Выберите прицеп",
+  "surucuSecin": "Выберите водителя",
+  "personelSeciniz": "Выберите сотрудника",
+  "vazgec": "Отмена",
+  "firmaSecin": "Выберите компанию",
+  "guzergahSecin": "Выберите маршрут",
+  "plakaSecin": "Выберите госномер"
 }

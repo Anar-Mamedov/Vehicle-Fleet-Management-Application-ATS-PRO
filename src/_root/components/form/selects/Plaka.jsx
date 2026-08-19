@@ -6,7 +6,7 @@ import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetFuelCardContentByIdService } from "../../../../api/services/vehicles/yakit/services";
 import { CodeControlByUrlService } from "../../../../api/services/code/services";
 
-const Plaka = ({ name, codeName, required, onSubmit }) => {
+const Plaka = ({ name, codeName, required, onSubmit, placeholder = "" }) => {
   const { plaka, setData } = useContext(PlakaContext);
   const { setValue, control, watch } = useFormContext();
   const [plateList, setPlateList] = useState([]);
@@ -81,6 +81,7 @@ const Plaka = ({ name, codeName, required, onSubmit }) => {
               {...field}
               showSearch
               allowClear
+              placeholder={placeholder}
               optionFilterProp="children"
               className={fieldState.error ? "input-error" : ""}
               value={selectedValue}
@@ -96,7 +97,8 @@ const Plaka = ({ name, codeName, required, onSubmit }) => {
                   // Seçim temizlenmişse
                   const selectedOption = plakaArray.find((option) => option.id === value);
                   if (!selectedOption) {
-                    name ? setValue(name, "") : setValue("plaka", "");
+                    // Temizlendiğinde boş string yazılırsa antd alanı dolu sayar ve placeholder görünmez; her zaman null yazılır
+                    name ? setValue(name, null) : setValue("plaka", null);
                     setData([]);
                     // If onSubmit is provided, call it with null to clear data
                     if (onSubmit && typeof onSubmit === "function") {
@@ -134,6 +136,7 @@ const Plaka = ({ name, codeName, required, onSubmit }) => {
 };
 
 Plaka.propTypes = {
+  placeholder: PropTypes.string,
   name: PropTypes.string,
   codeName: PropTypes.string,
   required: PropTypes.bool,
