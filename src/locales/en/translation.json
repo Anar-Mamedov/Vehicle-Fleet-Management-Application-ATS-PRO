@@ -1604,5 +1604,18 @@
   "sira": "No",
   "doluluk": "Occupancy",
   "buIslemiYapmayaYetkinizYok": "You are not authorised to perform this action.",
-  "kaydiSilmekIstediginizdenEminMisiniz": "Are you sure you want to delete this record?"
+  "kaydiSilmekIstediginizdenEminMisiniz": "Are you sure you want to delete this record?",
+  "zamanBilgileri": "Time Details",
+  "miktarBilgileri": "Quantity Details",
+  "tutarBilgileri": "Amount Details",
+  "planlanan": "Planned",
+  "gecikmeErken": "Delay / Early",
+  "baslangicNoktasi": "Start Point",
+  "varisNoktasi": "Destination",
+  "gerceklesmeOrani": "Completion Rate",
+  "hakedisTipi": "Payment Type",
+  "birimFiyat": "Unit Price",
+  "operasyonHareketiGuncelle": "Update Operation Movement",
+  "operasyonHareketiEkle": "New Operation Movement",
+  "kapasite": "Capacity"
 }

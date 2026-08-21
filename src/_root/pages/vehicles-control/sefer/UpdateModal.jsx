@@ -3,6 +3,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import dayjs from "dayjs";
+import { formatDateForApi, formatTimeForApi } from "../../../../utils/dateUtils";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetExpeditionItemByIdService, UpdateExpeditionItemService } from "../../../../api/services/vehicles/operations_services";
 import { GetDocumentsByRefGroupService, GetPhotosByRefGroupService } from "../../../../api/services/upload/services";
@@ -23,10 +24,6 @@ const toNullable = (value) => (value === "" || value === undefined ? null : valu
 
 // Kod/kayıt kimliklerinde 0 "seçim yok" demektir, select'e null yazılır
 const toNullableId = (value) => (value === 0 || value === "" || value === undefined ? null : value);
-
-// Boş bırakılan tarih/saat alanları servise "Invalid Date" olarak gitmemeli
-const formatDateValue = (value) => (value && dayjs(value).isValid() ? dayjs(value).format("YYYY-MM-DD") : null);
-const formatTimeValue = (value) => (value && dayjs(value).isValid() ? dayjs(value).format("HH:mm:ss") : null);
 
 const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const { data, plaka } = useContext(PlakaContext);
@@ -280,10 +277,10 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       guzergahId: values.guzergahId || 0,
       seferTipKodId: values.seferTipID || 0,
       seferDurumKodId: values.seferDurumID || 0,
-      cikisTarih: formatDateValue(values.cikisTarih),
-      varisTarih: formatDateValue(values.varisTarih),
-      cikisSaat: formatTimeValue(values.cikisSaat),
-      varisSaat: formatTimeValue(values.varisSaat),
+      cikisTarih: formatDateForApi(values.cikisTarih),
+      varisTarih: formatDateForApi(values.varisTarih),
+      cikisSaat: formatTimeForApi(values.cikisSaat, true),
+      varisSaat: formatTimeForApi(values.varisSaat, true),
       seferAdedi: values.seferAdedi || 0,
       cikisKm: values.cikisKm || 0,
       varisKm: values.varisKm || 0,
@@ -333,7 +330,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       key: "7",
       label: t("operasyonHareketleri"),
       icon: <SwapOutlined />,
-      children: <OperasyonHareketleri key={tasimaRotaKey} selectedRow={selectedRow} isActive={activeKey === "7"} kdvOran={watch("kdvOran")} />,
+      children: <OperasyonHareketleri key={tasimaRotaKey} selectedRow={selectedRow} isActive={activeKey === "7"} />,
     },
     {
       key: "5",

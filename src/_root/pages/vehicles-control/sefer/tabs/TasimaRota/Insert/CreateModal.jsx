@@ -176,9 +176,11 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, s
   return (
     <FormProvider {...methods}>
       <div>
-        <Button className="btn primary-btn" onClick={handleModalToggle}>
-          <PlusOutlined /> {t("yeniHareket")}
-        </Button>
+        <div style={{ display: "flex", width: "100%", justifyContent: "flex-end" }}>
+          <Button type="link" onClick={handleModalToggle}>
+            <PlusOutlined /> {t("yeniKayit")}
+          </Button>
+        </div>
 
         <Modal width="960px" title={t("tasima/RotaBilgileri")} open={isModalVisible} centered onOk={methods.handleSubmit(onSubmited)} onCancel={handleModalToggle}>
           {loading ? (

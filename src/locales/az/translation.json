@@ -1147,5 +1147,19 @@
   "sira": "Sıra",
   "doluluk": "Doluluq",
   "buIslemiYapmayaYetkinizYok": "Bu əməliyyatı etməyə səlahiyyətiniz yoxdur.",
-  "kaydiSilmekIstediginizdenEminMisiniz": "Qeydi silmək istədiyinizə əminsiniz?"
+  "kaydiSilmekIstediginizdenEminMisiniz": "Qeydi silmək istədiyinizə əminsiniz?",
+  "zamanBilgileri": "Zaman Məlumatları",
+  "miktarBilgileri": "Miqdar Məlumatları",
+  "tutarBilgileri": "Məbləğ Məlumatları",
+  "planlanan": "Planlanan",
+  "gerceklesen": "Gerçəkləşən",
+  "gecikmeErken": "Gecikmə / Erkən",
+  "baslangicNoktasi": "Başlanğıc Nöqtəsi",
+  "varisNoktasi": "Varış Nöqtəsi",
+  "gerceklesmeOrani": "Gerçəkləşmə Nisbəti",
+  "hakedisTipi": "Haqq-hesab Tipi",
+  "birimFiyat": "Vahid Qiymət",
+  "operasyonHareketiGuncelle": "Əməliyyat Hərəkətini Yenilə",
+  "operasyonHareketiEkle": "Yeni Əməliyyat Hərəkəti",
+  "kapasite": "Tutum"
 }

@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { Button, Input, message, Pagination, Popconfirm, Spin, Table, Tag } from "antd";
-import { DeleteOutlined, QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import { formatDateByLocale } from "../../../../components/FormattedDate";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 import { DeleteExpeditionOperationItemsService, GetExpeditionOperationsListByExpIdService } from "../../../../../api/services/vehicles/operations_services";
 import OperasyonOzeti from "../components/OperasyonOzeti";
 import { BORDER_COLOR, cardStyle } from "../components/uiStyles";
-import CreateModal from "./TasimaRota/Insert/CreateModal";
+import HareketModal from "../hareket/HareketModal";
 
 const PAGE_SIZE = 10;
 
@@ -55,13 +55,14 @@ const renderDurum = (durum) => {
   );
 };
 
-const OperasyonHareketleri = ({ selectedRow, isActive, kdvOran }) => {
+const OperasyonHareketleri = ({ selectedRow, isActive }) => {
   const [data, setData] = useState([]);
   const [summary, setSummary] = useState(null);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [hareketModal, setHareketModal] = useState({ open: false, seferOprId: null });
 
   const searchTermRef = useRef("");
   const dataRef = useRef([]);
@@ -82,9 +83,9 @@ const OperasyonHareketleri = ({ selectedRow, isActive, kdvOran }) => {
         let setPointId = 0;
 
         if (diff > 0) {
-          setPointId = currentList[currentList.length - 1]?.siraNo || 0;
+          setPointId = currentList[currentList.length - 1]?.key || 0;
         } else if (diff < 0) {
-          setPointId = currentList[0]?.siraNo || 0;
+          setPointId = currentList[0]?.key || 0;
         }
 
         const response = await GetExpeditionOperationsListByExpIdService(diff, setPointId, expId, searchTermRef.current);
@@ -93,7 +94,7 @@ const OperasyonHareketleri = ({ selectedRow, isActive, kdvOran }) => {
 
         const newData = (response.data.list || []).map((item) => ({
           ...item,
-          key: item.siraNo,
+          key: item.seferOprId ?? item.siraNo,
         }));
 
         dataRef.current = newData;
@@ -222,7 +223,9 @@ const OperasyonHareketleri = ({ selectedRow, isActive, kdvOran }) => {
           onPressEnter={handleSearch}
           prefix={<SearchOutlined style={{ color: "#bfbfbf" }} onClick={handleSearch} />}
         />
-        <CreateModal kdvOran={kdvOran} selectedRow1={selectedRow} onRefresh={refreshTable} secilenKayitID={expId} />
+        <Button className="btn primary-btn" onClick={() => setHareketModal({ open: true, seferOprId: null })}>
+          <PlusOutlined /> {t("yeniHareket")}
+        </Button>
       </div>
 
       <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", flexWrap: "wrap" }}>
@@ -231,7 +234,16 @@ const OperasyonHareketleri = ({ selectedRow, isActive, kdvOran }) => {
           <div style={{ padding: "16px 20px", borderBottom: `1px solid ${BORDER_COLOR}`, fontSize: "14px", fontWeight: 600, color: "#141414" }}>{t("operasyonHareketleri")}</div>
 
           <Spin spinning={loading}>
-            <Table columns={columns} dataSource={data} pagination={false} scroll={{ x: "max-content", y: "calc(100vh - 520px)" }} />
+            <Table
+              columns={columns}
+              dataSource={data}
+              pagination={false}
+              scroll={{ x: "max-content", y: "calc(100vh - 520px)" }}
+              onRow={(record) => ({
+                style: { cursor: "pointer" },
+                onClick: () => setHareketModal({ open: true, seferOprId: record.key }),
+              })}
+            />
           </Spin>
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", flexWrap: "wrap", padding: "12px 20px", borderTop: `1px solid ${BORDER_COLOR}` }}>
@@ -239,6 +251,14 @@ const OperasyonHareketleri = ({ selectedRow, isActive, kdvOran }) => {
             <Pagination current={currentPage} total={totalCount} pageSize={PAGE_SIZE} showSizeChanger={false} onChange={handlePageChange} />
           </div>
         </div>
+
+        <HareketModal
+          open={hareketModal.open}
+          seferOprId={hareketModal.seferOprId}
+          expId={expId}
+          onClose={() => setHareketModal({ open: false, seferOprId: null })}
+          onRefresh={refreshTable}
+        />
 
         {/* Özet kutusu */}
         <div style={{ flex: "0 1 300px", minWidth: "260px" }}>
@@ -252,7 +272,6 @@ const OperasyonHareketleri = ({ selectedRow, isActive, kdvOran }) => {
 OperasyonHareketleri.propTypes = {
   selectedRow: PropTypes.object,
   isActive: PropTypes.bool,
-  kdvOran: PropTypes.number,
 };
 
 export default OperasyonHareketleri;

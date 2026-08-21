@@ -104,6 +104,18 @@ export const GetExpeditionOperationsListByExpIdService = async (diff, setPointId
   return await http.get(`/ExpeditionOpr/GetExpeditionOperationsListByExpId?setPointId=${setPointId}&diff=${diff}&expId=${expId}&parameter=${encodeURIComponent(search)}`);
 };
 
+export const GetExpeditionOperationItemByIdService = async (id) => {
+  return await http.get(`/ExpeditionOpr/GetExpeditionOperationItemById?id=${id}`);
+};
+
+export const AddExpeditionOperationItemService = async (data) => {
+  return await http.post(`/ExpeditionOpr/AddExpeditionOperationItem`, data);
+};
+
+export const UpdateExpeditionOperationItemService = async (data) => {
+  return await http.post(`/ExpeditionOpr/UpdateExpeditionOperationItem`, data);
+};
+
 export const DeleteExpeditionOperationItemsService = async (ids) => {
   return await http.post(`/ExpeditionOpr/DeleteExpeditionOperationItemById`, ids);
 };

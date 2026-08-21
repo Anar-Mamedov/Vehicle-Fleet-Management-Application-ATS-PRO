@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
+import { formatDateForApi, formatTimeForApi } from "../../../../utils/dateUtils";
 import { t } from "i18next";
 import { Button, message, Modal, Tabs } from "antd";
 import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
@@ -11,10 +12,6 @@ import { GetModuleCodeByCode } from "../../../../api/services/code/services";
 import { CodeItemValidateService } from "../../../../api/service";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import GeneralInfo from "./tabs/GeneralInfo";
-
-// Boş bırakılan tarih/saat alanları servise "Invalid Date" olarak gitmemeli
-const formatDateValue = (value) => (value && dayjs(value).isValid() ? dayjs(value).format("YYYY-MM-DD") : null);
-const formatTimeValue = (value) => (value && dayjs(value).isValid() ? dayjs(value).format("HH:mm:ss") : null);
 
 const AddModal = ({ setStatus, onRefresh }) => {
   const isFirstRender = useRef(true);
@@ -166,10 +163,10 @@ const AddModal = ({ setStatus, onRefresh }) => {
       guzergahId: values.guzergahId || 0,
       seferTipKodId: values.seferTipID || 0,
       seferDurumKodId: values.seferDurumID || 0,
-      cikisTarih: formatDateValue(values.cikisTarih),
-      varisTarih: formatDateValue(values.varisTarih),
-      cikisSaat: formatTimeValue(values.cikisSaat),
-      varisSaat: formatTimeValue(values.varisSaat),
+      cikisTarih: formatDateForApi(values.cikisTarih),
+      varisTarih: formatDateForApi(values.varisTarih),
+      cikisSaat: formatTimeForApi(values.cikisSaat, true),
+      varisSaat: formatTimeForApi(values.varisSaat, true),
       seferAdedi: values.seferAdedi || 0,
       cikisKm: values.cikisKm || 0,
       varisKm: values.varisKm || 0,

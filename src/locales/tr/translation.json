@@ -1849,5 +1849,17 @@
   "sira": "Sıra",
   "doluluk": "Doluluk",
   "buIslemiYapmayaYetkinizYok": "Bu işlemi yapmaya yetkiniz bulunmamaktadır.",
-  "kaydiSilmekIstediginizdenEminMisiniz": "Kaydı silmek istediğinizden emin misiniz?"
+  "kaydiSilmekIstediginizdenEminMisiniz": "Kaydı silmek istediğinizden emin misiniz?",
+  "zamanBilgileri": "Zaman Bilgileri",
+  "miktarBilgileri": "Miktar Bilgileri",
+  "tutarBilgileri": "Tutar Bilgileri",
+  "planlanan": "Planlanan",
+  "gecikmeErken": "Gecikme / Erken",
+  "baslangicNoktasi": "Başlangıç Noktası",
+  "varisNoktasi": "Varış Noktası",
+  "gerceklesmeOrani": "Gerçekleşme Oranı",
+  "hakedisTipi": "Hakediş Tipi",
+  "operasyonHareketiGuncelle": "Operasyon Hareketi Güncelle",
+  "operasyonHareketiEkle": "Operasyon Hareketi Ekle",
+  "kapasite": "Kapasite"
 }
