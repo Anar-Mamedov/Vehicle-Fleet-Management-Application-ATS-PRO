@@ -27,6 +27,12 @@ const FIELDS = {
   hakedisTutar: "hakedisTutar",
 };
 
+const singleLineStyle = {
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
 const secondaryLineStyle = {
   fontSize: "12px",
   color: "#8c8c8c",
@@ -160,19 +166,19 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
       title: t("tarih"),
       dataIndex: FIELDS.tarih,
       key: "tarih",
-      width: 110,
+      width: 120,
       render: (value, record) => (
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontWeight: 600 }}>{formatDateByLocale(value)}</span>
-          {record[FIELDS.saat] ? <span style={secondaryLineStyle}>{record[FIELDS.saat]}</span> : null}
+        <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <span style={{ ...singleLineStyle, fontWeight: 600 }}>{formatDateByLocale(value)}</span>
+          {record[FIELDS.saat] ? <span style={{ ...secondaryLineStyle, ...singleLineStyle }}>{record[FIELDS.saat]}</span> : null}
         </div>
       ),
     },
-    { title: t("hareketTipi"), dataIndex: FIELDS.hareketTip, key: "hareketTip", width: 140, render: (value) => value || "-" },
-    { title: t("firma"), dataIndex: FIELDS.firma, key: "firma", width: 140, render: (value) => value || "-" },
-    { title: t("guzergah"), dataIndex: FIELDS.guzergah, key: "guzergah", width: 150, render: (value) => value || "-" },
-    { title: t("operasyonYeri"), dataIndex: FIELDS.operasyonYeri, key: "operasyonYeri", width: 130, render: (value) => value || "-" },
-    { title: t("vardiya"), dataIndex: FIELDS.vardiya, key: "vardiya", width: 100, render: (value) => value || "-" },
+    { title: t("hareketTipi"), dataIndex: FIELDS.hareketTip, key: "hareketTip", width: 150, ellipsis: true, render: (value) => value || "-" },
+    { title: t("firma"), dataIndex: FIELDS.firma, key: "firma", width: 150, ellipsis: true, render: (value) => value || "-" },
+    { title: t("guzergah"), dataIndex: FIELDS.guzergah, key: "guzergah", width: 260, ellipsis: true, render: (value) => value || "-" },
+    { title: t("operasyonYeri"), dataIndex: FIELDS.operasyonYeri, key: "operasyonYeri", width: 150, ellipsis: true, render: (value) => value || "-" },
+    { title: t("vardiya"), dataIndex: FIELDS.vardiya, key: "vardiya", width: 110, ellipsis: true, render: (value) => value || "-" },
     {
       title: t("miktar"),
       dataIndex: FIELDS.miktar,
@@ -181,7 +187,7 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
       align: "right",
       render: (value) => formatNumberWithLocale(value ?? 0),
     },
-    { title: t("birim"), dataIndex: FIELDS.birim, key: "birim", width: 90, render: (value) => value || "-" },
+    { title: t("birim"), dataIndex: FIELDS.birim, key: "birim", width: 100, ellipsis: true, render: (value) => value || "-" },
     { title: t("durum"), dataIndex: FIELDS.durum, key: "durum", width: 140, render: renderDurum },
     {
       title: t("hakedisTutari"),
@@ -209,6 +215,8 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
       ),
     },
   ];
+
+  const tableScrollX = columns.reduce((total, column) => total + (column.width || 0), 0);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -238,7 +246,7 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
               columns={columns}
               dataSource={data}
               pagination={false}
-              scroll={{ x: "max-content", y: "calc(100vh - 520px)" }}
+              scroll={{ x: tableScrollX, y: "calc(100vh - 520px)" }}
               onRow={(record) => ({
                 style: { cursor: "pointer" },
                 onClick: () => setHareketModal({ open: true, seferOprId: record.key }),
