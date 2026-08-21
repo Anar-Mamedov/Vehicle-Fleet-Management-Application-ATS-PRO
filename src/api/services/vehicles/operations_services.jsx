@@ -99,6 +99,15 @@ export const GetExpeditionReportService = async (search, filters) => {
   return await http.post(`/Expeditions/GetExpeditionReport?parameter=${encodeURIComponent(search)}`, filters);
 };
 
+// Sefer kartındaki operasyon hareketleri sekmesi
+export const GetExpeditionOperationsListByExpIdService = async (diff, setPointId, expId, search) => {
+  return await http.get(`/ExpeditionOpr/GetExpeditionOperationsListByExpId?setPointId=${setPointId}&diff=${diff}&expId=${expId}&parameter=${encodeURIComponent(search)}`);
+};
+
+export const DeleteExpeditionOperationItemsService = async (ids) => {
+  return await http.post(`/ExpeditionOpr/DeleteExpeditionOperationItemById`, ids);
+};
+
 export const GetExpeditionStatisticsByTypeService = async (type, search, filters) => {
   return await http.post(`/ExpeditionStatistics/GetInfoByType?type=${type}&parameter=${encodeURIComponent(search)}`, filters);
 };

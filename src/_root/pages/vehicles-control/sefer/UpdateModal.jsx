@@ -16,7 +16,7 @@ import DosyaUpload from "../../../components/Dosya/DosyaUpload";
 import ResimUpload from "../../../components/Resim/ResimUpload";
 import Yakit from "../yakit/Yakit";
 import Harcamalar from "../harcama/Harcama";
-import TasimaRotaBilgileri from "./tabs/TasimaRota/TasimaRota";
+import OperasyonHareketleri from "./tabs/OperasyonHareketleri";
 
 // Servis boş değerleri "" olarak döndürüyor; select'e boş string yazılırsa antd alanı dolu sayar ve placeholder görünmez
 const toNullable = (value) => (value === "" || value === undefined ? null : value);
@@ -333,16 +333,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
       key: "7",
       label: t("operasyonHareketleri"),
       icon: <SwapOutlined />,
-      children: (
-        <TasimaRotaBilgileri
-          key={tasimaRotaKey}
-          selectedRow1={selectedRow}
-          seferId={selectedRow?.key}
-          isSefer={true}
-          tableHeight="calc(100vh - 440px)"
-          isActive={activeKey === "7"}
-        />
-      ),
+      children: <OperasyonHareketleri key={tasimaRotaKey} selectedRow={selectedRow} isActive={activeKey === "7"} kdvOran={watch("kdvOran")} />,
     },
     {
       key: "5",

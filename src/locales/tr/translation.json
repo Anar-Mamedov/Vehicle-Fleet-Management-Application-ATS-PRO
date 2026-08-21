@@ -1840,5 +1840,14 @@
   "vazgec": "Vazgeç",
   "firmaSecin": "Firma seçin",
   "guzergahSecin": "Güzergah seçin",
-  "plakaSecin": "Plaka seçin"
+  "plakaSecin": "Plaka seçin",
+  "operasyonOzeti": "Operasyon Özeti",
+  "hareketAra": "Hareket ara...",
+  "yeniHareket": "Yeni Hareket",
+  "hareketTipi": "Hareket Tipi",
+  "hakedisTutari": "Hakediş Tutarı",
+  "sira": "Sıra",
+  "doluluk": "Doluluk",
+  "buIslemiYapmayaYetkinizYok": "Bu işlemi yapmaya yetkiniz bulunmamaktadır.",
+  "kaydiSilmekIstediginizdenEminMisiniz": "Kaydı silmek istediğinizden emin misiniz?"
 }

@@ -1595,5 +1595,14 @@
   "vazgec": "Cancel",
   "firmaSecin": "Select company",
   "guzergahSecin": "Select route",
-  "plakaSecin": "Select plate"
+  "plakaSecin": "Select plate",
+  "operasyonOzeti": "Operation Summary",
+  "hareketAra": "Search movement...",
+  "yeniHareket": "New Movement",
+  "hareketTipi": "Movement Type",
+  "hakedisTutari": "Progress Payment",
+  "sira": "No",
+  "doluluk": "Occupancy",
+  "buIslemiYapmayaYetkinizYok": "You are not authorised to perform this action.",
+  "kaydiSilmekIstediginizdenEminMisiniz": "Are you sure you want to delete this record?"
 }

@@ -686,5 +686,14 @@
   "vazgec": "Отмена",
   "firmaSecin": "Выберите компанию",
   "guzergahSecin": "Выберите маршрут",
-  "plakaSecin": "Выберите госномер"
+  "plakaSecin": "Выберите госномер",
+  "operasyonOzeti": "Сводка Операции",
+  "hareketAra": "Поиск движения...",
+  "yeniHareket": "Новое Движение",
+  "hareketTipi": "Тип Движения",
+  "hakedisTutari": "Сумма Вознаграждения",
+  "sira": "№",
+  "doluluk": "Загрузка",
+  "buIslemiYapmayaYetkinizYok": "У вас нет прав на это действие.",
+  "kaydiSilmekIstediginizdenEminMisiniz": "Вы уверены, что хотите удалить запись?"
 }
