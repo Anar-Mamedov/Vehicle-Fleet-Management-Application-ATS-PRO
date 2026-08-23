@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import { Table, Button, Dropdown, Modal, Checkbox, Input, Spin, Typography, Tag, message } from "antd";
+import { Table, Button, Dropdown, Modal, Checkbox, Input, Pagination, Spin, Typography, Tag, message } from "antd";
 import { HolderOutlined, SearchOutlined, MenuOutlined, ExportOutlined, MoreOutlined, EditOutlined, DeleteOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -98,6 +98,20 @@ const compareNumber = (a, b) => (Number(a) || 0) - (Number(b) || 0);
 const createUserError = (userMessage) => Object.assign(new Error(userMessage), { userMessage });
 
 const renderNumber = (value) => formatNumberWithLocale(value ?? 0);
+
+// setPointId sayfalama imlecidir ve hareket kaydının gerçek kimliğidir: `seferOprId`.
+// Liste `seferOprId` azalan sırada döner, yani sayfanın son kaydı en küçük kimliktir.
+const getSetPointId = (row) => row?.seferOprId || 0;
+
+// Bu servis negatif `diff` isteğini çözemiyor: geri gidildiğinde imleci bulamayıp kümenin başına
+// (en eski kayıtlara) dönüyor, ardından o sayfanın son kaydı imleç olunca liste boş geliyor.
+// Bu yüzden her sayfa DAİMA ileri yönlü istekle üretilir:
+//   sayfa 1       -> setPointId 0, diff 0   (ilk açılışın birebir aynısı)
+//   sayfa N (N>1) -> setPointId = (N-1). sayfanın son kaydı, diff +1
+// Sayfa sınırındaki imleçler saklanır; geri gidilirken de aynı ileri istek tekrarlanır, böylece
+// bir sayfa nereden gelinirse gelinsin hep aynı veriyi gösterir.
+const createPageCursors = () => ({ 1: 0 });
+
 
 const renderText = (value) => value || "-";
 
@@ -260,28 +274,21 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
   const searchTermRef = useRef("");
   const filtersRef = useRef(DEFAULT_HAREKET_FILTERS);
   const dataRef = useRef([]);
-  const currentPageRequestRef = useRef({ diff: 0, setPointId: 0, targetPage: 1 });
+  const pageCursorsRef = useRef(createPageCursors());
   // Filtreler hızlı değiştiğinde geç dönen isteğin listeyi ezmemesi için istek sırası tutulur
   const requestIdRef = useRef(0);
 
   // API Data Fetching with diff and setPointId
   const fetchData = useCallback(
-    async (diff, targetPage) => {
+    async (targetPage) => {
       const requestId = requestIdRef.current + 1;
       requestIdRef.current = requestId;
       setLoading(true);
 
       try {
-        const currentList = dataRef.current;
-        let currentSetPointId = 0;
-
-        if (diff > 0) {
-          // Moving forward
-          currentSetPointId = currentList[currentList.length - 1]?.key || 0;
-        } else if (diff < 0) {
-          // Moving backward
-          currentSetPointId = currentList[0]?.key || 0;
-        }
+        // Sayfa 1 sıfırdan okunur, diğer sayfalar bir önceki sayfanın son kaydından ileri gidilerek
+        const currentSetPointId = pageCursorsRef.current[targetPage] || 0;
+        const diff = targetPage === 1 ? 0 : 1;
 
         const response = await GetExpeditionOperationsListService(diff, currentSetPointId, searchTermRef.current, filtersRef.current);
 
@@ -292,11 +299,10 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
           key: item.seferOprId,
         }));
 
-        currentPageRequestRef.current = {
-          diff,
-          setPointId: currentSetPointId,
-          targetPage,
-        };
+        // Sonraki sayfanın imleci bu sayfanın son kaydıdır
+        if (newData.length > 0) {
+          pageCursorsRef.current[targetPage + 1] = getSetPointId(newData[newData.length - 1]);
+        }
 
         dataRef.current = newData;
         setData(newData);
@@ -315,24 +321,26 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
   );
 
   useEffect(() => {
-    fetchData(0, 1);
+    fetchData(1);
   }, [fetchData]);
 
   // Search handling
   const handleSearch = () => {
     searchTermRef.current = searchTerm;
-    fetchData(0, 1);
+    pageCursorsRef.current = createPageCursors();
+    fetchData(1);
   };
 
   const handleFilterChange = (filters) => {
     filtersRef.current = filters;
     searchTermRef.current = searchTerm;
-    fetchData(0, 1);
+    pageCursorsRef.current = createPageCursors();
+    fetchData(1);
   };
 
   const handleTableChange = (page) => {
-    const diff = page - currentPage;
-    fetchData(diff, page);
+    setCurrentPage(page);
+    fetchData(page);
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
@@ -353,17 +361,12 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
     setDrawer({ visible: true, data: record });
   };
 
+  // Ekleme/güncelleme/silme sonrası Araçlar listesindeki gibi ilk sayfadan yeniden okunur
   const refreshTableData = useCallback(() => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
-    fetchData(0, 1);
-  }, [fetchData]);
-
-  const refreshCurrentPageData = useCallback(() => {
-    setSelectedRowKeys([]);
-    setSelectedRows([]);
-    const { diff, targetPage } = currentPageRequestRef.current;
-    fetchData(diff, targetPage);
+    pageCursorsRef.current = createPageCursors();
+    fetchData(1);
   }, [fetchData]);
 
   // Satır menüsünden tek kayıt silme; toolbar'daki toplu silme menüsünden bağımsız çalışır
@@ -375,7 +378,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
 
         if ([200, 201, 202, 204].includes(statusCode)) {
           message.success(t("islemBasarili"));
-          refreshCurrentPageData();
+          refreshTableData();
         } else if (statusCode === 401) {
           message.error(t("buIslemiYapmayaYetkinizYok"));
         } else {
@@ -386,7 +389,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
         message.error(t("islemBasarisiz"));
       }
     },
-    [refreshCurrentPageData]
+    [refreshTableData]
   );
 
   const confirmDelete = (record) => {
@@ -726,6 +729,16 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
     window.location.reload();
   };
 
+  // Araçlar listesindeki sayfalama: tablonun kendi sayfalaması kapalı, altta `simple` (yalnız ileri/geri)
+  // bir Pagination var. Numaralı sayfalama kullanılmaz; imleçler yalnızca komşu sayfa için bilindiğinden
+  // uzak bir sayfaya doğrudan atlanamaz.
+  const tableFooter = () => (
+    <div style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
+      <div>{`${t("toplam")}: ${formatNumberWithLocale(totalCount)} | ${t("goruntulenen")}: ${formatNumberWithLocale(data.length)}`}</div>
+      <Pagination simple={{ readOnly: true }} current={currentPage} total={totalCount} pageSize={PAGE_SIZE} onChange={handleTableChange} showSizeChanger={false} size="small" />
+    </div>
+  );
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -875,17 +888,12 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
               rowSelection={rowSelection}
               columns={tableColumns}
               dataSource={data}
-              pagination={{
-                current: currentPage,
-                total: totalCount,
-                pageSize: PAGE_SIZE,
-                showSizeChanger: false,
-                onChange: handleTableChange,
-              }}
+              pagination={false}
+              footer={tableFooter}
               scroll={{ y: "calc(100vh - 565px)", x: tableScrollX }}
             />
           </Spin>
-          <HareketModal open={drawer.visible} seferOprId={drawer.data?.key} onClose={() => setDrawer({ ...drawer, visible: false })} onRefresh={refreshCurrentPageData} />
+          <HareketModal open={drawer.visible} seferOprId={drawer.data?.key} onClose={() => setDrawer({ ...drawer, visible: false })} onRefresh={refreshTableData} />
         </div>
       </FormProvider>
     </>
