@@ -557,15 +557,6 @@ const Sefer = () => {
       render: renderNumber,
     },
     {
-      title: t("yapilanIs"),
-      dataIndex: "yapilanIs",
-      key: "yapilanIs",
-      width: 150,
-      visible: true,
-      sorter: (a, b) => compareText(a.yapilanIs, b.yapilanIs),
-      render: renderText,
-    },
-    {
       title: t("planlananMiktar"),
       dataIndex: "toplamPlanlananMiktar",
       key: "toplamPlanlananMiktar",
@@ -594,15 +585,6 @@ const Sefer = () => {
       align: "right",
       sorter: (a, b) => compareNumber(a.dolulukOrani, b.dolulukOrani),
       render: (value) => <span style={{ fontWeight: 600 }}>{`%${formatNumberWithLocale(value ?? 0)}`}</span>,
-    },
-    {
-      title: t("birim"),
-      dataIndex: "birim",
-      key: "birim",
-      width: 100,
-      visible: true,
-      sorter: (a, b) => compareText(a.birim, b.birim),
-      render: renderText,
     },
     {
       title: t("hakedis"),
