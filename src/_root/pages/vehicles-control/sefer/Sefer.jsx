@@ -596,29 +596,7 @@ const Sefer = () => {
       sorter: (a, b) => compareNumber(a.toplamHakedisTutar, b.toplamHakedisTutar),
       render: (value) => renderAmount(value, POSITIVE_AMOUNT_COLOR),
     },
-    {
-      title: t("masraf"),
-      dataIndex: "toplamMasrafTutar",
-      key: "toplamMasrafTutar",
-      width: 130,
-      visible: true,
-      align: "right",
-      sorter: (a, b) => compareNumber(a.toplamMasrafTutar, b.toplamMasrafTutar),
-      render: (value) => renderAmount(value, NEGATIVE_AMOUNT_COLOR),
-    },
-    {
-      title: t("net"),
-      dataIndex: "toplamNetTutar",
-      key: "toplamNetTutar",
-      width: 120,
-      visible: true,
-      align: "right",
-      sorter: (a, b) => compareNumber(getNetTutar(a), getNetTutar(b)),
-      render: (value, record) => {
-        const net = getNetTutar(record);
-        return renderAmount(net, net < 0 ? NEGATIVE_AMOUNT_COLOR : POSITIVE_AMOUNT_COLOR);
-      },
-    },
+
     {
       title: t("aciklama"),
       dataIndex: "aciklama",
