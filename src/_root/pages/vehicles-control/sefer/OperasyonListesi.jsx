@@ -898,7 +898,7 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
           style={{
             backgroundColor: "white",
             padding: "10px",
-            height: "calc(100vh - 380px)",
+            height: "calc(100vh - 410px)",
             borderRadius: "8px 8px 8px 8px",
           }}
         >
@@ -915,7 +915,7 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
                 showSizeChanger: false,
                 onChange: handleTableChange,
               }}
-              scroll={{ y: "calc(100vh - 520px)", x: tableScrollX }}
+              scroll={{ y: "calc(100vh - 565px)", x: tableScrollX }}
             />
           </Spin>
           <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshCurrentPageData} />
