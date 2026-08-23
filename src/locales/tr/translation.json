@@ -1861,5 +1861,7 @@
   "hakedisTipi": "Hakediş Tipi",
   "operasyonHareketiGuncelle": "Operasyon Hareketi Güncelle",
   "operasyonHareketiEkle": "Operasyon Hareketi Ekle",
-  "kapasite": "Kapasite"
+  "kapasite": "Kapasite",
+  "sutunlariGosterGizle": "Sütunları Göster / Gizle",
+  "sutunlarinSiralamasiniAyarla": "Sütunların Sıralamasını Ayarla"
 }

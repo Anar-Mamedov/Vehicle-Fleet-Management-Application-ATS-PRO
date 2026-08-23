@@ -14,7 +14,7 @@ const SEFER_DURUM_KOD_ID = 121;
 const DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 
 // Tarih aralığı seçenekleri; her seçenek başlangıç ve bitiş tarihini kendisi hesaplar
-const TIME_RANGE_OPTIONS = [
+export const TIME_RANGE_OPTIONS = [
   { value: "all", labelKey: "tumu", getRange: () => [null, null] },
   { value: "today", labelKey: "bugun", getRange: () => [dayjs().startOf("day"), dayjs().endOf("day")] },
   { value: "yesterday", labelKey: "dun", getRange: () => [dayjs().subtract(1, "day").startOf("day"), dayjs().subtract(1, "day").endOf("day")] },
@@ -31,7 +31,7 @@ const TIME_RANGE_OPTIONS = [
 
 export const DEFAULT_TIME_RANGE = "thisMonth";
 
-const getDateRange = (timeRange) => {
+export const getDateRange = (timeRange) => {
   const option = TIME_RANGE_OPTIONS.find((item) => item.value === timeRange);
   const [start, end] = option ? option.getRange() : [null, null];
 

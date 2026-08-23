@@ -709,5 +709,9 @@
   "birimFiyat": "Цена за Единицу",
   "operasyonHareketiGuncelle": "Обновление Движения Операции",
   "operasyonHareketiEkle": "Новое Движение Операции",
-  "kapasite": "Вместимость"
+  "kapasite": "Вместимость",
+  "sutunlariGosterGizle": "Показать / Скрыть Столбцы",
+  "sutunlarinSiralamasiniAyarla": "Настроить Порядок Столбцов",
+  "sutunlarYonetAciklama": "На экранах ниже вы можете показать / скрыть столбцы и настроить их порядок.",
+  "silmeIslemi": "Операция Удаления"
 }

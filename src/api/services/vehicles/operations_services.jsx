@@ -99,6 +99,16 @@ export const GetExpeditionReportService = async (search, filters) => {
   return await http.post(`/Expeditions/GetExpeditionReport?parameter=${encodeURIComponent(search)}`, filters);
 };
 
+// Operasyon hareketleri listesi sekmesi; filtreler POST gövdesinde, sayfalama query'de gider
+export const GetExpeditionOperationsListService = async (diff, setPointId, search, filters) => {
+  return await http.post(`/ExpeditionOpr/GetExpeditionOperationsList?setPointId=${setPointId}&diff=${diff}&parameter=${encodeURIComponent(search)}`, filters);
+};
+
+// Excel raporu; tarih aralığı zorunlu ve en fazla 180 gün olabilir
+export const GetExpeditionOperationsReportService = async (search, filters) => {
+  return await http.post(`/ExpeditionOpr/GetExpeditionOperationsReport?parameter=${encodeURIComponent(search)}`, filters);
+};
+
 // Sefer kartındaki operasyon hareketleri sekmesi
 export const GetExpeditionOperationsListByExpIdService = async (diff, setPointId, expId, search) => {
   return await http.get(`/ExpeditionOpr/GetExpeditionOperationsListByExpId?setPointId=${setPointId}&diff=${diff}&expId=${expId}&parameter=${encodeURIComponent(search)}`);

@@ -1161,5 +1161,9 @@
   "birimFiyat": "Vahid Qiymət",
   "operasyonHareketiGuncelle": "Əməliyyat Hərəkətini Yenilə",
   "operasyonHareketiEkle": "Yeni Əməliyyat Hərəkəti",
-  "kapasite": "Tutum"
+  "kapasite": "Tutum",
+  "sutunlariGosterGizle": "Sütunları Göstər / Gizlət",
+  "sutunlarinSiralamasiniAyarla": "Sütunların Sıralamasını Tənzimlə",
+  "sutunlarYonetAciklama": "Aşağıdakı ekranlardan sütunları göstərə / gizlədə və sıralamalarını tənzimləyə bilərsiniz.",
+  "silmeIslemi": "Silmə Əməliyyatı"
 }

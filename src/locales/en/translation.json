@@ -1617,5 +1617,8 @@
   "birimFiyat": "Unit Price",
   "operasyonHareketiGuncelle": "Update Operation Movement",
   "operasyonHareketiEkle": "New Operation Movement",
-  "kapasite": "Capacity"
+  "kapasite": "Capacity",
+  "sutunlariGosterGizle": "Show / Hide Columns",
+  "sutunlarinSiralamasiniAyarla": "Arrange Column Order",
+  "silmeIslemi": "Delete Operation"
 }
