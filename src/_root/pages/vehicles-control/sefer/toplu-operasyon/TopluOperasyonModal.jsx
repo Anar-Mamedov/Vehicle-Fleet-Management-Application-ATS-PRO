@@ -4,6 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Button, Modal, message } from "antd";
 import { ArrowLeftOutlined, ArrowRightOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { t } from "i18next";
+import dayjs from "dayjs";
 import { BulkInsertExpeditionsService } from "../../../../../api/services/vehicles/operations_services";
 import { BORDER_COLOR } from "../components/uiStyles";
 import AdimGostergesi from "./AdimGostergesi";
@@ -74,7 +75,8 @@ const TopluOperasyonModal = ({ open, onClose, onRefresh }) => {
     setSelectedRowKeys([]);
     setSelectedVehicles([]);
     setHareketler([]);
-    reset();
+    // Operasyon tarihi bugünle açılır; kullanıcı isterse değiştirir
+    reset({ cikisTarih: dayjs() });
   }, [open, reset]);
 
   const steps = STEP_KEYS.map((key, index) => ({ no: index + 1, label: t(key) }));
