@@ -8,6 +8,11 @@ export const VehiclesReadForFilterService = async (search, data) => {
   return await http.post(`/Vehicle/GetVehicles?parameter=${search}`, data);
 };
 
+// Araç seçim ekranları; Araçlar listesiyle aynı imleçli sayfalamayı kullanır (type=0 tüm durumlar)
+export const GetVehiclesForSelectionService = async (diff, setPointId, search, pageSize) => {
+  return await http.post(`/Vehicle/GetVehicles?diff=${diff}&setPointId=${setPointId}&parameter=${encodeURIComponent(search)}&type=0&pageSize=${pageSize}`, null);
+};
+
 export const AddVehicleService = async (data) => {
   return await http.post(`Vehicle/AddVehicle`, data);
 };

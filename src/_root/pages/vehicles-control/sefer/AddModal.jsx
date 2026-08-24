@@ -12,6 +12,10 @@ import { GetModuleCodeByCode } from "../../../../api/services/code/services";
 import { CodeItemValidateService } from "../../../../api/service";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import GeneralInfo from "./tabs/GeneralInfo";
+import TopluOperasyonModal from "./toplu-operasyon/TopluOperasyonModal";
+
+// Ok menüsündeki seçeneklerin anahtarları
+const ARAC_SECEREK_OLUSTUR = "aracSecerekOlustur";
 
 // "Yeni Operasyon" düğmesinin sağındaki ok menüsündeki seçeneklerin ortak görünümü
 const menuIconBoxStyle = {
@@ -49,6 +53,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const isFirstRender = useRef(true);
   const { data, plaka, setPlaka } = useContext(PlakaContext);
   const [isOpen, setIsOpen] = useState(false);
+  const [isBulkOpen, setIsBulkOpen] = useState(false);
   const [isValid, setIsValid] = useState("normal");
   const [activeKey, setActiveKey] = useState("1");
   const [loading, setLoading] = useState(false);
@@ -294,10 +299,14 @@ const AddModal = ({ setStatus, onRefresh }) => {
     setIsOpen(true);
   };
 
+  const handleMenuClick = ({ key }) => {
+    if (key === ARAC_SECEREK_OLUSTUR) setIsBulkOpen(true);
+  };
+
   // Ok menüsünün seçenekleri; şimdilik yalnızca araç seçerek oluşturma yer alır
   const menuItems = [
     {
-      key: "aracSecerekOlustur",
+      key: ARAC_SECEREK_OLUSTUR,
       label: (
         <div style={menuItemStyle}>
           <span style={menuIconBoxStyle}>
@@ -319,10 +328,11 @@ const AddModal = ({ setStatus, onRefresh }) => {
         <Button className="btn primary-btn" onClick={openAddModal}>
           <PlusOutlined /> {t("yeniOperasyon")}
         </Button>
-        <Dropdown menu={{ items: menuItems }} trigger={["click"]} placement="bottomRight" overlayStyle={{ width: "360px" }}>
+        <Dropdown menu={{ items: menuItems, onClick: handleMenuClick }} trigger={["click"]} placement="bottomRight" overlayStyle={{ width: "360px" }}>
           <Button className="btn primary-btn" style={{ borderLeft: "1px solid rgba(255, 255, 255, 0.25)", padding: "0 10px" }} icon={<DownOutlined />} />
         </Dropdown>
       </Space.Compact>
+      <TopluOperasyonModal open={isBulkOpen} onClose={() => setIsBulkOpen(false)} />
       <Modal
         title={t("yeniGorevGirisi")}
         open={isOpen}
