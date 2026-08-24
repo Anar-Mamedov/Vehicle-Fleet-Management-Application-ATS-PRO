@@ -126,6 +126,11 @@ export const UpdateExpeditionOperationItemService = async (data) => {
   return await http.post(`/ExpeditionOpr/UpdateExpeditionOperationItem`, data);
 };
 
+// Operasyon hareketleri listesinde tek bir hücrenin güncellenmesi
+export const UpdateExpeditionOperationRowService = async (data) => {
+  return await http.post(`/ExpeditionOpr/UpdateExpeditionOperationRow`, data);
+};
+
 export const DeleteExpeditionOperationItemsService = async (ids) => {
   return await http.post(`/ExpeditionOpr/DeleteExpeditionOperationItemById`, ids);
 };

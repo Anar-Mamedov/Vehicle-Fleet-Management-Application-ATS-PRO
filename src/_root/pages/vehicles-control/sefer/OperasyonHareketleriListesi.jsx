@@ -15,7 +15,13 @@ import { formatDateByLocale } from "../../../components/FormattedDate";
 import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import { compareDatesForSorter } from "../../../../utils/dateUtils";
 import ExcelExportButton from "../../../components/ExcelExportButton";
-import { DeleteExpeditionOperationItemsService, GetExpeditionOperationsListService, GetExpeditionOperationsReportService } from "../../../../api/services/vehicles/operations_services";
+import {
+  DeleteExpeditionOperationItemsService,
+  GetExpeditionOperationsListService,
+  GetExpeditionOperationsReportService,
+  UpdateExpeditionOperationRowService,
+} from "../../../../api/services/vehicles/operations_services";
+import EditableCell, { EDITABLE_COLUMNS } from "./components/EditableCell";
 import ContextMenu from "./hareket/ContextMenu/ContextMenu";
 import HareketFilters, { DEFAULT_HAREKET_FILTERS } from "./filter/HareketFilters";
 import HareketModal from "./hareket/HareketModal";
@@ -267,6 +273,8 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
     visible: false,
     data: null,
   });
+  // Aynı anda yalnızca tek bir hücre düzenlenir: { seferOprId, columnKey }
+  const [editingCell, setEditingCell] = useState(null);
 
   const formMethods = useForm();
 
@@ -391,6 +399,41 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
     },
     [refreshTableData]
   );
+
+  const handleStartEdit = (record, column) => {
+    setEditingCell({ seferOprId: record.seferOprId, columnKey: column.dataIndex });
+  };
+
+  const handleCancelEdit = () => setEditingCell(null);
+
+  // Tablodan yapılan tek hücre güncellemesi; servis anahtarı sütun tanımından gelir
+  const handleCellSave = async (record, column, value) => {
+    setEditingCell(null);
+    setLoading(true);
+
+    try {
+      const response = await UpdateExpeditionOperationRowService({
+        seferOprId: record.seferOprId,
+        key: column.requestKey,
+        value: Number(value) || 0,
+      });
+      const statusCode = response?.data?.statusCode;
+
+      if ([200, 201, 202, 204].includes(statusCode)) {
+        message.success(t("islemBasarili"));
+        // Hakediş tutarı gibi serviste hesaplanan alanlar için sayfa yeniden okunur
+        await fetchData(currentPage);
+        return;
+      }
+
+      message.error(statusCode === 401 ? t("buIslemiYapmayaYetkinizYok") : t("islemBasarisiz"));
+    } catch (error) {
+      console.error("Error updating row:", error);
+      message.error(t("islemBasarisiz"));
+    }
+
+    setLoading(false);
+  };
 
   const confirmDelete = (record) => {
     Modal.confirm({
@@ -661,15 +704,34 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
     header: {
       cell: ResizableTitle,
     },
+    body: {
+      cell: EditableCell,
+    },
   };
 
-  const mergedColumns = columns.map((col) => ({
-    ...col,
-    onHeaderCell: (column) => ({
-      width: column.width,
-      onResize: handleResize(column.key),
-    }),
-  }));
+  // Düzenleme durumu her render'da yeniden hesaplandığı için `onCell` burada tanımlanır;
+  // `columns` state'indeki render fonksiyonları ilk render'ın değerlerini taşır.
+  const mergedColumns = columns.map((col) => {
+    const editableColumn = EDITABLE_COLUMNS[col.key];
+
+    return {
+      ...col,
+      onHeaderCell: (column) => ({
+        width: column.width,
+        onResize: handleResize(column.key),
+      }),
+      ...(editableColumn && {
+        onCell: (record) => ({
+          record,
+          editableColumn,
+          editing: editingCell?.seferOprId === record.seferOprId && editingCell?.columnKey === editableColumn.dataIndex,
+          onStartEdit: handleStartEdit,
+          onSave: handleCellSave,
+          onCancel: handleCancelEdit,
+        }),
+      }),
+    };
+  });
 
   // Filtered columns
   const filteredColumns = mergedColumns.filter((col) => col.visible);
