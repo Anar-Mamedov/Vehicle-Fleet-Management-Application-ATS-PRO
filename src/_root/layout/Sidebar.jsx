@@ -385,7 +385,7 @@ const Sidebar = ({ collapsed }) => {
           {
             key: "6",
             icon: <ScheduleOutlined />,
-            label: <Link to={"/sefer-islemleri"}>{t("gorevTakibi")}</Link>,
+            label: <Link to={"/sefer-islemleri"}>{t("operasyonTakibi")}</Link>,
           },
           {
             key: "7",

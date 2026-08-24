@@ -1889,5 +1889,6 @@
   "hareketlerAdimiAciklama": "Seçtiğiniz tüm araçlar için uygulanacak hareketleri ve hakediş kaydını yönetin.",
   "secilenAraclar": "Seçilen Araçlar",
   "onizlemeAdimiAciklama": "Oluşturulacak kayıtları kontrol edin.",
-  "olusturAdimiAciklama": "Aşağıdaki kayıtlar oluşturulacaktır. Onaylamak için Oluştur düğmesine basın."
+  "olusturAdimiAciklama": "Aşağıdaki kayıtlar oluşturulacaktır. Onaylamak için Oluştur düğmesine basın.",
+  "operasyonTakibi": "Operasyon Takibi"
 }

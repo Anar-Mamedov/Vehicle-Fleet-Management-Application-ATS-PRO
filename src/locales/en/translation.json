@@ -1646,5 +1646,6 @@
   "hareketlerAdimiAciklama": "Manage the movements and progress payment records that will apply to all selected vehicles.",
   "secilenAraclar": "Selected Vehicles",
   "onizlemeAdimiAciklama": "Review the records that will be created.",
-  "olusturAdimiAciklama": "The records below will be created. Press Create to confirm."
+  "olusturAdimiAciklama": "The records below will be created. Press Create to confirm.",
+  "operasyonTakibi": "Operation Tracking"
 }

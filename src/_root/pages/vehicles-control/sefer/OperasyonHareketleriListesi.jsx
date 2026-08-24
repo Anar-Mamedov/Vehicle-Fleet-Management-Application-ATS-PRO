@@ -594,6 +594,17 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       render: renderText,
     },
     {
+      title: t("birimFiyat"),
+      dataIndex: "birimFiyat",
+      key: "birimFiyat",
+      width: 130,
+      visible: true,
+      ellipsis: true,
+      align: "right",
+      sorter: (a, b) => compareNumber(a.birimFiyat, b.birimFiyat),
+      render: renderAmount,
+    },
+    {
       title: t("hakedisTutari"),
       dataIndex: "hakedisTutar",
       key: "hakedisTutar",
@@ -614,26 +625,13 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       sorter: (a, b) => compareText(a.durum, b.durum),
       render: renderDurum,
     },
-
-    // Tasarımda yer almayan, "Sütunları Yönet" ekranından açılabilen sütun
-    {
-      title: t("birimFiyat"),
-      dataIndex: "birimFiyat",
-      key: "birimFiyat",
-      width: 130,
-      visible: false,
-      ellipsis: true,
-      align: "right",
-      sorter: (a, b) => compareNumber(a.birimFiyat, b.birimFiyat),
-      render: renderAmount,
-    },
   ];
 
   // Manage columns from localStorage or default
   const [columns, setColumns] = useState(() => {
-    const savedOrder = localStorage.getItem("columnOrderOperasyonHareketleri");
-    const savedVisibility = localStorage.getItem("columnVisibilityOperasyonHareketleri");
-    const savedWidths = localStorage.getItem("columnWidthsOperasyonHareketleri");
+    const savedOrder = localStorage.getItem("columnOrderOperasyonHareketleriV2");
+    const savedVisibility = localStorage.getItem("columnVisibilityOperasyonHareketleriV2");
+    const savedWidths = localStorage.getItem("columnWidthsOperasyonHareketleriV2");
 
     let order = savedOrder ? JSON.parse(savedOrder) : [];
     let visibility = savedVisibility ? JSON.parse(savedVisibility) : {};
@@ -654,9 +652,9 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       }
     });
 
-    localStorage.setItem("columnOrderOperasyonHareketleri", JSON.stringify(order));
-    localStorage.setItem("columnVisibilityOperasyonHareketleri", JSON.stringify(visibility));
-    localStorage.setItem("columnWidthsOperasyonHareketleri", JSON.stringify(widths));
+    localStorage.setItem("columnOrderOperasyonHareketleriV2", JSON.stringify(order));
+    localStorage.setItem("columnVisibilityOperasyonHareketleriV2", JSON.stringify(visibility));
+    localStorage.setItem("columnWidthsOperasyonHareketleriV2", JSON.stringify(widths));
 
     return order.map((key) => {
       const column = initialColumns.find((col) => col.key === key);
@@ -666,9 +664,9 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
 
   // Save columns to localStorage
   useEffect(() => {
-    localStorage.setItem("columnOrderOperasyonHareketleri", JSON.stringify(columns.map((col) => col.key)));
+    localStorage.setItem("columnOrderOperasyonHareketleriV2", JSON.stringify(columns.map((col) => col.key)));
     localStorage.setItem(
-      "columnVisibilityOperasyonHareketleri",
+      "columnVisibilityOperasyonHareketleriV2",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -680,7 +678,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       )
     );
     localStorage.setItem(
-      "columnWidthsOperasyonHareketleri",
+      "columnWidthsOperasyonHareketleriV2",
       JSON.stringify(
         columns.reduce(
           (acc, col) => ({
@@ -785,9 +783,9 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
 
   // Reset columns
   const resetColumns = () => {
-    localStorage.removeItem("columnOrderOperasyonHareketleri");
-    localStorage.removeItem("columnVisibilityOperasyonHareketleri");
-    localStorage.removeItem("columnWidthsOperasyonHareketleri");
+    localStorage.removeItem("columnOrderOperasyonHareketleriV2");
+    localStorage.removeItem("columnVisibilityOperasyonHareketleriV2");
+    localStorage.removeItem("columnWidthsOperasyonHareketleriV2");
     window.location.reload();
   };
 
