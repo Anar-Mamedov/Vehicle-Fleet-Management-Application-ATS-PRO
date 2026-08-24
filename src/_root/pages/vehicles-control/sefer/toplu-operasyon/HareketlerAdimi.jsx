@@ -5,7 +5,6 @@ import { DeleteOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } 
 import { t } from "i18next";
 import { formatDateByLocale } from "../../../../components/FormattedDate";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
-import OperasyonOzeti from "../components/OperasyonOzeti";
 import { BORDER_COLOR, cardStyle } from "../components/uiStyles";
 import HareketModal from "../hareket/HareketModal";
 
@@ -72,21 +71,6 @@ const HareketlerAdimi = ({ hareketler, onChange }) => {
   }, [hareketler, searchTerm]);
 
   const pagedRows = filteredRows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-
-  // Özet kutusu listedeki hareketlerden hesaplanır
-  const summary = useMemo(() => {
-    const toplamPlanlananMiktar = hareketler.reduce((total, row) => total + (Number(row.body.planlananMiktar) || 0), 0);
-    const toplamGerceklesenMiktar = hareketler.reduce((total, row) => total + (Number(row.body.gerceklesenMiktar) || 0), 0);
-    const toplamHakedisTutar = hareketler.reduce((total, row) => total + (Number(row.body.hakedisTutar) || 0), 0);
-
-    return {
-      toplamHareketSayisi: hareketler.length,
-      toplamPlanlananMiktar,
-      toplamGerceklesenMiktar,
-      toplamHakedisTutar,
-      dolulukOrani: toplamPlanlananMiktar > 0 ? Math.round((toplamGerceklesenMiktar / toplamPlanlananMiktar) * 100) : 0,
-    };
-  }, [hareketler]);
 
   const handleSave = (body, values) => {
     const editedKey = modal.row?.key;
@@ -197,29 +181,24 @@ const HareketlerAdimi = ({ hareketler, onChange }) => {
         </Button>
       </div>
 
-      <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", flexWrap: "wrap" }}>
-        <div style={{ ...cardStyle, padding: 0, flex: "1 1 720px", minWidth: 0, overflow: "hidden" }}>
-          <div style={{ padding: "16px 20px", borderBottom: `1px solid ${BORDER_COLOR}`, fontSize: "14px", fontWeight: 600, color: "#141414" }}>{t("operasyonHareketleri")}</div>
+      {/* Özet bilgisi sihirbazın sol panelinde durduğu için bu adımda tekrarlanmaz */}
+      <div style={{ ...cardStyle, padding: 0, overflow: "hidden" }}>
+        <div style={{ padding: "16px 20px", borderBottom: `1px solid ${BORDER_COLOR}`, fontSize: "14px", fontWeight: 600, color: "#141414" }}>{t("operasyonHareketleri")}</div>
 
-          <Table
-            columns={columns}
-            dataSource={pagedRows}
-            pagination={false}
-            scroll={{ x: tableScrollX, y: "calc(100vh - 560px)" }}
-            onRow={(record) => ({
-              style: { cursor: "pointer" },
-              onClick: () => setModal({ open: true, row: record }),
-            })}
-          />
+        <Table
+          columns={columns}
+          dataSource={pagedRows}
+          pagination={false}
+          scroll={{ x: tableScrollX, y: "calc(100vh - 560px)" }}
+          onRow={(record) => ({
+            style: { cursor: "pointer" },
+            onClick: () => setModal({ open: true, row: record }),
+          })}
+        />
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", flexWrap: "wrap", padding: "12px 20px", borderTop: `1px solid ${BORDER_COLOR}` }}>
-            <span style={{ fontSize: "13px", color: "#5d6786" }}>{`${t("toplam")} ${formatNumberWithLocale(filteredRows.length)} ${t("kayit")}`}</span>
-            <Pagination current={currentPage} total={filteredRows.length} pageSize={PAGE_SIZE} showSizeChanger={false} onChange={setCurrentPage} />
-          </div>
-        </div>
-
-        <div style={{ flex: "0 1 300px", minWidth: "260px" }}>
-          <OperasyonOzeti summary={summary} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", flexWrap: "wrap", padding: "12px 20px", borderTop: `1px solid ${BORDER_COLOR}` }}>
+          <span style={{ fontSize: "13px", color: "#5d6786" }}>{`${t("toplam")} ${formatNumberWithLocale(filteredRows.length)} ${t("kayit")}`}</span>
+          <Pagination current={currentPage} total={filteredRows.length} pageSize={PAGE_SIZE} showSizeChanger={false} onChange={setCurrentPage} />
         </div>
       </div>
 
