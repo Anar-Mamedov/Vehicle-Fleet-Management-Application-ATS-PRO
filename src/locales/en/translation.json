@@ -1639,8 +1639,12 @@
   "hareketlerAdimindaHesaplanacak": "Will be calculated in the Movements step",
   "aracSecimiAciklama": "Select the vehicles the operations will be created for.",
   "aracSecimiBilgiNotu": "A separate operation record will be created for each vehicle you select.",
-  "buAdimHenuzHazirlanmadi": "This step is not ready yet.",
   "operasyonTarihi": "Operation Date",
   "ortakOperasyonBilgileriAciklama": "Enter the operation information that will apply to all selected vehicles.",
-  "zorunluAlanlariDoldurunuz": "Please fill in the required fields."
+  "zorunluAlanlariDoldurunuz": "Please fill in the required fields.",
+  "hareket": "Movement",
+  "hareketlerAdimiAciklama": "Manage the movements and progress payment records that will apply to all selected vehicles.",
+  "secilenAraclar": "Selected Vehicles",
+  "onizlemeAdimiAciklama": "Review the records that will be created.",
+  "olusturAdimiAciklama": "The records below will be created. Press Create to confirm."
 }

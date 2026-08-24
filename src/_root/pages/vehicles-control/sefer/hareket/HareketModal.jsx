@@ -25,7 +25,7 @@ const splitDateTime = (setValue, dateField, timeField, value) => {
   setValue(timeField, parsed);
 };
 
-const HareketModal = ({ open, seferOprId, expId, onClose, onRefresh }) => {
+const HareketModal = ({ open, seferOprId, expId, initialValues, onSave, onClose, onRefresh }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -34,12 +34,20 @@ const HareketModal = ({ open, seferOprId, expId, onClose, onRefresh }) => {
   const { handleSubmit, reset, setValue } = methods;
 
   const isUpdate = Boolean(seferOprId);
+  // Toplu operasyon sihirbazında kayıt henüz oluşmadığı için hareket servise gönderilmez,
+  // form değerleri `onSave` ile üst bileşene verilir.
+  const isLocal = typeof onSave === "function";
 
   useEffect(() => {
     if (!open) return;
 
     reset();
     setExpanded(false);
+
+    if (isLocal) {
+      if (initialValues) reset(initialValues);
+      return;
+    }
 
     if (!isUpdate) return;
 
@@ -97,7 +105,7 @@ const HareketModal = ({ open, seferOprId, expId, onClose, onRefresh }) => {
         message.error(t("islemBasarisiz"));
       })
       .finally(() => setLoading(false));
-  }, [open, seferOprId, isUpdate, reset, setValue]);
+  }, [open, seferOprId, isUpdate, isLocal, initialValues, reset, setValue]);
 
   const onSubmit = handleSubmit((values) => {
     const body = {
@@ -127,6 +135,12 @@ const HareketModal = ({ open, seferOprId, expId, onClose, onRefresh }) => {
       ...(isUpdate ? { seferOprId } : { seferSiraNo: Number(expId) || 0 }),
     };
 
+    if (isLocal) {
+      onSave(body, values);
+      onClose();
+      return;
+    }
+
     setSaving(true);
     const request = isUpdate ? UpdateExpeditionOperationItemService(body) : AddExpeditionOperationItemService(body);
 
@@ -153,7 +167,7 @@ const HareketModal = ({ open, seferOprId, expId, onClose, onRefresh }) => {
 
   const title = (
     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-      <span style={{ fontSize: "16px", fontWeight: 600, color: "#141414" }}>{isUpdate ? t("operasyonHareketiGuncelle") : t("operasyonHareketiEkle")}</span>
+      <span style={{ fontSize: "16px", fontWeight: 600, color: "#141414" }}>{isUpdate || initialValues ? t("operasyonHareketiGuncelle") : t("operasyonHareketiEkle")}</span>
       <Button type="text" size="small" icon={expanded ? <FullscreenExitOutlined /> : <FullscreenOutlined />} onClick={() => setExpanded((prev) => !prev)} />
     </div>
   );
@@ -184,6 +198,9 @@ HareketModal.propTypes = {
   open: PropTypes.bool,
   seferOprId: PropTypes.number,
   expId: PropTypes.number,
+  // Servise bağlanmadan çalışan (toplu oluşturma) mod için form değerleri ve kaydetme geri çağrısı
+  initialValues: PropTypes.object,
+  onSave: PropTypes.func,
   onClose: PropTypes.func,
   onRefresh: PropTypes.func,
 };

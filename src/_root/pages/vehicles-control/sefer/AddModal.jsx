@@ -332,7 +332,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
           <Button className="btn primary-btn" style={{ borderLeft: "1px solid rgba(255, 255, 255, 0.25)", padding: "0 10px" }} icon={<DownOutlined />} />
         </Dropdown>
       </Space.Compact>
-      <TopluOperasyonModal open={isBulkOpen} onClose={() => setIsBulkOpen(false)} />
+      <TopluOperasyonModal open={isBulkOpen} onClose={() => setIsBulkOpen(false)} onRefresh={onRefresh} />
       <Modal
         title={t("yeniGorevGirisi")}
         open={isOpen}

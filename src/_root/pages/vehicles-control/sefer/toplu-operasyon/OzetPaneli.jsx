@@ -60,7 +60,7 @@ const noteBoxStyle = {
 };
 
 // Sihirbazın solunda duran özet kartı; her adımda seçimin sonucunu gösterir
-const OzetPaneli = ({ aracSayisi, bilgiNotu }) => (
+const OzetPaneli = ({ aracSayisi, hareketSayisi, bilgiNotu }) => (
   <div style={{ ...cardStyle, padding: "16px 20px" }}>
     <div style={{ display: "flex", alignItems: "center", gap: "12px", paddingBottom: "16px", borderBottom: `1px solid ${BORDER_COLOR}` }}>
       <span style={iconBoxStyle}>
@@ -100,10 +100,20 @@ const OzetPaneli = ({ aracSayisi, bilgiNotu }) => (
       <span style={iconBoxStyle}>
         <NodeIndexOutlined />
       </span>
+      {/* Her araca tanımlanan tüm hareketler eklendiği için toplam, araç sayısı × hareket sayısıdır */}
       <div>
         <div style={labelStyle}>{t("olusturulacakHareket")}</div>
-        <div style={{ fontSize: "16px", fontWeight: 600, color: "#141414", lineHeight: "24px" }}>{t("belirlenmedi")}</div>
-        <div style={{ ...labelStyle, fontSize: "12px" }}>{`(${t("hareketlerAdimindaHesaplanacak")})`}</div>
+        {hareketSayisi > 0 ? (
+          <div>
+            <span style={bigValueStyle}>{formatNumberWithLocale(aracSayisi * hareketSayisi)}</span>
+            <span style={unitStyle}>{t("hareket")}</span>
+          </div>
+        ) : (
+          <>
+            <div style={{ fontSize: "16px", fontWeight: 600, color: "#141414", lineHeight: "24px" }}>{t("belirlenmedi")}</div>
+            <div style={{ ...labelStyle, fontSize: "12px" }}>{`(${t("hareketlerAdimindaHesaplanacak")})`}</div>
+          </>
+        )}
       </div>
     </div>
 
@@ -116,6 +126,7 @@ const OzetPaneli = ({ aracSayisi, bilgiNotu }) => (
 
 OzetPaneli.propTypes = {
   aracSayisi: PropTypes.number.isRequired,
+  hareketSayisi: PropTypes.number.isRequired,
   bilgiNotu: PropTypes.string.isRequired,
 };
 

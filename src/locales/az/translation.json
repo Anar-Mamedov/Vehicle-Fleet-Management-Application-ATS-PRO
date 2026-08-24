@@ -1184,8 +1184,13 @@
   "hareketlerAdimindaHesaplanacak": "Hərəkətlər addımında hesablanacaq",
   "aracSecimiAciklama": "Əməliyyat yaradılacaq nəqliyyat vasitələrini seçin.",
   "aracSecimiBilgiNotu": "Seçdiyiniz hər nəqliyyat vasitəsi üçün ayrıca əməliyyat qeydi yaradılacaq.",
-  "buAdimHenuzHazirlanmadi": "Bu addım hələ hazır deyil.",
   "operasyonTarihi": "Əməliyyat Tarixi",
   "ortakOperasyonBilgileriAciklama": "Bütün seçilmiş nəqliyyat vasitələri üçün keçərli olacaq əməliyyat məlumatlarını daxil edin.",
-  "zorunluAlanlariDoldurunuz": "Zəhmət olmasa məcburi sahələri doldurun."
+  "zorunluAlanlariDoldurunuz": "Zəhmət olmasa məcburi sahələri doldurun.",
+  "hareket": "Hərəkət",
+  "hayir": "Xeyr",
+  "hareketlerAdimiAciklama": "Seçdiyiniz bütün nəqliyyat vasitələri üçün tətbiq olunacaq hərəkətləri və hesablama qeydini idarə edin.",
+  "secilenAraclar": "Seçilmiş Nəqliyyat Vasitələri",
+  "onizlemeAdimiAciklama": "Yaradılacaq qeydləri yoxlayın.",
+  "olusturAdimiAciklama": "Aşağıdakı qeydlər yaradılacaq. Təsdiqləmək üçün Yarat düyməsinə basın."
 }

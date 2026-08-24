@@ -1,22 +1,28 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { FormProvider, useForm } from "react-hook-form";
-import { Button, Modal, Typography, message } from "antd";
-import { ArrowLeftOutlined, ArrowRightOutlined, CloseOutlined } from "@ant-design/icons";
+import { Button, Modal, message } from "antd";
+import { ArrowLeftOutlined, ArrowRightOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { t } from "i18next";
+import { BulkInsertExpeditionsService } from "../../../../../api/services/vehicles/operations_services";
 import { BORDER_COLOR } from "../components/uiStyles";
 import AdimGostergesi from "./AdimGostergesi";
 import AracSecimi from "./AracSecimi";
+import HareketlerAdimi from "./HareketlerAdimi";
+import OlusturAdimi from "./OlusturAdimi";
+import OnizlemeAdimi from "./OnizlemeAdimi";
 import OrtakBilgiler from "./OrtakBilgiler";
 import OzetPaneli from "./OzetPaneli";
-
-const { Text } = Typography;
+import { buildExpeditionBody } from "./istekGovdesi";
 
 // Sihirbazın adımları; gösterge ve ileri/geri hareketi bu sırayı izler
 const STEP_KEYS = ["adimAracSecimi", "adimOrtakOperasyonBilgileri", "adimHareketler", "adimOnizleme", "adimOlustur"];
 
 const ARAC_SECIMI_ADIMI = 1;
 const ORTAK_BILGILER_ADIMI = 2;
+const HAREKETLER_ADIMI = 3;
+const ONIZLEME_ADIMI = 4;
+const OLUSTUR_ADIMI = 5;
 
 // Diğer operasyon modallarıyla aynı ölçüde, ortada duran pencere
 const MODAL_WIDTH = 1400;
@@ -48,10 +54,13 @@ const footerStyle = {
   flexShrink: 0,
 };
 
-const TopluOperasyonModal = ({ open, onClose }) => {
+const TopluOperasyonModal = ({ open, onClose, onRefresh }) => {
   const [activeStep, setActiveStep] = useState(ARAC_SECIMI_ADIMI);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedVehicles, setSelectedVehicles] = useState([]);
+  // Hareketler henüz servise gönderilmez; son adımda `expeditionOperations` olarak gidecek
+  const [hareketler, setHareketler] = useState([]);
+  const [saving, setSaving] = useState(false);
 
   // Ortak operasyon bilgileri adımları arasında korunsun diye form sihirbaz seviyesinde tutulur
   const methods = useForm();
@@ -64,6 +73,7 @@ const TopluOperasyonModal = ({ open, onClose }) => {
     setActiveStep(ARAC_SECIMI_ADIMI);
     setSelectedRowKeys([]);
     setSelectedVehicles([]);
+    setHareketler([]);
     reset();
   }, [open, reset]);
 
@@ -110,14 +120,57 @@ const TopluOperasyonModal = ({ open, onClose }) => {
       return <OrtakBilgiler />;
     }
 
-    return <Text type="secondary">{t("buAdimHenuzHazirlanmadi")}</Text>;
+    if (activeStep === HAREKETLER_ADIMI) {
+      return <HareketlerAdimi hareketler={hareketler} onChange={setHareketler} />;
+    }
+
+    if (activeStep === ONIZLEME_ADIMI) {
+      return <OnizlemeAdimi araclar={selectedVehicles} hareketler={hareketler} />;
+    }
+
+    return <OlusturAdimi aracSayisi={selectedVehicles.length} hareketSayisi={hareketler.length} />;
   };
 
-  const nextButton = (
-    <Button type="primary" onClick={handleNext} disabled={nextDisabled}>
-      {t("ileri")} <ArrowRightOutlined />
-    </Button>
-  );
+  // Kayıtlar yalnızca son adımda, tek istekle oluşturulur
+  const handleCreate = async () => {
+    setSaving(true);
+
+    try {
+      const body = {
+        aracIds: selectedVehicles.map((vehicle) => vehicle.aracId),
+        expedition: buildExpeditionBody(methods.getValues()),
+        expeditionOperations: hareketler.map((hareket) => hareket.body),
+      };
+
+      const response = await BulkInsertExpeditionsService(body);
+      const statusCode = response?.data?.statusCode;
+
+      if ([200, 201, 202, 204].includes(statusCode)) {
+        message.success(t("islemBasarili"));
+        onRefresh();
+        onClose();
+        return;
+      }
+
+      message.error(statusCode === 401 ? t("buIslemiYapmayaYetkinizYok") : t("islemBasarisiz"));
+    } catch (error) {
+      console.error("Error creating expeditions:", error);
+      message.error(t("islemBasarisiz"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const primaryButton =
+    activeStep === OLUSTUR_ADIMI ? (
+      <Button type="primary" onClick={handleCreate} loading={saving}>
+        <CheckOutlined /> {t("adimOlustur")}
+      </Button>
+    ) : (
+      <Button type="primary" onClick={handleNext} disabled={nextDisabled}>
+        {t("ileri")} <ArrowRightOutlined />
+      </Button>
+    );
 
   return (
     <Modal
@@ -143,7 +196,7 @@ const TopluOperasyonModal = ({ open, onClose }) => {
             <Button onClick={onClose} icon={<CloseOutlined />}>
               {t("iptal")}
             </Button>
-            {nextButton}
+            {primaryButton}
           </div>
         </div>
 
@@ -152,7 +205,7 @@ const TopluOperasyonModal = ({ open, onClose }) => {
 
       <div style={bodyStyle}>
         <aside style={{ width: "320px", flexShrink: 0 }}>
-          <OzetPaneli aracSayisi={selectedVehicles.length} bilgiNotu={t("aracSecimiBilgiNotu")} />
+          <OzetPaneli aracSayisi={selectedVehicles.length} hareketSayisi={hareketler.length} bilgiNotu={t("aracSecimiBilgiNotu")} />
         </aside>
         <main style={{ flex: 1, minWidth: 0 }}>
           <FormProvider {...methods}>{renderStep()}</FormProvider>
@@ -163,7 +216,7 @@ const TopluOperasyonModal = ({ open, onClose }) => {
         <Button onClick={handleBack} icon={<ArrowLeftOutlined />} disabled={activeStep === ARAC_SECIMI_ADIMI}>
           {t("geri")}
         </Button>
-        {nextButton}
+        {primaryButton}
       </div>
     </Modal>
   );
@@ -172,6 +225,7 @@ const TopluOperasyonModal = ({ open, onClose }) => {
 TopluOperasyonModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  onRefresh: PropTypes.func.isRequired,
 };
 
 export default TopluOperasyonModal;

@@ -91,6 +91,11 @@ export const UpdateExpeditionItemService = async (data) => {
   return await http.post(`/Expeditions/UpdateExpeditionItem`, data);
 };
 
+// Toplu operasyon oluşturma: seçilen her araç için aynı sefer ve hareketlerle kayıt açılır
+export const BulkInsertExpeditionsService = async (data) => {
+  return await http.post(`/Expeditions/BulkInsertExpeditions`, data);
+};
+
 export const GetExpeditionsListService = async (diff, setPointId, search, filters) => {
   return await http.post(`/Expeditions/GetExpeditionsList?diff=${diff}&setPointId=${setPointId}&parameter=${encodeURIComponent(search)}`, filters);
 };

@@ -1882,8 +1882,12 @@
   "hareketlerAdimindaHesaplanacak": "Hareketler adımında hesaplanacak",
   "aracSecimiAciklama": "Operasyon oluşturulacak araçları seçin.",
   "aracSecimiBilgiNotu": "Seçtiğiniz her araç için ayrı bir operasyon kaydı oluşturulacaktır.",
-  "buAdimHenuzHazirlanmadi": "Bu adım henüz hazırlanmadı.",
   "operasyonTarihi": "Operasyon Tarihi",
   "ortakOperasyonBilgileriAciklama": "Tüm seçili araçlar için geçerli olacak operasyon bilgilerini giriniz.",
-  "zorunluAlanlariDoldurunuz": "Lütfen zorunlu alanları doldurunuz."
+  "zorunluAlanlariDoldurunuz": "Lütfen zorunlu alanları doldurunuz.",
+  "hareket": "Hareket",
+  "hareketlerAdimiAciklama": "Seçtiğiniz tüm araçlar için uygulanacak hareketleri ve hakediş kaydını yönetin.",
+  "secilenAraclar": "Seçilen Araçlar",
+  "onizlemeAdimiAciklama": "Oluşturulacak kayıtları kontrol edin.",
+  "olusturAdimiAciklama": "Aşağıdaki kayıtlar oluşturulacaktır. Onaylamak için Oluştur düğmesine basın."
 }
