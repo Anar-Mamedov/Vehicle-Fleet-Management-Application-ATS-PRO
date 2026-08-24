@@ -12,17 +12,16 @@ import HareketModal from "../hareket/HareketModal";
 
 const PAGE_SIZE = 10;
 
-// Servis örneğinde "list" boş geldiği için satır alan adları tek yerden okunur; backend'deki adlar netleşince burası güncellenir
+// Tablo sütunlarını GetExpeditionOperationsListByExpId response alanlarına bağlar
 const FIELDS = {
-  tarih: "tarih",
-  saat: "saat",
-  hareketTip: "hareketTip",
-  firma: "firma",
+  tarih: "gerceklesenTarih",
+  hareketTip: "oprTip",
+  firma: "firmaUnvan",
   guzergah: "guzergah",
-  operasyonYeri: "operasyonYeri",
+  operasyonYeri: "oprYer",
   vardiya: "vardiya",
-  miktar: "miktar",
-  birim: "birim",
+  miktar: "gerceklesenMiktar",
+  birim: "yuklemeBirim",
   durum: "durum",
   hakedisTutar: "hakedisTutar",
 };
@@ -170,7 +169,7 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
       render: (value, record) => (
         <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
           <span style={{ ...singleLineStyle, fontWeight: 600 }}>{formatDateByLocale(value)}</span>
-          {record[FIELDS.saat] ? <span style={{ ...secondaryLineStyle, ...singleLineStyle }}>{record[FIELDS.saat]}</span> : null}
+          <span style={{ ...secondaryLineStyle, ...singleLineStyle }}>{formatDateByLocale(record[FIELDS.tarih], "HH:mm", "")}</span>
         </div>
       ),
     },
