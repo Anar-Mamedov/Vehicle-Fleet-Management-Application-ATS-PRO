@@ -1620,5 +1620,7 @@
   "kapasite": "Capacity",
   "sutunlariGosterGizle": "Show / Hide Columns",
   "sutunlarinSiralamasiniAyarla": "Arrange Column Order",
-  "silmeIslemi": "Delete Operation"
+  "silmeIslemi": "Delete Operation",
+  "aracSecerekOperasyonOlustur": "Create Operation by Selecting Vehicle",
+  "aracSecerekOperasyonOlusturAciklama": "Create operation records with shared information by selecting one or more vehicles."
 }

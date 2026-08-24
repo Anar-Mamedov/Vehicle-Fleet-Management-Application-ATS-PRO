@@ -1165,5 +1165,7 @@
   "sutunlariGosterGizle": "Sütunları Göstər / Gizlət",
   "sutunlarinSiralamasiniAyarla": "Sütunların Sıralamasını Tənzimlə",
   "sutunlarYonetAciklama": "Aşağıdakı ekranlardan sütunları göstərə / gizlədə və sıralamalarını tənzimləyə bilərsiniz.",
-  "silmeIslemi": "Silmə Əməliyyatı"
+  "silmeIslemi": "Silmə Əməliyyatı",
+  "aracSecerekOperasyonOlustur": "Nəqliyyat Seçərək Əməliyyat Yarat",
+  "aracSecerekOperasyonOlusturAciklama": "Bir və ya bir neçə nəqliyyat seçərək ortaq məlumatlarla əməliyyat qeydləri yaradın."
 }

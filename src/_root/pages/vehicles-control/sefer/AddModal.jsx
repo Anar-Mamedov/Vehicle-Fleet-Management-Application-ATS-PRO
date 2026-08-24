@@ -4,14 +4,46 @@ import PropTypes from "prop-types";
 import dayjs from "dayjs";
 import { formatDateForApi, formatTimeForApi } from "../../../../utils/dateUtils";
 import { t } from "i18next";
-import { Button, message, Modal, Tabs } from "antd";
-import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
+import { Button, Dropdown, message, Modal, Space, Tabs } from "antd";
+import { PlusOutlined, LoadingOutlined, DownOutlined, CarOutlined } from "@ant-design/icons";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { AddExpeditionItemService } from "../../../../api/services/vehicles/operations_services";
 import { GetModuleCodeByCode } from "../../../../api/services/code/services";
 import { CodeItemValidateService } from "../../../../api/service";
 import PersonalFields from "../../../components/form/personal-fields/PersonalFields";
 import GeneralInfo from "./tabs/GeneralInfo";
+
+// "Yeni Operasyon" düğmesinin sağındaki ok menüsündeki seçeneklerin ortak görünümü
+const menuIconBoxStyle = {
+  width: "36px",
+  height: "36px",
+  borderRadius: "10px",
+  backgroundColor: "#f4f0ff",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flexShrink: 0,
+};
+
+const menuItemStyle = {
+  display: "flex",
+  gap: "12px",
+  alignItems: "flex-start",
+  padding: "6px 2px",
+  whiteSpace: "normal",
+};
+
+const menuTitleStyle = {
+  fontWeight: 600,
+  color: "#141414",
+  lineHeight: "22px",
+};
+
+const menuDescriptionStyle = {
+  fontSize: "12px",
+  color: "#8c8c8c",
+  lineHeight: "18px",
+};
 
 const AddModal = ({ setStatus, onRefresh }) => {
   const isFirstRender = useRef(true);
@@ -256,18 +288,41 @@ const AddModal = ({ setStatus, onRefresh }) => {
     </Button>,
   ];
 
+  const openAddModal = () => {
+    reset();
+    setPlaka([]);
+    setIsOpen(true);
+  };
+
+  // Ok menüsünün seçenekleri; şimdilik yalnızca araç seçerek oluşturma yer alır
+  const menuItems = [
+    {
+      key: "aracSecerekOlustur",
+      label: (
+        <div style={menuItemStyle}>
+          <span style={menuIconBoxStyle}>
+            <CarOutlined style={{ fontSize: "18px", color: "#722ed1" }} />
+          </span>
+          <div>
+            <div style={menuTitleStyle}>{t("aracSecerekOperasyonOlustur")}</div>
+            <div style={menuDescriptionStyle}>{t("aracSecerekOperasyonOlusturAciklama")}</div>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <>
-      <Button
-        className="btn primary-btn"
-        onClick={() => {
-          reset();
-          setPlaka([]);
-          setIsOpen(true);
-        }}
-      >
-        <PlusOutlined /> {t("yeniOperasyon")}
-      </Button>
+      {/* Düğmenin kendisi ekleme ekranını açar, sağındaki ok ise oluşturma seçeneklerini listeler */}
+      <Space.Compact>
+        <Button className="btn primary-btn" onClick={openAddModal}>
+          <PlusOutlined /> {t("yeniOperasyon")}
+        </Button>
+        <Dropdown menu={{ items: menuItems }} trigger={["click"]} placement="bottomRight" overlayStyle={{ width: "360px" }}>
+          <Button className="btn primary-btn" style={{ borderLeft: "1px solid rgba(255, 255, 255, 0.25)", padding: "0 10px" }} icon={<DownOutlined />} />
+        </Dropdown>
+      </Space.Compact>
       <Modal
         title={t("yeniGorevGirisi")}
         open={isOpen}

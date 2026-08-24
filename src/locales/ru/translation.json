@@ -713,5 +713,7 @@
   "sutunlariGosterGizle": "Показать / Скрыть Столбцы",
   "sutunlarinSiralamasiniAyarla": "Настроить Порядок Столбцов",
   "sutunlarYonetAciklama": "На экранах ниже вы можете показать / скрыть столбцы и настроить их порядок.",
-  "silmeIslemi": "Операция Удаления"
+  "silmeIslemi": "Операция Удаления",
+  "aracSecerekOperasyonOlustur": "Создать Операцию, Выбрав Транспорт",
+  "aracSecerekOperasyonOlusturAciklama": "Создайте записи операций с общими данными, выбрав одно или несколько транспортных средств."
 }

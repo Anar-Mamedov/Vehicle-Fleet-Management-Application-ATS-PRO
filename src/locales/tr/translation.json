@@ -1863,5 +1863,7 @@
   "operasyonHareketiEkle": "Operasyon Hareketi Ekle",
   "kapasite": "Kapasite",
   "sutunlariGosterGizle": "Sütunları Göster / Gizle",
-  "sutunlarinSiralamasiniAyarla": "Sütunların Sıralamasını Ayarla"
+  "sutunlarinSiralamasiniAyarla": "Sütunların Sıralamasını Ayarla",
+  "aracSecerekOperasyonOlustur": "Araç Seçerek Operasyon Oluştur",
+  "aracSecerekOperasyonOlusturAciklama": "Bir veya birden fazla araç seçerek ortak bilgilerle operasyon kayıtları oluşturun."
 }
