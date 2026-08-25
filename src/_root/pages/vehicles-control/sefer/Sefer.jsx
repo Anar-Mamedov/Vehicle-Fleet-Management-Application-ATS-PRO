@@ -57,6 +57,8 @@ const Sefer = () => {
     },
     {
       key: "2",
+      // Rozetteki kayıt sayısı sekmeye girilmeden görünsün diye liste sayfa açılır açılmaz (gizliyken) render edilip isteğini atar
+      forceRender: true,
       label: renderTabLabel(t("operasyonHareketleri"), hareketCount),
       children: <OperasyonHareketleriListesi onTotalCountChange={handleHareketCountChange} />,
     },
