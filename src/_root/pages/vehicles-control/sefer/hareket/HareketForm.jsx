@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { ClockCircleOutlined, ContainerOutlined, DollarOutlined, EnvironmentOutlined, ProfileOutlined } from "@ant-design/icons";
 import { t } from "i18next";
@@ -69,14 +69,30 @@ export const combineDateTime = (date, time) => {
   return parsedDate.hour(parsedTime.hour()).minute(parsedTime.minute()).second(0);
 };
 
+export const calculateHakedisTutar = (gerceklesenMiktar, birimFiyat) => {
+  const alanlardanBiriBos = [gerceklesenMiktar, birimFiyat].some((value) => value === null || value === undefined || value === "");
+  if (alanlardanBiriBos) return null;
+
+  const miktar = Number(gerceklesenMiktar);
+  const fiyat = Number(birimFiyat);
+
+  return Number.isFinite(miktar) && Number.isFinite(fiyat) ? miktar * fiyat : null;
+};
+
 const HareketForm = () => {
-  const { watch } = useFormContext();
+  const { watch, setValue } = useFormContext();
 
   const planlananMiktar = Number(watch("planlananMiktar")) || 0;
-  const gerceklesenMiktar = Number(watch("gerceklesenMiktar")) || 0;
+  const gerceklesenMiktarDegeri = watch("gerceklesenMiktar");
+  const birimFiyatDegeri = watch("birimFiyat");
+  const gerceklesenMiktar = Number(gerceklesenMiktarDegeri) || 0;
   const gerceklesmeOrani = planlananMiktar > 0 ? Math.round((gerceklesenMiktar / planlananMiktar) * 100) : 0;
 
   const gecikmeText = getGecikmeText(watch("planlananTarih"), watch("planlananSaat"), watch("gerceklesenTarih"), watch("gerceklesenSaat"));
+
+  useEffect(() => {
+    setValue("hakedisTutar", calculateHakedisTutar(gerceklesenMiktarDegeri, birimFiyatDegeri), { shouldValidate: false });
+  }, [gerceklesenMiktarDegeri, birimFiyatDegeri, setValue]);
 
   return (
     <div className="grid gap-2">
