@@ -3,6 +3,7 @@ import { useFormContext } from "react-hook-form";
 import { ClockCircleOutlined, ContainerOutlined, DollarOutlined, EnvironmentOutlined, ProfileOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import dayjs from "dayjs";
+import styled from "styled-components";
 import Firma from "../../../../components/form/selects/Firma";
 import Guzergah from "../../../../components/form/selects/Guzergah";
 import KodIDSelectbox from "../../../../components/KodIDSelectbox";
@@ -29,6 +30,20 @@ const TASIMA_TURU_KOD_ID = 905;
 const YUKLEME_BIRIM_KOD_ID = 300;
 
 const FULL_WIDTH = { width: "100%" };
+
+const YuklemeKoduField = styled.div`
+  width: 100%;
+
+  > div {
+    width: 100%;
+  }
+
+  .ant-input {
+    flex: 1;
+    min-width: 0;
+    width: auto !important;
+  }
+`;
 
 const readonlyBoxStyle = {
   backgroundColor: "#f6ffed",
@@ -144,14 +159,16 @@ const HareketForm = () => {
             <KodIDSelectbox name1="oprYer" kodID={OPERASYON_YERI_KOD_ID} />
           </FormField>
 
-          <FormField span={4} label={t("tasimaCinsi")}>
+          <FormField span={6} label={t("tasimaCinsi")}>
             <KodIDSelectbox name1="tasimaCinsi" kodID={TASIMA_CINSI_KOD_ID} />
           </FormField>
-          <FormField span={4} label={t("tasimaTuru")}>
+          <FormField span={6} label={t("tasimaTuru")}>
             <KodIDSelectbox name1="tasimaTuru" kodID={TASIMA_TURU_KOD_ID} />
           </FormField>
-          <FormField span={4} label={t("yuklemeKodu")}>
-            <YuklemeKodlariTablo />
+          <FormField span={6} label={t("yuklemeKodu")}>
+            <YuklemeKoduField>
+              <YuklemeKodlariTablo />
+            </YuklemeKoduField>
           </FormField>
 
           <FormField span={12} label={t("aciklama")}>
