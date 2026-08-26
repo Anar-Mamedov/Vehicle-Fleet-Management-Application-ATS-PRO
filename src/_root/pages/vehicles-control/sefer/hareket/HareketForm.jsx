@@ -16,6 +16,7 @@ import SectionCard from "../components/SectionCard";
 import FormField from "../components/FormField";
 import { labelStyle } from "../components/uiStyles";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
+import { calculateHakedisTutar } from "./hareketUtils";
 
 // Kod listelerinin backend'deki numaraları
 const HAREKET_TIP_KOD_ID = 916;
@@ -67,16 +68,6 @@ export const combineDateTime = (date, time) => {
   if (!parsedTime) return parsedDate.startOf("day");
 
   return parsedDate.hour(parsedTime.hour()).minute(parsedTime.minute()).second(0);
-};
-
-export const calculateHakedisTutar = (gerceklesenMiktar, birimFiyat) => {
-  const alanlardanBiriBos = [gerceklesenMiktar, birimFiyat].some((value) => value === null || value === undefined || value === "");
-  if (alanlardanBiriBos) return null;
-
-  const miktar = Number(gerceklesenMiktar);
-  const fiyat = Number(birimFiyat);
-
-  return Number.isFinite(miktar) && Number.isFinite(fiyat) ? miktar * fiyat : null;
 };
 
 const HareketForm = () => {

@@ -25,6 +25,7 @@ import EditableCell, { EDITABLE_COLUMNS } from "./components/EditableCell";
 import ContextMenu from "./hareket/ContextMenu/ContextMenu";
 import HareketFilters, { DEFAULT_HAREKET_FILTERS } from "./filter/HareketFilters";
 import HareketModal from "./hareket/HareketModal";
+import { calculateRecordHakedisTutar } from "./hareket/hareketUtils";
 
 const { Text } = Typography;
 
@@ -99,6 +100,9 @@ const compareText = (a, b) => {
 };
 
 const compareNumber = (a, b) => (Number(a) || 0) - (Number(b) || 0);
+
+const SUCCESS_STATUS_CODES = [200, 201, 202, 204];
+const isSuccessStatus = (statusCode) => SUCCESS_STATUS_CODES.includes(statusCode);
 
 // Kullanıcıya gösterilecek mesajı taşıyan hata; Excel bileşeni bu mesajı olduğu gibi gösterir
 const createUserError = (userMessage) => Object.assign(new Error(userMessage), { userMessage });
@@ -294,6 +298,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
 
         const newData = (response.data.list || []).map((item) => ({
           ...item,
+          hakedisTutar: calculateRecordHakedisTutar(item) ?? 0,
           key: item.seferOprId,
         }));
 
@@ -367,7 +372,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
         const response = await DeleteExpeditionOperationItemsService([record.key]);
         const statusCode = response?.data?.statusCode;
 
-        if ([200, 201, 202, 204].includes(statusCode)) {
+        if (isSuccessStatus(statusCode)) {
           message.success(t("islemBasarili"));
           refreshTableData();
         } else if (statusCode === 401) {
@@ -402,20 +407,35 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       });
       const statusCode = response?.data?.statusCode;
 
-      if ([200, 201, 202, 204].includes(statusCode)) {
-        message.success(t("islemBasarili"));
-        // Hakediş tutarı gibi serviste hesaplanan alanlar için sayfa yeniden okunur
-        await fetchData(0, 1);
+      if (!isSuccessStatus(statusCode)) {
+        message.error(statusCode === 401 ? t("buIslemiYapmayaYetkinizYok") : t("islemBasarisiz"));
         return;
       }
 
-      message.error(statusCode === 401 ? t("buIslemiYapmayaYetkinizYok") : t("islemBasarisiz"));
+      if (["gerceklesenMiktar", "birimFiyat"].includes(column.dataIndex)) {
+        const hakedisTutar = calculateRecordHakedisTutar(record, column.dataIndex, value) ?? 0;
+        const hakedisResponse = await UpdateExpeditionOperationRowService({
+          seferOprId: record.seferOprId,
+          key: EDITABLE_COLUMNS.hakedisTutar.requestKey,
+          value: hakedisTutar,
+        });
+        const hakedisStatusCode = hakedisResponse?.data?.statusCode;
+
+        if (!isSuccessStatus(hakedisStatusCode)) {
+          message.error(hakedisStatusCode === 401 ? t("buIslemiYapmayaYetkinizYok") : t("islemBasarisiz"));
+          await fetchData(0, 1);
+          return;
+        }
+      }
+
+      message.success(t("islemBasarili"));
+      await fetchData(0, 1);
     } catch (error) {
       console.error("Error updating row:", error);
       message.error(t("islemBasarisiz"));
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const confirmDelete = (record) => {
