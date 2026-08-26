@@ -243,51 +243,54 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
   }, [onStatisticsRefresh]);
 
   // API Data Fetching with diff and setPointId
-  const fetchData = useCallback(async (diff, targetPage) => {
-    const requestId = requestIdRef.current + 1;
-    requestIdRef.current = requestId;
-    setLoading(true);
+  const fetchData = useCallback(
+    async (diff, targetPage) => {
+      const requestId = requestIdRef.current + 1;
+      requestIdRef.current = requestId;
+      setLoading(true);
 
-    try {
-      const currentList = dataRef.current;
-      let currentSetPointId = 0;
+      try {
+        const currentList = dataRef.current;
+        let currentSetPointId = 0;
 
-      if (diff > 0) {
-        // Moving forward
-        currentSetPointId = currentList[currentList.length - 1]?.siraNo || 0;
-      } else if (diff < 0) {
-        // Moving backward
-        currentSetPointId = currentList[0]?.siraNo || 0;
+        if (diff > 0) {
+          // Moving forward
+          currentSetPointId = currentList[currentList.length - 1]?.siraNo || 0;
+        } else if (diff < 0) {
+          // Moving backward
+          currentSetPointId = currentList[0]?.siraNo || 0;
+        }
+
+        const response = await GetExpeditionsListService(diff, currentSetPointId, searchTermRef.current, filtersRef.current);
+
+        if (requestId !== requestIdRef.current) return;
+
+        const newData = (response.data.list || []).map((item) => ({
+          ...item,
+          key: item.siraNo,
+        }));
+
+        currentPageRequestRef.current = {
+          diff,
+          setPointId: currentSetPointId,
+          targetPage,
+        };
+
+        dataRef.current = newData;
+        setData(newData);
+        setTotalCount(response.data.recordCount);
+        onTotalCountChange(response.data.recordCount || 0);
+        setCurrentPage(targetPage);
+      } catch (error) {
+        if (requestId !== requestIdRef.current) return;
+        console.error("Error fetching data:", error);
+        message.error(t("islemBasarisiz"));
+      } finally {
+        if (requestId === requestIdRef.current) setLoading(false);
       }
-
-      const response = await GetExpeditionsListService(diff, currentSetPointId, searchTermRef.current, filtersRef.current);
-
-      if (requestId !== requestIdRef.current) return;
-
-      const newData = (response.data.list || []).map((item) => ({
-        ...item,
-        key: item.siraNo,
-      }));
-
-      currentPageRequestRef.current = {
-        diff,
-        setPointId: currentSetPointId,
-        targetPage,
-      };
-
-      dataRef.current = newData;
-      setData(newData);
-      setTotalCount(response.data.recordCount);
-      onTotalCountChange(response.data.recordCount || 0);
-      setCurrentPage(targetPage);
-    } catch (error) {
-      if (requestId !== requestIdRef.current) return;
-      console.error("Error fetching data:", error);
-      message.error(t("islemBasarisiz"));
-    } finally {
-      if (requestId === requestIdRef.current) setLoading(false);
-    }
-  }, [onTotalCountChange]);
+    },
+    [onTotalCountChange]
+  );
 
   useEffect(() => {
     fetchData(0, 1);
@@ -898,7 +901,7 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
           style={{
             backgroundColor: "white",
             padding: "10px",
-            height: "calc(100vh - 410px)",
+            height: "calc(100vh - 390px)",
             borderRadius: "8px 8px 8px 8px",
           }}
         >
@@ -915,7 +918,7 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
                 showSizeChanger: false,
                 onChange: handleTableChange,
               }}
-              scroll={{ y: "calc(100vh - 565px)", x: tableScrollX }}
+              scroll={{ y: "calc(100vh - 530px)", x: tableScrollX }}
             />
           </Spin>
           <UpdateModal selectedRow={drawer.data} onDrawerClose={() => setDrawer({ ...drawer, visible: false })} drawerVisible={drawer.visible} onRefresh={refreshCurrentPageData} />

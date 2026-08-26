@@ -920,7 +920,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
           style={{
             backgroundColor: "white",
             padding: "10px",
-            height: "calc(100vh - 410px)",
+            height: "calc(100vh - 390px)",
             borderRadius: "8px 8px 8px 8px",
           }}
         >
@@ -932,7 +932,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
               dataSource={data}
               pagination={false}
               footer={tableFooter}
-              scroll={{ y: "calc(100vh - 565px)", x: tableScrollX }}
+              scroll={{ y: "calc(100vh - 530px)", x: tableScrollX }}
             />
           </Spin>
           <HareketModal open={drawer.visible} seferOprId={drawer.data?.key} onClose={() => setDrawer({ ...drawer, visible: false })} onRefresh={refreshTableData} />
