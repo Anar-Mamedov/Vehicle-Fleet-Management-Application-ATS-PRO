@@ -39,6 +39,7 @@ const HareketModal = ({ open, seferOprId, expId, initialValues, defaultValues, o
 
     if (isLocal) {
       if (initialValues) reset(initialValues);
+      else if (defaultValues) reset(defaultValues);
       return;
     }
 

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import PropTypes from "prop-types";
+import { useFormContext } from "react-hook-form";
 import { Button, Input, Pagination, Popconfirm, Table, Tag, Typography } from "antd";
 import { DeleteOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { t } from "i18next";
@@ -7,6 +8,7 @@ import { formatDateByLocale } from "../../../../components/FormattedDate";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 import { BORDER_COLOR, cardStyle } from "../components/uiStyles";
 import HareketModal from "../hareket/HareketModal";
+import { getHareketDefaultsFromOperation } from "../hareket/hareketUtils";
 
 const { Text } = Typography;
 
@@ -59,9 +61,10 @@ const getSearchableText = (row) => {
 // Operasyon henüz oluşmadığı için hareketler servise gönderilmez, listede tutulup
 // son adımda `expeditionOperations` olarak gönderilir.
 const HareketlerAdimi = ({ hareketler, onChange }) => {
+  const { getValues } = useFormContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [modal, setModal] = useState({ open: false, row: null });
+  const [modal, setModal] = useState({ open: false, row: null, defaultValues: null });
 
   const filteredRows = useMemo(() => {
     const keyword = searchTerm.trim().toLocaleLowerCase("tr");
@@ -92,6 +95,14 @@ const HareketlerAdimi = ({ hareketler, onChange }) => {
     // Son sayfadaki tek kayıt silindiyse bir önceki sayfaya dönülür
     const sonSayfa = Math.max(1, Math.ceil(kalanlar.length / PAGE_SIZE));
     setCurrentPage((page) => Math.min(page, sonSayfa));
+  };
+
+  const handleYeniHareket = () => {
+    setModal({
+      open: true,
+      row: null,
+      defaultValues: getHareketDefaultsFromOperation(getValues()),
+    });
   };
 
   const columns = [
@@ -176,7 +187,7 @@ const HareketlerAdimi = ({ hareketler, onChange }) => {
           }}
           prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
         />
-        <Button className="btn primary-btn" onClick={() => setModal({ open: true, row: null })}>
+        <Button className="btn primary-btn" onClick={handleYeniHareket}>
           <PlusOutlined /> {t("yeniHareket")}
         </Button>
       </div>
@@ -192,7 +203,7 @@ const HareketlerAdimi = ({ hareketler, onChange }) => {
           scroll={{ x: tableScrollX, y: "calc(100vh - 560px)" }}
           onRow={(record) => ({
             style: { cursor: "pointer" },
-            onClick: () => setModal({ open: true, row: record }),
+            onClick: () => setModal({ open: true, row: record, defaultValues: null }),
           })}
         />
 
@@ -212,7 +223,13 @@ const HareketlerAdimi = ({ hareketler, onChange }) => {
         </div>
       </div>
 
-      <HareketModal open={modal.open} initialValues={modal.row?.values} onSave={handleSave} onClose={() => setModal({ open: false, row: null })} />
+      <HareketModal
+        open={modal.open}
+        initialValues={modal.row?.values}
+        defaultValues={modal.defaultValues}
+        onSave={handleSave}
+        onClose={() => setModal({ open: false, row: null, defaultValues: null })}
+      />
     </div>
   );
 };
