@@ -80,6 +80,9 @@ const HareketModal = ({ open, seferOprId, expId, initialValues, onSave, onClose,
         setValue("tasimaTuruID", toNullableId(item.tasimaTuruKodId));
         setValue("yuklemeKodId", toNullableId(item.yuklemeId));
         setValue("yuklemeKodAciklama", toNullable(item.yuklemeAciklama));
+        setValue("personelId", toNullableId(item.personelId));
+        setValue("personelIsim", toNullable(item.personelIsim));
+        setValue("personelIsimID", toNullableId(item.personelId));
         setValue("aciklama", toNullable(item.aciklama));
 
         setValue("planlananMiktar", item.planlananMiktar);
@@ -117,6 +120,7 @@ const HareketModal = ({ open, seferOprId, expId, initialValues, onSave, onClose,
       tasimaCinsiKodId: values.tasimaCinsiID || 0,
       tasimaTuruKodId: values.tasimaTuruID || 0,
       yuklemeId: values.yuklemeKodId || 0,
+      personelId: values.personelId || 0,
       aciklama: values.aciklama || "",
       planlananTarih: formatDateForApi(values.planlananTarih),
       planlananSaat: formatTimeForApi(values.planlananSaat),

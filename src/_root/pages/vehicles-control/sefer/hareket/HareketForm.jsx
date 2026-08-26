@@ -7,6 +7,7 @@ import styled from "styled-components";
 import Firma from "../../../../components/form/selects/Firma";
 import Guzergah from "../../../../components/form/selects/Guzergah";
 import KodIDSelectbox from "../../../../components/KodIDSelectbox";
+import PersonelSelectBox from "../../../../components/PersonelSelectBox";
 import { YerlerSehirSelectBox } from "../../../../components/YerlerSehirSelectBox";
 import { YuklemeKodlariTablo } from "../../../../components/YuklemeKodlariTablo";
 import TextInput from "../../../../components/form/inputs/TextInput";
@@ -169,6 +170,17 @@ const HareketForm = () => {
             <YuklemeKoduField>
               <YuklemeKodlariTablo />
             </YuklemeKoduField>
+          </FormField>
+
+          <FormField span={12} label={t("personel")}>
+            <PersonelSelectBox
+              name1="personelIsim"
+              isRequired={false}
+              onChange={(personelId, personelIsim) => {
+                setValue("personelId", personelId);
+                setValue("personelIsim", personelIsim || null);
+              }}
+            />
           </FormField>
 
           <FormField span={12} label={t("aciklama")}>
