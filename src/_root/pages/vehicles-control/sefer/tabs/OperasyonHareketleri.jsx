@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
+import { useFormContext } from "react-hook-form";
 import { Button, Input, message, Pagination, Popconfirm, Spin, Table, Tag } from "antd";
 import { DeleteOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { t } from "i18next";
@@ -9,6 +10,7 @@ import { DeleteExpeditionOperationItemsService, GetExpeditionOperationsListByExp
 import OperasyonOzeti from "../components/OperasyonOzeti";
 import { BORDER_COLOR, cardStyle } from "../components/uiStyles";
 import HareketModal from "../hareket/HareketModal";
+import { getHareketDefaultsFromOperation } from "../hareket/hareketUtils";
 
 const PAGE_SIZE = 10;
 
@@ -61,13 +63,14 @@ const renderDurum = (durum) => {
 };
 
 const OperasyonHareketleri = ({ selectedRow, isActive }) => {
+  const { getValues } = useFormContext();
   const [data, setData] = useState([]);
   const [summary, setSummary] = useState(null);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [hareketModal, setHareketModal] = useState({ open: false, seferOprId: null });
+  const [hareketModal, setHareketModal] = useState({ open: false, seferOprId: null, defaultValues: null });
 
   const searchTermRef = useRef("");
   const dataRef = useRef([]);
@@ -134,6 +137,14 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
   };
 
   const refreshTable = () => fetchData(0, 1);
+
+  const handleYeniHareket = () => {
+    setHareketModal({
+      open: true,
+      seferOprId: null,
+      defaultValues: getHareketDefaultsFromOperation(getValues()),
+    });
+  };
 
   const handleDelete = async (record) => {
     try {
@@ -230,7 +241,7 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
           onPressEnter={handleSearch}
           prefix={<SearchOutlined style={{ color: "#bfbfbf" }} onClick={handleSearch} />}
         />
-        <Button className="btn primary-btn" onClick={() => setHareketModal({ open: true, seferOprId: null })}>
+        <Button className="btn primary-btn" onClick={handleYeniHareket}>
           <PlusOutlined /> {t("yeniHareket")}
         </Button>
       </div>
@@ -248,7 +259,7 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
               scroll={{ x: tableScrollX, y: "calc(100vh - 520px)" }}
               onRow={(record) => ({
                 style: { cursor: "pointer" },
-                onClick: () => setHareketModal({ open: true, seferOprId: record.key }),
+                onClick: () => setHareketModal({ open: true, seferOprId: record.key, defaultValues: null }),
               })}
             />
           </Spin>
@@ -263,7 +274,8 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
           open={hareketModal.open}
           seferOprId={hareketModal.seferOprId}
           expId={expId}
-          onClose={() => setHareketModal({ open: false, seferOprId: null })}
+          defaultValues={hareketModal.defaultValues}
+          onClose={() => setHareketModal({ open: false, seferOprId: null, defaultValues: null })}
           onRefresh={refreshTable}
         />
 

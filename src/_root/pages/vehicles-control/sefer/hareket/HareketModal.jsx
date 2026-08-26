@@ -18,7 +18,7 @@ const DEFAULT_WIDTH = 1400;
 const toNullable = (value) => (value === "" || value === undefined ? null : value);
 const toNullableId = (value) => (value === 0 || value === "" || value === undefined ? null : value);
 
-const HareketModal = ({ open, seferOprId, expId, initialValues, onSave, onClose, onRefresh }) => {
+const HareketModal = ({ open, seferOprId, expId, initialValues, defaultValues, onSave, onClose, onRefresh }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -42,7 +42,10 @@ const HareketModal = ({ open, seferOprId, expId, initialValues, onSave, onClose,
       return;
     }
 
-    if (!isUpdate) return;
+    if (!isUpdate) {
+      if (defaultValues) reset(defaultValues);
+      return;
+    }
 
     setLoading(true);
     GetExpeditionOperationItemByIdService(seferOprId)
@@ -103,7 +106,7 @@ const HareketModal = ({ open, seferOprId, expId, initialValues, onSave, onClose,
         message.error(t("islemBasarisiz"));
       })
       .finally(() => setLoading(false));
-  }, [open, seferOprId, isUpdate, isLocal, initialValues, reset, setValue]);
+  }, [open, seferOprId, isUpdate, isLocal, initialValues, defaultValues, reset, setValue]);
 
   const onSubmit = handleSubmit((values) => {
     const body = {
@@ -201,6 +204,8 @@ HareketModal.propTypes = {
   expId: PropTypes.number,
   // Servise bağlanmadan çalışan (toplu oluşturma) mod için form değerleri ve kaydetme geri çağrısı
   initialValues: PropTypes.object,
+  // Operasyon güncelleme ekranından yeni hareket açılırken forma yazılacak değiştirilebilir başlangıç değerleri
+  defaultValues: PropTypes.object,
   onSave: PropTypes.func,
   onClose: PropTypes.func,
   onRefresh: PropTypes.func,

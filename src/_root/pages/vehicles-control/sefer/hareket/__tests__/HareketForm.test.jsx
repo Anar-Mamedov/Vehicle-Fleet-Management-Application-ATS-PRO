@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateHakedisTutar, calculateRecordHakedisTutar } from "../hareketUtils";
+import { calculateHakedisTutar, calculateRecordHakedisTutar, getHareketDefaultsFromOperation } from "../hareketUtils";
 
 describe("calculateHakedisTutar", () => {
   it("calculates the progress payment from the actual amount and unit price", () => {
@@ -19,5 +19,38 @@ describe("calculateHakedisTutar", () => {
     expect(calculateRecordHakedisTutar(record)).toBe(78880);
     expect(calculateRecordHakedisTutar(record, "gerceklesenMiktar", 250)).toBe(85000);
     expect(calculateRecordHakedisTutar(record, "birimFiyat", 400)).toBe(92800);
+  });
+});
+
+describe("getHareketDefaultsFromOperation", () => {
+  it("maps the operation status, company and route to movement form fields", () => {
+    expect(
+      getHareketDefaultsFromOperation({
+        seferDurum: "GÖREVDE",
+        seferDurumID: 42,
+        firma: "BİGA OTO LASTİK",
+        firmaId: 17,
+        guzergah: "İstanbul - Ankara",
+        guzergahId: 9,
+      })
+    ).toEqual({
+      durum: "GÖREVDE",
+      durumID: 42,
+      firmaUnvan: "BİGA OTO LASTİK",
+      firmaId: 17,
+      guzergah: "İstanbul - Ankara",
+      guzergahId: 9,
+    });
+  });
+
+  it("normalizes empty operation selections to null", () => {
+    expect(getHareketDefaultsFromOperation({ seferDurum: "", seferDurumID: 0, firma: null, firmaId: 0, guzergah: undefined, guzergahId: 0 })).toEqual({
+      durum: null,
+      durumID: null,
+      firmaUnvan: null,
+      firmaId: null,
+      guzergah: null,
+      guzergahId: null,
+    });
   });
 });

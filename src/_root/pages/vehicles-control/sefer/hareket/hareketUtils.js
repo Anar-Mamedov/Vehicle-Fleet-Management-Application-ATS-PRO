@@ -14,3 +14,12 @@ export const calculateRecordHakedisTutar = (record, changedField, changedValue) 
 
   return calculateHakedisTutar(gerceklesenMiktar, birimFiyat);
 };
+
+export const getHareketDefaultsFromOperation = (operationValues = {}) => ({
+  durum: operationValues.seferDurum || null,
+  durumID: operationValues.seferDurumID || null,
+  firmaUnvan: operationValues.firma || null,
+  firmaId: operationValues.firmaId || null,
+  guzergah: operationValues.guzergah || null,
+  guzergahId: operationValues.guzergahId || null,
+});
