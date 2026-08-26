@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Button, Select } from "antd";
+import { Button, ConfigProvider, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import KodIDSelectbox from "../../../../components/KodIDSelectbox";
@@ -13,9 +13,18 @@ const DURUM_KOD_ID = 121;
 const HAREKET_TIP_KOD_ID = 916;
 const VARDIYA_KOD_ID = 917;
 const OPERASYON_YERI_KOD_ID = 918;
+const FIRMA_DROPDOWN_WIDTH = 300;
 
 // Liste ve Excel istekleri aynı gövdeyi kullanır
-export const buildHareketFilters = ({ timeRange = DEFAULT_TIME_RANGE, firmaIds = [], seferTipKodIds = [], oprTipKodIds = [], oprYeriKodIds = [], vardiyaKodIds = [], durumKodIds = [] } = {}) => ({
+export const buildHareketFilters = ({
+  timeRange = DEFAULT_TIME_RANGE,
+  firmaIds = [],
+  seferTipKodIds = [],
+  oprTipKodIds = [],
+  oprYeriKodIds = [],
+  vardiyaKodIds = [],
+  durumKodIds = [],
+} = {}) => ({
   firmaIds,
   seferTipKodIds,
   oprTipKodIds,
@@ -53,9 +62,11 @@ export default function HareketFilters({ onChange }) {
           popupMatchSelectWidth={false}
         />
       </div>
-      {/* FirmaSelectBox genişliğini dışarıdan almadığı için sarmalayan kutunun genişliğini doldurur */}
+      {/* Input kompakt kalırken yalnızca bu firma filtresinin açılır listesi bağımsız genişlik kullanır */}
       <div style={{ display: "flex", gap: "10px", width: "100px" }}>
-        <FirmaSelectBox name1="hareketFirmaFiltre" isRequired={false} multiSelect={true} onChange={(value) => setFirmaIds(value || [])} />
+        <ConfigProvider popupMatchSelectWidth={FIRMA_DROPDOWN_WIDTH}>
+          <FirmaSelectBox name1="hareketFirmaFiltre" isRequired={false} multiSelect={true} onChange={(value) => setFirmaIds(value || [])} />
+        </ConfigProvider>
       </div>
       <div style={{ display: "flex", gap: "10px" }}>
         <KodIDSelectbox
