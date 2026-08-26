@@ -45,6 +45,10 @@ const readonlyBoxStyle = {
 
 // Planlanan ve gerçekleşen zaman arasındaki fark; pozitif değer gecikme, negatif değer erken demektir
 const getGecikmeText = (planlananTarih, planlananSaat, gerceklesenTarih, gerceklesenSaat) => {
+  const tumZamanAlanlariDolu = [planlananTarih, planlananSaat, gerceklesenTarih, gerceklesenSaat].every((value) => value && dayjs(value).isValid());
+
+  if (!tumZamanAlanlariDolu) return "-";
+
   const planlanan = combineDateTime(planlananTarih, planlananSaat);
   const gerceklesen = combineDateTime(gerceklesenTarih, gerceklesenSaat);
 
