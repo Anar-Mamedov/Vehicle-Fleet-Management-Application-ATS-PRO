@@ -10,7 +10,6 @@ import Textarea from "../../../../components/form/inputs/Textarea";
 import DateInput from "../../../../components/form/date/DateInput";
 import SectionCard from "../components/SectionCard";
 import FormField from "../components/FormField";
-import SeferSorumlusu from "../components/SeferSorumlusu";
 
 const { Text } = Typography;
 
@@ -56,7 +55,7 @@ const OrtakBilgiler = () => (
         </FormField>
 
         <FormField span={4} label={t("operasyonSorumlusu")}>
-          <SeferSorumlusu />
+          <TextInput name="seferSorumlusu" placeholder={t("operasyonSorumlusu")} />
         </FormField>
 
         <div className="col-span-12">

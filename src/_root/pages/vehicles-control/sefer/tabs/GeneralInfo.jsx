@@ -16,7 +16,6 @@ import KodIDSelectbox from "../../../../components/KodIDSelectbox";
 import Guzergah from "../../../../components/form/selects/Guzergah";
 import SectionCard from "../components/SectionCard";
 import FormField from "../components/FormField";
-import SeferSorumlusu from "../components/SeferSorumlusu";
 import { labelStyle } from "../components/uiStyles";
 import VehicleList from "./VehiclesList";
 
@@ -121,7 +120,7 @@ const GeneralInfo = ({ isValid, isUpdate = false }) => {
             </FormField>
 
             <FormField span={12} label={t("operasyonSorumlusu")}>
-              <SeferSorumlusu />
+              <TextInput name="seferSorumlusu" placeholder={t("operasyonSorumlusu")} />
             </FormField>
           </SectionCard>
         </div>
