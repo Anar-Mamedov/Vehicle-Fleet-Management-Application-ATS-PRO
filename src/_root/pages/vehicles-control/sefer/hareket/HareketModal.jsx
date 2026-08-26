@@ -4,26 +4,19 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Button, Modal, Spin, message } from "antd";
 import { FullscreenExitOutlined, FullscreenOutlined } from "@ant-design/icons";
 import { t } from "i18next";
-import { formatDateForApi, formatDateTimeForApi, toDayjsOrNull } from "../../../../../utils/dateUtils";
+import { formatDateForApi, formatTimeForApi, toDayjsOrNull, toTimeDayjsOrNull } from "../../../../../utils/dateUtils";
 import {
   AddExpeditionOperationItemService,
   GetExpeditionOperationItemByIdService,
   UpdateExpeditionOperationItemService,
 } from "../../../../../api/services/vehicles/operations_services";
-import HareketForm, { combineDateTime } from "./HareketForm";
+import HareketForm from "./HareketForm";
 
 const DEFAULT_WIDTH = 1400;
 
 // Servis boş değerleri "" / 0 döndürüyor; select'e boş string veya 0 yazılırsa placeholder görünmez
 const toNullable = (value) => (value === "" || value === undefined ? null : value);
 const toNullableId = (value) => (value === 0 || value === "" || value === undefined ? null : value);
-
-// Tarih ve saat ekranda ayrı alanlarda tutulur, servise tek bir tarih-saat değeri gider
-const splitDateTime = (setValue, dateField, timeField, value) => {
-  const parsed = toDayjsOrNull(value);
-  setValue(dateField, parsed);
-  setValue(timeField, parsed);
-};
 
 const HareketModal = ({ open, seferOprId, expId, initialValues, onSave, onClose, onRefresh }) => {
   const [loading, setLoading] = useState(false);
@@ -66,8 +59,10 @@ const HareketModal = ({ open, seferOprId, expId, initialValues, onSave, onClose,
         setValue("guzergah", toNullable(item.guzergah));
         setValue("guzergahId", toNullableId(item.guzergahId));
 
-        splitDateTime(setValue, "planlananTarih", "planlananSaat", item.planlananTarih);
-        splitDateTime(setValue, "gerceklesenTarih", "gerceklesenSaat", item.gerceklesenTarih);
+        setValue("planlananTarih", toDayjsOrNull(item.planlananTarih));
+        setValue("planlananSaat", toTimeDayjsOrNull(item.planlananSaat));
+        setValue("gerceklesenTarih", toDayjsOrNull(item.gerceklesenTarih));
+        setValue("gerceklesenSaat", toTimeDayjsOrNull(item.gerceklesenSaat));
 
         setValue("vardiya", toNullable(item.vardiya));
         setValue("vardiyaID", toNullableId(item.vardiyaKodId));
@@ -123,8 +118,10 @@ const HareketModal = ({ open, seferOprId, expId, initialValues, onSave, onClose,
       tasimaTuruKodId: values.tasimaTuruID || 0,
       yuklemeId: values.yuklemeKodId || 0,
       aciklama: values.aciklama || "",
-      planlananTarih: formatDateTimeForApi(combineDateTime(values.planlananTarih, values.planlananSaat)),
-      gerceklesenTarih: formatDateTimeForApi(combineDateTime(values.gerceklesenTarih, values.gerceklesenSaat)),
+      planlananTarih: formatDateForApi(values.planlananTarih),
+      planlananSaat: formatTimeForApi(values.planlananSaat),
+      gerceklesenTarih: formatDateForApi(values.gerceklesenTarih),
+      gerceklesenSaat: formatTimeForApi(values.gerceklesenSaat),
       yukelemeBirimKodId: values.yuklemeBirimID || 0,
       kapasite: values.kapasite || 0,
       hakedisTipKodId: values.hakedisTipID || 0,

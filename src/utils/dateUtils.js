@@ -1,5 +1,8 @@
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import "dayjs/locale/tr";
+
+dayjs.extend(customParseFormat);
 
 // API'ye gönderilen ve API'den alınan TÜM tarih/saat değerleri yalnızca dayjs ile işlenir.
 // new Date(), toISOString() veya elle string birleştirme kesinlikle kullanılmaz;
@@ -18,6 +21,24 @@ export const toDayjsOrNull = (value) => {
 
   const parsedDate = dayjs(value);
   return parsedDate.isValid() ? parsedDate : null;
+};
+
+// API'den yalnızca saat olarak gelen HH:mm / HH:mm:ss değerini TimePicker için dayjs nesnesine çevirir.
+export const toTimeDayjsOrNull = (value) => {
+  if (!value) {
+    return null;
+  }
+
+  if (dayjs.isDayjs(value)) {
+    return value.isValid() ? value : null;
+  }
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const parsedTime = dayjs(value.trim(), [API_TIME_FORMAT, API_TIME_WITH_SECONDS_FORMAT], true);
+  return parsedTime.isValid() ? parsedTime : null;
 };
 
 // DatePicker değerini API'ye gönderilecek tarih formatına çevirir.

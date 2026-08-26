@@ -107,8 +107,8 @@ const HareketlerAdimi = ({ hareketler, onChange }) => {
       width: 120,
       render: (_, record) => (
         <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-          <span style={{ ...singleLineStyle, fontWeight: 600 }}>{formatDateByLocale(record.body.gerceklesenTarih)}</span>
-          <span style={{ ...secondaryLineStyle, ...singleLineStyle }}>{formatDateByLocale(record.body.gerceklesenTarih, "HH:mm", "")}</span>
+          <span style={{ ...singleLineStyle, fontWeight: 600 }}>{formatDateByLocale(record.values.gerceklesenTarih)}</span>
+          <span style={{ ...secondaryLineStyle, ...singleLineStyle }}>{formatDateByLocale(record.values.gerceklesenSaat, "HH:mm", "")}</span>
         </div>
       ),
     },
@@ -196,7 +196,17 @@ const HareketlerAdimi = ({ hareketler, onChange }) => {
           })}
         />
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", flexWrap: "wrap", padding: "12px 20px", borderTop: `1px solid ${BORDER_COLOR}` }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "10px",
+            flexWrap: "wrap",
+            padding: "12px 20px",
+            borderTop: `1px solid ${BORDER_COLOR}`,
+          }}
+        >
           <span style={{ fontSize: "13px", color: "#5d6786" }}>{`${t("toplam")} ${formatNumberWithLocale(filteredRows.length)} ${t("kayit")}`}</span>
           <Pagination current={currentPage} total={filteredRows.length} pageSize={PAGE_SIZE} showSizeChanger={false} onChange={setCurrentPage} />
         </div>
