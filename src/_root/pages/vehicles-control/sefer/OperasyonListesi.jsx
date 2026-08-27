@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message } from "antd";
+import { Table, Button, Modal, Checkbox, Input, Pagination, Spin, Typography, Tag, message } from "antd";
 import { HolderOutlined, SearchOutlined, MenuOutlined, ExportOutlined } from "@ant-design/icons";
 import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -21,6 +21,8 @@ import AddModal from "./AddModal";
 import UpdateModal from "./UpdateModal";
 
 const { Text } = Typography;
+
+const PAGE_SIZE = 10;
 
 // Excel raporu backend tarafında en fazla 180 günlük aralıkla üretilebiliyor
 const MAX_REPORT_RANGE_DAYS = 180;
@@ -760,6 +762,13 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
     window.location.reload();
   };
 
+  const tableFooter = () => (
+    <div style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
+      <div>{`${t("toplam")}: ${formatNumberWithLocale(totalCount)} | ${t("goruntulenen")}: ${formatNumberWithLocale(data.length)}`}</div>
+      <Pagination simple={{ readOnly: true }} current={currentPage} total={totalCount} pageSize={PAGE_SIZE} onChange={handleTableChange} showSizeChanger={false} size="small" />
+    </div>
+  );
+
   return (
     <>
       {/* Modal for managing columns */}
@@ -911,13 +920,8 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
               rowSelection={rowSelection}
               columns={filteredColumns}
               dataSource={data}
-              pagination={{
-                current: currentPage,
-                total: totalCount,
-                pageSize: 10,
-                showSizeChanger: false,
-                onChange: handleTableChange,
-              }}
+              pagination={false}
+              footer={tableFooter}
               scroll={{ y: "calc(100vh - 530px)", x: tableScrollX }}
             />
           </Spin>
