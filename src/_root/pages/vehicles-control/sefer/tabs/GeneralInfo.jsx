@@ -29,14 +29,19 @@ const DEPARTMAN_KOD_ID = 200;
 const ACIKLAMA_MAX_LENGTH = 500;
 
 const FULL_WIDTH = { width: "100%" };
+const KM_FIELD_ICON_WIDTH = "14px";
 
 // Ek bilgiler bölümü beş eşit sütuna bölünür
 const EK_BILGILER_GRID = { gridTemplateColumns: "repeat(5, minmax(0, 1fr))" };
 
 // Çıkış/varış km alanları, kendinden önceki saat alanına ok işaretiyle bağlanır
-const KmField = ({ label, name }) => (
+const KmField = ({ label, name, showArrow = true }) => (
   <div className="col-span-4" style={{ display: "flex", alignItems: "flex-end", gap: "8px" }}>
-    <ArrowRightOutlined style={{ color: "#bfbfbf", marginBottom: "9px" }} />
+    {showArrow ? (
+      <ArrowRightOutlined style={{ color: "#bfbfbf", marginBottom: "9px", width: KM_FIELD_ICON_WIDTH }} />
+    ) : (
+      <span aria-hidden="true" style={{ width: KM_FIELD_ICON_WIDTH, flexShrink: 0 }} />
+    )}
     <div className="flex flex-col gap-1" style={{ flex: 1, minWidth: 0 }}>
       <label style={labelStyle}>{label}</label>
       <NumberInput name={name} style={FULL_WIDTH} />
@@ -47,6 +52,7 @@ const KmField = ({ label, name }) => (
 KmField.propTypes = {
   label: PropTypes.string,
   name: PropTypes.string,
+  showArrow: PropTypes.bool,
 };
 
 const GeneralInfo = ({ isValid, isUpdate = false }) => {
@@ -146,9 +152,7 @@ const GeneralInfo = ({ isValid, isUpdate = false }) => {
             <FormField span={8} label={t("guzergah")}>
               <Guzergah placeholder={t("guzergahSecin")} />
             </FormField>
-            <FormField span={4} label={t("mesafeKm")}>
-              <NumberInput name="farkKm" style={FULL_WIDTH} />
-            </FormField>
+            <KmField label={t("mesafeKm")} name="farkKm" showArrow={false} />
 
             <FormField span={8} label={t("operasyonYeri")}>
               <KodIDSelectbox name1="seferYeri" kodID={SEFER_YERI_KOD_ID} />
