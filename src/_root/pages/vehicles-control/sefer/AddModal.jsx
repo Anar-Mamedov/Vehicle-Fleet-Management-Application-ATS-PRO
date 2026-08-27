@@ -17,6 +17,11 @@ import TopluOperasyonModal from "./toplu-operasyon/TopluOperasyonModal";
 // Ok menüsündeki seçeneklerin anahtarları
 const ARAC_SECEREK_OLUSTUR = "aracSecerekOlustur";
 
+const getDefaultValues = () => ({
+  seferAdedi: 1,
+  cikisTarih: dayjs(),
+});
+
 // "Yeni Operasyon" düğmesinin sağındaki ok menüsündeki seçeneklerin ortak görünümü
 const menuIconBoxStyle = {
   width: "36px",
@@ -137,9 +142,8 @@ const AddModal = ({ setStatus, onRefresh }) => {
     },
   ]);
 
-  const defaultValues = { seferAdedi: 1 };
   const methods = useForm({
-    defaultValues: defaultValues,
+    defaultValues: getDefaultValues(),
   });
   const { handleSubmit, reset, setValue, watch } = methods;
 
@@ -294,7 +298,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
   ];
 
   const openAddModal = () => {
-    reset();
+    reset(getDefaultValues());
     setPlaka([]);
     setIsOpen(true);
   };
