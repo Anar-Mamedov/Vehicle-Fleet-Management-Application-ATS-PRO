@@ -4,8 +4,6 @@ import { t } from "i18next";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 import { BORDER_COLOR, cardStyle } from "./uiStyles";
 
-const HIGHLIGHT_COLOR = "#1677ff";
-
 const rowStyle = {
   display: "flex",
   alignItems: "center",
@@ -34,7 +32,6 @@ const OperasyonOzeti = ({ summary }) => {
     { label: t("planlananMiktar"), value: formatNumberWithLocale(summary?.toplamPlanlananMiktar ?? 0) },
     { label: t("gerceklesenMiktar"), value: formatNumberWithLocale(summary?.toplamGerceklesenMiktar ?? 0) },
     { label: t("operasyonToplamTutar"), value: `₺${formatNumberWithLocale(summary?.toplamHakedisTutar ?? 0, 2, 2)}` },
-    { label: t("doluluk"), value: `%${formatNumberWithLocale(summary?.dolulukOrani ?? 0)}`, highlight: true },
   ];
 
   return (
@@ -43,7 +40,7 @@ const OperasyonOzeti = ({ summary }) => {
       {rows.map((row, index) => (
         <div key={row.label} style={index === rows.length - 1 ? { ...rowStyle, borderBottom: "none" } : rowStyle}>
           <span style={labelStyle}>{row.label}</span>
-          <span style={row.highlight ? { ...valueStyle, color: HIGHLIGHT_COLOR } : valueStyle}>{row.value}</span>
+          <span style={valueStyle}>{row.value}</span>
         </div>
       ))}
     </div>
@@ -56,7 +53,6 @@ OperasyonOzeti.propTypes = {
     toplamPlanlananMiktar: PropTypes.number,
     toplamGerceklesenMiktar: PropTypes.number,
     toplamHakedisTutar: PropTypes.number,
-    dolulukOrani: PropTypes.number,
   }),
 };
 
