@@ -197,11 +197,11 @@ const HareketForm = () => {
           <FormField span={4} label={t("planlananMiktar")}>
             <NumberInput name="planlananMiktar" style={FULL_WIDTH} />
           </FormField>
-          <FormField span={4} label={t("gerceklesenMiktar")} required>
-            <NumberInput name="gerceklesenMiktar" required style={FULL_WIDTH} />
+          <FormField span={4} label={t("gerceklesenMiktar")}>
+            <NumberInput name="gerceklesenMiktar" style={FULL_WIDTH} />
           </FormField>
-          <FormField span={4} label={t("birim")} required>
-            <KodIDSelectbox name1="yuklemeBirim" kodID={YUKLEME_BIRIM_KOD_ID} isRequired />
+          <FormField span={4} label={t("birim")}>
+            <KodIDSelectbox name1="yuklemeBirim" kodID={YUKLEME_BIRIM_KOD_ID} />
           </FormField>
 
           <FormField span={4} label={t("kapasite")}>
