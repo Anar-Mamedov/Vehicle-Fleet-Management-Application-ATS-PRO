@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Button, Modal, Table, Input, message } from "antd";
 import AxiosInstance from "../../api/http";
 import { Resizable } from "react-resizable";
-import { CheckCircleOutlined, CloseCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { useFormContext, Controller } from "react-hook-form";
 import { t } from "i18next";
 
@@ -393,20 +393,22 @@ export function YuklemeKodlariTablo({ workshopSelectedId, onSubmit }) {
     }
   };
 
-  const handleClearForms = () => {
-    setValue("yuklemeKodu", "");
-    setValue("yuklemeKodId", "");
-    setValue("yuklemeKodAciklama", "");
-    setValue("yuklemeKodBirim", "");
-  };
-
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+    <div style={{ width: "100%" }}>
       {control && (
-        <Controller name="yuklemeKodAciklama" control={control} render={({ field }) => <Input {...field} placeholder={t("yuklemeKodu")} style={{ width: "160px" }} readOnly />} />
+        <Controller
+          name="yuklemeKodAciklama"
+          control={control}
+          render={({ field }) => (
+            <Input
+              {...field}
+              placeholder={t("yuklemeKodu")}
+              readOnly
+              suffix={<PlusOutlined style={{ color: "#1677ff", cursor: "pointer" }} onClick={handleModalToggle} />}
+            />
+          )}
+        />
       )}
-      <Button onClick={handleModalToggle}>+</Button>
-      <Button onClick={handleClearForms}>-</Button>
       <Modal width={1400} centered title={t("yuklemeKodlari")} open={isModalVisible} onOk={handleModalOk} onCancel={handleModalToggle}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
           <Input
