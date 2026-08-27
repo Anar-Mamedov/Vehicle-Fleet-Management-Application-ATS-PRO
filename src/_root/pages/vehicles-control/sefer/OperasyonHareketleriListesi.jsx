@@ -298,7 +298,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
 
         const newData = (response.data.list || []).map((item) => ({
           ...item,
-          hakedisTutar: calculateRecordHakedisTutar(item) ?? 0,
+          hakedisTutar: calculateRecordHakedisTutar(item) ?? item.hakedisTutar ?? 0,
           key: item.seferOprId,
         }));
 
@@ -413,18 +413,21 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       }
 
       if (["gerceklesenMiktar", "birimFiyat"].includes(column.dataIndex)) {
-        const hakedisTutar = calculateRecordHakedisTutar(record, column.dataIndex, value) ?? 0;
-        const hakedisResponse = await UpdateExpeditionOperationRowService({
-          seferOprId: record.seferOprId,
-          key: EDITABLE_COLUMNS.hakedisTutar.requestKey,
-          value: hakedisTutar,
-        });
-        const hakedisStatusCode = hakedisResponse?.data?.statusCode;
+        const hakedisTutar = calculateRecordHakedisTutar(record, column.dataIndex, value);
 
-        if (!isSuccessStatus(hakedisStatusCode)) {
-          message.error(hakedisStatusCode === 401 ? t("buIslemiYapmayaYetkinizYok") : t("islemBasarisiz"));
-          await fetchData(0, 1);
-          return;
+        if (hakedisTutar !== null) {
+          const hakedisResponse = await UpdateExpeditionOperationRowService({
+            seferOprId: record.seferOprId,
+            key: EDITABLE_COLUMNS.hakedisTutar.requestKey,
+            value: hakedisTutar,
+          });
+          const hakedisStatusCode = hakedisResponse?.data?.statusCode;
+
+          if (!isSuccessStatus(hakedisStatusCode)) {
+            message.error(hakedisStatusCode === 401 ? t("buIslemiYapmayaYetkinizYok") : t("islemBasarisiz"));
+            await fetchData(0, 1);
+            return;
+          }
         }
       }
 

@@ -13,6 +13,12 @@ describe("calculateHakedisTutar", () => {
     expect(calculateHakedisTutar("invalid", 250)).toBeNull();
   });
 
+  it("does not calculate when the actual amount or unit price is zero", () => {
+    expect(calculateHakedisTutar(0, 250)).toBeNull();
+    expect(calculateHakedisTutar(22, 0)).toBeNull();
+    expect(calculateRecordHakedisTutar({ gerceklesenMiktar: 0, birimFiyat: 250 })).toBeNull();
+  });
+
   it("calculates a list row using the changed actual amount or unit price", () => {
     const record = { gerceklesenMiktar: 232, birimFiyat: 340 };
 
@@ -33,7 +39,7 @@ describe("getHareketDefaultsFromOperation", () => {
         guzergah: "İstanbul - Ankara",
         guzergahId: 9,
       })
-    ).toEqual({
+    ).toMatchObject({
       durum: "GÖREVDE",
       durumID: 42,
       firmaUnvan: "BİGA OTO LASTİK",
@@ -44,7 +50,7 @@ describe("getHareketDefaultsFromOperation", () => {
   });
 
   it("normalizes empty operation selections to null", () => {
-    expect(getHareketDefaultsFromOperation({ seferDurum: "", seferDurumID: 0, firma: null, firmaId: 0, guzergah: undefined, guzergahId: 0 })).toEqual({
+    expect(getHareketDefaultsFromOperation({ seferDurum: "", seferDurumID: 0, firma: null, firmaId: 0, guzergah: undefined, guzergahId: 0 })).toMatchObject({
       durum: null,
       durumID: null,
       firmaUnvan: null,

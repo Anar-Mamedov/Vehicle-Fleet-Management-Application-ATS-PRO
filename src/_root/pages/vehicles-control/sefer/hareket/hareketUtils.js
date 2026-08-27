@@ -7,6 +7,8 @@ export const calculateHakedisTutar = (gerceklesenMiktar, birimFiyat) => {
   const miktar = Number(gerceklesenMiktar);
   const fiyat = Number(birimFiyat);
 
+  if (miktar === 0 || fiyat === 0) return null;
+
   return Number.isFinite(miktar) && Number.isFinite(fiyat) ? miktar * fiyat : null;
 };
 

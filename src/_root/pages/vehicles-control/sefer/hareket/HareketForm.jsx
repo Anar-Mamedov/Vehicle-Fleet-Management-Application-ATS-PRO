@@ -98,7 +98,10 @@ const HareketForm = () => {
   const gecikmeText = getGecikmeText(watch("planlananTarih"), watch("planlananSaat"), watch("gerceklesenTarih"), watch("gerceklesenSaat"));
 
   useEffect(() => {
-    setValue("hakedisTutar", calculateHakedisTutar(gerceklesenMiktarDegeri, birimFiyatDegeri), { shouldValidate: false });
+    const hesaplananHakedisTutar = calculateHakedisTutar(gerceklesenMiktarDegeri, birimFiyatDegeri);
+    if (hesaplananHakedisTutar === null) return;
+
+    setValue("hakedisTutar", hesaplananHakedisTutar, { shouldValidate: false });
   }, [gerceklesenMiktarDegeri, birimFiyatDegeri, setValue]);
 
   return (
