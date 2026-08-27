@@ -379,8 +379,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
     </Button>,
   ];
 
-  // Başlıkta operasyon numarası ve güncel durumu birlikte gösterilir
-  const seferNo = watch("seferNo");
+  // Başlıkta araç plakası ve güncel operasyon durumu birlikte gösterilir
+  const selectedPlate = watch("plaka");
   const seferDurum = watch("seferDurum");
 
   const modalTitle = (
@@ -389,7 +389,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, id, setStatus, selectedRow, 
         <ProfileOutlined />
       </span>
       <span style={{ fontSize: "16px", fontWeight: 600, color: "#141414" }}>{t("operasyonGuncelleme")}</span>
-      {seferNo ? <span style={{ fontSize: "14px", fontWeight: 400, color: "#8c8c8c" }}>{`(${[seferNo, seferDurum].filter(Boolean).join(" / ")})`}</span> : null}
+      {selectedPlate ? <span style={{ fontSize: "14px", fontWeight: 400, color: "#8c8c8c" }}>{`(${[selectedPlate, seferDurum].filter(Boolean).join(" / ")})`}</span> : null}
     </div>
   );
 
