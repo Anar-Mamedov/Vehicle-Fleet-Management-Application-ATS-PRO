@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const calculateHakedisTutar = (gerceklesenMiktar, birimFiyat) => {
   const alanlardanBiriBos = [gerceklesenMiktar, birimFiyat].some((value) => value === null || value === undefined || value === "");
   if (alanlardanBiriBos) return null;
@@ -16,6 +18,8 @@ export const calculateRecordHakedisTutar = (record, changedField, changedValue) 
 };
 
 export const getHareketDefaultsFromOperation = (operationValues = {}) => ({
+  planlananTarih: dayjs(),
+  gerceklesenTarih: dayjs(),
   durum: operationValues.seferDurum || null,
   durumID: operationValues.seferDurumID || null,
   firmaUnvan: operationValues.firma || null,
