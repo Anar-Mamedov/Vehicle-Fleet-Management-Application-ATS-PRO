@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef, useContext, isValidElement } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { Table, Button, Modal, Checkbox, Input, Spin, Typography, Tag, message, Tooltip, Select, Pagination, Switch, Popconfirm, InputNumber, Popover } from "antd";
 import {
@@ -36,6 +37,7 @@ import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 import DetailUpdate from "../vehicle-detail/DetailUpdate";
 import * as XLSX from "xlsx";
+import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -361,7 +363,7 @@ const KmCell = ({ record, text, refreshTableData }) => {
   );
 };
 
-const Yakit = ({ ayarlarData, customFields }) => {
+const Yakit = ({ ayarlarData, customFields = {}, selectionMode = false, selectedRowKeys: controlledSelectedRowKeys = [], onSelectionChange }) => {
   const { setPlaka } = useContext(PlakaContext);
   const [selectedDurum, setSelectedDurum] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -691,15 +693,17 @@ const Yakit = ({ ayarlarData, customFields }) => {
     });
   };
 
-  const onSelectChange = (newSelectedRowKeys) => {
-    setSelectedRowKeys(newSelectedRowKeys);
+  const activeSelectedRowKeys = selectionMode ? controlledSelectedRowKeys : selectedRowKeys;
 
-    // Find selected rows data
-    const newSelectedRows = data.filter((row) => newSelectedRowKeys.includes(row.key));
+  const onSelectChange = (newSelectedRowKeys, newSelectedRows) => {
+    setSelectedRowKeys(newSelectedRowKeys);
     setSelectedRows(newSelectedRows);
+    onSelectionChange?.(newSelectedRowKeys, newSelectedRows);
   };
 
   useEffect(() => {
+    if (selectionMode) return;
+
     const newPlakaEntries = selectedRows.map((vehicle) => ({
       id: vehicle.aracId,
       plaka: vehicle.plaka,
@@ -707,7 +711,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
       lokasyon: vehicle.lokasyon,
     }));
     setPlaka(newPlakaEntries);
-  }, [selectedRows]);
+  }, [selectedRows, selectionMode, setPlaka]);
 
   useEffect(() => {
     safeSessionStorage.setItem(visitedRowsSessionKey, Array.from(openedRowIds));
@@ -715,7 +719,8 @@ const Yakit = ({ ayarlarData, customFields }) => {
 
   const rowSelection = {
     type: "checkbox",
-    selectedRowKeys,
+    selectedRowKeys: activeSelectedRowKeys,
+    preserveSelectedRowKeys: selectionMode,
     onChange: onSelectChange,
   };
 
@@ -866,15 +871,18 @@ const Yakit = ({ ayarlarData, customFields }) => {
       width: 120,
       ellipsis: true,
       visible: true,
-      render: (text, record) => (
-        <a
-          onClick={() => {
-            handleVehicleOpen(record);
-          }}
-        >
-          {text}
-        </a>
-      ),
+      render: (text, record) =>
+        selectionMode ? (
+          <span>{text}</span>
+        ) : (
+          <a
+            onClick={() => {
+              handleVehicleOpen(record);
+            }}
+          >
+            {text}
+          </a>
+        ),
       sorter: (a, b) => {
         if (a.plaka === null) return -1;
         if (b.plaka === null) return 1;
@@ -1025,7 +1033,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
       width: 130,
       ellipsis: true,
       visible: true, // Varsayılan olarak açık
-      render: (text, record) => <KmCell record={record} text={text} refreshTableData={refreshTableData} />,
+      render: (text, record) => (selectionMode ? formatNumberWithLocale(text) : <KmCell record={record} text={text} refreshTableData={refreshTableData} />),
       sorter: (a, b) => {
         if (a.guncelKm === null) return -1;
         if (b.guncelKm === null) return 1;
@@ -2411,7 +2419,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
         </div>
       </Modal>
       <FormProvider {...methods}>
-        <VehicleStatisticsCards request={statisticsRequest} />
+        {!selectionMode && <VehicleStatisticsCards request={statisticsRequest} />}
         {/* Toolbar */}
         <div
           style={{
@@ -2435,9 +2443,11 @@ const Yakit = ({ ayarlarData, customFields }) => {
               flexWrap: "wrap",
             }}
           >
-            <StyledButton onClick={() => setIsModalVisible(true)}>
-              <MenuOutlined />
-            </StyledButton>
+            {!selectionMode && (
+              <StyledButton onClick={() => setIsModalVisible(true)}>
+                <MenuOutlined />
+              </StyledButton>
+            )}
             <Input
               style={{ width: "130px" }}
               type="text"
@@ -2449,25 +2459,28 @@ const Yakit = ({ ayarlarData, customFields }) => {
               suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
             />
             <Filters onChange={handleBodyChange} durumValue={selectedDurum} onClearDurum={handleClearDurum} />
+            {selectionMode && <DurumSelect value={selectedDurum} onChange={handleDurumChange} inputWidth="100px" dropdownWidth="250px" />}
             {/* <StyledButton onClick={handleSearch} icon={<SearchOutlined />} /> */}
             {/* Other toolbar components */}
           </div>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <DurumSelect value={selectedDurum} onChange={handleDurumChange} inputWidth="100px" dropdownWidth="250px" />
-            <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
-              İndir
-            </Button>
-            <OperationsInfo ids={keyArray} selectedRowsData={selectedRows} onRefresh={refreshTableData} />
-            <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
-            <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
-          </div>
+          {!selectionMode && (
+            <div style={{ display: "flex", gap: "10px" }}>
+              <DurumSelect value={selectedDurum} onChange={handleDurumChange} inputWidth="100px" dropdownWidth="250px" />
+              <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
+                İndir
+              </Button>
+              <OperationsInfo ids={keyArray} selectedRowsData={selectedRows} onRefresh={refreshTableData} />
+              <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTableData} />
+              <AddModal selectedLokasyonId={selectedRowKeys[0]} onRefresh={refreshTableData} />
+            </div>
+          )}
         </div>
         {/* Table */}
         <div
           style={{
             backgroundColor: "white",
             padding: "10px",
-            height: "calc(100vh - 320px)",
+            height: selectionMode ? "calc(100vh - 500px)" : "calc(100vh - 320px)",
             borderRadius: "8px 8px 8px 8px",
             //
           }}
@@ -2479,8 +2492,8 @@ const Yakit = ({ ayarlarData, customFields }) => {
               columns={filteredColumns}
               dataSource={data}
               pagination={false}
-              rowClassName={(record) => (openedRowIds.has(record.aracId) ? "visited-row" : "")}
-              scroll={{ y: "calc(100vh - 460px)" }}
+              rowClassName={selectionMode ? undefined : (record) => (openedRowIds.has(record.aracId) ? "visited-row" : "")}
+              scroll={{ y: selectionMode ? "calc(100vh - 640px)" : "calc(100vh - 460px)" }}
               onScroll={handleTableScroll}
               footer={tableFooter}
             />
@@ -2488,7 +2501,7 @@ const Yakit = ({ ayarlarData, customFields }) => {
         </div>
       </FormProvider>
       {/* Only render DetailUpdate when we have a selectedVehicleId */}
-      {selectedVehicleId && (
+      {!selectionMode && selectedVehicleId && (
         <DetailUpdate
           isOpen={isDetailModalOpen}
           selectedRows1={selectedRows1}
@@ -2506,6 +2519,14 @@ const Yakit = ({ ayarlarData, customFields }) => {
       )}
     </>
   );
+};
+
+Yakit.propTypes = {
+  ayarlarData: PropTypes.arrayOf(PropTypes.object),
+  customFields: PropTypes.object,
+  selectionMode: PropTypes.bool,
+  selectedRowKeys: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string])),
+  onSelectionChange: PropTypes.func,
 };
 
 export default Yakit;

@@ -83,7 +83,10 @@ const TopluOperasyonModal = ({ open, onClose, onRefresh }) => {
 
   const handleSelectionChange = (keys, rows) => {
     setSelectedRowKeys(keys);
-    setSelectedVehicles(rows);
+    setSelectedVehicles((currentVehicles) => {
+      const vehiclesById = new Map([...currentVehicles, ...rows].map((vehicle) => [vehicle.aracId, vehicle]));
+      return keys.map((key) => vehiclesById.get(key)).filter(Boolean);
+    });
   };
 
   const handleBack = () => {
