@@ -160,19 +160,7 @@ const HareketForm = () => {
             <KodIDSelectbox name1="oprYer" kodID={OPERASYON_YERI_KOD_ID} />
           </FormField>
 
-          <FormField span={6} label={t("tasimaCinsi")}>
-            <KodIDSelectbox name1="tasimaCinsi" kodID={TASIMA_CINSI_KOD_ID} />
-          </FormField>
-          <FormField span={6} label={t("tasimaTuru")}>
-            <KodIDSelectbox name1="tasimaTuru" kodID={TASIMA_TURU_KOD_ID} />
-          </FormField>
-          <FormField span={6} label={t("yuklemeKodu")}>
-            <YuklemeKoduField>
-              <YuklemeKodlariTablo />
-            </YuklemeKoduField>
-          </FormField>
-
-          <FormField span={12} label={t("personel")}>
+          <FormField span={6} label={t("personelTekil")}>
             <PersonelSelectBox
               name1="personelIsim"
               isRequired={false}
@@ -181,6 +169,18 @@ const HareketForm = () => {
                 setValue("personelIsim", personelIsim || null);
               }}
             />
+          </FormField>
+
+          <FormField span={4} label={t("tasimaCinsi")}>
+            <KodIDSelectbox name1="tasimaCinsi" kodID={TASIMA_CINSI_KOD_ID} />
+          </FormField>
+          <FormField span={4} label={t("tasimaTuru")}>
+            <KodIDSelectbox name1="tasimaTuru" kodID={TASIMA_TURU_KOD_ID} />
+          </FormField>
+          <FormField span={4} label={t("yuklemeKodu")}>
+            <YuklemeKoduField>
+              <YuklemeKodlariTablo />
+            </YuklemeKoduField>
           </FormField>
 
           <FormField span={12} label={t("aciklama")}>
