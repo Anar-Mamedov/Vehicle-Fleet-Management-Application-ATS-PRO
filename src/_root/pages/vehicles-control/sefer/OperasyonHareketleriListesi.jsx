@@ -365,7 +365,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
     setDrawer({ visible: true, data: record });
   };
 
-  // Ekleme/güncelleme/silme sonrası Araçlar listesindeki gibi ilk sayfadan yeniden okunur
+  // Ekleme/silme sonrası Araçlar listesindeki gibi ilk sayfadan yeniden okunur
   const refreshTableData = useCallback(() => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
