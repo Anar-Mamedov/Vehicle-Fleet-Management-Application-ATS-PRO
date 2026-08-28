@@ -272,23 +272,24 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
   const searchTermRef = useRef("");
   const filtersRef = useRef(DEFAULT_HAREKET_FILTERS);
   const dataRef = useRef([]);
+  const currentPageRequestRef = useRef({ diff: 0, setPointId: 0, targetPage: 1 });
   // Filtreler hızlı değiştiğinde geç dönen isteğin listeyi ezmemesi için istek sırası tutulur
   const requestIdRef = useRef(0);
 
   // API Data Fetching with diff and setPointId
   const fetchData = useCallback(
-    async (diff, targetPage) => {
+    async (diff, targetPage, setPointIdOverride) => {
       const requestId = requestIdRef.current + 1;
       requestIdRef.current = requestId;
       setLoading(true);
 
       try {
         const currentList = dataRef.current;
-        let currentSetPointId = 0;
+        let currentSetPointId = setPointIdOverride ?? 0;
 
-        if (diff > 0 && currentList.length > 0) {
+        if (setPointIdOverride === undefined && diff > 0 && currentList.length > 0) {
           currentSetPointId = currentList[currentList.length - 1]?.seferOprId || 0;
-        } else if (diff < 0 && currentList.length > 0) {
+        } else if (setPointIdOverride === undefined && diff < 0 && currentList.length > 0) {
           currentSetPointId = currentList[0]?.seferOprId || 0;
         }
 
@@ -301,6 +302,12 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
           hakedisTutar: calculateRecordHakedisTutar(item) ?? item.hakedisTutar ?? 0,
           key: item.seferOprId,
         }));
+
+        currentPageRequestRef.current = {
+          diff,
+          setPointId: currentSetPointId,
+          targetPage,
+        };
 
         dataRef.current = newData;
         setData(newData);
@@ -365,6 +372,13 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
     fetchData(0, 1);
   }, [fetchData]);
 
+  const refreshCurrentPageData = useCallback(() => {
+    setSelectedRowKeys([]);
+    setSelectedRows([]);
+    const { diff, setPointId, targetPage } = currentPageRequestRef.current;
+    return fetchData(diff, targetPage, setPointId);
+  }, [fetchData]);
+
   // Satır menüsünden tek kayıt silme; toolbar'daki toplu silme menüsünden bağımsız çalışır
   const handleDelete = useCallback(
     async (record) => {
@@ -425,14 +439,14 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
 
           if (!isSuccessStatus(hakedisStatusCode)) {
             message.error(hakedisStatusCode === 401 ? t("buIslemiYapmayaYetkinizYok") : t("islemBasarisiz"));
-            await fetchData(0, 1);
+            await refreshCurrentPageData();
             return;
           }
         }
       }
 
       message.success(t("islemBasarili"));
-      await fetchData(0, 1);
+      await refreshCurrentPageData();
     } catch (error) {
       console.error("Error updating row:", error);
       message.error(t("islemBasarisiz"));
@@ -958,7 +972,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
               scroll={{ y: "calc(100vh - 530px)", x: tableScrollX }}
             />
           </Spin>
-          <HareketModal open={drawer.visible} seferOprId={drawer.data?.key} onClose={() => setDrawer({ ...drawer, visible: false })} onRefresh={refreshTableData} />
+          <HareketModal open={drawer.visible} seferOprId={drawer.data?.key} onClose={() => setDrawer({ ...drawer, visible: false })} onRefresh={refreshCurrentPageData} />
         </div>
       </FormProvider>
     </>

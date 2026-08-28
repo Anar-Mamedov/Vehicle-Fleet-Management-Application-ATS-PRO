@@ -246,19 +246,19 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
 
   // API Data Fetching with diff and setPointId
   const fetchData = useCallback(
-    async (diff, targetPage) => {
+    async (diff, targetPage, setPointIdOverride) => {
       const requestId = requestIdRef.current + 1;
       requestIdRef.current = requestId;
       setLoading(true);
 
       try {
         const currentList = dataRef.current;
-        let currentSetPointId = 0;
+        let currentSetPointId = setPointIdOverride ?? 0;
 
-        if (diff > 0) {
+        if (setPointIdOverride === undefined && diff > 0) {
           // Moving forward
           currentSetPointId = currentList[currentList.length - 1]?.siraNo || 0;
-        } else if (diff < 0) {
+        } else if (setPointIdOverride === undefined && diff < 0) {
           // Moving backward
           currentSetPointId = currentList[0]?.siraNo || 0;
         }
@@ -345,8 +345,8 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
   const refreshCurrentPageData = useCallback(() => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
-    const { diff, targetPage } = currentPageRequestRef.current;
-    fetchData(diff, targetPage);
+    const { diff, setPointId, targetPage } = currentPageRequestRef.current;
+    fetchData(diff, targetPage, setPointId);
     triggerStatisticsRefresh();
   }, [fetchData, triggerStatisticsRefresh]);
 
