@@ -15,6 +15,7 @@ import { formatDateByLocale } from "../../../components/FormattedDate";
 import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import { compareDatesForSorter } from "../../../../utils/dateUtils";
 import ExcelExportButton from "../../../components/ExcelExportButton";
+import PageSizeSelect, { getStoredPageSize } from "../../../components/table/PageSizeSelect";
 import {
   DeleteExpeditionOperationItemsService,
   GetExpeditionOperationsListService,
@@ -29,7 +30,7 @@ import { calculateRecordHakedisTutar } from "./hareket/hareketUtils";
 
 const { Text } = Typography;
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE_STORAGE_KEY = "operasyonHareketleriPageSize";
 
 // Excel raporu backend tarafında en fazla 180 günlük aralıkla üretilebiliyor
 const MAX_REPORT_RANGE_DAYS = 180;
@@ -259,6 +260,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [pageSize, setPageSize] = useState(() => getStoredPageSize(PAGE_SIZE_STORAGE_KEY));
   const [drawer, setDrawer] = useState({
     visible: false,
     data: null,
@@ -272,13 +274,14 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
   const searchTermRef = useRef("");
   const filtersRef = useRef(DEFAULT_HAREKET_FILTERS);
   const dataRef = useRef([]);
-  const currentPageRequestRef = useRef({ diff: 0, setPointId: 0, targetPage: 1 });
+  const pageSizeRef = useRef(pageSize);
+  const currentPageRequestRef = useRef({ diff: 0, setPointId: 0, targetPage: 1, pageSize });
   // Filtreler hızlı değiştiğinde geç dönen isteğin listeyi ezmemesi için istek sırası tutulur
   const requestIdRef = useRef(0);
 
   // API Data Fetching with diff and setPointId
   const fetchData = useCallback(
-    async (diff, targetPage, setPointIdOverride) => {
+    async (diff, targetPage, setPointIdOverride, pageSizeOverride = pageSizeRef.current) => {
       const requestId = requestIdRef.current + 1;
       requestIdRef.current = requestId;
       setLoading(true);
@@ -293,7 +296,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
           currentSetPointId = currentList[0]?.seferOprId || 0;
         }
 
-        const response = await GetExpeditionOperationsListService(diff, currentSetPointId, searchTermRef.current, filtersRef.current);
+        const response = await GetExpeditionOperationsListService(diff, currentSetPointId, searchTermRef.current, filtersRef.current, pageSizeOverride);
 
         if (requestId !== requestIdRef.current) return;
 
@@ -307,6 +310,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
           diff,
           setPointId: currentSetPointId,
           targetPage,
+          pageSize: pageSizeOverride,
         };
 
         dataRef.current = newData;
@@ -347,6 +351,13 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
     fetchData(diff, page);
   };
 
+  const handlePageSizeChange = (value) => {
+    localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(value));
+    pageSizeRef.current = value;
+    setPageSize(value);
+    fetchData(0, 1, 0, value);
+  };
+
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
 
@@ -375,8 +386,8 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
   const refreshCurrentPageData = useCallback(() => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
-    const { diff, setPointId, targetPage } = currentPageRequestRef.current;
-    return fetchData(diff, targetPage, setPointId);
+    const { diff, setPointId, targetPage, pageSize: requestPageSize } = currentPageRequestRef.current;
+    return fetchData(diff, targetPage, setPointId, requestPageSize);
   }, [fetchData]);
 
   // Satır menüsünden tek kayıt silme; toolbar'daki toplu silme menüsünden bağımsız çalışır
@@ -814,7 +825,10 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
   const tableFooter = () => (
     <div style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
       <div>{`${t("toplam")}: ${formatNumberWithLocale(totalCount)} | ${t("goruntulenen")}: ${formatNumberWithLocale(data.length)}`}</div>
-      <Pagination simple={{ readOnly: true }} current={currentPage} total={totalCount} pageSize={PAGE_SIZE} onChange={handleTableChange} showSizeChanger={false} size="small" />
+      <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+        <Pagination simple={{ readOnly: true }} current={currentPage} total={totalCount} pageSize={pageSize} onChange={handleTableChange} showSizeChanger={false} size="small" />
+        <PageSizeSelect value={pageSize} onChange={handlePageSizeChange} />
+      </div>
     </div>
   );
 

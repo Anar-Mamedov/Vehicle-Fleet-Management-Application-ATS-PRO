@@ -96,8 +96,8 @@ export const BulkInsertExpeditionsService = async (data) => {
   return await http.post(`/Expeditions/BulkInsertExpeditions`, data);
 };
 
-export const GetExpeditionsListService = async (diff, setPointId, search, filters) => {
-  return await http.post(`/Expeditions/GetExpeditionsList?diff=${diff}&setPointId=${setPointId}&parameter=${encodeURIComponent(search)}`, filters);
+export const GetExpeditionsListService = async (diff, setPointId, search, filters, pageSize) => {
+  return await http.post(`/Expeditions/GetExpeditionsList?diff=${diff}&setPointId=${setPointId}&parameter=${encodeURIComponent(search)}&pageSize=${pageSize}`, filters);
 };
 
 export const GetExpeditionReportService = async (search, filters) => {
@@ -105,8 +105,8 @@ export const GetExpeditionReportService = async (search, filters) => {
 };
 
 // Operasyon hareketleri listesi sekmesi; filtreler POST gövdesinde, sayfalama query'de gider
-export const GetExpeditionOperationsListService = async (diff, setPointId, search, filters) => {
-  return await http.post(`/ExpeditionOpr/GetExpeditionOperationsList?setPointId=${setPointId}&diff=${diff}&parameter=${encodeURIComponent(search)}`, filters);
+export const GetExpeditionOperationsListService = async (diff, setPointId, search, filters, pageSize) => {
+  return await http.post(`/ExpeditionOpr/GetExpeditionOperationsList?setPointId=${setPointId}&diff=${diff}&parameter=${encodeURIComponent(search)}&pageSize=${pageSize}`, filters);
 };
 
 // Excel raporu; tarih aralığı zorunlu ve en fazla 180 gün olabilir

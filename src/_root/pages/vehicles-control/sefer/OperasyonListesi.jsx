@@ -14,6 +14,7 @@ import "./ResizeStyle.css";
 import { formatDateByLocale } from "../../../components/FormattedDate";
 import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import ExcelExportButton from "../../../components/ExcelExportButton";
+import PageSizeSelect, { getStoredPageSize } from "../../../components/table/PageSizeSelect";
 import { GetExpeditionReportService, GetExpeditionsListService } from "../../../../api/services/vehicles/operations_services";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
 import OperasyonFilters, { DEFAULT_OPERASYON_FILTERS } from "./filter/OperasyonFilters";
@@ -22,7 +23,7 @@ import UpdateModal from "./UpdateModal";
 
 const { Text } = Typography;
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE_STORAGE_KEY = "operasyonListesiPageSize";
 
 // Excel raporu backend tarafında en fazla 180 günlük aralıkla üretilebiliyor
 const MAX_REPORT_RANGE_DAYS = 180;
@@ -222,6 +223,7 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [pageSize, setPageSize] = useState(() => getStoredPageSize(PAGE_SIZE_STORAGE_KEY));
   const [drawer, setDrawer] = useState({
     visible: false,
     data: null,
@@ -232,7 +234,8 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
   const searchTermRef = useRef("");
   const filtersRef = useRef(DEFAULT_OPERASYON_FILTERS);
   const dataRef = useRef([]);
-  const currentPageRequestRef = useRef({ diff: 0, setPointId: 0, targetPage: 1 });
+  const pageSizeRef = useRef(pageSize);
+  const currentPageRequestRef = useRef({ diff: 0, setPointId: 0, targetPage: 1, pageSize });
   // Filtreler hızlı değiştiğinde geç dönen isteğin listeyi ezmemesi için istek sırası tutulur
   const requestIdRef = useRef(0);
 
@@ -246,7 +249,7 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
 
   // API Data Fetching with diff and setPointId
   const fetchData = useCallback(
-    async (diff, targetPage, setPointIdOverride) => {
+    async (diff, targetPage, setPointIdOverride, pageSizeOverride = pageSizeRef.current) => {
       const requestId = requestIdRef.current + 1;
       requestIdRef.current = requestId;
       setLoading(true);
@@ -263,7 +266,7 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
           currentSetPointId = currentList[0]?.siraNo || 0;
         }
 
-        const response = await GetExpeditionsListService(diff, currentSetPointId, searchTermRef.current, filtersRef.current);
+        const response = await GetExpeditionsListService(diff, currentSetPointId, searchTermRef.current, filtersRef.current, pageSizeOverride);
 
         if (requestId !== requestIdRef.current) return;
 
@@ -276,6 +279,7 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
           diff,
           setPointId: currentSetPointId,
           targetPage,
+          pageSize: pageSizeOverride,
         };
 
         dataRef.current = newData;
@@ -317,6 +321,13 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
     fetchData(diff, page);
   };
 
+  const handlePageSizeChange = (value) => {
+    localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(value));
+    pageSizeRef.current = value;
+    setPageSize(value);
+    fetchData(0, 1, 0, value);
+  };
+
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
 
@@ -345,8 +356,8 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
   const refreshCurrentPageData = useCallback(() => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
-    const { diff, setPointId, targetPage } = currentPageRequestRef.current;
-    fetchData(diff, targetPage, setPointId);
+    const { diff, setPointId, targetPage, pageSize: requestPageSize } = currentPageRequestRef.current;
+    fetchData(diff, targetPage, setPointId, requestPageSize);
     triggerStatisticsRefresh();
   }, [fetchData, triggerStatisticsRefresh]);
 
@@ -765,7 +776,10 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
   const tableFooter = () => (
     <div style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
       <div>{`${t("toplam")}: ${formatNumberWithLocale(totalCount)} | ${t("goruntulenen")}: ${formatNumberWithLocale(data.length)}`}</div>
-      <Pagination simple={{ readOnly: true }} current={currentPage} total={totalCount} pageSize={PAGE_SIZE} onChange={handleTableChange} showSizeChanger={false} size="small" />
+      <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+        <Pagination simple={{ readOnly: true }} current={currentPage} total={totalCount} pageSize={pageSize} onChange={handleTableChange} showSizeChanger={false} size="small" />
+        <PageSizeSelect value={pageSize} onChange={handlePageSizeChange} />
+      </div>
     </div>
   );
 
