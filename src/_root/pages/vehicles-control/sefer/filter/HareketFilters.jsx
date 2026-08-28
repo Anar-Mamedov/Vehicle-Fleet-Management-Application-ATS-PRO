@@ -5,6 +5,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import KodIDSelectbox from "../../../../components/KodIDSelectbox";
 import FirmaSelectBox from "../../../../components/FirmaSelectBox";
+import GuzergahSelectbox from "../../../../components/GuzergahSelectbox";
 import { DEFAULT_TIME_RANGE, TIME_RANGE_OPTIONS, getDateRange } from "./OperasyonFilters";
 
 // Kod listelerinin backend'deki kod numaraları
@@ -19,6 +20,7 @@ const FIRMA_DROPDOWN_WIDTH = 300;
 export const buildHareketFilters = ({
   timeRange = DEFAULT_TIME_RANGE,
   firmaIds = [],
+  guzergahIds = [],
   seferTipKodIds = [],
   oprTipKodIds = [],
   oprYeriKodIds = [],
@@ -26,6 +28,7 @@ export const buildHareketFilters = ({
   durumKodIds = [],
 } = {}) => ({
   firmaIds,
+  guzergahIds,
   seferTipKodIds,
   oprTipKodIds,
   oprYeriKodIds,
@@ -39,6 +42,7 @@ export const DEFAULT_HAREKET_FILTERS = buildHareketFilters();
 export default function HareketFilters({ onChange }) {
   const [timeRange, setTimeRange] = useState(DEFAULT_TIME_RANGE);
   const [firmaIds, setFirmaIds] = useState([]);
+  const [guzergahIds, setGuzergahIds] = useState([]);
   const [seferTipKodIds, setSeferTipKodIds] = useState([]);
   const [oprTipKodIds, setOprTipKodIds] = useState([]);
   const [oprYeriKodIds, setOprYeriKodIds] = useState([]);
@@ -47,7 +51,7 @@ export default function HareketFilters({ onChange }) {
 
   // Filtreler yalnızca arama düğmesine basıldığında uygulanır
   const handleSearch = () => {
-    onChange(buildHareketFilters({ timeRange, firmaIds, seferTipKodIds, oprTipKodIds, oprYeriKodIds, vardiyaKodIds, durumKodIds }));
+    onChange(buildHareketFilters({ timeRange, firmaIds, guzergahIds, seferTipKodIds, oprTipKodIds, oprYeriKodIds, vardiyaKodIds, durumKodIds }));
   };
 
   return (
@@ -67,6 +71,16 @@ export default function HareketFilters({ onChange }) {
         <ConfigProvider popupMatchSelectWidth={FIRMA_DROPDOWN_WIDTH}>
           <FirmaSelectBox name1="hareketFirmaFiltre" isRequired={false} multiSelect={true} onChange={(value) => setFirmaIds(value || [])} />
         </ConfigProvider>
+      </div>
+      <div style={{ display: "flex", gap: "10px" }}>
+        <GuzergahSelectbox
+          name1="hareketGuzergahFiltre"
+          multiSelect={true}
+          onChange={(value) => setGuzergahIds(value || [])}
+          placeholder={t("guzergah")}
+          inputWidth="100px"
+          dropdownWidth="300px"
+        />
       </div>
       <div style={{ display: "flex", gap: "10px" }}>
         <KodIDSelectbox
