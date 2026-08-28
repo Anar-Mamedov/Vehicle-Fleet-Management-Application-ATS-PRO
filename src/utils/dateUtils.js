@@ -12,6 +12,7 @@ const API_DATE_FORMAT = "YYYY-MM-DD";
 const API_TIME_FORMAT = "HH:mm";
 const API_TIME_WITH_SECONDS_FORMAT = "HH:mm:ss";
 const API_DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
+const DISPLAY_TIME_FORMAT = "HH:mm";
 
 // API'den gelen tarih/saat değerini dayjs nesnesine çevirir (DatePicker/TimePicker'a verilecek değer).
 export const toDayjsOrNull = (value) => {
@@ -39,6 +40,12 @@ export const toTimeDayjsOrNull = (value) => {
 
   const parsedTime = dayjs(value.trim(), [API_TIME_FORMAT, API_TIME_WITH_SECONDS_FORMAT], true);
   return parsedTime.isValid() ? parsedTime : null;
+};
+
+// API'den HH:mm / HH:mm:ss olarak gelen saati ekranda gösterilecek saat formatına çevirir.
+export const formatTimeForDisplay = (value, fallback = "-") => {
+  const parsedTime = toTimeDayjsOrNull(value);
+  return parsedTime ? parsedTime.format(DISPLAY_TIME_FORMAT) : fallback;
 };
 
 // DatePicker değerini API'ye gönderilecek tarih formatına çevirir.

@@ -13,7 +13,7 @@ import { t } from "i18next";
 import "./ResizeStyle.css";
 import { formatDateByLocale } from "../../../components/FormattedDate";
 import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
-import { compareDatesForSorter } from "../../../../utils/dateUtils";
+import { compareDatesForSorter, formatTimeForDisplay } from "../../../../utils/dateUtils";
 import ExcelExportButton from "../../../components/ExcelExportButton";
 import PageSizeSelect, { getStoredPageSize } from "../../../components/table/PageSizeSelect";
 import {
@@ -153,7 +153,7 @@ const formatExcelCellValue = (value, row, column) => {
   }
 
   if (column.key === "gerceklesenSaatExcel") {
-    return formatDateByLocale(value, "HH:mm", "");
+    return formatTimeForDisplay(value, "");
   }
 
   return value ?? "";
@@ -508,13 +508,13 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       // Hücrede tarih ve saat birlikte gösterildiği için Excel'de iki ayrı sütuna açılır
       excelColumns: [
         { title: t("tarih"), dataIndex: "gerceklesenTarih", key: "gerceklesenTarihExcel", width: 130 },
-        { title: t("saat"), dataIndex: "gerceklesenTarih", key: "gerceklesenSaatExcel", width: 100 },
+        { title: t("saat"), dataIndex: "gerceklesenSaat", key: "gerceklesenSaatExcel", width: 100 },
       ],
       sorter: (a, b) => compareDatesForSorter(a.gerceklesenTarih, b.gerceklesenTarih),
-      render: (text) => (
+      render: (text, record) => (
         <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
           <span style={{ ...primaryLineStyle, fontWeight: 600 }}>{formatDateByLocale(text)}</span>
-          <span style={secondaryLineStyle}>{formatDateByLocale(text, "HH:mm", "")}</span>
+          <span style={secondaryLineStyle}>{formatTimeForDisplay(record.gerceklesenSaat, "")}</span>
         </div>
       ),
     },
