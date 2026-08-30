@@ -6,6 +6,7 @@ import { DeleteOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } 
 import { t } from "i18next";
 import { formatDateByLocale } from "../../../../components/FormattedDate";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
+import { formatTimeForDisplay } from "../../../../../utils/dateUtils";
 import { DeleteExpeditionOperationItemsService, GetExpeditionOperationsListByExpIdService } from "../../../../../api/services/vehicles/operations_services";
 import OperasyonOzeti from "../components/OperasyonOzeti";
 import { BORDER_COLOR, cardStyle } from "../components/uiStyles";
@@ -17,6 +18,7 @@ const PAGE_SIZE = 10;
 // Tablo sütunlarını GetExpeditionOperationsListByExpId response alanlarına bağlar
 const FIELDS = {
   tarih: "gerceklesenTarih",
+  saat: "gerceklesenSaat",
   hareketTip: "oprTip",
   firma: "firmaUnvan",
   guzergah: "guzergah",
@@ -180,7 +182,7 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
       render: (value, record) => (
         <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
           <span style={{ ...singleLineStyle, fontWeight: 600 }}>{formatDateByLocale(value)}</span>
-          <span style={{ ...secondaryLineStyle, ...singleLineStyle }}>{formatDateByLocale(record[FIELDS.tarih], "HH:mm", "")}</span>
+          <span style={{ ...secondaryLineStyle, ...singleLineStyle }}>{formatTimeForDisplay(record[FIELDS.saat], "")}</span>
         </div>
       ),
     },
