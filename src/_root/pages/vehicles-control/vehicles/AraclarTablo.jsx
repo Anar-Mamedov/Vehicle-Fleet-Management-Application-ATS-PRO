@@ -2480,7 +2480,10 @@ const Yakit = ({ ayarlarData, customFields = {}, selectionMode = false, selected
           style={{
             backgroundColor: "white",
             padding: "10px",
-            height: selectionMode ? "calc(100vh - 500px)" : "calc(100vh - 320px)",
+            // selectionMode: tablo, toplu operasyon sihirbazinin govdesini tam doldurur (modal maxHeight 100vh-80px,
+            // baslik 91px + alt bar 57px + govde padding 40px + arac filtre bloğu 77px). Kart yuksekligi ile
+            // asagidaki scroll.y birlikte guncellenmelidir (bkz. RULES.md 14).
+            height: selectionMode ? "calc(100vh - 350px)" : "calc(100vh - 320px)",
             borderRadius: "8px 8px 8px 8px",
             //
           }}
@@ -2493,7 +2496,7 @@ const Yakit = ({ ayarlarData, customFields = {}, selectionMode = false, selected
               dataSource={data}
               pagination={false}
               rowClassName={selectionMode ? undefined : (record) => (openedRowIds.has(record.aracId) ? "visited-row" : "")}
-              scroll={{ y: selectionMode ? "calc(100vh - 640px)" : "calc(100vh - 460px)" }}
+              scroll={{ y: selectionMode ? "calc(100vh - 490px)" : "calc(100vh - 460px)" }}
               onScroll={handleTableScroll}
               footer={tableFooter}
             />
