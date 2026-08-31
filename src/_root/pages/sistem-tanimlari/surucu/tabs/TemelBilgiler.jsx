@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { useFormContext } from "react-hook-form";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import { Avatar, Button, Divider, message, Upload } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import ImgCrop from "antd-img-crop";
 import { DownloadPhotoByIdService } from "../../../../../api/services/upload/services";
-import Location from "../../../../components/form/tree/Location";
+import LokasyonTablo from "../../../../components/form/LokasyonTable";
+import ModalInput from "../../../../components/form/inputs/ModalInput";
 import ValidationInput from "../../../../components/form/inputs/ValidationInput";
 import SwitchInput from "../../../../components/form/checkbox/SwitchInput";
 import CodeControl from "../../../../components/form/selects/CodeControl";
@@ -25,6 +27,17 @@ const NO_PHOTOS = [];
 const TemelBilgiler = ({ isValid, setImages, urls = NO_PHOTOS, sonGirisZamani }) => {
   const [fileList, setFileList] = useState([]);
   const [profileImage, setProfileImage] = useState(null);
+  const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
+  const { setValue } = useFormContext();
+
+  const handleLokasyonPlusClick = () => {
+    setIsLokasyonModalOpen(true);
+  };
+
+  const handleLokasyonMinusClick = () => {
+    setValue("lokasyon", null);
+    setValue("lokasyonId", null);
+  };
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -107,7 +120,15 @@ const TemelBilgiler = ({ isValid, setImages, urls = NO_PHOTOS, sonGirisZamani })
             </FormField>
 
             <FormField span={8} label={t("lokasyon")} required>
-              <Location required />
+              <ModalInput name="lokasyon" readonly={true} required onPlusClick={handleLokasyonPlusClick} onMinusClick={handleLokasyonMinusClick} />
+              <LokasyonTablo
+                isModalVisible={isLokasyonModalOpen}
+                setIsModalVisible={setIsLokasyonModalOpen}
+                onSubmit={(selectedData) => {
+                  setValue("lokasyon", selectedData.location);
+                  setValue("lokasyonId", selectedData.key);
+                }}
+              />
             </FormField>
 
             <FormField span={4} label={t("departman")}>
