@@ -1564,7 +1564,6 @@
   "gorevTipi": "Task Type",
   "operasyonAramaPlaceholder": "Search by operation no, plate or driver",
   "raporIcinTarihAraligiSecmelisiniz": "You must select a date range for the report.",
-  "raporTarihAraligiEnFazla180Gun": "The report date range can be at most 6 months (180 days).",
   "dolulukOrani": "Occupancy Rate",
   "toplamHakedisTutar": "Total Progress Payment",
   "vardiya": "Shift",

@@ -8,7 +8,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { Resizable } from "react-resizable";
 import { FormProvider, useForm } from "react-hook-form";
 import styled from "styled-components";
-import dayjs from "dayjs";
 import { t } from "i18next";
 import "./ResizeStyle.css";
 import { formatDateByLocale } from "../../../components/FormattedDate";
@@ -31,9 +30,6 @@ import { calculateRecordHakedisTutar } from "./hareket/hareketUtils";
 const { Text } = Typography;
 
 const PAGE_SIZE_STORAGE_KEY = "operasyonHareketleriPageSize";
-
-// Excel raporu backend tarafında en fazla 180 günlük aralıkla üretilebiliyor
-const MAX_REPORT_RANGE_DAYS = 180;
 
 const SECONDARY_TEXT_COLOR = "#8c8c8c";
 const PRIMARY_TEXT_COLOR = "#141414";
@@ -107,6 +103,13 @@ const isSuccessStatus = (statusCode) => SUCCESS_STATUS_CODES.includes(statusCode
 
 // Kullanıcıya gösterilecek mesajı taşıyan hata; Excel bileşeni bu mesajı olduğu gibi gösterir
 const createUserError = (userMessage) => Object.assign(new Error(userMessage), { userMessage });
+
+// Servis hata mesajı hem gövdeden hem axios hata yanıtından okunur
+const getServiceMessage = (source) => {
+  const serviceMessage = source?.data?.message ?? source?.response?.data?.message;
+
+  return typeof serviceMessage === "string" && serviceMessage.trim() ? serviceMessage : null;
+};
 
 const renderNumber = (value) => formatNumberWithLocale(value ?? 0);
 
@@ -476,7 +479,7 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
     });
   };
 
-  // Excel raporu tarih aralığı zorunlu ve en fazla 180 gün olabilir
+  // Excel raporu tarih aralığı zorunlu; aralık uzunluğu gibi diğer kuralları backend doğrular
   const requestExcelReport = async () => {
     const { baslangicTarih, bitisTarih } = filtersRef.current;
 
@@ -484,14 +487,23 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       throw createUserError(t("raporIcinTarihAraligiSecmelisiniz"));
     }
 
-    if (dayjs(bitisTarih).diff(dayjs(baslangicTarih), "day") > MAX_REPORT_RANGE_DAYS) {
-      throw createUserError(t("raporTarihAraligiEnFazla180Gun"));
+    let response;
+
+    try {
+      response = await GetExpeditionOperationsReportService(searchTermRef.current, filtersRef.current);
+    } catch (error) {
+      // Backend bir kural mesajı döndüyse kullanıcıya o mesaj gösterilir
+      const serviceMessage = getServiceMessage(error);
+
+      if (!serviceMessage) {
+        throw error;
+      }
+
+      throw createUserError(serviceMessage);
     }
 
-    const response = await GetExpeditionOperationsReportService(searchTermRef.current, filtersRef.current);
-
     if (response?.data?.status === false) {
-      throw createUserError(response.data.message);
+      throw createUserError(getServiceMessage(response));
     }
 
     return response;

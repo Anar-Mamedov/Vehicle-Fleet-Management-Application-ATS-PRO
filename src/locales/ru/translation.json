@@ -655,7 +655,6 @@
   "gorevTipi": "Тип Задания",
   "operasyonAramaPlaceholder": "Поиск по номеру операции, госномеру или водителю",
   "raporIcinTarihAraligiSecmelisiniz": "Для отчёта необходимо выбрать период.",
-  "raporTarihAraligiEnFazla180Gun": "Период отчёта не может превышать 6 месяцев (180 дней).",
   "dolulukOrani": "Коэффициент Загрузки",
   "toplamHakedisTutar": "Общая Сумма Вознаграждения",
   "vardiya": "Смена",
