@@ -555,6 +555,16 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       render: renderText,
     },
     {
+      title: t("surucu"),
+      dataIndex: "surucuIsim1",
+      key: "surucuIsim1",
+      width: 180,
+      visible: true,
+      ellipsis: true,
+      sorter: (a, b) => compareText(a.surucuIsim1, b.surucuIsim1),
+      render: renderText,
+    },
+    {
       title: t("hareketTipi"),
       dataIndex: FIELDS.hareketTip,
       key: "oprTip",
@@ -667,6 +677,16 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       ellipsis: true,
       sorter: (a, b) => compareText(a.durum, b.durum),
       render: renderDurum,
+    },
+    {
+      title: t("aciklama"),
+      dataIndex: "aciklama",
+      key: "aciklama",
+      width: 220,
+      visible: true,
+      ellipsis: true,
+      sorter: (a, b) => compareText(a.aciklama, b.aciklama),
+      render: renderText,
     },
   ];
 
