@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Avatar } from "antd";
 import PropTypes from "prop-types";
-import { DownloadPhotoByIdService, GetPhotosByRefGroupService } from "../../../../../api/services/upload/services";
+import { DownloadPhotoByIdService } from "../../../../../api/services/upload/services";
 
-const PHOTO_REF_GROUP = "SURUCU";
 const MAX_CACHED_PHOTOS = 100;
 
-// Sayfalar arasında gezinirken aynı sürücünün fotoğrafı tekrar indirilmesin diye önbellekte tutulur
+// Sayfalar arasında gezinirken aynı fotoğraf tekrar indirilmesin diye resim id'si bazında önbellekte tutulur
 const photoUrlCache = new Map();
 
 const getInitials = (name) => {
@@ -21,20 +20,12 @@ const getInitials = (name) => {
     .toLocaleUpperCase("tr-TR");
 };
 
-const fetchDriverPhotoUrl = async (surucuId) => {
+const fetchPhotoUrl = async (defPhotoInfo) => {
   try {
-    const listResponse = await GetPhotosByRefGroupService(surucuId, PHOTO_REF_GROUP);
-    const photos = Array.isArray(listResponse?.data) ? listResponse.data : [];
-
-    if (photos.length === 0) {
-      return null;
-    }
-
-    const photo = photos.find((item) => item.isDefault) || photos[0];
     const downloadResponse = await DownloadPhotoByIdService({
-      photoId: photo.tbResimId,
-      extension: photo.rsmUzanti,
-      fileName: photo.rsmAd,
+      photoId: defPhotoInfo.tbResimId,
+      extension: defPhotoInfo.rsmUzanti,
+      fileName: defPhotoInfo.rsmAd,
     });
 
     return URL.createObjectURL(downloadResponse.data);
@@ -44,7 +35,7 @@ const fetchDriverPhotoUrl = async (surucuId) => {
 };
 
 // En eski kayıt temizlenerek bellekte biriken blob adresleri sınırlandırılır
-const cachePhotoUrl = (surucuId, urlPromise) => {
+const cachePhotoUrl = (photoId, urlPromise) => {
   if (photoUrlCache.size >= MAX_CACHED_PHOTOS) {
     const oldestId = photoUrlCache.keys().next().value;
     const oldestPromise = photoUrlCache.get(oldestId);
@@ -55,33 +46,41 @@ const cachePhotoUrl = (surucuId, urlPromise) => {
     });
   }
 
-  photoUrlCache.set(surucuId, urlPromise);
+  photoUrlCache.set(photoId, urlPromise);
 };
 
-const getDriverPhotoUrl = (surucuId) => {
-  if (!photoUrlCache.has(surucuId)) {
-    cachePhotoUrl(surucuId, fetchDriverPhotoUrl(surucuId));
+const getPhotoUrl = (defPhotoInfo) => {
+  const photoId = defPhotoInfo.tbResimId;
+
+  if (!photoUrlCache.has(photoId)) {
+    cachePhotoUrl(photoId, fetchPhotoUrl(defPhotoInfo));
   }
 
-  return photoUrlCache.get(surucuId);
+  return photoUrlCache.get(photoId);
 };
 
-const SurucuAvatar = ({ surucuId, isim }) => {
+// Sürücünün varsayılan fotoğrafı liste yanıtındaki `defPhotoInfo` alanından gelir; güncelleme ekranı da
+// aynı alanı kullandığı için iki ekran her zaman aynı resmi gösterir. `tbResimId` 0 ise kayıtlı fotoğraf yoktur.
+const SurucuAvatar = ({ isim, defPhotoInfo }) => {
   const [photoUrl, setPhotoUrl] = useState(null);
+  const photoId = defPhotoInfo?.tbResimId || 0;
 
   useEffect(() => {
     let active = true;
 
-    if (surucuId) {
-      getDriverPhotoUrl(surucuId).then((url) => {
-        if (active) setPhotoUrl(url);
-      });
+    if (!photoId) {
+      setPhotoUrl(null);
+      return undefined;
     }
+
+    getPhotoUrl(defPhotoInfo).then((url) => {
+      if (active) setPhotoUrl(url);
+    });
 
     return () => {
       active = false;
     };
-  }, [surucuId]);
+  }, [photoId, defPhotoInfo]);
 
   // Fotoğrafı olmayan sürücüde isim baş harfleri gösterilir
   return (
@@ -92,8 +91,12 @@ const SurucuAvatar = ({ surucuId, isim }) => {
 };
 
 SurucuAvatar.propTypes = {
-  surucuId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   isim: PropTypes.string,
+  defPhotoInfo: PropTypes.shape({
+    tbResimId: PropTypes.number,
+    rsmUzanti: PropTypes.string,
+    rsmAd: PropTypes.string,
+  }),
 };
 
 export default SurucuAvatar;

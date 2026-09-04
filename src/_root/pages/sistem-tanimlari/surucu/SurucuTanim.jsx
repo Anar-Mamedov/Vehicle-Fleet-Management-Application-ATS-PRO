@@ -345,7 +345,7 @@ const Yakit = () => {
       },
       render: (text, record) => (
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <SurucuAvatar surucuId={record.surucuId} isim={record.isim} />
+          <SurucuAvatar isim={record.isim} defPhotoInfo={record.defPhotoInfo} />
           <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
             <a onClick={() => onRowClick(record)} style={{ ...primaryLineStyle, fontWeight: 600 }}>
               {record.isim}
