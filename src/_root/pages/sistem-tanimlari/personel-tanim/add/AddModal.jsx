@@ -5,11 +5,11 @@ import { PlusOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import { CodeItemValidateService } from "../../../../../api/service";
 import PersonalFields from "../../../../components/form/PersonalFields";
-import GeneralInfo from "./GeneralInfo";
-import Iletisim from "./Iletisim";
+import TemelBilgiler from "../tabs/TemelBilgiler";
+import Iletisim from "../tabs/Iletisim";
+import CalismaVeKademe from "../tabs/CalismaVeKademe";
 import { AddEmployeeService, GetPersonelCodeService } from "../../../../../api/services/personel_services";
-import dayjs from "dayjs";
-import KisiselBilgiler from "./KisiselBilgiler";
+import { formatDateForApi } from "../../../../../utils/dateUtils";
 
 const AddModal = ({ setStatus, onRefresh }) => {
   const [openModal, setopenModal] = useState(false);
@@ -97,6 +97,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
 
   const defaultValues = {
     aktif: true,
+    mobilErisim: false,
   };
   const methods = useForm({
     defaultValues: defaultValues,
@@ -122,38 +123,39 @@ const AddModal = ({ setStatus, onRefresh }) => {
   }, [watch("personelKod")]);
 
   const onSubmit = handleSubmit((values) => {
+    // Gövde AddEmployee sözleşmesiyle birebir; kod listesi id'leri KodIDSelectbox'ın `${name1}ID` alanlarından okunur
     const body = {
       personelKod: values.personelKod,
       isim: values.isim,
-      lokasyonId: values.lokasyonId || -1,
-      unvanKodId: values.unvanKodId || -1,
-      personelTipiKodId: values.personelTipiKodId || -1,
-      departmanKodId: values.departmanKodId || -1,
-      gorevKodId: values.gorevKodId || -1,
-      sskNo: values.sskNo,
-      ehliyet: values.ehliyet,
-      ehliyetSinifi: values.ehliyetSinifi,
-      ehliyetNo: values.ehliyetNo,
-      kanGrubu: values.kanGrubu,
-      dogumTarihi: dayjs(values.dogumTarihi).format("YYYY-MM-DD"),
-      anneAdi: values.anneAdi,
-      babaAdi: values.babaAdi,
-      tcKimlikNo: values.tcKimlikNo,
-      beden: values.beden,
-      ayakKabiNo: values.ayakKabiNo,
+      lokasyonId: values.lokasyonId || 0,
+      unvanKodId: values.unvanID || 0,
+      personelTipiKodId: values.personelTipiID || 0,
+      departmanKodId: values.departmanID || 0,
+      gorevKodId: values.gorevID || 0,
+      uzmanlikAlaniKodId: values.uzmanlikAlaniID || 0,
+      sicilNo: values.sicilNo,
       adres: values.adres,
       il: values.il,
       ilce: values.ilce,
       email: values.email,
-      web: values.web,
       tel1: values.tel1,
       tel2: values.tel2,
-      fax: values.fax,
+      postaKodu: values.postaKodu,
       aciklama: values.aciklama,
       gsm: values.gsm,
       aktif: values.aktif,
-      iseBaslamaTarihi: dayjs(values.iseBaslamaTarihi).format("YYYY-MM-DD"),
-      isetenAyrilmaTarihi: dayjs(values.isetenAyrilmaTarihi).format("YYYY-MM-DD"),
+      iseBaslamaTarihi: formatDateForApi(values.iseBaslamaTarihi),
+      isetenAyrilmaTarihi: formatDateForApi(values.isetenAyrilmaTarihi),
+      acilKisi: values.acilKisi,
+      yakinlik: values.yakinlik,
+      acilDurumTel: values.acilDurumTel,
+      iletisimNotu: values.iletisimNotu,
+      calismaNotu: values.calismaNotu,
+      calismaTipKodId: values.calismaTipiID || 0,
+      vardiyaKodId: values.vardiyaID || 0,
+      iscilikTipKodId: values.iscilikTipiID || 0,
+      saatlikIscilikMaliyeti: values.saatlikIscilikMaliyeti || 0,
+      mobilErisim: values.mobilErisim || false,
       ozelAlan1: values.ozelAlan1 || "",
       ozelAlan2: values.ozelAlan2 || "",
       ozelAlan3: values.ozelAlan3 || "",
@@ -162,8 +164,8 @@ const AddModal = ({ setStatus, onRefresh }) => {
       ozelAlan6: values.ozelAlan6 || "",
       ozelAlan7: values.ozelAlan7 || "",
       ozelAlan8: values.ozelAlan8 || "",
-      ozelAlanKodId9: values.ozelAlanKodId9 || -1,
-      ozelAlanKodId10: values.ozelAlanKodId10 || -1,
+      ozelAlanKodId9: values.ozelAlanKodId9 || 0,
+      ozelAlanKodId10: values.ozelAlanKodId10 || 0,
       ozelAlan11: values.ozelAlan11 || 0,
       ozelAlan12: values.ozelAlan12 || 0,
     };
@@ -187,8 +189,9 @@ const AddModal = ({ setStatus, onRefresh }) => {
   const items = [
     {
       key: "1",
-      label: t("genelBilgiler"),
-      children: <GeneralInfo isValid={isValid} />,
+      label: t("temelBilgiler"),
+      // Fotoğraf ancak kayıtlı personele yüklenebildiği için `setImages` verilmez; sekme yükleme alanını gizler
+      children: <TemelBilgiler isValid={isValid} />,
     },
     {
       key: "2",
@@ -197,8 +200,8 @@ const AddModal = ({ setStatus, onRefresh }) => {
     },
     {
       key: "3",
-      label: t("kisiselBilgiler"),
-      children: <KisiselBilgiler />,
+      label: t("calismaVeKademe"),
+      children: <CalismaVeKademe />,
     },
     {
       key: "4",
