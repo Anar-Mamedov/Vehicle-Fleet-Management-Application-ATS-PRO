@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Avatar } from "antd";
 import PropTypes from "prop-types";
-import { DownloadPhotoByIdService, GetPhotosByRefGroupService } from "../../../../../api/services/upload/services";
+import { DownloadPhotoByIdService } from "../../../../../api/services/upload/services";
 
-const PHOTO_REF_GROUP = "PERSONEL";
 const MAX_CACHED_PHOTOS = 100;
 
-// Sayfalar arasında gezinirken aynı personelin fotoğrafı tekrar indirilmesin diye önbellekte tutulur
+// Sayfalar arasında gezinirken aynı fotoğraf tekrar indirilmesin diye resim id'si bazında önbellekte tutulur
 const photoUrlCache = new Map();
 
 const getInitials = (name) => {
@@ -21,20 +20,12 @@ const getInitials = (name) => {
     .toLocaleUpperCase("tr-TR");
 };
 
-const fetchEmployeePhotoUrl = async (personelId) => {
+const fetchPhotoUrl = async (defPhotoInfo) => {
   try {
-    const listResponse = await GetPhotosByRefGroupService(personelId, PHOTO_REF_GROUP);
-    const photos = Array.isArray(listResponse?.data) ? listResponse.data : [];
-
-    if (photos.length === 0) {
-      return null;
-    }
-
-    const photo = photos.find((item) => item.isDefault) || photos[0];
     const downloadResponse = await DownloadPhotoByIdService({
-      photoId: photo.tbResimId,
-      extension: photo.rsmUzanti,
-      fileName: photo.rsmAd,
+      photoId: defPhotoInfo.tbResimId,
+      extension: defPhotoInfo.rsmUzanti,
+      fileName: defPhotoInfo.rsmAd,
     });
 
     return URL.createObjectURL(downloadResponse.data);
@@ -44,7 +35,7 @@ const fetchEmployeePhotoUrl = async (personelId) => {
 };
 
 // En eski kayıt temizlenerek bellekte biriken blob adresleri sınırlandırılır
-const cachePhotoUrl = (personelId, urlPromise) => {
+const cachePhotoUrl = (photoId, urlPromise) => {
   if (photoUrlCache.size >= MAX_CACHED_PHOTOS) {
     const oldestId = photoUrlCache.keys().next().value;
     const oldestPromise = photoUrlCache.get(oldestId);
@@ -55,33 +46,41 @@ const cachePhotoUrl = (personelId, urlPromise) => {
     });
   }
 
-  photoUrlCache.set(personelId, urlPromise);
+  photoUrlCache.set(photoId, urlPromise);
 };
 
-const getEmployeePhotoUrl = (personelId) => {
-  if (!photoUrlCache.has(personelId)) {
-    cachePhotoUrl(personelId, fetchEmployeePhotoUrl(personelId));
+const getPhotoUrl = (defPhotoInfo) => {
+  const photoId = defPhotoInfo.tbResimId;
+
+  if (!photoUrlCache.has(photoId)) {
+    cachePhotoUrl(photoId, fetchPhotoUrl(defPhotoInfo));
   }
 
-  return photoUrlCache.get(personelId);
+  return photoUrlCache.get(photoId);
 };
 
-const PersonelAvatar = ({ personelId, isim }) => {
+// Personelin varsayılan fotoğrafı liste yanıtındaki `defPhotoInfo` alanından gelir; güncelleme ekranı da
+// aynı alanı kullandığı için iki ekran her zaman aynı resmi gösterir. `tbResimId` 0 ise kayıtlı fotoğraf yoktur.
+const PersonelAvatar = ({ isim, defPhotoInfo }) => {
   const [photoUrl, setPhotoUrl] = useState(null);
+  const photoId = defPhotoInfo?.tbResimId || 0;
 
   useEffect(() => {
     let active = true;
 
-    if (personelId) {
-      getEmployeePhotoUrl(personelId).then((url) => {
-        if (active) setPhotoUrl(url);
-      });
+    if (!photoId) {
+      setPhotoUrl(null);
+      return undefined;
     }
+
+    getPhotoUrl(defPhotoInfo).then((url) => {
+      if (active) setPhotoUrl(url);
+    });
 
     return () => {
       active = false;
     };
-  }, [personelId]);
+  }, [photoId, defPhotoInfo]);
 
   // Fotoğrafı olmayan personelde isim baş harfleri gösterilir
   return (
@@ -92,8 +91,12 @@ const PersonelAvatar = ({ personelId, isim }) => {
 };
 
 PersonelAvatar.propTypes = {
-  personelId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   isim: PropTypes.string,
+  defPhotoInfo: PropTypes.shape({
+    tbResimId: PropTypes.number,
+    rsmUzanti: PropTypes.string,
+    rsmAd: PropTypes.string,
+  }),
 };
 
 export default PersonelAvatar;

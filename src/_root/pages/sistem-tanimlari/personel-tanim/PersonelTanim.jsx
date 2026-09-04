@@ -336,7 +336,7 @@ const PersonelTanim = () => {
 
         return (
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <PersonelAvatar personelId={record.personelId} isim={record.isim} />
+            <PersonelAvatar isim={record.isim} defPhotoInfo={record.defPhotoInfo} />
             <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
               <a onClick={() => onRowClick(record)} style={{ ...primaryLineStyle, fontWeight: 600 }}>
                 {record.isim}
