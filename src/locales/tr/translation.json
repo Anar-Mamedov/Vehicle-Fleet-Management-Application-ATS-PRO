@@ -1890,5 +1890,15 @@
   "secilenAraclar": "Seçilen Araçlar",
   "onizlemeAdimiAciklama": "Oluşturulacak kayıtları kontrol edin.",
   "olusturAdimiAciklama": "Aşağıdaki kayıtlar oluşturulacaktır. Onaylamak için Oluştur düğmesine basın.",
-  "operasyonTakibi": "Operasyon Takibi"
+  "operasyonTakibi": "Operasyon Takibi",
+  "sicilNo": "Sicil No",
+  "personelListesi": "Personel Listesi",
+  "personelAramaPlaceholder": "Personel adı, kodu, sicil, telefon veya e-posta ile ara",
+  "tumPersonelTipleri": "Tüm Personel Tipleri",
+  "toplamPersonel": "Toplam Personel",
+  "listelenenToplamPersonelKaydi": "Listelenen toplam personel kaydı",
+  "aktifPersonel": "Aktif Personel",
+  "sistemdeAktifOlanPersonelKayitlari": "Sistemde aktif olan personel kayıtları",
+  "mobilErisimiAcikPersonelOrani": "Mobil erişimi açık personel oranı",
+  "kademeGorev": "Kademe / Görev"
 }

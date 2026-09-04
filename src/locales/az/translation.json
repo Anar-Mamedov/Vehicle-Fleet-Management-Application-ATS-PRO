@@ -1193,5 +1193,15 @@
   "secilenAraclar": "Seçilmiş Nəqliyyat Vasitələri",
   "onizlemeAdimiAciklama": "Yaradılacaq qeydləri yoxlayın.",
   "olusturAdimiAciklama": "Aşağıdakı qeydlər yaradılacaq. Təsdiqləmək üçün Yarat düyməsinə basın.",
-  "operasyonTakibi": "Əməliyyat İzləmə"
+  "operasyonTakibi": "Əməliyyat İzləmə",
+  "sicilNo": "Sicil Nömrəsi",
+  "personelListesi": "Personal Siyahısı",
+  "personelAramaPlaceholder": "Personal adı, kodu, sicili, telefonu və ya e-poçtu ilə axtar",
+  "tumPersonelTipleri": "Bütün Personal Tipləri",
+  "toplamPersonel": "Ümumi Personal",
+  "listelenenToplamPersonelKaydi": "Siyahıdakı ümumi personal qeydi",
+  "aktifPersonel": "Aktiv Personal",
+  "sistemdeAktifOlanPersonelKayitlari": "Sistemdə aktiv olan personal qeydləri",
+  "mobilErisimiAcikPersonelOrani": "Mobil girişi açıq olan personal nisbəti",
+  "kademeGorev": "Kadr / Vəzifə"
 }

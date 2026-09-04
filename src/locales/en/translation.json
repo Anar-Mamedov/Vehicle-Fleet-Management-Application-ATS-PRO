@@ -1647,5 +1647,15 @@
   "secilenAraclar": "Selected Vehicles",
   "onizlemeAdimiAciklama": "Review the records that will be created.",
   "olusturAdimiAciklama": "The records below will be created. Press Create to confirm.",
-  "operasyonTakibi": "Operation Tracking"
+  "operasyonTakibi": "Operation Tracking",
+  "sicilNo": "Registry No",
+  "personelListesi": "Personnel List",
+  "personelAramaPlaceholder": "Search by personnel name, code, registry no, phone or e-mail",
+  "tumPersonelTipleri": "All Personnel Types",
+  "toplamPersonel": "Total Personnel",
+  "listelenenToplamPersonelKaydi": "Total listed personnel records",
+  "aktifPersonel": "Active Personnel",
+  "sistemdeAktifOlanPersonelKayitlari": "Personnel records active in the system",
+  "mobilErisimiAcikPersonelOrani": "Rate of personnel with mobile access enabled",
+  "kademeGorev": "Grade / Duty"
 }

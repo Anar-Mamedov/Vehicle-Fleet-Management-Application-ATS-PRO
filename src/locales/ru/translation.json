@@ -746,5 +746,16 @@
   "secilenAraclar": "Выбранные Транспортные Средства",
   "onizlemeAdimiAciklama": "Проверьте записи, которые будут созданы.",
   "olusturAdimiAciklama": "Будут созданы указанные ниже записи. Нажмите «Создать» для подтверждения.",
-  "operasyonTakibi": "Отслеживание Операций"
+  "operasyonTakibi": "Отслеживание Операций",
+  "toplam": "Всего",
+  "sicilNo": "Табельный номер",
+  "personelListesi": "Список сотрудников",
+  "personelAramaPlaceholder": "Поиск по имени, коду, табельному номеру, телефону или эл. почте",
+  "tumPersonelTipleri": "Все типы сотрудников",
+  "toplamPersonel": "Всего сотрудников",
+  "listelenenToplamPersonelKaydi": "Всего отображаемых записей сотрудников",
+  "aktifPersonel": "Активные сотрудники",
+  "sistemdeAktifOlanPersonelKayitlari": "Записи сотрудников, активных в системе",
+  "mobilErisimiAcikPersonelOrani": "Доля сотрудников с активным мобильным доступом",
+  "kademeGorev": "Разряд / Должность"
 }
