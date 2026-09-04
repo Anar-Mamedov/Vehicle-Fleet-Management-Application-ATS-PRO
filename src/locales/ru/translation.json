@@ -780,5 +780,6 @@
   "vardiyaCalismaGrubu": "Смена / рабочая группа",
   "iscilikTipi": "Тип работ",
   "saatlikIscilikMaliyeti": "Стоимость работ за час",
-  "calismaNotu": "Примечание к работе"
+  "calismaNotu": "Примечание к работе",
+  "donem": "Период"
 }

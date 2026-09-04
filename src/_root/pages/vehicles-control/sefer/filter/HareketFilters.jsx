@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Button, ConfigProvider, Select } from "antd";
+import { Button, ConfigProvider } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import KodIDSelectbox from "../../../../components/KodIDSelectbox";
 import FirmaSelectBox from "../../../../components/FirmaSelectBox";
 import GuzergahSelectbox from "../../../../components/GuzergahSelectbox";
-import { DEFAULT_TIME_RANGE, TIME_RANGE_OPTIONS, getDateRange } from "./OperasyonFilters";
+import TarihAraligiFiltre, { DEFAULT_TIME_RANGE, getDateRange } from "./TarihAraligiFiltre";
 
 // Kod listelerinin backend'deki kod numaraları
 const SEFER_TIP_KOD_ID = 120;
@@ -19,6 +19,7 @@ const FIRMA_DROPDOWN_WIDTH = 300;
 // Liste ve Excel istekleri aynı gövdeyi kullanır
 export const buildHareketFilters = ({
   timeRange = DEFAULT_TIME_RANGE,
+  customRange = null,
   firmaIds = [],
   guzergahIds = [],
   seferTipKodIds = [],
@@ -34,13 +35,14 @@ export const buildHareketFilters = ({
   oprYeriKodIds,
   vardiyaKodIds,
   durumKodIds,
-  ...getDateRange(timeRange),
+  ...getDateRange(timeRange, customRange),
 });
 
 export const DEFAULT_HAREKET_FILTERS = buildHareketFilters();
 
 export default function HareketFilters({ onChange }) {
   const [timeRange, setTimeRange] = useState(DEFAULT_TIME_RANGE);
+  const [customRange, setCustomRange] = useState(null);
   const [firmaIds, setFirmaIds] = useState([]);
   const [guzergahIds, setGuzergahIds] = useState([]);
   const [seferTipKodIds, setSeferTipKodIds] = useState([]);
@@ -51,21 +53,17 @@ export default function HareketFilters({ onChange }) {
 
   // Filtreler yalnızca arama düğmesine basıldığında uygulanır
   const handleSearch = () => {
-    onChange(buildHareketFilters({ timeRange, firmaIds, guzergahIds, seferTipKodIds, oprTipKodIds, oprYeriKodIds, vardiyaKodIds, durumKodIds }));
+    onChange(buildHareketFilters({ timeRange, customRange, firmaIds, guzergahIds, seferTipKodIds, oprTipKodIds, oprYeriKodIds, vardiyaKodIds, durumKodIds }));
+  };
+
+  const handleTarihAraligiChange = ({ timeRange: nextTimeRange, customRange: nextCustomRange }) => {
+    setTimeRange(nextTimeRange);
+    setCustomRange(nextCustomRange);
   };
 
   return (
     <>
-      <div style={{ display: "flex", gap: "10px" }}>
-        <Select
-          value={timeRange}
-          onChange={setTimeRange}
-          options={TIME_RANGE_OPTIONS.map(({ value, labelKey }) => ({ value, label: t(labelKey) }))}
-          style={{ width: "120px" }}
-          dropdownStyle={{ width: "150px" }}
-          popupMatchSelectWidth={false}
-        />
-      </div>
+      <TarihAraligiFiltre timeRange={timeRange} customRange={customRange} onChange={handleTarihAraligiChange} />
       {/* Input kompakt kalırken yalnızca bu firma filtresinin açılır listesi bağımsız genişlik kullanır */}
       <div style={{ display: "flex", gap: "10px", width: "100px" }}>
         <ConfigProvider popupMatchSelectWidth={FIRMA_DROPDOWN_WIDTH}>

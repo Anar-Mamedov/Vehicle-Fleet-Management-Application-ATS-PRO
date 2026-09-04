@@ -1672,5 +1672,6 @@
   "vardiyaCalismaGrubu": "Shift / Work Group",
   "iscilikTipi": "Labour Type",
   "saatlikIscilikMaliyeti": "Hourly Labour Cost",
-  "calismaNotu": "Work Note"
+  "calismaNotu": "Work Note",
+  "donem": "Period"
 }

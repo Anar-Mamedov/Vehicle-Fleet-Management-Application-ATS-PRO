@@ -1222,5 +1222,6 @@
   "vardiyaCalismaGrubu": "Növbə / İş Qrupu",
   "iscilikTipi": "İşçilik Tipi",
   "saatlikIscilikMaliyeti": "Saatlıq İşçilik Xərci",
-  "calismaNotu": "İş Qeydi"
+  "calismaNotu": "İş Qeydi",
+  "donem": "Dövr"
 }
