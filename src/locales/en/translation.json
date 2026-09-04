@@ -1665,5 +1665,12 @@
   "alternatifTelefon": "Alternative Phone",
   "dahiliNo": "Extension No",
   "yakinlik": "Relationship",
-  "iletisimNotu": "Contact Note"
+  "iletisimNotu": "Contact Note",
+  "calismaVeKademe": "Work & Grade",
+  "istenAyrilmaTarihi": "Termination Date",
+  "calismaTipi": "Work Type",
+  "vardiyaCalismaGrubu": "Shift / Work Group",
+  "iscilikTipi": "Labour Type",
+  "saatlikIscilikMaliyeti": "Hourly Labour Cost",
+  "calismaNotu": "Work Note"
 }

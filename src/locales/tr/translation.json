@@ -1908,5 +1908,12 @@
   "alternatifTelefon": "Alternatif Telefon",
   "dahiliNo": "Dahili No",
   "yakinlik": "Yakınlık",
-  "iletisimNotu": "İletişim Notu"
+  "iletisimNotu": "İletişim Notu",
+  "calismaVeKademe": "Çalışma & Kademe",
+  "istenAyrilmaTarihi": "İşten Ayrılma Tarihi",
+  "calismaTipi": "Çalışma Tipi",
+  "vardiyaCalismaGrubu": "Vardiya / Çalışma Grubu",
+  "iscilikTipi": "İşçilik Tipi",
+  "saatlikIscilikMaliyeti": "Saatlik İşçilik Maliyeti",
+  "calismaNotu": "Çalışma Notu"
 }

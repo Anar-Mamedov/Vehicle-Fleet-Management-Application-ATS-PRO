@@ -773,5 +773,12 @@
   "adres": "Адрес",
   "il": "Область",
   "ilce": "Район",
-  "postaKodu": "Почтовый индекс"
+  "postaKodu": "Почтовый индекс",
+  "calismaVeKademe": "Работа и разряд",
+  "istenAyrilmaTarihi": "Дата увольнения",
+  "calismaTipi": "Тип работы",
+  "vardiyaCalismaGrubu": "Смена / рабочая группа",
+  "iscilikTipi": "Тип работ",
+  "saatlikIscilikMaliyeti": "Стоимость работ за час",
+  "calismaNotu": "Примечание к работе"
 }

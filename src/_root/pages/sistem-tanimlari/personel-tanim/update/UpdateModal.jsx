@@ -10,7 +10,7 @@ import Iletisim from "../tabs/Iletisim";
 import PersonalFields from "../../../../components/form/PersonalFields";
 import { GetEmployeeByIdService, UpdateEmployeeService } from "../../../../../api/services/personel_services";
 import dayjs from "dayjs";
-import KisiselBilgiler from "../add/KisiselBilgiler";
+import CalismaVeKademe from "../tabs/CalismaVeKademe";
 import { uploadPhoto } from "../../../../../utils/upload";
 import DosyaUpload from "../../../../components/Dosya/DosyaUpload";
 
@@ -177,6 +177,14 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("web", res.data.web);
         setValue("iseBaslamaTarihi", getValidDate(res.data.iseBaslamaTarihi));
         setValue("isetenAyrilmaTarihi", getValidDate(res.data.isetenAyrilmaTarihi));
+        setValue("calismaTipi", toNullable(res.data.calismaTipi));
+        setValue("calismaTipiID", toNullableId(res.data.calismaTipKodId));
+        setValue("vardiya", toNullable(res.data.vardiya));
+        setValue("vardiyaID", toNullableId(res.data.vardiyaKodId));
+        setValue("iscilikTipi", toNullable(res.data.iscilikTipi));
+        setValue("iscilikTipiID", toNullableId(res.data.iscilikTipKodId));
+        setValue("saatlikIscilikMaliyeti", res.data.saatlikIscilikMaliyeti);
+        setValue("calismaNotu", res.data.calismaNotu);
         setValue("aktif", res.data.aktif);
         setPersonelId(res.data.personelId);
         setValue("ozelAlan1", res?.data.ozelAlan1);
@@ -241,6 +249,11 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       aktif: values.aktif,
       iseBaslamaTarihi: formatDateForApi(values.iseBaslamaTarihi),
       isetenAyrilmaTarihi: formatDateForApi(values.isetenAyrilmaTarihi),
+      calismaTipKodId: values.calismaTipiID || 0,
+      vardiyaKodId: values.vardiyaID || 0,
+      iscilikTipKodId: values.iscilikTipiID || 0,
+      saatlikIscilikMaliyeti: values.saatlikIscilikMaliyeti || 0,
+      calismaNotu: values.calismaNotu,
       ozelAlan1: values.ozelAlan1 || "",
       ozelAlan2: values.ozelAlan2 || "",
       ozelAlan3: values.ozelAlan3 || "",
@@ -287,8 +300,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
     },
     {
       key: "3",
-      label: t("KisiselBilgiler"),
-      children: <KisiselBilgiler />,
+      label: t("calismaVeKademe"),
+      children: <CalismaVeKademe />,
     },
     {
       key: "4",

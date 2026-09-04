@@ -1215,5 +1215,12 @@
   "dahiliNo": "Daxili Nömrə",
   "yakinlik": "Qohumluq",
   "iletisimNotu": "Əlaqə Qeydi",
-  "postaKodu": "Poçt Kodu"
+  "postaKodu": "Poçt Kodu",
+  "calismaVeKademe": "İş & Kadr",
+  "istenAyrilmaTarihi": "İşdən Ayrılma Tarixi",
+  "calismaTipi": "İş Tipi",
+  "vardiyaCalismaGrubu": "Növbə / İş Qrupu",
+  "iscilikTipi": "İşçilik Tipi",
+  "saatlikIscilikMaliyeti": "Saatlıq İşçilik Xərci",
+  "calismaNotu": "İş Qeydi"
 }
