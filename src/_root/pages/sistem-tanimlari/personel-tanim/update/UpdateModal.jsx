@@ -6,7 +6,7 @@ import { Button, Modal, Tabs } from "antd";
 import { CodeItemValidateService } from "../../../../../api/service";
 import TemelBilgiler from "../tabs/TemelBilgiler";
 import { hintStyle } from "../components/uiStyles";
-import Iletisim from "./Iletisim";
+import Iletisim from "../tabs/Iletisim";
 import PersonalFields from "../../../../components/form/PersonalFields";
 import { GetEmployeeByIdService, UpdateEmployeeService } from "../../../../../api/services/personel_services";
 import dayjs from "dayjs";
@@ -167,6 +167,11 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("tel1", res.data.tel1);
         setValue("tel2", res.data.tel2);
         setValue("gsm", res.data.gsm);
+        setValue("postaKodu", res.data.postaKodu);
+        setValue("acilKisi", res.data.acilKisi);
+        setValue("yakinlik", res.data.yakinlik);
+        setValue("acilDurumTel", res.data.acilDurumTel);
+        setValue("iletisimNotu", res.data.iletisimNotu);
         setValue("fax", res.data.fax);
         setValue("email", res.data.email);
         setValue("web", res.data.web);
@@ -225,6 +230,11 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       web: values.web,
       tel1: values.tel1,
       tel2: values.tel2,
+      postaKodu: values.postaKodu,
+      acilKisi: values.acilKisi,
+      yakinlik: values.yakinlik,
+      acilDurumTel: values.acilDurumTel,
+      iletisimNotu: values.iletisimNotu,
       fax: values.fax,
       aciklama: values.aciklama,
       gsm: values.gsm,

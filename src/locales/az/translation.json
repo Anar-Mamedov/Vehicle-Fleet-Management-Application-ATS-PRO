@@ -1210,5 +1210,10 @@
   "sadeceJpgPngYuklenebilir": "Yalnız JPG və ya PNG faylı yükləyə bilərsiniz.",
   "personelKod": "Personal Kodu",
   "personelIsmi": "Personal Adı",
-  "personelTipi": "Personal Tipi"
+  "personelTipi": "Personal Tipi",
+  "alternatifTelefon": "Alternativ Telefon",
+  "dahiliNo": "Daxili Nömrə",
+  "yakinlik": "Qohumluq",
+  "iletisimNotu": "Əlaqə Qeydi",
+  "postaKodu": "Poçt Kodu"
 }

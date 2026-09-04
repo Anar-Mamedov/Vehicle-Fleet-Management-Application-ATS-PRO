@@ -1904,5 +1904,9 @@
   "uzmanlikAlani": "Uzmanlık Alanı",
   "personelKartiGuncellemeEkrani": "Personel Kartı - Güncelleme Ekranı",
   "personelAciklamaPlaceholder": "Personel ile ilgili kısa açıklama",
-  "sadeceJpgPngYuklenebilir": "Yalnızca JPG veya PNG dosyası yükleyebilirsiniz."
+  "sadeceJpgPngYuklenebilir": "Yalnızca JPG veya PNG dosyası yükleyebilirsiniz.",
+  "alternatifTelefon": "Alternatif Telefon",
+  "dahiliNo": "Dahili No",
+  "yakinlik": "Yakınlık",
+  "iletisimNotu": "İletişim Notu"
 }

@@ -765,5 +765,13 @@
   "personelKod": "Код сотрудника",
   "personelIsmi": "Имя сотрудника",
   "personelTipi": "Тип сотрудника",
-  "iseBaslamaTarihi": "Дата приёма на работу"
+  "iseBaslamaTarihi": "Дата приёма на работу",
+  "alternatifTelefon": "Дополнительный телефон",
+  "dahiliNo": "Добавочный номер",
+  "yakinlik": "Степень родства",
+  "iletisimNotu": "Примечание к контактам",
+  "adres": "Адрес",
+  "il": "Область",
+  "ilce": "Район",
+  "postaKodu": "Почтовый индекс"
 }

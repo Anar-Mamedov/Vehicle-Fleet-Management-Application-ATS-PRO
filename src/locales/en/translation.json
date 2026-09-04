@@ -1661,5 +1661,9 @@
   "uzmanlikAlani": "Area of Expertise",
   "personelKartiGuncellemeEkrani": "Personnel Card - Update Screen",
   "personelAciklamaPlaceholder": "Short note about the personnel",
-  "sadeceJpgPngYuklenebilir": "You can only upload a JPG or PNG file."
+  "sadeceJpgPngYuklenebilir": "You can only upload a JPG or PNG file.",
+  "alternatifTelefon": "Alternative Phone",
+  "dahiliNo": "Extension No",
+  "yakinlik": "Relationship",
+  "iletisimNotu": "Contact Note"
 }
