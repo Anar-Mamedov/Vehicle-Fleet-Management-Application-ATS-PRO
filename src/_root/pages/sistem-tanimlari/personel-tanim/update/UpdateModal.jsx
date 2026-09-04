@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 import { t } from "i18next";
 import { Button, Modal, Tabs } from "antd";
 import { CodeItemValidateService } from "../../../../../api/service";
-import GeneralInfo from "./GeneralInfo";
+import TemelBilgiler from "../tabs/TemelBilgiler";
+import { hintStyle } from "../components/uiStyles";
 import Iletisim from "./Iletisim";
 import PersonalFields from "../../../../components/form/PersonalFields";
 import { GetEmployeeByIdService, UpdateEmployeeService } from "../../../../../api/services/personel_services";
@@ -21,6 +22,10 @@ const getValidDate = (value) => {
 };
 
 const formatDateForApi = (value) => getValidDate(value)?.format("YYYY-MM-DD") ?? null;
+
+// Servis boş metin ve 0 döndürdüğünde placeholder kaybolmasın diye form alanlarına null yazılır
+const toNullable = (value) => (value === "" || value === undefined ? null : value);
+const toNullableId = (value) => (value === 0 || value === "" || value === undefined ? null : value);
 
 const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const [isValid, setIsValid] = useState("normal");
@@ -130,16 +135,21 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       GetEmployeeByIdService(selectedRow?.key).then((res) => {
         setValue("personelKod", res.data.personelKod);
         setValue("isim", res.data.isim);
-        setValue("lokasyonId", res.data.lokasyonId);
-        setValue("lokasyon", res.data.lokasyon);
-        setValue("unvanKodId", res.data.unvanKodId);
-        setValue("unvan", res.data.unvan);
-        setValue("personelTipiKodId", res.data.personelTipiKodId);
-        setValue("personelTipi", res.data.personelTipi);
-        setValue("departmanKodId", res.data.departmanKodId);
-        setValue("departman", res.data.departman);
-        setValue("gorevKodId", res.data.gorevKodId);
-        setValue("gorev", res.data.gorev);
+        setValue("lokasyonId", toNullableId(res.data.lokasyonId));
+        setValue("lokasyon", toNullable(res.data.lokasyon));
+        // KodIDSelectbox etiketi `name1`, id'yi `${name1}ID` alanına yazar; servis alan adları burada eşlenir
+        setValue("unvan", toNullable(res.data.unvan));
+        setValue("unvanID", toNullableId(res.data.unvanKodId));
+        setValue("personelTipi", toNullable(res.data.personelTipi));
+        setValue("personelTipiID", toNullableId(res.data.personelTipiKodId));
+        setValue("departman", toNullable(res.data.departman));
+        setValue("departmanID", toNullableId(res.data.departmanKodId));
+        setValue("gorev", toNullable(res.data.gorev));
+        setValue("gorevID", toNullableId(res.data.gorevKodId));
+        setValue("uzmanlikAlani", toNullable(res.data.uzmanlikAlani));
+        setValue("uzmanlikAlaniID", toNullableId(res.data.uzmanlikAlaniKodId));
+        setValue("sicilNo", toNullable(res.data.sicilNo));
+        setValue("mobilErisim", res.data.mobilErisim);
         setValue("sskNo", res.data.sskNo);
         setValue("ehliyet", res.data.ehliyet);
         setValue("ehliyetSinifi", res.data.ehliyetSinifi);
@@ -189,11 +199,14 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
       personelId: personelId,
       personelKod: values.personelKod,
       isim: values.isim,
-      lokasyonId: values.lokasyonId || -1,
-      unvanKodId: values.unvanKodId || -1,
-      personelTipiKodId: values.personelTipiKodId || -1,
-      departmanKodId: values.departmanKodId || -1,
-      gorevKodId: values.gorevKodId || -1,
+      lokasyonId: values.lokasyonId || 0,
+      unvanKodId: values.unvanID || 0,
+      personelTipiKodId: values.personelTipiID || 0,
+      departmanKodId: values.departmanID || 0,
+      gorevKodId: values.gorevID || 0,
+      uzmanlikAlaniKodId: values.uzmanlikAlaniID || 0,
+      sicilNo: values.sicilNo || "",
+      mobilErisim: values.mobilErisim || false,
       sskNo: values.sskNo,
       ehliyet: values.ehliyet,
       ehliyetSinifi: values.ehliyetSinifi,
@@ -254,8 +267,8 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
   const items = [
     {
       key: "1",
-      label: t("genelBilgiler"),
-      children: <GeneralInfo isValid={isValid} setImages={setImages} urls={imagesURL} />,
+      label: t("temelBilgiler"),
+      children: <TemelBilgiler isValid={isValid} setImages={setImages} urls={imagesURL} />,
     },
     {
       key: "2",
@@ -297,8 +310,18 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
     </Button>,
   ];
 
+  // Detay yüklenirken form boş olduğu için alt başlıkta tablodan gelen kod ve isim gösterilir
+  const modalSubtitle = [watch("personelKod") || selectedRow?.personelKod, watch("isim") || selectedRow?.isim].filter(Boolean).join(" • ");
+
+  const modalTitle = (
+    <div className="flex flex-col">
+      <span>{t("personelKartiGuncellemeEkrani")}</span>
+      {modalSubtitle && <span style={{ ...hintStyle, fontWeight: 400 }}>{modalSubtitle}</span>}
+    </div>
+  );
+
   return (
-    <Modal title={t("personelGuncelle")} open={drawerVisible} onCancel={() => onDrawerClose()} maskClosable={false} footer={footer} width={1200}>
+    <Modal title={modalTitle} open={drawerVisible} onCancel={() => onDrawerClose()} maskClosable={false} footer={footer} width={1200}>
       <FormProvider {...methods}>
         <form>
           <Tabs defaultActiveKey="1" items={items} />

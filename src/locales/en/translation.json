@@ -1657,5 +1657,9 @@
   "aktifPersonel": "Active Personnel",
   "sistemdeAktifOlanPersonelKayitlari": "Personnel records active in the system",
   "mobilErisimiAcikPersonelOrani": "Rate of personnel with mobile access enabled",
-  "kademeGorev": "Grade / Duty"
+  "kademeGorev": "Grade / Duty",
+  "uzmanlikAlani": "Area of Expertise",
+  "personelKartiGuncellemeEkrani": "Personnel Card - Update Screen",
+  "personelAciklamaPlaceholder": "Short note about the personnel",
+  "sadeceJpgPngYuklenebilir": "You can only upload a JPG or PNG file."
 }

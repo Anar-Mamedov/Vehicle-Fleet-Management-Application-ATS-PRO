@@ -757,5 +757,13 @@
   "aktifPersonel": "Активные сотрудники",
   "sistemdeAktifOlanPersonelKayitlari": "Записи сотрудников, активных в системе",
   "mobilErisimiAcikPersonelOrani": "Доля сотрудников с активным мобильным доступом",
-  "kademeGorev": "Разряд / Должность"
+  "kademeGorev": "Разряд / Должность",
+  "uzmanlikAlani": "Область специализации",
+  "personelKartiGuncellemeEkrani": "Карточка сотрудника — экран редактирования",
+  "personelAciklamaPlaceholder": "Краткое примечание о сотруднике",
+  "sadeceJpgPngYuklenebilir": "Можно загрузить только файл JPG или PNG.",
+  "personelKod": "Код сотрудника",
+  "personelIsmi": "Имя сотрудника",
+  "personelTipi": "Тип сотрудника",
+  "iseBaslamaTarihi": "Дата приёма на работу"
 }

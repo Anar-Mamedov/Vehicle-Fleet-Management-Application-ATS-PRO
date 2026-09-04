@@ -1203,5 +1203,12 @@
   "aktifPersonel": "Aktiv Personal",
   "sistemdeAktifOlanPersonelKayitlari": "Sistemdə aktiv olan personal qeydləri",
   "mobilErisimiAcikPersonelOrani": "Mobil girişi açıq olan personal nisbəti",
-  "kademeGorev": "Kadr / Vəzifə"
+  "kademeGorev": "Kadr / Vəzifə",
+  "uzmanlikAlani": "İxtisas Sahəsi",
+  "personelKartiGuncellemeEkrani": "Personal Kartı - Yeniləmə Ekranı",
+  "personelAciklamaPlaceholder": "Personal haqqında qısa qeyd",
+  "sadeceJpgPngYuklenebilir": "Yalnız JPG və ya PNG faylı yükləyə bilərsiniz.",
+  "personelKod": "Personal Kodu",
+  "personelIsmi": "Personal Adı",
+  "personelTipi": "Personal Tipi"
 }
