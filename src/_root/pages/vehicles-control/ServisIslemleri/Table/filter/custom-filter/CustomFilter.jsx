@@ -5,6 +5,7 @@ import styled from "styled-components";
 import "./style.css";
 import { useFormContext } from "react-hook-form";
 import StatusSelect from "./components/StatusSelect";
+import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import "dayjs/locale/tr";
@@ -13,6 +14,14 @@ import advancedFormat from "dayjs/plugin/advancedFormat";
 import PropTypes from "prop-types";
 
 const { Text } = Typography;
+
+// Mülkiyet kod listesinin backend'deki kod numarası
+const MULKIYET_KOD_ID = 891;
+const MULKIYET_FILTER_KEY = "mulkiyetKodIds";
+const DURUM_FILTER_KEY = "durum";
+
+// Kod listesinden seçim yapılan filtrelerde serbest metin kutusu gösterilmez
+const isSelectFilter = (filterKey) => filterKey === DURUM_FILTER_KEY || filterKey === MULKIYET_FILTER_KEY;
 
 const StyledCloseOutlined = styled(CloseOutlined)`
   svg {
@@ -81,6 +90,12 @@ export default function CustomFilter({ onSubmit }) {
       ...prevSelectedValues,
       [rowId]: value,
     }));
+
+    // Filtre tipi değişince önceki değer taşınmasın (metin filtresine id dizisi gitmesin)
+    setInputValues((prevInputValues) => ({
+      ...prevInputValues,
+      [`input-${rowId}`]: "",
+    }));
   };
 
   const showDrawer = () => {
@@ -95,14 +110,24 @@ export default function CustomFilter({ onSubmit }) {
     // Combine selected values, input values for each row and date range
     const filterData = rows.reduce((acc, row) => {
       const selectedValue = selectedValues[row.id] || "";
-      const inputValue = inputValues[`input-${row.id}`] || "";
-      if (selectedValue && inputValue) {
-        if (selectedValue === "durum") {
-          acc[selectedValue] = Number(inputValue);
-        } else {
+      const inputValue = inputValues[`input-${row.id}`];
+
+      if (!selectedValue) {
+        return acc;
+      }
+
+      // Mülkiyet çoklu seçim olduğu için değeri id dizisi olarak gider; boş dizi filtre sayılmaz
+      if (Array.isArray(inputValue)) {
+        if (inputValue.length > 0) {
           acc[selectedValue] = inputValue;
         }
+        return acc;
       }
+
+      if (inputValue) {
+        acc[selectedValue] = selectedValue === DURUM_FILTER_KEY ? Number(inputValue) : inputValue;
+      }
+
       return acc;
     }, {});
 
@@ -261,16 +286,32 @@ export default function CustomFilter({ onSubmit }) {
                       value: "durum",
                       label: "Durum",
                     },
+                    {
+                      value: MULKIYET_FILTER_KEY,
+                      label: t("mulkiyet"),
+                    },
                   ]}
                 />
                 <Input
                   placeholder={t("aramaYap")}
                   name={`input-${row.id}`}
-                  value={inputValues[`input-${row.id}`] || ""}
+                  value={isSelectFilter(selectedValues[row.id]) ? "" : inputValues[`input-${row.id}`] || ""}
                   onChange={(e) => handleInputChange(e, row.id)}
-                  style={{ display: selectedValues[row.id] === "durum" ? "none" : "block" }}
+                  style={{ display: isSelectFilter(selectedValues[row.id]) ? "none" : "block" }}
                 />
-                {selectedValues[row.id] === "durum" && <StatusSelect value={inputValues[`input-${row.id}`]} onChange={(value) => handleStatusChange(value, row.id)} />}
+                {selectedValues[row.id] === DURUM_FILTER_KEY && <StatusSelect value={inputValues[`input-${row.id}`]} onChange={(value) => handleStatusChange(value, row.id)} />}
+                {selectedValues[row.id] === MULKIYET_FILTER_KEY && (
+                  <KodIDSelectbox
+                    name1={`mulkiyetFiltre${row.id}`}
+                    kodID={MULKIYET_KOD_ID}
+                    addHide={true}
+                    isRequired={false}
+                    multiSelect={true}
+                    onChange={(value) => handleStatusChange(value || [], row.id)}
+                    placeholder={t("mulkiyet")}
+                    inputWidth="100%"
+                  />
+                )}
               </Col>
             </Col>
           </Row>

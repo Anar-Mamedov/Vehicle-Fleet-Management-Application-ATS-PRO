@@ -781,5 +781,6 @@
   "iscilikTipi": "Тип работ",
   "saatlikIscilikMaliyeti": "Стоимость работ за час",
   "calismaNotu": "Примечание к работе",
-  "donem": "Период"
+  "donem": "Период",
+  "mulkiyet": "Собственность"
 }
