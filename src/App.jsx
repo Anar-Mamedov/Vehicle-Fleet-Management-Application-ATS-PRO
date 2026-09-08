@@ -112,6 +112,7 @@ const PerformansAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/Pe
 const MaliyetAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/MaliyetAnalizi/MaliyetAnalizi.jsx"));
 const MalzemeTuketimAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/MalzemeTuketimAnalizi/MalzemeTuketimAnalizi.jsx"));
 const ExtremesAnalysis = lazyWithRetry(() => import("./_root/pages/Analizler/ExtremesAnalysis/ExtremesAnalysis.jsx"));
+const OperasyonAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/OperasyonAnalizi/OperasyonAnalizi.jsx"));
 
 // sistem Ayarlari
 const KullaniciTanimlari = lazyWithRetry(() => import("./_root/pages/SistemAyarlari/KullaniciTanimlari/KullaniciTanimlari.jsx"));
@@ -403,6 +404,7 @@ const App = () => {
               <Route path="/cost-analysis" element={<MaliyetAnalizi />} />
               <Route path="/material-consumption-analysis" element={<MalzemeTuketimAnalizi />} />
               <Route path="/extremes-analysis" element={<ExtremesAnalysis />} />
+              <Route path="/operation-analysis" element={<OperasyonAnalizi />} />
               
               {/* Bakım ve Onarım */}
               <Route path="/Periodic-Maintenance" element={<PeriyordikBakimlar />} />

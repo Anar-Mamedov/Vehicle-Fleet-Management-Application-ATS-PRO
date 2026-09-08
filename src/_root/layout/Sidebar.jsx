@@ -29,6 +29,7 @@ import {
   HomeOutlined,
   LineChartOutlined,
   AreaChartOutlined,
+  BarChartOutlined,
   TrophyOutlined,
   BankOutlined,
   UserOutlined,
@@ -116,6 +117,8 @@ export const MENU_MODULE_BY_KEY = {
   kj234h5b: "hasarTakibi",
   kjh564bg34511: "arizaBildirimleri",
   l23jkhb4: "talepYonetimi",
+  // Backend "operasyonAnalizi" modülünü tanımlayana kadar üst menünün ("analizler") yetkisiyle görünür.
+  "operation-analysis": ["operasyonAnalizi", "analizler"],
   role_definitions: ["rolTanimlari", "yonetim"],
   settings_modal_trigger: "ayarlar",
 };
@@ -664,6 +667,11 @@ const Sidebar = ({ collapsed }) => {
             key: "extremes-analysis",
             icon: <TrophyOutlined />,
             label: <Link to={"/extremes-analysis"}>En’ler Analizi</Link>,
+          },
+          {
+            key: "operation-analysis",
+            icon: <BarChartOutlined />,
+            label: <Link to={"/operation-analysis"}>{t("operasyonAnalizi")}</Link>,
           },
         ],
       },
