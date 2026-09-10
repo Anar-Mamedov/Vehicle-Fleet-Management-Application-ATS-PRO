@@ -139,7 +139,7 @@ const KodYonetimi = () => {
   const deleteCodeItem = () => {
     if (selectedCodeText) {
       DeleteCodeService(selectedCodeText.siraNo).then((res) => {
-        if (res.data.statusCode === 202) {
+        if (res.data.statusCode === 200 || res.data.statusCode === 201 || res.data.statusCode === 202 || res.data.statusCode === 204) {
           setStatus(true);
           setSelectedCodeText(null);
         }
