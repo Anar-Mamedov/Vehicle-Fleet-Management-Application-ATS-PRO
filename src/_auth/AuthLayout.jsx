@@ -54,8 +54,8 @@ const FormContainer = styled.div`
   background-color: white;
   width: 100%;
   max-width: 520px;
-  max-height: calc(100vh - 80px);
-  margin: 40px;
+  max-height: 100vh;
+  margin: auto 40px;
   border-radius: 24px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
   overflow-y: auto;
