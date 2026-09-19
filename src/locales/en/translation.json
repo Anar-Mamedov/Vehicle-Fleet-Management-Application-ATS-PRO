@@ -1727,5 +1727,11 @@
   "yenile": "Refresh",
   "yilDegistir": "Change Year",
   "verileriGoruntule": "View Data",
-  "yilSeciniz": "Select Year"
+  "yilSeciniz": "Select Year",
+  "hesabinizaGirisYapin": "Sign in to your account",
+  "kurumsalFiloVeOperasyonYonetiminizeGuvenleDevamEdebilirsiniz": "Securely continue managing your corporate fleet and operations.",
+  "lisansAnahtarinizMiDegisti": "Has your license key changed?",
+  "anahtariDegistir": "Change Key",
+  "teknolojisidir": "technology.",
+  "sifreSifirlamaIcinSistemYoneticinizeBasvurun": "Please contact your system administrator to reset your password."
 }

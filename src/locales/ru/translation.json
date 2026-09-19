@@ -840,5 +840,18 @@
   "yenile": "Обновить",
   "yilDegistir": "Изменить год",
   "verileriGoruntule": "Показать данные",
-  "yilSeciniz": "Выберите год"
+  "yilSeciniz": "Выберите год",
+  "hesabinizaGirisYapin": "Войдите в свою учётную запись",
+  "kurumsalFiloVeOperasyonYonetiminizeGuvenleDevamEdebilirsiniz": "Безопасно продолжайте управление корпоративным автопарком и операциями.",
+  "lisansAnahtarinizMiDegisti": "Изменился ли ваш лицензионный ключ?",
+  "anahtariDegistir": "Изменить ключ",
+  "teknolojisidir": "технология.",
+  "sifreSifirlamaIcinSistemYoneticinizeBasvurun": "Для сброса пароля обратитесь к системному администратору.",
+  "girisYap": "Войти",
+  "kullaniciAdi": "Имя пользователя",
+  "sifre": "Пароль",
+  "beniHatirla": "Запомнить меня",
+  "lutfenKullaniciKodunuzuGiriniz": "Пожалуйста, введите ваш код пользователя",
+  "lutfenSifreniziGiriniz": "Пожалуйста, введите ваш пароль",
+  "orjinYazilim": "Orjin Software"
 }

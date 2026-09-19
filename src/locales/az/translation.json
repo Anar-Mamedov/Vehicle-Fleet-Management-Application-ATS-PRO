@@ -1279,5 +1279,17 @@
   "yenile": "Yenilə",
   "yilDegistir": "İli Dəyiş",
   "verileriGoruntule": "Məlumatlara Bax",
-  "yilSeciniz": "İl Seçin"
+  "yilSeciniz": "İl Seçin",
+  "hesabinizaGirisYapin": "Hesabınıza daxil olun",
+  "kurumsalFiloVeOperasyonYonetiminizeGuvenleDevamEdebilirsiniz": "Korporativ filo və əməliyyat idarəetmənizə etibarla davam edə bilərsiniz.",
+  "lisansAnahtarinizMiDegisti": "Lisenziya açarınız dəyişdi?",
+  "anahtariDegistir": "Açarı Dəyiş",
+  "teknolojisidir": "texnologiyasıdır.",
+  "sifreSifirlamaIcinSistemYoneticinizeBasvurun": "Şifrənin sıfırlanması üçün sistem administratorunuza müraciət edin.",
+  "girisYap": "Daxil Ol",
+  "kullaniciAdi": "İstifadəçi Adı",
+  "sifre": "Şifrə",
+  "beniHatirla": "Məni Xatırla",
+  "lutfenKullaniciKodunuzuGiriniz": "Zəhmət olmasa İstifadəçi Kodunuzu Daxil Edin",
+  "lutfenSifreniziGiriniz": "Zəhmət olmasa Şifrənizi Daxil Edin"
 }

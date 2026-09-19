@@ -1969,5 +1969,11 @@
   "yenile": "Yenile",
   "yilDegistir": "Yıl Değiştir",
   "verileriGoruntule": "Verileri Görüntüle",
-  "yilSeciniz": "Yıl Seçiniz"
+  "yilSeciniz": "Yıl Seçiniz",
+  "hesabinizaGirisYapin": "Hesabınıza giriş yapın",
+  "kurumsalFiloVeOperasyonYonetiminizeGuvenleDevamEdebilirsiniz": "Kurumsal filo ve operasyon yönetiminize güvenle devam edebilirsiniz.",
+  "lisansAnahtarinizMiDegisti": "Lisans anahtarınız mı değişti?",
+  "anahtariDegistir": "Anahtarı Değiştir",
+  "teknolojisidir": "teknolojisidir.",
+  "sifreSifirlamaIcinSistemYoneticinizeBasvurun": "Şifre sıfırlama için sistem yöneticinize başvurun."
 }
