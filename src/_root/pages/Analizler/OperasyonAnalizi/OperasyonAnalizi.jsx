@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, Button, Col, Row, Space, Spin, Typography } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
+import { CalendarOutlined, DownloadOutlined } from "@ant-design/icons";
 import { FormProvider, useForm } from "react-hook-form";
 import { t } from "i18next";
 import AxiosInstance from "../../../../api/http";
+import { formatDateByLocale } from "../../../components/FormattedDate";
 import AylikTrendler from "./components/AylikTrendler";
-import FirmaTutarOzeti from "./components/FirmaTutarOzeti";
+import FirmaDagilimi from "./components/FirmaDagilimi";
 import GunlukOperasyonOzeti from "./components/GunlukOperasyonOzeti";
 import GuzergahToplamlari from "./components/GuzergahToplamlari";
 import KpiKartlari from "./components/KpiKartlari";
-import OperasyonAnaliziFiltreleri, { buildAnalysisBody, getDefaultDateRange } from "./components/OperasyonAnaliziFiltreleri";
+import OperasyonAnaliziFiltreleri, { buildAnalysisBody, buildYearBody, getDefaultDateRange } from "./components/OperasyonAnaliziFiltreleri";
 import PersonelOzeti from "./components/PersonelOzeti";
 import SurucuPerformansi from "./components/SurucuPerformansi";
-import { ALL_TYPES, KPI_TYPES, colors, emptyFilters } from "./utils/constants";
+import { ALL_TYPES, AYLIK_TREND_TYPE, BASE_TYPES, FIRMA_DAGILIM_INFO, FIRMA_DAGILIM_INFO_LABEL_KEYS, FIRMA_DAGILIM_TYPE, KPI_TYPES, colors, emptyFilters } from "./utils/constants";
 import { buildAllSheets } from "./utils/exportMappers";
 import { downloadSheetsAsXlsx } from "./utils/exporters";
 
@@ -30,63 +31,110 @@ const isValidResponse = (type, data) => (KPI_TYPES.includes(type) ? Boolean(data
 
 function OperasyonAnaliziIcerik() {
   const [requestBody, setRequestBody] = useState(() => buildAnalysisBody(emptyFilters, getDefaultDateRange()));
+  const [appliedRange, setAppliedRange] = useState(getDefaultDateRange);
+  const [firmaInfo, setFirmaInfo] = useState(FIRMA_DAGILIM_INFO.OPERASYON);
+  const [trendYili, setTrendYili] = useState(null);
   const [analysisData, setAnalysisData] = useState(buildEmptyData);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [firmaLoading, setFirmaLoading] = useState(false);
+  const [trendLoading, setTrendLoading] = useState(false);
+  const [failedTypes, setFailedTypes] = useState([]);
 
-  const fetchAnalysisData = useCallback(async () => {
+  // Her istek yalnızca kendi tiplerinin hata bilgisini günceller
+  const updateFailedTypes = useCallback((handledTypes, nextFailedTypes) => {
+    setFailedTypes((state) => [...state.filter((type) => !handledTypes.includes(type)), ...nextFailedTypes].sort((first, second) => first - second));
+  }, []);
+
+  const fetchSingleType = useCallback(
+    async (type, body, setTypeLoading = null) => {
+      setTypeLoading?.(true);
+
+      let data = null;
+      try {
+        const response = await AxiosInstance.post(`${ENDPOINT}?type=${type}`, body);
+        if (isValidResponse(type, response?.data)) {
+          data = response.data;
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+
+      setAnalysisData((state) => ({ ...state, [type]: data ?? getEmptyValueByType(type) }));
+      updateFailedTypes([type], data ? [] : [type]);
+      setTypeLoading?.(false);
+    },
+    [updateFailedTypes]
+  );
+
+  const fetchBaseData = useCallback(async () => {
     setLoading(true);
-    setErrorMessage("");
 
-    const responses = await Promise.allSettled(ALL_TYPES.map((type) => AxiosInstance.post(`${ENDPOINT}?type=${type}`, requestBody)));
+    const responses = await Promise.allSettled(BASE_TYPES.map((type) => AxiosInstance.post(`${ENDPOINT}?type=${type}`, requestBody)));
 
     const nextData = {};
-    const failedTypes = [];
+    const nextFailedTypes = [];
 
     responses.forEach((result, index) => {
-      const type = ALL_TYPES[index];
+      const type = BASE_TYPES[index];
       if (result.status === "fulfilled" && isValidResponse(type, result.value?.data)) {
         nextData[type] = result.value.data;
       } else {
-        failedTypes.push(type);
+        nextFailedTypes.push(type);
         nextData[type] = getEmptyValueByType(type);
       }
     });
 
-    setAnalysisData(nextData);
-    if (failedTypes.length) {
-      setErrorMessage(`${t("baziAnalizlerAlinamadi")} (${failedTypes.join(", ")})`);
-    }
+    setAnalysisData((state) => ({ ...state, ...nextData }));
+    updateFailedTypes(BASE_TYPES, nextFailedTypes);
     setLoading(false);
-  }, [requestBody]);
+  }, [requestBody, updateFailedTypes]);
 
-  useEffect(() => {
-    fetchAnalysisData();
-  }, [fetchAnalysisData]);
+  // type=7 "info" parametresine bağlı olduğu için gösterge değiştiğinde tek başına yenilenir
+  const fetchFirmaData = useCallback(() => fetchSingleType(FIRMA_DAGILIM_TYPE, { ...requestBody, info: firmaInfo }, setFirmaLoading), [fetchSingleType, requestBody, firmaInfo]);
 
-  // Kart menüsündeki "Verileri Yenile" yalnızca ilgili bölümü tekrar çeker
-  const refreshType = useCallback(
-    async (type) => {
-      try {
-        const response = await AxiosInstance.post(`${ENDPOINT}?type=${type}`, requestBody);
-        if (isValidResponse(type, response?.data)) {
-          setAnalysisData((state) => ({ ...state, [type]: response.data }));
-          return;
-        }
-      } catch {
-        setErrorMessage(`${t("baziAnalizlerAlinamadi")} (${type})`);
-        return;
-      }
-
-      setAnalysisData((state) => ({ ...state, [type]: getEmptyValueByType(type) }));
-      setErrorMessage(`${t("baziAnalizlerAlinamadi")} (${type})`);
-    },
-    [requestBody]
+  // type=11 widget'ın kendi yıl seçimini kullanır; seçim yoksa genel filtrenin tarih aralığı geçerlidir
+  const fetchTrendData = useCallback(
+    () => fetchSingleType(AYLIK_TREND_TYPE, trendYili ? buildYearBody(requestBody, trendYili) : requestBody, setTrendLoading),
+    [fetchSingleType, requestBody, trendYili]
   );
 
-  const handleApply = useCallback((filters, dateRange) => setRequestBody(buildAnalysisBody(filters, dateRange)), []);
+  useEffect(() => {
+    fetchBaseData();
+  }, [fetchBaseData]);
 
-  const handleExcelDownload = useCallback(() => downloadSheetsAsXlsx(buildAllSheets(analysisData), t("operasyonAnalizleri")), [analysisData]);
+  useEffect(() => {
+    fetchFirmaData();
+  }, [fetchFirmaData]);
+
+  useEffect(() => {
+    fetchTrendData();
+  }, [fetchTrendData]);
+
+  // Kart menüsündeki "Yenile" yalnızca ilgili bölümü tekrar çeker
+  const refreshType = useCallback(
+    (type) => {
+      if (type === FIRMA_DAGILIM_TYPE) {
+        return fetchFirmaData();
+      }
+      if (type === AYLIK_TREND_TYPE) {
+        return fetchTrendData();
+      }
+      return fetchSingleType(type, requestBody);
+    },
+    [fetchFirmaData, fetchTrendData, fetchSingleType, requestBody]
+  );
+
+  // Genel filtreler uygulandığında widget'ın kendi yıl seçimi geçersiz olur
+  const handleApply = useCallback((filters, dateRange) => {
+    setRequestBody(buildAnalysisBody(filters, dateRange));
+    setAppliedRange(dateRange);
+    setTrendYili(null);
+  }, []);
+
+  const handleExcelDownload = useCallback(
+    () => downloadSheetsAsXlsx(buildAllSheets(analysisData, t(FIRMA_DAGILIM_INFO_LABEL_KEYS[firmaInfo])), t("operasyonAnalizleri")),
+    [analysisData, firmaInfo]
+  );
 
   return (
     <div style={{ background: colors.pageBackground, minHeight: "calc(100vh - 100px)" }}>
@@ -103,19 +151,28 @@ function OperasyonAnaliziIcerik() {
           </Button>
         </div>
 
-        <KpiKartlari toplamOperasyon={analysisData[1]} toplamHareket={analysisData[2]} planlananMiktar={analysisData[3]} gerceklesenMiktar={analysisData[4]} toplamTutar={analysisData[5]} />
-
         <OperasyonAnaliziFiltreleri loading={loading} onApply={handleApply} />
 
-        {errorMessage ? <Alert type="warning" showIcon message={errorMessage} /> : null}
+        {/* Başlık ve tarih farklı puntoda olduğu için kutu ortası yerine taban çizgisi hizalaması kullanılır */}
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: colors.title }}>{t("operasyonOzeti")}</span>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            <CalendarOutlined style={{ marginInlineEnd: 6 }} />
+            {`${formatDateByLocale(appliedRange?.[0])} – ${formatDateByLocale(appliedRange?.[1])}`}
+          </Text>
+        </div>
 
-        <Spin spinning={loading}>
+        <KpiKartlari toplamOperasyon={analysisData[1]} toplamHareket={analysisData[2]} miktar={analysisData[3]} toplamTutar={analysisData[4]} enYogunGuzergah={analysisData[5]} />
+
+        {failedTypes.length ? <Alert type="warning" showIcon message={`${t("baziAnalizlerAlinamadi")} (${failedTypes.join(", ")})`} /> : null}
+
+        <Spin spinning={loading || firmaLoading || trendLoading}>
           <Row gutter={[16, 16]}>
             <Col xs={24} xl={12}>
               <GunlukOperasyonOzeti rows={analysisData[6]} onRefresh={() => refreshType(6)} />
             </Col>
             <Col xs={24} xl={12}>
-              <FirmaTutarOzeti rows={analysisData[7]} onRefresh={() => refreshType(7)} />
+              <FirmaDagilimi rows={analysisData[7]} info={firmaInfo} onInfoChange={setFirmaInfo} onRefresh={() => refreshType(7)} />
             </Col>
             <Col xs={24} xl={12}>
               <SurucuPerformansi rows={analysisData[8]} onRefresh={() => refreshType(8)} />
@@ -127,7 +184,7 @@ function OperasyonAnaliziIcerik() {
               <GuzergahToplamlari rows={analysisData[10]} onRefresh={() => refreshType(10)} />
             </Col>
             <Col xs={24} xl={12}>
-              <AylikTrendler rows={analysisData[11]} onRefresh={() => refreshType(11)} />
+              <AylikTrendler rows={analysisData[11]} yil={trendYili} onYilChange={setTrendYili} onRefresh={() => refreshType(11)} />
             </Col>
           </Row>
         </Spin>

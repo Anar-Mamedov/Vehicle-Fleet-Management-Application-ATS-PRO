@@ -1,37 +1,90 @@
-import React, { useState } from "react";
-import { Card, Dropdown, Modal, Typography } from "antd";
-import { MoreOutlined } from "@ant-design/icons";
+import React, { useRef, useState } from "react";
+import { Card, Dropdown, Modal, Typography, message } from "antd";
+import { ArrowsAltOutlined, FileExcelOutlined, FileImageOutlined, MoreOutlined, ReloadOutlined, TableOutlined } from "@ant-design/icons";
+import html2canvas from "html2canvas";
 import PropTypes from "prop-types";
 import { t } from "i18next";
-import { colors } from "../utils/constants";
+import { EXPANDED_MODAL_BODY_HEIGHT, colors } from "../utils/constants";
+import { normalizeExportFileName } from "../utils/exporters";
 
 const { Text } = Typography;
 
-// Analiz bölümlerinin ortak kart kabuğu: başlık, alt başlık ve sağ üstteki işlem menüsü
-export default function AnalizKarti({ title, subtitle, onRefresh, onDownload, children }) {
-  const [fullscreenOpen, setFullscreenOpen] = useState(false);
+// Kendi içinde kayan tablolarda modal gövdesi taşmayı gizler, tek kaydırma tablonun içindedir
+const TABLE_BODY_STYLE = { height: EXPANDED_MODAL_BODY_HEIGHT, overflow: "hidden" };
+const SCROLLABLE_BODY_STYLE = { maxHeight: EXPANDED_MODAL_BODY_HEIGHT, overflow: "auto" };
+
+// Analiz bölümlerinin ortak kart kabuğu: başlık, alt başlık ve sağ üstteki işlem menüsü.
+// Kartta özet içerik, "Büyüt" penceresinde ise varsa genişletilmiş içerik gösterilir.
+export default function AnalizKarti({
+  title,
+  subtitle,
+  extra = null,
+  leadingMenuItems = [],
+  onRefresh = undefined,
+  onDownload = undefined,
+  expandedContent = null,
+  expandedScrollable = true,
+  dataContent = null,
+  children = null,
+}) {
+  const [expandedOpen, setExpandedOpen] = useState(false);
+  const [dataOpen, setDataOpen] = useState(false);
+  const kartRef = useRef(null);
 
   const menuItems = [
-    { key: "refresh", label: t("verileriYenile") },
-    { key: "download", label: t("indir") },
-    { key: "fullscreen", label: t("tamEkranAc") },
+    ...leadingMenuItems.map(({ key, icon, label }) => ({ key, icon, label })),
+    { key: "expand", icon: <ArrowsAltOutlined />, label: t("buyut") },
+    ...(dataContent ? [{ key: "data", icon: <TableOutlined />, label: t("verileriGoruntule") }] : []),
+    { key: "excel", icon: <FileExcelOutlined />, label: t("excelEAktar") },
+    { key: "image", icon: <FileImageOutlined />, label: t("gorselOlarakIndir") },
+    { key: "refresh", icon: <ReloadOutlined />, label: t("yenile") },
   ];
 
-  const handleMenuClick = ({ key }) => {
-    if (key === "refresh" && typeof onRefresh === "function") {
-      onRefresh();
+  // Kart olduğu gibi PNG'ye çevrilir; işlem menüsü data-html2canvas-ignore ile görüntüye alınmaz
+  const handleImageDownload = async () => {
+    if (!kartRef.current) {
+      return;
     }
-    if (key === "download" && typeof onDownload === "function") {
+
+    try {
+      const canvas = await html2canvas(kartRef.current, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = `${normalizeExportFileName(title)}.png`;
+      link.click();
+    } catch (error) {
+      console.error("Error creating image:", error);
+      message.error(t("islemBasarisiz"));
+    }
+  };
+
+  const handleMenuClick = ({ key }) => {
+    const leadingItem = leadingMenuItems.find((item) => item.key === key);
+    if (leadingItem) {
+      leadingItem.onClick();
+      return;
+    }
+
+    if (key === "expand") {
+      setExpandedOpen(true);
+    }
+    if (key === "data") {
+      setDataOpen(true);
+    }
+    if (key === "excel" && typeof onDownload === "function") {
       onDownload();
     }
-    if (key === "fullscreen") {
-      setFullscreenOpen(true);
+    if (key === "image") {
+      handleImageDownload();
+    }
+    if (key === "refresh" && typeof onRefresh === "function") {
+      onRefresh();
     }
   };
 
   return (
     <>
-      <Card bordered={false} style={{ borderRadius: 12, border: `1px solid ${colors.cardBorder}`, height: "100%" }} styles={{ body: { padding: 20 } }}>
+      <Card ref={kartRef} bordered={false} style={{ borderRadius: 12, border: `1px solid ${colors.cardBorder}`, height: "100%" }} styles={{ body: { padding: 20 } }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: colors.title }}>{title}</div>
@@ -41,35 +94,52 @@ export default function AnalizKarti({ title, subtitle, onRefresh, onDownload, ch
               </Text>
             ) : null}
           </div>
-          <Dropdown trigger={["click"]} placement="bottomRight" menu={{ items: menuItems, onClick: handleMenuClick }}>
-            <button
-              type="button"
-              aria-label={title}
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                border: `1px solid ${colors.cardBorder}`,
-                background: "#ffffff",
-                color: colors.muted,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 18,
-                lineHeight: 1,
-                flexShrink: 0,
-              }}
-            >
-              <MoreOutlined />
-            </button>
-          </Dropdown>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            {extra}
+            <Dropdown trigger={["click"]} placement="bottomRight" menu={{ items: menuItems, onClick: handleMenuClick }}>
+              <button
+                type="button"
+                aria-label={title}
+                data-html2canvas-ignore="true"
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  border: `1px solid ${colors.cardBorder}`,
+                  background: "#ffffff",
+                  color: colors.muted,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 18,
+                  lineHeight: 1,
+                  flexShrink: 0,
+                }}
+              >
+                <MoreOutlined />
+              </button>
+            </Dropdown>
+          </div>
         </div>
         {children}
       </Card>
 
-      <Modal title={title} open={fullscreenOpen} onCancel={() => setFullscreenOpen(false)} footer={null} width="92vw" style={{ top: 20 }} styles={{ body: { maxHeight: "78vh", overflow: "auto" } }}>
-        {children}
+      <Modal
+        title={title}
+        open={expandedOpen}
+        onCancel={() => setExpandedOpen(false)}
+        footer={null}
+        width="92vw"
+        style={{ top: 20 }}
+        styles={{ body: expandedScrollable ? SCROLLABLE_BODY_STYLE : TABLE_BODY_STYLE }}
+        destroyOnClose
+      >
+        {expandedContent || children}
+      </Modal>
+
+      <Modal title={title} open={dataOpen} onCancel={() => setDataOpen(false)} footer={null} width="92vw" style={{ top: 20 }} styles={{ body: TABLE_BODY_STYLE }} destroyOnClose>
+        {dataContent}
       </Modal>
     </>
   );
@@ -78,14 +148,21 @@ export default function AnalizKarti({ title, subtitle, onRefresh, onDownload, ch
 AnalizKarti.propTypes = {
   title: PropTypes.string.isRequired,
   subtitle: PropTypes.string,
+  extra: PropTypes.node,
+  // Menünün başına eklenen bölüme özel işlemler
+  leadingMenuItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      icon: PropTypes.node,
+      label: PropTypes.node.isRequired,
+      onClick: PropTypes.func.isRequired,
+    })
+  ),
   onRefresh: PropTypes.func,
   onDownload: PropTypes.func,
+  expandedContent: PropTypes.node,
+  expandedScrollable: PropTypes.bool,
+  // Verildiğinde menüye "Verileri Görüntüle" eklenir; grafik bölümlerinin tablo görünümü
+  dataContent: PropTypes.node,
   children: PropTypes.node,
-};
-
-AnalizKarti.defaultProps = {
-  subtitle: undefined,
-  onRefresh: undefined,
-  onDownload: undefined,
-  children: null,
 };

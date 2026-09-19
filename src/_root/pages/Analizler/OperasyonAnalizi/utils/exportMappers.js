@@ -1,42 +1,51 @@
 import { t } from "i18next";
 import { formatDateByLocale } from "../../../../components/FormattedDate";
-import { formatMonthLabel, safeText } from "./formatters";
+import { formatMonthLabel, formatPercent, safeText } from "./formatters";
 
 // Excel çıktısındaki başlıklar ekrandaki kolon başlıklarıyla aynı olsun diye tek yerde tutulur
 export const gunlukOzetRows = (rows = []) =>
   rows.map((item) => ({
     [t("tarih")]: formatDateByLocale(item.tarih),
-    [t("operasyonNo")]: safeText(item.operasyonNo),
+    [t("operasyon")]: item.seferSayisi,
     [t("hareket")]: item.hareketSaysi,
     [t("planlanan")]: item.planlananMiktar,
     [t("gerceklesen")]: item.gerceklesenMiktar,
+    [t("gerceklesmeOrani")]: formatPercent(item.dolulukOrani),
     [t("tutar")]: item.hakedisTutar,
   }));
 
-export const firmaTutarRows = (rows = []) =>
+// Değer kolonunun başlığı seçilen göstergeye (info) göre değişir
+export const firmaDagilimRows = (rows = [], degerBasligi = t("deger")) =>
   rows.map((item) => ({
     [t("firma")]: safeText(item.firma),
-    [t("tutar")]: item.tutar,
+    [degerBasligi]: item.deger,
+    [t("oran")]: formatPercent(item.oran),
   }));
 
-export const surucuPerformansRows = (rows = []) =>
+export const surucuOzetRows = (rows = []) =>
   rows.map((item) => ({
     [t("surucu")]: safeText(item.isim),
+    [t("operasyon")]: item.seferSayisi,
     [t("hareket")]: item.hareketSayisi,
-    [t("gerceklesen")]: item.gerceklesenMiktar,
-    [t("tutar")]: item.hakedisTutar,
+    [t("miktar")]: item.gerceklesenMiktar,
+    [t("hareketBasinaOrt")]: item.hareketBasinaOrt,
   }));
 
-export const personelOzetRows = (rows = []) =>
+export const personelKatilimRows = (rows = []) =>
   rows.map((item) => ({
     [t("personelTekil")]: safeText(item.isim),
-    [t("tip")]: safeText(item.tip),
+    [t("aktifGun")]: item.aktifGunSayisi,
+    [t("operasyon")]: item.seferSayisi,
     [t("hareket")]: item.hareketSayisi,
+    [t("hareketGun")]: item.hareketGunOrani,
+    [t("farkliArac")]: item.farkliAracSayisi,
+    [t("guzergah")]: item.guzergahSayisi,
   }));
 
-export const guzergahToplamRows = (rows = []) =>
+export const guzergahOzetRows = (rows = []) =>
   rows.map((item) => ({
     [t("guzergah")]: safeText(item.guzergah),
+    [t("operasyon")]: item.seferSayisi,
     [t("hareket")]: item.hareketSayisi,
     [t("miktar")]: item.gerceklesenMiktar,
     [t("ortalamaMiktar")]: item.ortalamaMiktar,
@@ -46,16 +55,16 @@ export const guzergahToplamRows = (rows = []) =>
 export const aylikTrendRows = (rows = []) =>
   rows.map((item) => ({
     [t("donem")]: formatMonthLabel(item.yil, item.ay),
-    [t("operasyonSayisi")]: item.operasyonSayisi,
+    [t("operasyon")]: item.seferSayisi,
     [t("gerceklesenMiktar")]: item.toplamGerceklesenMiktar,
   }));
 
 // Sayfa üstündeki "Excel İndir" düğmesi tüm bölümleri tek dosyada ayrı sayfalar olarak indirir
-export const buildAllSheets = (analysisData) => [
+export const buildAllSheets = (analysisData, firmaDegerBasligi) => [
   { baslik: t("gunlukOperasyonOzeti"), satirlar: gunlukOzetRows(analysisData[6]) },
-  { baslik: t("firmaBazliTutarOzeti"), satirlar: firmaTutarRows(analysisData[7]) },
-  { baslik: t("surucuPerformansi"), satirlar: surucuPerformansRows(analysisData[8]) },
-  { baslik: t("personelOzeti"), satirlar: personelOzetRows(analysisData[9]) },
-  { baslik: t("guzergahBazliToplamlar"), satirlar: guzergahToplamRows(analysisData[10]) },
+  { baslik: t("firmaBazliDagilim"), satirlar: firmaDagilimRows(analysisData[7], firmaDegerBasligi) },
+  { baslik: t("surucuBazliOperasyonOzeti"), satirlar: surucuOzetRows(analysisData[8]) },
+  { baslik: t("personelOperasyonKatilimi"), satirlar: personelKatilimRows(analysisData[9]) },
+  { baslik: t("guzergahBazliOperasyonOzeti"), satirlar: guzergahOzetRows(analysisData[10]) },
   { baslik: t("aylikOperasyonMiktarTrendleri"), satirlar: aylikTrendRows(analysisData[11]) },
 ];
