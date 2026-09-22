@@ -86,6 +86,7 @@ export default function FirmaDagilimi({ rows, info, onInfoChange, onRefresh = un
       onDownload={handleDownload}
       expandedContent={<FirmaDagilimListesi data={data} />}
       dataContent={<GenislemisTablo columns={tabloKolonlari} rows={data} rowKey={(record, index) => `${record.firma}-${index}`} scrollX={520} />}
+      contentCentered
     >
       <FirmaDagilimListesi data={data.slice(0, WIDGET_PREVIEW_ROW_COUNT)} />
     </AnalizKarti>

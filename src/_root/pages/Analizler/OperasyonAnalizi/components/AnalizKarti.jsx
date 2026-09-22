@@ -17,6 +17,13 @@ const SCROLLABLE_BODY_STYLE = { maxHeight: EXPANDED_MODAL_BODY_HEIGHT, overflow:
 const MODAL_TITLE_STYLE = { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, paddingRight: 40 };
 const MODAL_TITLE_TEXT_STYLE = { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" };
 
+// contentCentered verildiğinde kart gövdesi kartın tamamını kaplar ve içerik kalan boşluğun ortasına hizalanır
+const CARD_STYLE = { borderRadius: 12, border: `1px solid ${colors.cardBorder}`, height: "100%" };
+const CENTERED_CARD_STYLE = { ...CARD_STYLE, display: "flex", flexDirection: "column" };
+const BODY_STYLE = { padding: 20 };
+const CENTERED_BODY_STYLE = { ...BODY_STYLE, flex: 1, display: "flex", flexDirection: "column" };
+const CENTERED_CONTENT_STYLE = { flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" };
+
 // Analiz bölümlerinin ortak kart kabuğu: başlık, alt başlık ve sağ üstteki işlem menüsü.
 // Kartta özet içerik, "Büyüt" penceresinde ise varsa genişletilmiş içerik gösterilir.
 export default function AnalizKarti({
@@ -29,6 +36,7 @@ export default function AnalizKarti({
   expandedContent = null,
   expandedScrollable = true,
   dataContent = null,
+  contentCentered = false,
   children = null,
 }) {
   const [expandedOpen, setExpandedOpen] = useState(false);
@@ -101,7 +109,7 @@ export default function AnalizKarti({
 
   return (
     <>
-      <Card ref={kartRef} bordered={false} style={{ borderRadius: 12, border: `1px solid ${colors.cardBorder}`, height: "100%" }} styles={{ body: { padding: 20 } }}>
+      <Card ref={kartRef} bordered={false} style={contentCentered ? CENTERED_CARD_STYLE : CARD_STYLE} styles={{ body: contentCentered ? CENTERED_BODY_STYLE : BODY_STYLE }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: colors.title }}>{title}</div>
@@ -139,7 +147,7 @@ export default function AnalizKarti({
             </Dropdown>
           </div>
         </div>
-        {children}
+        {contentCentered ? <div style={CENTERED_CONTENT_STYLE}>{children}</div> : children}
       </Card>
 
       <Modal
@@ -190,5 +198,7 @@ AnalizKarti.propTypes = {
   expandedScrollable: PropTypes.bool,
   // Verildiğinde menüye "Verileri Görüntüle" eklenir; grafik bölümlerinin tablo görünümü
   dataContent: PropTypes.node,
+  // İçerik kartın yüksekliğinden kısa kaldığında alta boşluk bırakmak yerine dikeyde ortalar
+  contentCentered: PropTypes.bool,
   children: PropTypes.node,
 };
