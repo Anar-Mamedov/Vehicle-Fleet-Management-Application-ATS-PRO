@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import { t } from "i18next";
 import TabloBolumu from "./TabloBolumu";
@@ -6,6 +6,10 @@ import { formatNumber, safeText } from "../utils/formatters";
 import { surucuOzetRows } from "../utils/exportMappers";
 
 export default function SurucuPerformansi({ rows, onRefresh = undefined }) {
+  // Kartta yalnizca ilk 5 satir gorundugu icin liste en cok operasyonu olan surucuden baslar;
+  // "Buyut" penceresi ve Excel ciktisi da ayni siralamayi kullanir
+  const siraliSatirlar = useMemo(() => [...rows].sort((first, second) => (Number(second.seferSayisi) || 0) - (Number(first.seferSayisi) || 0)), [rows]);
+
   // ellipsis: baslik ve hucreler tek satirda kalir, sigmayan kisim "..." ile kisaltilir
   const columns = [
     { title: t("surucu"), dataIndex: "isim", key: "isim", ellipsis: true, render: (value) => safeText(value) },
@@ -20,7 +24,7 @@ export default function SurucuPerformansi({ rows, onRefresh = undefined }) {
       title={t("surucuBazliOperasyonOzeti")}
       subtitle={t("surucuBazliOperasyonOzetiAciklama")}
       columns={columns}
-      rows={rows}
+      rows={siraliSatirlar}
       rowKey={(record, index) => `${record.isim}-${index}`}
       exportRows={surucuOzetRows}
       scrollX={630}
