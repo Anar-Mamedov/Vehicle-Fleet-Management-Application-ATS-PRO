@@ -1718,7 +1718,7 @@
   "ozelAralik": "Custom Range",
   "personelOperasyonKatilimi": "Personnel Operation Participation",
   "personelOperasyonKatilimiAciklama": "Operational participation and workload of personnel assigned to vehicles",
-  "planlananGerceklesen": "Planned / Realized",
+  "planlananGerceklesen": "Planned / Actual Quantity",
   "surucuBazliOperasyonOzeti": "Operation Summary by Driver",
   "surucuBazliOperasyonOzetiAciklama": "Distribution of operations, movements and realized quantity by driver",
   "tarihAraligiEnFazlaBirYil": "The date range can be at most 1 year",
