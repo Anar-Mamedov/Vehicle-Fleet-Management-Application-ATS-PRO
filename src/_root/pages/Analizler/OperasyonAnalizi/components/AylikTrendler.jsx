@@ -12,15 +12,22 @@ import AnalizKarti from "./AnalizKarti";
 import { GenislemisTablo } from "./TabloBolumu";
 import DatePickerSelectYear from "../../../../components/form/inputs/DatePickerSelectYear";
 import { toDayjsOrNull } from "../../../../../utils/dateUtils";
-import { colors } from "../utils/constants";
-import { formatMonthLabel, formatNumber, formatShortMonthLabel } from "../utils/formatters";
+import { colors, trendSeriesColors } from "../utils/constants";
+import { formatMonthLabel, formatMonthNameLabel, formatNumber } from "../utils/formatters";
 import { downloadRowsAsXlsx } from "../utils/exporters";
 import { aylikTrendRows } from "../utils/exportMappers";
 
 // Yıl seçimi sayfanın FormProvider'ı üzerinden taşınır
 const YIL_ALANI = "operasyonAnaliziTrendYil";
 
-// Operasyon adedi ile toplam miktar farklı büyüklüklerde olduğu için iki ayrı eksende gösterilir
+// Grafik tasarımı: kenarlıksız, yuvarlatılmış ve gölgeli tooltip kutusu, seçili ayın arkasında gri bant
+const TOOLTIP_CURSOR = { fill: colors.chartCursor };
+const TOOLTIP_CONTENT_STYLE = { border: "none", borderRadius: 8, boxShadow: "0 6px 16px rgba(15, 23, 42, 0.12)", padding: "10px 12px" };
+const TOOLTIP_LABEL_STYLE = { color: colors.title, fontWeight: 600, marginBottom: 6 };
+const TOOLTIP_ITEM_STYLE = { padding: "2px 0" };
+const EKSEN_YAZISI = { fontSize: 12, fill: colors.muted };
+
+// Operasyon adedi ile toplam miktar tek eksende, referans tasarımdaki gibi üst üste yığılmış çubuklarla gösterilir
 export default function AylikTrendler({ rows, yil = null, onYilChange, onRefresh = undefined }) {
   const { getValues, setValue } = useFormContext();
   const [yilModalAcik, setYilModalAcik] = useState(false);
@@ -30,7 +37,7 @@ export default function AylikTrendler({ rows, yil = null, onYilChange, onRefresh
       [...rows]
         .sort((first, second) => first.yil - second.yil || first.ay - second.ay)
         .map((item) => ({
-          etiket: formatShortMonthLabel(item.ay),
+          etiket: formatMonthNameLabel(item.ay),
           donem: formatMonthLabel(item.yil, item.ay),
           seferSayisi: Number(item.seferSayisi) || 0,
           toplamGerceklesenMiktar: Number(item.toplamGerceklesenMiktar) || 0,
@@ -68,16 +75,22 @@ export default function AylikTrendler({ rows, yil = null, onYilChange, onRefresh
     data.length === 0 ? (
       <Empty description={t("veriYok")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
     ) : (
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={320}>
         <BarChart data={data} margin={{ top: 8, right: 8, bottom: 4, left: 0 }}>
           <CartesianGrid stroke={colors.grid} vertical={false} />
-          <XAxis dataKey="etiket" tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: colors.muted }} />
-          <YAxis yAxisId="operasyon" tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: colors.muted }} tickFormatter={formatNumber} />
-          <YAxis yAxisId="miktar" orientation="right" tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: colors.muted }} tickFormatter={formatNumber} />
-          <Tooltip formatter={(value) => formatNumber(value)} labelFormatter={(_, payload) => payload?.[0]?.payload?.donem || ""} />
-          <Legend verticalAlign="top" align="right" iconType="square" wrapperStyle={{ fontSize: 12, paddingBottom: 8 }} />
-          <Bar yAxisId="operasyon" dataKey="seferSayisi" name={t("operasyon")} fill={colors.navy} radius={[3, 3, 0, 0]} isAnimationActive={false} />
-          <Bar yAxisId="miktar" dataKey="toplamGerceklesenMiktar" name={t("miktar")} fill={colors.teal} radius={[3, 3, 0, 0]} isAnimationActive={false} />
+          <XAxis dataKey="etiket" interval={0} height={64} angle={-40} textAnchor="end" tickMargin={8} tickLine={false} axisLine={false} tick={EKSEN_YAZISI} />
+          <YAxis tickLine={false} axisLine={false} tick={EKSEN_YAZISI} tickFormatter={formatNumber} />
+          <Tooltip
+            cursor={TOOLTIP_CURSOR}
+            contentStyle={TOOLTIP_CONTENT_STYLE}
+            labelStyle={TOOLTIP_LABEL_STYLE}
+            itemStyle={TOOLTIP_ITEM_STYLE}
+            formatter={(value) => formatNumber(value)}
+            labelFormatter={(_, payload) => payload?.[0]?.payload?.donem || ""}
+          />
+          <Legend verticalAlign="top" align="right" iconType="circle" iconSize={9} wrapperStyle={{ fontSize: 12, paddingBottom: 12 }} />
+          <Bar dataKey="seferSayisi" stackId="trend" name={t("operasyon")} fill={trendSeriesColors.operasyon} isAnimationActive={false} />
+          <Bar dataKey="toplamGerceklesenMiktar" stackId="trend" name={t("miktar")} fill={trendSeriesColors.miktar} isAnimationActive={false} />
         </BarChart>
       </ResponsiveContainer>
     );

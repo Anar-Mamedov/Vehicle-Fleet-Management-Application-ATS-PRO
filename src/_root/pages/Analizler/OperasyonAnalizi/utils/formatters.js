@@ -76,8 +76,8 @@ export const formatMonthLabel = (yil, ay) => {
   return date.locale(getCurrentLanguage()).format("MMM YYYY");
 };
 
-// Aylık trend ekseni yılı başlıkta gösterdiği için yalnızca kısa ay adını kullanır
-export const formatShortMonthLabel = (ay) => {
+// Aylık trend ekseni yılı başlıkta gösterdiği için yalnızca ay adını kullanır; etiketler eğik yazıldığından tam ad sığar
+export const formatMonthNameLabel = (ay) => {
   const date = dayjs()
     .month(Number(ay) - 1)
     .startOf("month");
@@ -86,5 +86,5 @@ export const formatShortMonthLabel = (ay) => {
     return "-";
   }
 
-  return date.locale(getCurrentLanguage()).format("MMM");
+  return date.locale(getCurrentLanguage()).format("MMMM");
 };

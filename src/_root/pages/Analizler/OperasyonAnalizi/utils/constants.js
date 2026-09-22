@@ -56,10 +56,17 @@ export const colors = {
   title: "#0f172a",
   muted: "#64748b",
   track: "#eef2f7",
+  chartCursor: "#cccccc",
 };
 
 // Firma bazlı dağılım grafiğinde en yüksekten en düşüğe koyudan açığa giden ton dizisi
 export const barColorRamp = ["#14304f", "#1d4e89", "#2f6fbd", "#5b93d3", "#8fb8e2", "#a8c9e8"];
+
+// Aylık trend grafiğinin seri renkleri; kartların koyu paletinden ayrı, grafik için canlı tonlar kullanılır
+export const trendSeriesColors = {
+  operasyon: "#1677ff",
+  miktar: "#13c2c2",
+};
 
 export const emptyFilters = {
   firmaIds: [],
