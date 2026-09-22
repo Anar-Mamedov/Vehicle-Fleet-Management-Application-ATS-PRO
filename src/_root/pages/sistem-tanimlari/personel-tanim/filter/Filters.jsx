@@ -10,10 +10,11 @@ import DurumSelect from "../components/DurumSelect";
 // Personel tipi kod listesinin backend'deki kod numarası
 const PERSONEL_TIP_KOD_ID = 501;
 
+// Liste aktif personelle açılır; durum değerleri DurumSelect ile aynıdır (0 = Tümü, 1 = Aktif, 2 = Pasif)
 export const DEFAULT_PERSONEL_FILTERS = {
   personelTipKodIds: [],
   lokasyonIds: [],
-  status: 0,
+  status: 1,
 };
 
 export default function Filters({ onChange }) {
