@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { useFormContext } from "react-hook-form";
-import { Button, Input, message, Pagination, Popconfirm, Spin, Table, Tag } from "antd";
-import { DeleteOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Input, message, Pagination, Spin, Table, Tag } from "antd";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import { formatDateByLocale } from "../../../../components/FormattedDate";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 import { formatTimeForDisplay } from "../../../../../utils/dateUtils";
-import { DeleteExpeditionOperationItemsService, GetExpeditionOperationsListByExpIdService } from "../../../../../api/services/vehicles/operations_services";
+import { GetExpeditionOperationsListByExpIdService } from "../../../../../api/services/vehicles/operations_services";
 import OperasyonOzeti from "../components/OperasyonOzeti";
 import { BORDER_COLOR, cardStyle } from "../components/uiStyles";
+import ContextMenu from "../hareket/ContextMenu/ContextMenu";
 import HareketModal from "../hareket/HareketModal";
 import { getHareketDefaultsFromOperation } from "../hareket/hareketUtils";
 
@@ -73,6 +74,8 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [hareketModal, setHareketModal] = useState({ open: false, seferOprId: null, defaultValues: null });
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
 
   const searchTermRef = useRef("");
   const dataRef = useRef([]);
@@ -138,7 +141,23 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
     fetchData(page - currentPage, page);
   };
 
-  const refreshTable = () => fetchData(0, 1);
+  // Silinen ya da değişen kayıtlar seçili kalmasın diye liste yenilenirken seçim sıfırlanır
+  const refreshTable = () => {
+    setSelectedRowKeys([]);
+    setSelectedRows([]);
+    return fetchData(0, 1);
+  };
+
+  const onSelectChange = (newSelectedRowKeys) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+    setSelectedRows(data.filter((row) => newSelectedRowKeys.includes(row.key)));
+  };
+
+  const rowSelection = {
+    type: "checkbox",
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
 
   const handleYeniHareket = () => {
     setHareketModal({
@@ -146,25 +165,6 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
       seferOprId: null,
       defaultValues: getHareketDefaultsFromOperation(getValues()),
     });
-  };
-
-  const handleDelete = async (record) => {
-    try {
-      const response = await DeleteExpeditionOperationItemsService([record.key]);
-      const statusCode = response?.data?.statusCode;
-
-      if ([200, 201, 202, 204].includes(statusCode)) {
-        message.success(t("islemBasarili"));
-        refreshTable();
-      } else if (statusCode === 401) {
-        message.error(t("buIslemiYapmayaYetkinizYok"));
-      } else {
-        message.error(t("islemBasarisiz"));
-      }
-    } catch (error) {
-      console.error("Error deleting item:", error);
-      message.error(t("islemBasarisiz"));
-    }
   };
 
   const columns = [
@@ -209,23 +209,6 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
       align: "right",
       render: (value) => `₺${formatNumberWithLocale(value ?? 0, 2, 2)}`,
     },
-    {
-      title: t("islemler"),
-      key: "islemler",
-      width: 90,
-      align: "center",
-      render: (_, record) => (
-        <Popconfirm
-          title={t("kaydiSilmekIstediginizdenEminMisiniz")}
-          icon={<QuestionCircleOutlined style={{ color: "red" }} />}
-          okText={t("evet")}
-          cancelText={t("hayir")}
-          onConfirm={() => handleDelete(record)}
-        >
-          <Button type="text" icon={<DeleteOutlined />} />
-        </Popconfirm>
-      ),
-    },
   ];
 
   const tableScrollX = columns.reduce((total, column) => total + (column.width || 0), 0);
@@ -243,9 +226,12 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
           onPressEnter={handleSearch}
           prefix={<SearchOutlined style={{ color: "#bfbfbf" }} onClick={handleSearch} />}
         />
-        <Button className="btn primary-btn" onClick={handleYeniHareket}>
-          <PlusOutlined /> {t("yeniHareket")}
-        </Button>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTable} />
+          <Button className="btn primary-btn" onClick={handleYeniHareket}>
+            <PlusOutlined /> {t("yeniHareket")}
+          </Button>
+        </div>
       </div>
 
       <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", flexWrap: "wrap" }}>
@@ -255,13 +241,18 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
 
           <Spin spinning={loading}>
             <Table
+              rowSelection={rowSelection}
               columns={columns}
               dataSource={data}
               pagination={false}
               scroll={{ x: tableScrollX, y: "calc(100vh - 520px)" }}
               onRow={(record) => ({
                 style: { cursor: "pointer" },
-                onClick: () => setHareketModal({ open: true, seferOprId: record.key, defaultValues: null }),
+                onClick: (event) => {
+                  // Seçim kutusuna tıklandığında güncelleme penceresi açılmasın
+                  if (event.target.closest(".ant-table-selection-column")) return;
+                  setHareketModal({ open: true, seferOprId: record.key, defaultValues: null });
+                },
               })}
             />
           </Spin>
