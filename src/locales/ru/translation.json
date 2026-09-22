@@ -128,6 +128,7 @@
   "servisVeyaBakimDevam": "Транспорт с продолжающимся сервисом или ремонтом",
   "yasKmGiderSkoruOncelik": "Активный транспорт без записи активности более 30 дней",
   "toplamTutar": "Общая Сумма",
+  "toplamMiktar": "Общее Количество",
   "servisGideri": "Стоимость сервиса",
   "kmBasinaMaliyet": "Стоимость за км",
   "aracBasinaMaliyet": "Стоимость на Транспортное Средство",
