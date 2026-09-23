@@ -184,7 +184,7 @@ function OperasyonAnaliziIcerik() {
               <GuzergahToplamlari rows={analysisData[10]} onRefresh={() => refreshType(10)} />
             </Col>
             <Col xs={24} xl={12}>
-              <AylikTrendler rows={analysisData[11]} yil={trendYili} onYilChange={setTrendYili} onRefresh={() => refreshType(11)} />
+              <AylikTrendler rows={analysisData[11]} dateRange={appliedRange} yil={trendYili} onYilChange={setTrendYili} onRefresh={() => refreshType(11)} />
             </Col>
           </Row>
         </Spin>

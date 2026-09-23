@@ -84,3 +84,23 @@ export const compareDatesForSorter = (firstValue, secondValue) => {
 
   return firstDate.valueOf() - secondDate.valueOf();
 };
+
+// Tarih aralığının kapsadığı her ayın ilk gününü sırayla döndürür (aylık grafiklerde verisi olmayan ayları da göstermek için).
+export const getMonthsInRange = (startValue, endValue) => {
+  const startDate = toDayjsOrNull(startValue);
+  const endDate = toDayjsOrNull(endValue);
+
+  if (!startDate || !endDate) {
+    return [];
+  }
+
+  const months = [];
+  let month = startDate.startOf("month");
+
+  while (!month.isAfter(endDate, "month")) {
+    months.push(month);
+    month = month.add(1, "month");
+  }
+
+  return months;
+};

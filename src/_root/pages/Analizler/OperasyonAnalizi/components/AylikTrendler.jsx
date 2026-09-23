@@ -11,7 +11,7 @@ import { t } from "i18next";
 import AnalizKarti from "./AnalizKarti";
 import { GenislemisTablo } from "./TabloBolumu";
 import DatePickerSelectYear from "../../../../components/form/inputs/DatePickerSelectYear";
-import { toDayjsOrNull } from "../../../../../utils/dateUtils";
+import { getMonthsInRange, toDayjsOrNull } from "../../../../../utils/dateUtils";
 import { colors, trendSeriesColors } from "../utils/constants";
 import { formatMonthLabel, formatMonthNameLabel, formatNumber } from "../utils/formatters";
 import { downloadRowsAsXlsx } from "../utils/exporters";
@@ -27,26 +27,43 @@ const TOOLTIP_LABEL_STYLE = { color: colors.title, fontWeight: 600, marginBottom
 const TOOLTIP_ITEM_STYLE = { padding: "2px 0" };
 const EKSEN_YAZISI = { fontSize: 12, fill: colors.muted };
 
+// Servis satırları ile boş olarak eklenen aylar aynı anahtarla eşleşir
+const donemAnahtari = (yil, ay) => `${Number(yil)}-${Number(ay)}`;
+
 // Operasyon adedi ile toplam miktar tek eksende, referans tasarımdaki gibi üst üste yığılmış çubuklarla gösterilir
-export default function AylikTrendler({ rows, yil = null, onYilChange, onRefresh = undefined }) {
+export default function AylikTrendler({ rows, dateRange, yil = null, onYilChange, onRefresh = undefined }) {
   const { getValues, setValue } = useFormContext();
   const [yilModalAcik, setYilModalAcik] = useState(false);
 
-  const data = useMemo(
-    () =>
-      [...rows]
-        .sort((first, second) => first.yil - second.yil || first.ay - second.ay)
-        .map((item) => ({
-          etiket: formatMonthNameLabel(item.ay),
-          donem: formatMonthLabel(item.yil, item.ay),
-          seferSayisi: Number(item.seferSayisi) || 0,
-          toplamGerceklesenMiktar: Number(item.toplamGerceklesenMiktar) || 0,
-        })),
-    [rows]
-  );
+  // Grafikte gösterilecek aylar: widget'ın kendi yılı seçiliyse o yılın 12 ayı, değilse genel filtrenin tarih aralığındaki aylar
+  const aylar = useMemo(() => {
+    const yilBasi = yil ? dayjs().year(yil).startOf("year") : null;
+    const [baslangic, bitis] = yilBasi ? [yilBasi, yilBasi.endOf("year")] : dateRange;
 
-  // Başlıktaki yıl bilgisi veriden gelir; aralık iki yıla yayılıyorsa ikisi birden yazılır
-  const yillar = useMemo(() => [...new Set(rows.map((item) => item.yil))].sort((first, second) => first - second), [rows]);
+    return getMonthsInRange(baslangic, bitis).map((tarih) => ({ yil: tarih.year(), ay: tarih.month() + 1 }));
+  }, [yil, dateRange]);
+
+  // Servis yalnızca kaydı olan ayları döndürür; aralıktaki diğer aylar boş çubuk olarak eklenir
+  const data = useMemo(() => {
+    if (!rows.length) {
+      return [];
+    }
+
+    const donemler = new Map(aylar.map((item) => [donemAnahtari(item.yil, item.ay), item]));
+    rows.forEach((item) => donemler.set(donemAnahtari(item.yil, item.ay), item));
+
+    return [...donemler.values()]
+      .sort((first, second) => first.yil - second.yil || first.ay - second.ay)
+      .map((item) => ({
+        etiket: formatMonthNameLabel(item.ay),
+        donem: formatMonthLabel(item.yil, item.ay),
+        seferSayisi: Number(item.seferSayisi) || 0,
+        toplamGerceklesenMiktar: Number(item.toplamGerceklesenMiktar) || 0,
+      }));
+  }, [rows, aylar]);
+
+  // Başlıktaki yıl bilgisi grafikteki aylardan gelir; aralık iki yıla yayılıyorsa ikisi birden yazılır
+  const yillar = useMemo(() => [...new Set(aylar.map((item) => item.yil))].sort((first, second) => first - second), [aylar]);
   const aktifYil = yil || yillar[yillar.length - 1] || dayjs().year();
   const yilEtiketi = yillar.length ? yillar.join(" - ") : String(aktifYil);
 
@@ -119,6 +136,8 @@ export default function AylikTrendler({ rows, yil = null, onYilChange, onRefresh
 
 AylikTrendler.propTypes = {
   rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+  // Genel filtrede uygulanmış tarih aralığı [başlangıç, bitiş]; grafikteki aylar buna göre tamamlanır
+  dateRange: PropTypes.arrayOf(PropTypes.object).isRequired,
   // Widget'ın kendi yıl seçimi; boşsa üstteki genel filtrenin tarih aralığı geçerlidir
   yil: PropTypes.number,
   onYilChange: PropTypes.func.isRequired,
