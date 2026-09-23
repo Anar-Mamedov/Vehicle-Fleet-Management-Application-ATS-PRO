@@ -51,8 +51,9 @@ export const getRangeByPeriod = (period) => {
       return [today.subtract(3, "month"), today];
     case "son6Ay":
       return [today.subtract(6, "month"), today];
+    // "Bu Yıl" diğer modüllerdeki gibi takvim yılının tamamıdır; bitiş bugünle sınırlanmaz, aylık trend 12 ayı gösterir
     default:
-      return [today.startOf("year"), today];
+      return [today.startOf("year"), today.endOf("year")];
   }
 };
 
