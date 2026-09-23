@@ -110,7 +110,6 @@ const ServisIslemleri = lazyWithRetry(() => import("./_root/pages/vehicles-contr
 const YakitTuketimAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/YakitTuketimAnalizi/YakitTuketimAnalizi.jsx"));
 const PerformansAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/PerformansAnalizi/PerformansAnalizi.jsx"));
 const MaliyetAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/MaliyetAnalizi/MaliyetAnalizi.jsx"));
-const MalzemeTuketimAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/MalzemeTuketimAnalizi/MalzemeTuketimAnalizi.jsx"));
 const ExtremesAnalysis = lazyWithRetry(() => import("./_root/pages/Analizler/ExtremesAnalysis/ExtremesAnalysis.jsx"));
 const OperasyonAnalizi = lazyWithRetry(() => import("./_root/pages/Analizler/OperasyonAnalizi/OperasyonAnalizi.jsx"));
 
@@ -402,7 +401,6 @@ const App = () => {
               <Route path="/fuel-analysis" element={<YakitTuketimAnalizi />} />
               <Route path="/performance-analysis" element={<PerformansAnalizi />} />
               <Route path="/cost-analysis" element={<MaliyetAnalizi />} />
-              <Route path="/material-consumption-analysis" element={<MalzemeTuketimAnalizi />} />
               <Route path="/extremes-analysis" element={<ExtremesAnalysis />} />
               <Route path="/operation-analysis" element={<OperasyonAnalizi />} />
               
