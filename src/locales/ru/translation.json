@@ -819,7 +819,7 @@
   "farkliArac": "Разных ТС",
   "filtreler": "Фильтры",
   "firmaBazliDagilim": "Распределение по компаниям",
-  "firmaBazliDagilimAciklama": "Сравнение первых 5 компаний по выбранному показателю",
+  "firmaBazliDagilimAciklama": "Сравнение первых {{sayi}} компаний по выбранному показателю",
   "guzergahBazliOperasyonOzeti": "Сводка операций по маршрутам",
   "guzergahBazliOperasyonOzetiAciklama": "Распределение операций, движений, объёмов и сумм по маршрутам",
   "hareketBasinaOrt": "Сред. на движение",

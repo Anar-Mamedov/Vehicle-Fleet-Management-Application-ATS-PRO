@@ -1949,7 +1949,7 @@
   "farkVeGerceklesme": "Fark: {{fark}} · Gerçekleşme: {{oran}}",
   "farkliArac": "Farklı Araç",
   "firmaBazliDagilim": "Firma Bazlı Dağılım",
-  "firmaBazliDagilimAciklama": "Seçilen göstergeye göre ilk 5 firmanın karşılaştırması",
+  "firmaBazliDagilimAciklama": "Seçilen göstergeye göre ilk {{sayi}} firmanın karşılaştırması",
   "guzergahBazliOperasyonOzeti": "Güzergâh Bazlı Operasyon Özeti",
   "guzergahBazliOperasyonOzetiAciklama": "Güzergâh bazlı operasyon, hareket, miktar ve tutar dağılımı",
   "hareketBasinaOrt": "Hareket Başına Ort.",

@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { t } from "i18next";
 import AnalizKarti from "./AnalizKarti";
 import { GenislemisTablo } from "./TabloBolumu";
-import { FIRMA_DAGILIM_INFO, FIRMA_DAGILIM_INFO_LABEL_KEYS, WIDGET_PREVIEW_ROW_COUNT, barColorRamp, colors } from "../utils/constants";
+import { FIRMA_DAGILIM_INFO, FIRMA_DAGILIM_INFO_LABEL_KEYS, FIRMA_DAGILIM_PREVIEW_COUNT, barColorRamp, colors } from "../utils/constants";
 import { formatNumber, formatPercent, safeText } from "../utils/formatters";
 import { downloadRowsAsXlsx } from "../utils/exporters";
 import { firmaDagilimRows } from "../utils/exportMappers";
@@ -80,7 +80,7 @@ export default function FirmaDagilimi({ rows, info, onInfoChange, onRefresh = un
   return (
     <AnalizKarti
       title={t("firmaBazliDagilim")}
-      subtitle={t("firmaBazliDagilimAciklama")}
+      subtitle={t("firmaBazliDagilimAciklama", { sayi: FIRMA_DAGILIM_PREVIEW_COUNT })}
       extra={gostergeSecimi}
       onRefresh={onRefresh}
       onDownload={handleDownload}
@@ -88,7 +88,7 @@ export default function FirmaDagilimi({ rows, info, onInfoChange, onRefresh = un
       dataContent={<GenislemisTablo columns={tabloKolonlari} rows={data} rowKey={(record, index) => `${record.firma}-${index}`} scrollX={520} />}
       contentCentered
     >
-      <FirmaDagilimListesi data={data.slice(0, WIDGET_PREVIEW_ROW_COUNT)} />
+      <FirmaDagilimListesi data={data.slice(0, FIRMA_DAGILIM_PREVIEW_COUNT)} />
     </AnalizKarti>
   );
 }

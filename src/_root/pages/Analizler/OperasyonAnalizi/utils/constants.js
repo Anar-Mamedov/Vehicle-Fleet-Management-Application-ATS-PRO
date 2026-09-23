@@ -35,6 +35,8 @@ export const MAX_DATE_RANGE_YEARS = 1;
 
 // Kartlarda yalnızca ilk 5 kayıt görünür, tamamı "Büyüt" penceresinde sayfalanarak listelenir
 export const WIDGET_PREVIEW_ROW_COUNT = 5;
+// Firma bazlı dağılım kartı ilk 10 firmayı gösterir; tablo kartlarının 5 kayıt sınırından bağımsızdır
+export const FIRMA_DAGILIM_PREVIEW_COUNT = 10;
 export const WIDGET_PAGE_SIZE_STORAGE_KEY = "operasyonAnaliziWidgetPageSize";
 
 // "Büyüt" penceresinin gövde yüksekliği ile içindeki tablo gövdesi birlikte hesaplanır (RULES.md 14).

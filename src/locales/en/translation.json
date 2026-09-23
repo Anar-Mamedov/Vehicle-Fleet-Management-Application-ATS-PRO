@@ -1707,7 +1707,7 @@
   "farkVeGerceklesme": "Difference: {{fark}} · Realization: {{oran}}",
   "farkliArac": "Distinct Vehicles",
   "firmaBazliDagilim": "Distribution by Company",
-  "firmaBazliDagilimAciklama": "Comparison of the top 5 companies by the selected metric",
+  "firmaBazliDagilimAciklama": "Comparison of the top {{sayi}} companies by the selected metric",
   "guzergahBazliOperasyonOzeti": "Operation Summary by Route",
   "guzergahBazliOperasyonOzetiAciklama": "Operation, movement, quantity and amount distribution by route",
   "hareketBasinaOrt": "Avg. per Movement",

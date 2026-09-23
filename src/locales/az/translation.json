@@ -1259,7 +1259,7 @@
   "farkliArac": "Fərqli Nəqliyyat",
   "filtreler": "Filtrlər",
   "firmaBazliDagilim": "Firma üzrə Bölgü",
-  "firmaBazliDagilimAciklama": "Seçilmiş göstərici üzrə ilk 5 firmanın müqayisəsi",
+  "firmaBazliDagilimAciklama": "Seçilmiş göstərici üzrə ilk {{sayi}} firmanın müqayisəsi",
   "guzergahBazliOperasyonOzeti": "Marşrut üzrə Əməliyyat Xülasəsi",
   "guzergahBazliOperasyonOzetiAciklama": "Marşrut üzrə əməliyyat, hərəkət, miqdar və məbləğ bölgüsü",
   "hareketBasinaOrt": "Hərəkət Başına Ort.",
