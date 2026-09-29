@@ -51,7 +51,11 @@ export const toPercentValue = (value) => {
   return Math.min(100, Math.max(0, percentage));
 };
 
-// Servis type=2 yanıtında değişim oranını göndermediği için önceki dönemden hesaplanır
+// Hesaplanan değişim oranının kesir hassasiyeti; yüzdeye çevrilince en fazla 2 ondalık kalır (0,8077 -> %80,77)
+const CHANGE_RATIO_FRACTION_DIGITS = 4;
+
+// Servis type=2 yanıtında değişim oranını göndermediği için önceki dönemden hesaplanır.
+// Bölme sonucu tüm ondalıklarıyla geldiği için (21 / 26 = 0,8076923076923077) yuvarlanır; servisten gelen oranlara dokunulmaz (RULES.md 8)
 export const calculateChangeRatio = (current, previous) => {
   const previousValue = Number(previous);
 
@@ -59,7 +63,8 @@ export const calculateChangeRatio = (current, previous) => {
     return null;
   }
 
-  return (Number(current) - previousValue) / previousValue;
+  const ratio = (Number(current) - previousValue) / previousValue;
+  return Number(ratio.toFixed(CHANGE_RATIO_FRACTION_DIGITS));
 };
 
 // Aylık trend tooltip ve Excel çıktısı: kullanıcının dilinde "Ara 2026" biçiminde etiket üretir
