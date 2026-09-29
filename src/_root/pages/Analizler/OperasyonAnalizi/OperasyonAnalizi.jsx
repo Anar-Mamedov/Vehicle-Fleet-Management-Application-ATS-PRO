@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, Button, Col, Row, Space, Spin, Typography } from "antd";
 import { CalendarOutlined, DownloadOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 import { FormProvider, useForm } from "react-hook-form";
 import { t } from "i18next";
 import AxiosInstance from "../../../../api/http";
@@ -33,7 +34,8 @@ function OperasyonAnaliziIcerik() {
   const [requestBody, setRequestBody] = useState(() => buildAnalysisBody(emptyFilters, getDefaultDateRange()));
   const [appliedRange, setAppliedRange] = useState(getDefaultDateRange);
   const [firmaInfo, setFirmaInfo] = useState(FIRMA_DAGILIM_INFO.OPERASYON);
-  const [trendYili, setTrendYili] = useState(null);
+  // Aylık trend genel tarih aralığından bağımsızdır; açılışta içinde bulunulan yılla başlar
+  const [trendYili, setTrendYili] = useState(() => dayjs().year());
   const [analysisData, setAnalysisData] = useState(buildEmptyData);
   const [loading, setLoading] = useState(false);
   const [firmaLoading, setFirmaLoading] = useState(false);
@@ -92,11 +94,8 @@ function OperasyonAnaliziIcerik() {
   // type=7 "info" parametresine bağlı olduğu için gösterge değiştiğinde tek başına yenilenir
   const fetchFirmaData = useCallback(() => fetchSingleType(FIRMA_DAGILIM_TYPE, { ...requestBody, info: firmaInfo }, setFirmaLoading), [fetchSingleType, requestBody, firmaInfo]);
 
-  // type=11 widget'ın kendi yıl seçimini kullanır; seçim yoksa genel filtrenin tarih aralığı geçerlidir
-  const fetchTrendData = useCallback(
-    () => fetchSingleType(AYLIK_TREND_TYPE, trendYili ? buildYearBody(requestBody, trendYili) : requestBody, setTrendLoading),
-    [fetchSingleType, requestBody, trendYili]
-  );
+  // type=11 tarih aralığı olarak yalnızca widget'ın kendi yıl seçimini kullanır; genel filtrenin diğer alanları uygulanır
+  const fetchTrendData = useCallback(() => fetchSingleType(AYLIK_TREND_TYPE, buildYearBody(requestBody, trendYili), setTrendLoading), [fetchSingleType, requestBody, trendYili]);
 
   useEffect(() => {
     fetchBaseData();
@@ -124,11 +123,9 @@ function OperasyonAnaliziIcerik() {
     [fetchFirmaData, fetchTrendData, fetchSingleType, requestBody]
   );
 
-  // Genel filtreler uygulandığında widget'ın kendi yıl seçimi geçersiz olur
   const handleApply = useCallback((filters, dateRange) => {
     setRequestBody(buildAnalysisBody(filters, dateRange));
     setAppliedRange(dateRange);
-    setTrendYili(null);
   }, []);
 
   const handleExcelDownload = useCallback(
@@ -184,7 +181,7 @@ function OperasyonAnaliziIcerik() {
               <GuzergahToplamlari rows={analysisData[10]} onRefresh={() => refreshType(10)} />
             </Col>
             <Col xs={24} xl={12}>
-              <AylikTrendler rows={analysisData[11]} dateRange={appliedRange} yil={trendYili} onYilChange={setTrendYili} onRefresh={() => refreshType(11)} />
+              <AylikTrendler rows={analysisData[11]} yil={trendYili} onYilChange={setTrendYili} onRefresh={() => refreshType(11)} />
             </Col>
           </Row>
         </Spin>
