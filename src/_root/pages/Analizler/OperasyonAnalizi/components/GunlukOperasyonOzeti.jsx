@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Progress } from "antd";
 import PropTypes from "prop-types";
 import { t } from "i18next";
@@ -19,6 +19,10 @@ const renderGerceklesmeOrani = (value) => (
 
 // Not: type=6 yanıtında hareket sayısı alanı `hareketSaysi` olarak geliyor
 export default function GunlukOperasyonOzeti({ rows, onRefresh = undefined }) {
+  // Kartta yalnızca ilk 5 satır göründüğü için liste bitiş tarihinden geriye doğru (yeniden eskiye) sıralanır;
+  // "Büyüt" penceresi ve Excel çıktısı da aynı sıralamayı kullanır
+  const siraliSatirlar = useMemo(() => [...rows].sort((first, second) => compareDatesForSorter(second.tarih, first.tarih)), [rows]);
+
   // ellipsis: baslik ve hucreler tek satirda kalir, sigmayan kisim "..." ile kisaltilir
   const columns = [
     { title: t("tarih"), dataIndex: "tarih", key: "tarih", width: 105, ellipsis: true, render: (value) => <FormattedDate date={value} />, sorter: (a, b) => compareDatesForSorter(a.tarih, b.tarih) },
@@ -35,7 +39,7 @@ export default function GunlukOperasyonOzeti({ rows, onRefresh = undefined }) {
       title={t("gunlukOperasyonOzeti")}
       subtitle={t("gunlukOperasyonOzetiAciklama")}
       columns={columns}
-      rows={rows}
+      rows={siraliSatirlar}
       rowKey={(record, index) => `${record.tarih}-${index}`}
       exportRows={gunlukOzetRows}
       scrollX={740}

@@ -35,25 +35,30 @@ const DRAWER_FIELD_WIDTH = "100%";
 export const CUSTOM_PERIOD = "ozelAralik";
 
 // Hazır süre seçenekleri; hepsi 1 yıllık servis sınırının içinde kalır
-export const PERIOD_OPTIONS = ["buHafta", "buAy", "son3Ay", "son6Ay", "buYil", CUSTOM_PERIOD];
+export const PERIOD_OPTIONS = ["buHafta", "gecenHafta", "buAy", "gecenAy", "son3Ay", "son6Ay", "buYil", CUSTOM_PERIOD];
 
 export const DEFAULT_PERIOD = "buYil";
 
+// Geçen hafta ve geçen ay kendi son gününde, diğer hazır dönemler bugünde biter; bitiş tarihi bugünden ileri geçmez
 export const getRangeByPeriod = (period) => {
   const today = dayjs();
 
   switch (period) {
     case "buHafta":
       return [today.startOf("week"), today];
+    // Hafta Türkçe locale'e göre pazartesi başlar, pazar biter
+    case "gecenHafta":
+      return [today.subtract(1, "week").startOf("week"), today.subtract(1, "week").endOf("week")];
     case "buAy":
       return [today.startOf("month"), today];
+    case "gecenAy":
+      return [today.subtract(1, "month").startOf("month"), today.subtract(1, "month").endOf("month")];
     case "son3Ay":
       return [today.subtract(3, "month"), today];
     case "son6Ay":
       return [today.subtract(6, "month"), today];
-    // "Bu Yıl" diğer modüllerdeki gibi takvim yılının tamamıdır; bitiş bugünle sınırlanmaz, aylık trend 12 ayı gösterir
     default:
-      return [today.startOf("year"), today.endOf("year")];
+      return [today.startOf("year"), today];
   }
 };
 
