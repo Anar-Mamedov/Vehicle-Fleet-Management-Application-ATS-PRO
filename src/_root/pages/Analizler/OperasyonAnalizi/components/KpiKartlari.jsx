@@ -47,9 +47,10 @@ function BuyukDeger({ value }) {
 
 BuyukDeger.propTypes = { value: PropTypes.string.isRequired };
 
-// Önceki döneme göre değişim; negatifse aşağı ok ve kırmızı ile gösterilir
-function DegisimSatiri({ oran }) {
-  if (oran === null || oran === undefined || Number.isNaN(Number(oran))) {
+// Önceki döneme göre değişim; negatifse aşağı ok ve kırmızı ile gösterilir.
+// Kartın değeri 0 iken karşılaştırma her zaman %100 düşüş çıkardığı için satır gösterilmez
+function DegisimSatiri({ deger, oran }) {
+  if (Number(deger) === 0 || oran === null || oran === undefined || Number.isNaN(Number(oran))) {
     return null;
   }
 
@@ -63,7 +64,7 @@ function DegisimSatiri({ oran }) {
   );
 }
 
-DegisimSatiri.propTypes = { oran: PropTypes.number };
+DegisimSatiri.propTypes = { deger: PropTypes.number, oran: PropTypes.number };
 
 function MiktarSutunu({ label, value }) {
   return (
@@ -89,7 +90,7 @@ export default function KpiKartlari({ toplamOperasyon, toplamHareket, miktar, to
       <Col flex="1 1 200px">
         <KpiKarti icon={<ProfileOutlined />} iconColor={ICON_COLORS.operasyon} title={t("toplamOperasyon")}>
           <BuyukDeger value={formatNumber(toplamOperasyon.toplamSayisi)} />
-          <DegisimSatiri oran={toplamOperasyon.oran} />
+          <DegisimSatiri deger={toplamOperasyon.toplamSayisi} oran={toplamOperasyon.oran} />
         </KpiKarti>
       </Col>
 
@@ -97,7 +98,7 @@ export default function KpiKartlari({ toplamOperasyon, toplamHareket, miktar, to
         <KpiKarti icon={<SwapOutlined />} iconColor={ICON_COLORS.hareket} title={t("toplamHareket")}>
           <BuyukDeger value={formatNumber(toplamHareket.toplamSayisi)} />
           <div style={{ marginTop: 4, fontSize: 11, color: colors.muted }}>{t("operasyonBasinaHareket", { sayi: formatNumber(toplamHareket.operasyonBasinaHareketSayisi) })}</div>
-          <DegisimSatiri oran={hareketDegisimi} />
+          <DegisimSatiri deger={toplamHareket.toplamSayisi} oran={hareketDegisimi} />
         </KpiKarti>
       </Col>
 
@@ -115,7 +116,7 @@ export default function KpiKartlari({ toplamOperasyon, toplamHareket, miktar, to
       <Col flex="1 1 200px">
         <KpiKarti icon={<WalletOutlined />} iconColor={ICON_COLORS.tutar} title={t("toplamTutar")}>
           <BuyukDeger value={formatNumber(toplamTutar.toplamSayisi)} />
-          <DegisimSatiri oran={toplamTutar.oran} />
+          <DegisimSatiri deger={toplamTutar.toplamSayisi} oran={toplamTutar.oran} />
         </KpiKarti>
       </Col>
 
