@@ -78,7 +78,7 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
     }
 
     try {
-      const { data } = await AxiosInstance.get(`VehicleServices/GetUsedMaterialsWorkOrdersCount?serviceId=${secilenIsEmriID}`);
+      const { data } = await AxiosInstance.get(`VehicleServices/GetUsedMaterialsAndWorkCardsCount?serviceId=${secilenIsEmriID}`);
 
       if (isMountedRef.current) {
         const parsedIscilik = Number(data?.iscilikSayisi ?? 0);
@@ -90,7 +90,7 @@ export default function SecondTabs({ refreshKey, fieldRequirements }) {
         });
       }
     } catch (error) {
-      console.error("VehicleServices/GetUsedMaterialsWorkOrdersCount isteği başarısız oldu:", error);
+      console.error("VehicleServices/GetUsedMaterialsAndWorkCardsCount isteği başarısız oldu:", error);
       if (isMountedRef.current) {
         setTabCounts({ iscilik: 0, malzeme: 0 });
       }
