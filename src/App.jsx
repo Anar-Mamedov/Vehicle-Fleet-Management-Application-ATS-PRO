@@ -99,6 +99,9 @@ const Ekspertizler = lazyWithRetry(() => import("./_root/pages/vehicles-control/
 const PeriyordikBakimlar = lazyWithRetry(() => import("./_root/pages/BakimVeOnarim/PeriyodikBakimlar/PeriyodikBakimlar.jsx"));
 const ArizaBildirimleri = lazyWithRetry(() => import("./_root/pages/BakimVeOnarim/ArizaBildirimleri/ArizaBildirimleri.jsx"));
 
+// Kademe Yönetimi
+const KademeTanimlari = lazyWithRetry(() => import("./_root/pages/KademeYonetimi/KademeTanimlari/KademeTanimlari.jsx"));
+
 const Raporlar = lazyWithRetry(() => import("./_root/pages/raporlar/RaporYonetimi.jsx"));
 const KodYonetimi = lazyWithRetry(() => import("./_root/pages/kod-yonetimi/KodYonetimi"));
 const DokumanYonetimi = lazyWithRetry(() => import("./_root/pages/DokumanYonetimi/DokumanYonetimi.jsx"));
@@ -407,6 +410,9 @@ const App = () => {
               {/* Bakım ve Onarım */}
               <Route path="/Periodic-Maintenance" element={<PeriyordikBakimlar />} />
               <Route path="/ariza-bildirimleri" element={<ArizaBildirimleri />} />
+
+              {/* Kademe Yönetimi */}
+              <Route path="/kademe-tanimlari" element={<KademeTanimlari />} />
               <Route path="/surucu-tanimlari" element={<Suruculer />} />
               <Route path="/raporlar" element={<Raporlar />} />
               <Route path="/hazirlaniyor" element={<Hazirlaniyor />} />

@@ -40,6 +40,7 @@ import {
   AppstoreOutlined,
   UsergroupAddOutlined,
   FileTextOutlined,
+  ApartmentOutlined,
 } from "@ant-design/icons";
 import { MdOutlineSystemUpdateAlt } from "react-icons/md";
 import { LuWarehouse } from "react-icons/lu";
@@ -118,6 +119,9 @@ export const MENU_MODULE_BY_KEY = {
   l23jkhb4: "talepYonetimi",
   // Backend "operasyonAnalizi" modülünü tanımlayana kadar üst menünün ("analizler") yetkisiyle görünür.
   "operation-analysis": ["operasyonAnalizi", "analizler"],
+  // Backend kademe modüllerini tanımlayana kadar "Bakım & Servis" ("bakimServis") yetkisiyle görünür.
+  "kademe-yonetimi": ["kademeYonetimi", "bakimServis"],
+  "kademe-tanimlari": ["kademeTanimlari", "bakimServis"],
   role_definitions: ["rolTanimlari", "yonetim"],
   settings_modal_trigger: "ayarlar",
 };
@@ -494,6 +498,18 @@ const Sidebar = ({ collapsed }) => {
           key: "24",
           label: <Link to={"/malzeme-tanimlari"}>{t("atolyeTanimlari")}</Link>,
         }, */
+        ],
+      },
+      {
+        key: "kademe-yonetimi",
+        icon: <ApartmentOutlined />,
+        label: t("kademeYonetimi"),
+        children: [
+          {
+            key: "kademe-tanimlari",
+            icon: <TagOutlined />,
+            label: <Link to={"/kademe-tanimlari"}>{t("kademeTanimlari")}</Link>,
+          },
         ],
       },
       {
