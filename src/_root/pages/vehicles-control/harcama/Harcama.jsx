@@ -353,6 +353,19 @@ const Sigorta = ({ seferId = null, isSefer = false, tableHeight = null, selected
         return a.lokasyon.localeCompare(b.lokasyon);
       },
     },
+    {
+      title: t("aciklama"),
+      dataIndex: "aciklama",
+      key: "aciklama",
+      width: 200,
+      ellipsis: true,
+      visible: true,
+      sorter: (a, b) => {
+        if (a.aciklama === null) return -1;
+        if (b.aciklama === null) return 1;
+        return a.aciklama.localeCompare(b.aciklama);
+      },
+    },
 
     // Add other columns as needed
   ];
