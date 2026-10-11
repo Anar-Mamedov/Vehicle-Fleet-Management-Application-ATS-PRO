@@ -8,7 +8,6 @@ import TimeInput from "../../../../components/form/date/TimeInput";
 import SwitchInput from "../../../../components/form/checkbox/SwitchInput";
 import CheckableTagGroupInput from "../../../../components/form/checkbox/CheckableTagGroupInput";
 import KodIDSelectbox from "../../../../components/KodIDSelectbox";
-import PersonelSelectBox from "../../../../components/PersonelSelectBox";
 import LokasyonTablo from "../../../../components/form/LokasyonTable";
 import FormField from "../components/FormField";
 import AtananPersoneller from "../components/AtananPersoneller";
@@ -70,8 +69,7 @@ const GenelBilgiler = ({ kodDurumu = "normal", kademeId }) => {
           </FormField>
 
           <FormField span={6} label={t("kademeSorumlusu")}>
-            {/* Servis sorumluyu metin olarak tuttuğu için seçilen personelin adı kademeSorumlusu alanına yazılır */}
-            <PersonelSelectBox name1="kademeSorumluPersonel" onChange={(personelId, isim) => setValue("kademeSorumlusu", isim || null)} />
+            <TextInput name="kademeSorumlusu" />
           </FormField>
 
           <FormField span={6} label={t("durum")}>
