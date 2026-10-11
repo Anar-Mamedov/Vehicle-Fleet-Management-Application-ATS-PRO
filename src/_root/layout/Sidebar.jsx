@@ -119,9 +119,8 @@ export const MENU_MODULE_BY_KEY = {
   l23jkhb4: "talepYonetimi",
   // Backend "operasyonAnalizi" modülünü tanımlayana kadar üst menünün ("analizler") yetkisiyle görünür.
   "operation-analysis": ["operasyonAnalizi", "analizler"],
-  // Backend kademe modüllerini tanımlayana kadar "Bakım & Servis" ("bakimServis") yetkisiyle görünür.
-  "kademe-yonetimi": ["kademeYonetimi", "bakimServis"],
-  "kademe-tanimlari": ["kademeTanimlari", "bakimServis"],
+  "kademe-yonetimi": "kademeYonetimi",
+  "kademe-tanimlari": "kademeTanimlari",
   role_definitions: ["rolTanimlari", "yonetim"],
   settings_modal_trigger: "ayarlar",
 };
