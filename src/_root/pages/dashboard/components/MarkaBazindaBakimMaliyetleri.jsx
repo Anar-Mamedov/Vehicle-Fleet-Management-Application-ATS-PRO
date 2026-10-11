@@ -95,6 +95,29 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
     }
   };
 
+  // Grafikte bir markaya tıklandığında marka seçimini otomatik yapar
+  const handleMarkaBarClick = async (barData) => {
+    const markaAdi = barData?.payload?.MARKA;
+    if (selectedMarkaId || !markaAdi) {
+      return;
+    }
+
+    try {
+      const response = await http.get("Mark/GetMarkList");
+      const markaList = response?.data || [];
+      const secilenMarka = markaList.find((item) => item.marka?.trim().toLowerCase() === markaAdi.trim().toLowerCase());
+      if (!secilenMarka) {
+        return;
+      }
+
+      setValue("widgetMarka", secilenMarka.marka);
+      setValue("widgetMarkaID", secilenMarka.siraNo);
+      setSelectedMarkaId(secilenMarka.siraNo);
+    } catch (error) {
+      console.error("Failed to select brand:", error);
+    }
+  };
+
   useEffect(() => {
     if (baslamaTarihi || selectedMarkaId) {
       fetchData();
@@ -296,7 +319,7 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
                 <XAxis dataKey="MARKA" interval={0} angle={-90} textAnchor="end" height={120} tick={{ fontSize: 11 }} tickFormatter={(value) => (value && value.length > 10 ? `${value.slice(0, 10)}...` : value)} />
                 <YAxis tickFormatter={(value) => value.toLocaleString("tr-TR")} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="ARAC_SAYISI" fill="#36B37E" hide={!visibleSeries.ARAC_SAYISI} name="Araç Sayısı">
+                <Bar dataKey="ARAC_SAYISI" fill="#36B37E" hide={!visibleSeries.ARAC_SAYISI} name="Araç Sayısı" onClick={handleMarkaBarClick} cursor={selectedMarkaId ? "default" : "pointer"}>
                   <LabelList content={<CustomLabel />} dataKey="ARAC_SAYISI" position="top" />
                 </Bar>
               </BarChart>
@@ -384,7 +407,7 @@ function MarkaBazindaBakimMaliyetleri(props = {}) {
               <XAxis dataKey="MARKA" interval={0} angle={-90} textAnchor="end" height={120} tick={{ fontSize: 11 }} tickFormatter={(value) => (value && value.length > 10 ? `${value.slice(0, 10)}...` : value)} />
               <YAxis tickFormatter={(value) => value.toLocaleString("tr-TR")} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="ARAC_SAYISI" fill="#36B37E" hide={!visibleSeries.ARAC_SAYISI} name="Araç Sayısı">
+              <Bar dataKey="ARAC_SAYISI" fill="#36B37E" hide={!visibleSeries.ARAC_SAYISI} name="Araç Sayısı" onClick={handleMarkaBarClick} cursor={selectedMarkaId ? "default" : "pointer"}>
                 <LabelList content={<CustomLabel />} dataKey="ARAC_SAYISI" position="top" />
               </Bar>
             </BarChart>
