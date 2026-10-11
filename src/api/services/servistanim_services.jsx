@@ -27,3 +27,8 @@ export const GetServisByIdService = async (id) => {
 export const UpdateServisService = async (data) => {
   return await http.post(`/ServiceDef/UpdateServiceDefItem`, data);
 };
+
+// Araca tanımlı servis/bakım tanımları (periyodik bakımlar dahil); sayfa numarasıyla sayfalanır
+export const GetServiceDefListRelatedToVehicleService = async (vehicleId, page, search) => {
+  return await http.get(`/ServiceDef/GetServiceDefListRelatedToVehicle?vId=${vehicleId}&page=${page}&parameter=${encodeURIComponent(search)}`);
+};

@@ -121,6 +121,7 @@ export const MENU_MODULE_BY_KEY = {
   "operation-analysis": ["operasyonAnalizi", "analizler"],
   "kademe-yonetimi": "kademeYonetimi",
   "kademe-tanimlari": "kademeTanimlari",
+  "kademe-is-emirleri": "isEmirleri",
   role_definitions: ["rolTanimlari", "yonetim"],
   settings_modal_trigger: "ayarlar",
 };
@@ -508,6 +509,11 @@ const Sidebar = ({ collapsed }) => {
             key: "kademe-tanimlari",
             icon: <TagOutlined />,
             label: <Link to={"/kademe-tanimlari"}>{t("kademeTanimlari")}</Link>,
+          },
+          {
+            key: "kademe-is-emirleri",
+            icon: <FileTextOutlined />,
+            label: <Link to={"/kademe-is-emirleri"}>{t("kademeIsEmirleri")}</Link>,
           },
         ],
       },

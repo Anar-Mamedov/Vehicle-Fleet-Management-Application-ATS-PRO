@@ -101,6 +101,7 @@ const ArizaBildirimleri = lazyWithRetry(() => import("./_root/pages/BakimVeOnari
 
 // Kademe Yönetimi
 const KademeTanimlari = lazyWithRetry(() => import("./_root/pages/KademeYonetimi/KademeTanimlari/KademeTanimlari.jsx"));
+const KademeIsEmirleri = lazyWithRetry(() => import("./_root/pages/KademeYonetimi/KademeIsEmirleri/KademeIsEmirleri.jsx"));
 
 const Raporlar = lazyWithRetry(() => import("./_root/pages/raporlar/RaporYonetimi.jsx"));
 const KodYonetimi = lazyWithRetry(() => import("./_root/pages/kod-yonetimi/KodYonetimi"));
@@ -413,6 +414,7 @@ const App = () => {
 
               {/* Kademe Yönetimi */}
               <Route path="/kademe-tanimlari" element={<KademeTanimlari />} />
+              <Route path="/kademe-is-emirleri" element={<KademeIsEmirleri />} />
               <Route path="/surucu-tanimlari" element={<Suruculer />} />
               <Route path="/raporlar" element={<Raporlar />} />
               <Route path="/hazirlaniyor" element={<Hazirlaniyor />} />
