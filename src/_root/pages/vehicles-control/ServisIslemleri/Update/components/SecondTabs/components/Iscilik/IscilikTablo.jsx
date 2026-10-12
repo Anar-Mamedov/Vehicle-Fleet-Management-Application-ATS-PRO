@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Input, Modal, Table } from "antd";
 import { CheckOutlined, CloseOutlined, SearchOutlined } from "@ant-design/icons";
 import { useFormContext } from "react-hook-form";
@@ -17,8 +17,6 @@ export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchCount, setSearchCount] = useState(0);
-  const [debounceTimer, setDebounceTimer] = useState(null);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -135,33 +133,36 @@ export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
   //   }
   // }, [secilenKayitID, isActive]); // secilenKayitID değiştiğinde fetch fonksiyonunu güncelle
 
+  // Backend sayfalama yapmıyor: tüm liste tek seferde çekilir, sayfalama ve arama frontend'de yapılır
   const fetch = useCallback(() => {
     if (isActive) {
       setLoading(true);
 
-      AxiosInstance.get(`ServiceWorkCard/GetServiceWorkCardByServiceId?serviceId=${secilenKayitID}&page=${pagination.current}&parameter=${searchTerm}`)
+      AxiosInstance.get(`ServiceWorkCard/GetServiceWorkCardByServiceId?serviceId=${secilenKayitID}`)
         .then((response) => {
-          const { list, recordCount } = response.data;
+          const list = Array.isArray(response.data) ? response.data : response.data?.list || [];
           const fetchedData = list.map((item) => ({
             ...item,
             key: item.siraNo,
           }));
           setData(fetchedData);
-          setPagination((prev) => ({
-            ...prev,
-            total: recordCount,
-          }));
         })
         .finally(() => setLoading(false));
     }
-  }, [pagination.current, searchTerm, isActive, secilenKayitID]); // pagination.current, searchTerm veya plakaID değiştiğinde fetch fonksiyonunu güncelle
+  }, [isActive, secilenKayitID]);
 
   useEffect(() => {
     if (secilenKayitID) {
-      // secilenKayitID'nin varlığını ve geçerliliğini kontrol edin
-      fetch(); // fetch fonksiyonunu çağırın
+      fetch();
     }
-  }, [secilenKayitID]); // secilenKayitID veya fetch fonksiyonu değiştiğinde useEffect'i tetikle
+  }, [secilenKayitID, fetch]);
+
+  const filteredData = useMemo(() => {
+    const term = searchTerm.trim().toLocaleLowerCase("tr");
+    if (!term) return data;
+
+    return data.filter((item) => [item.isTanim, item.isTip].some((value) => String(value ?? "").toLocaleLowerCase("tr").includes(term)));
+  }, [data, searchTerm]);
 
   const onRowSelectChange = (selectedKeys) => {
     setSelectedRowKeys(selectedKeys.length ? [selectedKeys[0]] : []);
@@ -178,29 +179,16 @@ export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
   }, [fetch]);
 
   const handleTableChange = (newPagination) => {
-    setPagination(newPagination);
+    setPagination({
+      current: newPagination.current,
+      pageSize: newPagination.pageSize,
+    });
   };
 
-  useEffect(() => {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    const timeout = setTimeout(() => {
-      if (searchTerm.trim() !== "") {
-        fetch(); // Trigger the API request based on your search logic
-        setPagination((prev) => ({ ...prev, current: 1 })); // Reset to page 1 when search term changes
-        setSearchCount(searchCount + 1);
-      } else if (searchTerm.trim() === "" && searchCount > 0) {
-        fetch(); // Fetch data without search term
-        setPagination((prev) => ({ ...prev, current: 1 })); // Reset to page 1 when search term changes
-      }
-    }, 2000);
-
-    setDebounceTimer(timeout);
-
-    return () => clearTimeout(timeout);
-  }, [searchTerm, fetch]);
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setPagination((prev) => ({ ...prev, current: 1 }));
+  };
 
   return (
     <div style={{ marginBottom: "25px" }}>
@@ -210,7 +198,7 @@ export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
           type="text"
           placeholder="Arama yap..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearchChange}
           prefix={<SearchOutlined style={{ color: "#0091ff" }} />}
         />
         <div style={{ display: "flex", alignItems: "center" }}>
@@ -238,7 +226,7 @@ export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
         }}
         size={"small"}
         columns={columns}
-        dataSource={data}
+        dataSource={filteredData}
         pagination={pagination}
         onChange={handleTableChange}
         loading={loading}
