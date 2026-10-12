@@ -4,9 +4,10 @@ import { Tag } from "antd";
 import { t } from "i18next";
 import { getDurumTanimi } from "../constants";
 
-// Servis ekranındaki durum etiketi görünümü: durum renginin açık tonu zemin, koyu tonu çerçeve olur
-const DurumTag = ({ durum }) => {
-  const tanim = getDurumTanimi(durum);
+// Servis ekranındaki durum etiketi görünümü: durum renginin açık tonu zemin, koyu tonu çerçeve olur.
+// Varsayılan olarak iş emri durumlarını gösterir; atanan işler için getTanim ile iş durumu tanımı verilir.
+const DurumTag = ({ durum, getTanim = getDurumTanimi }) => {
+  const tanim = getTanim(durum);
   if (!tanim) return "-";
 
   return (
@@ -16,6 +17,7 @@ const DurumTag = ({ durum }) => {
 
 DurumTag.propTypes = {
   durum: PropTypes.number,
+  getTanim: PropTypes.func,
 };
 
 export default DurumTag;

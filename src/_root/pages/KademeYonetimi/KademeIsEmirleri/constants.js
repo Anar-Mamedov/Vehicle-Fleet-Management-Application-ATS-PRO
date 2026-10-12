@@ -37,6 +37,52 @@ export const getDurumOptions = () =>
     label: t(labelKey),
   }));
 
+// Atanan işlerin (iş kartlarının) durumları; iş emri durumlarından farklı bir listedir
+export const IS_TURU_KOD_ID = 113;
+
+export const IS_DURUM = {
+  BEKLIYOR: 1,
+  DEVAM_EDIYOR: 2,
+  DURDU: 3,
+  YENIDEN_BASLADI: 4,
+  TAMAMLANDI: 5,
+};
+
+const IS_DURUM_TANIMLARI = {
+  [IS_DURUM.BEKLIYOR]: { labelKey: "bekliyor", color: "#8c8c8c" },
+  [IS_DURUM.DEVAM_EDIYOR]: { labelKey: "devamEdiyor", color: "#2196f3" },
+  [IS_DURUM.DURDU]: { labelKey: "durdu", color: "#ff9800" },
+  [IS_DURUM.YENIDEN_BASLADI]: { labelKey: "yenidenBasladi", color: "#722ed1" },
+  [IS_DURUM.TAMAMLANDI]: { labelKey: "tamamlandi", color: "#2bc770" },
+};
+
+// Yeni atanan iş servisten durumsuz (0) gelir; henüz başlamamış iş "Bekliyor" kabul edilir
+export const normalizeIsDurumu = (durum) => Number(durum) || IS_DURUM.BEKLIYOR;
+
+export const getIsDurumTanimi = (durum) => IS_DURUM_TANIMLARI[normalizeIsDurumu(durum)] || null;
+
+// Durum servisi "Bekliyor" değerini kabul etmediği için o seçenek yalnızca gösterilir, seçilemez
+export const getIsDurumOptions = () =>
+  Object.entries(IS_DURUM_TANIMLARI).map(([value, { labelKey }]) => ({
+    value: Number(value),
+    label: t(labelKey),
+    disabled: Number(value) === IS_DURUM.BEKLIYOR,
+  }));
+
+// Süre servisten dakika olarak gelir
+const ikiHane = (value) => String(value).padStart(2, "0");
+
+export const formatSureKisa = (dakika) => {
+  const toplamDakika = Number(dakika) || 0;
+  if (toplamDakika <= 0) return "-";
+  return `${ikiHane(Math.floor(toplamDakika / 60))}:${ikiHane(toplamDakika % 60)}`;
+};
+
+export const formatSureUzun = (dakika) => {
+  const toplamDakika = Number(dakika) || 0;
+  return t("sureSaatDakika", { saat: Math.floor(toplamDakika / 60), dakika: toplamDakika % 60 });
+};
+
 // Liste "Süre" filtresinin seçenekleri; tarih aralığı API'ye gönderilirken hesaplanır
 const SURE_ARALIKLARI = {
   bugun: () => [dayjs().startOf("day"), dayjs().endOf("day")],

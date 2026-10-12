@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { FormProvider, useForm } from "react-hook-form";
 import { Button, Modal, Spin, Tabs, Tag, message } from "antd";
@@ -7,11 +7,13 @@ import { GetServiceCardCostService, GetVehicleServiceByIdService, UpdateServiceI
 import DosyaUpload from "../../../../components/Dosya/DosyaUpload";
 import ResimUpload from "../../../../components/Resim/ResimUpload";
 import GenelBilgiler from "../tabs/GenelBilgiler";
+import AtananIsler from "../tabs/AtananIsler";
 import Aciklama from "../tabs/Aciklama";
 import IsEmriOzet from "../components/IsEmriOzet";
 import DurumTag from "../components/DurumTag";
+import useAtananIsler from "../hooks/useAtananIsler";
 import { hintStyle } from "../../KademeTanimlari/components/uiStyles";
-import { IS_EMRI_REF_GROUP, isSuccessResponse } from "../constants";
+import { IS_EMRI_REF_GROUP, isSuccessResponse, toNullableId } from "../constants";
 import { buildIsEmriBody, buildKorunanServisAlanlari, getDefaultIsEmriValues, getKayitBasariMesaji, mapIsEmriToFormValues } from "../formHelpers";
 
 const tagStyle = {
@@ -24,11 +26,14 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [detay, setDetay] = useState(null);
+  // Atanan işlerde değişiklik olduysa iş emri kaydedilmeden kapatılsa da liste yenilenir
+  const [islerDegisti, setIslerDegisti] = useState(false);
 
   const methods = useForm({ defaultValues: getDefaultIsEmriValues() });
-  const { handleSubmit, reset } = methods;
+  const { handleSubmit, reset, setValue } = methods;
 
   const isEmriId = selectedRow?.siraNo;
+  const { isler, loading: islerLoading, reload: reloadIsler } = useAtananIsler(isEmriId, open);
 
   // Satıra tıklanınca kaydın güncel hali ve işçilik/malzeme maliyeti id ile okunup forma yazılır
   useEffect(() => {
@@ -63,7 +68,28 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
     };
   }, [open, isEmriId, reset]);
 
-  const closeModal = () => {
+  // İş eklenip güncellendiğinde üst özetteki sayaçlar ve işçilik maliyeti değişir.
+  // Formdaki kaydedilmemiş değerler korunsun diye form sıfırlanmaz; yalnızca özet ve maliyet alanları güncellenir.
+  const handleIslerChange = useCallback(async () => {
+    setIslerDegisti(true);
+    reloadIsler();
+
+    try {
+      const [detayResponse, maliyetResponse] = await Promise.all([GetVehicleServiceByIdService(isEmriId), GetServiceCardCostService(isEmriId)]);
+      const maliyet = maliyetResponse.data || {};
+      setDetay(detayResponse.data);
+      setValue("iscilik", maliyet.iscilik || 0);
+      setValue("malzeme", maliyet.malzeme || 0);
+      setValue("kdv", maliyet.kdv || 0);
+      setValue("indirim", maliyet.indirim || 0);
+    } catch {
+      message.error(t("islemBasarisiz"));
+    }
+  }, [isEmriId, reloadIsler, setValue]);
+
+  const closeModal = ({ listeyiYenile = islerDegisti } = {}) => {
+    if (listeyiYenile) onRefresh();
+    setIslerDegisti(false);
     onClose();
     setDetay(null);
     reset(getDefaultIsEmriValues());
@@ -78,8 +104,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
 
       if (isSuccessResponse(response)) {
         message.success(getKayitBasariMesaji(response.data, values));
-        closeModal();
-        onRefresh();
+        closeModal({ listeyiYenile: true });
       } else {
         message.error(t("islemBasarisiz"));
       }
@@ -95,6 +120,20 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
       key: "genelBilgiler",
       label: t("genelBilgiler"),
       children: <GenelBilgiler isUpdate />,
+    },
+    {
+      key: "atananIsler",
+      label: `${t("atananIsler")} (${isler.length})`,
+      children: (
+        <AtananIsler
+          isEmriId={isEmriId}
+          aracId={toNullableId(detay?.aracId)}
+          kademeId={toNullableId(detay?.kademeId)}
+          isler={isler}
+          loading={islerLoading}
+          onChange={handleIslerChange}
+        />
+      ),
     },
     {
       key: "resimler",
@@ -117,7 +156,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
     <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit} loading={saving} disabled={loading || !detay}>
       {t("guncelle")}
     </Button>,
-    <Button key="back" className="btn btn-min cancel-btn" onClick={closeModal}>
+    <Button key="back" className="btn btn-min cancel-btn" onClick={() => closeModal()}>
       {t("iptal")}
     </Button>,
   ];
@@ -138,7 +177,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
   );
 
   return (
-    <Modal title={modalTitle} open={open} onCancel={closeModal} maskClosable={false} footer={footer} width={1200} destroyOnClose>
+    <Modal title={modalTitle} open={open} onCancel={() => closeModal()} maskClosable={false} footer={footer} width={1200} destroyOnClose>
       <FormProvider {...methods}>
         <form>
           <Spin spinning={loading}>

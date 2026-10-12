@@ -8,6 +8,11 @@ export const SearchIsKartiListService = async (page, parameter) => {
   return await http.get(`/WorkCard/GetWorkCardsList?page=${page}&parameter=${parameter}`);
 };
 
+// İş tanımları listesi imleçli (diff + setPointId) sayfalanır
+export const GetWorkCardsListService = async (diff, setPointId, search) => {
+  return await http.get(`/WorkCard/GetWorkCardsList?diff=${diff}&setPointId=${setPointId}&parameter=${encodeURIComponent(search)}`);
+};
+
 export const DeleteIsKartiService = async (id) => {
   return await http.get(`/WorkCard/DeleteWorkCardById?id=${id}`);
 };

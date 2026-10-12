@@ -32,3 +32,26 @@ export const UpdateServiceItemService = async (data) => {
 export const GetServiceCardCostService = async (serviceId) => {
   return await http.get(`/VehicleServices/GetServiceCardCost?serviceId=${serviceId}`);
 };
+
+// Atanan işler: iş emrine bağlı iş kartları (sayfalanmadan dizi olarak döner)
+export const GetServiceWorkCardsByServiceIdService = async (serviceId) => {
+  return await http.get(`/ServiceWorkCard/GetServiceWorkCardByServiceId?serviceId=${serviceId}`);
+};
+
+export const GetServiceWorkCardByIdService = async (id) => {
+  return await http.get(`/ServiceWorkCard/GetServiceWorkCardById?id=${id}`);
+};
+
+// İş emrinden yapılan atamada gövdede isFromIsEmri: true olmalıdır
+export const AddServiceWorkCardService = async (data) => {
+  return await http.post(`/ServiceWorkCard/AddServiceWorkCard`, data);
+};
+
+export const UpdateServiceWorkCardService = async (data) => {
+  return await http.post(`/ServiceWorkCard/UpdateServiceWorkCard`, data);
+};
+
+// Atanan işin durumu: 2 Devam Ediyor, 3 Durdu, 4 Yeniden Başladı, 5 Tamamlandı
+export const UpdateServiceWorkCardStatusService = async (id, status) => {
+  return await http.get(`/ServiceWorkCard/UpdateServiceWorkCardStatus?id=${id}&status=${status}`);
+};
