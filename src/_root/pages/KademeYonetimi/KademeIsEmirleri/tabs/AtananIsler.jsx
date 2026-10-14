@@ -36,8 +36,8 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onM
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isAtaOpen, setIsAtaOpen] = useState(false);
   const [detay, setDetay] = useState({ open: false, isId: null });
-  // Satırdaki düğmeyle açılan malzeme talebi o işe bağlanır (isId = işin siraNo'su)
-  const [malzemeTalebiIsId, setMalzemeTalebiIsId] = useState(null);
+  // Satırdaki düğmeyle açılan malzeme talebinde o iş seçili gelir (isId = işin siraNo'su)
+  const [malzemeTalebiIs, setMalzemeTalebiIs] = useState(null);
   const [topluIslemYapiliyor, setTopluIslemYapiliyor] = useState(false);
 
   const filtrelenmisIsler = useMemo(() => {
@@ -96,7 +96,7 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onM
       align: "center",
       render: (_, record) => (
         <Tooltip title={t("malzemeTalepEt")}>
-          <Button size="small" icon={<ShoppingCartOutlined />} aria-label={t("malzemeTalepEt")} disabled={!kademeId} onClick={() => setMalzemeTalebiIsId(record.siraNo)} />
+          <Button size="small" icon={<ShoppingCartOutlined />} aria-label={t("malzemeTalepEt")} disabled={!kademeId} onClick={() => setMalzemeTalebiIs(record)} />
         </Tooltip>
       ),
     },
@@ -152,12 +152,13 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onM
 
       <IsAtaModal open={isAtaOpen} isEmriId={isEmriId} aracId={aracId} kademeId={kademeId} onClose={() => setIsAtaOpen(false)} onSaved={onChange} />
       <MalzemeTalepEtModal
-        open={malzemeTalebiIsId !== null}
+        open={malzemeTalebiIs !== null}
         isEmriId={isEmriId}
         aracId={aracId}
         kademeId={kademeId}
-        isId={malzemeTalebiIsId || 0}
-        onClose={() => setMalzemeTalebiIsId(null)}
+        isId={malzemeTalebiIs?.siraNo || 0}
+        isTanim={malzemeTalebiIs?.isTanim}
+        onClose={() => setMalzemeTalebiIs(null)}
         onSaved={onMalzemeTalebiChange}
       />
       <IsDetayiModal open={detay.open} isId={detay.isId} kademeId={kademeId} onClose={() => setDetay({ open: false, isId: null })} onChange={onChange} />

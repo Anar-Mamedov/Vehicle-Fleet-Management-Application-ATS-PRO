@@ -100,6 +100,7 @@ const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, onCha
       <MalzemeTalepEtModal open={talepEtOpen} isEmriId={isEmriId} aracId={aracId} kademeId={kademeId} onClose={() => setTalepEtOpen(false)} onSaved={onChange} />
       <MalzemeTalepDetayiModal
         open={detay.open}
+        isEmriId={isEmriId}
         talepId={detay.talepId}
         durum={detay.durum}
         onClose={() => setDetay({ open: false, talepId: null, durum: null })}

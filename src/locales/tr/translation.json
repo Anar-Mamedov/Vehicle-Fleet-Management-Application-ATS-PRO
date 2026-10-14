@@ -2105,5 +2105,6 @@
   "talepNedeni": "Talep Nedeni",
   "talepNoAlinamadi": "Talep numarası alınamadı veya kullanılıyor. Lütfen tekrar deneyin.",
   "talepOzeti": "Talep Özeti",
+  "ilgiliIs": "İlgili İş",
   "toplamKayittanArasiGosteriliyor": "Toplam {{toplam}} kayıttan {{baslangic}}-{{bitis}} arası gösteriliyor"
 }

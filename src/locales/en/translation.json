@@ -1866,6 +1866,7 @@
   "talepNedeni": "Request Reason",
   "talepNoAlinamadi": "The request number could not be obtained or is already in use. Please try again.",
   "talepOzeti": "Request Summary",
+  "ilgiliIs": "Related Job",
   "talepTarihi": "Request Date",
   "toplamKayittanArasiGosteriliyor": "Showing {{baslangic}}-{{bitis}} of {{toplam}} records"
 }

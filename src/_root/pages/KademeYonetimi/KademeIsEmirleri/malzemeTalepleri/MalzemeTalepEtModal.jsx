@@ -14,6 +14,7 @@ import NumberInput from "../../../../components/form/inputs/NumberInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
 import KodIDSelectbox from "../../../../components/KodIDSelectbox";
 import KademePersonelSelectbox from "../../../../components/KademePersonelSelectbox";
+import AtananIsSelectbox from "../../../../components/AtananIsSelectbox";
 import MalzemeTablo from "../../../../components/MalzemeTablo";
 import FormField from "../../KademeTanimlari/components/FormField";
 import { hintStyle, sectionTitleStyle } from "../../KademeTanimlari/components/uiStyles";
@@ -25,7 +26,7 @@ const ACIKLAMA_MAKSIMUM_UZUNLUK = 500;
 const sayacAlaniStyle = { paddingBottom: "22px" };
 
 // Talep tarihi modal her açıldığında o anın tarih ve saatiyle gelir
-const getDefaultValues = () => ({
+const getDefaultValues = (isId, isTanim) => ({
   talepTarih: dayjs(),
   talepSaat: dayjs(),
   personel: null,
@@ -33,6 +34,8 @@ const getDefaultValues = () => ({
   gerekliTarih: null,
   talepNeden: null,
   talepNedenID: null,
+  ilgiliIs: isId ? isTanim || null : null,
+  ilgiliIsID: isId || null,
   malzemeKod: null,
   malzemeId: null,
   malzemeTanim: null,
@@ -43,15 +46,15 @@ const getDefaultValues = () => ({
 });
 
 // İş emrine bağlı yeni malzeme talebi oluşturur.
-// Malzeme Talepleri sekmesinden açılınca isId 0 gider; Atanan İşler'den açılınca talep o işe bağlanır.
-const MalzemeTalepEtModal = ({ open, isEmriId, aracId, kademeId, isId = 0, onClose, onSaved }) => {
+// İlgili iş isteğe bağlıdır; Atanan İşler'den açılınca o iş seçili gelir, seçilmezse isId 0 gider.
+const MalzemeTalepEtModal = ({ open, isEmriId, aracId, kademeId, isId = 0, isTanim, onClose, onSaved }) => {
   const [saving, setSaving] = useState(false);
   const methods = useForm({ defaultValues: getDefaultValues() });
   const { handleSubmit, reset, setValue } = methods;
 
   useEffect(() => {
-    if (open) reset(getDefaultValues());
-  }, [open, reset]);
+    if (open) reset(getDefaultValues(isId, isTanim));
+  }, [open, isId, isTanim, reset]);
 
   const closeModal = () => {
     reset(getDefaultValues());
@@ -109,7 +112,7 @@ const MalzemeTalepEtModal = ({ open, isEmriId, aracId, kademeId, isId = 0, onClo
         talepTarih: formatDateAndTimeForApi(values.talepTarih, values.talepSaat),
         gerekliTarih: formatDateForApi(values.gerekliTarih),
         aciklama: values.aciklama || "",
-        isId: isId || 0,
+        isId: values.ilgiliIsID || 0,
       });
 
       if (isSuccessResponse(response)) {
@@ -168,6 +171,10 @@ const MalzemeTalepEtModal = ({ open, isEmriId, aracId, kademeId, isId = 0, onClo
             <FormField span={6} label={t("talepNedeni")} required>
               <KodIDSelectbox name1="talepNeden" kodID={MALZEME_TALEP_NEDEN_KOD_ID} isRequired placeholder={t("seciniz")} inputWidth="100%" />
             </FormField>
+
+            <FormField span={12} label={t("ilgiliIs")}>
+              <AtananIsSelectbox name1="ilgiliIs" isEmriId={isEmriId} />
+            </FormField>
           </div>
 
           <span style={sectionTitleStyle}>{t("malzemeBilgileri")}</span>
@@ -206,6 +213,7 @@ MalzemeTalepEtModal.propTypes = {
   aracId: PropTypes.number,
   kademeId: PropTypes.number,
   isId: PropTypes.number,
+  isTanim: PropTypes.string,
   onClose: PropTypes.func.isRequired,
   onSaved: PropTypes.func.isRequired,
 };

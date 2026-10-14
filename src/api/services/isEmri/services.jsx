@@ -65,7 +65,7 @@ export const GetMaterialRequestItemByIdService = async (id) => {
   return await http.get(`/MaterialRequest/GetMaterialRequestItemById?id=${id}`);
 };
 
-// Talep, iş emrinin Malzeme Talepleri sekmesinden (isId: 0) veya Atanan İşler'den (isId: işin siraNo'su) eklenir
+// isId: talebin bağlandığı atanan işin siraNo'su; iş seçilmezse 0 gider
 export const AddMaterialRequestService = async (data) => {
   return await http.post(`/MaterialRequest/AddMaterialRequest`, data);
 };

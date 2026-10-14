@@ -1430,6 +1430,7 @@
   "talepNedeni": "Sorğu səbəbi",
   "talepNoAlinamadi": "Sorğu nömrəsi alına bilmədi və ya artıq istifadə olunur. Yenidən cəhd edin.",
   "talepOzeti": "Sorğu xülasəsi",
+  "ilgiliIs": "Əlaqəli iş",
   "talepTarihi": "Sorğu tarixi",
   "toplamKayittanArasiGosteriliyor": "Cəmi {{toplam}} qeyddən {{baslangic}}-{{bitis}} arası göstərilir"
 }

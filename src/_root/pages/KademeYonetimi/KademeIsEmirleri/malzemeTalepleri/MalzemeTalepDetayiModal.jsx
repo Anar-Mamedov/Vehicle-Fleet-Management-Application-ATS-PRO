@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { FormProvider, useForm } from "react-hook-form";
 import { Button, Modal, Spin, Table, message } from "antd";
 import { t } from "i18next";
-import { GetMaterialRequestItemByIdService, UpdateMaterialRequestService } from "../../../../../api/services/isEmri/services";
+import { GetMaterialRequestItemByIdService, GetServiceWorkCardsByServiceIdService, UpdateMaterialRequestService } from "../../../../../api/services/isEmri/services";
 import { compareDatesForSorter, formatDateForApi, formatIsoDateTimeForApi, toDayjsOrNull } from "../../../../../utils/dateUtils";
 import { formatDateByLocale } from "../../../../components/FormattedDate";
 import DateInput from "../../../../components/form/date/DateInput";
@@ -11,6 +11,7 @@ import TextInput from "../../../../components/form/inputs/TextInput";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
 import KodIDSelectbox from "../../../../components/KodIDSelectbox";
+import AtananIsSelectbox from "../../../../components/AtananIsSelectbox";
 import MalzemeTablo from "../../../../components/MalzemeTablo";
 import FormField from "../../KademeTanimlari/components/FormField";
 import { cardStyle, hintStyle, sectionTitleStyle } from "../../KademeTanimlari/components/uiStyles";
@@ -44,6 +45,8 @@ const getDefaultValues = () => ({
   gerekliTarih: null,
   talepNeden: null,
   talepNedenID: null,
+  ilgiliIs: null,
+  ilgiliIsID: null,
   aciklama: null,
 });
 
@@ -58,8 +61,24 @@ const mapTalepToFormValues = (talep) => ({
   gerekliTarih: toDayjsOrNull(talep.gerekliTarih),
   talepNeden: toNullable(talep.talepNeden),
   talepNedenID: toNullableId(talep.talepNedenKodId),
+  ilgiliIs: talep.isId ? toNullable(talep.isTanim) : null,
+  ilgiliIsID: toNullableId(talep.isId),
   aciklama: toNullable(talep.aciklama),
 });
+
+// Detay yanıtında iş tanımı boş gelirse, select'te seçili işin görünmesi için tanım iş emrinin atanan işlerinden bulunur
+const getIlgiliIsTanimi = async (talep, isEmriId) => {
+  if (!talep.isId || talep.isTanim) return talep.isTanim || null;
+
+  // Tanım bulunamazsa detay yine açılır; yalnızca select boş görünür
+  try {
+    const response = await GetServiceWorkCardsByServiceIdService(isEmriId);
+    const isler = Array.isArray(response?.data) ? response.data : response?.data?.list || [];
+    return isler.find((is) => is.siraNo === talep.isId)?.isTanim || null;
+  } catch {
+    return null;
+  }
+};
 
 const OzetAlani = ({ label, children }) => (
   <div className="col-span-4 flex flex-col" style={{ gap: "2px", minWidth: 0 }}>
@@ -75,7 +94,8 @@ OzetAlani.propTypes = {
 
 // Oluşturulmuş malzeme talebini gösterir; talep Bekliyor durumundayken malzeme bilgileri güncellenebilir.
 // GetById yanıtında durum alanı olmadığı için durum listedeki satırdan verilir.
-const MalzemeTalepDetayiModal = ({ open, talepId, durum, onClose, onChange }) => {
+// İş emri id'si de yanıttaki servisSiraNo boş gelebildiği için açan sekmeden verilir.
+const MalzemeTalepDetayiModal = ({ open, isEmriId, talepId, durum, onClose, onChange }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [talep, setTalep] = useState(null);
@@ -90,10 +110,11 @@ const MalzemeTalepDetayiModal = ({ open, talepId, durum, onClose, onChange }) =>
     setLoading(true);
 
     GetMaterialRequestItemByIdService(talepId)
-      .then((res) => {
+      .then(async (res) => {
+        const isTanim = await getIlgiliIsTanimi(res.data, isEmriId);
         if (ignore) return;
         setTalep(res.data);
-        reset(mapTalepToFormValues(res.data));
+        reset(mapTalepToFormValues({ ...res.data, isTanim }));
       })
       .catch(() => {
         if (!ignore) message.error(t("islemBasarisiz"));
@@ -105,7 +126,7 @@ const MalzemeTalepDetayiModal = ({ open, talepId, durum, onClose, onChange }) =>
     return () => {
       ignore = true;
     };
-  }, [open, talepId, reset]);
+  }, [open, isEmriId, talepId, reset]);
 
   const closeModal = () => {
     setTalep(null);
@@ -143,7 +164,7 @@ const MalzemeTalepDetayiModal = ({ open, talepId, durum, onClose, onChange }) =>
 
     setSaving(true);
     try {
-      // Formda olmayan alanlar (talep no, talep eden, talep tarihi, bağlı iş) detaydan aynen geri gönderilir
+      // Formda olmayan alanlar (talep no, talep eden, talep tarihi) detaydan aynen geri gönderilir
       const response = await UpdateMaterialRequestService({
         siraNo: talepId,
         birimKodId: values.birimID || 0,
@@ -155,7 +176,7 @@ const MalzemeTalepDetayiModal = ({ open, talepId, durum, onClose, onChange }) =>
         aciklama: values.aciklama || "",
         talepTarih: formatIsoDateTimeForApi(talep.talepTarih),
         gerekliTarih: formatDateForApi(values.gerekliTarih),
-        isId: talep.isId || 0,
+        isId: values.ilgiliIsID || 0,
       });
 
       if (isSuccessResponse(response)) {
@@ -254,6 +275,10 @@ const MalzemeTalepDetayiModal = ({ open, talepId, durum, onClose, onChange }) =>
                 )}
               </FormField>
 
+              <FormField span={12} label={t("ilgiliIs")}>
+                {duzenlenebilir ? <AtananIsSelectbox name1="ilgiliIs" isEmriId={isEmriId} /> : <TextInput name="ilgiliIs" checked />}
+              </FormField>
+
               <FormField span={12} label={t("aciklama")}>
                 <div style={sayacAlaniStyle}>
                   <Textarea name="aciklama" rows={3} length={ACIKLAMA_MAKSIMUM_UZUNLUK} showCount checked={!duzenlenebilir} placeholder={t("malzemeTalepAciklamaPlaceholder")} />
@@ -272,6 +297,7 @@ const MalzemeTalepDetayiModal = ({ open, talepId, durum, onClose, onChange }) =>
 
 MalzemeTalepDetayiModal.propTypes = {
   open: PropTypes.bool,
+  isEmriId: PropTypes.number,
   talepId: PropTypes.number,
   durum: PropTypes.number,
   onClose: PropTypes.func.isRequired,

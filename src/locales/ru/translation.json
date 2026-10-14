@@ -1007,6 +1007,7 @@
   "talepNedeni": "Причина заявки",
   "talepNoAlinamadi": "Не удалось получить номер заявки или он уже используется. Попробуйте ещё раз.",
   "talepOzeti": "Сводка заявки",
+  "ilgiliIs": "Связанная работа",
   "talepTarihi": "Дата заявки",
   "toplamKayittanArasiGosteriliyor": "Показаны записи {{baslangic}}-{{bitis}} из {{toplam}}"
 }
