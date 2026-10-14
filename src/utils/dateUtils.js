@@ -12,6 +12,9 @@ const API_DATE_FORMAT = "YYYY-MM-DD";
 const API_TIME_FORMAT = "HH:mm";
 const API_TIME_WITH_SECONDS_FORMAT = "HH:mm:ss";
 const API_DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
+// .NET DateTime alanları (System.Text.Json) tarih ile saat arasında "T" bekler; boşluklu değeri reddeder.
+// Sonuna "Z" eklenmez, böylece yerel saat UTC'ye çevrilmez ve tarih kaymaz.
+const API_ISO_DATE_TIME_FORMAT = "YYYY-MM-DD[T]HH:mm:ss";
 const DISPLAY_TIME_FORMAT = "HH:mm";
 
 // API'den gelen tarih/saat değerini dayjs nesnesine çevirir (DatePicker/TimePicker'a verilecek değer).
@@ -68,6 +71,25 @@ export const formatTimeForApi = (value, withSeconds = false) => {
 export const formatDateTimeForApi = (value) => {
   const parsedDateTime = toDayjsOrNull(value);
   return parsedDateTime ? parsedDateTime.format(API_DATE_TIME_FORMAT) : null;
+};
+
+// Tarih + saat değerini .NET DateTime alanının kabul ettiği ISO biçimine (YYYY-MM-DDTHH:mm:ss) çevirir.
+export const formatIsoDateTimeForApi = (value) => {
+  const parsedDateTime = toDayjsOrNull(value);
+  return parsedDateTime ? parsedDateTime.format(API_ISO_DATE_TIME_FORMAT) : null;
+};
+
+// Ayrı DatePicker ve TimePicker değerlerini tek bir tarih + saat değeri olarak ISO biçiminde (YYYY-MM-DDTHH:mm:ss) API'ye hazırlar.
+// Saat boşsa günün başlangıcı (00:00:00) gönderilir.
+export const formatDateAndTimeForApi = (dateValue, timeValue) => {
+  const parsedDate = toDayjsOrNull(dateValue);
+  if (!parsedDate) {
+    return null;
+  }
+
+  const parsedTime = toTimeDayjsOrNull(timeValue);
+  const dateTime = parsedTime ? parsedDate.hour(parsedTime.hour()).minute(parsedTime.minute()).second(0) : parsedDate.startOf("day");
+  return formatIsoDateTimeForApi(dateTime);
 };
 
 // Tablo sıralamalarında API'den gelen tarihleri karşılaştırır (boş değerler başa alınır).

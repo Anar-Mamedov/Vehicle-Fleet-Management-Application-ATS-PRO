@@ -59,3 +59,8 @@ export const GetMaterialTransferReceiptListService = async (search, page, data) 
 export const GetMaterialMovementsListService = async (search, page, data) => {
   return await http.post(`MaterialMovements/GetMaterialMovementsList?page=${page}&parameter=${search}&type=M`, data);
 };
+
+// Malzeme seçim penceresi için imleçli liste; yanıt { materialList, total_count } döner
+export const GetMaterialListWithCursorService = async (diff, setPointId, search) => {
+  return await http.post(`/Material/GetMaterialList?diff=${diff}&setPointId=${setPointId}&parameter=${encodeURIComponent(search)}&wareHouseId=0`, {});
+};

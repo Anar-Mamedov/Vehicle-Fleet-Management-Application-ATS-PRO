@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import PropTypes from "prop-types";
-import { Alert, Button, Dropdown, Input, Table, message } from "antd";
-import { AppstoreOutlined, DownOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { Alert, Button, Dropdown, Input, Table, Tooltip, message } from "antd";
+import { AppstoreOutlined, DownOutlined, PlusOutlined, SearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import { UpdateServiceWorkCardStatusService } from "../../../../../api/services/isEmri/services";
 import { formatTimeForDisplay } from "../../../../../utils/dateUtils";
@@ -11,6 +11,7 @@ import { cardStyle, hintStyle, sectionTitleStyle } from "../../KademeTanimlari/c
 import DurumTag from "../components/DurumTag";
 import IsAtaModal from "../atananIsler/IsAtaModal";
 import IsDetayiModal from "../atananIsler/IsDetayiModal";
+import MalzemeTalepEtModal from "../malzemeTalepleri/MalzemeTalepEtModal";
 import { IS_DURUM, formatSureKisa, getIsDurumTanimi, isSuccessResponse } from "../constants";
 
 // Toplu işlem menüsündeki her seçenek seçili işlere bu durumu gönderir
@@ -30,11 +31,13 @@ const formatTarihSaat = (tarih, saat) => {
 const aramaAlanlari = ["isTanim", "isTip", "personelIsim", "aciklama"];
 
 // İş emrine atanan işler; liste modal seviyesinde okunur (sekme etiketindeki sayı için) ve buraya verilir
-const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange }) => {
+const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onMalzemeTalebiChange }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isAtaOpen, setIsAtaOpen] = useState(false);
   const [detay, setDetay] = useState({ open: false, isId: null });
+  // Satırdaki düğmeyle açılan malzeme talebi o işe bağlanır (isId = işin siraNo'su)
+  const [malzemeTalebiIsId, setMalzemeTalebiIsId] = useState(null);
   const [topluIslemYapiliyor, setTopluIslemYapiliyor] = useState(false);
 
   const filtrelenmisIsler = useMemo(() => {
@@ -85,6 +88,18 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange }) =
     { title: t("malzemeSayisi"), dataIndex: "malzemeSayisi", key: "malzemeSayisi", width: 120, render: (value) => formatNumberWithLocale(value || 0) },
     { title: t("durum"), dataIndex: "durum", key: "durum", width: 140, render: (durum) => <DurumTag durum={durum} getTanim={getIsDurumTanimi} /> },
     { title: t("aciklama"), dataIndex: "aciklama", key: "aciklama", width: 240, ellipsis: true, render: (text) => text || "-" },
+    {
+      title: "",
+      key: "malzemeTalebi",
+      width: 60,
+      fixed: "right",
+      align: "center",
+      render: (_, record) => (
+        <Tooltip title={t("malzemeTalepEt")}>
+          <Button size="small" icon={<ShoppingCartOutlined />} aria-label={t("malzemeTalepEt")} disabled={!kademeId} onClick={() => setMalzemeTalebiIsId(record.siraNo)} />
+        </Tooltip>
+      ),
+    },
   ];
 
   const topluIslemMenu = {
@@ -136,6 +151,15 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange }) =
       />
 
       <IsAtaModal open={isAtaOpen} isEmriId={isEmriId} aracId={aracId} kademeId={kademeId} onClose={() => setIsAtaOpen(false)} onSaved={onChange} />
+      <MalzemeTalepEtModal
+        open={malzemeTalebiIsId !== null}
+        isEmriId={isEmriId}
+        aracId={aracId}
+        kademeId={kademeId}
+        isId={malzemeTalebiIsId || 0}
+        onClose={() => setMalzemeTalebiIsId(null)}
+        onSaved={onMalzemeTalebiChange}
+      />
       <IsDetayiModal open={detay.open} isId={detay.isId} kademeId={kademeId} onClose={() => setDetay({ open: false, isId: null })} onChange={onChange} />
     </div>
   );
@@ -148,6 +172,7 @@ AtananIsler.propTypes = {
   isler: PropTypes.arrayOf(PropTypes.object).isRequired,
   loading: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
+  onMalzemeTalebiChange: PropTypes.func.isRequired,
 };
 
 export default AtananIsler;

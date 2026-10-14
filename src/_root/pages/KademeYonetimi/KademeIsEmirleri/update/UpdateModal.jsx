@@ -8,10 +8,12 @@ import DosyaUpload from "../../../../components/Dosya/DosyaUpload";
 import ResimUpload from "../../../../components/Resim/ResimUpload";
 import GenelBilgiler from "../tabs/GenelBilgiler";
 import AtananIsler from "../tabs/AtananIsler";
+import MalzemeTalepleri from "../tabs/MalzemeTalepleri";
 import Aciklama from "../tabs/Aciklama";
 import IsEmriOzet from "../components/IsEmriOzet";
 import DurumTag from "../components/DurumTag";
 import useAtananIsler from "../hooks/useAtananIsler";
+import useMalzemeTalepleri from "../hooks/useMalzemeTalepleri";
 import { hintStyle } from "../../KademeTanimlari/components/uiStyles";
 import { IS_EMRI_REF_GROUP, isSuccessResponse, toNullableId } from "../constants";
 import { buildIsEmriBody, buildKorunanServisAlanlari, getDefaultIsEmriValues, getKayitBasariMesaji, mapIsEmriToFormValues } from "../formHelpers";
@@ -26,7 +28,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [detay, setDetay] = useState(null);
-  // Atanan işlerde değişiklik olduysa iş emri kaydedilmeden kapatılsa da liste yenilenir
+  // Atanan işlerde veya malzeme taleplerinde değişiklik olduysa iş emri kaydedilmeden kapatılsa da liste yenilenir
   const [islerDegisti, setIslerDegisti] = useState(false);
 
   const methods = useForm({ defaultValues: getDefaultIsEmriValues() });
@@ -34,6 +36,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
 
   const isEmriId = selectedRow?.siraNo;
   const { isler, loading: islerLoading, reload: reloadIsler } = useAtananIsler(isEmriId, open);
+  const { talepler, loading: taleplerLoading, reload: reloadTalepler } = useMalzemeTalepleri(isEmriId, open);
 
   // Satıra tıklanınca kaydın güncel hali ve işçilik/malzeme maliyeti id ile okunup forma yazılır
   useEffect(() => {
@@ -68,12 +71,9 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
     };
   }, [open, isEmriId, reset]);
 
-  // İş eklenip güncellendiğinde üst özetteki sayaçlar ve işçilik maliyeti değişir.
+  // İş veya malzeme talebi eklenip güncellendiğinde üst özetteki sayaçlar ve maliyetler değişir.
   // Formdaki kaydedilmemiş değerler korunsun diye form sıfırlanmaz; yalnızca özet ve maliyet alanları güncellenir.
-  const handleIslerChange = useCallback(async () => {
-    setIslerDegisti(true);
-    reloadIsler();
-
+  const refreshOzetVeMaliyet = useCallback(async () => {
     try {
       const [detayResponse, maliyetResponse] = await Promise.all([GetVehicleServiceByIdService(isEmriId), GetServiceCardCostService(isEmriId)]);
       const maliyet = maliyetResponse.data || {};
@@ -85,7 +85,27 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
     } catch {
       message.error(t("islemBasarisiz"));
     }
-  }, [isEmriId, reloadIsler, setValue]);
+  }, [isEmriId, setValue]);
+
+  const handleIslerChange = useCallback(() => {
+    setIslerDegisti(true);
+    reloadIsler();
+    refreshOzetVeMaliyet();
+  }, [reloadIsler, refreshOzetVeMaliyet]);
+
+  const handleMalzemeTalepleriChange = useCallback(() => {
+    setIslerDegisti(true);
+    reloadTalepler();
+    refreshOzetVeMaliyet();
+  }, [reloadTalepler, refreshOzetVeMaliyet]);
+
+  // Atanan İşler'den açılan talep hem işin malzeme sayısını hem de Malzeme Talepleri sekmesini etkiler
+  const handleIsMalzemeTalebiChange = useCallback(() => {
+    setIslerDegisti(true);
+    reloadIsler();
+    reloadTalepler();
+    refreshOzetVeMaliyet();
+  }, [reloadIsler, reloadTalepler, refreshOzetVeMaliyet]);
 
   const closeModal = ({ listeyiYenile = islerDegisti } = {}) => {
     if (listeyiYenile) onRefresh();
@@ -132,6 +152,21 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
           isler={isler}
           loading={islerLoading}
           onChange={handleIslerChange}
+          onMalzemeTalebiChange={handleIsMalzemeTalebiChange}
+        />
+      ),
+    },
+    {
+      key: "malzemeTalepleri",
+      label: `${t("malzemeTalepleri")} (${talepler.length})`,
+      children: (
+        <MalzemeTalepleri
+          isEmriId={isEmriId}
+          aracId={toNullableId(detay?.aracId)}
+          kademeId={toNullableId(detay?.kademeId)}
+          talepler={talepler}
+          loading={taleplerLoading}
+          onChange={handleMalzemeTalepleriChange}
         />
       ),
     },

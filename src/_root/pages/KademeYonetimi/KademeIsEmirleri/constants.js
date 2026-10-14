@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import { t } from "i18next";
 import { formatDateForApi } from "../../../../utils/dateUtils";
+import { formatDateByLocale } from "../../../components/FormattedDate";
 
 // Kod Yönetimi'ndeki kod listesi numaraları
 export const BOLUM_KOD_ID = 925;
@@ -68,6 +69,35 @@ export const getIsDurumOptions = () =>
     label: t(labelKey),
     disabled: Number(value) === IS_DURUM.BEKLIYOR,
   }));
+
+// Malzeme talepleri
+export const MALZEME_TALEP_NEDEN_KOD_ID = 927;
+export const MALZEME_BIRIM_KOD_ID = 300;
+
+// TableCodeItem/IsCodeItemExist ile talep numarasının benzersizlik kontrolünde kullanılan tablo adı
+export const MALZEME_TALEP_KOD_TABLE_NAME = "talepNo";
+
+// Backend yalnızca bu üç durumu tanımlar
+export const MALZEME_TALEP_DURUM = {
+  BEKLIYOR: 1,
+  KISMI_KARSILANDI: 2,
+  TAMAMLANDI: 3,
+};
+
+const MALZEME_TALEP_DURUM_TANIMLARI = {
+  [MALZEME_TALEP_DURUM.BEKLIYOR]: { labelKey: "bekliyor", color: "#ff9800" },
+  [MALZEME_TALEP_DURUM.KISMI_KARSILANDI]: { labelKey: "kismiKarsilandi", color: "#2196f3" },
+  [MALZEME_TALEP_DURUM.TAMAMLANDI]: { labelKey: "tamamlandi", color: "#2bc770" },
+};
+
+export const getMalzemeTalepDurumTanimi = (durum) => MALZEME_TALEP_DURUM_TANIMLARI[durum] || null;
+
+// Tek alanda gelen tarih + saat değerini (ör. talepTarih) ekranda "tarih saat" olarak gösterir
+export const formatTarihSaatDegeri = (value) => {
+  const tarih = formatDateByLocale(value);
+  const saat = formatDateByLocale(value, "HH:mm", "");
+  return saat ? `${tarih} ${saat}` : tarih;
+};
 
 // Süre servisten dakika olarak gelir
 const ikiHane = (value) => String(value).padStart(2, "0");

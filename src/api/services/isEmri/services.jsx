@@ -55,3 +55,27 @@ export const UpdateServiceWorkCardService = async (data) => {
 export const UpdateServiceWorkCardStatusService = async (id, status) => {
   return await http.get(`/ServiceWorkCard/UpdateServiceWorkCardStatus?id=${id}&status=${status}`);
 };
+
+// Malzeme talepleri: iş emrine bağlı talepler (sayfalanmadan dizi olarak döner)
+export const GetMaterialRequestListByServiceIdService = async (serviceId) => {
+  return await http.get(`/MaterialRequest/GetMaterialRequestListByServiceId?serviceId=${serviceId}`);
+};
+
+export const GetMaterialRequestItemByIdService = async (id) => {
+  return await http.get(`/MaterialRequest/GetMaterialRequestItemById?id=${id}`);
+};
+
+// Talep, iş emrinin Malzeme Talepleri sekmesinden (isId: 0) veya Atanan İşler'den (isId: işin siraNo'su) eklenir
+export const AddMaterialRequestService = async (data) => {
+  return await http.post(`/MaterialRequest/AddMaterialRequest`, data);
+};
+
+// API notunda güncelleme URL'i verilmedi; ekleme endpoint'inin adlandırmasına göre varsayıldı, backend ile doğrulanmalı
+export const UpdateMaterialRequestService = async (data) => {
+  return await http.post(`/MaterialRequest/UpdateMaterialRequest`, data);
+};
+
+// Malzeme talep numaratörü (Otomatik Kodlar ekranındaki MALZEME_TALEP_NO modülü)
+export const GetMalzemeTalepNoService = async () => {
+  return await http.get(`/Numbering/GetModuleCodeByCode?code=MALZEME_TALEP_NO`);
+};
