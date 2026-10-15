@@ -3,6 +3,7 @@ import { Button, Modal, Input, Typography, Tabs, DatePicker, TimePicker, Checkbo
 import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
+import { t } from "i18next";
 import YapilanIsTable from "./components/YapilanIsTable.jsx";
 import { SearchOutlined } from "@ant-design/icons";
 import CikisDeposu from "./components/CikisDeposu.jsx";
@@ -67,8 +68,18 @@ export default function MainTabs({ isStokSecimiKilitli = false }) {
     watch,
     setValue,
     getValues,
+    clearErrors,
     formState: { errors },
   } = useFormContext();
+
+  // Stoklu malzemede çıkış deposu seçildiyse malzeme o depodan seçilmek zorundadır
+  const isMalzemeKoduRequired = Boolean(watch("stokluMalzeme") && watch("depoID"));
+
+  useEffect(() => {
+    if (!isMalzemeKoduRequired) {
+      clearErrors("malzemeKodu");
+    }
+  }, [isMalzemeKoduRequired, clearErrors]);
 
   const handleYapilanIsMinusClick = () => {
     setValue("malzemeKodu", "");
@@ -348,14 +359,16 @@ export default function MainTabs({ isStokSecimiKilitli = false }) {
             </StyledDivBottomLine>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>Malzeme Kodu:</Text>
+            <Text style={{ fontSize: "14px", fontWeight: isMalzemeKoduRequired ? 600 : undefined }}>Malzeme Kodu:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "300px" }}>
               <Controller
                 name="malzemeKodu"
                 control={control}
+                rules={{ required: isMalzemeKoduRequired ? t("alanBosBirakilamaz") : false }}
                 render={({ field }) => (
                   <Input
                     {...field}
+                    status={errors.malzemeKodu ? "error" : ""}
                     type="text" // Set the type to "text" for name input
                     style={{ width: "215px" }}
                     disabled
@@ -379,7 +392,7 @@ export default function MainTabs({ isStokSecimiKilitli = false }) {
                 wareHouseId={watch("depoID")}
                 stokluMalzeme={watch("stokluMalzeme")}
                 onSubmit={(selectedData) => {
-                  setValue("malzemeKodu", selectedData.malzemeKod);
+                  setValue("malzemeKodu", selectedData.malzemeKod, { shouldValidate: true });
                   setValue("malzemeKoduID", selectedData.key);
                   setValue("malzemeTanimi", selectedData.tanim);
                   setValue("iscilikUcreti", selectedData.fiyat);
@@ -396,6 +409,7 @@ export default function MainTabs({ isStokSecimiKilitli = false }) {
               />
 
               <Button onClick={handleYapilanIsMinusClick} disabled={isStokSecimiKilitli}> - </Button>
+              {errors.malzemeKodu && <div style={{ color: "red", marginTop: "5px" }}>{errors.malzemeKodu.message}</div>}
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
