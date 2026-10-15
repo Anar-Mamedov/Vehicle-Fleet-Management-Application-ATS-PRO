@@ -5,6 +5,7 @@ import styled from "styled-components";
 import "./style.css";
 import { useFormContext } from "react-hook-form";
 import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
+import FirmaSelectBox from "../../../../../../components/FirmaSelectBox";
 import MultiSelectInput from "../../../../../../components/form/selects/MultiSelectInput";
 import { getDurumOptions } from "../../../../../KademeYonetimi/KademeIsEmirleri/constants";
 import { t } from "i18next";
@@ -25,16 +26,19 @@ const SERVIS_TIPI_FILTER_KEY = "servisTipIds";
 // Araç tipi kod listesinin backend'deki kod numarası (Araçlar listesiyle aynı liste)
 const ARAC_TIPI_KOD_ID = 100;
 const ARAC_TIPI_FILTER_KEY = "aracTipIds";
+// Firma listesi Company/GetCompanyListForSelectInput servisinden type=1 ile çekilir
+const FIRMA_TYPE = 1;
+const FIRMA_FILTER_KEY = "firmaIds";
 // Durum seçenekleri Kademe İş Emirleri ekranıyla aynıdır
 const DURUM_FILTER_KEY = "durumIds";
 
 // Listeden seçim yapılan filtrelerde serbest metin kutusu gösterilmez
-const SELECT_FILTER_KEYS = [DURUM_FILTER_KEY, MULKIYET_FILTER_KEY, SERVIS_TIPI_FILTER_KEY, ARAC_TIPI_FILTER_KEY];
+const SELECT_FILTER_KEYS = [DURUM_FILTER_KEY, MULKIYET_FILTER_KEY, SERVIS_TIPI_FILTER_KEY, ARAC_TIPI_FILTER_KEY, FIRMA_FILTER_KEY];
 const isSelectFilter = (filterKey) => SELECT_FILTER_KEYS.includes(filterKey);
 
 // Satırdaki seçim kutuları form alanlarında tutulur (KodIDSelectbox ayrıca `${ad}ID` alanı yazar).
 // Filtre tipi değişince veya satır silinince bu alanlar temizlenir; yoksa aynı tipe geri dönüldüğünde eski id'ler görünür.
-const ROW_SELECT_FIELD_PREFIXES = ["durumFiltre", "mulkiyetFiltre", "servisTipiFiltre", "aracTipiFiltre"];
+const ROW_SELECT_FIELD_PREFIXES = ["durumFiltre", "mulkiyetFiltre", "servisTipiFiltre", "aracTipiFiltre", "firmaFiltre"];
 const getRowSelectFieldNames = (rowId) => ROW_SELECT_FIELD_PREFIXES.flatMap((prefix) => [`${prefix}${rowId}`, `${prefix}${rowId}ID`]);
 
 const StyledCloseOutlined = styled(CloseOutlined)`
@@ -291,8 +295,8 @@ export default function CustomFilter({ onSubmit }) {
                       label: t("servisTipi"),
                     },
                     {
-                      value: "firma",
-                      label: "Firma",
+                      value: FIRMA_FILTER_KEY,
+                      label: t("firma"),
                     },
                     {
                       value: ARAC_TIPI_FILTER_KEY,
@@ -341,6 +345,9 @@ export default function CustomFilter({ onSubmit }) {
                     placeholder={t("servisTipi")}
                     inputWidth="100%"
                   />
+                )}
+                {selectedValues[row.id] === FIRMA_FILTER_KEY && (
+                  <FirmaSelectBox name1={`firmaFiltre${row.id}`} type={FIRMA_TYPE} isRequired={false} multiSelect={true} onChange={(value) => handleStatusChange(value || [], row.id)} />
                 )}
                 {selectedValues[row.id] === ARAC_TIPI_FILTER_KEY && (
                   <KodIDSelectbox

@@ -28,7 +28,7 @@ const StyledDiv = styled.div`
   }
 `;
 
-export default function FirmaSelectBox({ name1, isRequired, onChange, multiSelect = false }) {
+export default function FirmaSelectBox({ name1, isRequired, onChange, multiSelect = false, type }) {
   const {
     control,
     watch,
@@ -42,7 +42,9 @@ export default function FirmaSelectBox({ name1, isRequired, onChange, multiSelec
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await AxiosInstance.get(`Company/GetCompanyListForSelectInput`);
+      // type verilmezse servis eskisi gibi tipsiz çağrılır
+      const url = type ? `Company/GetCompanyListForSelectInput?type=${type}` : `Company/GetCompanyListForSelectInput`;
+      const response = await AxiosInstance.get(url);
       if (response && response.data) {
         setOptions(response.data);
       }
