@@ -663,9 +663,10 @@ const MainTable = ({ ids, selectedRowsData }) => {
         currentSetPointId = 0;
       }
 
-      const response = await AxiosInstance.post(`VehicleServices/GetVehicleServicesByVehicleIds?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`, {
-        vIds: ids,
-        filter: body.filters?.customfilter || {},
+      // Servis İşlemleri listesiyle aynı servis kullanılır; seçili araçlar filtre gövdesine aracIds olarak eklenir
+      const response = await AxiosInstance.post(`VehicleServices/GetVehicleServices?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&statusId=0`, {
+        ...(body.filters?.customfilter || {}),
+        aracIds: ids,
       });
 
       setTotalDataCount(response.data.recordCount);
