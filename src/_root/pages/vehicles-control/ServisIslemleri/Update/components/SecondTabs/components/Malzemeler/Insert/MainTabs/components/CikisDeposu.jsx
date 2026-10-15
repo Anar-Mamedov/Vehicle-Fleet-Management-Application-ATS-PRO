@@ -7,7 +7,7 @@ import { PlusOutlined } from "@ant-design/icons";
 const { Text, Link } = Typography;
 const { Option } = Select;
 
-export default function CikisDeposu({ disabled, fieldRequirements }) {
+export default function CikisDeposu({ disabled, fieldRequirements, onChange }) {
   const {
     control,
     setValue,
@@ -149,6 +149,9 @@ export default function CikisDeposu({ disabled, fieldRequirements }) {
                 setValue("depo", value ?? null);
                 setValue("depoID", value ?? null);
                 field.onChange(value ?? null);
+                if (onChange) {
+                  onChange(value ?? null);
+                }
               }}
               value={field.value ?? null} // Eğer `field.value` `undefined` ise, `null` kullanarak `Select` bileşenine geçir
             />

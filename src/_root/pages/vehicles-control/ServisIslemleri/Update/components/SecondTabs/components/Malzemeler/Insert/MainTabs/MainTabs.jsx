@@ -94,6 +94,13 @@ export default function MainTabs({ aracID, onBulkAdd }) {
     }
   }, []); // run once to ensure default miktar
 
+  // Malzeme çıkış deposuna göre seçildiği için depo her değiştiğinde önceki malzeme seçimi temizlenir
+  const handleCikisDeposuChange = () => {
+    setValue("malzemeKodu", null);
+    setValue("malzemeKoduID", null);
+    setValue("malzemeTanimi", null);
+  };
+
   const handleYapilanIsMinusClick = () => {
     setValue("malzemeKodu", "");
     setValue("malzemeKoduID", "");
@@ -576,7 +583,7 @@ export default function MainTabs({ aracID, onBulkAdd }) {
           <div style={{ width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <StyledDivBottomLine style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
               <Text style={{ fontSize: "14px", fontWeight: "600" }}>Çıkış Deposu:</Text>
-              <CikisDeposu />
+              <CikisDeposu onChange={handleCikisDeposuChange} />
               <Controller
                 name="aracID"
                 control={control}

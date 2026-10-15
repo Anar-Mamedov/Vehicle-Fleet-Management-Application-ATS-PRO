@@ -81,6 +81,13 @@ export default function MainTabs({ isStokSecimiKilitli = false }) {
     }
   }, [isMalzemeKoduRequired, clearErrors]);
 
+  // Malzeme çıkış deposuna göre seçildiği için depo her değiştiğinde önceki malzeme seçimi temizlenir
+  const handleCikisDeposuChange = () => {
+    setValue("malzemeKodu", null);
+    setValue("malzemeKoduID", null);
+    setValue("malzemeTanimi", null);
+  };
+
   const handleYapilanIsMinusClick = () => {
     setValue("malzemeKodu", "");
     setValue("malzemeKoduID", "");
@@ -344,7 +351,7 @@ export default function MainTabs({ isStokSecimiKilitli = false }) {
           <div style={{ width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <StyledDivBottomLine style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
               <Text style={{ fontSize: "14px", fontWeight: "600" }}>Çıkış Deposu:</Text>
-              <CikisDeposu disabled={isStokSecimiKilitli} />
+              <CikisDeposu disabled={isStokSecimiKilitli} onChange={handleCikisDeposuChange} />
               <Controller
                 name="aracID"
                 control={control}
