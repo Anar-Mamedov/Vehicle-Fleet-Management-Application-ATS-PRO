@@ -15,6 +15,7 @@ import { compareDatesForSorter } from "../../../../utils/dateUtils";
 import { formatDateByLocale } from "../../../components/FormattedDate";
 import PageSizeSelect, { getStoredPageSize } from "../../../components/table/PageSizeSelect";
 import SelectInput from "../../../components/form/selects/SelectInput";
+import MultiSelectInput from "../../../components/form/selects/MultiSelectInput";
 import KademeSelectbox from "../../../components/KademeSelectbox";
 import { GetVehicleServiceOrdersService } from "../../../../api/services/isEmri/services";
 import { VARSAYILAN_SURE, getDurumOptions, getSureOptions, getSureTarihAraligi } from "./constants";
@@ -35,7 +36,7 @@ const DEFAULT_FILTER_VALUES = {
   sureFiltre: VARSAYILAN_SURE,
   kademeFiltre: [],
   kademeFiltreID: [],
-  durumFiltre: null,
+  durumFiltre: [],
 };
 
 const altSatirStyle = { fontSize: "12px", color: "#8c8c8c" };
@@ -58,7 +59,7 @@ const compareText = (a, b) => {
 const buildFilters = ({ sureFiltre, kademeFiltreID, durumFiltre }) => ({
   ...getSureTarihAraligi(sureFiltre),
   kademeIds: Array.isArray(kademeFiltreID) ? kademeFiltreID : [],
-  durumIds: durumFiltre ? [durumFiltre] : [],
+  durumIds: Array.isArray(durumFiltre) ? durumFiltre : [],
 });
 
 // Sütunların boyutlarını ayarlamak için kullanılan component
@@ -547,7 +548,7 @@ const KademeIsEmirleri = () => {
               <KademeSelectbox name1="kademeFiltre" multiSelect placeholder={t("kademeSeciniz")} />
             </div>
             <div style={{ width: "150px" }}>
-              <SelectInput name="durumFiltre" options={getDurumOptions()} placeholder={t("durumSeciniz")} />
+              <MultiSelectInput name="durumFiltre" options={getDurumOptions()} placeholder={t("durumSeciniz")} />
             </div>
             <Button onClick={handleSearch} icon={<SearchOutlined />} style={{ backgroundColor: "#1890ff", borderColor: "#1890ff", color: "#fff" }} />
           </div>

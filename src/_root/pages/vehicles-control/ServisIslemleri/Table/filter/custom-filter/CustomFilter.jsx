@@ -4,8 +4,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import "./style.css";
 import { useFormContext } from "react-hook-form";
-import StatusSelect from "./components/StatusSelect";
 import KodIDSelectbox from "../../../../../../components/KodIDSelectbox";
+import MultiSelectInput from "../../../../../../components/form/selects/MultiSelectInput";
+import { getDurumOptions } from "../../../../../KademeYonetimi/KademeIsEmirleri/constants";
 import { t } from "i18next";
 import dayjs from "dayjs";
 import "dayjs/locale/tr";
@@ -18,10 +19,23 @@ const { Text } = Typography;
 // Mülkiyet kod listesinin backend'deki kod numarası
 const MULKIYET_KOD_ID = 891;
 const MULKIYET_FILTER_KEY = "mulkiyetKodIds";
-const DURUM_FILTER_KEY = "durum";
+// Servis tipi kod listesinin backend'deki kod numarası (Servis Tanımları ekranıyla aynı liste)
+const SERVIS_TIPI_KOD_ID = 103;
+const SERVIS_TIPI_FILTER_KEY = "servisTipIds";
+// Araç tipi kod listesinin backend'deki kod numarası (Araçlar listesiyle aynı liste)
+const ARAC_TIPI_KOD_ID = 100;
+const ARAC_TIPI_FILTER_KEY = "aracTipIds";
+// Durum seçenekleri Kademe İş Emirleri ekranıyla aynıdır
+const DURUM_FILTER_KEY = "durumIds";
 
-// Kod listesinden seçim yapılan filtrelerde serbest metin kutusu gösterilmez
-const isSelectFilter = (filterKey) => filterKey === DURUM_FILTER_KEY || filterKey === MULKIYET_FILTER_KEY;
+// Listeden seçim yapılan filtrelerde serbest metin kutusu gösterilmez
+const SELECT_FILTER_KEYS = [DURUM_FILTER_KEY, MULKIYET_FILTER_KEY, SERVIS_TIPI_FILTER_KEY, ARAC_TIPI_FILTER_KEY];
+const isSelectFilter = (filterKey) => SELECT_FILTER_KEYS.includes(filterKey);
+
+// Satırdaki seçim kutuları form alanlarında tutulur (KodIDSelectbox ayrıca `${ad}ID` alanı yazar).
+// Filtre tipi değişince veya satır silinince bu alanlar temizlenir; yoksa aynı tipe geri dönüldüğünde eski id'ler görünür.
+const ROW_SELECT_FIELD_PREFIXES = ["durumFiltre", "mulkiyetFiltre", "servisTipiFiltre", "aracTipiFiltre"];
+const getRowSelectFieldNames = (rowId) => ROW_SELECT_FIELD_PREFIXES.flatMap((prefix) => [`${prefix}${rowId}`, `${prefix}${rowId}ID`]);
 
 const StyledCloseOutlined = styled(CloseOutlined)`
   svg {
@@ -42,7 +56,7 @@ const CloseButton = styled.div`
 `;
 
 export default function CustomFilter({ onSubmit }) {
-  const { watch } = useFormContext();
+  const { watch, unregister } = useFormContext();
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [newObjectsAdded, setNewObjectsAdded] = useState(false);
@@ -96,6 +110,7 @@ export default function CustomFilter({ onSubmit }) {
       ...prevInputValues,
       [`input-${rowId}`]: "",
     }));
+    unregister(getRowSelectFieldNames(rowId));
   };
 
   const showDrawer = () => {
@@ -116,7 +131,7 @@ export default function CustomFilter({ onSubmit }) {
         return acc;
       }
 
-      // Mülkiyet çoklu seçim olduğu için değeri id dizisi olarak gider; boş dizi filtre sayılmaz
+      // Çoklu seçim filtrelerinin değeri id dizisi olarak gider; boş dizi filtre sayılmaz
       if (Array.isArray(inputValue)) {
         if (inputValue.length > 0) {
           acc[selectedValue] = inputValue;
@@ -125,7 +140,7 @@ export default function CustomFilter({ onSubmit }) {
       }
 
       if (inputValue) {
-        acc[selectedValue] = selectedValue === DURUM_FILTER_KEY ? Number(inputValue) : inputValue;
+        acc[selectedValue] = inputValue;
       }
 
       return acc;
@@ -146,6 +161,7 @@ export default function CustomFilter({ onSubmit }) {
 
   const handleCancelClick = (rowId) => {
     setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
+    unregister(getRowSelectFieldNames(rowId));
 
     const filtersRemaining = rows.length > 1;
     setFiltersExist(filtersRemaining);
@@ -271,20 +287,20 @@ export default function CustomFilter({ onSubmit }) {
                   filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
                   options={[
                     {
-                      value: "servisTipi",
-                      label: "Servis Tipi",
+                      value: SERVIS_TIPI_FILTER_KEY,
+                      label: t("servisTipi"),
                     },
                     {
                       value: "firma",
                       label: "Firma",
                     },
                     {
-                      value: "aracTipi",
-                      label: "Arac Tipi",
+                      value: ARAC_TIPI_FILTER_KEY,
+                      label: t("aracTip"),
                     },
                     {
-                      value: "durum",
-                      label: "Durum",
+                      value: DURUM_FILTER_KEY,
+                      label: t("durum"),
                     },
                     {
                       value: MULKIYET_FILTER_KEY,
@@ -299,7 +315,9 @@ export default function CustomFilter({ onSubmit }) {
                   onChange={(e) => handleInputChange(e, row.id)}
                   style={{ display: isSelectFilter(selectedValues[row.id]) ? "none" : "block" }}
                 />
-                {selectedValues[row.id] === DURUM_FILTER_KEY && <StatusSelect value={inputValues[`input-${row.id}`]} onChange={(value) => handleStatusChange(value, row.id)} />}
+                {selectedValues[row.id] === DURUM_FILTER_KEY && (
+                  <MultiSelectInput name={`durumFiltre${row.id}`} options={getDurumOptions()} onChange={(value) => handleStatusChange(value, row.id)} placeholder={t("durumSeciniz")} />
+                )}
                 {selectedValues[row.id] === MULKIYET_FILTER_KEY && (
                   <KodIDSelectbox
                     name1={`mulkiyetFiltre${row.id}`}
@@ -309,6 +327,30 @@ export default function CustomFilter({ onSubmit }) {
                     multiSelect={true}
                     onChange={(value) => handleStatusChange(value || [], row.id)}
                     placeholder={t("mulkiyet")}
+                    inputWidth="100%"
+                  />
+                )}
+                {selectedValues[row.id] === SERVIS_TIPI_FILTER_KEY && (
+                  <KodIDSelectbox
+                    name1={`servisTipiFiltre${row.id}`}
+                    kodID={SERVIS_TIPI_KOD_ID}
+                    addHide={true}
+                    isRequired={false}
+                    multiSelect={true}
+                    onChange={(value) => handleStatusChange(value || [], row.id)}
+                    placeholder={t("servisTipi")}
+                    inputWidth="100%"
+                  />
+                )}
+                {selectedValues[row.id] === ARAC_TIPI_FILTER_KEY && (
+                  <KodIDSelectbox
+                    name1={`aracTipiFiltre${row.id}`}
+                    kodID={ARAC_TIPI_KOD_ID}
+                    addHide={true}
+                    isRequired={false}
+                    multiSelect={true}
+                    onChange={(value) => handleStatusChange(value || [], row.id)}
+                    placeholder={t("aracTip")}
                     inputWidth="100%"
                   />
                 )}
