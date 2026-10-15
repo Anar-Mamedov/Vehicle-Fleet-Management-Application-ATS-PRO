@@ -2106,5 +2106,6 @@
   "talepNoAlinamadi": "Talep numarası alınamadı veya kullanılıyor. Lütfen tekrar deneyin.",
   "talepOzeti": "Talep Özeti",
   "ilgiliIs": "İlgili İş",
-  "toplamKayittanArasiGosteriliyor": "Toplam {{toplam}} kayıttan {{baslangic}}-{{bitis}} arası gösteriliyor"
+  "toplamKayittanArasiGosteriliyor": "Toplam {{toplam}} kayıttan {{baslangic}}-{{bitis}} arası gösteriliyor",
+  "onceCikisDeposuSeciniz": "Lütfen önce çıkış deposunu seçiniz."
 }

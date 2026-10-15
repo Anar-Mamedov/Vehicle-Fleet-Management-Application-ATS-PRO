@@ -5,9 +5,13 @@ import { Controller, useForm, FormProvider } from "react-hook-form";
 import dayjs from "dayjs";
 import MainTabs from "./MainTabs/MainTabs";
 
+// Stoklu, depolu ve malzemesi seçili kaydedilen satırda bu üç alan güncellemede değiştirilemez
+const isStokSecimiKayitli = (item) => Boolean(item.stoklu && item.cikisDepoSiraNo && item.malzemeId);
+
 export default function EditModal({ selectedRow, isModalVisible, onModalClose, onRefresh, secilenUstKayitID }) {
   const [loading, setLoading] = useState(false);
   const [isApiUpdate, setIsApiUpdate] = useState(false); // API'den gelen güncellemeleri izlemek için
+  const [isStokSecimiKilitli, setIsStokSecimiKilitli] = useState(false);
 
   const methods = useForm({
     defaultValues: {
@@ -67,6 +71,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
           setValue("depoID", item.cikisDepoSiraNo);
           setValue("birim", item.birim ? item.birim : null);
           setValue("birimID", item.birimKodId);
+          setIsStokSecimiKilitli(isStokSecimiKayitli(item));
 
           // Diğer setValue çağrıları burada yapılır
 
@@ -85,6 +90,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
   useEffect(() => {
     if (!isModalVisible) {
       reset();
+      setIsStokSecimiKilitli(false);
     }
   }, [isModalVisible, reset]);
 
@@ -167,7 +173,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
             </Spin>
           ) : (
             <form onSubmit={methods.handleSubmit(onSubmited)}>
-              <MainTabs isApiUpdate={isApiUpdate} />
+              <MainTabs isApiUpdate={isApiUpdate} isStokSecimiKilitli={isStokSecimiKilitli} />
             </form>
           )}
         </Modal>

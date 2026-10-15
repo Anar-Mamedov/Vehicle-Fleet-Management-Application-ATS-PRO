@@ -105,7 +105,7 @@ export default function CikisDeposu({ disabled, fieldRequirements }) {
           render={({ field }) => (
             <Select
               {...field}
-              disabled={!stokluMalzeme} // stokluMalzeme false ise disabled olsun
+              disabled={disabled || !stokluMalzeme} // stokluMalzeme false ise veya kayıt kilitliyse disabled olsun
               key={selectKey}
               style={{ width: "300px" }}
               status={errors.depo ? "error" : ""}

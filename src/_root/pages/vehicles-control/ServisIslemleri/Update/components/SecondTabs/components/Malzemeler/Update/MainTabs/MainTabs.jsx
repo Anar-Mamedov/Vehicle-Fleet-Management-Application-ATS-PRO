@@ -59,7 +59,7 @@ const StyledTabs = styled(Tabs)`
 `;
 
 //styled components end
-export default function MainTabs() {
+export default function MainTabs({ isStokSecimiKilitli = false }) {
   const [localeDateFormat, setLocaleDateFormat] = useState("DD/MM/YYYY"); // Varsayılan format
   const [localeTimeFormat, setLocaleTimeFormat] = useState("HH:mm"); // Default time format
   const {
@@ -313,7 +313,18 @@ export default function MainTabs() {
               name="stokluMalzeme"
               control={control}
               render={({ field }) => (
-                <Checkbox checked={field.value} onChange={(e) => field.onChange(e.target.checked)}>
+                <Checkbox
+                  checked={field.value}
+                  disabled={isStokSecimiKilitli}
+                  onChange={(e) => {
+                    field.onChange(e.target.checked);
+                    // Stoklu seçimi kaldırılınca çıkış deposu da temizlenir
+                    if (!e.target.checked) {
+                      setValue("depo", null);
+                      setValue("depoID", null);
+                    }
+                  }}
+                >
                   Stoklu Malzeme
                 </Checkbox>
               )}
@@ -322,7 +333,7 @@ export default function MainTabs() {
           <div style={{ width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
             <StyledDivBottomLine style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
               <Text style={{ fontSize: "14px", fontWeight: "600" }}>Çıkış Deposu:</Text>
-              <CikisDeposu />
+              <CikisDeposu disabled={isStokSecimiKilitli} />
               <Controller
                 name="aracID"
                 control={control}
@@ -364,7 +375,9 @@ export default function MainTabs() {
               />
 
               <YapilanIsTable
+                disabled={isStokSecimiKilitli}
                 wareHouseId={watch("depoID")}
+                stokluMalzeme={watch("stokluMalzeme")}
                 onSubmit={(selectedData) => {
                   setValue("malzemeKodu", selectedData.malzemeKod);
                   setValue("malzemeKoduID", selectedData.key);
@@ -382,7 +395,7 @@ export default function MainTabs() {
                 }}
               />
 
-              <Button onClick={handleYapilanIsMinusClick}> - </Button>
+              <Button onClick={handleYapilanIsMinusClick} disabled={isStokSecimiKilitli}> - </Button>
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>

@@ -26,7 +26,7 @@ const normalizeText = (text) => {
     .replace(/Ç/g, "C");
 };
 
-export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouseId }) {
+export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouseId, stokluMalzeme }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -109,19 +109,23 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouse
 
         if (diff !== 0) {
           // Moving forward or backward
-          if (diff > 0) {
-            currentSetPointId = data[data.length - 1]?.malzemeId || 0;
-          } else if (diff < 0) {
-            currentSetPointId = data[0]?.malzemeId || 0;
-          }
+          // Depo bazlı liste siraNo ile, genel malzeme listesi malzemeId ile sayfalanır
+          const referenceRecord = diff > 0 ? data[data.length - 1] : data[0];
+          currentSetPointId = (stokluMalzeme ? referenceRecord?.siraNo : referenceRecord?.malzemeId) || 0;
         }
 
         // Use parameterOverride if provided, otherwise use searchTerm from state
         const parameterValue = parameterOverride !== null ? parameterOverride : searchTerm;
 
-        const response = await AxiosInstance.post(
-          `Material/GetMaterialList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${parameterValue}&wareHouseId=${wareHouseId || 0}`
-        );
+        // Stoklu malzemede yalnızca seçilen çıkış deposundaki malzemeler listelenir
+        const response = stokluMalzeme
+          ? await AxiosInstance.post(
+              `WareHouseManagement/GetMaterialListByWareHouseId?setPointId=${currentSetPointId}&diff=${diff}&parameter=${parameterValue}&wareHouseId=${wareHouseId}`,
+              {}
+            )
+          : await AxiosInstance.post(
+              `Material/GetMaterialList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${parameterValue}&wareHouseId=${wareHouseId || 0}`
+            );
 
         const total = response.data.total_count;
         setTotalCount(total);
@@ -145,7 +149,7 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouse
         setLoading(false);
       }
     },
-    [searchTerm, wareHouseId, data]
+    [searchTerm, wareHouseId, stokluMalzeme, data]
   );
 
   const resetSelectionState = () => {
@@ -154,6 +158,12 @@ export default function YapilanIsTable({ workshopSelectedId, onSubmit, wareHouse
   };
 
   const handleModalToggle = () => {
+    // Stoklu malzemede liste depoya göre geldiği için depo seçilmeden açılmaz
+    if (!isModalVisible && stokluMalzeme && !wareHouseId) {
+      message.warning(t("onceCikisDeposuSeciniz"));
+      return;
+    }
+
     setIsModalVisible((prev) => {
       if (!prev) {
         // Clear search term

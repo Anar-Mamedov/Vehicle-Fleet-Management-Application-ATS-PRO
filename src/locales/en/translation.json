@@ -1868,5 +1868,6 @@
   "talepOzeti": "Request Summary",
   "ilgiliIs": "Related Job",
   "talepTarihi": "Request Date",
-  "toplamKayittanArasiGosteriliyor": "Showing {{baslangic}}-{{bitis}} of {{toplam}} records"
+  "toplamKayittanArasiGosteriliyor": "Showing {{baslangic}}-{{bitis}} of {{toplam}} records",
+  "onceCikisDeposuSeciniz": "Please select the outgoing warehouse first."
 }

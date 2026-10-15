@@ -5,6 +5,7 @@ import { Button, Input, Typography, Tabs, Checkbox, Alert, Modal, Table } from "
 import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import dayjs from "dayjs";
+import { t } from "i18next";
 import YapilanIsTable from "./components/YapilanIsTable.jsx";
 // import { SearchOutlined } from "@ant-design/icons";
 import CikisDeposu from "./components/CikisDeposu.jsx";
@@ -73,8 +74,18 @@ export default function MainTabs({ aracID, onBulkAdd }) {
     watch,
     setValue,
     getValues,
+    clearErrors,
     formState: { errors },
   } = useFormContext();
+
+  // Stoklu malzemede çıkış deposu seçildiyse malzeme o depodan seçilmek zorundadır
+  const isMalzemeKoduRequired = Boolean(watch("stokluMalzeme") && watch("depoID"));
+
+  useEffect(() => {
+    if (!isMalzemeKoduRequired) {
+      clearErrors("malzemeKodu");
+    }
+  }, [isMalzemeKoduRequired, clearErrors]);
 
   useEffect(() => {
     const currentMiktar = getValues("miktar");
@@ -546,7 +557,17 @@ export default function MainTabs({ aracID, onBulkAdd }) {
               name="stokluMalzeme"
               control={control}
               render={({ field }) => (
-                <Checkbox checked={field.value} onChange={(e) => field.onChange(e.target.checked)}>
+                <Checkbox
+                  checked={field.value}
+                  onChange={(e) => {
+                    field.onChange(e.target.checked);
+                    // Stoklu seçimi kaldırılınca çıkış deposu da temizlenir
+                    if (!e.target.checked) {
+                      setValue("depo", null);
+                      setValue("depoID", null);
+                    }
+                  }}
+                >
                   Stoklu Malzeme
                 </Checkbox>
               )}
@@ -570,14 +591,16 @@ export default function MainTabs({ aracID, onBulkAdd }) {
             </StyledDivBottomLine>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
-            <Text style={{ fontSize: "14px" }}>Malzeme Kodu:</Text>
+            <Text style={{ fontSize: "14px", fontWeight: isMalzemeKoduRequired ? 600 : undefined }}>Malzeme Kodu:</Text>
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "300px" }}>
               <Controller
                 name="malzemeKodu"
                 control={control}
+                rules={{ required: isMalzemeKoduRequired ? t("alanBosBirakilamaz") : false }}
                 render={({ field }) => (
                   <Input
                     {...field}
+                    status={errors.malzemeKodu ? "error" : ""}
                     type="text" // Set the type to "text" for name input
                     style={{ width: "215px" }}
                     disabled
@@ -598,6 +621,7 @@ export default function MainTabs({ aracID, onBulkAdd }) {
 
               <YapilanIsTable
                 wareHouseId={watch("depoID")}
+                stokluMalzeme={watch("stokluMalzeme")}
                 onSubmit={(selection, meta) => {
                   if (Array.isArray(selection) && meta?.isBulk) {
                     onBulkAdd?.(selection);
@@ -607,7 +631,7 @@ export default function MainTabs({ aracID, onBulkAdd }) {
                   const selectedData = Array.isArray(selection) ? selection[0] : selection;
                   if (!selectedData) return;
 
-                  setValue("malzemeKodu", selectedData.malzemeKod);
+                  setValue("malzemeKodu", selectedData.malzemeKod, { shouldValidate: true });
                   setValue("malzemeKoduID", selectedData.key);
                   setValue("malzemeTanimi", selectedData.tanim);
                   setValue("iscilikUcreti", selectedData.fiyat);
@@ -624,6 +648,7 @@ export default function MainTabs({ aracID, onBulkAdd }) {
               />
 
               <Button onClick={handleYapilanIsMinusClick}> - </Button>
+              {errors.malzemeKodu && <div style={{ color: "red", marginTop: "5px" }}>{errors.malzemeKodu.message}</div>}
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>

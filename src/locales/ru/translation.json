@@ -1009,5 +1009,6 @@
   "talepOzeti": "Сводка заявки",
   "ilgiliIs": "Связанная работа",
   "talepTarihi": "Дата заявки",
-  "toplamKayittanArasiGosteriliyor": "Показаны записи {{baslangic}}-{{bitis}} из {{toplam}}"
+  "toplamKayittanArasiGosteriliyor": "Показаны записи {{baslangic}}-{{bitis}} из {{toplam}}",
+  "onceCikisDeposuSeciniz": "Сначала выберите склад отгрузки."
 }
