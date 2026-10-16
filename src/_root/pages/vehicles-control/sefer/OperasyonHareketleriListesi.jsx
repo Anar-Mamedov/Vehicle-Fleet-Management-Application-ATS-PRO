@@ -565,6 +565,16 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       render: renderText,
     },
     {
+      title: t("personelIsmi"),
+      dataIndex: "personelIsim",
+      key: "personelIsim",
+      width: 180,
+      visible: true,
+      ellipsis: true,
+      sorter: (a, b) => compareText(a.personelIsim, b.personelIsim),
+      render: renderText,
+    },
+    {
       title: t("hareketTipi"),
       dataIndex: FIELDS.hareketTip,
       key: "oprTip",
