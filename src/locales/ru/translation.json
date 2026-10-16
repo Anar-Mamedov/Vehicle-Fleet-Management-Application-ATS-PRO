@@ -1015,5 +1015,7 @@
   "kopyala": "Копировать",
   "operasyonlariKopyala": "Копировать операции",
   "operasyonKopyalamaAciklama": "Выбранные операции ({{adet}}) будут скопированы на выбранную дату.",
-  "kopyalamaTarihi": "Дата копирования"
+  "kopyalamaTarihi": "Дата копирования",
+  "hareketleriKopyala": "Копировать движения",
+  "hareketKopyalamaOnay": "Выбранные движения ({{adet}}) будут скопированы. Подтверждаете?"
 }

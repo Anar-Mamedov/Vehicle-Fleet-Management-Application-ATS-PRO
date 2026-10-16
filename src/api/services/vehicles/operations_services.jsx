@@ -145,6 +145,11 @@ export const DeleteExpeditionOperationItemsService = async (ids) => {
   return await http.post(`/ExpeditionOpr/DeleteExpeditionOperationItemById`, ids);
 };
 
+// Seçilen operasyon hareketleri kopyalanır; gövde yalnızca hareket id'lerinin dizisidir
+export const DuplicateExpeditionOperationsService = async (ids) => {
+  return await http.post(`/ExpeditionOpr/DuplicateExpeditionOperations`, ids);
+};
+
 export const GetExpeditionStatisticsByTypeService = async (type, search, filters) => {
   return await http.post(`/ExpeditionStatistics/GetInfoByType?type=${type}&parameter=${encodeURIComponent(search)}`, filters);
 };

@@ -227,7 +227,7 @@ const OperasyonHareketleri = ({ selectedRow, isActive }) => {
           prefix={<SearchOutlined style={{ color: "#bfbfbf" }} onClick={handleSearch} />}
         />
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTable} />
+          <ContextMenu selectedRows={selectedRows} refreshTableData={refreshTable} showKopyala />
           <Button className="btn primary-btn" onClick={handleYeniHareket}>
             <PlusOutlined /> {t("yeniHareket")}
           </Button>

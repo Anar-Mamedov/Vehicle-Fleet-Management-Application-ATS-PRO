@@ -3,15 +3,26 @@ import PropTypes from "prop-types";
 import { Button, Popover, Typography } from "antd";
 import { MoreOutlined } from "@ant-design/icons";
 import Sil from "./components/Sil";
+import Kopyala from "./components/Kopyala";
 
 const { Text } = Typography;
 
-export default function ContextMenu({ selectedRows, refreshTableData }) {
+// Kopyalama yalnızca istenen listede (operasyon kartındaki hareketler) gösterilir
+export default function ContextMenu({ selectedRows, refreshTableData, showKopyala = false }) {
   const [visible, setVisible] = useState(false);
 
   const hidePopover = () => setVisible(false);
 
-  const content = <div>{selectedRows.length >= 1 && <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}</div>;
+  const content = (
+    <div>
+      {selectedRows.length >= 1 && (
+        <>
+          {showKopyala && <Kopyala selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />}
+          <Sil selectedRows={selectedRows} refreshTableData={refreshTableData} hidePopover={hidePopover} />
+        </>
+      )}
+    </div>
+  );
 
   return (
     <Popover placement="bottom" content={content} trigger="click" open={visible} onOpenChange={setVisible}>
@@ -36,4 +47,5 @@ export default function ContextMenu({ selectedRows, refreshTableData }) {
 ContextMenu.propTypes = {
   selectedRows: PropTypes.array.isRequired,
   refreshTableData: PropTypes.func.isRequired,
+  showKopyala: PropTypes.bool,
 };

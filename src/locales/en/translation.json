@@ -1874,5 +1874,7 @@
   "kopyala": "Copy",
   "operasyonlariKopyala": "Copy Operations",
   "operasyonKopyalamaAciklama": "The {{adet}} selected operation(s) will be copied to the date you choose.",
-  "kopyalamaTarihi": "Copy Date"
+  "kopyalamaTarihi": "Copy Date",
+  "hareketleriKopyala": "Copy Movements",
+  "hareketKopyalamaOnay": "The {{adet}} selected movement(s) will be copied. Do you confirm?"
 }

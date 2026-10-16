@@ -2111,5 +2111,7 @@
   "kopyala": "Kopyala",
   "operasyonlariKopyala": "Operasyonları Kopyala",
   "operasyonKopyalamaAciklama": "Seçilen {{adet}} operasyon, seçeceğiniz tarihe kopyalanacak.",
-  "kopyalamaTarihi": "Kopyalama Tarihi"
+  "kopyalamaTarihi": "Kopyalama Tarihi",
+  "hareketleriKopyala": "Hareketleri Kopyala",
+  "hareketKopyalamaOnay": "Seçilen {{adet}} hareket kopyalanacak. Onaylıyor musunuz?"
 }

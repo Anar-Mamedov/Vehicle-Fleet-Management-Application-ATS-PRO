@@ -1438,5 +1438,7 @@
   "kopyala": "Kopyala",
   "operasyonlariKopyala": "Əməliyyatları kopyala",
   "operasyonKopyalamaAciklama": "Seçilmiş {{adet}} əməliyyat seçdiyiniz tarixə kopyalanacaq.",
-  "kopyalamaTarihi": "Kopyalama tarixi"
+  "kopyalamaTarihi": "Kopyalama tarixi",
+  "hareketleriKopyala": "Hərəkətləri kopyala",
+  "hareketKopyalamaOnay": "Seçilmiş {{adet}} hərəkət kopyalanacaq. Təsdiq edirsiniz?"
 }
