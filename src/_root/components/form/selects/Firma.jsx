@@ -3,6 +3,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Select, Spin } from "antd";
 import { CodeControlByUrlService } from "../../../../api/services/code/services";
+import { filterOptionByLabel } from "../../../../utils/searchUtils";
 
 const Firma = ({ name, codeName, checked, required, yakit = false, firmaType = 2, placeholder = "" }) => {
   const [data, setData] = useState([]);
@@ -37,7 +38,7 @@ const Firma = ({ name, codeName, checked, required, yakit = false, firmaType = 2
             placeholder={placeholder}
             optionFilterProp="children"
             className={fieldState.error ? "input-error" : ""}
-            filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
+            filterOption={filterOptionByLabel}
             filterSort={(a, b) => (a?.label.toLowerCase() ?? "").localeCompare(b?.label.toLowerCase() ?? "")}
             options={data.map((item) => ({
               label: item.unvan,

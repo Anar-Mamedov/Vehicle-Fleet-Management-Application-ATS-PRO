@@ -5,6 +5,7 @@ import { Select } from "antd";
 import { PlakaContext } from "../../../../context/plakaSlice";
 import { GetFuelCardContentByIdService } from "../../../../api/services/vehicles/yakit/services";
 import { CodeControlByUrlService } from "../../../../api/services/code/services";
+import { filterOptionByLabel } from "../../../../utils/searchUtils";
 
 const Plaka = ({ name, codeName, required, onSubmit, placeholder = "" }) => {
   const { plaka, setData } = useContext(PlakaContext);
@@ -85,7 +86,7 @@ const Plaka = ({ name, codeName, required, onSubmit, placeholder = "" }) => {
               optionFilterProp="children"
               className={fieldState.error ? "input-error" : ""}
               value={selectedValue}
-              filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
+              filterOption={filterOptionByLabel}
               filterSort={(optionA, optionB) => (optionA?.label.toLowerCase() ?? "").localeCompare(optionB?.label.toLowerCase() ?? "")}
               options={options}
               onClick={handleClick}

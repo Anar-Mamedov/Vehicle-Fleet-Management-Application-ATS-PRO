@@ -1,8 +1,9 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Select } from "antd";
 import { CodeControlByUrlService } from "../../../../api/services/code/services";
+import { filterOptionByLabel } from "../../../../utils/searchUtils";
 
 const Guzergah = ({ placeholder = "" }) => {
   const [data, setData] = useState([]);
@@ -25,7 +26,7 @@ const Guzergah = ({ placeholder = "" }) => {
           allowClear
           placeholder={placeholder}
           optionFilterProp="children"
-          filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
+          filterOption={filterOptionByLabel}
           filterSort={(optionA, optionB) => (optionA?.label.toLowerCase() ?? "").toLowerCase().localeCompare((optionB?.label ?? "").toLowerCase())}
           options={data.map((item) => ({
             label: item.guzergah,

@@ -2,6 +2,7 @@ import React, { useState, createRef, useEffect } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Select, Typography, Divider, Spin, Button, Input, message, Space } from "antd";
 import AxiosInstance from "../../api/http";
+import { filterOptionByLabel } from "../../utils/searchUtils";
 import { PlusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 
@@ -134,7 +135,7 @@ export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, pla
             allowClear
             placeholder={placeholder || "Seçim Yapınız"}
             optionFilterProp="children"
-            filterOption={(input, option) => (option.label ? option.label.toLowerCase().includes(input.toLowerCase()) : false)}
+            filterOption={filterOptionByLabel}
             onDropdownVisibleChange={(open) => {
               if (open) {
                 fetchData(); // Fetch data when the dropdown is opened

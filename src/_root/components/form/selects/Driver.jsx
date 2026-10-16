@@ -3,6 +3,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Select } from "antd";
 import { CodeControlByUrlService } from "../../../../api/services/code/services";
+import { filterOptionByLabel } from "../../../../utils/searchUtils";
 
 const Driver = ({ name, codeName, required, disabled, placeholder = "" }) => {
   const [data, setData] = useState([]);
@@ -29,7 +30,7 @@ const Driver = ({ name, codeName, required, disabled, placeholder = "" }) => {
             placeholder={placeholder}
             optionFilterProp="children"
             className={fieldState.error ? "input-error" : ""}
-            filterOption={(input, option) => (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())}
+            filterOption={filterOptionByLabel}
             filterSort={(optionA, optionB) => (optionA?.label.toLowerCase() ?? "").toLowerCase().localeCompare((optionB?.label ?? "").toLowerCase())}
             options={data.map((item) => ({
               label: item.isim,
