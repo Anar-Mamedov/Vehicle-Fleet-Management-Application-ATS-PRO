@@ -130,6 +130,8 @@ export default function KodIDSelectbox({ name1, kodID, isRequired, onChange, pla
             status={errors[name1] ? "error" : ""}
             key={selectKey}
             mode={multiSelect ? "multiple" : undefined}
+            // Seçimler alt alta dizilmez; sığmayanlar tek satırda "+N" olarak toplanır
+            maxTagCount={multiSelect ? "responsive" : undefined}
             // style={{ maxWidth: "300px", width: "100%" }}
             showSearch
             allowClear
