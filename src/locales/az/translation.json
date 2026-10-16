@@ -1434,5 +1434,9 @@
   "ilgiliIs": "Əlaqəli iş",
   "talepTarihi": "Sorğu tarixi",
   "toplamKayittanArasiGosteriliyor": "Cəmi {{toplam}} qeyddən {{baslangic}}-{{bitis}} arası göstərilir",
-  "onceCikisDeposuSeciniz": "Zəhmət olmasa, əvvəlcə çıxış anbarını seçin."
+  "onceCikisDeposuSeciniz": "Zəhmət olmasa, əvvəlcə çıxış anbarını seçin.",
+  "kopyala": "Kopyala",
+  "operasyonlariKopyala": "Əməliyyatları kopyala",
+  "operasyonKopyalamaAciklama": "Seçilmiş {{adet}} əməliyyat seçdiyiniz tarixə kopyalanacaq.",
+  "kopyalamaTarihi": "Kopyalama tarixi"
 }

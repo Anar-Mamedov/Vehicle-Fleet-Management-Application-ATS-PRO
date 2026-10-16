@@ -2107,5 +2107,9 @@
   "talepOzeti": "Talep Özeti",
   "ilgiliIs": "İlgili İş",
   "toplamKayittanArasiGosteriliyor": "Toplam {{toplam}} kayıttan {{baslangic}}-{{bitis}} arası gösteriliyor",
-  "onceCikisDeposuSeciniz": "Lütfen önce çıkış deposunu seçiniz."
+  "onceCikisDeposuSeciniz": "Lütfen önce çıkış deposunu seçiniz.",
+  "kopyala": "Kopyala",
+  "operasyonlariKopyala": "Operasyonları Kopyala",
+  "operasyonKopyalamaAciklama": "Seçilen {{adet}} operasyon, seçeceğiniz tarihe kopyalanacak.",
+  "kopyalamaTarihi": "Kopyalama Tarihi"
 }

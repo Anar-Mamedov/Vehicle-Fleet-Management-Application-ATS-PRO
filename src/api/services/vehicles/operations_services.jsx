@@ -96,6 +96,11 @@ export const BulkInsertExpeditionsService = async (data) => {
   return await http.post(`/Expeditions/BulkInsertExpeditions`, data);
 };
 
+// Seçilen operasyonlar verilen tarihe kopyalanır; gövde: { siraNos: [], tarih: "YYYY-MM-DDT00:00:00" }
+export const DuplicateExpeditionsWithDateService = async (data) => {
+  return await http.post(`/Expeditions/DuplicateExpeditionsWithDate`, data);
+};
+
 export const GetExpeditionsListService = async (diff, setPointId, search, filters, pageSize) => {
   return await http.post(`/Expeditions/GetExpeditionsList?diff=${diff}&setPointId=${setPointId}&parameter=${encodeURIComponent(search)}&pageSize=${pageSize}`, filters);
 };

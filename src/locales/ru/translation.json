@@ -1011,5 +1011,9 @@
   "ilgiliIs": "Связанная работа",
   "talepTarihi": "Дата заявки",
   "toplamKayittanArasiGosteriliyor": "Показаны записи {{baslangic}}-{{bitis}} из {{toplam}}",
-  "onceCikisDeposuSeciniz": "Сначала выберите склад отгрузки."
+  "onceCikisDeposuSeciniz": "Сначала выберите склад отгрузки.",
+  "kopyala": "Копировать",
+  "operasyonlariKopyala": "Копировать операции",
+  "operasyonKopyalamaAciklama": "Выбранные операции ({{adet}}) будут скопированы на выбранную дату.",
+  "kopyalamaTarihi": "Дата копирования"
 }

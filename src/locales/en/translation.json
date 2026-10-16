@@ -1870,5 +1870,9 @@
   "ilgiliIs": "Related Job",
   "talepTarihi": "Request Date",
   "toplamKayittanArasiGosteriliyor": "Showing {{baslangic}}-{{bitis}} of {{toplam}} records",
-  "onceCikisDeposuSeciniz": "Please select the outgoing warehouse first."
+  "onceCikisDeposuSeciniz": "Please select the outgoing warehouse first.",
+  "kopyala": "Copy",
+  "operasyonlariKopyala": "Copy Operations",
+  "operasyonKopyalamaAciklama": "The {{adet}} selected operation(s) will be copied to the date you choose.",
+  "kopyalamaTarihi": "Copy Date"
 }
