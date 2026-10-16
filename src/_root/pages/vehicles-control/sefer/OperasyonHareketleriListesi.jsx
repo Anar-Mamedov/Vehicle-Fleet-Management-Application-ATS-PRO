@@ -555,6 +555,16 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       render: renderText,
     },
     {
+      title: t("aracTip"),
+      dataIndex: "aracTip",
+      key: "aracTip",
+      width: 140,
+      visible: true,
+      ellipsis: true,
+      sorter: (a, b) => compareText(a.aracTip, b.aracTip),
+      render: renderText,
+    },
+    {
       title: t("surucu"),
       dataIndex: "surucuIsim1",
       key: "surucuIsim1",
@@ -562,6 +572,16 @@ const OperasyonHareketleriListesi = ({ onTotalCountChange }) => {
       visible: true,
       ellipsis: true,
       sorter: (a, b) => compareText(a.surucuIsim1, b.surucuIsim1),
+      render: renderText,
+    },
+    {
+      title: t("surucu2"),
+      dataIndex: "surucuIsim2",
+      key: "surucuIsim2",
+      width: 180,
+      visible: true,
+      ellipsis: true,
+      sorter: (a, b) => compareText(a.surucuIsim2, b.surucuIsim2),
       render: renderText,
     },
     {

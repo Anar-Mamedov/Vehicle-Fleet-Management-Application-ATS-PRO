@@ -435,6 +435,16 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
       },
     },
     {
+      title: t("aracTip"),
+      dataIndex: "aracTip",
+      key: "aracTip",
+      width: 140,
+      visible: true,
+      ellipsis: true,
+      sorter: (a, b) => compareText(a.aracTip, b.aracTip),
+      render: renderText,
+    },
+    {
       title: t("firma"),
       dataIndex: "firma",
       key: "firma",
@@ -462,6 +472,16 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
           {record.surucuGorev1 ? <span style={secondaryLineStyle}>{record.surucuGorev1}</span> : null}
         </div>
       ),
+    },
+    {
+      title: t("surucu2"),
+      dataIndex: "surucuIsim2",
+      key: "surucuIsim2",
+      width: 180,
+      visible: true,
+      ellipsis: true,
+      sorter: (a, b) => compareText(a.surucuIsim2, b.surucuIsim2),
+      render: renderText,
     },
     {
       title: t("durum"),
