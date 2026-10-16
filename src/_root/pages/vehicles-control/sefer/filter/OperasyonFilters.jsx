@@ -7,17 +7,26 @@ import AxiosInstance from "../../../../../api/http";
 import KodIDSelectbox from "../../../../components/KodIDSelectbox";
 import TarihAraligiFiltre, { DEFAULT_TIME_RANGE, getDateRange } from "./TarihAraligiFiltre";
 
-// Sefer tipi ve sefer durumu kod listelerinin backend'deki kod numaraları
+// Sefer tipi, sefer durumu ve operasyon yeri kod listelerinin backend'deki kod numaraları
 const SEFER_TIP_KOD_ID = 120;
 const SEFER_DURUM_KOD_ID = 121;
+const OPERASYON_YERI_KOD_ID = 918;
 
 // Liste, KPI ve Excel istekleri aynı gövdeyi kullanır
-export const buildOperasyonFilters = ({ timeRange = DEFAULT_TIME_RANGE, customRange = null, surucuIds = [], seferDurumKodIds = [], seferTipKodIds = [] } = {}) => ({
+export const buildOperasyonFilters = ({
+  timeRange = DEFAULT_TIME_RANGE,
+  customRange = null,
+  surucuIds = [],
+  seferDurumKodIds = [],
+  seferTipKodIds = [],
+  operasyonYeriKodIds = [],
+} = {}) => ({
   aracIds: [],
   surucuIds,
   lokasyonIds: [],
   seferDurumKodIds,
   seferTipKodIds,
+  operasyonYeriKodIds,
   guzergahIds: [],
   ...getDateRange(timeRange, customRange),
 });
@@ -30,6 +39,7 @@ export default function OperasyonFilters({ onChange }) {
   const [surucuIds, setSurucuIds] = useState([]);
   const [seferDurumKodIds, setSeferDurumKodIds] = useState([]);
   const [seferTipKodIds, setSeferTipKodIds] = useState([]);
+  const [operasyonYeriKodIds, setOperasyonYeriKodIds] = useState([]);
   const [surucuOptions, setSurucuOptions] = useState([]);
   const [surucuLoading, setSurucuLoading] = useState(false);
 
@@ -47,7 +57,7 @@ export default function OperasyonFilters({ onChange }) {
 
   // Filtreler yalnızca arama düğmesine basıldığında uygulanır
   const handleSearch = () => {
-    onChange(buildOperasyonFilters({ timeRange, customRange, surucuIds, seferDurumKodIds, seferTipKodIds }));
+    onChange(buildOperasyonFilters({ timeRange, customRange, surucuIds, seferDurumKodIds, seferTipKodIds, operasyonYeriKodIds }));
   };
 
   const handleTarihAraligiChange = ({ timeRange: nextTimeRange, customRange: nextCustomRange }) => {
@@ -98,6 +108,19 @@ export default function OperasyonFilters({ onChange }) {
           multiSelect={true}
           onChange={(value) => setSeferTipKodIds(value || [])}
           placeholder={t("gorevTipi")}
+          inputWidth="100px"
+          dropdownWidth="300px"
+        />
+      </div>
+      <div style={{ display: "flex", gap: "10px" }}>
+        <KodIDSelectbox
+          name1="operasyonYeriFiltre"
+          kodID={OPERASYON_YERI_KOD_ID}
+          addHide={true}
+          isRequired={false}
+          multiSelect={true}
+          onChange={(value) => setOperasyonYeriKodIds(value || [])}
+          placeholder={t("operasyonYeri")}
           inputWidth="100px"
           dropdownWidth="300px"
         />
