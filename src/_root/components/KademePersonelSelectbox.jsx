@@ -26,7 +26,7 @@ const StyledDiv = styled.div`
 `;
 
 // Yalnızca verilen kademeye atanmış personeller arasından seçim yaptırır.
-// name1 = personel adı, `${name1}ID` = personel id (servis yanıtındaki siraNo personelin id'sidir).
+// name1 = personel adı, `${name1}ID` = personel id (servis yanıtındaki siraNo kademe atama kaydının id'sidir, personelin değil).
 export default function KademePersonelSelectbox({ name1, kademeId, isRequired, placeholder, onChange }) {
   const {
     control,
@@ -74,7 +74,7 @@ export default function KademePersonelSelectbox({ name1, kademeId, isRequired, p
             }}
             dropdownRender={(menu) => <Spin spinning={loading}>{menu}</Spin>}
             options={options.map((item) => ({
-              value: item.siraNo,
+              value: item.personelId,
               label: item.isim,
               unvan: item.unvan,
             }))}
