@@ -64,3 +64,11 @@ export const GetMaterialMovementsListService = async (search, page, data) => {
 export const GetMaterialListWithCursorService = async (diff, setPointId, search) => {
   return await http.post(`/Material/GetMaterialList?diff=${diff}&setPointId=${setPointId}&parameter=${encodeURIComponent(search)}&wareHouseId=0`, {});
 };
+
+// Bir depodaki stoklu malzemeler için imleçli liste; imleç depo stok kaydının siraNo'sudur, yanıt { materialList, total_count } döner
+export const GetMaterialListByWareHouseIdService = async (diff, setPointId, search, wareHouseId) => {
+  return await http.post(
+    `/WareHouseManagement/GetMaterialListByWareHouseId?setPointId=${setPointId}&diff=${diff}&parameter=${encodeURIComponent(search)}&wareHouseId=${wareHouseId}`,
+    {}
+  );
+};

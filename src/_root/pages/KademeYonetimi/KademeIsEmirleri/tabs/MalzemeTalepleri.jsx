@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import PropTypes from "prop-types";
-import { Alert, Button, Input, Table } from "antd";
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { Alert, Button, Input, Table, Tooltip } from "antd";
+import { ExportOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { t } from "i18next";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 import { formatDateByLocale } from "../../../../components/FormattedDate";
@@ -9,7 +9,8 @@ import { cardStyle, sectionTitleStyle } from "../../KademeTanimlari/components/u
 import DurumTag from "../components/DurumTag";
 import MalzemeTalepEtModal from "../malzemeTalepleri/MalzemeTalepEtModal";
 import MalzemeTalepDetayiModal from "../malzemeTalepleri/MalzemeTalepDetayiModal";
-import { formatTarihSaatDegeri, getMalzemeTalepDurumTanimi } from "../constants";
+import KullanimaAktarModal from "../malzemeTalepleri/KullanimaAktarModal";
+import { MALZEME_TALEP_DURUM, formatTarihSaatDegeri, getMalzemeTalepDurumTanimi } from "../constants";
 
 const aramaAlanlari = ["talepNo", "malzemeKod", "malzemeTanim", "aciklama"];
 
@@ -17,11 +18,13 @@ const VARSAYILAN_SAYFA_BOYUTU = 10;
 
 // İş emrine bağlı malzeme talepleri; liste modal seviyesinde okunur (sekme etiketindeki sayı için) ve buraya verilir.
 // Liste servisi sayfalanmadan döndüğü için arama ve sayfalama istemci tarafında yapılır.
-const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, onChange }) => {
+const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, onChange, onKullanimChange }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [pagination, setPagination] = useState({ current: 1, pageSize: VARSAYILAN_SAYFA_BOYUTU });
   const [talepEtOpen, setTalepEtOpen] = useState(false);
   const [detay, setDetay] = useState({ open: false, talepId: null, durum: null });
+  // Satırdaki düğmeyle kullanıma aktarılan talebin siraNo'su
+  const [kullanimaAktarilanTalepId, setKullanimaAktarilanTalepId] = useState(null);
 
   const filtrelenmisTalepler = useMemo(() => {
     const aranan = searchTerm.trim().toLocaleLowerCase("tr-TR");
@@ -60,6 +63,24 @@ const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, onCha
     { title: t("gerekliTarih"), dataIndex: "gerekliTarih", key: "gerekliTarih", width: 120, render: (tarih) => formatDateByLocale(tarih) },
     { title: t("talepTarihi"), dataIndex: "talepTarih", key: "talepTarih", width: 150, render: (tarih) => formatTarihSaatDegeri(tarih) },
     { title: t("aciklama"), dataIndex: "aciklama", key: "aciklama", width: 220, ellipsis: true, render: (text) => text || "-" },
+    {
+      title: "",
+      key: "kullanimaAktar",
+      width: 60,
+      fixed: "right",
+      align: "center",
+      render: (_, record) => (
+        <Tooltip title={t("kullanimaAktar")}>
+          <Button
+            size="small"
+            icon={<ExportOutlined />}
+            aria-label={t("kullanimaAktar")}
+            disabled={record.durum === MALZEME_TALEP_DURUM.TAMAMLANDI}
+            onClick={() => setKullanimaAktarilanTalepId(record.siraNo)}
+          />
+        </Tooltip>
+      ),
+    },
   ];
 
   return (
@@ -106,6 +127,14 @@ const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, onCha
         onClose={() => setDetay({ open: false, talepId: null, durum: null })}
         onChange={onChange}
       />
+      <KullanimaAktarModal
+        open={kullanimaAktarilanTalepId !== null}
+        isEmriId={isEmriId}
+        aracId={aracId}
+        talepId={kullanimaAktarilanTalepId}
+        onClose={() => setKullanimaAktarilanTalepId(null)}
+        onSaved={onKullanimChange}
+      />
     </div>
   );
 };
@@ -117,6 +146,7 @@ MalzemeTalepleri.propTypes = {
   talepler: PropTypes.arrayOf(PropTypes.object).isRequired,
   loading: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
+  onKullanimChange: PropTypes.func.isRequired,
 };
 
 export default MalzemeTalepleri;

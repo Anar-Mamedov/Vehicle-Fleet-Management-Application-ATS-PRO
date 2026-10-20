@@ -79,3 +79,33 @@ export const UpdateMaterialRequestService = async (data) => {
 export const GetMalzemeTalepNoService = async () => {
   return await http.get(`/Numbering/GetModuleCodeByCode?code=MALZEME_TALEP_NO`);
 };
+
+// Talebe bu işlemde kullanılan miktarı ekler (yeni toplam değil), talep durumunu günceller ve malzeme hareketini oluşturur.
+// Stoklu malzemede seçilen çıkış deposundan stok çıkışı da yapılır.
+export const UpdateMaterialRequestQuantityUsedService = async (data) => {
+  return await http.post(`/MaterialRequest/UpdateMaterialRequestQuantityUsed`, data);
+};
+
+// Kullanılan malzemeler: iş emrine bağlı malzeme hareketleri (sayfalanmadan dizi olarak döner)
+export const GetServiceMaterialMovementsService = async (serviceId) => {
+  return await http.get(`/MaterialMovements/GetMaterialMovementsServiceList?serviceId=${serviceId}`);
+};
+
+export const GetMaterialMovementByIdService = async (id) => {
+  return await http.get(`/MaterialMovements/GetMaterialMovementsById?id=${id}`);
+};
+
+// Ekleme ve güncelleme fiyat hesabı yapmaz; ara toplam, indirim, KDV ve toplam gövdede hesaplanmış gönderilir
+export const AddServiceMaterialMovementService = async (data) => {
+  return await http.post(`/MaterialMovements/AddMaterialMovementService`, data);
+};
+
+// Kısmi güncelleme değildir; gövdede olmayan alanlar varsayılan değerle yazılabilir
+export const UpdateServiceMaterialMovementService = async (data) => {
+  return await http.post(`/MaterialMovements/UpdateMaterialMovementService`, data);
+};
+
+// Servis ekranındaki gibi silinecek kayıtların id dizisi gövdede gönderilir
+export const DeleteMaterialMovementsService = async (ids) => {
+  return await http.post(`/MaterialMovements/DeleteMaterialMovementItemById`, ids);
+};

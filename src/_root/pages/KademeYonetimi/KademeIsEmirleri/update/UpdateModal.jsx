@@ -9,11 +9,13 @@ import ResimUpload from "../../../../components/Resim/ResimUpload";
 import GenelBilgiler from "../tabs/GenelBilgiler";
 import AtananIsler from "../tabs/AtananIsler";
 import MalzemeTalepleri from "../tabs/MalzemeTalepleri";
+import KullanilanMalzemeler from "../tabs/KullanilanMalzemeler";
 import Aciklama from "../tabs/Aciklama";
 import IsEmriOzet from "../components/IsEmriOzet";
 import DurumTag from "../components/DurumTag";
 import useAtananIsler from "../hooks/useAtananIsler";
 import useMalzemeTalepleri from "../hooks/useMalzemeTalepleri";
+import useKullanilanMalzemeler from "../hooks/useKullanilanMalzemeler";
 import { hintStyle } from "../../KademeTanimlari/components/uiStyles";
 import { IS_EMRI_REF_GROUP, isSuccessResponse, toNullableId } from "../constants";
 import { buildIsEmriBody, buildKorunanServisAlanlari, getDefaultIsEmriValues, getKayitBasariMesaji, mapIsEmriToFormValues } from "../formHelpers";
@@ -28,7 +30,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [detay, setDetay] = useState(null);
-  // Atanan işlerde veya malzeme taleplerinde değişiklik olduysa iş emri kaydedilmeden kapatılsa da liste yenilenir
+  // Atanan işlerde, malzeme taleplerinde veya kullanılan malzemelerde değişiklik olduysa iş emri kaydedilmeden kapatılsa da liste yenilenir
   const [islerDegisti, setIslerDegisti] = useState(false);
 
   const methods = useForm({ defaultValues: getDefaultIsEmriValues() });
@@ -37,6 +39,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
   const isEmriId = selectedRow?.siraNo;
   const { isler, loading: islerLoading, reload: reloadIsler } = useAtananIsler(isEmriId, open);
   const { talepler, loading: taleplerLoading, reload: reloadTalepler } = useMalzemeTalepleri(isEmriId, open);
+  const { malzemeler, loading: malzemelerLoading, reload: reloadMalzemeler } = useKullanilanMalzemeler(isEmriId, open);
 
   // Satıra tıklanınca kaydın güncel hali ve işçilik/malzeme maliyeti id ile okunup forma yazılır
   useEffect(() => {
@@ -107,6 +110,16 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
     refreshOzetVeMaliyet();
   }, [reloadIsler, reloadTalepler, refreshOzetVeMaliyet]);
 
+  // Malzeme kullanımı talebin kullanılan miktarını, bağlı işin malzeme sayısını ve iş emri malzeme maliyetini etkiler;
+  // Kullanılan Malzemeler'den ya da talepten kullanıma aktarımdan gelen her değişiklikte hepsi birlikte yenilenir
+  const handleMalzemeKullanimiChange = useCallback(() => {
+    setIslerDegisti(true);
+    reloadMalzemeler();
+    reloadTalepler();
+    reloadIsler();
+    refreshOzetVeMaliyet();
+  }, [reloadMalzemeler, reloadTalepler, reloadIsler, refreshOzetVeMaliyet]);
+
   const closeModal = ({ listeyiYenile = islerDegisti } = {}) => {
     if (listeyiYenile) onRefresh();
     setIslerDegisti(false);
@@ -167,6 +180,20 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
           talepler={talepler}
           loading={taleplerLoading}
           onChange={handleMalzemeTalepleriChange}
+          onKullanimChange={handleMalzemeKullanimiChange}
+        />
+      ),
+    },
+    {
+      key: "kullanilanMalzemeler",
+      label: `${t("kullanilanMalzemeler")} (${malzemeler.length})`,
+      children: (
+        <KullanilanMalzemeler
+          isEmriId={isEmriId}
+          aracId={toNullableId(detay?.aracId)}
+          malzemeler={malzemeler}
+          loading={malzemelerLoading}
+          onChange={handleMalzemeKullanimiChange}
         />
       ),
     },
