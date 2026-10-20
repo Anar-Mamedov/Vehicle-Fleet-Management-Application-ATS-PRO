@@ -9,6 +9,9 @@ import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 import { isSuccessResponse } from "../constants";
 import { cardStyle, hintStyle, sectionTitleStyle } from "./uiStyles";
 
+// Kademeden çıkarma servisi diğer silme servisleri gibi başarıda 204 döner
+const isCikarmaBasarili = (response) => isSuccessResponse(response) || response?.data?.statusCode === 204;
+
 // Kademeye atanan personellerin listesi; personel atama ve kademeden çıkarma bu bölümden yapılır
 const AtananPersoneller = ({ kademeId }) => {
   const [data, setData] = useState([]);
@@ -65,7 +68,7 @@ const AtananPersoneller = ({ kademeId }) => {
     try {
       const response = await RemoveStaffFromWorkShopService(selectedRowKeys);
 
-      if (isSuccessResponse(response)) {
+      if (isCikarmaBasarili(response)) {
         message.success(t("islemBasarili"));
         setSelectedRowKeys([]);
         fetchData();

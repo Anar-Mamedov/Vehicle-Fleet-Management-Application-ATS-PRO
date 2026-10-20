@@ -250,6 +250,11 @@ const KademeTanimlari = () => {
       visible: true,
       ellipsis: true,
       sorter: (a, b) => compareText(a.kademeKod, b.kademeKod),
+      render: (text, record) => (
+        <a role="link" tabIndex={0} onClick={() => onRowClick(record)} onKeyDown={(e) => e.key === "Enter" && onRowClick(record)}>
+          {text}
+        </a>
+      ),
     },
     {
       title: t("kademeAdi"),

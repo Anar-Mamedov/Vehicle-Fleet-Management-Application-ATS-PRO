@@ -122,7 +122,7 @@ const AddModal = ({ onRefresh }) => {
   return (
     <>
       <Button className="btn primary-btn" onClick={() => setOpen(true)}>
-        <PlusOutlined /> {t("yeniKademe")}
+        <PlusOutlined /> {t("ekle")}
       </Button>
       <Modal title={modalTitle} open={open} onCancel={closeModal} maskClosable={false} footer={footer} width={1000} destroyOnClose>
         <FormProvider {...methods}>
