@@ -15,7 +15,6 @@ const API_DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
 // .NET DateTime alanları (System.Text.Json) tarih ile saat arasında "T" bekler; boşluklu değeri reddeder.
 // Sonuna "Z" eklenmez, böylece yerel saat UTC'ye çevrilmez ve tarih kaymaz.
 const API_ISO_DATE_TIME_FORMAT = "YYYY-MM-DD[T]HH:mm:ss";
-const API_GMT_OFFSET_FORMAT = "Z";
 const DISPLAY_TIME_FORMAT = "HH:mm";
 
 // API'den gelen tarih/saat değerini dayjs nesnesine çevirir (DatePicker/TimePicker'a verilecek değer).
@@ -78,12 +77,6 @@ export const formatDateTimeForApi = (value) => {
 export const formatIsoDateTimeForApi = (value) => {
   const parsedDateTime = toDayjsOrNull(value);
   return parsedDateTime ? parsedDateTime.format(API_ISO_DATE_TIME_FORMAT) : null;
-};
-
-// Tarih + saat değerinin yerel saat dilimi farkını API'ye gönderilecek GMT biçimine (ör. "+03:00") çevirir.
-export const formatGmtOffsetForApi = (value) => {
-  const parsedDateTime = toDayjsOrNull(value);
-  return parsedDateTime ? parsedDateTime.format(API_GMT_OFFSET_FORMAT) : null;
 };
 
 // Ayrı DatePicker ve TimePicker değerlerini tek bir tarih + saat değeri olarak ISO biçiminde (YYYY-MM-DDTHH:mm:ss) API'ye hazırlar.

@@ -1,6 +1,4 @@
-import dayjs from "dayjs";
 import http from "../../http";
-import { formatGmtOffsetForApi, formatIsoDateTimeForApi, formatTimeForApi } from "../../../utils/dateUtils";
 
 // İş emri numaratörü (Otomatik Kodlar ekranındaki ISEMRI_KOD modülü)
 export const GetIsEmriCodeService = async () => {
@@ -53,17 +51,9 @@ export const UpdateServiceWorkCardService = async (data) => {
   return await http.post(`/ServiceWorkCard/UpdateServiceWorkCard`, data);
 };
 
-// Atanan işin durumu: 2 Devam Ediyor, 3 Durdu, 4 Yeniden Başladı, 5 Tamamlandı.
-// Süre sayacı için durum değişikliğinin anı da gönderilir; beş alan da zorunludur (sayacTarih'in saat kısmı sıfırdır).
+// Atanan işin durumu: 2 Devam Ediyor, 3 Durdu, 4 Yeniden Başladı, 5 Tamamlandı
 export const UpdateServiceWorkCardStatusService = async (id, status) => {
-  const simdi = dayjs();
-  return await http.post(`/ServiceWorkCard/UpdateServiceWorkCardStatus`, {
-    siraNo: id,
-    status,
-    sayacTarih: formatIsoDateTimeForApi(simdi.startOf("day")),
-    sayacSaat: formatTimeForApi(simdi, true),
-    sayacGmt: formatGmtOffsetForApi(simdi),
-  });
+  return await http.get(`/ServiceWorkCard/UpdateServiceWorkCardStatus?id=${id}&status=${status}`);
 };
 
 // Kademe İş Takip Paneli: tüm iş kartları; filtreler POST gövdesinde, sayfalama ve pageSize query'de gider
