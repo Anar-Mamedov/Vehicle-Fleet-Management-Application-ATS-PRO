@@ -53,15 +53,16 @@ export const formatPlanlananSure = (dakika) => {
 // - Yalnızca 2 ve 4 durumlarında sayaç, yanıt alındıktan sonra geçen saniyeleri ekleyerek ilerler.
 // - toplamSaniye + (şimdi - sonBaslamaTarihiUtc) kullanılmaz; aynı süre iki kez sayılır.
 // Yanıt alındığı an (alinmaAni) satıra yazılır; son başlamadan o ana kadar geçen süre referans alınıp çıkarılır.
+// Liste yanıtında sonBaslamaTarihiUtc boş/geçersiz gelse de çalışan iş canlı sayar; o durumda referans yalnızca yanıt anıdır.
 export const getSayacBaslangicAni = (kart) => toDayjsOrNull(kart?.sonBaslamaTarihiUtc)?.valueOf() ?? null;
 
-export const isSayacCalisiyor = (kart) => isCalisiyor(normalizeIsDurumu(kart?.durum)) && getSayacBaslangicAni(kart) !== null;
+export const isSayacCalisiyor = (kart) => isCalisiyor(normalizeIsDurumu(kart?.durum));
 
 export const getSayacSaniyesi = (kart, simdi = dayjs().valueOf()) => {
   const toplam = Number(kart?.toplamSaniye) || 0;
   if (!isSayacCalisiyor(kart) || !kart.sayacAlinmaAni) return toplam;
 
-  const baslangicAni = getSayacBaslangicAni(kart);
+  const baslangicAni = getSayacBaslangicAni(kart) ?? kart.sayacAlinmaAni;
   const gecenSure = (an) => Math.max(0, an - baslangicAni);
   const alinirkenGecenSure = gecenSure(kart.sayacAlinmaAni);
 
