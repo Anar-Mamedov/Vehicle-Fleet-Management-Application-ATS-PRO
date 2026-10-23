@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { t } from "i18next";
-import { formatDateForApi } from "../../../../utils/dateUtils";
+import { formatDateForApi, formatIsoDateTimeForApi } from "../../../../utils/dateUtils";
 import { formatDateByLocale } from "../../../components/FormattedDate";
 
 // Kod Yönetimi'ndeki kod listesi numaraları
@@ -134,6 +134,15 @@ export const getSureTarihAraligi = (sure) => {
 
   const [baslangic, bitis] = getAralik();
   return { baslangicTarih: formatDateForApi(baslangic), bitisTarih: formatDateForApi(bitis) };
+};
+
+// Takip panelleri aralığı tarih + saat olarak bekler (ör. "2026-10-01T00:00:00" – "2026-10-31T23:59:59")
+export const getSureTarihSaatAraligi = (sure) => {
+  const getAralik = SURE_ARALIKLARI[sure];
+  if (!getAralik) return { baslangicTarih: null, bitisTarih: null };
+
+  const [baslangic, bitis] = getAralik();
+  return { baslangicTarih: formatIsoDateTimeForApi(baslangic), bitisTarih: formatIsoDateTimeForApi(bitis) };
 };
 
 // Servisten gelen boş metin ve 0 değerleri placeholder kaybolmasın diye form alanlarına null yazılır

@@ -41,6 +41,8 @@ import {
   UsergroupAddOutlined,
   FileTextOutlined,
   ApartmentOutlined,
+  FieldTimeOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import { MdOutlineSystemUpdateAlt } from "react-icons/md";
 import { LuWarehouse } from "react-icons/lu";
@@ -122,6 +124,9 @@ export const MENU_MODULE_BY_KEY = {
   "kademe-yonetimi": "kademeYonetimi",
   "kademe-tanimlari": "kademeTanimlari",
   "kademe-is-emirleri": "isEmirleri",
+  // Backend takip paneli modüllerini tanımlayana kadar üst menünün ("kademeYonetimi") yetkisiyle görünür.
+  "kademe-is-takip-paneli": ["kademeIsTakipPaneli", "kademeYonetimi"],
+  "malzeme-talepleri-takip-paneli": ["malzemeTalepleriTakipPaneli", "kademeYonetimi"],
   role_definitions: ["rolTanimlari", "yonetim"],
   settings_modal_trigger: "ayarlar",
 };
@@ -514,6 +519,16 @@ const Sidebar = ({ collapsed }) => {
             key: "kademe-is-emirleri",
             icon: <FileTextOutlined />,
             label: <Link to={"/kademe-is-emirleri"}>{t("kademeIsEmirleri")}</Link>,
+          },
+          {
+            key: "kademe-is-takip-paneli",
+            icon: <FieldTimeOutlined />,
+            label: <Link to={"/kademe-is-takip-paneli"}>{t("kademeIsTakipPaneli")}</Link>,
+          },
+          {
+            key: "malzeme-talepleri-takip-paneli",
+            icon: <InboxOutlined />,
+            label: <Link to={"/malzeme-talepleri-takip-paneli"}>{t("malzemeTalepleriTakipPaneli")}</Link>,
           },
         ],
       },

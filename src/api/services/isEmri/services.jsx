@@ -1,4 +1,6 @@
+import dayjs from "dayjs";
 import http from "../../http";
+import { formatGmtOffsetForApi, formatIsoDateTimeForApi, formatTimeForApi } from "../../../utils/dateUtils";
 
 // İş emri numaratörü (Otomatik Kodlar ekranındaki ISEMRI_KOD modülü)
 export const GetIsEmriCodeService = async () => {
@@ -51,14 +53,47 @@ export const UpdateServiceWorkCardService = async (data) => {
   return await http.post(`/ServiceWorkCard/UpdateServiceWorkCard`, data);
 };
 
-// Atanan işin durumu: 2 Devam Ediyor, 3 Durdu, 4 Yeniden Başladı, 5 Tamamlandı
+// Atanan işin durumu: 2 Devam Ediyor, 3 Durdu, 4 Yeniden Başladı, 5 Tamamlandı.
+// Süre sayacı için durum değişikliğinin anı da gönderilir; beş alan da zorunludur (sayacTarih'in saat kısmı sıfırdır).
 export const UpdateServiceWorkCardStatusService = async (id, status) => {
-  return await http.get(`/ServiceWorkCard/UpdateServiceWorkCardStatus?id=${id}&status=${status}`);
+  const simdi = dayjs();
+  return await http.post(`/ServiceWorkCard/UpdateServiceWorkCardStatus`, {
+    siraNo: id,
+    status,
+    sayacTarih: formatIsoDateTimeForApi(simdi.startOf("day")),
+    sayacSaat: formatTimeForApi(simdi, true),
+    sayacGmt: formatGmtOffsetForApi(simdi),
+  });
+};
+
+// Kademe İş Takip Paneli: tüm iş kartları; filtreler POST gövdesinde, sayfalama ve pageSize query'de gider
+export const GetServiceWorkCardListService = async (diff, setPointId, search, filters, pageSize) => {
+  return await http.post(`/ServiceWorkCard/GetServiceWorkCardList?setPointId=${setPointId}&diff=${diff}&parameter=${encodeURIComponent(search)}&pageSize=${pageSize}`, filters);
+};
+
+// Kademe İş Takip Paneli KPI kutuları; her kutu ayrı bir type ile, liste ile aynı filtre gövdesiyle çağrılır
+export const GetServiceWorkCardStatisticsByTypeService = async (type, search, filters) => {
+  return await http.post(`/ServiceWorkCardStatistics/GetInfoByType?type=${type}&parameter=${encodeURIComponent(search)}`, filters);
+};
+
+// İş kartının durum tarihçesi (sayfalanmadan dizi olarak döner)
+export const GetWorkCardLogsByWorkIdService = async (workId) => {
+  return await http.get(`/ServiceWorkCardLogs/GetWorkCardLogsByWorkId?workId=${workId}`);
 };
 
 // Malzeme talepleri: iş emrine bağlı talepler (sayfalanmadan dizi olarak döner)
 export const GetMaterialRequestListByServiceIdService = async (serviceId) => {
   return await http.get(`/MaterialRequest/GetMaterialRequestListByServiceId?serviceId=${serviceId}`);
+};
+
+// Malzeme Talepleri Takip Paneli: tüm malzeme talepleri; filtreler POST gövdesinde, sayfalama ve pageSize query'de gider
+export const GetMaterialRequestListService = async (diff, setPointId, search, filters, pageSize) => {
+  return await http.post(`/MaterialRequest/GetMaterialRequestList?setPointId=${setPointId}&diff=${diff}&parameter=${encodeURIComponent(search)}&pageSize=${pageSize}`, filters);
+};
+
+// Malzeme Talepleri Takip Paneli KPI kutuları; her kutu ayrı bir type ile, liste ile aynı filtre gövdesiyle çağrılır
+export const GetMaterialRequestStatisticsByTypeService = async (type, search, filters) => {
+  return await http.post(`/MaterialRequestStatistics/GetInfoByType?type=${type}&parameter=${encodeURIComponent(search)}`, filters);
 };
 
 export const GetMaterialRequestItemByIdService = async (id) => {

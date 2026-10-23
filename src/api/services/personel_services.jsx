@@ -9,6 +9,11 @@ export const GetEmployeeListService = async (diff, setPointId, search, filters, 
   return await http.post(`/Employee/GetEmployeeList?setPointId=${setPointId}&diff=${diff}&parameter=${encodeURIComponent(search)}&pageSize=${pageSize}`, filters);
 };
 
+// Seçim listeleri için tüm personeller (personelId, isim)
+export const GetEmployeeListForSelectBoxService = async () => {
+  return await http.get(`/Employee/GetEmployeeListForSelectBox`);
+};
+
 export const SearchEmployeeListService = async (page, parameter) => {
   return await http.get(`/Employee/GetEmployeeList?page=${page}&parameter=${parameter}`);
 };
