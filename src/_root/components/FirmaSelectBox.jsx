@@ -14,7 +14,7 @@ const StyledSelect = styled(Select)`
     width: 100%;
   }
   @media (max-width: 600px) {
-    width: 300px;
+    width: 100%;
   }
 `;
 

@@ -8,7 +8,7 @@ import DepartmanFilter from "./components/DepartmanFilter.jsx";
 
 function Filters(props) {
   return (
-    <div style={{ display: "flex", gap: "10px" }}>
+    <div className="mobile-wrap" style={{ display: "flex", gap: "10px" }}>
       <PlakaFilter />
       <AracTipiFilter />
       <LocationFilter />

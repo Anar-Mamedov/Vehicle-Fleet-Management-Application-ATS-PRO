@@ -1034,7 +1034,7 @@ const Yakit = () => {
 
       {/* Statistics Cards */}
       <Spin spinning={statisticsLoading} size="small">
-        <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+        <div className="mobile-stack" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
           {/* Toplam Geçiş */}
           <div
             style={{

@@ -737,9 +737,9 @@ const DetailUpdate = ({ isOpen, onClose, selectedId, onSuccess, selectedRows1 })
             </div>
             <div className="col-span-9">
               <div className="grid p-10 gap-1">
-                <div className="col-span-12 flex gap-1 justify-end mb-10" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div className="col-span-12 flex gap-1 justify-end mb-10 mobile-wrap" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>{durumNeden}</div>
-                  <div style={{ display: "flex", gap: "10px" }}>
+                  <div className="mobile-wrap" style={{ display: "flex", gap: "10px" }}>
                     <Button className="btn btn-min" style={{ backgroundColor: "#8a2be2", borderColor: "#8a2be2", color: "white" }} onClick={() => setIsQrModalOpen(true)}>
                       {t("qrKod")}
                     </Button>

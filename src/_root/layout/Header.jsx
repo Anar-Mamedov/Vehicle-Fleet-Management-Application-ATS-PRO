@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import { Input, Avatar, Button, Layout, Spin, Popover, notification } from "antd";
-import { HomeOutlined, AntDesignOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
+import { HomeOutlined, AntDesignOutlined, MenuUnfoldOutlined, MenuFoldOutlined, MenuOutlined } from "@ant-design/icons";
 import LanguageSelector from "../components/lang/LanguageSelector";
 import Bildirim from "../components/Notification/Bildirim";
 import Hatirlatici from "../components/Hatirlatici/Hatirlatici";
@@ -22,7 +22,7 @@ const CustomSpin = styled(Spin)`
   }
 `;
 
-const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed, hatirlaticiOpen, setHatirlaticiOpen, hatirlaticiPinnable }) => {
+const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed, isMobile, onMobileMenuOpen, hatirlaticiOpen, setHatirlaticiOpen, hatirlaticiPinnable }) => {
   const [data, setData] = useState(null);
   const [data1, setData1] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -47,6 +47,11 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed, hatirlaticiOpen
 
   // Sidebar durumunu değiştiren fonksiyon
   const handleSidebarToggle = () => {
+    // Mobilde sidebar yerine menü drawer'ı açılır; masaüstü daraltma tercihi değişmez
+    if (isMobile) {
+      onMobileMenuOpen();
+      return;
+    }
     const newCollapsedState = !collapsed;
     setCollapsed(newCollapsedState);
     // localStorage'a kaydet
@@ -361,7 +366,7 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed, hatirlaticiOpen
         <div className="flex gap-1 justify-between align-baseline" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
           <Button
             type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            icon={isMobile ? <MenuOutlined /> : collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={handleSidebarToggle}
             style={{
               fontSize: "16px",
@@ -372,7 +377,7 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed, hatirlaticiOpen
           {/* <HomeOutlined /> */}
           {/* <LanguageSelector /> */}
           <LanguageSelectbox />
-          <CompanyLogo />
+          {!isMobile && <CompanyLogo />}
         </div>
         <div style={{ gap: "10px" }} className="flex gap-1 justify-between align-center">
           <Hatirlatici
@@ -386,11 +391,13 @@ const HeaderComp = ({ collapsed, colorBgContainer, setCollapsed, hatirlaticiOpen
             pinnable={hatirlaticiPinnable}
           />
           <Bildirim reportResponse={reportResponse} setRaporModalVisible={setRaporModalVisible} updateReportData={updateReportData} />
-          <Input className="search-input" placeholder={t("arama")} allowClear />
+          {!isMobile && <Input className="search-input" placeholder={t("arama")} allowClear />}
           {/* <Popover content={popoverContent} trigger="click">
             <Avatar className="header-avatar" icon={<AntDesignOutlined />} />
           </Popover> */}
-          <KullaniciProfil />
+          <div className="header-profile">
+            <KullaniciProfil />
+          </div>
         </div>
       </div>
       {/* Rapor Modal bileşeni */}
@@ -413,6 +420,8 @@ HeaderComp.propTypes = {
   collapsed: PropTypes.bool,
   colorBgContainer: PropTypes.string,
   setCollapsed: PropTypes.func,
+  isMobile: PropTypes.bool,
+  onMobileMenuOpen: PropTypes.func,
   hatirlaticiOpen: PropTypes.bool,
   setHatirlaticiOpen: PropTypes.func,
   hatirlaticiPinnable: PropTypes.bool,

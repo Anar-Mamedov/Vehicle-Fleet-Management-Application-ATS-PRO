@@ -2076,7 +2076,7 @@ const Yakit = ({ ayarlarData, customFields = {}, selectionMode = false, selected
 
     return (
       <div style={{}}>
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
+        <div className="mobile-wrap" style={{ display: "flex", justifyContent: "space-between", padding: "0 10px", alignItems: "center" }}>
           <div>
             Toplam Araç: {totalCount} | Görüntülenen: {displayCount}
           </div>
@@ -2464,7 +2464,7 @@ const Yakit = ({ ayarlarData, customFields = {}, selectionMode = false, selected
             {/* Other toolbar components */}
           </div>
           {!selectionMode && (
-            <div style={{ display: "flex", gap: "10px" }}>
+            <div className="mobile-wrap" style={{ display: "flex", gap: "10px" }}>
               <DurumSelect value={selectedDurum} onChange={handleDurumChange} inputWidth="100px" dropdownWidth="250px" />
               <Button style={{ display: "flex", alignItems: "center" }} onClick={handleDownloadXLSX} loading={xlsxLoading} icon={<FileExcelOutlined />}>
                 İndir

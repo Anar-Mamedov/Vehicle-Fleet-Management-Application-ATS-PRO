@@ -1,5 +1,5 @@
 import React from "react";
-import { Tabs } from "antd";
+import { Grid, Tabs } from "antd";
 import styled from "styled-components";
 import { t } from "i18next";
 import { useForm, FormProvider } from "react-hook-form";
@@ -50,11 +50,21 @@ const StyledTabs = styled(Tabs)`
   .ant-tabs-tab-btn {
     width: 100%;
   }
+
+  /* Mobilde sekmeler üstte yan yana dizilir; sol menüdeki tam genişlik burada uygulanmaz */
+  &.ant-tabs-top .ant-tabs-tab {
+    width: auto !important;
+  }
 `;
 
 //styled components end
 
+const { useBreakpoint } = Grid;
+
 function ProfiliDuzenleTabs() {
+  const screens = useBreakpoint();
+  // Sol sekme menüsü dar ekranda içeriği sıkıştırdığı için mobilde sekmeler üste alınır
+  const isMobile = screens.md === false;
   const location = useLocation();
   const { userData } = location.state;
   const methods = useForm();
@@ -102,7 +112,7 @@ function ProfiliDuzenleTabs() {
 
   return (
     <div style={{ backgroundColor: "white", padding: "10px", height: "calc(-120px + 100vh)", borderRadius: "8px", filter: "drop-shadow(rgba(0, 0, 0, 0.1) 0px 2px 4px)" }}>
-      <StyledTabs tabPosition="left" defaultActiveKey="1" items={items} />
+      <StyledTabs tabPosition={isMobile ? "top" : "left"} defaultActiveKey="1" items={items} />
     </div>
   );
 }

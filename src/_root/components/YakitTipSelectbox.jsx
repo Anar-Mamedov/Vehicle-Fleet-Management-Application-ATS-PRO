@@ -11,7 +11,7 @@ const StyledSelect = styled(Select)`
     width: 100%;
   }
   @media (max-width: 600px) {
-    width: 300px;
+    width: 100%;
   }
 
   // Custom styles for dropdown menu

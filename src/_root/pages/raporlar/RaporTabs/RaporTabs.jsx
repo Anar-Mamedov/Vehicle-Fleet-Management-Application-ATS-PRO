@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Tabs, Typography, Button, Modal, Input, message } from "antd";
+import { Grid, Tabs, Typography, Button, Modal, Input, message } from "antd";
 import {
   ToolOutlined,
   FundProjectionScreenOutlined,
@@ -66,11 +66,21 @@ const StyledTabs = styled(Tabs)`
   .ant-tabs-tab-btn {
     width: 100%;
   }
+
+  /* Mobilde sekmeler üstte yan yana dizilir; sol menüdeki tam genişlik burada uygulanmaz */
+  &.ant-tabs-top .ant-tabs-tab {
+    width: auto !important;
+  }
 `;
 
 //styled components end
 
+const { useBreakpoint } = Grid;
+
 export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
+  const screens = useBreakpoint();
+  // Sol sekme menüsü dar ekranda rapor kartlarını sıkıştırdığı için mobilde sekmeler üste alınır
+  const isMobile = screens.md === false;
   const { watch } = useFormContext();
   const [items, setItems] = useState([]); // state to hold the items
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -215,7 +225,7 @@ export default function RaporTabs({ refreshKey, disabled, fieldRequirements }) {
 
   return (
     <div>
-      <StyledTabs tabPosition="left" activeKey={activeTabKey} destroyInactiveTabPane items={items} onChange={onChange} />
+      <StyledTabs tabPosition={isMobile ? "top" : "left"} activeKey={activeTabKey} destroyInactiveTabPane items={items} onChange={onChange} />
 
       <Modal
         title="Yeni Rapor Grubu Ekle"

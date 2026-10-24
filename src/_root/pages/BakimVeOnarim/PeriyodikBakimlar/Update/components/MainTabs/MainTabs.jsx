@@ -342,7 +342,7 @@ export default function MainTabs({ modalOpen }) {
         </div>
         <div style={{ display: "flex", flexDirection: "column", border: "1px solid #00000024", borderRadius: "5px", padding: "5px", width: "100%", gap: "10px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div className="mobile-wrap" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <Controller
                 name="herKm"
                 control={control}
@@ -395,7 +395,7 @@ export default function MainTabs({ modalOpen }) {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div className="mobile-wrap" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <Controller
                 name="herGun"
                 control={control}

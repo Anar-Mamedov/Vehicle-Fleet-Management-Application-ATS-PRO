@@ -937,7 +937,7 @@ const OperasyonListesi = ({ onStatisticsRefresh, onTotalCountChange }) => {
             />
             <OperasyonFilters onChange={handleFilterChange} />
           </div>
-          <div style={{ display: "flex", gap: "10px" }}>
+          <div className="mobile-wrap" style={{ display: "flex", gap: "10px" }}>
             <ExcelExportButton
               request={requestExcelReport}
               columns={filteredColumns}

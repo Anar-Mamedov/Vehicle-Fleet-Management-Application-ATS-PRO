@@ -1677,7 +1677,7 @@ const Yakit = ({ customFields, seferId = null, isSefer = false, tableHeight = nu
         {/* Statistics Cards */}
         {!isSefer && (
           <Spin spinning={statisticsLoading} size="small">
-            <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+            <div className="mobile-stack" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
               {/* Toplam Yakıt (Litre) */}
               <div
                 style={{

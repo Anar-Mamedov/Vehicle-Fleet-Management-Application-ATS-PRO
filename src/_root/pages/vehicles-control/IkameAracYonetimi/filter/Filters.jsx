@@ -62,7 +62,7 @@ export default function Filters({ onChange }) {
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <div className="mobile-wrap" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
       <FormProvider {...methods}>
         <ZamanAraligi onDateChange={setDateRange} onReady={handleTimeRangeReady} />
       </FormProvider>

@@ -57,6 +57,12 @@ const widgetTitles = {
   widget23: "Marka Bazında Araç Sayıları",
 };
 
+const GRID_COLUMN_COUNT = 12;
+// Ant Design md kırılımının altı; bu genişlikte widgetlar tek sütunda alt alta dizilir
+const MOBILE_MAX_WIDTH = 767;
+// Tek sütunda "auto" hücre yüksekliği ekran genişliği kadar olur, bu yüzden mobilde sabit yükseklik kullanılır
+const MOBILE_CELL_HEIGHT = 100;
+
 const defaultItems = [
   { id: "widget1", x: 0, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
   { id: "widget2", x: 3, y: 0, width: 3, height: 1, minW: 3, minH: 1 },
@@ -136,21 +142,33 @@ function MainDashboard() {
     if (reorganize === undefined) {
       return;
     }
+    const mobileQuery = window.matchMedia(`(max-width: ${MOBILE_MAX_WIDTH}px)`);
+    const isMobileViewport = mobileQuery.matches;
     const grid = GridStack.init({
       float: reorganize,
       resizable: {
         handles: "se, sw", // Enable resizing from bottom right and bottom left
       },
-      column: 12, // 12 sütunlu grid yapısı
+      column: GRID_COLUMN_COUNT, // 12 sütunlu grid yapısı
+      columnOpts: {
+        breakpointForWindow: true,
+        breakpoints: [{ w: MOBILE_MAX_WIDTH, c: 1 }],
+      },
       margin: 10, // Widgetler arasında 10px boşluk bırakır
       minRow: 1,
-      cellHeight: "auto", // Widgetlerin otomatik yüksekliğini ayarla
+      cellHeight: isMobileViewport ? MOBILE_CELL_HEIGHT : "auto", // Widgetlerin otomatik yüksekliğini ayarla
+      // Mobilde sürükle/boyutlandır kapalıdır; dokunmatik kaydırma widget taşımaya dönüşmez
+      staticGrid: isMobileViewport,
       draggable: {
         handle: ".widget-header", // Dragging handle to move widgets
       },
     });
 
     const saveLayout = () => {
+      // Tek sütun (mobil) yerleşimi kaydedilmez; kullanıcının 12 sütunluk düzeni korunur
+      if (grid.getColumn() !== GRID_COLUMN_COUNT) {
+        return;
+      }
       const items = grid.engine.nodes.map((item) => ({
         id: item.el.id,
         x: item.x,
@@ -164,6 +182,13 @@ function MainDashboard() {
     };
 
     grid.on("change", saveLayout);
+
+    // Sayfa açıkken pencere mobil sınırını geçerse (ör. ekranı bölme) hücre yüksekliği ve sürükleme durumu da güncellenir
+    const handleViewportChange = (event) => {
+      grid.cellHeight(event.matches ? MOBILE_CELL_HEIGHT : "auto");
+      grid.setStatic(event.matches);
+    };
+    mobileQuery.addEventListener("change", handleViewportChange);
 
     const loadWidgets = (items) => {
       grid.removeAll();
@@ -460,6 +485,7 @@ function MainDashboard() {
 
     return () => {
       grid.off("change", saveLayout);
+      mobileQuery.removeEventListener("change", handleViewportChange);
     };
   }, [reorganize, selectedDashboard]);
 
@@ -661,6 +687,7 @@ function MainDashboard() {
       <ConfigProvider locale={trTR}>
         <div className="App">
           <div
+            className="mobile-wrap"
             style={{
               width: "100%",
               display: "flex",
@@ -672,6 +699,7 @@ function MainDashboard() {
           >
             <CustomDashboards />
             <div
+              className="mobile-wrap"
               style={{
                 display: "flex",
                 alignItems: "center",

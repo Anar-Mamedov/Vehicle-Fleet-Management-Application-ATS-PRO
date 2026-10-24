@@ -39,7 +39,7 @@ export default function Filters({ onChange }) {
 
   return (
     <>
-      <div style={{ display: "flex", gap: "10px" }}>
+      <div className="mobile-wrap" style={{ display: "flex", gap: "10px" }}>
         <LastikMarka name1={"marka"} isRequired={false} placeholder={t("marka")} onChange={setMarkaIds} dropdownWidth="300px" inputWidth="150px" multiSelect={true} />
         <LastikModel
           name1={"model"}

@@ -272,7 +272,7 @@ export default function MainTabs({ modalOpen }) {
   };
 
   return (
-    <div style={{ display: "flex", marginBottom: "20px", flexDirection: "row", gap: "10px", width: "100%" }}>
+    <div className="mobile-stack" style={{ display: "flex", marginBottom: "20px", flexDirection: "row", gap: "10px", width: "100%" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "350px" }}>
         <div
           style={{

@@ -1,0 +1,59 @@
+/* ============================================================
+   Mobil uyum — Ant Design md kırılımı (768px altı)
+   RootLayout'taki isMobile (Grid.useBreakpoint) ile aynı sınır kullanılır
+   ============================================================ */
+
+/* Mobil menü drawer'ı masaüstü sidebar ile aynı koyu temayı kullanır */
+.mobile-sidebar-drawer .ant-drawer-content {
+  background: linear-gradient(180deg, #0f1729 0%, #0a0f1c 100%);
+}
+
+@media (max-width: 767.98px) {
+  /* Mobil tarayıcıda adres çubuğu açıkken sayfanın altı kesilmesin */
+  .ant-layout {
+    height: 100dvh !important;
+  }
+
+  .ant-layout-header {
+    padding: 8px 10px;
+  }
+
+  /* Header'da yer kazanmak için kullanıcı adı gizlenir, yalnızca avatar kalır */
+  .header-profile .ant-typography {
+    display: none;
+  }
+
+  .footer {
+    display: none;
+  }
+
+  .ant-modal-title {
+    font-size: 18px !important;
+  }
+
+  /* Ortak 12 sütunluk .grid düzeninde (grid.css) her col-span-* alanı mobilde tam satır kaplar */
+  .grid > [class*="col-span-"] {
+    grid-column: span 12 / span 12;
+  }
+
+  /* Tek sütunda yatay aralık işlevsizdir; 12 sütunun 11 aralığı (ör. gap-4: 11 × 40px) formu ekrandan taşırır */
+  .grid {
+    column-gap: 0;
+  }
+
+  /* scroll.x verilmemiş tablolar sayfayı yana itmek yerine kendi kutusunda yatay kayar */
+  .ant-table-content {
+    overflow-x: auto;
+  }
+
+  /* Yan yana sütunlu inline flex formlarda dış satıra verilir; sütunlar mobilde alt alta dizilir.
+     Satırın inline flexDirection: "row" değerini ezmek için !important gerekir */
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+
+  /* Araç çubuğu, filtre ve buton satırlarına verilir; yalnızca mobilde alt satıra geçer, masaüstü düzeni değişmez */
+  .mobile-wrap {
+    flex-wrap: wrap;
+  }
+}

@@ -162,7 +162,7 @@ function RaporsTables({ tabKey, tabName, onDeleteSuccess }) {
               <Card
                 key={record.key}
                 hoverable
-                style={{ width: 340, height: 150 }}
+                style={{ width: 340, maxWidth: "100%", height: 150 }}
                 onClick={() => openDrawer(record)}
                 styles={{ body: { padding: "16px", display: "flex", flexDirection: "column" } }}
               >

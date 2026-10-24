@@ -12,6 +12,8 @@
 
 @import url(./components/antd.css);
 
+@import url(./layout/responsive.css);
+
 @font-face {
   /* font-family: Roboto; */
   src: url("/fonts/Roboto/Roboto-Regular.ttf");

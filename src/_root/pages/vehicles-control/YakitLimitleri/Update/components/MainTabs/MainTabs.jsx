@@ -212,7 +212,7 @@ export default function MainTabs({ modalOpen }) {
           <SurucuSelectbox name1="surucu" isRequired={isSurucuRequired} />
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "row", gap: "10px", width: "100%" }}>
+      <div className="mobile-stack" style={{ display: "flex", flexDirection: "row", gap: "10px", width: "100%" }}>
         <div
           style={{
             display: "flex",

@@ -23,7 +23,8 @@ function FirmaDagilimListesi({ data }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {data.map((item) => (
         <div key={item.firma} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: NAME_COLUMN_WIDTH, flexShrink: 0, fontSize: 12, color: colors.muted, textAlign: "right", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={item.firma}>
+          {/* Dar ekranda yalnızca firma adı daralır; tam ad title ipucunda görünür */}
+          <div style={{ width: NAME_COLUMN_WIDTH, flexShrink: 1, minWidth: 0, fontSize: 12, color: colors.muted, textAlign: "right", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={item.firma}>
             {item.firma}
           </div>
           <div style={{ flex: 1, minWidth: 40, height: 14, borderRadius: 4, background: colors.track, overflow: "hidden" }}>

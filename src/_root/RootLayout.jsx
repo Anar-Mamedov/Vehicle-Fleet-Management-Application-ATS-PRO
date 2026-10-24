@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
-import { Layout, theme } from "antd";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Drawer, Grid, Layout, theme } from "antd";
 import { getItemWithExpiration } from "../utils/expireToken";
 import HeaderComp from "./layout/Header";
 import FooterComp from "./layout/Footer";
@@ -8,9 +8,17 @@ import Sidebar from "./layout/Sidebar";
 import HatirlaticiPanel from "./components/Hatirlatici/HatirlaticiPanel";
 
 const { Sider, Content } = Layout;
+const { useBreakpoint } = Grid;
+
+const MOBILE_SIDEBAR_WIDTH = 250;
 
 const RootLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const screens = useBreakpoint();
+  // useBreakpoint ilk render'da boş nesne döner; md bilinene kadar masaüstü düzeni korunur
+  const isMobile = screens.md === false;
+  const location = useLocation();
   const [hatirlaticiPinnable, setHatirlaticiPinnable] = useState(() => localStorage.getItem("hatirlatici_pinnable") === "true");
   const [hatirlaticiOpen, setHatirlaticiOpen] = useState(() => {
     return localStorage.getItem("hatirlatici_panel_open") === "true";
@@ -28,6 +36,11 @@ const RootLayout = () => {
       navigate("/login");
     }
   }, [navigate]);
+
+  // Mobilde menüden bir sayfaya geçilince menü kapanır
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   // Ayarlar modalından pinnable değiştiğinde yakalamak için
   useEffect(() => {
@@ -55,24 +68,43 @@ const RootLayout = () => {
     localStorage.setItem("hatirlatici_panel_open", open.toString());
   };
 
+  // Sabitlenmiş hatırlatıcı paneli dar ekranda içeriği daralttığı için mobilde popover kullanılır
+  const hatirlaticiPanelEnabled = hatirlaticiPinnable && !isMobile;
+
   return (
     <Layout style={{ height: "100vh", overflow: "hidden" }}>
-      <Sider trigger={null} collapsible collapsed={collapsed} className="main-layout-sider">
-        <Sidebar collapsed={collapsed} />
-      </Sider>
+      {isMobile ? (
+        <Drawer
+          placement="left"
+          open={mobileMenuOpen}
+          onClose={() => setMobileMenuOpen(false)}
+          closable={false}
+          width={MOBILE_SIDEBAR_WIDTH}
+          rootClassName="mobile-sidebar-drawer"
+          styles={{ body: { padding: 0 } }}
+        >
+          <Sidebar collapsed={false} />
+        </Drawer>
+      ) : (
+        <Sider trigger={null} collapsible collapsed={collapsed} className="main-layout-sider">
+          <Sidebar collapsed={collapsed} />
+        </Sider>
+      )}
       <Layout>
         <HeaderComp
           colorBgContainer={colorBgContainer}
           setCollapsed={setCollapsed}
           collapsed={collapsed}
+          isMobile={isMobile}
+          onMobileMenuOpen={() => setMobileMenuOpen(true)}
           hatirlaticiOpen={hatirlaticiOpen}
           setHatirlaticiOpen={handleHatirlaticiToggle}
-          hatirlaticiPinnable={hatirlaticiPinnable}
+          hatirlaticiPinnable={hatirlaticiPanelEnabled}
         />
         <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
           <Content
             style={{
-              padding: "10px 20px",
+              padding: isMobile ? "8px" : "10px 20px",
               minHeight: 280,
               overflow: "auto",
               position: "relative",
@@ -82,7 +114,7 @@ const RootLayout = () => {
           >
             <Outlet />
           </Content>
-          {hatirlaticiPinnable && <HatirlaticiPanel open={hatirlaticiOpen} onClose={() => handleHatirlaticiToggle(false)} />}
+          {hatirlaticiPanelEnabled && <HatirlaticiPanel open={hatirlaticiOpen} onClose={() => handleHatirlaticiToggle(false)} />}
         </div>
         <FooterComp />
       </Layout>
