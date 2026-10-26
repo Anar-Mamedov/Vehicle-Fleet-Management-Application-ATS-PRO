@@ -43,6 +43,8 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
     defaultValues: {
       role: [],
       roleID: [],
+      personel: null,
+      personelID: null,
       mail: "",
       kullaniciKod: "",
       isim: "",
@@ -82,6 +84,9 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("aktif", item.aktif);
           setValue("role", getUserRoleNames(item));
           setValue("roleID", getUserRoleIds(item));
+          // Boş değerler placeholder kaybolmasın diye null yazılır
+          setValue("personel", item.personelIsim || null);
+          setValue("personelID", item.personelId || null);
           // ... Diğer setValue çağrıları
 
           setLoading(false); // Yükleme tamamlandığında
@@ -119,6 +124,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       paraf: data.paraf,
       kullaniciRengi: data.color ? (/^#[0-9A-F]{6}$/i.test(data.color) ? data.color : data.color.toHexString()) : null,
       roleIds: (Array.isArray(data.roleID) ? data.roleID : []).map(Number),
+      personelId: Number(data.personelID) || 0,
     };
 
     // Şifre değeri varsa payload'a ekle

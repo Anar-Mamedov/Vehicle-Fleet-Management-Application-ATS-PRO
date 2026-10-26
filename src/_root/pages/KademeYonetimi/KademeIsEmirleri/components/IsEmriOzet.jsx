@@ -36,7 +36,7 @@ const IsEmriOzet = ({ detay }) => {
   const sayaclar = [
     { label: t("acikIs"), value: detay?.acikIsler, icon: <ToolOutlined style={{ color: "#2563eb" }} />, background: "#eef4ff" },
     { label: t("tamamlananIs"), value: detay?.tamamlananIsler, icon: <CheckCircleOutlined style={{ color: "#16a34a" }} />, background: "#ecfdf3" },
-    { label: t("malzemeSayisi"), value: detay?.malzemeSayisi, icon: <InboxOutlined style={{ color: "#9333ea" }} />, background: "#f5f0ff" },
+    { label: t("malzemeTalebi"), value: detay?.malzemeSayisi, icon: <InboxOutlined style={{ color: "#9333ea" }} />, background: "#f5f0ff" },
   ];
 
   return (

@@ -26,7 +26,9 @@ const tagStyle = {
   fontWeight: 400,
 };
 
-const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
+// baslangicSekmesi: modal hangi sekmeyle açılacak (ör. takip panelindeki talep düğmesinden "malzemeTalepleri").
+// Modal destroyOnClose olduğu için sekmeler her açılışta bu değerle yeniden kurulur.
+const UpdateModal = ({ selectedRow, open, onClose, onRefresh, baslangicSekmesi = "genelBilgiler" }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [detay, setDetay] = useState(null);
@@ -244,7 +246,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
         <form>
           <Spin spinning={loading}>
             <IsEmriOzet detay={detay} />
-            <Tabs defaultActiveKey="genelBilgiler" items={items} />
+            <Tabs defaultActiveKey={baslangicSekmesi} items={items} />
           </Spin>
         </form>
       </FormProvider>
@@ -257,6 +259,7 @@ UpdateModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
   onRefresh: PropTypes.func.isRequired,
+  baslangicSekmesi: PropTypes.string,
 };
 
 export default UpdateModal;

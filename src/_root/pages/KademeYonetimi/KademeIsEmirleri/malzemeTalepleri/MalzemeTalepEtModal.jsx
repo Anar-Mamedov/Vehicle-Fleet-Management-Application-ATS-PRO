@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { FormProvider, useForm } from "react-hook-form";
 import { Button, Modal, message } from "antd";
 import { t } from "i18next";
-import { AddMaterialRequestService, GetMalzemeTalepNoService } from "../../../../../api/services/isEmri/services";
+import { AddMaterialRequestService, GetMalzemeTalepNoService, GetServiceWorkCardByIdService } from "../../../../../api/services/isEmri/services";
 import { CodeItemValidateService } from "../../../../../api/services/code/services";
 import { formatDateAndTimeForApi, formatDateForApi } from "../../../../../utils/dateUtils";
 import DateInput from "../../../../components/form/date/DateInput";
@@ -18,7 +18,7 @@ import AtananIsSelectbox from "../../../../components/AtananIsSelectbox";
 import MalzemeTablo from "../../../../components/MalzemeTablo";
 import FormField from "../../KademeTanimlari/components/FormField";
 import { hintStyle, sectionTitleStyle } from "../../KademeTanimlari/components/uiStyles";
-import { MALZEME_BIRIM_KOD_ID, MALZEME_TALEP_KOD_TABLE_NAME, MALZEME_TALEP_NEDEN_KOD_ID, isSuccessResponse } from "../constants";
+import { MALZEME_BIRIM_KOD_ID, MALZEME_TALEP_KOD_TABLE_NAME, MALZEME_TALEP_NEDEN_KOD_ID, isSuccessResponse, toNullable } from "../constants";
 
 const ACIKLAMA_MAKSIMUM_UZUNLUK = 500;
 
@@ -50,11 +50,30 @@ const getDefaultValues = (isId, isTanim) => ({
 const MalzemeTalepEtModal = ({ open, isEmriId, aracId, kademeId, isId = 0, isTanim, onClose, onSaved }) => {
   const [saving, setSaving] = useState(false);
   const methods = useForm({ defaultValues: getDefaultValues() });
-  const { handleSubmit, reset, setValue } = methods;
+  const { getValues, handleSubmit, reset, setValue } = methods;
 
+  // İlgili işle açılan talepte "Talep Eden" o işe atanan personelle gelir; kullanıcı seçimi yapmışsa ezilmez
   useEffect(() => {
-    if (open) reset(getDefaultValues(isId, isTanim));
-  }, [open, isId, isTanim, reset]);
+    if (!open) return undefined;
+
+    reset(getDefaultValues(isId, isTanim));
+    if (!isId) return undefined;
+
+    let ignore = false;
+    GetServiceWorkCardByIdService(isId)
+      .then((res) => {
+        if (ignore || !res?.data?.personelId || getValues("personelID")) return;
+        setValue("personel", toNullable(res.data.personelIsim));
+        setValue("personelID", res.data.personelId);
+      })
+      .catch(() => {
+        // Personel okunamazsa alan boş kalır; kullanıcı listeden seçer
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [open, isId, isTanim, reset, getValues, setValue]);
 
   const closeModal = () => {
     reset(getDefaultValues());

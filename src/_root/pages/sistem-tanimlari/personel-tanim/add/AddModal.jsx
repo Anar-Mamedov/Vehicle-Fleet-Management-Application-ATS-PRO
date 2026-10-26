@@ -14,6 +14,8 @@ import { formatDateForApi } from "../../../../../utils/dateUtils";
 const AddModal = ({ setStatus, onRefresh }) => {
   const [openModal, setopenModal] = useState(false);
   const [isValid, setIsValid] = useState("normal");
+  // Modal kapanınca bileşen yaşamaya devam ettiği için her açılışta ilk sekmeye dönülür
+  const [activeTab, setActiveTab] = useState("1");
   const isFirstRender = useRef(true);
 
   const [fields, setFields] = useState([
@@ -109,6 +111,10 @@ const AddModal = ({ setStatus, onRefresh }) => {
       GetPersonelCodeService().then((res) => setValue("personelKod", res.data));
     }
   }, [openModal, setValue]);
+
+  useEffect(() => {
+    if (openModal) setActiveTab("1");
+  }, [openModal]);
 
   useEffect(() => {
     if (watch("personelKod")) {
@@ -234,7 +240,7 @@ const AddModal = ({ setStatus, onRefresh }) => {
       <Modal title={t("yeniPersonelGirisi")} open={openModal} onCancel={() => setopenModal(false)} maskClosable={false} footer={footer} width={1200}>
         <FormProvider {...methods}>
           <form>
-            <Tabs defaultActiveKey="1" items={items} />
+            <Tabs activeKey={activeTab} onChange={setActiveTab} items={items} />
           </form>
         </FormProvider>
       </Modal>

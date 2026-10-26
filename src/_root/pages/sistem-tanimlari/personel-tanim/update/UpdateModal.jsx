@@ -30,6 +30,8 @@ const toNullableId = (value) => (value === 0 || value === "" || value === undefi
 const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, onDrawerClose, drawerVisible, onRefresh }) => {
   const [isValid, setIsValid] = useState("normal");
   const [personelId, setPersonelId] = useState(0);
+  // Modal kapanınca bileşen yaşamaya devam ettiği için her açılışta ilk sekmeye dönülür
+  const [activeTab, setActiveTab] = useState("1");
   const [images, setImages] = useState([]);
   const [imagesURL, setImagesURL] = useState([]);
 
@@ -131,6 +133,10 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
   }, [watch("personelKod")]);
 
   useEffect(() => {
+    if (drawerVisible) setActiveTab("1");
+  }, [drawerVisible, selectedRow]);
+
+  useEffect(() => {
     if (selectedRow){
       GetEmployeeByIdService(selectedRow?.key).then((res) => {
         setValue("personelKod", res.data.personelKod);
@@ -149,6 +155,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
         setValue("uzmanlikAlani", toNullable(res.data.uzmanlikAlani));
         setValue("uzmanlikAlaniID", toNullableId(res.data.uzmanlikAlaniKodId));
         setValue("sicilNo", toNullable(res.data.sicilNo));
+        setValue("aciklama", toNullable(res.data.aciklama));
         setValue("mobilErisim", res.data.mobilErisim);
         setValue("sskNo", res.data.sskNo);
         setValue("ehliyet", res.data.ehliyet);
@@ -347,7 +354,7 @@ const UpdateModal = ({ updateModal, setUpdateModal, setStatus, id, selectedRow, 
     <Modal title={modalTitle} open={drawerVisible} onCancel={() => onDrawerClose()} maskClosable={false} footer={footer} width={1200}>
       <FormProvider {...methods}>
         <form>
-          <Tabs defaultActiveKey="1" items={items} />
+          <Tabs activeKey={activeTab} onChange={setActiveTab} items={items} />
         </form>
       </FormProvider>
     </Modal>

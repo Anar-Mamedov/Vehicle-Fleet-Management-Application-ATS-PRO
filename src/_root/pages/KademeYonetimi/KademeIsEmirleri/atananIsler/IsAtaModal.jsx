@@ -4,7 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Button, Modal, message } from "antd";
 import { t } from "i18next";
 import { AddServiceWorkCardService } from "../../../../../api/services/isEmri/services";
-import { formatDateForApi, formatTimeForApi } from "../../../../../utils/dateUtils";
+import { formatDateForApi, formatTimeForApi, isEndBeforeStart } from "../../../../../utils/dateUtils";
 import DateInput from "../../../../components/form/date/DateInput";
 import TimeInput from "../../../../components/form/date/TimeInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
@@ -46,6 +46,11 @@ const IsAtaModal = ({ open, isEmriId, aracId, kademeId, onClose, onSaved }) => {
   };
 
   const onSubmit = handleSubmit(async (values) => {
+    if (isEndBeforeStart(values.baslamaTarih, values.baslamaSaat, values.bitisTarih, values.bitisSaat)) {
+      message.warning(t("bitisBaslamadanOnceOlamaz"));
+      return;
+    }
+
     setSaving(true);
     try {
       const response = await AddServiceWorkCardService({
@@ -132,7 +137,7 @@ const IsAtaModal = ({ open, isEmriId, aracId, kademeId, onClose, onSaved }) => {
               </div>
             </FormField>
 
-            <FormField span={6} label={t("hedefBitisTarihiSaati")}>
+            <FormField span={6} label={t("bitisTarihiSaati")}>
               <div className="flex" style={{ gap: "8px" }}>
                 <div style={{ flex: 1 }}>
                   <DateInput name="bitisTarih" style={{ width: "100%" }} />

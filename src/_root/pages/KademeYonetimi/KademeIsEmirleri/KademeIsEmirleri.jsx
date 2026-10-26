@@ -16,11 +16,13 @@ import { formatDateByLocale } from "../../../components/FormattedDate";
 import PageSizeSelect, { getStoredPageSize } from "../../../components/table/PageSizeSelect";
 import SelectInput from "../../../components/form/selects/SelectInput";
 import MultiSelectInput from "../../../components/form/selects/MultiSelectInput";
+import DateRangeInput from "../../../components/form/date/DateRangeInput";
 import KademeSelectbox from "../../../components/KademeSelectbox";
 import { GetVehicleServiceOrdersService } from "../../../../api/services/isEmri/services";
-import { VARSAYILAN_SURE, getDurumOptions, getSureOptions, getSureTarihAraligi } from "./constants";
+import { VARSAYILAN_SURE, getDurumOptions, getFiltreTarihAraligi, getSureOptions } from "./constants";
 import IsEmriStatisticsCards from "./components/IsEmriStatisticsCards";
 import DurumTag from "./components/DurumTag";
+import MalzemeTalebiOzet from "./components/MalzemeTalebiOzet";
 import AddModal from "./add/AddModal";
 import UpdateModal from "./update/UpdateModal";
 
@@ -34,6 +36,7 @@ const COLUMN_WIDTHS_STORAGE_KEY = "columnWidthsKademeIsEmirleri";
 // Liste tasarımdaki gibi bu ayın iş emirleriyle açılır
 const DEFAULT_FILTER_VALUES = {
   sureFiltre: VARSAYILAN_SURE,
+  tarihAraligi: null,
   kademeFiltre: [],
   kademeFiltreID: [],
   durumFiltre: [],
@@ -56,8 +59,8 @@ const compareText = (a, b) => {
 };
 
 // Liste, KPI kutuları ve sonraki sayfa istekleri aynı filtre gövdesini kullanır
-const buildFilters = ({ sureFiltre, kademeFiltreID, durumFiltre }) => ({
-  ...getSureTarihAraligi(sureFiltre),
+const buildFilters = ({ sureFiltre, tarihAraligi, kademeFiltreID, durumFiltre }) => ({
+  ...getFiltreTarihAraligi(sureFiltre, tarihAraligi),
   kademeIds: Array.isArray(kademeFiltreID) ? kademeFiltreID : [],
   durumIds: Array.isArray(durumFiltre) ? durumFiltre : [],
 });
@@ -153,7 +156,18 @@ const KademeIsEmirleri = () => {
   const [statisticsRequest, setStatisticsRequest] = useState(() => ({ searchTerm: "", filters: buildFilters(DEFAULT_FILTER_VALUES), requestId: 0 }));
 
   const methods = useForm({ defaultValues: DEFAULT_FILTER_VALUES });
-  const { getValues } = methods;
+  const { getValues, setValue, watch } = methods;
+
+  // Hazır dönem ile özel tarih aralığından yalnızca biri uygulanır: biri seçilince diğeri temizlenir,
+  // aralık temizlenince tarih filtresiz kalmamak için varsayılan döneme dönülür
+  useEffect(() => {
+    const subscription = watch((values, { name, type }) => {
+      if (type !== "change") return;
+      if (name === "sureFiltre" && values.sureFiltre) setValue("tarihAraligi", null);
+      if (name === "tarihAraligi") setValue("sureFiltre", values.tarihAraligi ? null : VARSAYILAN_SURE);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, setValue]);
 
   // İstekler her zaman güncel arama/filtre değerleriyle çalışsın diye ref üzerinde tutuluyor
   const searchTermRef = useRef("");
@@ -222,6 +236,12 @@ const KademeIsEmirleri = () => {
     filtersRef.current = buildFilters(getValues());
     fetchData(0, 1, 0);
     refreshStatistics();
+  };
+
+  // KPI kutusuna tıklanınca kutunun durumları durum filtresine yazılır ve liste diğer filtrelerle birlikte yeniden okunur
+  const handleKpiFiltre = (durumIds) => {
+    setValue("durumFiltre", durumIds);
+    handleSearch();
   };
 
   const handleTableChange = (page) => {
@@ -326,13 +346,13 @@ const KademeIsEmirleri = () => {
       },
     },
     {
-      title: t("malzemeSayisi"),
+      title: t("malzemeTalebi"),
       dataIndex: "malzemeSayisi",
       key: "malzemeSayisi",
       width: 130,
       visible: true,
       sorter: (a, b) => Number(a.malzemeSayisi) - Number(b.malzemeSayisi),
-      render: (value) => formatNumberWithLocale(value || 0),
+      render: (value) => <MalzemeTalebiOzet sayi={value} />,
     },
     {
       title: t("durum"),
@@ -512,7 +532,7 @@ const KademeIsEmirleri = () => {
       </Modal>
 
       {/* KPI kutuları */}
-      <IsEmriStatisticsCards request={statisticsRequest} />
+      <IsEmriStatisticsCards request={statisticsRequest} onFiltreSec={handleKpiFiltre} />
 
       <FormProvider {...methods}>
         {/* Toolbar */}
@@ -542,8 +562,9 @@ const KademeIsEmirleri = () => {
               suffix={<SearchOutlined style={{ color: "#0091ff" }} onClick={handleSearch} />}
             />
             <div style={{ width: "140px" }}>
-              <SelectInput name="sureFiltre" options={getSureOptions()} allowClear={false} />
+              <SelectInput name="sureFiltre" options={getSureOptions()} allowClear={false} placeholder={t("donem")} />
             </div>
+            <DateRangeInput name="tarihAraligi" style={{ width: "230px" }} />
             <div style={{ width: "220px" }}>
               <KademeSelectbox name1="kademeFiltre" multiSelect placeholder={t("kademeSeciniz")} />
             </div>

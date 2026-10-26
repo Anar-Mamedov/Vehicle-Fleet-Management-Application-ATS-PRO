@@ -5,6 +5,8 @@ import { FileTextOutlined, InboxOutlined, PauseCircleOutlined, ToolOutlined } fr
 import { t } from "i18next";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 import { GetServiceOrderStatisticsByTypeService } from "../../../../../api/services/isEmri/services";
+import { getTiklamaOzellikleri } from "../../components/kpiKartTiklama";
+import { DURUM } from "../constants";
 
 const CARD_BORDER_COLOR = "#f0f0f0";
 const ICON_STYLE = { fontSize: 22, color: "#6b7a8a" };
@@ -38,7 +40,9 @@ const formatStatisticValue = (value) => {
   return formatNumberWithLocale(value, decimalDigits, decimalDigits);
 };
 
-const IsEmriStatisticsCards = ({ request }) => {
+// durumIds tanımlı kutuya tıklanınca liste o iş emri durumlarıyla filtrelenir. Diğer kutular iş/talep sayar,
+// iş emri listesinde karşılık gelen bir filtre olmadığı için tıklanamaz.
+const IsEmriStatisticsCards = ({ request, onFiltreSec }) => {
   const [loading, setLoading] = useState(false);
   const [values, setValues] = useState(EMPTY_VALUES);
 
@@ -75,7 +79,7 @@ const IsEmriStatisticsCards = ({ request }) => {
   }, [requestData]);
 
   const cardConfigs = [
-    { title: t("acikIsEmirleri"), value: formatStatisticValue(values[0]), icon: <FileTextOutlined style={ICON_STYLE} /> },
+    { title: t("acikIsEmirleri"), value: formatStatisticValue(values[0]), icon: <FileTextOutlined style={ICON_STYLE} />, durumIds: [DURUM.BEKLIYOR, DURUM.DEVAM_EDIYOR] },
     { title: t("devamEdenIsler"), value: formatStatisticValue(values[1]), icon: <ToolOutlined style={ICON_STYLE} /> },
     { title: t("durduBekliyor"), value: formatStatisticValue(values[2]), icon: <PauseCircleOutlined style={ICON_STYLE} /> },
     { title: t("acikMalzemeTalepleri"), value: formatStatisticValue(values[3]), icon: <InboxOutlined style={ICON_STYLE} /> },
@@ -84,40 +88,46 @@ const IsEmriStatisticsCards = ({ request }) => {
   return (
     <Spin spinning={loading} size="small">
       <div style={{ display: "flex", gap: "15px", marginBottom: "15px", flexWrap: "wrap" }}>
-        {cardConfigs.map((card) => (
-          <div
-            key={card.title}
-            style={{
-              backgroundColor: "white",
-              padding: "10px 16px",
-              borderRadius: "8px",
-              flex: "1 1 220px",
-              border: `1px solid ${CARD_BORDER_COLOR}`,
-              height: "88px",
-              boxSizing: "border-box",
-              overflow: "hidden",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
-              <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>{card.title}</span>
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "10px",
-                  border: `1px solid ${CARD_BORDER_COLOR}`,
-                  backgroundColor: "#fafafa",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {card.icon}
+        {cardConfigs.map((card) => {
+          const tiklanabilir = Boolean(card.durumIds && onFiltreSec);
+
+          return (
+            <div
+              key={card.title}
+              {...(tiklanabilir ? getTiklamaOzellikleri(() => onFiltreSec(card.durumIds)) : {})}
+              style={{
+                backgroundColor: "white",
+                padding: "10px 16px",
+                borderRadius: "8px",
+                flex: "1 1 220px",
+                border: `1px solid ${CARD_BORDER_COLOR}`,
+                height: "88px",
+                boxSizing: "border-box",
+                overflow: "hidden",
+                cursor: tiklanabilir ? "pointer" : "default",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+                <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>{card.title}</span>
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "10px",
+                    border: `1px solid ${CARD_BORDER_COLOR}`,
+                    backgroundColor: "#fafafa",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {card.icon}
+                </div>
               </div>
+              <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", lineHeight: "28px" }}>{card.value}</div>
             </div>
-            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", lineHeight: "28px" }}>{card.value}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </Spin>
   );
@@ -129,6 +139,7 @@ IsEmriStatisticsCards.propTypes = {
     filters: PropTypes.object,
     requestId: PropTypes.number,
   }),
+  onFiltreSec: PropTypes.func,
 };
 
 export default IsEmriStatisticsCards;

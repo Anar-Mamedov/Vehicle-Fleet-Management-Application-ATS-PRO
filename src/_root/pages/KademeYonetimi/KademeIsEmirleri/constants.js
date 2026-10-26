@@ -113,14 +113,20 @@ export const formatSureUzun = (dakika) => {
   return t("sureSaatDakika", { saat: Math.floor(toplamDakika / 60), dakika: toplamDakika % 60 });
 };
 
-// Liste "Süre" filtresinin seçenekleri; tarih aralığı API'ye gönderilirken hesaplanır
+// Liste "Süre" filtresinin seçenekleri (projedeki standart dönem listesi); tarih aralığı API'ye gönderilirken hesaplanır
 const SURE_ARALIKLARI = {
   bugun: () => [dayjs().startOf("day"), dayjs().endOf("day")],
+  dun: () => [dayjs().subtract(1, "day").startOf("day"), dayjs().subtract(1, "day").endOf("day")],
   buHafta: () => [dayjs().startOf("week"), dayjs().endOf("week")],
+  gecenHafta: () => [dayjs().subtract(1, "week").startOf("week"), dayjs().subtract(1, "week").endOf("week")],
   buAy: () => [dayjs().startOf("month"), dayjs().endOf("month")],
   gecenAy: () => [dayjs().subtract(1, "month").startOf("month"), dayjs().subtract(1, "month").endOf("month")],
-  son3Ay: () => [dayjs().subtract(3, "month").startOf("day"), dayjs().endOf("day")],
   buYil: () => [dayjs().startOf("year"), dayjs().endOf("year")],
+  gecenYil: () => [dayjs().subtract(1, "year").startOf("year"), dayjs().subtract(1, "year").endOf("year")],
+  son7Gun: () => [dayjs().subtract(7, "day").startOf("day"), dayjs().endOf("day")],
+  son1Ay: () => [dayjs().subtract(1, "month").startOf("day"), dayjs().endOf("day")],
+  son3Ay: () => [dayjs().subtract(3, "month").startOf("day"), dayjs().endOf("day")],
+  son6Ay: () => [dayjs().subtract(6, "month").startOf("day"), dayjs().endOf("day")],
 };
 
 export const TUMU = "tumu";
@@ -134,6 +140,14 @@ export const getSureTarihAraligi = (sure) => {
 
   const [baslangic, bitis] = getAralik();
   return { baslangicTarih: formatDateForApi(baslangic), bitisTarih: formatDateForApi(bitis) };
+};
+
+// Özel tarih aralığı seçiliyse hazır dönem yok sayılır; ikisi aynı anda uygulanmaz
+export const getFiltreTarihAraligi = (sure, tarihAraligi) => {
+  const [baslangic, bitis] = tarihAraligi || [];
+  if (baslangic && bitis) return { baslangicTarih: formatDateForApi(baslangic), bitisTarih: formatDateForApi(bitis) };
+
+  return getSureTarihAraligi(sure);
 };
 
 // Takip panelleri aralığı tarih + saat olarak bekler (ör. "2026-10-01T00:00:00" – "2026-10-31T23:59:59")

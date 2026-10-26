@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { Button, Modal, Spin, Tabs, Tag, message } from "antd";
 import { t } from "i18next";
 import { GetWorkShopDefItemByIdService, UpdateWorkShopDefItemService } from "../../../../../api/services/kademe/services";
+import { GetDocumentsByRefGroupService, GetPhotosByRefGroupService } from "../../../../../api/services/upload/services";
 import DosyaUpload from "../../../../components/Dosya/DosyaUpload";
 import ResimUpload from "../../../../components/Resim/ResimUpload";
 import GenelBilgiler from "../tabs/GenelBilgiler";
@@ -21,12 +22,32 @@ const tagStyle = {
 const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [dosyaSayisi, setDosyaSayisi] = useState(0);
+  const [resimSayisi, setResimSayisi] = useState(0);
 
   const methods = useForm({ defaultValues: getDefaultKademeValues() });
   const { control, handleSubmit, reset } = methods;
   const [kademeKod, durum] = useWatch({ control, name: ["kademeKod", "durum"] });
 
   const kademeId = selectedRow?.siraNo;
+
+  // Sekme etiketlerindeki sayılar. Belge sayısını DosyaUpload yükleme/silme sonrası kendisi bildirir;
+  // ResimUpload sayı bildirmediği için resim sayısı açılışta ve sekme değiştikçe yeniden okunur.
+  const refreshResimSayisi = useCallback(() => {
+    if (!kademeId) return;
+    GetPhotosByRefGroupService(kademeId, KADEME_REF_GROUP)
+      .then((res) => setResimSayisi(Array.isArray(res?.data) ? res.data.length : 0))
+      .catch(() => setResimSayisi(0));
+  }, [kademeId]);
+
+  useEffect(() => {
+    if (!open || !kademeId) return;
+
+    refreshResimSayisi();
+    GetDocumentsByRefGroupService(kademeId, KADEME_REF_GROUP)
+      .then((res) => setDosyaSayisi(Array.isArray(res?.data) ? res.data.length : 0))
+      .catch(() => setDosyaSayisi(0));
+  }, [open, kademeId, refreshResimSayisi]);
 
   // Satıra tıklanınca kaydın güncel hali id ile okunup forma yazılır
   useEffect(() => {
@@ -54,6 +75,8 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
   const closeModal = () => {
     onClose();
     reset(getDefaultKademeValues());
+    setDosyaSayisi(0);
+    setResimSayisi(0);
   };
 
   const onSubmit = handleSubmit(async (values) => {
@@ -88,12 +111,12 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
     },
     {
       key: "ekliBelgeler",
-      label: t("ekliBelgeler"),
-      children: <DosyaUpload selectedRowID={kademeId} refGroup={KADEME_REF_GROUP} />,
+      label: `${t("ekliBelgeler")} (${dosyaSayisi})`,
+      children: <DosyaUpload selectedRowID={kademeId} setFileCount={setDosyaSayisi} refGroup={KADEME_REF_GROUP} />,
     },
     {
       key: "resimler",
-      label: t("resimler"),
+      label: `${t("resimler")} (${resimSayisi})`,
       children: <ResimUpload selectedRowID={kademeId} refGroup={KADEME_REF_GROUP} />,
     },
   ];
@@ -126,7 +149,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
       <FormProvider {...methods}>
         <form>
           <Spin spinning={loading}>
-            <Tabs defaultActiveKey="genelBilgiler" items={items} />
+            <Tabs defaultActiveKey="genelBilgiler" items={items} onChange={refreshResimSayisi} />
           </Spin>
         </form>
       </FormProvider>

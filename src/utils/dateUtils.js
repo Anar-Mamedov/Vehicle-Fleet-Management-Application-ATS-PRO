@@ -92,6 +92,26 @@ export const formatDateAndTimeForApi = (dateValue, timeValue) => {
   return formatIsoDateTimeForApi(dateTime);
 };
 
+// Ayrı tarih + saat alanlarıyla girilen bitişin başlangıçtan önce olup olmadığını kontrol eder.
+// Tarihlerden biri boşsa kontrol yapılmaz; saatlerden biri boşsa yalnızca günler karşılaştırılır.
+export const isEndBeforeStart = (startDate, startTime, endDate, endTime) => {
+  const start = toDayjsOrNull(startDate);
+  const end = toDayjsOrNull(endDate);
+  if (!start || !end) {
+    return false;
+  }
+
+  const parsedStartTime = toTimeDayjsOrNull(startTime);
+  const parsedEndTime = toTimeDayjsOrNull(endTime);
+  if (!parsedStartTime || !parsedEndTime) {
+    return end.isBefore(start, "day");
+  }
+
+  const startDateTime = start.hour(parsedStartTime.hour()).minute(parsedStartTime.minute()).second(0);
+  const endDateTime = end.hour(parsedEndTime.hour()).minute(parsedEndTime.minute()).second(0);
+  return endDateTime.isBefore(startDateTime);
+};
+
 // Tablo sıralamalarında API'den gelen tarihleri karşılaştırır (boş değerler başa alınır).
 export const compareDatesForSorter = (firstValue, secondValue) => {
   const firstDate = toDayjsOrNull(firstValue);

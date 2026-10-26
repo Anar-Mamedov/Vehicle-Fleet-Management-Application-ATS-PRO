@@ -38,11 +38,12 @@ import {
   GetServiceWorkCardListService,
   GetServiceWorkCardStatisticsByTypeService,
   GetVehicleServiceByIdService,
-  UpdateServiceWorkCardStatusService,
 } from "../../../../api/services/isEmri/services";
-import { IS_DURUM, getIsDurumTanimi, getSureOptions, getSureTarihSaatAraligi, isSuccessResponse, normalizeIsDurumu, toNullableId } from "../KademeIsEmirleri/constants";
+import { IS_DURUM, TUMU, getIsDurumTanimi, getSureOptions, getSureTarihSaatAraligi, isSuccessResponse, normalizeIsDurumu, toNullableId } from "../KademeIsEmirleri/constants";
 import DurumTag from "../KademeIsEmirleri/components/DurumTag";
 import UpdateModal from "../KademeIsEmirleri/update/UpdateModal";
+import IsDetayiModal from "../KademeIsEmirleri/atananIsler/IsDetayiModal";
+import { updateIsDurumu } from "../KademeIsEmirleri/atananIsler/isDurumuGuncelle";
 import MalzemeTalepEtModal from "../KademeIsEmirleri/malzemeTalepleri/MalzemeTalepEtModal";
 import TakipPaneliStatisticsCards from "../components/TakipPaneliStatisticsCards";
 import PersonelBilgisi from "../components/PersonelBilgisi";
@@ -60,18 +61,19 @@ const { Text } = Typography;
 
 const PAGE_SIZE_STORAGE_KEY = "kademeIsTakipPaneliPageSize";
 const GORUNUM_STORAGE_KEY = "kademeIsTakipPaneliGorunum";
-const COLUMN_ORDER_STORAGE_KEY = "columnOrderKademeIsTakipPaneli";
+// Varsayılan sütun sırası değiştiği (Süre, Başlama ve Bitiş'ten sonra) için kayıtlı eski sıra okunmaz
+const COLUMN_ORDER_STORAGE_KEY = "columnOrderKademeIsTakipPaneliV2";
 const COLUMN_VISIBILITY_STORAGE_KEY = "columnVisibilityKademeIsTakipPaneli";
 const COLUMN_WIDTHS_STORAGE_KEY = "columnWidthsKademeIsTakipPaneli";
 
-// Panel tasarımdaki gibi bu haftanın işleriyle açılır
+// Panel tarih sınırı olmadan, tamamlanmamış işlerle açılır
 const DEFAULT_FILTER_VALUES = {
-  sureFiltre: "buHafta",
+  sureFiltre: TUMU,
   personelFiltre: [],
   personelFiltreID: [],
   kademeFiltre: [],
   kademeFiltreID: [],
-  durumFiltre: [],
+  durumFiltre: [IS_DURUM.BEKLIYOR, IS_DURUM.DEVAM_EDIYOR, IS_DURUM.DURDU, IS_DURUM.YENIDEN_BASLADI],
 };
 
 const ICON_STYLE = { fontSize: 22, color: "#6b7a8a" };
@@ -207,11 +209,13 @@ const KademeIsTakipPaneli = () => {
   const [durumGecmisiKarti, setDurumGecmisiKarti] = useState(null);
   // Durum değişince açık detaydaki iş kartı ve tarihçe yeniden okunur
   const [detayYenilemeAnahtari, setDetayYenilemeAnahtari] = useState(0);
-  const [isEmriModal, setIsEmriModal] = useState({ open: false, record: null });
+  const [isEmriModal, setIsEmriModal] = useState({ open: false, record: null, sekme: undefined });
   const [talepEt, setTalepEt] = useState(null);
+  // İsme tıklanınca açılan düzenlenebilir İş Detayı (başlama/bitiş zamanı elle düzeltilebilir)
+  const [isDetayi, setIsDetayi] = useState(null);
 
   const methods = useForm({ defaultValues: DEFAULT_FILTER_VALUES });
-  const { getValues } = methods;
+  const { getValues, setValue } = methods;
 
   // İstekler her zaman güncel arama/filtre değerleriyle çalışsın diye ref üzerinde tutuluyor
   const searchTermRef = useRef("");
@@ -289,6 +293,12 @@ const KademeIsTakipPaneli = () => {
     refreshStatistics();
   };
 
+  // KPI kutusuna tıklanınca kutunun durumları durum filtresine yazılır ve liste diğer filtrelerle birlikte yeniden okunur
+  const handleKpiFiltre = (durumIds) => {
+    setValue("durumFiltre", durumIds);
+    handleSearch();
+  };
+
   const handleTableChange = (page) => {
     fetchData(page - currentPage, page);
   };
@@ -326,7 +336,8 @@ const KademeIsTakipPaneli = () => {
   const changeDurum = async (kart, status) => {
     setDurumDegisenIsId(kart.siraNo);
     try {
-      const response = await UpdateServiceWorkCardStatusService(kart.siraNo, status);
+      // Başlat/Bitir boş başlama/bitiş zamanını sistem zamanıyla doldurur
+      const response = await updateIsDurumu(kart.siraNo, status);
       if (!isSuccessResponse(response)) {
         message.error(response?.data?.message || t("islemBasarisiz"));
         return;
@@ -352,7 +363,8 @@ const KademeIsTakipPaneli = () => {
     });
   };
 
-  const openIsEmri = async (kart) => {
+  // sekme verilirse iş emri o sekmeyle açılır (ör. talep düğmesinden Malzeme Talepleri)
+  const openIsEmri = async (kart, sekme) => {
     setIsEmriAcilanIsId(kart.siraNo);
     try {
       const servisSiraNo = await getServisSiraNo(kart);
@@ -360,7 +372,7 @@ const KademeIsTakipPaneli = () => {
         message.error(t("islemBasarisiz"));
         return;
       }
-      setIsEmriModal({ open: true, record: { siraNo: servisSiraNo, servisNo: kart.servisNo } });
+      setIsEmriModal({ open: true, record: { siraNo: servisSiraNo, servisNo: kart.servisNo }, sekme });
     } catch {
       message.error(t("islemBasarisiz"));
     } finally {
@@ -392,6 +404,17 @@ const KademeIsTakipPaneli = () => {
     }
   };
 
+  // İş Detayı'ndaki personel seçimi iş emrinin kademesine göre yapılır; kademe iş emri detayından okunur
+  const openIsDetayi = async (kart) => {
+    try {
+      const servisSiraNo = await getServisSiraNo(kart);
+      const servisResponse = servisSiraNo ? await GetVehicleServiceByIdService(servisSiraNo) : null;
+      setIsDetayi({ isId: kart.siraNo, kademeId: toNullableId(servisResponse?.data?.kademeId) });
+    } catch {
+      message.error(t("islemBasarisiz"));
+    }
+  };
+
   const openDetay = (kart) => setDetay({ open: true, kart });
 
   // Açık detay, liste yenilendiğinde satırın güncel haliyle (durum, sayaç) gösterilir
@@ -403,7 +426,7 @@ const KademeIsTakipPaneli = () => {
 
     if (sayi > 0) {
       return (
-        <Button size="small" icon={<InboxOutlined />} loading={yukleniyor} onClick={() => openIsEmri(record)}>
+        <Button size="small" icon={<InboxOutlined />} loading={yukleniyor} onClick={() => openIsEmri(record, "malzemeTalepleri")}>
           {t("talepSayisi", { sayi: formatNumberWithLocale(sayi) })}
         </Button>
       );
@@ -426,7 +449,11 @@ const KademeIsTakipPaneli = () => {
       width: 200,
       visible: true,
       sorter: (a, b) => compareText(a.personelIsim, b.personelIsim),
-      render: (isim, record) => <PersonelBilgisi isim={isim} unvan={record.unvan} resim={record.personelVarsayilanResim} />,
+      render: (isim, record) => (
+        <a role="link" tabIndex={0} onClick={() => openIsDetayi(record)} onKeyDown={(e) => e.key === "Enter" && openIsDetayi(record)}>
+          <PersonelBilgisi isim={isim} unvan={record.unvan} resim={record.personelVarsayilanResim} />
+        </a>
+      ),
     },
     {
       title: t("isEmriNo"),
@@ -480,20 +507,6 @@ const KademeIsTakipPaneli = () => {
       render: (durum) => <DurumTag durum={durum} getTanim={getIsDurumTanimi} />,
     },
     {
-      title: t("sure"),
-      dataIndex: "toplamSaniye",
-      key: "toplamSaniye",
-      width: 140,
-      visible: true,
-      sorter: (a, b) => (Number(a.toplamSaniye) || 0) - (Number(b.toplamSaniye) || 0),
-      render: (_, record) => (
-        <div className="flex flex-col">
-          <SureSayaci kart={record} style={{ fontWeight: 600 }} />
-          <span style={altSatirStyle}>{t("planSure", { sure: formatPlanlananSure(record.sure) })}</span>
-        </div>
-      ),
-    },
-    {
       title: t("baslama"),
       dataIndex: "baslamaTarih",
       key: "baslamaTarih",
@@ -510,6 +523,20 @@ const KademeIsTakipPaneli = () => {
       visible: true,
       sorter: (a, b) => compareDatesForSorter(a.bitisTarih, b.bitisTarih),
       render: (tarih, record) => <TarihSaat tarih={tarih} saat={record.bitisSaat} />,
+    },
+    {
+      title: t("sure"),
+      dataIndex: "toplamSaniye",
+      key: "toplamSaniye",
+      width: 140,
+      visible: true,
+      sorter: (a, b) => (Number(a.toplamSaniye) || 0) - (Number(b.toplamSaniye) || 0),
+      render: (_, record) => (
+        <div className="flex flex-col">
+          <SureSayaci kart={record} style={{ fontWeight: 600 }} />
+          <span style={altSatirStyle}>{t("planSure", { sure: formatPlanlananSure(record.sure) })}</span>
+        </div>
+      ),
     },
     {
       title: t("kademe"),
@@ -681,12 +708,14 @@ const KademeIsTakipPaneli = () => {
     window.location.reload();
   };
 
+  // durumIds tanımlı kutuya tıklanınca durum filtresi o değerlerle uygulanır (Toplam İş tüm durumları gösterir).
+  // Malzeme Talebi kutusunun iş listesinde karşılığı olan bir filtre yoktur.
   const statisticCards = [
-    { type: IS_TAKIP_KPI.TOPLAM_IS, title: t("toplamIs"), icon: <ProfileOutlined style={ICON_STYLE} /> },
-    { type: IS_TAKIP_KPI.BEKLEYEN, title: t("bekleyen"), icon: <ClockCircleOutlined style={ICON_STYLE} /> },
-    { type: IS_TAKIP_KPI.DEVAM_EDEN, title: t("devamEden"), icon: <SyncOutlined style={ICON_STYLE} /> },
-    { type: IS_TAKIP_KPI.DURDU, title: t("durdu"), icon: <PauseCircleOutlined style={ICON_STYLE} /> },
-    { type: IS_TAKIP_KPI.TAMAMLANAN, title: t("tamamlanan"), icon: <CheckCircleOutlined style={ICON_STYLE} /> },
+    { type: IS_TAKIP_KPI.TOPLAM_IS, title: t("toplamIs"), icon: <ProfileOutlined style={ICON_STYLE} />, durumIds: [] },
+    { type: IS_TAKIP_KPI.BEKLEYEN, title: t("bekleyen"), icon: <ClockCircleOutlined style={ICON_STYLE} />, durumIds: [IS_DURUM.BEKLIYOR] },
+    { type: IS_TAKIP_KPI.DEVAM_EDEN, title: t("devamEden"), icon: <SyncOutlined style={ICON_STYLE} />, durumIds: [IS_DURUM.DEVAM_EDIYOR, IS_DURUM.YENIDEN_BASLADI] },
+    { type: IS_TAKIP_KPI.DURDU, title: t("durdu"), icon: <PauseCircleOutlined style={ICON_STYLE} />, durumIds: [IS_DURUM.DURDU] },
+    { type: IS_TAKIP_KPI.TAMAMLANAN, title: t("tamamlanan"), icon: <CheckCircleOutlined style={ICON_STYLE} />, durumIds: [IS_DURUM.TAMAMLANDI] },
     { type: IS_TAKIP_KPI.MALZEME_TALEBI, title: t("malzemeTalebi"), icon: <InboxOutlined style={ICON_STYLE} /> },
   ];
 
@@ -746,7 +775,7 @@ const KademeIsTakipPaneli = () => {
       </Modal>
 
       {/* KPI kutuları */}
-      <TakipPaneliStatisticsCards request={statisticsRequest} cards={statisticCards} fetchStatistic={GetServiceWorkCardStatisticsByTypeService} />
+      <TakipPaneliStatisticsCards request={statisticsRequest} cards={statisticCards} fetchStatistic={GetServiceWorkCardStatisticsByTypeService} onFiltreSec={handleKpiFiltre} />
 
       <FormProvider {...methods}>
         {/* Toolbar */}
@@ -855,7 +884,15 @@ const KademeIsTakipPaneli = () => {
         <IsDurumGecmisi isId={durumGecmisiKarti?.siraNo} yenilemeAnahtari={detayYenilemeAnahtari} />
       </Modal>
 
-      <UpdateModal selectedRow={isEmriModal.record} open={isEmriModal.open} onClose={() => setIsEmriModal((prev) => ({ ...prev, open: false }))} onRefresh={refreshCurrentPageData} />
+      <UpdateModal
+        selectedRow={isEmriModal.record}
+        open={isEmriModal.open}
+        baslangicSekmesi={isEmriModal.sekme}
+        onClose={() => setIsEmriModal((prev) => ({ ...prev, open: false }))}
+        onRefresh={refreshCurrentPageData}
+      />
+
+      <IsDetayiModal open={isDetayi !== null} isId={isDetayi?.isId} kademeId={isDetayi?.kademeId} onClose={() => setIsDetayi(null)} onChange={refreshCurrentPageData} />
 
       <MalzemeTalepEtModal
         open={talepEt !== null}

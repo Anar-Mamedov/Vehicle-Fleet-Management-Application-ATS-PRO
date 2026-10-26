@@ -38,6 +38,8 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
     defaultValues: {
       role: [],
       roleID: [],
+      personel: null,
+      personelID: null,
       mail: "",
       kullaniciKod: "",
       isim: "",
@@ -74,6 +76,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
       paraf: data.paraf,
       kullaniciRengi: data.color ? (typeof data.color === "string" ? data.color : data.color.toHexString()) : "#ffffff",
       roleIds: (Array.isArray(data.roleID) ? data.roleID : []).map(Number),
+      personelId: Number(data.personelID) || 0,
     };
 
     // AxiosInstance.post("/api/endpoint", { Body }).then((response) => {

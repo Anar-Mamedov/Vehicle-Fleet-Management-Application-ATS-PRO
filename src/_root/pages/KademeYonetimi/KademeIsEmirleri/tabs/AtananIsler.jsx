@@ -3,14 +3,15 @@ import PropTypes from "prop-types";
 import { Alert, Button, Dropdown, Input, Table, Tooltip, message } from "antd";
 import { AppstoreOutlined, DownOutlined, PlusOutlined, SearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { t } from "i18next";
-import { UpdateServiceWorkCardStatusService } from "../../../../../api/services/isEmri/services";
 import { formatTimeForDisplay } from "../../../../../utils/dateUtils";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 import { formatDateByLocale } from "../../../../components/FormattedDate";
 import { cardStyle, hintStyle, sectionTitleStyle } from "../../KademeTanimlari/components/uiStyles";
 import DurumTag from "../components/DurumTag";
+import MalzemeTalebiOzet from "../components/MalzemeTalebiOzet";
 import IsAtaModal from "../atananIsler/IsAtaModal";
 import IsDetayiModal from "../atananIsler/IsDetayiModal";
+import { updateIsDurumu } from "../atananIsler/isDurumuGuncelle";
 import MalzemeTalepEtModal from "../malzemeTalepleri/MalzemeTalepEtModal";
 import { IS_DURUM, formatSureKisa, getIsDurumTanimi, isSuccessResponse } from "../constants";
 
@@ -19,7 +20,7 @@ const TOPLU_DURUMLAR = {
   baslat: IS_DURUM.DEVAM_EDIYOR,
   durdur: IS_DURUM.DURDU,
   devamEttir: IS_DURUM.YENIDEN_BASLADI,
-  tamamla: IS_DURUM.TAMAMLANDI,
+  bitir: IS_DURUM.TAMAMLANDI,
 };
 
 const formatTarihSaat = (tarih, saat) => {
@@ -50,7 +51,7 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onM
     const status = TOPLU_DURUMLAR[key];
     setTopluIslemYapiliyor(true);
     try {
-      const sonuclar = await Promise.allSettled(selectedRowKeys.map((id) => UpdateServiceWorkCardStatusService(id, status)));
+      const sonuclar = await Promise.allSettled(selectedRowKeys.map((id) => updateIsDurumu(id, status)));
       const basarisizSayisi = sonuclar.filter((sonuc) => sonuc.status === "rejected" || !isSuccessResponse(sonuc.value)).length;
 
       if (basarisizSayisi === 0) {
@@ -82,11 +83,11 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onM
     },
     { title: t("isTuru"), dataIndex: "isTip", key: "isTip", width: 120, ellipsis: true, render: (text) => text || "-" },
     { title: t("atananPersonel"), dataIndex: "personelIsim", key: "personelIsim", width: 160, ellipsis: true, render: (text) => text || "-" },
-    { title: t("baslama"), dataIndex: "baslamaTarih", key: "baslama", width: 150, render: (tarih, record) => formatTarihSaat(tarih, record.baslamaSaat) },
-    { title: t("sure"), dataIndex: "sure", key: "sure", width: 80, render: (sure) => formatSureKisa(sure) },
-    { title: t("bitis"), dataIndex: "bitisTarih", key: "bitis", width: 150, render: (tarih, record) => formatTarihSaat(tarih, record.bitisSaat) },
-    { title: t("malzemeSayisi"), dataIndex: "malzemeSayisi", key: "malzemeSayisi", width: 120, render: (value) => formatNumberWithLocale(value || 0) },
     { title: t("durum"), dataIndex: "durum", key: "durum", width: 140, render: (durum) => <DurumTag durum={durum} getTanim={getIsDurumTanimi} /> },
+    { title: t("baslamaZamani"), dataIndex: "baslamaTarih", key: "baslama", width: 150, render: (tarih, record) => formatTarihSaat(tarih, record.baslamaSaat) },
+    { title: t("bitisZamani"), dataIndex: "bitisTarih", key: "bitis", width: 150, render: (tarih, record) => formatTarihSaat(tarih, record.bitisSaat) },
+    { title: t("sure"), dataIndex: "sure", key: "sure", width: 80, render: (sure) => formatSureKisa(sure) },
+    { title: t("malzemeTalebi"), dataIndex: "malzemeSayisi", key: "malzemeSayisi", width: 120, render: (value) => <MalzemeTalebiOzet sayi={value} /> },
     { title: t("aciklama"), dataIndex: "aciklama", key: "aciklama", width: 240, ellipsis: true, render: (text) => text || "-" },
     {
       title: "",
@@ -107,7 +108,7 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onM
       { key: "baslat", label: t("baslat") },
       { key: "durdur", label: t("durdur") },
       { key: "devamEttir", label: t("devamEttir") },
-      { key: "tamamla", label: t("tamamla") },
+      { key: "bitir", label: t("bitir") },
     ],
     onClick: handleTopluDurum,
   };

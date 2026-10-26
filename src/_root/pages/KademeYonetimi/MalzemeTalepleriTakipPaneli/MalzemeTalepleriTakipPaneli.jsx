@@ -30,7 +30,7 @@ import MultiSelectInput from "../../../components/form/selects/MultiSelectInput"
 import KademeSelectbox from "../../../components/KademeSelectbox";
 import PersonelMultiSelectbox from "../../../components/PersonelMultiSelectbox";
 import { GetMaterialRequestListService, GetMaterialRequestStatisticsByTypeService, GetVehicleServiceByIdService } from "../../../../api/services/isEmri/services";
-import { MALZEME_TALEP_DURUM, getMalzemeTalepDurumTanimi, getSureOptions, getSureTarihSaatAraligi, toNullableId } from "../KademeIsEmirleri/constants";
+import { MALZEME_TALEP_DURUM, TUMU, getMalzemeTalepDurumTanimi, getSureOptions, getSureTarihSaatAraligi, toNullableId } from "../KademeIsEmirleri/constants";
 import DurumTag from "../KademeIsEmirleri/components/DurumTag";
 import UpdateModal from "../KademeIsEmirleri/update/UpdateModal";
 import KullanimaAktarModal from "../KademeIsEmirleri/malzemeTalepleri/KullanimaAktarModal";
@@ -51,14 +51,14 @@ const COLUMN_ORDER_STORAGE_KEY = "columnOrderMalzemeTalepleriTakipPaneli";
 const COLUMN_VISIBILITY_STORAGE_KEY = "columnVisibilityMalzemeTalepleriTakipPaneli";
 const COLUMN_WIDTHS_STORAGE_KEY = "columnWidthsMalzemeTalepleriTakipPaneli";
 
-// Panel tasarımdaki gibi gerekli tarihi bu ay olan taleplerle açılır
+// Panel tarih sınırı olmadan, devam eden (tamamlanmamış) taleplerle açılır
 const DEFAULT_FILTER_VALUES = {
-  sureFiltre: "buAy",
+  sureFiltre: TUMU,
   personelFiltre: [],
   personelFiltreID: [],
   kademeFiltre: [],
   kademeFiltreID: [],
-  durumFiltre: [],
+  durumFiltre: [MALZEME_TALEP_DURUM.BEKLIYOR, MALZEME_TALEP_DURUM.KISMI_KARSILANDI],
 };
 
 const ICON_STYLE = { fontSize: 22, color: "#6b7a8a" };

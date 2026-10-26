@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Drawer, Typography, Button, Input, Select, DatePicker, TimePicker, Row, Col, Checkbox, InputNumber, Radio, ColorPicker, Switch } from "antd";
 import { Controller, useFormContext } from "react-hook-form";
 import RoleSelectbox from "../../../../../../components/RoleSelectbox";
+import PersonelSelectBox from "../../../../../../components/PersonelSelectBox";
 import styled from "styled-components";
 
 import dayjs from "dayjs";
@@ -222,6 +223,13 @@ export default function MainTabs({ modalOpen }) {
           }}
         >
           <RoleSelectbox name1="role" isRequired />
+        </div>
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", width: "100%", flexDirection: "column", justifyContent: "space-between", gap: "8px" }}>
+        <Text style={{ fontSize: "14px", color: "#000000a4" }}>{t("personelTekil")}</Text>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", minWidth: "300px", gap: "10px", width: "100%" }}>
+          {/* Bileşen id'yi `personelID` alanına yazar; seçim kutusunda isim görünsün diye etiket alanı isimle güncellenir */}
+          <PersonelSelectBox name1="personel" isRequired={false} onChange={(personelId, personelIsim) => setValue("personel", personelIsim || null)} />
         </div>
       </div>
       <div style={{ display: "flex", gap: "15px", width: "100%", alignItems: "flex-start" }}>

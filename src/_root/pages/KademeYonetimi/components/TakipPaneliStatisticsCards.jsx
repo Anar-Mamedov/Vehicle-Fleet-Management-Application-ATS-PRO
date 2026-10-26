@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { Spin } from "antd";
 import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
+import { getTiklamaOzellikleri } from "./kpiKartTiklama";
 
 const CARD_BORDER_COLOR = "#f0f0f0";
 
@@ -18,8 +19,9 @@ const formatStatisticValue = (value) => {
   return formatNumberWithLocale(value, decimalDigits, decimalDigits);
 };
 
-// Takip panellerinin KPI kutuları: her kutu için servis ayrı type ile, liste ile aynı arama ve filtre gövdesiyle çağrılır
-const TakipPaneliStatisticsCards = ({ request, cards, fetchStatistic }) => {
+// Takip panellerinin KPI kutuları: her kutu için servis ayrı type ile, liste ile aynı arama ve filtre gövdesiyle çağrılır.
+// onFiltreSec verilirse durumIds tanımlı kutular tıklanabilir olur ve tıklanınca o durumlar filtre olarak bildirilir.
+const TakipPaneliStatisticsCards = ({ request, cards, fetchStatistic, onFiltreSec }) => {
   const [loading, setLoading] = useState(false);
   const [values, setValues] = useState({});
 
@@ -67,40 +69,46 @@ const TakipPaneliStatisticsCards = ({ request, cards, fetchStatistic }) => {
   return (
     <Spin spinning={loading} size="small">
       <div style={{ display: "flex", gap: "15px", marginBottom: "15px", flexWrap: "wrap" }}>
-        {cards.map((card) => (
-          <div
-            key={card.type}
-            style={{
-              backgroundColor: "white",
-              padding: "10px 16px",
-              borderRadius: "8px",
-              flex: "1 1 180px",
-              border: `1px solid ${CARD_BORDER_COLOR}`,
-              height: "88px",
-              boxSizing: "border-box",
-              overflow: "hidden",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
-              <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>{card.title}</span>
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "10px",
-                  border: `1px solid ${CARD_BORDER_COLOR}`,
-                  backgroundColor: "#fafafa",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {card.icon}
+        {cards.map((card) => {
+          const tiklanabilir = Boolean(card.durumIds && onFiltreSec);
+
+          return (
+            <div
+              key={card.type}
+              {...(tiklanabilir ? getTiklamaOzellikleri(() => onFiltreSec(card.durumIds)) : {})}
+              style={{
+                backgroundColor: "white",
+                padding: "10px 16px",
+                borderRadius: "8px",
+                flex: "1 1 180px",
+                border: `1px solid ${CARD_BORDER_COLOR}`,
+                height: "88px",
+                boxSizing: "border-box",
+                overflow: "hidden",
+                cursor: tiklanabilir ? "pointer" : "default",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+                <span style={{ fontSize: "14px", fontWeight: 500, color: "#5d6786", lineHeight: "20px" }}>{card.title}</span>
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "10px",
+                    border: `1px solid ${CARD_BORDER_COLOR}`,
+                    backgroundColor: "#fafafa",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {card.icon}
+                </div>
               </div>
+              <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", lineHeight: "28px" }}>{formatStatisticValue(values[card.type] ?? null)}</div>
             </div>
-            <div style={{ fontSize: "24px", fontWeight: 700, color: "#141414", lineHeight: "28px" }}>{formatStatisticValue(values[card.type] ?? null)}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </Spin>
   );
@@ -117,9 +125,11 @@ TakipPaneliStatisticsCards.propTypes = {
       type: PropTypes.number.isRequired,
       title: PropTypes.string.isRequired,
       icon: PropTypes.node,
+      durumIds: PropTypes.arrayOf(PropTypes.number),
     })
   ).isRequired,
   fetchStatistic: PropTypes.func.isRequired,
+  onFiltreSec: PropTypes.func,
 };
 
 export default TakipPaneliStatisticsCards;

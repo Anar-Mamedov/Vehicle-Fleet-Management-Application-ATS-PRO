@@ -4,8 +4,8 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Button, Modal, Spin, message } from "antd";
 import { BorderOutlined, CaretRightOutlined, CheckOutlined, ClockCircleOutlined } from "@ant-design/icons";
 import { t } from "i18next";
-import { GetServiceWorkCardByIdService, UpdateServiceWorkCardService, UpdateServiceWorkCardStatusService } from "../../../../../api/services/isEmri/services";
-import { formatDateForApi, formatTimeForApi, toDayjsOrNull, toTimeDayjsOrNull } from "../../../../../utils/dateUtils";
+import { GetServiceWorkCardByIdService, UpdateServiceWorkCardService } from "../../../../../api/services/isEmri/services";
+import { formatDateForApi, formatTimeForApi, isEndBeforeStart, toDayjsOrNull, toTimeDayjsOrNull } from "../../../../../utils/dateUtils";
 import DateInput from "../../../../components/form/date/DateInput";
 import TimeInput from "../../../../components/form/date/TimeInput";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
@@ -15,6 +15,7 @@ import KademePersonelSelectbox from "../../../../components/KademePersonelSelect
 import FormField from "../../KademeTanimlari/components/FormField";
 import { cardStyle, hintStyle } from "../../KademeTanimlari/components/uiStyles";
 import { IS_DURUM, formatSureUzun, getIsDurumOptions, isSuccessResponse, normalizeIsDurumu, toNullable, toNullableId } from "../constants";
+import { updateIsDurumu } from "./isDurumuGuncelle";
 
 const ACIKLAMA_MAKSIMUM_UZUNLUK = 500;
 
@@ -95,7 +96,7 @@ const IsDetayiModal = ({ open, isId, kademeId, onClose, onChange }) => {
   const [kart, setKart] = useState(null);
 
   const methods = useForm({ defaultValues: getDefaultValues() });
-  const { handleSubmit, reset, setValue } = methods;
+  const { getValues, handleSubmit, reset, setValue } = methods;
 
   useEffect(() => {
     if (!open || !isId) return undefined;
@@ -127,11 +128,12 @@ const IsDetayiModal = ({ open, isId, kademeId, onClose, onChange }) => {
     onClose();
   };
 
-  // Durum ve süre değiştiği için kart yeniden okunur; formdaki kaydedilmemiş diğer alanlara dokunulmaz
+  // Durum ve süre değiştiği için kart yeniden okunur; formdaki kaydedilmemiş diğer alanlara dokunulmaz.
+  // Başlat/Bitir boş başlama/bitiş zamanını sistem zamanıyla kaydeder; form o alanlar boşsa kayıtlı değerle doldurulur.
   const changeDurum = async (status) => {
     setDurumDegisiyor(true);
     try {
-      const response = await UpdateServiceWorkCardStatusService(isId, status);
+      const response = await updateIsDurumu(isId, status);
       if (!isSuccessResponse(response)) {
         message.error(t("islemBasarisiz"));
         return;
@@ -140,6 +142,14 @@ const IsDetayiModal = ({ open, isId, kademeId, onClose, onChange }) => {
       const guncelKart = await GetServiceWorkCardByIdService(isId);
       setKart(guncelKart.data);
       setValue("durum", normalizeIsDurumu(guncelKart.data.durum));
+      if (!getValues("baslamaTarih")) {
+        setValue("baslamaTarih", toDayjsOrNull(guncelKart.data.baslamaTarih));
+        setValue("baslamaSaat", toTimeDayjsOrNull(guncelKart.data.baslamaSaat));
+      }
+      if (!getValues("bitisTarih")) {
+        setValue("bitisTarih", toDayjsOrNull(guncelKart.data.bitisTarih));
+        setValue("bitisSaat", toTimeDayjsOrNull(guncelKart.data.bitisSaat));
+      }
       message.success(t("islemBasarili"));
       onChange();
     } catch {
@@ -150,6 +160,11 @@ const IsDetayiModal = ({ open, isId, kademeId, onClose, onChange }) => {
   };
 
   const onSubmit = handleSubmit(async (values) => {
+    if (isEndBeforeStart(values.baslamaTarih, values.baslamaSaat, values.bitisTarih, values.bitisSaat)) {
+      message.warning(t("bitisBaslamadanOnceOlamaz"));
+      return;
+    }
+
     setSaving(true);
     try {
       const response = await UpdateServiceWorkCardService({
@@ -171,7 +186,7 @@ const IsDetayiModal = ({ open, isId, kademeId, onClose, onChange }) => {
 
       // Durum güncelleme gövdesinde yer almaz; listeden farklı bir durum seçildiyse durum servisiyle kaydedilir
       if (values.durum && values.durum !== normalizeIsDurumu(kart?.durum)) {
-        const durumResponse = await UpdateServiceWorkCardStatusService(isId, values.durum);
+        const durumResponse = await updateIsDurumu(isId, values.durum);
         if (!isSuccessResponse(durumResponse)) {
           message.error(t("isDurumuGuncellenemedi"));
           onChange();
@@ -262,7 +277,7 @@ const IsDetayiModal = ({ open, isId, kademeId, onClose, onChange }) => {
                 </div>
               </FormField>
 
-              <FormField span={6} label={t("hedefBitisTarihiSaati")}>
+              <FormField span={6} label={t("bitisTarihiSaati")}>
                 <div className="flex" style={{ gap: "8px" }}>
                   <div style={{ flex: 1 }}>
                     <DateInput name="bitisTarih" style={{ width: "100%" }} />
