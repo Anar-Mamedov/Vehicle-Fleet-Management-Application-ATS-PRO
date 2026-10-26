@@ -2155,7 +2155,7 @@
   "talepYok": "Talep Yok",
   "bitisBaslamadanOnceOlamaz": "Bitiş zamanı başlama zamanından önce olamaz.",
   "talepEt": "Talep Et",
-  "planSure": "Plan: {{sure}}",
+  "planSure": "Süre: {{sure}}",
   "durumGecmisi": "Durum Geçmişi",
   "toplamIs": "Toplam İş",
   "bekleyen": "Bekleyen",

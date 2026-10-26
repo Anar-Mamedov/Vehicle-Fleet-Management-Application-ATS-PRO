@@ -1072,7 +1072,7 @@
   "talepYok": "Нет заявок",
   "bitisBaslamadanOnceOlamaz": "Время окончания не может быть раньше времени начала.",
   "talepEt": "Запросить",
-  "planSure": "План: {{sure}}",
+  "planSure": "Длительность: {{sure}}",
   "durumGecmisi": "История статусов",
   "toplamIs": "Всего работ",
   "bekleyen": "Ожидающие",

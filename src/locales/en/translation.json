@@ -1918,7 +1918,7 @@
   "talepYok": "No Request",
   "bitisBaslamadanOnceOlamaz": "End time cannot be earlier than start time.",
   "talepEt": "Request",
-  "planSure": "Plan: {{sure}}",
+  "planSure": "Duration: {{sure}}",
   "durumGecmisi": "Status History",
   "toplamIs": "Total Jobs",
   "bekleyen": "Waiting",
