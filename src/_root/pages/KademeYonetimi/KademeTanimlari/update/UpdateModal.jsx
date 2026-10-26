@@ -27,9 +27,10 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
 
   const methods = useForm({ defaultValues: getDefaultKademeValues() });
   const { control, handleSubmit, reset } = methods;
-  const [kademeKod, durum] = useWatch({ control, name: ["kademeKod", "durum"] });
+  const [kademeKod, durum, aciklama] = useWatch({ control, name: ["kademeKod", "durum", "aciklama"] });
 
   const kademeId = selectedRow?.siraNo;
+  const aciklamaVar = (aciklama || "").toString().trim() !== "";
 
   // Sekme etiketlerindeki sayılar. Belge sayısını DosyaUpload yükleme/silme sonrası kendisi bildirir;
   // ResimUpload sayı bildirmediği için resim sayısı açılışta ve sekme değiştikçe yeniden okunur.
@@ -106,7 +107,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh }) => {
     },
     {
       key: "aciklama",
-      label: t("aciklama"),
+      label: aciklamaVar ? `${t("aciklama")} *` : t("aciklama"),
       children: <Aciklama />,
     },
     {
