@@ -30,6 +30,10 @@ const arrayMove = (array, from, to) => {
 };
 
 const pxToWch = (px) => Math.ceil(px / 7); // 1 wch ≈ 7px
+// Uzun içerikli kolonlar Excel'de ekranın dışına taşmasın diye genişlik 30 karakterle sınırlanır
+const MAX_EXCEL_COLUMN_WCH = 30;
+// İndirilen Excel dosyası rapor adıyla kaydedilir; dosya adında geçersiz karakterler boşluğa çevrilir
+const toExportFileName = (reportName) => (reportName || "").replace(/[\\/:*?"<>|]/g, " ").trim() || "tablo_export";
 const normalizeFilterValue = (value) => (value === null || value === undefined ? "" : value);
 const hasFilterValue = (value) => normalizeFilterValue(value).toString().trim() !== "";
 
@@ -756,13 +760,13 @@ function RecordModal({ selectedRow, onDrawerClose, drawerVisible, dataAlreadyLoa
         return Math.max(max, cellStr.length);
       }, 0);
       const maxLength = Math.max(headerLength, maxDataLength);
-      return { wch: pxToWch(maxLength * 10) };
+      return { wch: Math.min(pxToWch(maxLength * 10), MAX_EXCEL_COLUMN_WCH) };
     });
     ws["!cols"] = columnWidths;
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-    XLSX.writeFile(wb, "tablo_export.xlsx");
+    XLSX.writeFile(wb, `${toExportFileName(selectedRow?.rprTanim)}.xlsx`);
   };
 
   // ------------------ SORTING ------------------
