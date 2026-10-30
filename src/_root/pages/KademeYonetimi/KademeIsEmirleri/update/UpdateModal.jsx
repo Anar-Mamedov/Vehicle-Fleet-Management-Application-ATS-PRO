@@ -11,13 +11,15 @@ import AtananIsler from "../tabs/AtananIsler";
 import MalzemeTalepleri from "../tabs/MalzemeTalepleri";
 import KullanilanMalzemeler from "../tabs/KullanilanMalzemeler";
 import Aciklama from "../tabs/Aciklama";
+import Tarihce from "../tabs/Tarihce";
 import IsEmriOzet from "../components/IsEmriOzet";
 import DurumTag from "../components/DurumTag";
 import useAtananIsler from "../hooks/useAtananIsler";
 import useMalzemeTalepleri from "../hooks/useMalzemeTalepleri";
 import useKullanilanMalzemeler from "../hooks/useKullanilanMalzemeler";
+import useIsEmriTarihcesi from "../hooks/useIsEmriTarihcesi";
 import { hintStyle } from "../../KademeTanimlari/components/uiStyles";
-import { IS_EMRI_REF_GROUP, isSuccessResponse, toNullableId } from "../constants";
+import { IS_EMRI_REF_GROUP, isIsEmriSaltOkunur, isSuccessResponse, toNullableId } from "../constants";
 import { buildIsEmriBody, buildKorunanServisAlanlari, getDefaultIsEmriValues, getKayitBasariMesaji, mapIsEmriToFormValues } from "../formHelpers";
 
 const tagStyle = {
@@ -42,6 +44,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh, baslangicSekmesi =
   const { isler, loading: islerLoading, reload: reloadIsler } = useAtananIsler(isEmriId, open);
   const { talepler, loading: taleplerLoading, reload: reloadTalepler } = useMalzemeTalepleri(isEmriId, open);
   const { malzemeler, loading: malzemelerLoading, reload: reloadMalzemeler } = useKullanilanMalzemeler(isEmriId, open);
+  const { kayitlar: tarihce, loading: tarihceLoading } = useIsEmriTarihcesi(isEmriId, open);
 
   // Satıra tıklanınca kaydın güncel hali ve işçilik/malzeme maliyeti id ile okunup forma yazılır
   useEffect(() => {
@@ -130,12 +133,18 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh, baslangicSekmesi =
     reset(getDefaultIsEmriValues());
   };
 
+  // Detay yüklenirken başlıktaki numara ve durum tablodan gelen satırdan okunur
+  const servisNo = detay?.servisNo || selectedRow?.servisNo;
+  const durum = detay?.durumBilgisi ?? selectedRow?.durumBilgisi;
+  // Kapalı/iptal iş emri salt okunurdur; durum değişikliği listedeki Toplu İşlem menüsünden yapılır
+  const saltOkunur = isIsEmriSaltOkunur(Number(durum));
+
   const onSubmit = handleSubmit(async (values) => {
-    if (!detay) return;
+    if (!detay || saltOkunur) return;
 
     setSaving(true);
     try {
-      const response = await UpdateServiceItemService({ siraNo: isEmriId, ...buildKorunanServisAlanlari(detay), ...buildIsEmriBody(values) });
+      const response = await UpdateServiceItemService({ siraNo: isEmriId, ...buildKorunanServisAlanlari(detay), ...buildIsEmriBody(values, detay.durumBilgisi) });
 
       if (isSuccessResponse(response)) {
         message.success(getKayitBasariMesaji(response.data, values));
@@ -154,7 +163,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh, baslangicSekmesi =
     {
       key: "genelBilgiler",
       label: t("genelBilgiler"),
-      children: <GenelBilgiler isUpdate />,
+      children: <GenelBilgiler isUpdate durum={durum} readOnly={saltOkunur} />,
     },
     {
       key: "atananIsler",
@@ -166,6 +175,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh, baslangicSekmesi =
           kademeId={toNullableId(detay?.kademeId)}
           isler={isler}
           loading={islerLoading}
+          readOnly={saltOkunur}
           onChange={handleIslerChange}
           onMalzemeTalebiChange={handleIsMalzemeTalebiChange}
         />
@@ -181,6 +191,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh, baslangicSekmesi =
           kademeId={toNullableId(detay?.kademeId)}
           talepler={talepler}
           loading={taleplerLoading}
+          readOnly={saltOkunur}
           onChange={handleMalzemeTalepleriChange}
           onKullanimChange={handleMalzemeKullanimiChange}
         />
@@ -195,11 +206,13 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh, baslangicSekmesi =
           aracId={toNullableId(detay?.aracId)}
           malzemeler={malzemeler}
           loading={malzemelerLoading}
+          readOnly={saltOkunur}
           onChange={handleMalzemeKullanimiChange}
         />
       ),
     },
     {
+      // Kilitli kartta yükleme ve silme, formdaki kapali alanıyla ortak bileşenin kendisi tarafından kapatılır
       key: "resimler",
       label: t("resimler"),
       children: <ResimUpload selectedRowID={isEmriId} refGroup={IS_EMRI_REF_GROUP} />,
@@ -212,22 +225,23 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh, baslangicSekmesi =
     {
       key: "aciklama",
       label: t("isEmriAciklamasi"),
-      children: <Aciklama />,
+      children: <Aciklama readOnly={saltOkunur} />,
+    },
+    {
+      key: "tarihce",
+      label: t("tarihce"),
+      children: <Tarihce kayitlar={tarihce} loading={tarihceLoading} />,
     },
   ];
 
   const footer = [
-    <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit} loading={saving} disabled={loading || !detay}>
+    <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit} loading={saving} disabled={loading || !detay || saltOkunur}>
       {t("guncelle")}
     </Button>,
     <Button key="back" className="btn btn-min cancel-btn" onClick={() => closeModal()}>
       {t("iptal")}
     </Button>,
   ];
-
-  // Detay yüklenirken başlıktaki numara ve durum tablodan gelen satırdan okunur
-  const servisNo = detay?.servisNo || selectedRow?.servisNo;
-  const durum = detay?.durumBilgisi ?? selectedRow?.durumBilgisi;
 
   const modalTitle = (
     <div className="flex flex-col">

@@ -3,10 +3,12 @@ import { t } from "i18next";
 import { formatDateForApi, formatTimeForApi, toDayjsOrNull, toTimeDayjsOrNull } from "../../../../utils/dateUtils";
 import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import { formatDateByLocale } from "../../../components/FormattedDate";
-import { DURUM, toNullable, toNullableId } from "./constants";
+import { DURUM, isIsEmriSaltOkunur, toNullable, toNullableId } from "./constants";
 
-// Yeni iş emri formunun başlangıç değerleri; servis ekranında olduğu gibi yeni kayıt "Bekliyor" durumunda açılır
+// İş emri formunun başlangıç değerleri. Durum formda düzenlenmez; ayrı durum aksiyonlarıyla değişir.
+// kapali alanı ortak ResimUpload/DosyaUpload bileşenlerinin yükleme ve silmeyi kapatmak için okuduğu alandır.
 export const getDefaultIsEmriValues = () => ({
+  kapali: false,
   servisNo: null,
   servisTanimi: null,
   bakimId: null,
@@ -17,7 +19,6 @@ export const getDefaultIsEmriValues = () => ({
   km: null,
   servisNedeni: null,
   servisNedeniID: null,
-  durumBilgisi: DURUM.BEKLIYOR,
   kademe: null,
   kademeID: null,
   bolum: null,
@@ -42,6 +43,7 @@ export const getDefaultIsEmriValues = () => ({
 // KodIDSelectbox / KademeSelectbox id'yi `${name1}ID` alanına yazdığı için kod id eşlemeleri burada yapılır.
 export const mapIsEmriToFormValues = (item) => ({
   ...getDefaultIsEmriValues(),
+  kapali: isIsEmriSaltOkunur(item.durumBilgisi),
   servisNo: toNullable(item.servisNo),
   servisTanimi: toNullable(item.servisTanimi),
   bakimId: toNullableId(item.bakimId),
@@ -52,7 +54,6 @@ export const mapIsEmriToFormValues = (item) => ({
   km: toNullableId(item.km),
   servisNedeni: toNullable(item.servisNedeni),
   servisNedeniID: toNullableId(item.servisNedeniKodId),
-  durumBilgisi: toNullableId(item.durumBilgisi),
   kademe: toNullable(item.kademe),
   kademeID: toNullableId(item.kademeId),
   bolum: toNullable(item.bolum),
@@ -76,13 +77,14 @@ export const hesaplaToplamMaliyet = ({ iscilik, malzeme, diger, kdv, indirim }) 
 };
 
 // Ekleme ve güncelleme servislerinin ortak gövdesi.
+// Durum formdan değil kayıttan gelir: yeni kayıt "Bekliyor", güncellemede detaydan okunan durum aynen geri gönderilir.
 // tamamlandi bilgisi servis ekranındaki gibi gönderilir; periyodik bakımın bir sonraki hedefi bu bilgiyle güncellenir.
-export const buildIsEmriBody = (values) => ({
+export const buildIsEmriBody = (values, durumBilgisi) => ({
   servisNo: values.servisNo || "",
   aracId: values.plakaID || 0,
   surucuId: values.surucuID || 0,
-  durumBilgisi: values.durumBilgisi || 0,
-  tamamlandi: values.durumBilgisi === DURUM.TAMAMLANDI,
+  durumBilgisi: durumBilgisi || 0,
+  tamamlandi: durumBilgisi === DURUM.TAMAMLANDI,
   kademeId: values.kademeID || 0,
   bakimId: values.bakimId || 0,
   km: Number(values.km) || 0,

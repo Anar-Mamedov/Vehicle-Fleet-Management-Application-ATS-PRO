@@ -31,8 +31,9 @@ const formatTarihSaat = (tarih, saat) => {
 
 const aramaAlanlari = ["isTanim", "isTip", "personelIsim", "aciklama"];
 
-// İş emrine atanan işler; liste modal seviyesinde okunur (sekme etiketindeki sayı için) ve buraya verilir
-const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onMalzemeTalebiChange }) => {
+// İş emrine atanan işler; liste modal seviyesinde okunur (sekme etiketindeki sayı için) ve buraya verilir.
+// readOnly (kapalı/iptal iş emri) iş atamayı, toplu işlemi, malzeme talebini ve iş detayındaki değişiklikleri kapatır.
+const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, readOnly = false, onChange, onMalzemeTalebiChange }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isAtaOpen, setIsAtaOpen] = useState(false);
@@ -97,7 +98,7 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onM
       align: "center",
       render: (_, record) => (
         <Tooltip title={t("malzemeTalepEt")}>
-          <Button size="small" icon={<ShoppingCartOutlined />} aria-label={t("malzemeTalepEt")} disabled={!kademeId} onClick={() => setMalzemeTalebiIs(record)} />
+          <Button size="small" icon={<ShoppingCartOutlined />} aria-label={t("malzemeTalepEt")} disabled={readOnly || !kademeId} onClick={() => setMalzemeTalebiIs(record)} />
         </Tooltip>
       ),
     },
@@ -129,12 +130,12 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onM
           allowClear
         />
         <div className="flex" style={{ gap: "10px" }}>
-          <Dropdown menu={topluIslemMenu} disabled={selectedRowKeys.length === 0 || topluIslemYapiliyor} trigger={["click"]}>
+          <Dropdown menu={topluIslemMenu} disabled={readOnly || selectedRowKeys.length === 0 || topluIslemYapiliyor} trigger={["click"]}>
             <Button icon={<AppstoreOutlined />} loading={topluIslemYapiliyor}>
               {t("topluIslem")} <DownOutlined />
             </Button>
           </Dropdown>
-          <Button className="btn primary-btn" icon={<PlusOutlined />} disabled={!kademeId} onClick={() => setIsAtaOpen(true)}>
+          <Button className="btn primary-btn" icon={<PlusOutlined />} disabled={readOnly || !kademeId} onClick={() => setIsAtaOpen(true)}>
             {t("isAta")}
           </Button>
         </div>
@@ -142,7 +143,7 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onM
 
       <Table
         size="middle"
-        rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }}
+        rowSelection={readOnly ? undefined : { selectedRowKeys, onChange: setSelectedRowKeys }}
         columns={columns}
         dataSource={filtrelenmisIsler}
         loading={loading}
@@ -162,7 +163,7 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, onChange, onM
         onClose={() => setMalzemeTalebiIs(null)}
         onSaved={onMalzemeTalebiChange}
       />
-      <IsDetayiModal open={detay.open} isId={detay.isId} kademeId={kademeId} onClose={() => setDetay({ open: false, isId: null })} onChange={onChange} />
+      <IsDetayiModal open={detay.open} isId={detay.isId} kademeId={kademeId} readOnly={readOnly} onClose={() => setDetay({ open: false, isId: null })} onChange={onChange} />
     </div>
   );
 };
@@ -173,6 +174,7 @@ AtananIsler.propTypes = {
   kademeId: PropTypes.number,
   isler: PropTypes.arrayOf(PropTypes.object).isRequired,
   loading: PropTypes.bool,
+  readOnly: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
   onMalzemeTalebiChange: PropTypes.func.isRequired,
 };

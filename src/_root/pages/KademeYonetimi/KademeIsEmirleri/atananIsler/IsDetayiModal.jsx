@@ -9,6 +9,7 @@ import { formatDateForApi, formatTimeForApi, isEndBeforeStart, toDayjsOrNull, to
 import DateInput from "../../../../components/form/date/DateInput";
 import TimeInput from "../../../../components/form/date/TimeInput";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
+import TextInput from "../../../../components/form/inputs/TextInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
 import SelectInput from "../../../../components/form/selects/SelectInput";
 import KademePersonelSelectbox from "../../../../components/KademePersonelSelectbox";
@@ -88,8 +89,9 @@ const mapKartToFormValues = (kart) => ({
 const getBaslatDurumu = (durum) => (durum === IS_DURUM.DURDU ? IS_DURUM.YENIDEN_BASLADI : IS_DURUM.DEVAM_EDIYOR);
 const isCalisiyor = (durum) => durum === IS_DURUM.DEVAM_EDIYOR || durum === IS_DURUM.YENIDEN_BASLADI;
 
-// Atanan işin detayı: personel/tarih/işçilik güncellenir, iş Başlat/Durdur/Bitir ile anında durum değiştirir
-const IsDetayiModal = ({ open, isId, kademeId, onClose, onChange }) => {
+// Atanan işin detayı: personel/tarih/işçilik güncellenir, iş Başlat/Durdur/Bitir ile anında durum değiştirir.
+// readOnly (kapalı/iptal iş emri) detayı yalnızca görüntülenir hale getirir.
+const IsDetayiModal = ({ open, isId, kademeId, readOnly = false, onClose, onChange }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [durumDegisiyor, setDurumDegisiyor] = useState(false);
@@ -206,15 +208,15 @@ const IsDetayiModal = ({ open, isId, kademeId, onClose, onChange }) => {
 
   const durum = normalizeIsDurumu(kart?.durum);
   const islemDevamEdiyor = loading || saving || durumDegisiyor;
-  const baslatPasif = !kart || islemDevamEdiyor || !(durum === IS_DURUM.BEKLIYOR || durum === IS_DURUM.DURDU);
-  const durdurPasif = !kart || islemDevamEdiyor || !isCalisiyor(durum);
-  const bitirPasif = !kart || islemDevamEdiyor || durum === IS_DURUM.TAMAMLANDI;
+  const baslatPasif = readOnly || !kart || islemDevamEdiyor || !(durum === IS_DURUM.BEKLIYOR || durum === IS_DURUM.DURDU);
+  const durdurPasif = readOnly || !kart || islemDevamEdiyor || !isCalisiyor(durum);
+  const bitirPasif = readOnly || !kart || islemDevamEdiyor || durum === IS_DURUM.TAMAMLANDI;
 
   const footer = [
     <Button key="back" className="btn btn-min cancel-btn" onClick={closeModal}>
       {t("iptal")}
     </Button>,
-    <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit} loading={saving} disabled={!kart || islemDevamEdiyor}>
+    <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit} loading={saving} disabled={readOnly || !kart || islemDevamEdiyor}>
       {t("kaydet")}
     </Button>,
   ];
@@ -259,44 +261,45 @@ const IsDetayiModal = ({ open, isId, kademeId, onClose, onChange }) => {
               </div>
             </div>
 
+            {/* KademePersonelSelectbox pasif yapılamadığı için salt okunur modda seçili personel salt okunur alanda gösterilir */}
             <div className="grid" style={{ rowGap: "16px", columnGap: "16px" }}>
               <FormField span={6} label={t("atananPersonel")} required>
-                <KademePersonelSelectbox name1="personel" kademeId={kademeId} isRequired />
+                {readOnly ? <TextInput name="personel" checked /> : <KademePersonelSelectbox name1="personel" kademeId={kademeId} isRequired />}
               </FormField>
 
               <FormField span={6} label={t("yardimciPersonel")}>
-                <KademePersonelSelectbox name1="yardimciPersonel" kademeId={kademeId} />
+                {readOnly ? <TextInput name="yardimciPersonel" checked /> : <KademePersonelSelectbox name1="yardimciPersonel" kademeId={kademeId} />}
               </FormField>
 
               <FormField span={6} label={t("baslamaTarihiSaati")}>
                 <div className="flex" style={{ gap: "8px" }}>
                   <div style={{ flex: 1 }}>
-                    <DateInput name="baslamaTarih" style={{ width: "100%" }} />
+                    <DateInput name="baslamaTarih" checked={readOnly} style={{ width: "100%" }} />
                   </div>
-                  <TimeInput name="baslamaSaat" style={{ width: "110px" }} />
+                  <TimeInput name="baslamaSaat" readonly={readOnly} style={{ width: "110px" }} />
                 </div>
               </FormField>
 
               <FormField span={6} label={t("bitisTarihiSaati")}>
                 <div className="flex" style={{ gap: "8px" }}>
                   <div style={{ flex: 1 }}>
-                    <DateInput name="bitisTarih" style={{ width: "100%" }} />
+                    <DateInput name="bitisTarih" checked={readOnly} style={{ width: "100%" }} />
                   </div>
-                  <TimeInput name="bitisSaat" style={{ width: "110px" }} />
+                  <TimeInput name="bitisSaat" readonly={readOnly} style={{ width: "110px" }} />
                 </div>
               </FormField>
 
               <FormField span={6} label={t("durum")}>
-                <SelectInput name="durum" options={getIsDurumOptions()} allowClear={false} />
+                <SelectInput name="durum" options={getIsDurumOptions()} allowClear={false} checked={readOnly} />
               </FormField>
 
               <FormField span={6} label={t("iscilikTutari")}>
-                <NumberInput name="toplam" min={0} />
+                <NumberInput name="toplam" min={0} checked={readOnly} />
               </FormField>
 
               <FormField span={12} label={t("aciklama")}>
                 <div style={sayacAlaniStyle}>
-                  <Textarea name="aciklama" rows={4} length={ACIKLAMA_MAKSIMUM_UZUNLUK} showCount placeholder={t("isAciklamaPlaceholder")} />
+                  <Textarea name="aciklama" rows={4} length={ACIKLAMA_MAKSIMUM_UZUNLUK} showCount checked={readOnly} placeholder={t("isAciklamaPlaceholder")} />
                 </div>
               </FormField>
             </div>
@@ -311,6 +314,7 @@ IsDetayiModal.propTypes = {
   open: PropTypes.bool,
   isId: PropTypes.number,
   kademeId: PropTypes.number,
+  readOnly: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
 };

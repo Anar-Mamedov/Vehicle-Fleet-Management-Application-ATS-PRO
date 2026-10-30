@@ -23,7 +23,8 @@ const formatExcelHucresi = (value, row, column) => (column.dataIndex === "tarih"
 
 // İş emrinde fiilen kullanılan malzemeler; liste modal seviyesinde okunur (sekme etiketindeki sayı için) ve buraya verilir.
 // Liste servisi sayfalanmadan döndüğü için arama ve sayfalama istemci tarafında yapılır.
-const KullanilanMalzemeler = ({ isEmriId, aracId, malzemeler, loading, onChange }) => {
+// readOnly (kapalı/iptal iş emri) ekleme, düzenleme, kopyalama ve silmeyi kapatır; kayıt detayı ve Excel açık kalır.
+const KullanilanMalzemeler = ({ isEmriId, aracId, malzemeler, loading, readOnly = false, onChange }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [pagination, setPagination] = useState({ current: 1, pageSize: VARSAYILAN_SAYFA_BOYUTU });
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -113,8 +114,8 @@ const KullanilanMalzemeler = ({ isEmriId, aracId, malzemeler, loading, onChange 
       fixed: "right",
       align: "center",
       render: (_, record) => (
-        <Dropdown menu={{ items: satirIslemleri, onClick: ({ key }) => handleSatirIslemi(record, key) }} trigger={["click"]}>
-          <Button type="text" size="small" icon={<MoreOutlined />} aria-label={t("islem")} />
+        <Dropdown menu={{ items: satirIslemleri, onClick: ({ key }) => handleSatirIslemi(record, key) }} trigger={["click"]} disabled={readOnly}>
+          <Button type="text" size="small" icon={<MoreOutlined />} aria-label={t("islem")} disabled={readOnly} />
         </Dropdown>
       ),
     },
@@ -139,7 +140,7 @@ const KullanilanMalzemeler = ({ isEmriId, aracId, malzemeler, loading, onChange 
           allowClear
         />
         <div className="flex" style={{ gap: "10px", flexWrap: "wrap" }}>
-          <Dropdown menu={topluIslemMenu} disabled={selectedRowKeys.length === 0} trigger={["click"]}>
+          <Dropdown menu={topluIslemMenu} disabled={readOnly || selectedRowKeys.length === 0} trigger={["click"]}>
             <Button icon={<AppstoreOutlined />}>
               {t("topluIslem")} <DownOutlined />
             </Button>
@@ -152,7 +153,7 @@ const KullanilanMalzemeler = ({ isEmriId, aracId, malzemeler, loading, onChange 
             formatCellValue={formatExcelHucresi}
             buttonProps={{ children: t("excelEAktar"), disabled: filtrelenmisMalzemeler.length === 0 }}
           />
-          <Button className="btn primary-btn" icon={<PlusOutlined />} onClick={openEkle}>
+          <Button className="btn primary-btn" icon={<PlusOutlined />} disabled={readOnly} onClick={openEkle}>
             {t("malzemeKullanimiEkle")}
           </Button>
         </div>
@@ -160,7 +161,7 @@ const KullanilanMalzemeler = ({ isEmriId, aracId, malzemeler, loading, onChange 
 
       <Table
         size="middle"
-        rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }}
+        rowSelection={readOnly ? undefined : { selectedRowKeys, onChange: setSelectedRowKeys }}
         columns={columns}
         dataSource={filtrelenmisMalzemeler}
         loading={loading}
@@ -180,6 +181,7 @@ const KullanilanMalzemeler = ({ isEmriId, aracId, malzemeler, loading, onChange 
         kopyalanacakId={modal.kopyalanacakId}
         isEmriId={isEmriId}
         aracId={aracId}
+        readOnly={readOnly}
         onClose={() => setModal(KAPALI_MODAL)}
         onSaved={onChange}
       />
@@ -192,6 +194,7 @@ KullanilanMalzemeler.propTypes = {
   aracId: PropTypes.number,
   malzemeler: PropTypes.arrayOf(PropTypes.object).isRequired,
   loading: PropTypes.bool,
+  readOnly: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
 };
 

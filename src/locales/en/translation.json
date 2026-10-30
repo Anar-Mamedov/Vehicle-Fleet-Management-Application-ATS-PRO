@@ -1943,5 +1943,17 @@
   "kullanimaAktarimIlerlemesi": "Usage transfer progress",
   "listeGorunumu": "List view",
   "kartGorunumu": "Card view",
-  "devamEt": "Resume"
+  "devamEt": "Resume",
+  "kapatildi": "Closed",
+  "yenidenAcildi": "Reopened",
+  "isEmriniKapat": "Close Work Order",
+  "isEmriniIptalEt": "Cancel Work Order",
+  "iptalNedeni": "Cancellation Reason",
+  "tarihce": "History",
+  "iptalNedeniSeciniz": "Select a cancellation reason",
+  "isEmriTopluIslemKismenBasarisiz": "{{basarisiz}} of {{toplam}} work orders could not be updated.",
+  "isEmriniYenidenAc": "Reopen Work Order",
+  "kapanisTarihiSaati": "Closing Date / Time",
+  "durumIslemiAciklamaPlaceholder": "If left empty, a description is added automatically",
+  "seciliIsEmirleri": "Selected work orders"
 }

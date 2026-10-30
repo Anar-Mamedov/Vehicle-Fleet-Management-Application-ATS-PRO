@@ -2180,5 +2180,16 @@
   "kullanimaAktarimIlerlemesi": "Kullanıma aktarım ilerlemesi",
   "listeGorunumu": "Liste görünümü",
   "kartGorunumu": "Kart görünümü",
-  "devamEt": "Devam Et"
+  "devamEt": "Devam Et",
+  "kapatildi": "Kapatıldı",
+  "yenidenAcildi": "Yeniden Açıldı",
+  "isEmriniKapat": "İş Emrini Kapat",
+  "isEmriniIptalEt": "İş Emrini İptal Et",
+  "iptalNedeni": "İptal Nedeni",
+  "iptalNedeniSeciniz": "İptal nedeni seçiniz",
+  "isEmriTopluIslemKismenBasarisiz": "{{toplam}} iş emrinden {{basarisiz}} tanesi güncellenemedi.",
+  "isEmriniYenidenAc": "İş Emrini Yeniden Aç",
+  "kapanisTarihiSaati": "Kapanış Tarihi / Saati",
+  "durumIslemiAciklamaPlaceholder": "Boş bırakılırsa açıklama otomatik yazılır",
+  "seciliIsEmirleri": "Seçili iş emirleri"
 }

@@ -95,7 +95,8 @@ OzetAlani.propTypes = {
 // Oluşturulmuş malzeme talebini gösterir; talep Bekliyor durumundayken malzeme bilgileri güncellenebilir.
 // GetById yanıtında durum alanı olmadığı için durum listedeki satırdan verilir.
 // İş emri id'si de yanıttaki servisSiraNo boş gelebildiği için açan sekmeden verilir.
-const MalzemeTalepDetayiModal = ({ open, isEmriId, talepId, durum, onClose, onChange }) => {
+// readOnly (kapalı/iptal iş emri) talebi durumundan bağımsız olarak yalnızca görüntülenir hale getirir.
+const MalzemeTalepDetayiModal = ({ open, isEmriId, talepId, durum, readOnly = false, onClose, onChange }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [talep, setTalep] = useState(null);
@@ -135,7 +136,7 @@ const MalzemeTalepDetayiModal = ({ open, isEmriId, talepId, durum, onClose, onCh
   };
 
   const guncelDurum = talep?.durum ?? durum;
-  const duzenlenebilir = Boolean(talep) && guncelDurum === MALZEME_TALEP_DURUM.BEKLIYOR;
+  const duzenlenebilir = !readOnly && Boolean(talep) && guncelDurum === MALZEME_TALEP_DURUM.BEKLIYOR;
 
   const durumTarihcesi = useMemo(
     () => [...(talep?.durumTarihcesi || [])].sort((a, b) => compareDatesForSorter(a.tarih, b.tarih)).map((kayit) => ({ ...kayit, key: kayit.siraNo })),
@@ -300,6 +301,7 @@ MalzemeTalepDetayiModal.propTypes = {
   isEmriId: PropTypes.number,
   talepId: PropTypes.number,
   durum: PropTypes.number,
+  readOnly: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
 };

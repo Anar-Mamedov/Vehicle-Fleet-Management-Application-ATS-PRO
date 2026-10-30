@@ -1099,5 +1099,17 @@
   "kayitBulunamadi": "Записи не найдены",
   "listeGorunumu": "Список",
   "kartGorunumu": "Карточки",
-  "devamEt": "Продолжить"
+  "devamEt": "Продолжить",
+  "kapatildi": "Закрыт",
+  "yenidenAcildi": "Открыт повторно",
+  "isEmriniKapat": "Закрыть наряд",
+  "isEmriniIptalEt": "Отменить наряд",
+  "iptalNedeni": "Причина отмены",
+  "tarihce": "История",
+  "iptalNedeniSeciniz": "Выберите причину отмены",
+  "isEmriTopluIslemKismenBasarisiz": "Не удалось обновить {{basarisiz}} из {{toplam}} нарядов.",
+  "isEmriniYenidenAc": "Открыть наряд повторно",
+  "kapanisTarihiSaati": "Дата / время закрытия",
+  "durumIslemiAciklamaPlaceholder": "Если оставить пустым, описание будет добавлено автоматически",
+  "seciliIsEmirleri": "Выбранные наряды"
 }

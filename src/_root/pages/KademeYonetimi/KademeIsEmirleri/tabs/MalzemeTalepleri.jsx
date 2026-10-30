@@ -18,7 +18,8 @@ const VARSAYILAN_SAYFA_BOYUTU = 10;
 
 // İş emrine bağlı malzeme talepleri; liste modal seviyesinde okunur (sekme etiketindeki sayı için) ve buraya verilir.
 // Liste servisi sayfalanmadan döndüğü için arama ve sayfalama istemci tarafında yapılır.
-const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, onChange, onKullanimChange }) => {
+// readOnly (kapalı/iptal iş emri) yeni talebi, kullanıma aktarmayı ve talep güncellemeyi kapatır.
+const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, readOnly = false, onChange, onKullanimChange }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [pagination, setPagination] = useState({ current: 1, pageSize: VARSAYILAN_SAYFA_BOYUTU });
   const [talepEtOpen, setTalepEtOpen] = useState(false);
@@ -75,7 +76,7 @@ const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, onCha
             size="small"
             icon={<ExportOutlined />}
             aria-label={t("kullanimaAktar")}
-            disabled={record.durum === MALZEME_TALEP_DURUM.TAMAMLANDI}
+            disabled={readOnly || record.durum === MALZEME_TALEP_DURUM.TAMAMLANDI}
             onClick={() => setKullanimaAktarilanTalepId(record.siraNo)}
           />
         </Tooltip>
@@ -98,7 +99,7 @@ const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, onCha
           prefix={<SearchOutlined style={{ color: "#8c8c8c" }} />}
           allowClear
         />
-        <Button className="btn primary-btn" icon={<PlusOutlined />} disabled={!kademeId} onClick={() => setTalepEtOpen(true)}>
+        <Button className="btn primary-btn" icon={<PlusOutlined />} disabled={readOnly || !kademeId} onClick={() => setTalepEtOpen(true)}>
           {t("malzemeTalepEt")}
         </Button>
       </div>
@@ -124,6 +125,7 @@ const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, onCha
         isEmriId={isEmriId}
         talepId={detay.talepId}
         durum={detay.durum}
+        readOnly={readOnly}
         onClose={() => setDetay({ open: false, talepId: null, durum: null })}
         onChange={onChange}
       />
@@ -145,6 +147,7 @@ MalzemeTalepleri.propTypes = {
   kademeId: PropTypes.number,
   talepler: PropTypes.arrayOf(PropTypes.object).isRequired,
   loading: PropTypes.bool,
+  readOnly: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
   onKullanimChange: PropTypes.func.isRequired,
 };

@@ -21,10 +21,12 @@ import KademeSelectbox from "../../../components/KademeSelectbox";
 import { GetVehicleServiceOrdersService } from "../../../../api/services/isEmri/services";
 import { VARSAYILAN_SURE, getDurumOptions, getFiltreTarihAraligi, getSureOptions } from "./constants";
 import IsEmriStatisticsCards from "./components/IsEmriStatisticsCards";
+import IsEmriTopluIslem from "./components/IsEmriTopluIslem";
 import DurumTag from "./components/DurumTag";
 import MalzemeTalebiOzet from "./components/MalzemeTalebiOzet";
 import AddModal from "./add/AddModal";
 import UpdateModal from "./update/UpdateModal";
+import DurumIslemModal from "./durumIslemleri/DurumIslemModal";
 
 const { Text } = Typography;
 
@@ -51,6 +53,8 @@ const StyledButton = styled(Button)`
   padding: 0px 8px;
   height: 32px !important;
 `;
+
+const KAPALI_DURUM_ISLEMI = { open: false, islem: null, kayitlar: [] };
 
 const compareText = (a, b) => {
   if (a === null || a === undefined) return -1;
@@ -153,6 +157,8 @@ const KademeIsEmirleri = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize, setPageSize] = useState(() => getStoredPageSize(PAGE_SIZE_STORAGE_KEY));
   const [updateModal, setUpdateModal] = useState({ open: false, record: null });
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [durumIslemi, setDurumIslemi] = useState(KAPALI_DURUM_ISLEMI);
   const [statisticsRequest, setStatisticsRequest] = useState(() => ({ searchTerm: "", filters: buildFilters(DEFAULT_FILTER_VALUES), requestId: 0 }));
 
   const methods = useForm({ defaultValues: DEFAULT_FILTER_VALUES });
@@ -211,6 +217,8 @@ const KademeIsEmirleri = () => {
 
       dataRef.current = newData;
       setData(newData);
+      // Seçim yalnızca ekrandaki sayfa için geçerlidir; sayfa, arama veya yenileme sonrası temizlenir
+      setSelectedRowKeys([]);
       setTotalCount(response.data.recordCount || 0);
       setCurrentPage(targetPage);
     } catch {
@@ -271,6 +279,12 @@ const KademeIsEmirleri = () => {
     fetchData(diff, targetPage, setPointId, requestPageSize);
     refreshStatistics();
   }, [fetchData, refreshStatistics]);
+
+  const seciliKayitlar = data.filter((kayit) => selectedRowKeys.includes(kayit.key));
+
+  const handleDurumIslemiSec = (islem) => {
+    setDurumIslemi({ open: true, islem, kayitlar: seciliKayitlar });
+  };
 
   const initialColumns = [
     {
@@ -574,6 +588,7 @@ const KademeIsEmirleri = () => {
             <Button onClick={handleSearch} icon={<SearchOutlined />} style={{ backgroundColor: "#1890ff", borderColor: "#1890ff", color: "#fff" }} />
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
+            <IsEmriTopluIslem seciliKayitlar={seciliKayitlar} onIslemSec={handleDurumIslemiSec} />
             <AddModal onRefresh={refreshTableData} />
           </div>
         </div>
@@ -589,11 +604,27 @@ const KademeIsEmirleri = () => {
         }}
       >
         <Spin spinning={loading}>
-          <Table components={components} columns={filteredColumns} dataSource={data} pagination={false} footer={tableFooter} scroll={{ y: "calc(100vh - 443px)", x: tableScrollX }} />
+          <Table
+            components={components}
+            rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }}
+            columns={filteredColumns}
+            dataSource={data}
+            pagination={false}
+            footer={tableFooter}
+            scroll={{ y: "calc(100vh - 443px)", x: tableScrollX }}
+          />
         </Spin>
       </div>
 
       <UpdateModal selectedRow={updateModal.record} open={updateModal.open} onClose={() => setUpdateModal((prev) => ({ ...prev, open: false }))} onRefresh={refreshCurrentPageData} />
+      {/* Durum işleminden sonra kullanıcı bulunduğu sayfada kalır; liste yenilenince seçim de temizlenir */}
+      <DurumIslemModal
+        open={durumIslemi.open}
+        islem={durumIslemi.islem}
+        kayitlar={durumIslemi.kayitlar}
+        onClose={() => setDurumIslemi((prev) => ({ ...prev, open: false }))}
+        onSaved={refreshCurrentPageData}
+      />
     </>
   );
 };

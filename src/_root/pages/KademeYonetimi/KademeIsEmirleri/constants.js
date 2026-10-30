@@ -14,12 +14,15 @@ export const IS_EMRI_KOD_TABLE_NAME = "isEmri";
 // İş emirleri servis işlemleri kayıtları olduğu için belge ve resimler servis ekranıyla aynı grupta tutulur
 export const IS_EMRI_REF_GROUP = "Servis_islemleri";
 
-// Durum değerleri servis işlemleri ekranıyla aynıdır
+// Durum değerleri servis işlemleri ekranıyla aynıdır.
+// YENIDEN_ACILDI yalnızca tarihçede görünür; yeniden açılan kart atanan işlerine göre 2 veya 4 olur.
 export const DURUM = {
   BEKLIYOR: 1,
   DEVAM_EDIYOR: 2,
   IPTAL_EDILDI: 3,
   TAMAMLANDI: 4,
+  KAPATILDI: 5,
+  YENIDEN_ACILDI: 6,
 };
 
 const DURUM_TANIMLARI = {
@@ -27,16 +30,33 @@ const DURUM_TANIMLARI = {
   [DURUM.DEVAM_EDIYOR]: { labelKey: "devamEdiyor", color: "#2196f3" },
   [DURUM.IPTAL_EDILDI]: { labelKey: "iptalEdildi", color: "#ff4d4f" },
   [DURUM.TAMAMLANDI]: { labelKey: "tamamlandi", color: "#2bc770" },
+  [DURUM.KAPATILDI]: { labelKey: "kapatildi", color: "#595959" },
+  [DURUM.YENIDEN_ACILDI]: { labelKey: "yenidenAcildi", color: "#722ed1" },
 };
 
 export const getDurumTanimi = (durum) => DURUM_TANIMLARI[durum] || null;
 
-// Etiketler dil değişimine uyum sağlasın diye her çağrıda üretilir
+// Filtre seçenekleri önceki dört durumdur; Kapatıldı ve Yeniden Açıldı yalnızca etiket olarak gösterilir.
+// Etiketler dil değişimine uyum sağlasın diye her çağrıda üretilir.
+const FILTRE_DURUMLARI = [DURUM.BEKLIYOR, DURUM.DEVAM_EDIYOR, DURUM.IPTAL_EDILDI, DURUM.TAMAMLANDI];
+
 export const getDurumOptions = () =>
-  Object.entries(DURUM_TANIMLARI).map(([value, { labelKey }]) => ({
-    value: Number(value),
-    label: t(labelKey),
+  FILTRE_DURUMLARI.map((durum) => ({
+    value: durum,
+    label: t(DURUM_TANIMLARI[durum].labelKey),
   }));
+
+// Kapatılmış veya iptal edilmiş iş emrinin tamamı salt okunurdur; yalnızca yeniden açılabilir
+export const isIsEmriSaltOkunur = (durum) => durum === DURUM.IPTAL_EDILDI || durum === DURUM.KAPATILDI;
+
+// İş emri durum aksiyonları (UpdateVehicleServiceOrderStatus durumId değerleri)
+export const DURUM_ISLEMI = {
+  KAPAT: DURUM.KAPATILDI,
+  IPTAL_ET: DURUM.IPTAL_EDILDI,
+  YENIDEN_AC: DURUM.YENIDEN_ACILDI,
+};
+
+export const IS_EMRI_IPTAL_NEDEN_KOD_ID = 928;
 
 // Atanan işlerin (iş kartlarının) durumları; iş emri durumlarından farklı bir listedir
 export const IS_TURU_KOD_ID = 113;
@@ -164,3 +184,6 @@ export const toNullable = (value) => (value === "" || value === undefined ? null
 export const toNullableId = (value) => (value === 0 || value === "" || value === undefined ? null : value);
 
 export const isSuccessResponse = (response) => [200, 201, 202].includes(response?.data?.statusCode);
+
+// Durum güncelleme servisinde başarı gövdedeki status alanıyla bildirilir; statusCode HTTP kodundan ayrıdır
+export const isDurumGuncellemeBasarili = (response) => response?.data?.status === true;

@@ -9,7 +9,7 @@ import { AddServiceItemService, GetIsEmriCodeService } from "../../../../../api/
 import GenelBilgiler from "../tabs/GenelBilgiler";
 import Aciklama from "../tabs/Aciklama";
 import { hintStyle } from "../../KademeTanimlari/components/uiStyles";
-import { IS_EMRI_KOD_TABLE_NAME, isSuccessResponse } from "../constants";
+import { DURUM, IS_EMRI_KOD_TABLE_NAME, isSuccessResponse } from "../constants";
 import { buildEklemeAlanlari, buildIsEmriBody, getDefaultIsEmriValues, getKayitBasariMesaji } from "../formHelpers";
 
 // Numara her tuşta değil, yazma durduktan sonra kontrol edilsin diye beklenen süre
@@ -74,7 +74,8 @@ const AddModal = ({ onRefresh }) => {
         return;
       }
 
-      const response = await AddServiceItemService({ ...buildIsEmriBody(values), ...buildEklemeAlanlari() });
+      // Servis ekranında olduğu gibi yeni iş emri "Bekliyor" durumunda açılır
+      const response = await AddServiceItemService({ ...buildIsEmriBody(values, DURUM.BEKLIYOR), ...buildEklemeAlanlari() });
 
       if (isSuccessResponse(response)) {
         message.success(getKayitBasariMesaji(response.data, values));

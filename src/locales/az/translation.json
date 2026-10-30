@@ -1512,5 +1512,17 @@
   "kayitBulunamadi": "Qeyd tapılmadı",
   "listeGorunumu": "Siyahı görünüşü",
   "kartGorunumu": "Kart görünüşü",
-  "devamEt": "Davam et"
+  "devamEt": "Davam et",
+  "kapatildi": "Bağlandı",
+  "yenidenAcildi": "Yenidən açıldı",
+  "isEmriniKapat": "İş əmrini bağla",
+  "isEmriniIptalEt": "İş əmrini ləğv et",
+  "iptalNedeni": "Ləğv səbəbi",
+  "tarihce": "Tarixçə",
+  "iptalNedeniSeciniz": "Ləğv səbəbini seçin",
+  "isEmriTopluIslemKismenBasarisiz": "{{toplam}} iş əmrindən {{basarisiz}} yenilənmədi.",
+  "isEmriniYenidenAc": "İş əmrini yenidən aç",
+  "kapanisTarihiSaati": "Bağlanma tarixi / saatı",
+  "durumIslemiAciklamaPlaceholder": "Boş buraxılarsa, izahat avtomatik yazılır",
+  "seciliIsEmirleri": "Seçilmiş iş əmrləri"
 }

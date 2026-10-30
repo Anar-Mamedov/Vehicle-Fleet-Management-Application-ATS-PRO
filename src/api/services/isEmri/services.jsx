@@ -28,6 +28,16 @@ export const UpdateServiceItemService = async (data) => {
   return await http.post(`/VehicleServices/UpdateServiceItem`, data);
 };
 
+// İş emrini kapatır (durumId 5), iptal eder (3) veya yeniden açar (6); başarı yanıttaki status alanıyla bildirilir
+export const UpdateVehicleServiceOrderStatusService = async (data) => {
+  return await http.post(`/VehicleServices/UpdateVehicleServiceOrderStatus`, data);
+};
+
+// İş emri durum tarihçesi; başarıda sarılmadan dizi döner (yeniden eskiye), hatada { status: false, message } döner
+export const GetOrderLogsByServiceIdService = async (serviceId) => {
+  return await http.get(`/VehicleServiceLogs/GetOrderLogsByServiceId?serviceId=${serviceId}`);
+};
+
 // İş emrine bağlı işçilik ve malzeme kartlarının toplam maliyeti
 export const GetServiceCardCostService = async (serviceId) => {
   return await http.get(`/VehicleServices/GetServiceCardCost?serviceId=${serviceId}`);

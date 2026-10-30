@@ -57,7 +57,8 @@ const clearMalzemeSecimi = (setValue) => {
 // İş emrinde kullanılan malzemeyi ekler veya günceller.
 // kayitId verilirse güncelleme, kopyalanacakId verilirse o kaydın bilgileriyle yeni kayıt açılır.
 // Güncellemede stoklu, depo, malzeme ve malzeme tipi backend'de değişmediği için kilitlidir.
-const MalzemeKullanimModal = ({ open, kayitId, kopyalanacakId, isEmriId, aracId, onClose, onSaved }) => {
+// readOnly (kapalı/iptal iş emri) kaydı yalnızca görüntülenir hale getirir.
+const MalzemeKullanimModal = ({ open, kayitId, kopyalanacakId, isEmriId, aracId, readOnly = false, onClose, onSaved }) => {
   const [activeTab, setActiveTab] = useState("malzeme");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -173,7 +174,7 @@ const MalzemeKullanimModal = ({ open, kayitId, kopyalanacakId, isEmriId, aracId,
     }
   }, handleInvalid);
 
-  const malzemeSecimiKilitli = isUpdate;
+  const malzemeSecimiKilitli = isUpdate || readOnly;
 
   const malzemeVeKullanimTab = (
     <div className="grid" style={{ rowGap: "16px", columnGap: "16px", paddingTop: "8px" }}>
@@ -217,16 +218,17 @@ const MalzemeKullanimModal = ({ open, kayitId, kopyalanacakId, isEmriId, aracId,
       <FormField span={6} label={t("kullanilanMiktar")} required>
         <div className="flex" style={{ gap: "8px", alignItems: "flex-start" }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <NumberInput name="miktar" required min={0} formatSection="stok" formatType="miktar" />
+            <NumberInput name="miktar" required min={0} formatSection="stok" formatType="miktar" checked={readOnly} />
           </div>
+          {/* Seçim kutuları pasif yapılamadığı için salt okunur modda seçili değer salt okunur alanda gösterilir */}
           <div style={{ width: "150px" }}>
-            <KodIDSelectbox name1="birim" kodID={MALZEME_BIRIM_KOD_ID} isRequired placeholder={t("birim")} inputWidth="100%" addHide />
+            {readOnly ? <TextInput name="birim" checked /> : <KodIDSelectbox name1="birim" kodID={MALZEME_BIRIM_KOD_ID} isRequired placeholder={t("birim")} inputWidth="100%" addHide />}
           </div>
         </div>
       </FormField>
 
       <FormField span={6} label={t("malzemeTanimi")} required>
-        <TextInput name="malzemeTanim" required />
+        <TextInput name="malzemeTanim" required checked={readOnly} />
       </FormField>
 
       {/* Malzeme tipi seçilen malzemenin kartından gelir; ekleme/güncelleme servisi bu alanı kaydetmez */}
@@ -235,16 +237,16 @@ const MalzemeKullanimModal = ({ open, kayitId, kopyalanacakId, isEmriId, aracId,
       </FormField>
 
       <FormField span={6} label={t("bagliTalep")}>
-        <MalzemeTalepSelectbox name1="bagliTalep" isEmriId={isEmriId} />
+        {readOnly ? <TextInput name="bagliTalep" checked /> : <MalzemeTalepSelectbox name1="bagliTalep" isEmriId={isEmriId} />}
       </FormField>
 
       <FormField span={6} label={t("bagliIs")}>
-        <AtananIsSelectbox name1="bagliIs" isEmriId={isEmriId} />
+        {readOnly ? <TextInput name="bagliIs" checked /> : <AtananIsSelectbox name1="bagliIs" isEmriId={isEmriId} />}
       </FormField>
 
       <FormField span={12} label={t("aciklama")}>
         <div style={sayacAlaniStyle}>
-          <Textarea name="aciklama" rows={3} length={ACIKLAMA_MAKSIMUM_UZUNLUK} showCount />
+          <Textarea name="aciklama" rows={3} length={ACIKLAMA_MAKSIMUM_UZUNLUK} showCount checked={readOnly} />
         </div>
       </FormField>
     </div>
@@ -255,19 +257,19 @@ const MalzemeKullanimModal = ({ open, kayitId, kopyalanacakId, isEmriId, aracId,
       <Alert type="info" showIcon message={t("fiyatBilgileriOpsiyonel")} style={{ marginBottom: "16px" }} />
       <div className="grid" style={{ rowGap: "16px", columnGap: "16px" }}>
         <FormField span={6} label={t("birimFiyati")}>
-          <NumberInput name="fiyat" min={0} formatSection="stok" formatType="tutar" />
+          <NumberInput name="fiyat" min={0} formatSection="stok" formatType="tutar" checked={readOnly} />
         </FormField>
 
         <FormField span={6} label={t("kdvOrani")}>
-          <NumberInput name="kdvOran" min={0} max={100} prefix />
+          <NumberInput name="kdvOran" min={0} max={100} prefix checked={readOnly} />
         </FormField>
 
         <FormField span={6} label={t("indirimOrani")}>
-          <NumberInput name="indirimOran" min={0} max={100} prefix />
+          <NumberInput name="indirimOran" min={0} max={100} prefix checked={readOnly} />
         </FormField>
 
         <FormField span={6} label={t("digerGiderler")}>
-          <NumberInput name="digerGiderler" min={0} formatSection="stok" formatType="tutar" />
+          <NumberInput name="digerGiderler" min={0} formatSection="stok" formatType="tutar" checked={readOnly} />
         </FormField>
 
         <FormField span={6} label={t("toplamTutar")} required>
@@ -305,24 +307,24 @@ const MalzemeKullanimModal = ({ open, kayitId, kopyalanacakId, isEmriId, aracId,
       <Alert type="info" showIcon message={t("faturaBilgileriOpsiyonel")} style={{ marginBottom: "16px" }} />
       <div className="grid" style={{ rowGap: "16px", columnGap: "16px" }}>
         <FormField span={6} label={t("faturaNo")}>
-          <TextInput name="faturaNo" />
+          <TextInput name="faturaNo" checked={readOnly} />
         </FormField>
 
         <FormField span={6} label={t("faturaTarihi")}>
-          <DateInput name="faturaTarih" style={{ width: "100%" }} />
+          <DateInput name="faturaTarih" checked={readOnly} style={{ width: "100%" }} />
         </FormField>
 
         <FormField span={6} label={t("belgeIrsaliyeNo")}>
-          <TextInput name="belgeIrsaliyeNo" />
+          <TextInput name="belgeIrsaliyeNo" checked={readOnly} />
         </FormField>
 
         <FormField span={6} label={t("tedarikciTedarikYeri")}>
-          <TextInput name="tedarikci" />
+          <TextInput name="tedarikci" checked={readOnly} />
         </FormField>
 
         <FormField span={12} label={t("faturaAciklamasiNot")}>
           <div style={sayacAlaniStyle}>
-            <Textarea name="faturaAciklama" rows={3} length={ACIKLAMA_MAKSIMUM_UZUNLUK} showCount />
+            <Textarea name="faturaAciklama" rows={3} length={ACIKLAMA_MAKSIMUM_UZUNLUK} showCount checked={readOnly} />
           </div>
         </FormField>
       </div>
@@ -339,7 +341,7 @@ const MalzemeKullanimModal = ({ open, kayitId, kopyalanacakId, isEmriId, aracId,
     <Button key="back" className="btn btn-min cancel-btn" onClick={closeModal}>
       {t("iptal")}
     </Button>,
-    <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit} loading={saving} disabled={loading}>
+    <Button key="submit" className="btn btn-min primary-btn" onClick={onSubmit} loading={saving} disabled={readOnly || loading}>
       {isUpdate ? t("guncelle") : t("kaydet")}
     </Button>,
   ];
@@ -370,6 +372,7 @@ MalzemeKullanimModal.propTypes = {
   kopyalanacakId: PropTypes.number,
   isEmriId: PropTypes.number,
   aracId: PropTypes.number,
+  readOnly: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
   onSaved: PropTypes.func.isRequired,
 };

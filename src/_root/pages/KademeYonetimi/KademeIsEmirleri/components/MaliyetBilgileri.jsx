@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { useFormContext, useWatch } from "react-hook-form";
 import { t } from "i18next";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
@@ -17,8 +18,8 @@ const toplamKutusuStyle = {
 };
 
 // İşçilik ve malzeme tutarları iş emrine bağlı kartlardan (GetServiceCardCost) gelir; yalnızca diğer giderler elle girilir.
-// Toplam, servis ekranıyla aynı formülle hesaplanıp kayıtta gönderilir.
-const MaliyetBilgileri = () => {
+// Toplam, servis ekranıyla aynı formülle hesaplanıp kayıtta gönderilir. readOnly kapalı/iptal kartta diğer giderleri kilitler.
+const MaliyetBilgileri = ({ readOnly = false }) => {
   const { control } = useFormContext();
   const [iscilik, malzeme, diger, kdv, indirim] = useWatch({ control, name: ["iscilik", "malzeme", "diger", "kdv", "indirim"] });
   const toplam = hesaplaToplamMaliyet({ iscilik, malzeme, diger, kdv, indirim });
@@ -34,7 +35,7 @@ const MaliyetBilgileri = () => {
           <NumberInput name="malzeme" checked />
         </FormField>
         <FormField span={12} label={t("digerGiderler")}>
-          <NumberInput name="diger" min={0} />
+          <NumberInput name="diger" min={0} checked={readOnly} />
         </FormField>
         <div className="col-span-12" style={toplamKutusuStyle}>
           <span style={{ ...labelStyle, color: "#141414" }}>{t("toplamMaliyet")}</span>
@@ -43,6 +44,10 @@ const MaliyetBilgileri = () => {
       </div>
     </div>
   );
+};
+
+MaliyetBilgileri.propTypes = {
+  readOnly: PropTypes.bool,
 };
 
 export default MaliyetBilgileri;
