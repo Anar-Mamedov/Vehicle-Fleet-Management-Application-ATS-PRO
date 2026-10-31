@@ -44,6 +44,19 @@ const GenelBilgiler = ({ kodDurumu = "normal", isUpdate = false, durum, readOnly
   const tarihlerZorunlu = durum === DURUM.TAMAMLANDI;
   const kodHint = isUpdate ? t("isEmriNoDegistirilemez") : kodDurumu === "error" ? t("isEmriNoKullaniliyor") : undefined;
 
+  // Servis kodu ve tanımı aynı servis/bakım tanımından gelir; birlikte dolar, birlikte temizlenir
+  const handleServisSec = (servis) => {
+    setValue("servisKodu", servis.bakimKodu, { shouldValidate: true });
+    setValue("servisTanimi", servis.tanim);
+    setValue("bakimId", servis.bakimId);
+  };
+
+  const clearServis = () => {
+    setValue("servisKodu", null);
+    setValue("servisTanimi", null);
+    setValue("bakimId", null);
+  };
+
   // Plaka seçilince sürücü ve lokasyon araçtan dolar; servis tanımları araca bağlı olduğu için önceki seçim temizlenir
   const handlePlakaChange = (aracId, option) => {
     const arac = option?.data;
@@ -51,8 +64,7 @@ const GenelBilgiler = ({ kodDurumu = "normal", isUpdate = false, durum, readOnly
     setValue("surucuID", arac?.surucuId || null);
     setValue("lokasyon", arac?.lokasyon || null);
     setValue("lokasyonId", arac?.lokasyonId || null);
-    setValue("servisTanimi", null);
-    setValue("bakimId", null);
+    clearServis();
   };
 
   return (
@@ -64,28 +76,32 @@ const GenelBilgiler = ({ kodDurumu = "normal", isUpdate = false, durum, readOnly
             <TextInput name="servisNo" required readonly={isUpdate} checked={readOnly} style={{ borderColor: KOD_DURUM_RENKLERI[kodDurumu] }} />
           </FormField>
 
+          <FormField span={6} label={t("plaka")} required>
+            <SecimAlani readOnly={readOnly} name="plaka">
+              <PlakaSelectbox name1="plaka" isRequired onChange={handlePlakaChange} inputWidth="100%" />
+            </SecimAlani>
+          </FormField>
+
+          <FormField span={6} label={t("servisKodu")} required>
+            <AracServisTanimiTablo
+              name="servisKodu"
+              vehicleId={plakaID}
+              required
+              disabled={readOnly}
+              placeholder={t("servisKoduSeciniz")}
+              onSelect={handleServisSec}
+              onClear={clearServis}
+            />
+          </FormField>
+
+          <FormField span={6} label={t("servisBakimTanimi")} required>
+            <TextInput name="servisTanimi" checked />
+          </FormField>
+
           <FormField span={6} label={t("kademe")}>
             <SecimAlani readOnly={readOnly} name="kademe">
               <KademeSelectbox name1="kademe" />
             </SecimAlani>
-          </FormField>
-
-          <FormField span={6} label={t("isEmriBasligi")} required>
-            <AracServisTanimiTablo
-              name="servisTanimi"
-              vehicleId={plakaID}
-              required
-              disabled={readOnly}
-              placeholder={t("servisTanimiSeciniz")}
-              onSelect={(servisTanimi) => {
-                setValue("servisTanimi", servisTanimi.tanim, { shouldValidate: true });
-                setValue("bakimId", servisTanimi.bakimId);
-              }}
-              onClear={() => {
-                setValue("servisTanimi", null);
-                setValue("bakimId", null);
-              }}
-            />
           </FormField>
 
           <FormField span={6} label={t("bolum")}>
@@ -94,9 +110,9 @@ const GenelBilgiler = ({ kodDurumu = "normal", isUpdate = false, durum, readOnly
             </SecimAlani>
           </FormField>
 
-          <FormField span={6} label={t("plaka")} required>
-            <SecimAlani readOnly={readOnly} name="plaka">
-              <PlakaSelectbox name1="plaka" isRequired onChange={handlePlakaChange} inputWidth="100%" />
+          <FormField span={6} label={t("surucu")}>
+            <SecimAlani readOnly={readOnly} name="surucu">
+              <SurucuSelectbox name1="surucu" inputWidth="100%" />
             </SecimAlani>
           </FormField>
 
@@ -121,10 +137,8 @@ const GenelBilgiler = ({ kodDurumu = "normal", isUpdate = false, durum, readOnly
             />
           </FormField>
 
-          <FormField span={6} label={t("surucu")}>
-            <SecimAlani readOnly={readOnly} name="surucu">
-              <SurucuSelectbox name1="surucu" inputWidth="100%" />
-            </SecimAlani>
+          <FormField span={6} label={t("aracKm")}>
+            <NumberInput name="km" min={0} checked={readOnly} />
           </FormField>
 
           <FormField span={6} label={t("oncelik")}>
@@ -133,8 +147,10 @@ const GenelBilgiler = ({ kodDurumu = "normal", isUpdate = false, durum, readOnly
             </SecimAlani>
           </FormField>
 
-          <FormField span={6} label={t("aracKm")}>
-            <NumberInput name="km" min={0} checked={readOnly} />
+          <FormField span={6} label={t("isEmriNedeni")}>
+            <SecimAlani readOnly={readOnly} name="servisNedeni">
+              <KodIDSelectbox name1="servisNedeni" kodID={IS_EMRI_NEDENI_KOD_ID} placeholder={t("seciniz")} inputWidth="100%" />
+            </SecimAlani>
           </FormField>
 
           <FormField span={6} label={t("baslamaZamani")} required={tarihlerZorunlu}>
@@ -146,11 +162,8 @@ const GenelBilgiler = ({ kodDurumu = "normal", isUpdate = false, durum, readOnly
             </div>
           </FormField>
 
-          <FormField span={6} label={t("isEmriNedeni")}>
-            <SecimAlani readOnly={readOnly} name="servisNedeni">
-              <KodIDSelectbox name1="servisNedeni" kodID={IS_EMRI_NEDENI_KOD_ID} placeholder={t("seciniz")} inputWidth="100%" />
-            </SecimAlani>
-          </FormField>
+          {/* Durum formda düzenlenmediği için sol sütunun son hücresi boş kalır; bitiş zamanı başlamanın altında durur */}
+          <div className="col-span-6 mobile-hidden" />
 
           <FormField span={6} label={t("bitisZamani")} required={tarihlerZorunlu}>
             <div className="flex" style={{ gap: "8px" }}>

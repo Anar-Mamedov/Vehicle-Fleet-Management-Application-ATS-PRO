@@ -10,6 +10,7 @@ import { DURUM, isIsEmriSaltOkunur, toNullable, toNullableId } from "./constants
 export const getDefaultIsEmriValues = () => ({
   kapali: false,
   servisNo: null,
+  servisKodu: null,
   servisTanimi: null,
   bakimId: null,
   plaka: null,
@@ -45,6 +46,7 @@ export const mapIsEmriToFormValues = (item) => ({
   ...getDefaultIsEmriValues(),
   kapali: isIsEmriSaltOkunur(item.durumBilgisi),
   servisNo: toNullable(item.servisNo),
+  servisKodu: toNullable(item.servisKodu),
   servisTanimi: toNullable(item.servisTanimi),
   bakimId: toNullableId(item.bakimId),
   plaka: toNullable(item.plaka),

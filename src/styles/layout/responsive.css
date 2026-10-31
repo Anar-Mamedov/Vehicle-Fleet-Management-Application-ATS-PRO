@@ -56,4 +56,9 @@
   .mobile-wrap {
     flex-wrap: wrap;
   }
+
+  /* Masaüstünde hizalama için bırakılan boş grid hücrelerine verilir; tek sütunda boş satır ve fazladan aralık bırakmasın */
+  .mobile-hidden {
+    display: none;
+  }
 }
