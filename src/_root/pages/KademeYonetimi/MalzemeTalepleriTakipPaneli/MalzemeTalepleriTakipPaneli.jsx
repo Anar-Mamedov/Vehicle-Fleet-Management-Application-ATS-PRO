@@ -186,7 +186,7 @@ const MalzemeTalepleriTakipPaneli = () => {
   const [kullanimaAktar, setKullanimaAktar] = useState(null);
 
   const methods = useForm({ defaultValues: DEFAULT_FILTER_VALUES });
-  const { getValues } = methods;
+  const { getValues, setValue } = methods;
 
   // İstekler her zaman güncel arama/filtre değerleriyle çalışsın diye ref üzerinde tutuluyor
   const searchTermRef = useRef("");
@@ -261,6 +261,12 @@ const MalzemeTalepleriTakipPaneli = () => {
     filtersRef.current = buildFilters(getValues());
     fetchData(0, 1, 0);
     refreshStatistics();
+  };
+
+  // KPI kutusuna tıklanınca kutunun durumları durum filtresine yazılır ve liste diğer filtrelerle birlikte yeniden okunur
+  const handleKpiFiltre = (durumIds) => {
+    setValue("durumFiltre", durumIds);
+    handleSearch();
   };
 
   const handleTableChange = (page) => {
@@ -574,11 +580,12 @@ const MalzemeTalepleriTakipPaneli = () => {
     window.location.reload();
   };
 
+  // Kutuya tıklanınca durum filtresi kutunun durumlarıyla uygulanır (Toplam Talep tüm durumları gösterir)
   const statisticCards = [
-    { type: MALZEME_TALEP_KPI.TOPLAM_TALEP, title: t("toplamTalep"), icon: <FileTextOutlined style={ICON_STYLE} /> },
-    { type: MALZEME_TALEP_KPI.BEKLEYEN, title: t("bekleyen"), icon: <ClockCircleOutlined style={ICON_STYLE} /> },
-    { type: MALZEME_TALEP_KPI.KISMI_KARSILANDI, title: t("kismiKarsilandi"), icon: <PieChartOutlined style={ICON_STYLE} /> },
-    { type: MALZEME_TALEP_KPI.TAMAMLANAN, title: t("tamamlanan"), icon: <CheckCircleOutlined style={ICON_STYLE} /> },
+    { type: MALZEME_TALEP_KPI.TOPLAM_TALEP, title: t("toplamTalep"), icon: <FileTextOutlined style={ICON_STYLE} />, durumIds: [] },
+    { type: MALZEME_TALEP_KPI.BEKLEYEN, title: t("bekleyen"), icon: <ClockCircleOutlined style={ICON_STYLE} />, durumIds: [MALZEME_TALEP_DURUM.BEKLIYOR] },
+    { type: MALZEME_TALEP_KPI.KISMI_KARSILANDI, title: t("kismiKarsilandi"), icon: <PieChartOutlined style={ICON_STYLE} />, durumIds: [MALZEME_TALEP_DURUM.KISMI_KARSILANDI] },
+    { type: MALZEME_TALEP_KPI.TAMAMLANAN, title: t("tamamlanan"), icon: <CheckCircleOutlined style={ICON_STYLE} />, durumIds: [MALZEME_TALEP_DURUM.TAMAMLANDI] },
   ];
 
   const tableFooter = () => (
@@ -637,7 +644,7 @@ const MalzemeTalepleriTakipPaneli = () => {
       </Modal>
 
       {/* KPI kutuları */}
-      <TakipPaneliStatisticsCards request={statisticsRequest} cards={statisticCards} fetchStatistic={GetMaterialRequestStatisticsByTypeService} />
+      <TakipPaneliStatisticsCards request={statisticsRequest} cards={statisticCards} fetchStatistic={GetMaterialRequestStatisticsByTypeService} onFiltreSec={handleKpiFiltre} />
 
       <FormProvider {...methods}>
         {/* Toolbar */}

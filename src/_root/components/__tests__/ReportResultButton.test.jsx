@@ -2,19 +2,26 @@ import React from "react";
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 
-vi.mock("antd", () => {
-  const mockMessageFn = vi.fn();
-  return {
-    Button: ({ children, ...rest }) => (
+const messageMocks = vi.hoisted(() => ({
+  success: vi.fn(),
+  warning: vi.fn(),
+}));
+
+vi.mock("antd", () => ({
+  Button: Object.assign(
+    ({ children, ...rest }) => (
       <button type={rest.type ?? "button"} {...rest}>
         {children}
       </button>
     ),
-    message: {
-      warning: mockMessageFn,
-    },
-  };
-});
+    {
+      propTypes: {
+        children: () => null,
+      },
+    }
+  ),
+  message: messageMocks,
+}));
 
 import ReportResultButton from "../ReportResultButton";
 
@@ -70,6 +77,8 @@ describe("ReportResultButton", () => {
 
     expect(window.open).toHaveBeenCalledTimes(2);
     expect(window.focus).toHaveBeenCalled();
+    expect(messageMocks.success).toHaveBeenCalledTimes(1);
+    expect(messageMocks.warning).not.toHaveBeenCalled();
   });
 
   it("retries refocusing when the document becomes hidden", () => {

@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import fs from "fs";
 import path from "path";
+import process from "process";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -53,6 +54,9 @@ export default defineConfig({
     setupFiles: "./vitest.setup.js",
     globals: true,
     clearMocks: true,
+    // Node 25+ dosyası verilmeyen kendi localStorage'ını (undefined) global'de tanımlar; vitest 4.0 bu adı dolu sayıp
+    // jsdom'un localStorage'ını koymaz. Node'un web storage'ı kapatılınca testler jsdom'unkini kullanır.
+    execArgv: process.allowedNodeEnvironmentFlags.has("--no-experimental-webstorage") ? ["--no-experimental-webstorage"] : [],
   },
 });
 
