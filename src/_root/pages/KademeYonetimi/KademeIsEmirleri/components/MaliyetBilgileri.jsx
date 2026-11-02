@@ -5,17 +5,9 @@ import { t } from "i18next";
 import NumberInput from "../../../../components/form/inputs/NumberInput";
 import { formatNumberWithLocale } from "../../../../../hooks/FormattedNumber";
 import FormField from "../../KademeTanimlari/components/FormField";
-import { cardStyle, labelStyle, sectionTitleStyle } from "../../KademeTanimlari/components/uiStyles";
+import { cardStyle, sectionTitleStyle } from "../../KademeTanimlari/components/uiStyles";
 import { hesaplaToplamMaliyet } from "../formHelpers";
-
-const toplamKutusuStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "10px 12px",
-  borderRadius: "8px",
-  backgroundColor: "#eef4ff",
-};
+import HesapKutusu from "./HesapKutusu";
 
 // İşçilik ve malzeme tutarları iş emrine bağlı kartlardan (GetServiceCardCost) gelir; yalnızca diğer giderler elle girilir.
 // Toplam, servis ekranıyla aynı formülle hesaplanıp kayıtta gönderilir. readOnly kapalı/iptal kartta diğer giderleri kilitler.
@@ -37,10 +29,7 @@ const MaliyetBilgileri = ({ readOnly = false }) => {
         <FormField span={12} label={t("digerGiderler")}>
           <NumberInput name="diger" min={0} checked={readOnly} />
         </FormField>
-        <div className="col-span-12" style={toplamKutusuStyle}>
-          <span style={{ ...labelStyle, color: "#141414" }}>{t("toplamMaliyet")}</span>
-          <span style={{ fontSize: "18px", fontWeight: 700, color: "#1d4ed8" }}>{formatNumberWithLocale(toplam, 2, 2)}</span>
-        </div>
+        <HesapKutusu label={t("toplamMaliyet")} value={formatNumberWithLocale(toplam, 2, 2)} />
       </div>
     </div>
   );

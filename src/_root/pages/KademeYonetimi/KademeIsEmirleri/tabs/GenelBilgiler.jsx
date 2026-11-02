@@ -16,7 +16,9 @@ import LokasyonTablo from "../../../../components/form/LokasyonTable";
 import FormField from "../../KademeTanimlari/components/FormField";
 import { cardStyle, sectionTitleStyle } from "../../KademeTanimlari/components/uiStyles";
 import MaliyetBilgileri from "../components/MaliyetBilgileri";
-import { BOLUM_KOD_ID, DURUM, IS_EMRI_NEDENI_KOD_ID, ONCELIK_KOD_ID } from "../constants";
+import HesapKutusu from "../components/HesapKutusu";
+import { BOLUM_KOD_ID, DURUM, IS_EMRI_NEDENI_KOD_ID, ONCELIK_KOD_ID, formatSureUzun } from "../constants";
+import { hesaplaIsEmriSuresi } from "../formHelpers";
 
 const KOD_DURUM_RENKLERI = {
   error: "#dc3545",
@@ -39,6 +41,8 @@ const GenelBilgiler = ({ kodDurumu = "normal", isUpdate = false, durum, readOnly
   const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
   const { control, setValue } = useFormContext();
   const plakaID = useWatch({ control, name: "plakaID" });
+  const [baslamaTarih, baslamaSaat, bitisTarih, bitisSaat] = useWatch({ control, name: ["baslamaTarih", "baslamaSaat", "bitisTarih", "bitisSaat"] });
+  const sure = hesaplaIsEmriSuresi({ baslamaTarih, baslamaSaat, bitisTarih, bitisSaat });
 
   // Servis ekranındaki kural: tamamlanan iş emrinde başlama ve bitiş tarihi zorunludur
   const tarihlerZorunlu = durum === DURUM.TAMAMLANDI;
@@ -147,12 +151,6 @@ const GenelBilgiler = ({ kodDurumu = "normal", isUpdate = false, durum, readOnly
             </SecimAlani>
           </FormField>
 
-          <FormField span={6} label={t("isEmriNedeni")}>
-            <SecimAlani readOnly={readOnly} name="servisNedeni">
-              <KodIDSelectbox name1="servisNedeni" kodID={IS_EMRI_NEDENI_KOD_ID} placeholder={t("seciniz")} inputWidth="100%" />
-            </SecimAlani>
-          </FormField>
-
           <FormField span={6} label={t("baslamaZamani")} required={tarihlerZorunlu}>
             <div className="flex" style={{ gap: "8px" }}>
               <div style={{ flex: 1 }}>
@@ -162,8 +160,11 @@ const GenelBilgiler = ({ kodDurumu = "normal", isUpdate = false, durum, readOnly
             </div>
           </FormField>
 
-          {/* Durum formda düzenlenmediği için sol sütunun son hücresi boş kalır; bitiş zamanı başlamanın altında durur */}
-          <div className="col-span-6 mobile-hidden" />
+          <FormField span={6} label={t("isEmriNedeni")}>
+            <SecimAlani readOnly={readOnly} name="servisNedeni">
+              <KodIDSelectbox name1="servisNedeni" kodID={IS_EMRI_NEDENI_KOD_ID} placeholder={t("seciniz")} inputWidth="100%" />
+            </SecimAlani>
+          </FormField>
 
           <FormField span={6} label={t("bitisZamani")} required={tarihlerZorunlu}>
             <div className="flex" style={{ gap: "8px" }}>
@@ -173,6 +174,9 @@ const GenelBilgiler = ({ kodDurumu = "normal", isUpdate = false, durum, readOnly
               <TimeInput name="bitisSaat" readonly={readOnly} style={{ width: "110px" }} />
             </div>
           </FormField>
+
+          {/* Etiketi olmadığı için bitiş satırının alanlarıyla aynı hizada, hücrenin altında durur */}
+          <HesapKutusu span={6} label={t("sure")} value={sure === null ? "-" : formatSureUzun(sure)} style={{ alignSelf: "end" }} />
         </div>
       </div>
 

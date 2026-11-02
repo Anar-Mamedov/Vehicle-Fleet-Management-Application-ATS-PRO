@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { t } from "i18next";
-import { formatDateForApi, formatTimeForApi, toDayjsOrNull, toTimeDayjsOrNull } from "../../../../utils/dateUtils";
+import { combineDateAndTime, formatDateForApi, formatTimeForApi, toDayjsOrNull, toTimeDayjsOrNull } from "../../../../utils/dateUtils";
 import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
 import { formatDateByLocale } from "../../../components/FormattedDate";
 import { DURUM, isIsEmriSaltOkunur, toNullable, toNullableId } from "./constants";
@@ -76,6 +76,16 @@ export const mapIsEmriToFormValues = (item) => ({
 export const hesaplaToplamMaliyet = ({ iscilik, malzeme, diger, kdv, indirim }) => {
   const toplam = Number(iscilik || 0) + Number(malzeme || 0) + Number(diger || 0) + Number(kdv || 0) - Number(indirim || 0);
   return Math.round((toplam + Number.EPSILON) * 100) / 100;
+};
+
+// Başlama ile bitiş arasındaki süre (dakika). Yalnızca formda canlı gösterilir, kayıtta backend'e gönderilmez.
+// Saat girilmemişse günün başlangıcı (00:00) alınır; tarihlerden biri boşsa veya bitiş başlamadan önceyse süre yoktur (null).
+export const hesaplaIsEmriSuresi = ({ baslamaTarih, baslamaSaat, bitisTarih, bitisSaat }) => {
+  const baslama = combineDateAndTime(baslamaTarih, baslamaSaat);
+  const bitis = combineDateAndTime(bitisTarih, bitisSaat);
+  if (!baslama || !bitis || bitis.isBefore(baslama)) return null;
+
+  return bitis.diff(baslama, "minute");
 };
 
 // Ekleme ve güncelleme servislerinin ortak gövdesi.

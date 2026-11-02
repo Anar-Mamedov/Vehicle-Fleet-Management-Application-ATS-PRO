@@ -79,18 +79,22 @@ export const formatIsoDateTimeForApi = (value) => {
   return parsedDateTime ? parsedDateTime.format(API_ISO_DATE_TIME_FORMAT) : null;
 };
 
-// Ayrı DatePicker ve TimePicker değerlerini tek bir tarih + saat değeri olarak ISO biçiminde (YYYY-MM-DDTHH:mm:ss) API'ye hazırlar.
-// Saat boşsa günün başlangıcı (00:00:00) gönderilir.
-export const formatDateAndTimeForApi = (dateValue, timeValue) => {
+// Ayrı DatePicker ve TimePicker değerlerini tek bir dayjs tarih + saat değerinde birleştirir.
+// Saat boşsa günün başlangıcı (00:00:00) alınır; tarih boşsa null döner.
+export const combineDateAndTime = (dateValue, timeValue) => {
   const parsedDate = toDayjsOrNull(dateValue);
   if (!parsedDate) {
     return null;
   }
 
   const parsedTime = toTimeDayjsOrNull(timeValue);
-  const dateTime = parsedTime ? parsedDate.hour(parsedTime.hour()).minute(parsedTime.minute()).second(0) : parsedDate.startOf("day");
-  return formatIsoDateTimeForApi(dateTime);
+  const startOfDay = parsedDate.startOf("day");
+  return parsedTime ? startOfDay.hour(parsedTime.hour()).minute(parsedTime.minute()) : startOfDay;
 };
+
+// Ayrı DatePicker ve TimePicker değerlerini tek bir tarih + saat değeri olarak ISO biçiminde (YYYY-MM-DDTHH:mm:ss) API'ye hazırlar.
+// Saat boşsa günün başlangıcı (00:00:00) gönderilir.
+export const formatDateAndTimeForApi = (dateValue, timeValue) => formatIsoDateTimeForApi(combineDateAndTime(dateValue, timeValue));
 
 // Ayrı tarih + saat alanlarıyla girilen bitişin başlangıçtan önce olup olmadığını kontrol eder.
 // Tarihlerden biri boşsa kontrol yapılmaz; saatlerden biri boşsa yalnızca günler karşılaştırılır.

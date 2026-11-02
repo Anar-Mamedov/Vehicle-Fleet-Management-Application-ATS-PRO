@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { describe, expect, it } from "vitest";
-import { formatDateAndTimeForApi, formatDateForApi, formatIsoDateTimeForApi, formatTimeForApi, toDayjsOrNull, toTimeDayjsOrNull } from "../dateUtils";
+import { combineDateAndTime, formatDateAndTimeForApi, formatDateForApi, formatIsoDateTimeForApi, formatTimeForApi, toDayjsOrNull, toTimeDayjsOrNull } from "../dateUtils";
 
 const DATE_VALUE = "2026-08-25";
 
@@ -42,5 +42,13 @@ describe("dateUtils API date and time conversions", () => {
     expect(formatDateAndTimeForApi(date, time)).toBe(`${DATE_VALUE}T09:35:00`);
     expect(formatDateAndTimeForApi(date, null)).toBe(`${DATE_VALUE}T00:00:00`);
     expect(formatDateAndTimeForApi(null, time)).toBeNull();
+  });
+
+  it("combines a date picker value carrying a time of day with a time picker value", () => {
+    const date = dayjs(`${DATE_VALUE} 17:42:19`);
+
+    expect(combineDateAndTime(date, toTimeDayjsOrNull("09:35")).format("YYYY-MM-DD HH:mm:ss")).toBe(`${DATE_VALUE} 09:35:00`);
+    expect(combineDateAndTime(date, null).format("YYYY-MM-DD HH:mm:ss")).toBe(`${DATE_VALUE} 00:00:00`);
+    expect(combineDateAndTime(null, toTimeDayjsOrNull("09:35"))).toBeNull();
   });
 });
