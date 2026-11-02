@@ -31,15 +31,26 @@ describe("IsEmriTopluIslem", () => {
     expect(pasifMi("isEmriniYenidenAc")).toBe(true);
   });
 
-  it("seçili sayısını gösterir ve açık kayıtlar için kapatmayı seçtirir", async () => {
+  it("tek açık kayıtta kapatmayı seçtirir", async () => {
     const onIslemSec = vi.fn();
-    render(<IsEmriTopluIslem seciliKayitlar={[acikKayit, { ...acikKayit, siraNo: 3 }]} onIslemSec={onIslemSec} />);
+    render(<IsEmriTopluIslem seciliKayitlar={[acikKayit]} onIslemSec={onIslemSec} />);
 
-    expect(screen.getByRole("button", { name: "topluIslem" })).toHaveTextContent("2");
+    expect(screen.getByRole("button", { name: "topluIslem" })).toHaveTextContent("1");
     menuyuAc();
     fireEvent.click(await screen.findByText("isEmriniKapat"));
 
     expect(onIslemSec).toHaveBeenCalledWith(DURUM_ISLEMI.KAPAT);
+  });
+
+  it("birden çok açık kayıtta kapatma pasif, iptal kullanılabilir", async () => {
+    render(<IsEmriTopluIslem seciliKayitlar={[acikKayit, { ...acikKayit, siraNo: 3 }]} onIslemSec={vi.fn()} />);
+
+    expect(screen.getByRole("button", { name: "topluIslem" })).toHaveTextContent("2");
+    menuyuAc();
+
+    expect(await screen.findByText("isEmriniKapat")).toBeInTheDocument();
+    expect(pasifMi("isEmriniKapat")).toBe(true);
+    expect(pasifMi("isEmriniIptalEt")).toBe(false);
   });
 
   it("hepsi kapalıyken yalnızca yeniden açma kullanılabilir", async () => {

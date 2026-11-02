@@ -9,10 +9,11 @@ import { formatDateForApi, formatTimeForApi, toDayjsOrNull, toTimeDayjsOrNull } 
 import DateInput from "../../../../components/form/date/DateInput";
 import TimeInput from "../../../../components/form/date/TimeInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
+import NumberInput from "../../../../components/form/inputs/NumberInput";
 import KodIDSelectbox from "../../../../components/KodIDSelectbox";
 import FormField from "../../KademeTanimlari/components/FormField";
 import { labelStyle } from "../../KademeTanimlari/components/uiStyles";
-import { DURUM_ISLEMI, IS_EMRI_IPTAL_NEDEN_KOD_ID } from "../constants";
+import { DURUM_ISLEMI, IS_EMRI_IPTAL_NEDEN_KOD_ID, toNullable, toNullableId } from "../constants";
 import { uygulaDurumIslemi } from "./durumIslemHelpers";
 
 const ACIKLAMA_MAKSIMUM_UZUNLUK = 500;
@@ -33,14 +34,15 @@ const getDefaultValues = () => ({
   bitisSaat: null,
   kapanisTarih: null,
   kapanisSaat: null,
+  km: null,
   iptalNeden: null,
   iptalNedenID: null,
   aciklama: null,
 });
 
-// API notundaki gövde: kapatmada başlama/bitiş gönderilmezse (null) kayıttaki değer korunur, kapanış gönderilmezse
-// sunucu zamanı yazılır; iptalde neden kodu gider; açıklama boşsa backend duruma göre otomatik açıklama yazar.
-const buildDurumIslemBody = ({ islem, values, siraNo, tarihlerGonderilir }) => {
+// API notundaki gövde: kapatmada başlama, bitiş, kapanış ve km gider; iptalde neden kodu gider;
+// açıklama boşsa backend duruma göre otomatik açıklama yazar.
+const buildDurumIslemBody = ({ islem, values, siraNo }) => {
   const body = { siraNo, durumId: islem, aciklama: values.aciklama?.trim() || null };
 
   if (islem === DURUM_ISLEMI.IPTAL_ET) {
@@ -49,44 +51,76 @@ const buildDurumIslemBody = ({ islem, values, siraNo, tarihlerGonderilir }) => {
 
   if (islem !== DURUM_ISLEMI.KAPAT) return body;
 
-  const kapanis = { kapanisTarih: formatDateForApi(values.kapanisTarih), kapanisSaat: formatTimeForApi(values.kapanisSaat) };
-  if (!tarihlerGonderilir) return { ...body, ...kapanis };
-
   return {
     ...body,
-    ...kapanis,
     baslangicTarih: formatDateForApi(values.baslamaTarih),
     baslangicSaat: formatTimeForApi(values.baslamaSaat),
     bitisTarih: formatDateForApi(values.bitisTarih),
     bitisSaat: formatTimeForApi(values.bitisSaat),
+    kapanisTarih: formatDateForApi(values.kapanisTarih),
+    kapanisSaat: formatTimeForApi(values.kapanisSaat),
+    km: Number(values.km) || 0,
   };
 };
 
-// Listede seçili iş emirlerini kapatır (5), iptal eder (3) veya yeniden açar (6).
-// Kapatmada başlama/bitiş yalnızca tek kayıtta gösterilir ve kaydın güncel değeriyle dolar;
-// birden çok kayıtta gönderilmez, her iş emri kendi değerini korur.
+// Salt okunur bilgi: etiket ve altında düz metin
+const BilgiAlani = ({ span = 12, label, children }) => (
+  <div className={`col-span-${span} flex flex-col gap-1`}>
+    <span style={labelStyle}>{label}</span>
+    <span style={{ color: "#141414" }}>{children}</span>
+  </div>
+);
+
+BilgiAlani.propTypes = {
+  span: PropTypes.number,
+  label: PropTypes.string.isRequired,
+  children: PropTypes.node,
+};
+
+// Kapatmadaki tarih ve saat alanları yan yana durur ve ikisi de zorunludur
+const ZorunluTarihSaat = ({ tarihName, saatName }) => (
+  <div className="flex" style={{ gap: "8px", alignItems: "flex-start" }}>
+    <div style={{ flex: 1 }}>
+      <DateInput name={tarihName} required requiredMessage={t("alanBosBirakilamaz")} style={{ width: "100%" }} />
+    </div>
+    <div style={{ width: "110px" }}>
+      <TimeInput name={saatName} required style={{ width: "100%" }} />
+    </div>
+  </div>
+);
+
+ZorunluTarihSaat.propTypes = {
+  tarihName: PropTypes.string.isRequired,
+  saatName: PropTypes.string.isRequired,
+};
+
+// Listede seçili iş emirlerini iptal eder (3) veya yeniden açar (6); kapatma (5) tek iş emrinde yapılır.
+// Kapatmada başlama, bitiş, km ve servis tanımı iş emrinin güncel değeriyle dolar.
 const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  // Servis tanımı backend'e gönderilmez, yalnızca gösterilir
+  const [servisTanimi, setServisTanimi] = useState(null);
 
   const methods = useForm({ defaultValues: getDefaultValues() });
   const { handleSubmit, reset } = methods;
 
-  const tekKayitId = kayitlar.length === 1 ? kayitlar[0].siraNo : null;
-  const tarihlerGonderilir = islem === DURUM_ISLEMI.KAPAT && Boolean(tekKayitId);
+  const kapatma = islem === DURUM_ISLEMI.KAPAT;
+  const kapatilanId = kapatma ? kayitlar[0]?.siraNo : null;
 
   useEffect(() => {
     if (!open) return undefined;
 
     const simdi = dayjs();
-    const varsayilanlar = islem === DURUM_ISLEMI.KAPAT ? { ...getDefaultValues(), kapanisTarih: simdi, kapanisSaat: simdi } : getDefaultValues();
+    const varsayilanlar = kapatma ? { ...getDefaultValues(), kapanisTarih: simdi, kapanisSaat: simdi } : getDefaultValues();
     reset(varsayilanlar);
-    if (!tarihlerGonderilir) return undefined;
+    setServisTanimi(null);
+    if (!kapatilanId) return undefined;
 
     let ignore = false;
     setLoading(true);
 
-    GetVehicleServiceByIdService(tekKayitId)
+    GetVehicleServiceByIdService(kapatilanId)
       .then((res) => {
         if (ignore) return;
         const detay = res.data || {};
@@ -96,7 +130,9 @@ const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
           baslamaSaat: toTimeDayjsOrNull(detay.baslamaSaat),
           bitisTarih: toDayjsOrNull(detay.bitisTarih),
           bitisSaat: toTimeDayjsOrNull(detay.bitisSaat),
+          km: toNullableId(detay.km),
         });
+        setServisTanimi(toNullable(detay.servisTanimi));
       })
       .catch(() => {
         if (!ignore) message.error(t("islemBasarisiz"));
@@ -108,7 +144,7 @@ const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
     return () => {
       ignore = true;
     };
-  }, [open, islem, tekKayitId, tarihlerGonderilir, reset]);
+  }, [open, kapatma, kapatilanId, reset]);
 
   const closeModal = () => {
     reset(getDefaultValues());
@@ -118,7 +154,7 @@ const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
   const onSubmit = handleSubmit(async (values) => {
     setSaving(true);
     try {
-      const basarili = await uygulaDurumIslemi(kayitlar, (siraNo) => buildDurumIslemBody({ islem, values, siraNo, tarihlerGonderilir }));
+      const basarili = await uygulaDurumIslemi(kayitlar, (siraNo) => buildDurumIslemBody({ islem, values, siraNo }));
       if (basarili) {
         closeModal();
         onSaved();
@@ -145,41 +181,29 @@ const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
         <form>
           <Spin spinning={loading}>
             <div className="grid" style={{ rowGap: "16px", columnGap: "16px", paddingTop: "8px" }}>
-              <div className="col-span-12 flex flex-col gap-1">
-                <span style={labelStyle}>{`${t("seciliIsEmirleri")} (${kayitlar.length})`}</span>
-                <span style={{ color: "#141414" }}>{kayitlar.map((kayit) => kayit.servisNo).join(", ")}</span>
-              </div>
+              {/* Kapatmada servis tanımı seçili iş emrinin sağında durur */}
+              <BilgiAlani span={kapatma ? 6 : 12} label={`${t("seciliIsEmirleri")} (${kayitlar.length})`}>
+                {kayitlar.map((kayit) => kayit.servisNo).join(", ")}
+              </BilgiAlani>
 
-              {tarihlerGonderilir && (
+              {kapatma && (
                 <>
-                  <FormField span={6} label={t("baslamaTarihiSaati")}>
-                    <div className="flex" style={{ gap: "8px" }}>
-                      <div style={{ flex: 1 }}>
-                        <DateInput name="baslamaTarih" style={{ width: "100%" }} />
-                      </div>
-                      <TimeInput name="baslamaSaat" style={{ width: "110px" }} />
-                    </div>
+                  <BilgiAlani span={6} label={t("servisBakimTanimi")}>
+                    {servisTanimi || "-"}
+                  </BilgiAlani>
+                  <FormField span={6} label={t("baslamaTarihiSaati")} required>
+                    <ZorunluTarihSaat tarihName="baslamaTarih" saatName="baslamaSaat" />
                   </FormField>
-                  <FormField span={6} label={t("bitisTarihiSaati")}>
-                    <div className="flex" style={{ gap: "8px" }}>
-                      <div style={{ flex: 1 }}>
-                        <DateInput name="bitisTarih" style={{ width: "100%" }} />
-                      </div>
-                      <TimeInput name="bitisSaat" style={{ width: "110px" }} />
-                    </div>
+                  <FormField span={6} label={t("bitisTarihiSaati")} required>
+                    <ZorunluTarihSaat tarihName="bitisTarih" saatName="bitisSaat" />
+                  </FormField>
+                  <FormField span={6} label={t("kapanisTarihiSaati")} required>
+                    <ZorunluTarihSaat tarihName="kapanisTarih" saatName="kapanisSaat" />
+                  </FormField>
+                  <FormField span={6} label={t("aracKm")}>
+                    <NumberInput name="km" min={0} />
                   </FormField>
                 </>
-              )}
-
-              {islem === DURUM_ISLEMI.KAPAT && (
-                <FormField span={6} label={t("kapanisTarihiSaati")}>
-                  <div className="flex" style={{ gap: "8px" }}>
-                    <div style={{ flex: 1 }}>
-                      <DateInput name="kapanisTarih" style={{ width: "100%" }} />
-                    </div>
-                    <TimeInput name="kapanisSaat" style={{ width: "110px" }} />
-                  </div>
-                </FormField>
               )}
 
               {islem === DURUM_ISLEMI.IPTAL_ET && (

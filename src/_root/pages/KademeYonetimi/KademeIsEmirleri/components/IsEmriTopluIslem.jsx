@@ -8,17 +8,19 @@ import { DURUM_ISLEMI } from "../constants";
 import { isKayitSaltOkunur } from "../durumIslemleri/durumIslemHelpers";
 
 // Listede seçili iş emirlerinin durum işlemleri.
-// Kapatma ve iptal seçili kayıtların hepsi açıkken, yeniden açma hepsi kapalı/iptal iken kullanılabilir.
+// İptal seçili kayıtların hepsi açıkken, yeniden açma hepsi kapalı/iptal iken kullanılabilir.
+// Kapatma tek açık iş emrinde yapılır; başlama, bitiş ve km her iş emrine özeldir.
 // Seçim yokken menü açılır ama öğeleri pasif kalır.
 const IsEmriTopluIslem = ({ seciliKayitlar, onIslemSec }) => {
   const seciliVar = seciliKayitlar.length > 0;
   const saltOkunurSayisi = seciliKayitlar.filter(isKayitSaltOkunur).length;
   const hepsiAcik = seciliVar && saltOkunurSayisi === 0;
   const hepsiKapali = seciliVar && saltOkunurSayisi === seciliKayitlar.length;
+  const kapatilabilir = hepsiAcik && seciliKayitlar.length === 1;
 
   const menu = {
     items: [
-      { key: DURUM_ISLEMI.KAPAT, label: t("isEmriniKapat"), icon: <LockOutlined />, disabled: !hepsiAcik },
+      { key: DURUM_ISLEMI.KAPAT, label: t("isEmriniKapat"), icon: <LockOutlined />, disabled: !kapatilabilir },
       { key: DURUM_ISLEMI.IPTAL_ET, label: t("isEmriniIptalEt"), icon: <StopOutlined />, danger: true, disabled: !hepsiAcik },
       { key: DURUM_ISLEMI.YENIDEN_AC, label: t("isEmriniYenidenAc"), icon: <UndoOutlined />, disabled: !hepsiKapali },
     ],
