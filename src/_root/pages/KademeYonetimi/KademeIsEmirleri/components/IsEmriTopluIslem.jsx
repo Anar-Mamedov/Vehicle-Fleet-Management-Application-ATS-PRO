@@ -1,17 +1,20 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button, Dropdown } from "antd";
-import { AppstoreOutlined, DownOutlined, LockOutlined, StopOutlined, UndoOutlined } from "@ant-design/icons";
+import { Dropdown } from "antd";
+import { LockOutlined, StopOutlined, UndoOutlined } from "@ant-design/icons";
 import { t } from "i18next";
+import TopluIslemButonu from "../../../../components/table/TopluIslemButonu";
 import { DURUM_ISLEMI } from "../constants";
 import { isKayitSaltOkunur } from "../durumIslemleri/durumIslemHelpers";
 
 // Listede seçili iş emirlerinin durum işlemleri.
 // Kapatma ve iptal seçili kayıtların hepsi açıkken, yeniden açma hepsi kapalı/iptal iken kullanılabilir.
+// Seçim yokken menü açılır ama öğeleri pasif kalır.
 const IsEmriTopluIslem = ({ seciliKayitlar, onIslemSec }) => {
+  const seciliVar = seciliKayitlar.length > 0;
   const saltOkunurSayisi = seciliKayitlar.filter(isKayitSaltOkunur).length;
-  const hepsiAcik = saltOkunurSayisi === 0;
-  const hepsiKapali = seciliKayitlar.length > 0 && saltOkunurSayisi === seciliKayitlar.length;
+  const hepsiAcik = seciliVar && saltOkunurSayisi === 0;
+  const hepsiKapali = seciliVar && saltOkunurSayisi === seciliKayitlar.length;
 
   const menu = {
     items: [
@@ -23,10 +26,8 @@ const IsEmriTopluIslem = ({ seciliKayitlar, onIslemSec }) => {
   };
 
   return (
-    <Dropdown menu={menu} disabled={seciliKayitlar.length === 0} trigger={["click"]}>
-      <Button icon={<AppstoreOutlined />}>
-        {t("topluIslem")} <DownOutlined />
-      </Button>
+    <Dropdown menu={menu} placement="bottom" trigger={["click"]}>
+      <TopluIslemButonu seciliSayisi={seciliKayitlar.length} aria-label={t("topluIslem")} />
     </Dropdown>
   );
 };
