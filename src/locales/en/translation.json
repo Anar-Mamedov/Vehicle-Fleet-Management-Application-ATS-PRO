@@ -1811,6 +1811,8 @@
   "acikIs": "Open Jobs",
   "tamamlananIs": "Completed Jobs",
   "periyodikBakimHedefiGuncellendi": "The ({{servisTanimi}}) maintenance of vehicle {{plaka}} has been updated to {{km}} km and {{tarih}}.",
+  "periyodikBakimHedefKmGuncellendi": "The ({{servisTanimi}}) maintenance of vehicle {{plaka}} has been updated to {{km}} km.",
+  "periyodikBakimHedefTarihiGuncellendi": "The ({{servisTanimi}}) maintenance of vehicle {{plaka}} has been updated to {{tarih}}.",
   "oncelik": "Priority",
   "atananPersonel": "Assigned Personnel",
   "yardimciPersonel": "Assistant Personnel",

@@ -8,7 +8,8 @@ export const isKayitSaltOkunur = (kayit) => isIsEmriSaltOkunur(Number(kayit?.dur
 
 // Backend toplu durum servisi sunmadığı için her iş emri için servis ayrı çağrılır.
 // Sonuç mesajı burada gösterilir; en az bir kayıt güncellendiyse true döner.
-export const uygulaDurumIslemi = async (kayitlar, buildBody) => {
+// Kapatma tek iş emrinde yapıldığından başarı mesajı ilk yanıtın gövdesinden üretilir (periyodik bakım ötelemesi).
+export const uygulaDurumIslemi = async (kayitlar, buildBody, getBasariMesaji = () => t("islemBasarili")) => {
   const sonuclar = await Promise.allSettled(kayitlar.map((kayit) => UpdateVehicleServiceOrderStatusService(buildBody(kayit.siraNo))));
   const basarisizlar = sonuclar.filter((sonuc) => sonuc.status === "rejected" || !isDurumGuncellemeBasarili(sonuc.value));
 
@@ -19,7 +20,7 @@ export const uygulaDurumIslemi = async (kayitlar, buildBody) => {
   }
 
   if (basarisizlar.length === 0) {
-    message.success(t("islemBasarili"));
+    message.success(getBasariMesaji(sonuclar[0].value.data));
   } else {
     message.warning(t("isEmriTopluIslemKismenBasarisiz", { basarisiz: basarisizlar.length, toplam: sonuclar.length }));
   }

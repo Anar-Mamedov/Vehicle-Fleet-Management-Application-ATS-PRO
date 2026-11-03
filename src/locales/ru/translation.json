@@ -935,6 +935,8 @@
   "acikIs": "Открытые работы",
   "tamamlananIs": "Выполненные работы",
   "periyodikBakimHedefiGuncellendi": "Обслуживание ({{servisTanimi}}) транспорта {{plaka}} обновлено на {{km}} км и {{tarih}}.",
+  "periyodikBakimHedefKmGuncellendi": "Обслуживание ({{servisTanimi}}) транспорта {{plaka}} обновлено на {{km}} км.",
+  "periyodikBakimHedefTarihiGuncellendi": "Обслуживание ({{servisTanimi}}) транспорта {{plaka}} обновлено на {{tarih}}.",
   "aracKm": "Пробег ТС",
   "arama": "Поиск",
   "bolum": "Раздел",

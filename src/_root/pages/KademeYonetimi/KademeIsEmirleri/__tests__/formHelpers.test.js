@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
-import { describe, expect, it } from "vitest";
+import i18next from "i18next";
+import { beforeAll, describe, expect, it } from "vitest";
 import { toTimeDayjsOrNull } from "../../../../../utils/dateUtils";
-import { buildIsEmriBody, hesaplaIsEmriSuresi } from "../formHelpers";
+import { buildIsEmriBody, getKayitBasariMesaji, hesaplaIsEmriSuresi } from "../formHelpers";
 
 const GUN = "2026-11-01";
 const ERTESI_GUN = "2026-11-02";
@@ -35,5 +36,28 @@ describe("hesaplaIsEmriSuresi", () => {
     const body = buildIsEmriBody({ baslamaTarih: tarih(GUN), baslamaSaat: saat("09:00"), bitisTarih: tarih(GUN), bitisSaat: saat("14:30") }, 1);
 
     expect(Object.keys(body).some((key) => key.toLowerCase().includes("sure"))).toBe(false);
+  });
+});
+
+describe("getKayitBasariMesaji", () => {
+  const values = { plaka: "34ABC123", servisTanimi: "40.000 KM BAKIMI" };
+
+  beforeAll(async () => {
+    // cimode'da t() anahtarın kendisini döndürür
+    await i18next.init({ lng: "cimode" });
+  });
+
+  it("hedef km ve tarih dönünce ikisiyle birlikte bildirir", () => {
+    expect(getKayitBasariMesaji({ targetKm: 120000, targetDate: "2027-05-02T00:00:00" }, values)).toBe("periyodikBakimHedefiGuncellendi");
+  });
+
+  it("hedeflerden yalnızca biri dönünce yalnızca onu bildirir", () => {
+    expect(getKayitBasariMesaji({ targetKm: 120000, targetDate: null }, values)).toBe("periyodikBakimHedefKmGuncellendi");
+    expect(getKayitBasariMesaji({ targetKm: null, targetDate: "2027-05-02T00:00:00" }, values)).toBe("periyodikBakimHedefTarihiGuncellendi");
+  });
+
+  it("hedef km ve tarih yoksa statü kodundan bağımsız olarak genel başarı mesajı verir", () => {
+    expect(getKayitBasariMesaji({ status: true, statusCode: 202, message: "Process completed successfully !" }, values)).toBe("islemBasarili");
+    expect(getKayitBasariMesaji({ targetKm: null, targetDate: null }, values)).toBe("islemBasarili");
   });
 });

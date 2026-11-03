@@ -1,6 +1,7 @@
 import React from "react";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import i18next from "i18next";
+import { message } from "antd";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import DurumIslemModal from "../durumIslemleri/DurumIslemModal";
 import { DURUM_ISLEMI } from "../constants";
@@ -14,8 +15,11 @@ vi.mock("../../../../../api/services/isEmri/services", async (importOriginal) =>
 
 const KAYIT = { siraNo: 40, servisNo: "IE00040" };
 const SERVIS_TANIMI = "YAĞ DEĞİŞİMİ";
+const BASARILI_YANIT = { status: true, statusCode: 202, message: "Process completed successfully !" };
+const KM_HATASI = "A valid mileage value greater than zero is required for periodic maintenance.";
 
 const IS_EMRI_DETAYI = {
+  plaka: "34ABC123",
   baslamaTarih: "2026-11-01T00:00:00",
   baslamaSaat: "09:00",
   bitisTarih: "2026-11-02T00:00:00",
@@ -48,12 +52,18 @@ describe("DurumIslemModal - iş emri kapatma", () => {
     // Kapanış tarih/saati açılış anının değeriyle dolar
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date(2026, 10, 2, 14, 4));
+    vi.spyOn(message, "success").mockImplementation(() => {});
+    vi.spyOn(message, "error").mockImplementation(() => {});
   });
 
-  afterAll(() => vi.useRealTimers());
+  afterAll(() => {
+    vi.useRealTimers();
+    message.success.mockRestore();
+    message.error.mockRestore();
+  });
 
   beforeEach(() => {
-    UpdateVehicleServiceOrderStatusService.mockResolvedValue({ data: { status: true } });
+    UpdateVehicleServiceOrderStatusService.mockResolvedValue({ data: BASARILI_YANIT });
   });
 
   afterEach(() => cleanup());
@@ -105,5 +115,49 @@ describe("DurumIslemModal - iş emri kapatma", () => {
 
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
     expect(UpdateVehicleServiceOrderStatusService.mock.lastCall[0].km).toBe(0);
+  });
+
+  it("periyodik bakım ötelenince yanıttaki hedef km ve tarihle bilgilendirir", async () => {
+    GetVehicleServiceByIdService.mockResolvedValue({ data: IS_EMRI_DETAYI });
+    UpdateVehicleServiceOrderStatusService.mockResolvedValue({ data: { ...BASARILI_YANIT, targetKm: 120000, targetDate: "2027-05-02T00:00:00" } });
+    const onSaved = vi.fn();
+    kapatmaModaliAc(onSaved);
+
+    await screen.findByText(SERVIS_TANIMI);
+    fireEvent.click(kapatButonu());
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(message.success).toHaveBeenCalledWith("periyodikBakimHedefiGuncellendi");
+  });
+
+  it("hedef km ve tarih dönmeyen 202 yanıtında bakım ötelendi demez", async () => {
+    GetVehicleServiceByIdService.mockResolvedValue({ data: IS_EMRI_DETAYI });
+    const onSaved = vi.fn();
+    kapatmaModaliAc(onSaved);
+
+    await screen.findByText(SERVIS_TANIMI);
+    fireEvent.click(kapatButonu());
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(message.success).toHaveBeenCalledWith("islemBasarili");
+  });
+
+  it("km reddedilirse backend mesajını gösterir, modal açık kalır ve düzeltilen km ile yeniden kapatır", async () => {
+    GetVehicleServiceByIdService.mockResolvedValue({ data: { ...IS_EMRI_DETAYI, km: 0 } });
+    UpdateVehicleServiceOrderStatusService.mockResolvedValueOnce({ data: { status: false, statusCode: 400, message: KM_HATASI, data: 0, data1: 0 } });
+    const onSaved = vi.fn();
+    kapatmaModaliAc(onSaved);
+
+    await screen.findByText(SERVIS_TANIMI);
+    fireEvent.click(kapatButonu());
+
+    await waitFor(() => expect(message.error).toHaveBeenCalledWith(KM_HATASI));
+    expect(onSaved).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "100000" } });
+    fireEvent.click(kapatButonu());
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(UpdateVehicleServiceOrderStatusService.mock.lastCall[0].km).toBe(100000);
   });
 });

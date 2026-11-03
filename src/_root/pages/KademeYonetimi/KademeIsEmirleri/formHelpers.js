@@ -157,18 +157,22 @@ export const buildKorunanServisAlanlari = (item) => ({
   isRecordSeen: false,
 });
 
-// Periyodik bakım tamamlandığında servis bir sonraki hedef km/tarihi döner; servis ekranındaki bilgi mesajı gösterilir
-export const getKayitBasariMesaji = (responseData, values) => {
-  const hedefKm = responseData?.targetKm;
-  const hedefTarih = responseData?.targetDate;
-  if (hedefKm === undefined || hedefKm === null || hedefTarih === undefined || hedefTarih === null) {
-    return t("islemBasarili");
-  }
+const degerVar = (value) => value !== undefined && value !== null;
 
-  return t("periyodikBakimHedefiGuncellendi", {
+// Periyodik bakım ötelendiğinde servis sonraki hedef km ve tarihi döner; servis ekranındaki bilgi mesajı gösterilir.
+// İki alan da boş gelebilir ve öteleme olmayan güncellemede de statü kodu aynıdır, bu yüzden karar alanlara göre verilir.
+export const getKayitBasariMesaji = (responseData, values) => {
+  const hedefKmVar = degerVar(responseData?.targetKm);
+  const hedefTarihVar = degerVar(responseData?.targetDate);
+  const parametreler = {
     plaka: values.plaka,
     servisTanimi: values.servisTanimi,
-    km: formatNumberWithLocale(responseData.targetKm),
-    tarih: formatDateByLocale(responseData.targetDate),
-  });
+    km: hedefKmVar ? formatNumberWithLocale(responseData.targetKm) : null,
+    tarih: hedefTarihVar ? formatDateByLocale(responseData.targetDate) : null,
+  };
+
+  if (hedefKmVar && hedefTarihVar) return t("periyodikBakimHedefiGuncellendi", parametreler);
+  if (hedefKmVar) return t("periyodikBakimHedefKmGuncellendi", parametreler);
+  if (hedefTarihVar) return t("periyodikBakimHedefTarihiGuncellendi", parametreler);
+  return t("islemBasarili");
 };

@@ -14,6 +14,7 @@ import KodIDSelectbox from "../../../../components/KodIDSelectbox";
 import FormField from "../../KademeTanimlari/components/FormField";
 import { labelStyle } from "../../KademeTanimlari/components/uiStyles";
 import { DURUM_ISLEMI, IS_EMRI_IPTAL_NEDEN_KOD_ID, toNullable, toNullableId } from "../constants";
+import { getKayitBasariMesaji } from "../formHelpers";
 import { uygulaDurumIslemi } from "./durumIslemHelpers";
 
 const ACIKLAMA_MAKSIMUM_UZUNLUK = 500;
@@ -42,6 +43,7 @@ const getDefaultValues = () => ({
 
 // API notundaki gövde: kapatmada başlama, bitiş, kapanış ve km gider; iptalde neden kodu gider;
 // açıklama boşsa backend duruma göre otomatik açıklama yazar.
+// Periyodik bakımda km'nin geçerliliğini backend denetler; boş km 0 gider ve backend reddeder.
 const buildDurumIslemBody = ({ islem, values, siraNo }) => {
   const body = { siraNo, durumId: islem, aciklama: values.aciklama?.trim() || null };
 
@@ -96,11 +98,12 @@ ZorunluTarihSaat.propTypes = {
 
 // Listede seçili iş emirlerini iptal eder (3) veya yeniden açar (6); kapatma (5) tek iş emrinde yapılır.
 // Kapatmada başlama, bitiş, km ve servis tanımı iş emrinin güncel değeriyle dolar.
+// Kapatma reddedilirse (ör. periyodik bakımda geçersiz km) modal açık kalır, kullanıcı km'yi düzeltip yeniden dener.
 const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  // Servis tanımı backend'e gönderilmez, yalnızca gösterilir
-  const [servisTanimi, setServisTanimi] = useState(null);
+  // Plaka ve servis tanımı backend'e gönderilmez; tanım gösterilir, ikisi bakım ötelemesi mesajında kullanılır
+  const [kapatilanIsEmri, setKapatilanIsEmri] = useState(null);
 
   const methods = useForm({ defaultValues: getDefaultValues() });
   const { handleSubmit, reset } = methods;
@@ -114,7 +117,7 @@ const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
     const simdi = dayjs();
     const varsayilanlar = kapatma ? { ...getDefaultValues(), kapanisTarih: simdi, kapanisSaat: simdi } : getDefaultValues();
     reset(varsayilanlar);
-    setServisTanimi(null);
+    setKapatilanIsEmri(null);
     if (!kapatilanId) return undefined;
 
     let ignore = false;
@@ -132,7 +135,7 @@ const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
           bitisSaat: toTimeDayjsOrNull(detay.bitisSaat),
           km: toNullableId(detay.km),
         });
-        setServisTanimi(toNullable(detay.servisTanimi));
+        setKapatilanIsEmri({ plaka: toNullable(detay.plaka), servisTanimi: toNullable(detay.servisTanimi) });
       })
       .catch(() => {
         if (!ignore) message.error(t("islemBasarisiz"));
@@ -151,10 +154,13 @@ const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
     onClose();
   };
 
+  // Kapatmada periyodik bakım ötelendiyse yanıttaki hedef km/tarih bildirilir; diğer işlemlerde genel mesaj kalır
+  const getBasariMesaji = kapatma ? (responseData) => getKayitBasariMesaji(responseData, kapatilanIsEmri || {}) : undefined;
+
   const onSubmit = handleSubmit(async (values) => {
     setSaving(true);
     try {
-      const basarili = await uygulaDurumIslemi(kayitlar, (siraNo) => buildDurumIslemBody({ islem, values, siraNo }));
+      const basarili = await uygulaDurumIslemi(kayitlar, (siraNo) => buildDurumIslemBody({ islem, values, siraNo }), getBasariMesaji);
       if (basarili) {
         closeModal();
         onSaved();
@@ -189,7 +195,7 @@ const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
               {kapatma && (
                 <>
                   <BilgiAlani span={6} label={t("servisBakimTanimi")}>
-                    {servisTanimi || "-"}
+                    {kapatilanIsEmri?.servisTanimi || "-"}
                   </BilgiAlani>
                   <FormField span={6} label={t("baslamaTarihiSaati")} required>
                     <ZorunluTarihSaat tarihName="baslamaTarih" saatName="baslamaSaat" />

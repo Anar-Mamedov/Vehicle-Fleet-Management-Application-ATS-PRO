@@ -2052,6 +2052,8 @@
   "acikIs": "Açık İş",
   "tamamlananIs": "Tamamlanan İş",
   "periyodikBakimHedefiGuncellendi": "{{plaka}} Plakalı Aracın ({{servisTanimi}}) {{km}} km ve {{tarih}} Tarihine Güncellenmiştir.",
+  "periyodikBakimHedefKmGuncellendi": "{{plaka}} Plakalı Aracın ({{servisTanimi}}) {{km}} km Olarak Güncellenmiştir.",
+  "periyodikBakimHedefTarihiGuncellendi": "{{plaka}} Plakalı Aracın ({{servisTanimi}}) {{tarih}} Tarihine Güncellenmiştir.",
   "atananPersonel": "Atanan Personel",
   "yardimciPersonel": "Yardımcı Personel",
   "baslama": "Başlama",

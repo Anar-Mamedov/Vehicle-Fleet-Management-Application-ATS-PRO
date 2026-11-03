@@ -1370,6 +1370,8 @@
   "acikIs": "Açıq iş",
   "tamamlananIs": "Tamamlanmış iş",
   "periyodikBakimHedefiGuncellendi": "{{plaka}} nömrəli nəqliyyatın ({{servisTanimi}}) baxımı {{km}} km və {{tarih}} tarixinə yeniləndi.",
+  "periyodikBakimHedefKmGuncellendi": "{{plaka}} nömrəli nəqliyyatın ({{servisTanimi}}) baxımı {{km}} km olaraq yeniləndi.",
+  "periyodikBakimHedefTarihiGuncellendi": "{{plaka}} nömrəli nəqliyyatın ({{servisTanimi}}) baxımı {{tarih}} tarixinə yeniləndi.",
   "digerGiderler": "Digər xərclər",
   "oncelik": "Prioritet",
   "atananPersonel": "Təyin edilmiş personal",
