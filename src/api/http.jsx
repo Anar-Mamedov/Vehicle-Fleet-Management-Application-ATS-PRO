@@ -1,4 +1,5 @@
 import axios from "axios";
+import i18next from "i18next";
 import { clearAuthStorage, getItemWithExpiration, setAuthTokens } from "../utils/expireToken";
 
 const AUTH_REFRESH_URL = "/Auth/RefreshToken";
@@ -24,6 +25,17 @@ const getAuthValue = (data, keys) => {
 };
 
 const getClientIdentifier = () => localStorage.getItem("companyKey");
+
+// Backend mesajlarını kullanıcının arayüz dilinde (tr, en, ru, az) döndürebilsin diye her istekte gönderilir.
+// Dil istek anında okunur, dil değişince sonraki istek yeni dille gider. Accept-Language CORS'ta güvenli
+// listedeki başlıklardandır; backend'de ek CORS izni gerektirmez.
+export const setLanguageHeader = (config) => {
+  const language = i18next.resolvedLanguage || i18next.language;
+
+  if (language) {
+    config.headers["Accept-Language"] = language;
+  }
+};
 
 const redirectToLogin = () => {
   clearAuthStorage();
@@ -77,6 +89,8 @@ AxiosInstance.interceptors.request.use((config) => {
   if (clientIdentifier) {
     config.headers.clientIdentifier = clientIdentifier;
   }
+
+  setLanguageHeader(config);
 
   // Redirect to home if user has an authenticated session and tries to access login page
   if (hasSession && window.location.pathname === "/login") {

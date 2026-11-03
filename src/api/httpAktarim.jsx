@@ -1,5 +1,5 @@
 import axios from "axios";
-import { handleUnauthorizedResponse } from "./http";
+import { handleUnauthorizedResponse, setLanguageHeader } from "./http";
 
 const httpAktarim = axios.create({
   baseURL: import.meta.env.VITE_AKTARIM_BASE_URL,
@@ -15,6 +15,8 @@ httpAktarim.interceptors.request.use((config) => {
   if (clientIdentifier) {
     config.headers.clientIdentifier = clientIdentifier;
   }
+
+  setLanguageHeader(config);
 
   return config;
 });
