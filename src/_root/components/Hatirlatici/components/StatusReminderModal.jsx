@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Modal, Table, Input, Button, message } from "antd";
 import { FileExcelOutlined } from "@ant-design/icons";
 import { t } from "i18next";
@@ -7,6 +7,8 @@ import * as XLSX from "xlsx";
 import AxiosInstance from "../../../../api/http";
 import FormattedDate from "../../FormattedDate";
 import { formatNumberWithLocale } from "../../../../hooks/FormattedNumber";
+import ReminderRecordUpdate from "./ReminderRecordUpdate";
+import { canOpenReminderRecord } from "./reminderRecordScreens";
 
 const reminderGroupKeyMap = {
   onayislemleri: "onayIslemleri",
@@ -78,10 +80,21 @@ const dateSort = (field) => (a, b) => {
   return dayjs(valA).unix() - dayjs(valB).unix();
 };
 
+const mapReminderList = (responseData) => {
+  const list = Array.isArray(responseData) ? responseData : responseData?.list || [];
+  return list.map((item, i) => ({
+    ...item,
+    ilgiliKayit: item.ilgiliKayit ?? item.nesne ?? "",
+    sonTarih: item.sonTarih ?? item.tarih ?? null,
+    _uid: i,
+  }));
+};
+
 const StatusReminderModal = ({ open, title, durum, onClose }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   useEffect(() => {
     if (!open || !durum) return;
@@ -90,19 +103,12 @@ const StatusReminderModal = ({ open, title, durum, onClose }) => {
     setLoading(true);
     setSearchText("");
     setData([]);
+    setSelectedRecord(null);
 
     AxiosInstance.get(`Reminder/GetRemindersByStatus?durum=${durum}`)
       .then((response) => {
         if (cancelled) return;
-        const list = Array.isArray(response.data) ? response.data : response.data?.list || [];
-        setData(
-          list.map((item, i) => ({
-            ...item,
-            ilgiliKayit: item.ilgiliKayit ?? item.nesne ?? "",
-            sonTarih: item.sonTarih ?? item.tarih ?? null,
-            _uid: i,
-          }))
-        );
+        setData(mapReminderList(response.data));
       })
       .catch((error) => {
         if (cancelled) return;
@@ -118,6 +124,18 @@ const StatusReminderModal = ({ open, title, durum, onClose }) => {
     };
   }, [open, durum]);
 
+  // Güncellemeden sonra liste yerinde yenilenir: arama ve tablo sayfası korunur, kayıt artık bu durumda
+  // değilse listeden düşer.
+  const refreshReminders = useCallback(() => {
+    setLoading(true);
+    AxiosInstance.get(`Reminder/GetRemindersByStatus?durum=${durum}`)
+      .then((response) => setData(mapReminderList(response.data)))
+      .catch(() => message.error(t("hatirlaticiListesiYenilenemedi")))
+      .finally(() => setLoading(false));
+  }, [durum]);
+
+  const closeRecordUpdate = useCallback(() => setSelectedRecord(null), []);
+
   const filteredData = data.filter((item) => {
     if (!searchText?.trim()) return true;
     const keyword = searchText.trim().toLocaleLowerCase("tr");
@@ -126,7 +144,22 @@ const StatusReminderModal = ({ open, title, durum, onClose }) => {
   });
 
   const columns = [
-    { title: t("ilgiliKayit"), dataIndex: "ilgiliKayit", key: "ilgiliKayit", width: 150, ellipsis: true, sorter: strSort("ilgiliKayit") },
+    {
+      title: t("ilgiliKayit"),
+      dataIndex: "ilgiliKayit",
+      key: "ilgiliKayit",
+      width: 150,
+      ellipsis: true,
+      sorter: strSort("ilgiliKayit"),
+      render: (text, record) =>
+        canOpenReminderRecord(record) ? (
+          <a role="link" tabIndex={0} onClick={() => setSelectedRecord(record)} onKeyDown={(e) => e.key === "Enter" && setSelectedRecord(record)}>
+            {text}
+          </a>
+        ) : (
+          text
+        ),
+    },
     {
       title: t("grup"),
       dataIndex: "grup",
@@ -208,6 +241,7 @@ const StatusReminderModal = ({ open, title, durum, onClose }) => {
       onCancel={() => {
         setData([]);
         setSearchText("");
+        setSelectedRecord(null);
         onClose?.();
       }}
       footer={null}
@@ -244,6 +278,7 @@ const StatusReminderModal = ({ open, title, durum, onClose }) => {
         }}
         size="small"
       />
+      {selectedRecord && <ReminderRecordUpdate record={selectedRecord} onClose={closeRecordUpdate} onUpdated={refreshReminders} />}
     </Modal>
   );
 };

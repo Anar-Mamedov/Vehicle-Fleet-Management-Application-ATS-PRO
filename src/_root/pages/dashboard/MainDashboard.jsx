@@ -35,6 +35,9 @@ import IsTalebiTipleri from "./components/IsTalebiTipleri.jsx";
 import ServisIslemleriDurumlari from "./components/ServisIslemleriDurumlari.jsx";
 import MarkaBazindaBakimMaliyetleri from "./components/MarkaBazindaBakimMaliyetleri.jsx";
 import { createRoot } from "react-dom/client";
+import { SelectProvider } from "../../../context/selectSlice.jsx";
+import { FuelTankProvider } from "../../../context/fuelTankSlice.jsx";
+import { PlakaProvider } from "../../../context/plakaSlice.jsx";
 
 import "./custom-gridstack.css"; // Add this line to import your custom CSS
 
@@ -289,13 +292,21 @@ function MainDashboard() {
             );
             break;
           case "widget6":
+            // Widget ayrı bir React kökünde render edildiği için main.jsx'teki context'leri görmez. Hatırlatıcı
+            // listesinden açılan güncelleme ekranları (araç kartı, sigorta, ceza...) bu context'leri kullanır.
             root.render(
               <FormProvider {...methods}>
                 <I18nextProvider i18n={i18n}>
                   <ConfigProvider locale={trTR}>
-                    <BrowserRouter>
-                      <Component6 />
-                    </BrowserRouter>
+                    <SelectProvider>
+                      <FuelTankProvider>
+                        <PlakaProvider>
+                          <BrowserRouter>
+                            <Component6 />
+                          </BrowserRouter>
+                        </PlakaProvider>
+                      </FuelTankProvider>
+                    </SelectProvider>
                   </ConfigProvider>
                 </I18nextProvider>
               </FormProvider>

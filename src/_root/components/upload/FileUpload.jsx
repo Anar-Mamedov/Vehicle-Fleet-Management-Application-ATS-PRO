@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { DownloadDocumentByIdService } from "../../../api/services/upload/services";
+import { t } from "i18next";
+import { openDocument } from "../../../utils/documentFile";
 import { InboxOutlined, FileOutlined, LoadingOutlined } from "@ant-design/icons";
 import { Button, message, Spin, Upload } from "antd";
 
@@ -28,29 +29,7 @@ const FileUpload = ({ filesUrl, loadingFiles, setFiles, uploadFinished, setUploa
   };
 
   const downloadFile = (file) => {
-    const data = {
-      fileId: file.tbDosyaId,
-      extension: file.dosyaUzanti,
-      fileName: file.dosyaAd,
-    };
-
-    DownloadDocumentByIdService(data)
-      .then((res) => {
-        const isPdf = file.dosyaUzanti?.toLowerCase() === ".pdf" || file.dosyaAd?.toLowerCase().endsWith(".pdf");
-        if (isPdf) {
-          const blobUrl = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
-          window.open(blobUrl, "_blank");
-        } else {
-          const link = document.createElement("a");
-          link.href = window.URL.createObjectURL(res.data);
-          link.download = file.dosyaAd;
-          link.click();
-          window.URL.revokeObjectURL(link.href);
-        }
-      })
-      .catch((err) => {
-        console.error("Error downloading file:", err);
-      });
+    openDocument(file).catch(() => message.error(t("dosyaIndirilemedi")));
   };
 
   // Custom loading icon

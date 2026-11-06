@@ -1446,6 +1446,8 @@
   "dokumanYonetimi": "Document Management",
   "dokumanHatirlatici": "Documents",
   "dokumanHatirlaticiListesiAlinamadi": "The document reminder list could not be retrieved.",
+  "hatirlaticiListesiYenilenemedi": "The reminder list could not be refreshed.",
+  "dosyaIndirilemedi": "An error occurred while downloading the file.",
   "dokumanYonetimiAciklama": "View and search documents linked to all modules from a single screen.",
   "dokumanAramaPlaceholder": "Search file name, document number, or record number...",
   "dokumanListesiAlinamadi": "The document list could not be retrieved.",

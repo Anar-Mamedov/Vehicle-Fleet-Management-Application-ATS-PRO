@@ -475,6 +475,8 @@
   "dokumanYonetimi": "Управление документами",
   "dokumanHatirlatici": "Документы",
   "dokumanHatirlaticiListesiAlinamadi": "Не удалось получить список напоминаний о документах.",
+  "hatirlaticiListesiYenilenemedi": "Не удалось обновить список напоминаний.",
+  "dosyaIndirilemedi": "Произошла ошибка при скачивании файла.",
   "kalan": "Осталось",
   "dokumanYonetimiAciklama": "Просматривайте и ищите документы, связанные со всеми модулями, на одном экране.",
   "dokumanAramaPlaceholder": "Поиск по имени файла, номеру документа или записи...",

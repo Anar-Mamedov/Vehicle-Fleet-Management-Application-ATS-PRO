@@ -944,6 +944,8 @@
   "dokumanYonetimi": "Sənəd İdarəetməsi",
   "dokumanHatirlatici": "Sənədlər",
   "dokumanHatirlaticiListesiAlinamadi": "Sənəd xatırladıcı siyahısını əldə etmək mümkün olmadı.",
+  "hatirlaticiListesiYenilenemedi": "Xatırladıcı siyahısını yeniləmək mümkün olmadı.",
+  "dosyaIndirilemedi": "Fayl endirilərkən xəta baş verdi.",
   "dokumanYonetimiAciklama": "Bütün modullara bağlı sənədlərə bir ekrandan baxın və axtarış edin.",
   "dokumanAramaPlaceholder": "Fayl adı, sənəd nömrəsi və ya qeyd nömrəsi üzrə axtar...",
   "dokumanListesiAlinamadi": "Sənəd siyahısını əldə etmək mümkün olmadı.",

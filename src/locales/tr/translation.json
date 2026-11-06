@@ -1693,6 +1693,8 @@
   "dokumanYonetimi": "Doküman Yönetimi",
   "dokumanHatirlatici": "Dokümanlar",
   "dokumanHatirlaticiListesiAlinamadi": "Doküman hatırlatıcı listesi alınamadı.",
+  "hatirlaticiListesiYenilenemedi": "Hatırlatıcı listesi yenilenemedi.",
+  "dosyaIndirilemedi": "Dosya indirilirken bir hata oluştu.",
   "dokumanYonetimiAciklama": "Tüm modüllere bağlı dokümanları tek ekranda görüntüleyin ve arayın.",
   "dokumanAramaPlaceholder": "Dosya adı, belge no veya kayıt no ara...",
   "dokumanListesiAlinamadi": "Doküman listesi alınamadı.",

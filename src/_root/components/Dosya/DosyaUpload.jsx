@@ -20,6 +20,7 @@ import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import AxiosInstance from "../../../api/http";
+import { downloadDocument, downloadDocumentBlob, getDocumentExtension, openDocument } from "../../../utils/documentFile";
 import { formatDateByLocale } from "../FormattedDate";
 import DocumentDetailModal from "./DocumentDetailModal";
 
@@ -182,29 +183,8 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
   // Form'dan "kapali" değerini izliyoruz
   const kapali = watch("kapali");
 
-  const normalizeExtension = (extension) => {
-    if (!extension) return "";
-    const trimmed = String(extension).trim().toLowerCase();
-    if (!trimmed) return "";
-    return trimmed.startsWith(".") ? trimmed : `.${trimmed}`;
-  };
-
-  const extractExtensionFromName = (fileName) => {
-    if (!fileName) return "";
-    const lowerName = String(fileName).toLowerCase();
-    const extensionIndex = lowerName.lastIndexOf(".");
-    if (extensionIndex < 0) return "";
-    return lowerName.slice(extensionIndex);
-  };
-
-  const getFileExtension = (file) => {
-    const extensionFromField = normalizeExtension(file?.dosyaUzanti);
-    if (extensionFromField) return extensionFromField;
-    return extractExtensionFromName(file?.dosyaAd);
-  };
-
   const getDocumentVisual = (file) => {
-    const extension = getFileExtension(file);
+    const extension = getDocumentExtension(file);
     return DOCUMENT_VISUALS.find((visual) => visual.extensions.includes(extension)) || { icon: FileOutlined, color: "#6269b0" };
   };
 
@@ -262,10 +242,8 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
     };
   };
 
-  const isPdfFile = (file) => getFileExtension(file) === ".pdf";
-
   const isImageFile = (file) => {
-    const extension = getFileExtension(file);
+    const extension = getDocumentExtension(file);
     return IMAGE_EXTENSIONS.includes(extension);
   };
 
@@ -285,20 +263,12 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
     try {
       const previews = await Promise.all(
         imageFiles.map(async (file) => {
-          const body = {
-            fileId: file.tbDosyaId,
-            extension: file.dosyaUzanti,
-            fileName: file.dosyaAd,
-          };
-
-          const response = await AxiosInstance.post("Document/DownloadDocumentById", body, {
-            responseType: "blob",
-          });
+          const imageBlob = await downloadDocumentBlob(file);
 
           return {
             tbDosyaId: file.tbDosyaId,
             dosyaAd: file.dosyaAd,
-            url: URL.createObjectURL(response.data),
+            url: URL.createObjectURL(imageBlob),
           };
         })
       );
@@ -342,54 +312,10 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
     };
   }, []);
 
-  const downloadDocumentBlob = async (file) => {
-    const extension = getFileExtension(file);
-    const requestBodies = [{ fileId: file.tbDosyaId, extension, fileName: file.dosyaAd }, { fileId: file.tbDosyaId, extension }, { fileId: file.tbDosyaId }];
-    let lastError = null;
+  const showDownloadError = () => message.error(t("dosyaIndirilemedi"));
 
-    for (const body of requestBodies) {
-      try {
-        const response = await AxiosInstance.post("Document/DownloadDocumentById", body, {
-          responseType: "blob",
-        });
-        return response.data;
-      } catch (error) {
-        lastError = error;
-      }
-    }
-
-    throw lastError;
-  };
-
-  // 3) Dosyayı indirme/açma fonksiyonu
-  const handleDownloadFile = async (file, pdfWindow = null, forceDownload = false) => {
-    try {
-      const fileBlob = await downloadDocumentBlob(file);
-      if (isPdfFile(file) && !forceDownload) {
-        const blobUrl = URL.createObjectURL(new Blob([fileBlob], { type: "application/pdf" }));
-        if (pdfWindow && !pdfWindow.closed) {
-          pdfWindow.location.href = blobUrl;
-        } else {
-          window.open(blobUrl, "_blank");
-        }
-      } else {
-        const downloadURL = URL.createObjectURL(fileBlob);
-        const link = document.createElement("a");
-        link.href = downloadURL;
-        link.setAttribute("download", file.dosyaAd);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(downloadURL);
-      }
-    } catch (error) {
-      if (pdfWindow && !pdfWindow.closed) {
-        pdfWindow.close();
-      }
-      console.error("Dosya indirme hatası:", error);
-      message.error("Dosya indirilirken bir hata oluştu.");
-    }
-  };
+  // 3) Dosyayı indirme/açma fonksiyonları
+  const handleDownloadFile = (file) => downloadDocument(file).catch(showDownloadError);
 
   const handleFileClick = (file) => {
     if (isImageFile(file) && imagePreviews.length > 0) {
@@ -401,13 +327,7 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
       }
     }
 
-    if (isPdfFile(file)) {
-      const pdfWindow = window.open("about:blank", "_blank");
-      handleDownloadFile(file, pdfWindow);
-      return;
-    }
-
-    handleDownloadFile(file);
+    openDocument(file).catch(showDownloadError);
   };
 
   // 4) Dosya silme fonksiyonu
@@ -454,7 +374,7 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
     }
 
     if (key === "download") {
-      handleDownloadFile(file, null, true);
+      handleDownloadFile(file);
       return;
     }
 
@@ -639,7 +559,7 @@ const DosyaUpload = ({ selectedRowID, setDosyaUploaded, setFileCount, refGroup }
         visual={detailFile ? getDocumentVisual(detailFile) : null}
         onClose={closeDetailModal}
         onPreview={handleFileClick}
-        onDownload={(file) => handleDownloadFile(file, null, true)}
+        onDownload={handleDownloadFile}
         onUpdated={fetchDosyaIds}
       />
     </div>
