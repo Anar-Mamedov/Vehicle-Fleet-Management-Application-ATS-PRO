@@ -193,7 +193,7 @@ const ArizaBildirimi = () => {
           currentSetPointId = data[0]?.siraNo || 0;
         }
 
-        const response = await AxiosInstance.get(
+        const response = await AxiosInstance.post(
           `RequestNotification/GetRequestList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}&talepTur=ariza`,
           customfilterOverride || body.filters?.customfilter || {}
         );

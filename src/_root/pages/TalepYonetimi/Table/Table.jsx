@@ -184,7 +184,7 @@ const TalepYonetimi = () => {
           currentSetPointId = data[0]?.siraNo || 0;
         }
 
-        const response = await AxiosInstance.get(
+        const response = await AxiosInstance.post(
           `RequestNotification/GetRequestList?diff=${diff}&setPointId=${currentSetPointId}&parameter=${searchTerm}`,
           customfilterOverride || body.filters?.customfilter || {}
         );
