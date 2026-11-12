@@ -7,6 +7,7 @@ import { t } from "i18next";
 import PlakaSelectBox from "../../../../../../../_root/components/PlakaSelectbox";
 import LokasyonTablo from "../../../../../../components/form/LokasyonTable";
 import ModalInput from "../../../../../../components/form/inputs/ModalInput";
+import NumberInput from "../../../../../../components/form/inputs/NumberInput";
 import PhotoUploadInsert from "../../../../../../../_root/components/upload/PhotoUploadInsert";
 
 const { Text } = Typography;
@@ -134,6 +135,16 @@ export default function MainTabs({ modalOpen }) {
             </Text>
           </div>
           <PlakaSelectBox name1="plaka" isRequired={true} style={{ width: "100%" }} inputWidth="100%" />
+        </Col>
+
+        {/* Km */}
+        <Col xs={24} md={12}>
+          <div style={{ marginBottom: "5px" }}>
+            <Text style={{ fontWeight: 600 }}>
+              {t("aracKm")} <span style={{ color: "red" }}>*</span>
+            </Text>
+          </div>
+          <NumberInput name="km" required min={0} />
         </Col>
 
         {/* Açıklama */}

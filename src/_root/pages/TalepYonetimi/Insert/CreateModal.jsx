@@ -23,6 +23,7 @@ export default function CreateModal({ onRefresh }) {
       plakaID: null,
       lokasyon: null,
       lokasyonID: null,
+      km: null,
       aciklama: "",
       files: [],
     },
@@ -95,6 +96,7 @@ export default function CreateModal({ onRefresh }) {
       talepTur: data.talepTur, // Kullanıcı seçimi (ariza, lastik, vb.)
       talepEdenId: Number(localStorage.getItem("id")),
       isDriver: false,
+      km: data.km || 0,
     };
 
     AxiosInstance.post("RequestNotification/AddRequestItem", Body)

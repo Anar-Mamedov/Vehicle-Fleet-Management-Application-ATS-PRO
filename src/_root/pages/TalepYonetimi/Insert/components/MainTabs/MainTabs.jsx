@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Select, DatePicker, Typography, Row, Col } from "antd";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { t } from "i18next";
 import PlakaSelectBox from "../../../../../components/PlakaSelectbox";
 import LokasyonTablo from "../../../../../components/form/LokasyonTable";
 import ModalInput from "../../../../../components/form/inputs/ModalInput";
+import NumberInput from "../../../../../components/form/inputs/NumberInput";
 import PhotoUploadInsert from "../../../../../components/upload/PhotoUploadInsert";
 
 const { Text } = Typography;
@@ -15,10 +16,21 @@ export default function MainTabs() {
   const {
     control,
     setValue,
+    clearErrors,
     formState: { errors },
   } = useFormContext();
 
   const [isLokasyonModalOpen, setIsLokasyonModalOpen] = useState(false);
+
+  // Km yalnızca bir araç seçildiğinde zorunlu; araçsız taleplerde istenmez.
+  const plakaID = useWatch({ control, name: "plakaID" });
+  const isKmRequired = Boolean(plakaID);
+
+  useEffect(() => {
+    if (!isKmRequired) {
+      clearErrors("km");
+    }
+  }, [isKmRequired, clearErrors]);
 
   const handleYeniLokasyonPlusClick = () => {
     setIsLokasyonModalOpen(true);
@@ -126,6 +138,16 @@ export default function MainTabs() {
             <Text style={{ fontWeight: 600 }}>{t("aracPlaka")}</Text>
           </div>
           <PlakaSelectBox name1="plaka" isRequired={false} style={{ width: "100%" }} inputWidth="100%" />
+        </Col>
+
+        {/* Km */}
+        <Col xs={24} md={12}>
+          <div style={{ marginBottom: "5px" }}>
+            <Text style={{ fontWeight: 600 }}>
+              {t("aracKm")} {isKmRequired && <span style={{ color: "red" }}>*</span>}
+            </Text>
+          </div>
+          <NumberInput name="km" required={isKmRequired} min={0} />
         </Col>
 
         {/* Açıklama */}

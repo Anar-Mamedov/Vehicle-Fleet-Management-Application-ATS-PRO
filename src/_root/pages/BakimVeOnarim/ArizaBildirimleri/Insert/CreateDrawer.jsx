@@ -23,6 +23,7 @@ export default function CreateDrawer({ onRefresh }) {
       lokasyon: null,
       lokasyonID: null,
       talepOncelik: "Orta",
+      km: null,
       aciklama: "",
       files: [],
       // Other fields can be null
@@ -106,6 +107,7 @@ export default function CreateDrawer({ onRefresh }) {
       talepTur: "ariza",
       talepEdenId: Number(localStorage.getItem("id")),
       isDriver: false,
+      km: data.km || 0,
     };
 
     AxiosInstance.post("RequestNotification/AddRequestItem", Body)
