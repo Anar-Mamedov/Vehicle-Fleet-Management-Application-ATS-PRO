@@ -28,7 +28,7 @@ const buildIsKartiBody = (isId, kart, tarihler) => ({
 
 // İş durumunu değiştirir. Durum servisi tarih yazmadığı için eksik başlama/bitiş zamanı önce iş kartına kaydedilir.
 // Dönen değer durum servisinin (veya başarısız olduysa tarih güncellemesinin) yanıtıdır.
-export const updateIsDurumu = async (isId, status) => {
+export const updateIsDurumu = async (isId, status, aciklama = "") => {
   const kartResponse = await GetServiceWorkCardByIdService(isId);
   const kart = kartResponse?.data?.status === false ? null : kartResponse?.data;
   const eksikTarihler = kart ? getEksikTarihler(kart, status) : null;
@@ -38,5 +38,5 @@ export const updateIsDurumu = async (isId, status) => {
     if (!isSuccessResponse(tarihResponse)) return tarihResponse;
   }
 
-  return UpdateServiceWorkCardStatusService(isId, status);
+  return UpdateServiceWorkCardStatusService(isId, status, aciklama);
 };

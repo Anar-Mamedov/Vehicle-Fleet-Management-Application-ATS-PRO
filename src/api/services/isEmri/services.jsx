@@ -61,9 +61,9 @@ export const UpdateServiceWorkCardService = async (data) => {
   return await http.post(`/ServiceWorkCard/UpdateServiceWorkCard`, data);
 };
 
-// Atanan işin durumu: 2 Devam Ediyor, 3 Durdu, 4 Yeniden Başladı, 5 Tamamlandı
-export const UpdateServiceWorkCardStatusService = async (id, status) => {
-  return await http.get(`/ServiceWorkCard/UpdateServiceWorkCardStatus?id=${id}&status=${status}`);
+// Atanan işin durumu: 2 Devam Ediyor, 3 Durdu, 4 Yeniden Başladı, 5 Tamamlandı; id, status ve aciklama POST gövdesinde gider
+export const UpdateServiceWorkCardStatusService = async (id, status, aciklama = "") => {
+  return await http.post(`/ServiceWorkCard/UpdateServiceWorkCardStatus`, { id, status, aciklama });
 };
 
 // Kademe İş Takip Paneli: tüm iş kartları; filtreler POST gövdesinde, sayfalama ve pageSize query'de gider
