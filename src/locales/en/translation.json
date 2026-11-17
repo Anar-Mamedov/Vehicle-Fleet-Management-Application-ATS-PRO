@@ -1959,5 +1959,7 @@
   "isEmriniYenidenAc": "Reopen Work Order",
   "kapanisTarihiSaati": "Closing Date / Time",
   "durumIslemiAciklamaPlaceholder": "If left empty, a description is added automatically",
-  "seciliIsEmirleri": "Selected work orders"
+  "seciliIsEmirleri": "Selected work orders",
+  "isTamamlamaOnayi": "Work Completion Approval",
+  "malzemeTalepOnayi": "Material Request Approval"
 }

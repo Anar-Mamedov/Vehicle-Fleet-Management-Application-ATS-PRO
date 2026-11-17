@@ -1528,5 +1528,7 @@
   "isEmriniYenidenAc": "İş əmrini yenidən aç",
   "kapanisTarihiSaati": "Bağlanma tarixi / saatı",
   "durumIslemiAciklamaPlaceholder": "Boş buraxılarsa, izahat avtomatik yazılır",
-  "seciliIsEmirleri": "Seçilmiş iş əmrləri"
+  "seciliIsEmirleri": "Seçilmiş iş əmrləri",
+  "isTamamlamaOnayi": "İşin Tamamlanması Təsdiqi",
+  "malzemeTalepOnayi": "Material Tələbi Təsdiqi"
 }

@@ -1115,5 +1115,7 @@
   "isEmriniYenidenAc": "Открыть наряд повторно",
   "kapanisTarihiSaati": "Дата / время закрытия",
   "durumIslemiAciklamaPlaceholder": "Если оставить пустым, описание будет добавлено автоматически",
-  "seciliIsEmirleri": "Выбранные наряды"
+  "seciliIsEmirleri": "Выбранные наряды",
+  "isTamamlamaOnayi": "Утверждение завершения работ",
+  "malzemeTalepOnayi": "Утверждение заявки на материалы"
 }
