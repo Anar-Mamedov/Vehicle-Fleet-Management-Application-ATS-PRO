@@ -18,7 +18,7 @@ import AtananIsSelectbox from "../../../../components/AtananIsSelectbox";
 import MalzemeTablo from "../../../../components/MalzemeTablo";
 import FormField from "../../KademeTanimlari/components/FormField";
 import { hintStyle, sectionTitleStyle } from "../../KademeTanimlari/components/uiStyles";
-import { MALZEME_BIRIM_KOD_ID, MALZEME_TALEP_KOD_TABLE_NAME, MALZEME_TALEP_NEDEN_KOD_ID, isSuccessResponse, toNullable } from "../constants";
+import { MALZEME_BIRIM_KOD_ID, MALZEME_TALEP_KOD_TABLE_NAME, MALZEME_TALEP_NEDEN_KOD_ID, isIsKartiKapali, isSuccessResponse, toNullable } from "../constants";
 
 const ACIKLAMA_MAKSIMUM_UZUNLUK = 500;
 
@@ -105,6 +105,13 @@ const MalzemeTalepEtModal = ({ open, isEmriId, aracId, kademeId, isId = 0, isTan
     return kodKontrol?.data?.status ? null : talepNo;
   };
 
+  // Tamamlanan veya iptal edilen işe malzeme talep edilemez; ilgili iş listesi tüm işleri gösterdiği için kayıtta denetlenir
+  const isIlgiliIsKapali = async (ilgiliIsId) => {
+    if (!ilgiliIsId) return false;
+    const response = await GetServiceWorkCardByIdService(ilgiliIsId);
+    return response?.data?.status !== false && isIsKartiKapali(response?.data?.durum);
+  };
+
   const onSubmit = handleSubmit(async (values) => {
     if (!(Number(values.talepMiktar) > 0)) {
       message.warning(t("talepMiktariSifirdanBuyukOlmali"));
@@ -113,6 +120,11 @@ const MalzemeTalepEtModal = ({ open, isEmriId, aracId, kademeId, isId = 0, isTan
 
     setSaving(true);
     try {
+      if (await isIlgiliIsKapali(values.ilgiliIsID)) {
+        message.warning(t("isKartiKapaliIslemYapilamaz"));
+        return;
+      }
+
       const talepNo = await getTalepNo();
       if (!talepNo) {
         message.error(t("talepNoAlinamadi"));

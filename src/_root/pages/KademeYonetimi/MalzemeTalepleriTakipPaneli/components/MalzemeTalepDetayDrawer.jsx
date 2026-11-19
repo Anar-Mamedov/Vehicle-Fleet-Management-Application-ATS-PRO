@@ -9,7 +9,7 @@ import { formatDateByLocale } from "../../../../components/FormattedDate";
 import { cardStyle, hintStyle, sectionTitleStyle } from "../../KademeTanimlari/components/uiStyles";
 import DurumTag from "../../KademeIsEmirleri/components/DurumTag";
 import PersonelBilgisi from "../../components/PersonelBilgisi";
-import { MALZEME_TALEP_DURUM, formatTarihSaatDegeri, getMalzemeTalepDurumTanimi } from "../../KademeIsEmirleri/constants";
+import { formatTarihSaatDegeri, getMalzemeTalepDurumTanimi, isMalzemeTeslimEdilebilir } from "../../KademeIsEmirleri/constants";
 import { formatMiktar, getKalanMiktar, getKullanimYuzdesi } from "../constants";
 
 const degerStyle = { fontSize: "14px", fontWeight: 600, color: "#141414", lineHeight: "20px", wordBreak: "break-word" };
@@ -28,7 +28,7 @@ Alan.propTypes = {
 };
 
 // Malzeme talebinin salt okunur detayı (GetMaterialRequestItemById); plaka, ünvan ve fotoğraf detayda olmadığı için liste satırından okunur
-const MalzemeTalepDetayDrawer = ({ open, satir, yenilemeAnahtari, onClose, onIsEmriAc, onKullanimaAktar }) => {
+const MalzemeTalepDetayDrawer = ({ open, satir, yenilemeAnahtari, onClose, onIsEmriAc, onTeslimEt }) => {
   const [loading, setLoading] = useState(false);
   const [talep, setTalep] = useState(null);
   const talepId = satir?.siraNo;
@@ -95,9 +95,9 @@ const MalzemeTalepDetayDrawer = ({ open, satir, yenilemeAnahtari, onClose, onIsE
       <Button className="btn btn-min cancel-btn" onClick={closeDrawer}>
         {t("kapat")}
       </Button>
-      {satir && durum !== MALZEME_TALEP_DURUM.TAMAMLANDI && (
-        <Button className="btn btn-min primary-btn" onClick={() => onKullanimaAktar(satir)}>
-          {t("kullanimaAktar")}
+      {satir && isMalzemeTeslimEdilebilir(durum) && (
+        <Button className="btn btn-min primary-btn" onClick={() => onTeslimEt(satir)}>
+          {t("teslimEt")}
         </Button>
       )}
     </div>
@@ -151,10 +151,10 @@ const MalzemeTalepDetayDrawer = ({ open, satir, yenilemeAnahtari, onClose, onIsE
             {kayit.malzemeTanim}
           </Alan>
           <Alan label={t("talepMiktari")}>{formatMiktar(kayit.talepMiktar, kayit.malzemeBirim)}</Alan>
-          <Alan label={t("kullanilanMiktar")}>{formatMiktar(kayit.kullanilanMiktar, kayit.malzemeBirim)}</Alan>
-          <Alan label={t("kalanMiktar")}>{formatMiktar(getKalanMiktar(kayit.talepMiktar, kayit.kullanilanMiktar), kayit.malzemeBirim)}</Alan>
+          <Alan label={t("teslimEdilenMiktar")}>{formatMiktar(kayit.kullanilanMiktar, kayit.malzemeBirim)}</Alan>
+          <Alan label={t("teslimBekleyenMiktar")}>{formatMiktar(getKalanMiktar(kayit.talepMiktar, kayit.kullanilanMiktar), kayit.malzemeBirim)}</Alan>
           <div className="col-span-12 flex flex-col" style={{ gap: "2px" }}>
-            <span style={hintStyle}>{t("kullanimaAktarimIlerlemesi")}</span>
+            <span style={hintStyle}>{t("teslimIlerlemesi")}</span>
             <Progress percent={kullanimYuzdesi} size="small" strokeColor="#16a34a" />
           </div>
         </div>
@@ -175,7 +175,7 @@ MalzemeTalepDetayDrawer.propTypes = {
   yenilemeAnahtari: PropTypes.number,
   onClose: PropTypes.func.isRequired,
   onIsEmriAc: PropTypes.func.isRequired,
-  onKullanimaAktar: PropTypes.func.isRequired,
+  onTeslimEt: PropTypes.func.isRequired,
 };
 
 export default MalzemeTalepDetayDrawer;

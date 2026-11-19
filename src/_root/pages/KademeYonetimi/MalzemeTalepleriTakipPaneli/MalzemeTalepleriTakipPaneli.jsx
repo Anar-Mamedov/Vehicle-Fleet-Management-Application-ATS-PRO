@@ -30,10 +30,20 @@ import MultiSelectInput from "../../../components/form/selects/MultiSelectInput"
 import KademeSelectbox from "../../../components/KademeSelectbox";
 import PersonelMultiSelectbox from "../../../components/PersonelMultiSelectbox";
 import { GetMaterialRequestListService, GetMaterialRequestStatisticsByTypeService, GetVehicleServiceByIdService } from "../../../../api/services/isEmri/services";
-import { MALZEME_TALEP_DURUM, TUMU, getMalzemeTalepDurumTanimi, getSureOptions, getSureTarihSaatAraligi, toNullableId } from "../KademeIsEmirleri/constants";
+import {
+  MALZEME_TALEP_DURUM,
+  TUMU,
+  getMalzemeTalepDurumTanimi,
+  getSureOptions,
+  getSureTarihSaatAraligi,
+  isIsEmriIsIslemleriKilitli,
+  isMalzemeTalebiAcik,
+  isMalzemeTeslimEdilebilir,
+  toNullableId,
+} from "../KademeIsEmirleri/constants";
 import DurumTag from "../KademeIsEmirleri/components/DurumTag";
 import UpdateModal from "../KademeIsEmirleri/update/UpdateModal";
-import KullanimaAktarModal from "../KademeIsEmirleri/malzemeTalepleri/KullanimaAktarModal";
+import MalzemeTeslimEtModal from "../KademeIsEmirleri/malzemeTalepleri/MalzemeTeslimEtModal";
 import TakipPaneliStatisticsCards from "../components/TakipPaneliStatisticsCards";
 import PersonelBilgisi from "../components/PersonelBilgisi";
 import { cerceveButonStyle, getDolguButonStyle, menuButonStyle } from "../components/islemButonStyles";
@@ -51,18 +61,18 @@ const COLUMN_ORDER_STORAGE_KEY = "columnOrderMalzemeTalepleriTakipPaneli";
 const COLUMN_VISIBILITY_STORAGE_KEY = "columnVisibilityMalzemeTalepleriTakipPaneli";
 const COLUMN_WIDTHS_STORAGE_KEY = "columnWidthsMalzemeTalepleriTakipPaneli";
 
-// Panel tarih sınırı olmadan, devam eden (tamamlanmamış) taleplerle açılır
+// Panel tarih sınırı olmadan, açık (teslimi tamamlanmamış ve reddedilmemiş) taleplerle açılır
 const DEFAULT_FILTER_VALUES = {
   sureFiltre: TUMU,
   personelFiltre: [],
   personelFiltreID: [],
   kademeFiltre: [],
   kademeFiltreID: [],
-  durumFiltre: [MALZEME_TALEP_DURUM.BEKLIYOR, MALZEME_TALEP_DURUM.KISMI_KARSILANDI],
+  durumFiltre: Object.values(MALZEME_TALEP_DURUM).filter(isMalzemeTalebiAcik),
 };
 
 const ICON_STYLE = { fontSize: 22, color: "#6b7a8a" };
-const KULLANIMA_AKTAR_RENGI = "#0f8a6c";
+const TESLIM_ET_RENGI = "#0f8a6c";
 const altSatirStyle = { fontSize: "12px", color: "#8c8c8c" };
 
 const StyledButton = styled(Button)`
@@ -178,12 +188,12 @@ const MalzemeTalepleriTakipPaneli = () => {
   const [gorunum, setGorunum] = useState(() => getStoredGorunum(GORUNUM_STORAGE_KEY));
   const [statisticsRequest, setStatisticsRequest] = useState(() => ({ searchTerm: "", filters: buildFilters(DEFAULT_FILTER_VALUES), requestId: 0 }));
   const [detay, setDetay] = useState({ open: false, satir: null });
-  // Kullanıma aktarımdan sonra açık detay yeniden okunur
+  // Teslimden sonra açık detay yeniden okunur
   const [detayYenilemeAnahtari, setDetayYenilemeAnahtari] = useState(0);
   const [isEmriModal, setIsEmriModal] = useState({ open: false, record: null });
-  // Kullanıma aktarım için iş emri detayı okunan satırın siraNo'su; o satırın düğmesi yükleniyor görünür
-  const [kullanimaAktarAcilanId, setKullanimaAktarAcilanId] = useState(null);
-  const [kullanimaAktar, setKullanimaAktar] = useState(null);
+  // Teslim için iş emri detayı okunan satırın siraNo'su; o satırın düğmesi yükleniyor görünür
+  const [teslimAcilanId, setTeslimAcilanId] = useState(null);
+  const [teslimEt, setTeslimEt] = useState(null);
 
   const methods = useForm({ defaultValues: DEFAULT_FILTER_VALUES });
   const { getValues, setValue } = methods;
@@ -293,7 +303,7 @@ const MalzemeTalepleriTakipPaneli = () => {
     refreshStatistics();
   }, [fetchData, refreshStatistics]);
 
-  const handleKullanimaAktarildi = () => {
+  const handleTeslimEdildi = () => {
     refreshCurrentPageData();
     setDetayYenilemeAnahtari((prev) => prev + 1);
   };
@@ -306,16 +316,21 @@ const MalzemeTalepleriTakipPaneli = () => {
     setIsEmriModal({ open: true, record: { siraNo: satir.servisSiraNo, servisNo: satir.servisNo } });
   };
 
-  // Kullanıma aktarımda malzeme hareketi iş emrinin aracına yazılır; araç liste yanıtında olmadığı için iş emri detayından okunur
-  const openKullanimaAktar = async (satir) => {
-    setKullanimaAktarAcilanId(satir.siraNo);
+  // Teslimde malzeme hareketi iş emrinin aracına yazılır; araç liste yanıtında olmadığı için iş emri detayından okunur.
+  // İptal edilen, tamamlanan veya kapatılan iş emrinde teslim yapılamaz; bağlı işin kilidini teslim modalı denetler.
+  const openTeslimEt = async (satir) => {
+    setTeslimAcilanId(satir.siraNo);
     try {
       const servisResponse = await GetVehicleServiceByIdService(satir.servisSiraNo);
-      setKullanimaAktar({ isEmriId: satir.servisSiraNo, aracId: toNullableId(servisResponse?.data?.aracId), talepId: satir.siraNo });
+      if (isIsEmriIsIslemleriKilitli(servisResponse?.data?.durumBilgisi)) {
+        message.warning(t("isEmriKapaliIslemYapilamaz"));
+        return;
+      }
+      setTeslimEt({ isEmriId: satir.servisSiraNo, aracId: toNullableId(servisResponse?.data?.aracId), talepId: satir.siraNo, durum: satir.durum });
     } catch {
       message.error(t("islemBasarisiz"));
     } finally {
-      setKullanimaAktarAcilanId(null);
+      setTeslimAcilanId(null);
     }
   };
 
@@ -401,7 +416,7 @@ const MalzemeTalepleriTakipPaneli = () => {
       render: (miktar, record) => formatMiktar(miktar, record.malzemeBirim),
     },
     {
-      title: t("kullanilan"),
+      title: t("teslimEdilen"),
       dataIndex: "kullanilanMiktar",
       key: "kullanilanMiktar",
       width: 110,
@@ -440,8 +455,8 @@ const MalzemeTalepleriTakipPaneli = () => {
 
   // Tablo satırı ve kart aynı işlem düğmelerini kullanır
   const renderIslemler = (record) => {
-    const tamamlandi = record.durum === MALZEME_TALEP_DURUM.TAMAMLANDI;
-    const kullanimaAktarAciliyor = kullanimaAktarAcilanId === record.siraNo;
+    const teslimEdilebilir = isMalzemeTeslimEdilebilir(record.durum);
+    const teslimAciliyor = teslimAcilanId === record.siraNo;
 
     const menu = {
       items: [
@@ -456,18 +471,18 @@ const MalzemeTalepleriTakipPaneli = () => {
 
     return (
       <div className="flex" style={{ gap: "8px", alignItems: "center", justifyContent: "flex-end" }}>
-        {tamamlandi ? (
-          <Button style={cerceveButonStyle} onClick={() => openDetay(record)}>
-            {t("detay")}
+        {teslimEdilebilir ? (
+          <Button
+            loading={teslimAciliyor}
+            disabled={!record.servisSiraNo}
+            style={getDolguButonStyle(TESLIM_ET_RENGI, !record.servisSiraNo)}
+            onClick={() => openTeslimEt(record)}
+          >
+            {t("teslimEt")}
           </Button>
         ) : (
-          <Button
-            loading={kullanimaAktarAciliyor}
-            disabled={!record.servisSiraNo}
-            style={getDolguButonStyle(KULLANIMA_AKTAR_RENGI, !record.servisSiraNo)}
-            onClick={() => openKullanimaAktar(record)}
-          >
-            {t("kullanimaAktar")}
+          <Button style={cerceveButonStyle} onClick={() => openDetay(record)}>
+            {t("detay")}
           </Button>
         )}
         <Dropdown menu={menu} trigger={["click"]} placement="bottomRight">
@@ -580,12 +595,23 @@ const MalzemeTalepleriTakipPaneli = () => {
     window.location.reload();
   };
 
-  // Kutuya tıklanınca durum filtresi kutunun durumlarıyla uygulanır (Toplam Talep tüm durumları gösterir)
+  // Kutuya tıklanınca durum filtresi kutunun durumlarıyla uygulanır (Toplam Talep tüm durumları gösterir).
+  // Bekleyen kutusu henüz hiç teslim yapılmamış (onay bekleyen ve onaylanan) talepleri kapsar.
   const statisticCards = [
     { type: MALZEME_TALEP_KPI.TOPLAM_TALEP, title: t("toplamTalep"), icon: <FileTextOutlined style={ICON_STYLE} />, durumIds: [] },
-    { type: MALZEME_TALEP_KPI.BEKLEYEN, title: t("bekleyen"), icon: <ClockCircleOutlined style={ICON_STYLE} />, durumIds: [MALZEME_TALEP_DURUM.BEKLIYOR] },
-    { type: MALZEME_TALEP_KPI.KISMI_KARSILANDI, title: t("kismiKarsilandi"), icon: <PieChartOutlined style={ICON_STYLE} />, durumIds: [MALZEME_TALEP_DURUM.KISMI_KARSILANDI] },
-    { type: MALZEME_TALEP_KPI.TAMAMLANAN, title: t("tamamlanan"), icon: <CheckCircleOutlined style={ICON_STYLE} />, durumIds: [MALZEME_TALEP_DURUM.TAMAMLANDI] },
+    {
+      type: MALZEME_TALEP_KPI.BEKLEYEN,
+      title: t("bekleyen"),
+      icon: <ClockCircleOutlined style={ICON_STYLE} />,
+      durumIds: [MALZEME_TALEP_DURUM.ONAY_BEKLIYOR, MALZEME_TALEP_DURUM.ONAYLANDI],
+    },
+    {
+      type: MALZEME_TALEP_KPI.KISMI_TESLIM_EDILDI,
+      title: t("kismiTeslimEdildi"),
+      icon: <PieChartOutlined style={ICON_STYLE} />,
+      durumIds: [MALZEME_TALEP_DURUM.KISMI_TESLIM_EDILDI],
+    },
+    { type: MALZEME_TALEP_KPI.TESLIM_EDILDI, title: t("teslimEdildi"), icon: <CheckCircleOutlined style={ICON_STYLE} />, durumIds: [MALZEME_TALEP_DURUM.TESLIM_EDILDI] },
   ];
 
   const tableFooter = () => (
@@ -735,18 +761,19 @@ const MalzemeTalepleriTakipPaneli = () => {
         yenilemeAnahtari={detayYenilemeAnahtari}
         onClose={() => setDetay({ open: false, satir: null })}
         onIsEmriAc={openIsEmri}
-        onKullanimaAktar={openKullanimaAktar}
+        onTeslimEt={openTeslimEt}
       />
 
       <UpdateModal selectedRow={isEmriModal.record} open={isEmriModal.open} onClose={() => setIsEmriModal((prev) => ({ ...prev, open: false }))} onRefresh={refreshCurrentPageData} />
 
-      <KullanimaAktarModal
-        open={kullanimaAktar !== null}
-        isEmriId={kullanimaAktar?.isEmriId}
-        aracId={kullanimaAktar?.aracId}
-        talepId={kullanimaAktar?.talepId}
-        onClose={() => setKullanimaAktar(null)}
-        onSaved={handleKullanimaAktarildi}
+      <MalzemeTeslimEtModal
+        open={teslimEt !== null}
+        isEmriId={teslimEt?.isEmriId}
+        aracId={teslimEt?.aracId}
+        talepId={teslimEt?.talepId}
+        durum={teslimEt?.durum}
+        onClose={() => setTeslimEt(null)}
+        onSaved={handleTeslimEdildi}
       />
     </>
   );

@@ -16,12 +16,13 @@ import MalzemeTablo from "../../../../components/MalzemeTablo";
 import FormField from "../../KademeTanimlari/components/FormField";
 import { cardStyle, hintStyle, sectionTitleStyle } from "../../KademeTanimlari/components/uiStyles";
 import DurumTag from "../components/DurumTag";
+import { formatMiktar } from "../../MalzemeTalepleriTakipPaneli/constants";
 import {
   MALZEME_BIRIM_KOD_ID,
-  MALZEME_TALEP_DURUM,
   MALZEME_TALEP_NEDEN_KOD_ID,
   formatTarihSaatDegeri,
   getMalzemeTalepDurumTanimi,
+  isMalzemeTalebiDuzenlenebilir,
   isSuccessResponse,
   toNullable,
   toNullableId,
@@ -92,10 +93,12 @@ OzetAlani.propTypes = {
   children: PropTypes.node,
 };
 
-// Oluşturulmuş malzeme talebini gösterir; talep Bekliyor durumundayken malzeme bilgileri güncellenebilir.
+// Oluşturulmuş malzeme talebini gösterir; talep onaylandıysa veya kısmen teslim edildiyse güncellenebilir
+// (onay bekleyen ve reddedilen talep düzenlenip yeniden onaya gönderilmez, teslim edilen talep değiştirilemez).
+// Teslimi başlamış talepte malzeme ve birim değiştirilemez, talep miktarı teslim edilen miktarın altına inemez.
 // GetById yanıtında durum alanı olmadığı için durum listedeki satırdan verilir.
 // İş emri id'si de yanıttaki servisSiraNo boş gelebildiği için açan sekmeden verilir.
-// readOnly (kapalı/iptal iş emri) talebi durumundan bağımsız olarak yalnızca görüntülenir hale getirir.
+// readOnly (kapalı/iptal iş emri, kapalı iş) talebi durumundan bağımsız olarak yalnızca görüntülenir hale getirir.
 const MalzemeTalepDetayiModal = ({ open, isEmriId, talepId, durum, readOnly = false, onClose, onChange }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -136,7 +139,10 @@ const MalzemeTalepDetayiModal = ({ open, isEmriId, talepId, durum, readOnly = fa
   };
 
   const guncelDurum = talep?.durum ?? durum;
-  const duzenlenebilir = !readOnly && Boolean(talep) && guncelDurum === MALZEME_TALEP_DURUM.BEKLIYOR;
+  const duzenlenebilir = !readOnly && Boolean(talep) && isMalzemeTalebiDuzenlenebilir(guncelDurum);
+  const teslimEdilenMiktar = Number(talep?.kullanilanMiktar) || 0;
+  // Teslim edilen malzemenin hareketi oluştuğu için kısmen teslim edilmiş talepte malzeme ve birim sabittir
+  const malzemeDegistirilebilir = duzenlenebilir && teslimEdilenMiktar === 0;
 
   const durumTarihcesi = useMemo(
     () => [...(talep?.durumTarihcesi || [])].sort((a, b) => compareDatesForSorter(a.tarih, b.tarih)).map((kayit) => ({ ...kayit, key: kayit.siraNo })),
@@ -160,6 +166,11 @@ const MalzemeTalepDetayiModal = ({ open, isEmriId, talepId, durum, readOnly = fa
   const onSubmit = handleSubmit(async (values) => {
     if (!(Number(values.talepMiktar) > 0)) {
       message.warning(t("talepMiktariSifirdanBuyukOlmali"));
+      return;
+    }
+
+    if (Number(values.talepMiktar) < teslimEdilenMiktar) {
+      message.warning(t("talepMiktariTeslimEdilendenAzOlamaz", { miktar: formatMiktar(teslimEdilenMiktar, talep.malzemeBirim) }));
       return;
     }
 
@@ -240,7 +251,7 @@ const MalzemeTalepDetayiModal = ({ open, isEmriId, talepId, durum, readOnly = fa
             <span style={sectionTitleStyle}>{t("malzemeBilgileri")}</span>
             <div className="grid" style={{ rowGap: "16px", columnGap: "16px", marginBottom: "24px" }}>
               <FormField span={6} label={t("malzemeKodu")} required>
-                <MalzemeTablo name="malzemeKod" required disabled={!duzenlenebilir} placeholder={t("malzemeSeciniz")} onSelect={handleMalzemeSelect} onClear={handleMalzemeClear} />
+                <MalzemeTablo name="malzemeKod" required disabled={!malzemeDegistirilebilir} placeholder={t("malzemeSeciniz")} onSelect={handleMalzemeSelect} onClear={handleMalzemeClear} />
               </FormField>
 
               <FormField span={6} label={t("malzemeAdi")} required>
@@ -251,13 +262,13 @@ const MalzemeTalepDetayiModal = ({ open, isEmriId, talepId, durum, readOnly = fa
                 <NumberInput name="talepMiktar" required min={0} checked={!duzenlenebilir} />
               </FormField>
 
-              <FormField span={4} label={t("kullanilanMiktar")} hint={t("fiiliKullanimSonrasiOlusur")}>
+              <FormField span={4} label={t("teslimEdilenMiktar")} hint={t("teslimSonrasiOlusur")}>
                 <NumberInput name="kullanilanMiktar" checked />
               </FormField>
 
               {/* KodIDSelectbox pasif yapılamadığı için kilitli talepte seçili değer salt okunur alanda gösterilir */}
               <FormField span={4} label={t("birim")} required>
-                {duzenlenebilir ? (
+                {malzemeDegistirilebilir ? (
                   <KodIDSelectbox name1="birim" kodID={MALZEME_BIRIM_KOD_ID} isRequired placeholder={t("seciniz")} inputWidth="100%" addHide />
                 ) : (
                   <TextInput name="birim" checked />

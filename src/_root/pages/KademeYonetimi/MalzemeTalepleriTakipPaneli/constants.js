@@ -6,11 +6,11 @@ import { MALZEME_TALEP_DURUM, getMalzemeTalepDurumTanimi } from "../KademeIsEmir
 export const MALZEME_TALEP_KPI = {
   TOPLAM_TALEP: 1,
   BEKLEYEN: 2,
-  KISMI_KARSILANDI: 3,
-  TAMAMLANAN: 4,
+  KISMI_TESLIM_EDILDI: 3,
+  TESLIM_EDILDI: 4,
 };
 
-// Backend yalnızca üç talep durumu tanımlar; filtre ve satır etiketleri bu üç durumu kullanır
+// Filtrede beş talep durumunun hepsi seçilebilir
 export const getMalzemeTalepDurumFiltreOptions = () =>
   Object.values(MALZEME_TALEP_DURUM).map((durum) => ({
     value: durum,
@@ -27,7 +27,7 @@ export const formatMiktar = (miktar, birim) => {
   return birim ? `${metin} ${birim}` : metin;
 };
 
-// Talep edilen miktarın ne kadarının kullanıma aktarıldığı (yüzde)
+// Talep edilen miktarın ne kadarının teslim edildiği (yüzde)
 export const getKullanimYuzdesi = (talepMiktar, kullanilanMiktar) => {
   const talep = Number(talepMiktar) || 0;
   if (talep <= 0) return 0;

@@ -4,9 +4,13 @@ import { Empty, Spin, Timeline, message } from "antd";
 import { t } from "i18next";
 import { GetWorkCardLogsByWorkIdService } from "../../../../../api/services/isEmri/services";
 import { hintStyle } from "../../KademeTanimlari/components/uiStyles";
-import { formatTarihSaatDegeri, getIsDurumTanimi } from "../../KademeIsEmirleri/constants";
+import { formatTarihSaatDegeri, getIsLogDurumTanimi } from "../../KademeIsEmirleri/constants";
+
+const aciklamaStyle = { fontSize: "13px", color: "#434343", whiteSpace: "pre-wrap", wordBreak: "break-word" };
 
 // İş kartının durum tarihçesi; kayıtlar backend'den tarih ve sıra numarasına göre artan sırada gelir.
+// Başlık logun anlamıdır (kart durumundan farklı adlandırılır, ör. 6 Malzeme talebi onaylanmadı);
+// altında kullanıcının veya backend'in yazdığı açıklama gösterilir.
 // yenilemeAnahtari değişince (ör. durum güncellendikten sonra) tarihçe yeniden okunur.
 const IsDurumGecmisi = ({ isId, yenilemeAnahtari = 0 }) => {
   const [loading, setLoading] = useState(false);
@@ -42,13 +46,14 @@ const IsDurumGecmisi = ({ isId, yenilemeAnahtari = 0 }) => {
   }, [isId, yenilemeAnahtari]);
 
   const items = kayitlar.map((kayit) => {
-    const tanim = getIsDurumTanimi(kayit.durum);
+    const tanim = getIsLogDurumTanimi(kayit.durum);
     return {
       key: kayit.siraNo,
       color: tanim?.color,
       children: (
         <div className="flex flex-col">
           <span style={{ fontWeight: 600, color: "#141414" }}>{tanim ? t(tanim.labelKey) : "—"}</span>
+          {kayit.aciklama && <span style={aciklamaStyle}>{kayit.aciklama}</span>}
           <span style={hintStyle}>{[formatTarihSaatDegeri(kayit.tarih), kayit.islemYapanIsim].filter(Boolean).join(" · ")}</span>
         </div>
       ),

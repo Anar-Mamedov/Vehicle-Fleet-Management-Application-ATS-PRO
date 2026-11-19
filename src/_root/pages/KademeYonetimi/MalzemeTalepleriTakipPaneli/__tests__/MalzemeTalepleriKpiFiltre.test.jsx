@@ -47,17 +47,17 @@ describe("Malzeme Talepleri KPI kutuları", () => {
 
   afterEach(() => cleanup());
 
-  it("panel devam eden taleplerle açılır", async () => {
+  it("panel açık (teslimi tamamlanmamış, reddedilmemiş) taleplerle açılır", async () => {
     render(<MalzemeTalepleriTakipPaneli />);
 
     await waitFor(() => expect(GetMaterialRequestListService).toHaveBeenCalled());
-    expect(sonListeDurumIds()).toEqual([MALZEME_TALEP_DURUM.BEKLIYOR, MALZEME_TALEP_DURUM.KISMI_KARSILANDI]);
+    expect(sonListeDurumIds()).toEqual([MALZEME_TALEP_DURUM.ONAYLANDI, MALZEME_TALEP_DURUM.ONAY_BEKLIYOR, MALZEME_TALEP_DURUM.KISMI_TESLIM_EDILDI]);
   });
 
   it.each([
-    ["bekleyen", [MALZEME_TALEP_DURUM.BEKLIYOR]],
-    ["kismiKarsilandi", [MALZEME_TALEP_DURUM.KISMI_KARSILANDI]],
-    ["tamamlanan", [MALZEME_TALEP_DURUM.TAMAMLANDI]],
+    ["bekleyen", [MALZEME_TALEP_DURUM.ONAY_BEKLIYOR, MALZEME_TALEP_DURUM.ONAYLANDI]],
+    ["kismiTeslimEdildi", [MALZEME_TALEP_DURUM.KISMI_TESLIM_EDILDI]],
+    ["teslimEdildi", [MALZEME_TALEP_DURUM.TESLIM_EDILDI]],
     ["toplamTalep", []],
   ])("%s kutusu durum filtresini %j yapar ve liste ile kutuları bu filtreyle yeniden okur", async (title, durumIds) => {
     render(<MalzemeTalepleriTakipPaneli />);

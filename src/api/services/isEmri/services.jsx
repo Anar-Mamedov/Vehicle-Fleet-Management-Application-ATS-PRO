@@ -61,9 +61,9 @@ export const UpdateServiceWorkCardService = async (data) => {
   return await http.post(`/ServiceWorkCard/UpdateServiceWorkCard`, data);
 };
 
-// Atanan işin durumu: 2 Devam Ediyor, 3 Durdu, 4 Yeniden Başladı, 5 Tamamlandı; id, status ve aciklama POST gövdesinde gider
-export const UpdateServiceWorkCardStatusService = async (id, status, aciklama = "") => {
-  return await http.post(`/ServiceWorkCard/UpdateServiceWorkCardStatus`, { id, status, aciklama });
+// Atanan işin durumu: Başlat 2, Durdur 5, Devam Et 11, İşi Bitir 12, İptal Et 13; gövde { id, isNo, status, aciklama }
+export const UpdateServiceWorkCardStatusService = async ({ id, isNo, status, aciklama }) => {
+  return await http.post(`/ServiceWorkCard/UpdateServiceWorkCardStatus`, { id, isNo, status, aciklama });
 };
 
 // İşçilik (iş kartı) numaratörü (Otomatik Kodlar ekranındaki ISCILIK_KOD modülü)

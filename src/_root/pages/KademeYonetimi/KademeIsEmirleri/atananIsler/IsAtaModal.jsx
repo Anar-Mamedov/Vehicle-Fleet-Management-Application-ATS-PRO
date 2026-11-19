@@ -5,6 +5,7 @@ import { Button, Modal, message } from "antd";
 import { t } from "i18next";
 import { AddServiceWorkCardService, GetIscilikNoService } from "../../../../../api/services/isEmri/services";
 import { formatDateForApi, formatTimeForApi, isEndBeforeStart } from "../../../../../utils/dateUtils";
+import { getIsAtamaAciklamasi } from "../../../../../utils/isKartiAciklamalari";
 import DateInput from "../../../../components/form/date/DateInput";
 import TimeInput from "../../../../components/form/date/TimeInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
@@ -84,7 +85,7 @@ const IsAtaModal = ({ open, isEmriId, aracId, kademeId, onClose, onSaved }) => {
         baslamaSaat: formatTimeForApi(values.baslamaSaat, true),
         bitisTarih: formatDateForApi(values.bitisTarih),
         bitisSaat: formatTimeForApi(values.bitisSaat, true),
-        aciklama: values.aciklama || "",
+        aciklama: getIsAtamaAciklamasi(values.aciklama, values.personel),
         isFromIsEmri: true,
       });
 

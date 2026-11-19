@@ -3,6 +3,7 @@ import { Button, Modal, Input, Typography, Tabs, message, Spin } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import AxiosInstance from "../../../../../../../../../../api/http";
 import { GetIscilikNoService } from "../../../../../../../../../../api/services/isEmri/services";
+import { getIsAtamaAciklamasi } from "../../../../../../../../../../utils/isKartiAciklamalari";
 import { Controller, useForm, FormProvider } from "react-hook-form";
 import MainTabs from "./MainTabs/MainTabs";
 import dayjs from "dayjs";
@@ -79,7 +80,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, o
       iscilikUcreti: Number(data.iscilikUcreti),
       toplam: Number(data.toplam),
       servisSiraNo: Number(secilenKayitID),
-      aciklama: data.aciklama,
+      aciklama: getIsAtamaAciklamasi(data.aciklama, data.personel),
       sureSaat: Number(data.saat),
       sureDakika: Number(data.dakika),
       personelId: Number(data.personelID),

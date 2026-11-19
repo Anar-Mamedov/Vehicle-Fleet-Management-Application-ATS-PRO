@@ -43,7 +43,7 @@ const MalzemeTalepKarti = ({ satir, islemler, onDetay, onIsEmriAc }) => (
         {satir.malzemeTanim || "—"}
       </span>
       <span style={satirStyle}>
-        {[`${t("talepMiktari")}: ${formatMiktar(satir.talepMiktar, satir.malzemeBirim)}`, `${t("kullanilan")}: ${formatMiktar(satir.kullanilanMiktar, satir.malzemeBirim)}`].join(" · ")}
+        {[`${t("talepMiktari")}: ${formatMiktar(satir.talepMiktar, satir.malzemeBirim)}`, `${t("teslimEdilen")}: ${formatMiktar(satir.kullanilanMiktar, satir.malzemeBirim)}`].join(" · ")}
       </span>
       <span style={satirStyle}>{`${t("gerekliTarih")}: ${formatDateByLocale(satir.gerekliTarih, undefined, "—")}`}</span>
     </div>

@@ -19,7 +19,7 @@ import useMalzemeTalepleri from "../hooks/useMalzemeTalepleri";
 import useKullanilanMalzemeler from "../hooks/useKullanilanMalzemeler";
 import useIsEmriTarihcesi from "../hooks/useIsEmriTarihcesi";
 import { hintStyle } from "../../KademeTanimlari/components/uiStyles";
-import { IS_EMRI_REF_GROUP, isIsEmriSaltOkunur, isSuccessResponse, toNullableId } from "../constants";
+import { IS_EMRI_REF_GROUP, isIsEmriIsIslemleriKilitli, isIsEmriSaltOkunur, isSuccessResponse, toNullableId } from "../constants";
 import { buildIsEmriBody, buildKorunanServisAlanlari, getDefaultIsEmriValues, getKayitBasariMesaji, mapIsEmriToFormValues } from "../formHelpers";
 
 const tagStyle = {
@@ -138,6 +138,8 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh, baslangicSekmesi =
   const durum = detay?.durumBilgisi ?? selectedRow?.durumBilgisi;
   // Kapalı/iptal iş emri salt okunurdur; durum değişikliği listedeki Toplu İşlem menüsünden yapılır
   const saltOkunur = isIsEmriSaltOkunur(Number(durum));
+  // Tamamlanan iş emrinde de atanan işlerin durumu, malzeme talebi ve teslim kapalıdır
+  const isIslemleriKilitli = isIsEmriIsIslemleriKilitli(durum);
 
   const onSubmit = handleSubmit(async (values) => {
     if (!detay || saltOkunur) return;
@@ -176,6 +178,7 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh, baslangicSekmesi =
           isler={isler}
           loading={islerLoading}
           readOnly={saltOkunur}
+          isIslemleriKilitli={isIslemleriKilitli}
           onChange={handleIslerChange}
           onMalzemeTalebiChange={handleIsMalzemeTalebiChange}
         />
@@ -190,8 +193,10 @@ const UpdateModal = ({ selectedRow, open, onClose, onRefresh, baslangicSekmesi =
           aracId={toNullableId(detay?.aracId)}
           kademeId={toNullableId(detay?.kademeId)}
           talepler={talepler}
+          isler={isler}
           loading={taleplerLoading}
           readOnly={saltOkunur}
+          isIslemleriKilitli={isIslemleriKilitli}
           onChange={handleMalzemeTalepleriChange}
           onKullanimChange={handleMalzemeKullanimiChange}
         />

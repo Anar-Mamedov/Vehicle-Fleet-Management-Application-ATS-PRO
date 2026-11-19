@@ -83,7 +83,7 @@ const AtananIsDetayDrawer = ({ open, kart, yenilemeAnahtari, durumDegisiyor, onC
         {t("kapat")}
       </Button>
       {anaAksiyon && (
-        <Button loading={durumDegisiyor} style={getDolguButonStyle(anaAksiyon.color)} onClick={() => onDurumDegistir(kart, anaAksiyon.status)}>
+        <Button loading={durumDegisiyor} style={getDolguButonStyle(anaAksiyon.color)} onClick={() => onDurumDegistir(kart, anaAksiyon.islem)}>
           {t(anaAksiyon.labelKey)}
         </Button>
       )}

@@ -259,35 +259,58 @@ const OnaylamaIslemleri = () => {
     fetchData(0, 1);
   }, [fetchData]);
 
-  // Onaylama fonksiyonu
-  const handleApprove = useCallback(
-    async (record) => {
+  // Onay/ret isteği sürerken aynı veya başka bir kayıt için ikinci istek gönderilmez (mükerrer işlem olmasın).
+  // Ref çift tıklamayı anında keser, state satırdaki düğmeleri kilitli gösterir.
+  const [onayIslemiYapilanId, setOnayIslemiYapilanId] = useState(null);
+  const onayIstegiSuruyorRef = useRef(false);
+
+  const runOnayIslemi = useCallback(
+    async (record, url, basariMesajKey) => {
+      if (onayIstegiSuruyorRef.current) return;
+
+      onayIstegiSuruyorRef.current = true;
+      setOnayIslemiYapilanId(record.siraNo);
       try {
-        await AxiosInstance.get(`ApprovalProcess/GrantApproval?id=${record.siraNo}`);
-        message.success(t("onaylamaBasarili"));
+        const response = await AxiosInstance.get(url);
+        // Kayıt daha önce onaylanmış/reddedilmişse backend status: false ile bildirir; liste güncel haliyle yenilenir
+        if (response?.data?.status === false) {
+          message.error(response.data.message || t("hataOlustu"));
+        } else {
+          message.success(t(basariMesajKey));
+        }
         refreshTableData();
       } catch (error) {
-        console.error("Error approving record:", error);
+        console.error("Error processing approval:", error);
         message.error(t("hataOlustu"));
+      } finally {
+        onayIstegiSuruyorRef.current = false;
+        setOnayIslemiYapilanId(null);
       }
     },
     [refreshTableData]
   );
 
-  // Reddetme fonksiyonu
-  const handleReject = useCallback(
-    async (record) => {
-      try {
-        await AxiosInstance.get(`ApprovalProcess/RejectApproval?id=${record.siraNo}`);
-        message.success(t("reddetmeBasarili"));
-        refreshTableData();
-      } catch (error) {
-        console.error("Error rejecting record:", error);
-        message.error(t("hataOlustu"));
-      }
-    },
-    [refreshTableData]
-  );
+  const handleApprove = (record) => runOnayIslemi(record, `ApprovalProcess/GrantApproval?id=${record.siraNo}`, "onaylamaBasarili");
+  const handleReject = (record) => runOnayIslemi(record, `ApprovalProcess/RejectApproval?id=${record.siraNo}`, "reddetmeBasarili");
+
+  // Onayla/Reddet yalnızca bekleyen kayıtta görünür; onaylanan/reddedilen kayıt yeniden işlenmez.
+  // Sütunlar localStorage düzeniyle state'te tutulduğu için bu render her çizimde güncel kilit durumuyla yeniden bağlanır.
+  const renderOnayIslemleri = (_, record) => {
+    if (record.durum !== "bekliyor") return "-";
+
+    const islemSuruyor = onayIslemiYapilanId !== null;
+    const buKayit = onayIslemiYapilanId === record.siraNo;
+    return (
+      <div style={{ display: "flex", gap: "8px" }}>
+        <Button type="primary" size="small" loading={buKayit} disabled={islemSuruyor} onClick={() => handleApprove(record)}>
+          {t("onayla")}
+        </Button>
+        <Button danger size="small" disabled={islemSuruyor} onClick={() => handleReject(record)}>
+          {t("reddet")}
+        </Button>
+      </div>
+    );
+  };
 
   // Columns definition (adjust as needed)
   const initialColumns = useMemo(
@@ -455,22 +478,6 @@ const OnaylamaIslemleri = () => {
         width: 150,
         ellipsis: true,
         visible: true,
-        render: (_, record) => {
-          // Sadece "bekliyor" durumundaki kayıtlar için butonları göster
-          if (record.durum === "bekliyor") {
-            return (
-              <div style={{ display: "flex", gap: "8px" }}>
-                <Button type="primary" size="small" onClick={() => handleApprove(record)}>
-                  {t("onayla")}
-                </Button>
-                <Button danger size="small" onClick={() => handleReject(record)}>
-                  {t("reddet")}
-                </Button>
-              </div>
-            );
-          }
-          return "-";
-        },
       },
     ],
     []
@@ -552,6 +559,7 @@ const OnaylamaIslemleri = () => {
 
   const mergedColumns = columns.map((col) => ({
     ...col,
+    ...(col.key === "islemler" ? { render: renderOnayIslemleri } : {}),
     onHeaderCell: (column) => ({
       width: column.width,
       onResize: handleResize(column.key),

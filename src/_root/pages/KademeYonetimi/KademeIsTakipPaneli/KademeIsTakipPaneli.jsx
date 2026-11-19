@@ -5,6 +5,7 @@ import {
   CaretRightOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
+  CloseCircleOutlined,
   EllipsisOutlined,
   EyeOutlined,
   HistoryOutlined,
@@ -39,10 +40,25 @@ import {
   GetServiceWorkCardStatisticsByTypeService,
   GetVehicleServiceByIdService,
 } from "../../../../api/services/isEmri/services";
-import { IS_DURUM, TUMU, getIsDurumTanimi, getSureOptions, getSureTarihSaatAraligi, isSuccessResponse, normalizeIsDurumu, toNullableId } from "../KademeIsEmirleri/constants";
+import {
+  ACIKLAMA_ZORUNLU_IS_ISLEMLERI,
+  IS_DURUM,
+  IS_ISLEMI,
+  TUMU,
+  getIsDurumFiltreOptions,
+  getIsDurumTanimi,
+  getIsIslemleri,
+  getSureOptions,
+  getSureTarihSaatAraligi,
+  isIsEmriIsIslemleriKilitli,
+  isIsKartiKapali,
+  normalizeIsDurumu,
+  toNullableId,
+} from "../KademeIsEmirleri/constants";
 import DurumTag from "../KademeIsEmirleri/components/DurumTag";
 import UpdateModal from "../KademeIsEmirleri/update/UpdateModal";
 import IsDetayiModal from "../KademeIsEmirleri/atananIsler/IsDetayiModal";
+import IsDurumIslemModal from "../KademeIsEmirleri/atananIsler/IsDurumIslemModal";
 import { updateIsDurumu } from "../KademeIsEmirleri/atananIsler/isDurumuGuncelle";
 import MalzemeTalepEtModal from "../KademeIsEmirleri/malzemeTalepleri/MalzemeTalepEtModal";
 import TakipPaneliStatisticsCards from "../components/TakipPaneliStatisticsCards";
@@ -51,7 +67,7 @@ import TarihSaat from "../components/TarihSaat";
 import { cerceveButonStyle, getDolguButonStyle, menuButonStyle } from "../components/islemButonStyles";
 import GorunumSecici, { GORUNUM, getStoredGorunum } from "../components/GorunumSecici";
 import { TakipKartIzgarasi } from "../components/TakipKarti";
-import { IS_TAKIP_KPI, formatPlanlananSure, getAnaDurumAksiyonu, getIsDurumFiltreOptions, withSayacAlinmaAni } from "./constants";
+import { IS_TAKIP_KPI, formatPlanlananSure, getAnaDurumAksiyonu, withSayacAlinmaAni } from "./constants";
 import SureSayaci from "./components/SureSayaci";
 import AtananIsDetayDrawer from "./components/AtananIsDetayDrawer";
 import IsDurumGecmisi from "./components/IsDurumGecmisi";
@@ -66,14 +82,14 @@ const COLUMN_ORDER_STORAGE_KEY = "columnOrderKademeIsTakipPaneliV2";
 const COLUMN_VISIBILITY_STORAGE_KEY = "columnVisibilityKademeIsTakipPaneli";
 const COLUMN_WIDTHS_STORAGE_KEY = "columnWidthsKademeIsTakipPaneli";
 
-// Panel tarih sınırı olmadan, tamamlanmamış işlerle açılır
+// Panel tarih sınırı olmadan, tamamlanmamış ve iptal edilmemiş işlerle açılır
 const DEFAULT_FILTER_VALUES = {
   sureFiltre: TUMU,
   personelFiltre: [],
   personelFiltreID: [],
   kademeFiltre: [],
   kademeFiltreID: [],
-  durumFiltre: [IS_DURUM.BEKLIYOR, IS_DURUM.DEVAM_EDIYOR, IS_DURUM.DURDU, IS_DURUM.YENIDEN_BASLADI],
+  durumFiltre: Object.values(IS_DURUM).filter((durum) => !isIsKartiKapali(durum)),
 };
 
 const ICON_STYLE = { fontSize: 22, color: "#6b7a8a" };
@@ -102,9 +118,9 @@ const buildFilters = ({ sureFiltre, personelFiltreID, kademeFiltreID, durumFiltr
 });
 
 const ANA_AKSIYON_IKONLARI = {
-  baslat: <CaretRightOutlined />,
-  durdur: <PauseOutlined />,
-  devamEt: <CaretRightOutlined />,
+  [IS_ISLEMI.BASLAT]: <CaretRightOutlined />,
+  [IS_ISLEMI.DURDUR]: <PauseOutlined />,
+  [IS_ISLEMI.DEVAM_ET]: <CaretRightOutlined />,
 };
 
 // Sütunların boyutlarını ayarlamak için kullanılan component
@@ -213,6 +229,8 @@ const KademeIsTakipPaneli = () => {
   const [talepEt, setTalepEt] = useState(null);
   // İsme tıklanınca açılan düzenlenebilir İş Detayı (başlama/bitiş zamanı elle düzeltilebilir)
   const [isDetayi, setIsDetayi] = useState(null);
+  // Açıklama isteyen durum işlemi (Durdur, Bitir, İptal Et) için açılan modal
+  const [durumIslemi, setDurumIslemi] = useState(null);
 
   const methods = useForm({ defaultValues: DEFAULT_FILTER_VALUES });
   const { getValues, setValue } = methods;
@@ -333,34 +351,34 @@ const KademeIsTakipPaneli = () => {
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [refreshCurrentPageData]);
 
-  const changeDurum = async (kart, status) => {
+  // Durum değişince liste, KPI kutuları ve açık detaydaki tarihçe birlikte yenilenir
+  const handleDurumDegisti = useCallback(() => {
+    refreshCurrentPageData();
+    setDetayYenilemeAnahtari((prev) => prev + 1);
+  }, [refreshCurrentPageData]);
+
+  // Durdur, Bitir ve İptal Et açıklama modalını açar; Başlat ve Devam Et doğrudan uygulanır
+  const changeDurum = async (kart, islem) => {
+    if (ACIKLAMA_ZORUNLU_IS_ISLEMLERI.includes(islem)) {
+      setDurumIslemi({ islem, isId: kart.siraNo });
+      return;
+    }
+
     setDurumDegisenIsId(kart.siraNo);
     try {
-      // Başlat/Bitir boş başlama/bitiş zamanını sistem zamanıyla doldurur
-      const response = await updateIsDurumu(kart.siraNo, status);
-      if (!isSuccessResponse(response)) {
-        message.error(response?.data?.message || t("islemBasarisiz"));
+      const sonuc = await updateIsDurumu(kart.siraNo, islem);
+      if (!sonuc.basarili) {
+        message.error(sonuc.mesaj);
         return;
       }
 
       message.success(t("islemBasarili"));
-      refreshCurrentPageData();
-      setDetayYenilemeAnahtari((prev) => prev + 1);
+      handleDurumDegisti();
     } catch {
       message.error(t("islemBasarisiz"));
     } finally {
       setDurumDegisenIsId(null);
     }
-  };
-
-  const confirmIsiBitir = (kart) => {
-    Modal.confirm({
-      title: t("isiBitir"),
-      content: t("isiBitirOnay", { isTanim: kart.isTanim || kart.servisNo || "" }),
-      okText: t("evet"),
-      cancelText: t("hayir"),
-      onOk: () => changeDurum(kart, IS_DURUM.TAMAMLANDI),
-    });
   };
 
   // sekme verilirse iş emri o sekmeyle açılır (ör. talep düğmesinden Malzeme Talepleri)
@@ -390,6 +408,11 @@ const KademeIsTakipPaneli = () => {
         return;
       }
       const servisResponse = await GetVehicleServiceByIdService(servisSiraNo);
+      // İptal edilen, tamamlanan veya kapatılan iş emrine malzeme talep edilemez
+      if (isIsEmriIsIslemleriKilitli(servisResponse?.data?.durumBilgisi)) {
+        message.warning(t("isEmriKapaliIslemYapilamaz"));
+        return;
+      }
       setTalepEt({
         isEmriId: servisSiraNo,
         aracId: toNullableId(servisResponse?.data?.aracId),
@@ -432,7 +455,7 @@ const KademeIsTakipPaneli = () => {
       );
     }
 
-    if (normalizeIsDurumu(record.durum) === IS_DURUM.TAMAMLANDI) return "—";
+    if (isIsKartiKapali(record.durum)) return "—";
 
     return (
       <Button size="small" type="dashed" icon={<PlusOutlined />} loading={yukleniyor} onClick={() => openTalepEt(record)}>
@@ -581,17 +604,18 @@ const KademeIsTakipPaneli = () => {
   // Tablo satırı ve kart aynı işlem düğmelerini kullanır
   const renderIslemler = (record) => {
     const anaAksiyon = getAnaDurumAksiyonu(record.durum);
-    const tamamlandi = normalizeIsDurumu(record.durum) === IS_DURUM.TAMAMLANDI;
+    const islemler = getIsIslemleri(record.durum);
     const durumDegisiyor = durumDegisenIsId === record.siraNo;
 
     const menu = {
       items: [
-        { key: "isiBitir", icon: <CheckCircleOutlined />, label: t("isiBitir"), disabled: tamamlandi || durumDegisiyor },
+        { key: IS_ISLEMI.BITIR, icon: <CheckCircleOutlined />, label: t("isiBitir"), disabled: !islemler[IS_ISLEMI.BITIR] || durumDegisiyor },
         { key: "detay", icon: <EyeOutlined />, label: t("detay") },
         { key: "durumGecmisi", icon: <HistoryOutlined />, label: t("durumGecmisi") },
+        { key: IS_ISLEMI.IPTAL_ET, icon: <CloseCircleOutlined />, label: t("iptalEt"), danger: true, disabled: !islemler[IS_ISLEMI.IPTAL_ET] || durumDegisiyor },
       ],
       onClick: ({ key }) => {
-        if (key === "isiBitir") confirmIsiBitir(record);
+        if (key === IS_ISLEMI.BITIR || key === IS_ISLEMI.IPTAL_ET) changeDurum(record, key);
         if (key === "detay") openDetay(record);
         if (key === "durumGecmisi") setDurumGecmisiKarti(record);
       },
@@ -600,7 +624,7 @@ const KademeIsTakipPaneli = () => {
     return (
       <div className="flex" style={{ gap: "8px", alignItems: "center", justifyContent: "flex-end" }}>
         {anaAksiyon ? (
-          <Button icon={ANA_AKSIYON_IKONLARI[anaAksiyon.key]} loading={durumDegisiyor} style={getDolguButonStyle(anaAksiyon.color)} onClick={() => changeDurum(record, anaAksiyon.status)}>
+          <Button icon={ANA_AKSIYON_IKONLARI[anaAksiyon.islem]} loading={durumDegisiyor} style={getDolguButonStyle(anaAksiyon.color)} onClick={() => changeDurum(record, anaAksiyon.islem)}>
             {t(anaAksiyon.labelKey)}
           </Button>
         ) : (
@@ -723,7 +747,7 @@ const KademeIsTakipPaneli = () => {
   const statisticCards = [
     { type: IS_TAKIP_KPI.TOPLAM_IS, title: t("toplamIs"), icon: <ProfileOutlined style={ICON_STYLE} />, durumIds: [] },
     { type: IS_TAKIP_KPI.BEKLEYEN, title: t("bekleyen"), icon: <ClockCircleOutlined style={ICON_STYLE} />, durumIds: [IS_DURUM.BEKLIYOR] },
-    { type: IS_TAKIP_KPI.DEVAM_EDEN, title: t("devamEden"), icon: <SyncOutlined style={ICON_STYLE} />, durumIds: [IS_DURUM.DEVAM_EDIYOR, IS_DURUM.YENIDEN_BASLADI] },
+    { type: IS_TAKIP_KPI.DEVAM_EDEN, title: t("devamEden"), icon: <SyncOutlined style={ICON_STYLE} />, durumIds: [IS_DURUM.DEVAM_EDIYOR, IS_DURUM.YENIDEN_BASLATILDI] },
     { type: IS_TAKIP_KPI.DURDU, title: t("durdu"), icon: <PauseCircleOutlined style={ICON_STYLE} />, durumIds: [IS_DURUM.DURDU] },
     { type: IS_TAKIP_KPI.TAMAMLANAN, title: t("tamamlanan"), icon: <CheckCircleOutlined style={ICON_STYLE} />, durumIds: [IS_DURUM.TAMAMLANDI] },
     { type: IS_TAKIP_KPI.MALZEME_TALEBI, title: t("malzemeTalebi"), icon: <InboxOutlined style={ICON_STYLE} /> },
@@ -902,7 +926,15 @@ const KademeIsTakipPaneli = () => {
         onRefresh={refreshCurrentPageData}
       />
 
-      <IsDetayiModal open={isDetayi !== null} isId={isDetayi?.isId} kademeId={isDetayi?.kademeId} onClose={() => setIsDetayi(null)} onChange={refreshCurrentPageData} />
+      <IsDetayiModal open={isDetayi !== null} isId={isDetayi?.isId} kademeId={isDetayi?.kademeId} onClose={() => setIsDetayi(null)} onChange={handleDurumDegisti} />
+
+      <IsDurumIslemModal
+        open={durumIslemi !== null}
+        islem={durumIslemi?.islem}
+        isId={durumIslemi?.isId}
+        onClose={() => setDurumIslemi(null)}
+        onSaved={handleDurumDegisti}
+      />
 
       <MalzemeTalepEtModal
         open={talepEt !== null}

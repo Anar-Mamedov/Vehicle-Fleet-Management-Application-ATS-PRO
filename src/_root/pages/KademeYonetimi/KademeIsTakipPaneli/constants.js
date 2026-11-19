@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
-import { t } from "i18next";
 import { toDayjsOrNull } from "../../../../utils/dateUtils";
-import { IS_DURUM, getIsDurumTanimi, normalizeIsDurumu } from "../KademeIsEmirleri/constants";
+import { IS_ISLEMI, getAnaIsIslemi, isIsCalisiyor } from "../KademeIsEmirleri/constants";
 
 // ServiceWorkCardStatistics/GetInfoByType kutuları
 export const IS_TAKIP_KPI = {
@@ -13,23 +12,16 @@ export const IS_TAKIP_KPI = {
   MALZEME_TALEBI: 6,
 };
 
-// Filtrede beş iş durumunun hepsi seçilebilir
-export const getIsDurumFiltreOptions = () =>
-  Object.values(IS_DURUM).map((durum) => ({
-    value: durum,
-    label: t(getIsDurumTanimi(durum).labelKey),
-  }));
-
-// Satırdaki ana düğme: Bekliyor -> Başlat (2), çalışan iş -> Durdur (3), duran iş -> Devam Et (4).
-// Tamamlanan işin durum aksiyonu yoktur.
-export const isCalisiyor = (durum) => durum === IS_DURUM.DEVAM_EDIYOR || durum === IS_DURUM.YENIDEN_BASLADI;
+// Satırdaki ana düğmenin görünümü; hangi işlemin açık olduğu iş kartı kurallarından (getAnaIsIslemi) gelir
+const ANA_ISLEM_GORUNUMLERI = {
+  [IS_ISLEMI.BASLAT]: { labelKey: "baslat", color: "#1677ff" },
+  [IS_ISLEMI.DURDUR]: { labelKey: "durdur", color: "#e5484d" },
+  [IS_ISLEMI.DEVAM_ET]: { labelKey: "devamEt", color: "#f08c00" },
+};
 
 export const getAnaDurumAksiyonu = (durum) => {
-  const isDurumu = normalizeIsDurumu(durum);
-  if (isDurumu === IS_DURUM.BEKLIYOR) return { key: "baslat", labelKey: "baslat", status: IS_DURUM.DEVAM_EDIYOR, color: "#1677ff" };
-  if (isCalisiyor(isDurumu)) return { key: "durdur", labelKey: "durdur", status: IS_DURUM.DURDU, color: "#e5484d" };
-  if (isDurumu === IS_DURUM.DURDU) return { key: "devamEt", labelKey: "devamEt", status: IS_DURUM.YENIDEN_BASLADI, color: "#f08c00" };
-  return null;
+  const islem = getAnaIsIslemi(durum);
+  return islem ? { islem, ...ANA_ISLEM_GORUNUMLERI[islem] } : null;
 };
 
 // Süre servisten saniye (toplamSaniye) veya dakika (sure) olarak gelir; ekranda SS:dd:ss gösterilir, 24 saatte sıfırlanmaz
@@ -50,13 +42,13 @@ export const formatPlanlananSure = (dakika) => {
 
 // Çalışma süresi sayacı (backend FRONTEND_SAYAC notu):
 // - toplamSaniye, sunucunun sorgu anına kadarki toplamdır (aktif çalışma dahil).
-// - Yalnızca 2 ve 4 durumlarında sayaç, yanıt alındıktan sonra geçen saniyeleri ekleyerek ilerler.
+// - Yalnızca 2 ve 11 durumlarında sayaç, yanıt alındıktan sonra geçen saniyeleri ekleyerek ilerler.
 // - toplamSaniye + (şimdi - sonBaslamaTarihiUtc) kullanılmaz; aynı süre iki kez sayılır.
 // Yanıt alındığı an (alinmaAni) satıra yazılır; son başlamadan o ana kadar geçen süre referans alınıp çıkarılır.
 // Liste yanıtında sonBaslamaTarihiUtc boş/geçersiz gelse de çalışan iş canlı sayar; o durumda referans yalnızca yanıt anıdır.
 export const getSayacBaslangicAni = (kart) => toDayjsOrNull(kart?.sonBaslamaTarihiUtc)?.valueOf() ?? null;
 
-export const isSayacCalisiyor = (kart) => isCalisiyor(normalizeIsDurumu(kart?.durum));
+export const isSayacCalisiyor = (kart) => isIsCalisiyor(kart?.durum);
 
 export const getSayacSaniyesi = (kart, simdi = dayjs().valueOf()) => {
   const toplam = Number(kart?.toplamSaniye) || 0;

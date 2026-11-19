@@ -9,8 +9,8 @@ import { cardStyle, sectionTitleStyle } from "../../KademeTanimlari/components/u
 import DurumTag from "../components/DurumTag";
 import MalzemeTalepEtModal from "../malzemeTalepleri/MalzemeTalepEtModal";
 import MalzemeTalepDetayiModal from "../malzemeTalepleri/MalzemeTalepDetayiModal";
-import KullanimaAktarModal from "../malzemeTalepleri/KullanimaAktarModal";
-import { MALZEME_TALEP_DURUM, formatTarihSaatDegeri, getMalzemeTalepDurumTanimi } from "../constants";
+import MalzemeTeslimEtModal from "../malzemeTalepleri/MalzemeTeslimEtModal";
+import { formatTarihSaatDegeri, getMalzemeTalepDurumTanimi, isIsKartiKapali, isMalzemeTeslimEdilebilir } from "../constants";
 
 const aramaAlanlari = ["talepNo", "malzemeKod", "malzemeTanim", "aciklama"];
 
@@ -18,14 +18,16 @@ const VARSAYILAN_SAYFA_BOYUTU = 10;
 
 // İş emrine bağlı malzeme talepleri; liste modal seviyesinde okunur (sekme etiketindeki sayı için) ve buraya verilir.
 // Liste servisi sayfalanmadan döndüğü için arama ve sayfalama istemci tarafında yapılır.
-// readOnly (kapalı/iptal iş emri) yeni talebi, kullanıma aktarmayı ve talep güncellemeyi kapatır.
-const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, readOnly = false, onChange, onKullanimChange }) => {
+// readOnly (kapalı/iptal iş emri) yeni talebi, teslimi ve talep güncellemeyi kapatır.
+// isIslemleriKilitli (iptal/tamamlanan/kapatılan iş emri) yeni talebi ve teslimi kapatır.
+// Talebin bağlı olduğu iş tamamlandıysa veya iptal edildiyse o talepte teslim yapılamaz; işlerin durumu isler'den okunur.
+const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, isler = [], loading, readOnly = false, isIslemleriKilitli = false, onChange, onKullanimChange }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [pagination, setPagination] = useState({ current: 1, pageSize: VARSAYILAN_SAYFA_BOYUTU });
   const [talepEtOpen, setTalepEtOpen] = useState(false);
-  const [detay, setDetay] = useState({ open: false, talepId: null, durum: null });
-  // Satırdaki düğmeyle kullanıma aktarılan talebin siraNo'su
-  const [kullanimaAktarilanTalepId, setKullanimaAktarilanTalepId] = useState(null);
+  const [detay, setDetay] = useState({ open: false, talepId: null, durum: null, isId: null });
+  // Satırdaki düğmeyle teslim edilen talep (siraNo ve listedeki durumu)
+  const [teslimEdilenTalep, setTeslimEdilenTalep] = useState(null);
 
   const filtrelenmisTalepler = useMemo(() => {
     const aranan = searchTerm.trim().toLocaleLowerCase("tr-TR");
@@ -38,7 +40,12 @@ const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, readO
     setPagination((prev) => ({ ...prev, current: 1 }));
   };
 
-  const openDetay = (record) => setDetay({ open: true, talepId: record.siraNo, durum: record.durum });
+  const openDetay = (record) => setDetay({ open: true, talepId: record.siraNo, durum: record.durum, isId: record.isId });
+
+  const kapaliIsIdleri = useMemo(() => new Set(isler.filter((is) => isIsKartiKapali(is.durum)).map((is) => is.siraNo)), [isler]);
+  // İş emri kilitliyse veya talebin bağlı işi kapalıysa (12/13) talep değiştirilemez ve teslim edilemez
+  const talepKilitli = (isId) => readOnly || isIslemleriKilitli || kapaliIsIdleri.has(isId);
+  const teslimKapali = (record) => talepKilitli(record.isId) || !isMalzemeTeslimEdilebilir(record.durum);
 
   // Karşılanan miktar servis yanıtında olmadığı için tasarımdaki "Karşılanan" kolonu yer almaz
   const columns = [
@@ -57,7 +64,7 @@ const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, readO
     { title: t("malzemeKodu"), dataIndex: "malzemeKod", key: "malzemeKod", width: 130, ellipsis: true, render: (text) => text || "-" },
     { title: t("malzemeAdi"), dataIndex: "malzemeTanim", key: "malzemeTanim", width: 200, ellipsis: true, render: (text) => text || "-" },
     { title: t("talepMiktari"), dataIndex: "talepMiktar", key: "talepMiktar", width: 120, render: (value) => formatNumberWithLocale(value || 0) },
-    { title: t("kullanilan"), dataIndex: "kullanilanMiktar", key: "kullanilanMiktar", width: 110, render: (value) => formatNumberWithLocale(value || 0) },
+    { title: t("teslimEdilen"), dataIndex: "kullanilanMiktar", key: "kullanilanMiktar", width: 120, render: (value) => formatNumberWithLocale(value || 0) },
     { title: t("birim"), dataIndex: "malzemeBirim", key: "malzemeBirim", width: 90, ellipsis: true, render: (text) => text || "-" },
     { title: t("durum"), dataIndex: "durum", key: "durum", width: 150, render: (durum) => <DurumTag durum={durum} getTanim={getMalzemeTalepDurumTanimi} /> },
     { title: t("talepEden"), dataIndex: "talepEden", key: "talepEden", width: 150, ellipsis: true, render: (text) => text || "-" },
@@ -66,18 +73,18 @@ const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, readO
     { title: t("aciklama"), dataIndex: "aciklama", key: "aciklama", width: 220, ellipsis: true, render: (text) => text || "-" },
     {
       title: "",
-      key: "kullanimaAktar",
+      key: "teslimEt",
       width: 60,
       fixed: "right",
       align: "center",
       render: (_, record) => (
-        <Tooltip title={t("kullanimaAktar")}>
+        <Tooltip title={t("teslimEt")}>
           <Button
             size="small"
             icon={<ExportOutlined />}
-            aria-label={t("kullanimaAktar")}
-            disabled={readOnly || record.durum === MALZEME_TALEP_DURUM.TAMAMLANDI}
-            onClick={() => setKullanimaAktarilanTalepId(record.siraNo)}
+            aria-label={t("teslimEt")}
+            disabled={teslimKapali(record)}
+            onClick={() => setTeslimEdilenTalep({ talepId: record.siraNo, durum: record.durum })}
           />
         </Tooltip>
       ),
@@ -99,7 +106,7 @@ const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, readO
           prefix={<SearchOutlined style={{ color: "#8c8c8c" }} />}
           allowClear
         />
-        <Button className="btn primary-btn" icon={<PlusOutlined />} disabled={readOnly || !kademeId} onClick={() => setTalepEtOpen(true)}>
+        <Button className="btn primary-btn" icon={<PlusOutlined />} disabled={readOnly || isIslemleriKilitli || !kademeId} onClick={() => setTalepEtOpen(true)}>
           {t("malzemeTalepEt")}
         </Button>
       </div>
@@ -125,16 +132,17 @@ const MalzemeTalepleri = ({ isEmriId, aracId, kademeId, talepler, loading, readO
         isEmriId={isEmriId}
         talepId={detay.talepId}
         durum={detay.durum}
-        readOnly={readOnly}
-        onClose={() => setDetay({ open: false, talepId: null, durum: null })}
+        readOnly={talepKilitli(detay.isId)}
+        onClose={() => setDetay({ open: false, talepId: null, durum: null, isId: null })}
         onChange={onChange}
       />
-      <KullanimaAktarModal
-        open={kullanimaAktarilanTalepId !== null}
+      <MalzemeTeslimEtModal
+        open={teslimEdilenTalep !== null}
         isEmriId={isEmriId}
         aracId={aracId}
-        talepId={kullanimaAktarilanTalepId}
-        onClose={() => setKullanimaAktarilanTalepId(null)}
+        talepId={teslimEdilenTalep?.talepId}
+        durum={teslimEdilenTalep?.durum}
+        onClose={() => setTeslimEdilenTalep(null)}
         onSaved={onKullanimChange}
       />
     </div>
@@ -146,8 +154,10 @@ MalzemeTalepleri.propTypes = {
   aracId: PropTypes.number,
   kademeId: PropTypes.number,
   talepler: PropTypes.arrayOf(PropTypes.object).isRequired,
+  isler: PropTypes.arrayOf(PropTypes.object),
   loading: PropTypes.bool,
   readOnly: PropTypes.bool,
+  isIslemleriKilitli: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
   onKullanimChange: PropTypes.func.isRequired,
 };
