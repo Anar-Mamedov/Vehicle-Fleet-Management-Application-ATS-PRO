@@ -21,6 +21,8 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
     setOpen(true);
   };
   const [loading, setLoading] = useState(false);
+  // Kaydın mevcut servis numarası; değişmediyse benzersizlik kontrolü yapılmaz
+  const [kayitliServisNo, setKayitliServisNo] = useState(null);
   const [reportInfo, setReportInfo] = useState({
     selectedRows: [],
   });
@@ -45,6 +47,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       hasarNo: "",
       hasarNoID: "",
       talepNo: "",
+      servisNo: null,
       onay: null,
       onayID: "",
       onayLabel: "",
@@ -160,6 +163,8 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           setValue("hasarNo", item.hasarNo);
           setValue("hasarNoID", item.kazaId);
           setValue("talepNo", item.talepNo);
+          setValue("servisNo", item.servisNo || null);
+          setKayitliServisNo(item.servisNo || null);
           setValue("onayID", item.onayId);
           setValue("durumBilgisi", String(item.durumBilgisi));
           setValue("garantiKapsami", item.garantili);
@@ -251,6 +256,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
       iscilik: Number(data.iscilikUcreti),
       toplam: Number(data.toplamUcret),
       talepNo: data.talepNo,
+      servisNo: data.servisNo || "",
       onayId: Number(data.onayID),
       tarih: formatDateWithDayjs(data.duzenlenmeTarihi) || null,
       baslamaTarih: formatDateWithDayjs(data.baslamaTarihi) || null,
@@ -423,7 +429,7 @@ export default function EditModal({ selectedRow, onDrawerClose, drawerVisible, o
           ) : (
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               <div>
-                <MainTabs />
+                <MainTabs kayitliServisNo={kayitliServisNo} />
                 <SecondTabs />
                 {/*<Footer />*/}
               </div>

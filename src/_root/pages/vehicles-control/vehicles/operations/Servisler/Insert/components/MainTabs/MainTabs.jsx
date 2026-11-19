@@ -12,6 +12,9 @@ import Onay from "./components/Onay.jsx";
 import Maliyetler from "./components/Maliyetler.jsx";
 import SecondTabs from "../SecondTabs/SecondTabs.jsx";
 import IslemYapanTablo from "./components/IslemYapanTablo.jsx";
+import { t } from "i18next";
+import BenzersizKodInput from "../../../../../../../../components/form/inputs/BenzersizKodInput";
+import { KOD_BENZERSIZLIK_GRUBU } from "../../../../../../../../../utils/kodBenzersizlikGruplari";
 
 const { Text, Link } = Typography;
 const { TextArea } = Input;
@@ -217,6 +220,13 @@ export default function MainTabs({ modalOpen, selectedRowsData }) {
     <div style={{ display: "flex", marginBottom: "15px", flexDirection: "column", gap: "10px", width: "100%" }}>
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "10px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", maxWidth: "450px" }}>
+          {/* Servis numarası iş emri numarasıyla aynı grupta (isEmriServisNo) benzersiz olmalıdır */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px" }}>
+            <Text style={{ fontSize: "14px" }}>{`${t("servisNo")}:`}</Text>
+            <div style={{ display: "flex", flexDirection: "column", width: "100%", maxWidth: "300px" }}>
+              <BenzersizKodInput name="servisNo" tableName={KOD_BENZERSIZLIK_GRUBU.IS_EMRI_SERVIS_NO} />
+            </div>
+          </div>
           <div style={{ width: "100%", maxWidth: "450px" }}>
             <StyledDivBottomLine style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
               <Text style={{ fontSize: "14px", fontWeight: "600" }}>Plaka:</Text>

@@ -2198,5 +2198,9 @@
   "kapanisTarihiSaati": "Kapanış Tarihi / Saati",
   "durumIslemiAciklamaPlaceholder": "Boş bırakılırsa açıklama otomatik yazılır",
   "seciliIsEmirleri": "Seçili iş emirleri",
-  "mapSeyrMobilHatasi": "Araç takip servisi hata döndürdü."
+  "mapSeyrMobilHatasi": "Araç takip servisi hata döndürdü.",
+  "isNo": "İş No",
+  "servisNo": "Servis No",
+  "buNumaraKullaniliyor": "Bu numara kullanılıyor.",
+  "numaraBenzersizligiKontrolEdilemedi": "Numaranın benzersizliği kontrol edilemedi."
 }

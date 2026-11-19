@@ -66,6 +66,16 @@ export const UpdateServiceWorkCardStatusService = async (id, status, aciklama = 
   return await http.post(`/ServiceWorkCard/UpdateServiceWorkCardStatus`, { id, status, aciklama });
 };
 
+// İşçilik (iş kartı) numaratörü (Otomatik Kodlar ekranındaki ISCILIK_KOD modülü)
+export const GetIscilikNoService = async () => {
+  return await http.get(`/Numbering/GetModuleCodeByCode?code=ISCILIK_KOD`);
+};
+
+// Servis numaratörü (Otomatik Kodlar ekranındaki SERVIS_NO modülü)
+export const GetServisNoService = async () => {
+  return await http.get(`/Numbering/GetModuleCodeByCode?code=SERVIS_NO`);
+};
+
 // Kademe İş Takip Paneli: tüm iş kartları; filtreler POST gövdesinde, sayfalama ve pageSize query'de gider
 export const GetServiceWorkCardListService = async (diff, setPointId, search, filters, pageSize) => {
   return await http.post(`/ServiceWorkCard/GetServiceWorkCardList?setPointId=${setPointId}&diff=${diff}&parameter=${encodeURIComponent(search)}&pageSize=${pageSize}`, filters);

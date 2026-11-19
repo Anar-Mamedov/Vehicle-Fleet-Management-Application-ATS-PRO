@@ -29,7 +29,7 @@ const formatTarihSaat = (tarih, saat) => {
   return saatMetni ? `${formatDateByLocale(tarih)} ${saatMetni}` : formatDateByLocale(tarih);
 };
 
-const aramaAlanlari = ["isTanim", "isTip", "personelIsim", "aciklama"];
+const aramaAlanlari = ["isNo", "isTanim", "isTip", "personelIsim", "aciklama"];
 
 // İş emrine atanan işler; liste modal seviyesinde okunur (sekme etiketindeki sayı için) ve buraya verilir.
 // readOnly (kapalı/iptal iş emri) iş atamayı, toplu işlemi, malzeme talebini ve iş detayındaki değişiklikleri kapatır.
@@ -70,6 +70,7 @@ const AtananIsler = ({ isEmriId, aracId, kademeId, isler, loading, readOnly = fa
   const openDetay = (record) => setDetay({ open: true, isId: record.siraNo });
 
   const columns = [
+    { title: t("isNo"), dataIndex: "isNo", key: "isNo", width: 120, ellipsis: true, render: (text) => text || "-" },
     {
       title: t("isTanimi"),
       dataIndex: "isTanim",

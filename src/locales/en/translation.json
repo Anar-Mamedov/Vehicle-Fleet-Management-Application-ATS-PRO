@@ -1962,5 +1962,9 @@
   "seciliIsEmirleri": "Selected work orders",
   "isTamamlamaOnayi": "Work Completion Approval",
   "malzemeTalepOnayi": "Material Request Approval",
-  "mapSeyrMobilHatasi": "The vehicle tracking service returned an error."
+  "mapSeyrMobilHatasi": "The vehicle tracking service returned an error.",
+  "isNo": "Job No",
+  "servisNo": "Service No",
+  "buNumaraKullaniliyor": "This number is already in use.",
+  "numaraBenzersizligiKontrolEdilemedi": "Could not verify that the number is unique."
 }

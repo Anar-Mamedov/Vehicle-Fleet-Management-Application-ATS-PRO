@@ -12,10 +12,11 @@ import NumberInput from "../../../../components/form/inputs/NumberInput";
 import TextInput from "../../../../components/form/inputs/TextInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
 import SelectInput from "../../../../components/form/selects/SelectInput";
+import BenzersizKodInput from "../../../../components/form/inputs/BenzersizKodInput";
 import KademePersonelSelectbox from "../../../../components/KademePersonelSelectbox";
 import FormField from "../../KademeTanimlari/components/FormField";
 import { cardStyle, hintStyle } from "../../KademeTanimlari/components/uiStyles";
-import { IS_DURUM, formatSureUzun, getIsDurumOptions, isSuccessResponse, normalizeIsDurumu, toNullable, toNullableId } from "../constants";
+import { IS_DURUM, IS_NO_TABLE_NAME, formatSureUzun, getIsDurumOptions, isSuccessResponse, normalizeIsDurumu, toNullable, toNullableId } from "../constants";
 import { updateIsDurumu } from "./isDurumuGuncelle";
 
 const ACIKLAMA_MAKSIMUM_UZUNLUK = 500;
@@ -58,6 +59,7 @@ const sureKutusuStyle = {
 };
 
 const getDefaultValues = () => ({
+  isNo: null,
   personel: null,
   personelID: null,
   yardimciPersonel: null,
@@ -72,6 +74,7 @@ const getDefaultValues = () => ({
 });
 
 const mapKartToFormValues = (kart) => ({
+  isNo: toNullable(kart.isNo),
   personel: toNullable(kart.personelIsim),
   personelID: toNullableId(kart.personelId),
   yardimciPersonel: toNullable(kart.yardimciPersonelIsim),
@@ -171,6 +174,7 @@ const IsDetayiModal = ({ open, isId, kademeId, readOnly = false, onClose, onChan
     try {
       const response = await UpdateServiceWorkCardService({
         siraNo: isId,
+        isNo: values.isNo || "",
         personelId: values.personelID || 0,
         yardimciPersonelId: values.yardimciPersonelID || 0,
         baslamaTarih: formatDateForApi(values.baslamaTarih),
@@ -182,7 +186,7 @@ const IsDetayiModal = ({ open, isId, kademeId, readOnly = false, onClose, onChan
       });
 
       if (!isSuccessResponse(response)) {
-        message.error(t("islemBasarisiz"));
+        message.error(response?.data?.message || t("islemBasarisiz"));
         return;
       }
 
@@ -287,6 +291,10 @@ const IsDetayiModal = ({ open, isId, kademeId, readOnly = false, onClose, onChan
                   </div>
                   <TimeInput name="bitisSaat" readonly={readOnly} style={{ width: "110px" }} />
                 </div>
+              </FormField>
+
+              <FormField span={6} label={t("isNo")}>
+                <BenzersizKodInput name="isNo" tableName={IS_NO_TABLE_NAME} initialValue={toNullable(kart?.isNo)} disabled={readOnly} />
               </FormField>
 
               <FormField span={6} label={t("durum")}>

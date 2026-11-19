@@ -264,8 +264,8 @@ const MalzemeTalepDetayiModal = ({ open, isEmriId, talepId, durum, readOnly = fa
                 )}
               </FormField>
 
-              <FormField span={6} label={t("gerekliTarih")} required>
-                <DateInput name="gerekliTarih" required requiredMessage={t("alanBosBirakilamaz")} checked={!duzenlenebilir} style={{ width: "100%" }} />
+              <FormField span={6} label={t("gerekliTarih")}>
+                <DateInput name="gerekliTarih" checked={!duzenlenebilir} style={{ width: "100%" }} />
               </FormField>
 
               <FormField span={6} label={t("talepNedeni")} required>

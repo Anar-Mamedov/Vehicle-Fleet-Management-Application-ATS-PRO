@@ -183,8 +183,8 @@ const MalzemeTalepEtModal = ({ open, isEmriId, aracId, kademeId, isId = 0, isTan
               <KademePersonelSelectbox name1="personel" kademeId={kademeId} isRequired />
             </FormField>
 
-            <FormField span={6} label={t("gerekliTarih")} required>
-              <DateInput name="gerekliTarih" required requiredMessage={t("alanBosBirakilamaz")} style={{ width: "100%" }} />
+            <FormField span={6} label={t("gerekliTarih")}>
+              <DateInput name="gerekliTarih" style={{ width: "100%" }} />
             </FormField>
 
             <FormField span={6} label={t("talepNedeni")} required>

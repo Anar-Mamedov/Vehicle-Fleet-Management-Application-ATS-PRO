@@ -7,6 +7,7 @@ import MainTabs from "./components/MainTabs/MainTabs";
 import { useForm, FormProvider } from "react-hook-form";
 import dayjs from "dayjs";
 import AxiosInstance from "../../../../../../../api/http.jsx";
+import { GetServisNoService } from "../../../../../../../api/services/isEmri/services";
 import SecondTabs from "./components/SecondTabs/SecondTabs.jsx";
 // import SecondTabs from "./components/secondTabs/secondTabs";
 
@@ -49,6 +50,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh, selectedRow
   const methods = useForm({
     defaultValues: {
       ...defaultValues,
+      servisNo: null,
       // PlakaID: "",
       // Plaka: null,
       duzenlenmeTarihi: null,
@@ -125,9 +127,28 @@ export default function CreateModal({ selectedLokasyonId, onRefresh, selectedRow
 
   const { setValue, reset, watch } = methods;
 
+  // Modal açılınca servis numarası numaratörden (SERVIS_NO) gelir; numaratör tanımlı değilse alan boş kalır
+  useEffect(() => {
+    if (!open) return undefined;
+
+    let ignore = false;
+    GetServisNoService()
+      .then((res) => {
+        if (!ignore) setValue("servisNo", res?.data || null);
+      })
+      .catch(() => {
+        // Numara alınamazsa kullanıcı elle girebilir
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [open, setValue]);
+
   //* export
   const onSubmit = (data) => {
     const Body = {
+      servisNo: data.servisNo || "",
       aracId: Number(data.PlakaID),
       bakimId: Number(data.servisKoduID),
       kazaId: Number(data.hasarNoID),

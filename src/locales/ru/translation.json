@@ -1118,5 +1118,9 @@
   "seciliIsEmirleri": "Выбранные наряды",
   "isTamamlamaOnayi": "Утверждение завершения работ",
   "malzemeTalepOnayi": "Утверждение заявки на материалы",
-  "mapSeyrMobilHatasi": "Сервис отслеживания транспорта вернул ошибку."
+  "mapSeyrMobilHatasi": "Сервис отслеживания транспорта вернул ошибку.",
+  "isNo": "№ работы",
+  "servisNo": "№ сервиса",
+  "buNumaraKullaniliyor": "Этот номер уже используется.",
+  "numaraBenzersizligiKontrolEdilemedi": "Не удалось проверить уникальность номера."
 }

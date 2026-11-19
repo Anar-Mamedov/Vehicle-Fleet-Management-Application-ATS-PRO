@@ -127,9 +127,8 @@ const AtananIsDetayDrawer = ({ open, kart, yenilemeAnahtari, durumDegisiyor, onC
             <PersonelBilgisi isim={kart?.personelIsim} unvan={kart?.unvan} resim={kart?.personelVarsayilanResim} />
           </div>
           <Alan label={t("yardimciPersonel")}>{detay?.yardimciPersonelIsim}</Alan>
-          <Alan label={t("isTanimi")} span={12}>
-            {kart?.isTanim}
-          </Alan>
+          <Alan label={t("isNo")}>{detay?.isNo ?? kart?.isNo}</Alan>
+          <Alan label={t("isTanimi")}>{kart?.isTanim}</Alan>
           <Alan label={t("aciklama")} span={12}>
             {detay?.aciklama ?? kart?.aciklama}
           </Alan>

@@ -211,6 +211,16 @@ const MainTable = ({ ids, selectedRowsData }) => {
       },
     },
     {
+      title: t("servisNo"),
+      dataIndex: "servisNo",
+      key: "servisNo",
+      width: 130,
+      ellipsis: true,
+      visible: true,
+      render: (text) => text || "-",
+      sorter: (a, b) => String(a.servisNo ?? "").localeCompare(String(b.servisNo ?? "")),
+    },
+    {
       title: "Tarihi",
       dataIndex: "tarih",
       key: "tarih",

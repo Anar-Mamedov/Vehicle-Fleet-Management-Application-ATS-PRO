@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Button, Modal, Input, Typography, Tabs, message, Spin } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import AxiosInstance from "../../../../../../../../../../api/http";
+import { GetIscilikNoService } from "../../../../../../../../../../api/services/isEmri/services";
 import { Controller, useForm, FormProvider } from "react-hook-form";
 import MainTabs from "./MainTabs/MainTabs";
 import dayjs from "dayjs";
@@ -11,6 +12,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, o
   const [loading, setLoading] = useState(false);
   const methods = useForm({
     defaultValues: {
+      isNo: null,
       plaka: plaka,
       aracID: aracID,
       aciklama: "",
@@ -34,6 +36,24 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, o
 
   const { setValue, reset, handleSubmit, watch } = methods;
 
+  // Modal açılınca iş numarası işçilik numaratöründen (ISCILIK_KOD) gelir; alınamazsa kullanıcı elle girebilir
+  useEffect(() => {
+    if (!isModalVisible) return undefined;
+
+    let ignore = false;
+    GetIscilikNoService()
+      .then((res) => {
+        if (!ignore) setValue("isNo", res?.data || null);
+      })
+      .catch(() => {
+        // Numaratör tanımlı değilse alan boş kalır
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [isModalVisible, setValue]);
+
   const formatDateWithDayjs = (dateString) => {
     const formattedDate = dayjs(dateString);
     return formattedDate.isValid() ? formattedDate.format("YYYY-MM-DD") : "";
@@ -48,6 +68,7 @@ export default function CreateModal({ workshopSelectedId, onSubmit, onRefresh, o
 
   const onSubmited = (data) => {
     const Body = {
+      isNo: data.isNo || "",
       aracId: Number(data.aracID),
       isTanimId: Number(data.yapilanIsID),
       isTipKodId: Number(data.isTipiID),

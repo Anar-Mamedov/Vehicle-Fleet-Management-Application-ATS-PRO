@@ -333,6 +333,16 @@ const Ceza = ({ statusId1 }) => {
         return a.plaka.localeCompare(b.plaka);
       },
     },
+    {
+      title: t("servisNo"),
+      dataIndex: "servisNo",
+      key: "servisNo",
+      width: 130,
+      ellipsis: true,
+      visible: true,
+      render: (text) => text || "-",
+      sorter: (a, b) => String(a.servisNo ?? "").localeCompare(String(b.servisNo ?? "")),
+    },
 
     {
       title: t("tarih"),

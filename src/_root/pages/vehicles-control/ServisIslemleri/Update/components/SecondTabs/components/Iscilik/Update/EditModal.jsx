@@ -8,9 +8,12 @@ import MainTabs from "./MainTabs/MainTabs";
 export default function EditModal({ selectedRow, isModalVisible, onModalClose, onRefresh, secilenUstKayitID }) {
   const [loading, setLoading] = useState(false);
   const [isApiUpdate, setIsApiUpdate] = useState(false); // API'den gelen güncellemeleri izlemek için
+  // İşçiliğin mevcut iş numarası; değişmediyse benzersizlik kontrolü yapılmaz
+  const [kayitliIsNo, setKayitliIsNo] = useState(null);
 
   const methods = useForm({
     defaultValues: {
+      isNo: null,
       plaka: null,
       aracID: "",
       aciklama: "",
@@ -46,6 +49,8 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
           setIsApiUpdate(true); // API güncellemeleri başlamadan önce flag'i true yap
 
           // API'den gelen verileri set ederken
+          setValue("isNo", item.isNo || null);
+          setKayitliIsNo(item.isNo || null);
           setValue("plaka", item.plaka);
           setValue("aracID", item.aracId);
           setValue("aciklama", item.aciklama);
@@ -100,6 +105,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
   const onSubmited = (data) => {
     const Body = {
       siraNo: Number(selectedRow.key),
+      isNo: data.isNo || "",
       aracId: Number(data.aracID),
       isTanimId: Number(data.yapilanIsID),
       isTipKodId: Number(data.isTipiID),
@@ -160,7 +166,7 @@ export default function EditModal({ selectedRow, isModalVisible, onModalClose, o
             </Spin>
           ) : (
             <form onSubmit={methods.handleSubmit(onSubmited)}>
-              <MainTabs isApiUpdate={isApiUpdate} />
+              <MainTabs isApiUpdate={isApiUpdate} kayitliIsNo={kayitliIsNo} />
             </form>
           )}
         </Modal>

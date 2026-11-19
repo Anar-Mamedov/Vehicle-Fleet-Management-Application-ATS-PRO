@@ -1,19 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { FormProvider, useForm } from "react-hook-form";
 import { Button, Modal, message } from "antd";
 import { t } from "i18next";
-import { AddServiceWorkCardService } from "../../../../../api/services/isEmri/services";
+import { AddServiceWorkCardService, GetIscilikNoService } from "../../../../../api/services/isEmri/services";
 import { formatDateForApi, formatTimeForApi, isEndBeforeStart } from "../../../../../utils/dateUtils";
 import DateInput from "../../../../components/form/date/DateInput";
 import TimeInput from "../../../../components/form/date/TimeInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
+import BenzersizKodInput from "../../../../components/form/inputs/BenzersizKodInput";
 import KodIDSelectbox from "../../../../components/KodIDSelectbox";
 import KademePersonelSelectbox from "../../../../components/KademePersonelSelectbox";
 import IsTanimiTablo from "../../../../components/IsTanimiTablo";
 import FormField from "../../KademeTanimlari/components/FormField";
 import { hintStyle } from "../../KademeTanimlari/components/uiStyles";
-import { IS_TURU_KOD_ID, isSuccessResponse } from "../constants";
+import { IS_NO_TABLE_NAME, IS_TURU_KOD_ID, isSuccessResponse } from "../constants";
 
 const ACIKLAMA_MAKSIMUM_UZUNLUK = 500;
 
@@ -21,6 +22,7 @@ const ACIKLAMA_MAKSIMUM_UZUNLUK = 500;
 const sayacAlaniStyle = { paddingBottom: "22px" };
 
 const getDefaultValues = () => ({
+  isNo: null,
   isTanimi: null,
   isTanimId: null,
   isTip: null,
@@ -34,11 +36,29 @@ const getDefaultValues = () => ({
   aciklama: null,
 });
 
-// İş emrine yeni iş atar; personel yalnızca iş emrinin kademesine atanmış personellerden seçilir
+// İş emrine yeni iş atar; personel yalnızca iş emrinin kademesine atanmış personellerden seçilir.
+// İş numarası modal açılınca numaratörden (ISCILIK_KOD) gelir; benzersizliği alan ve kayıt sırasında denetlenir.
 const IsAtaModal = ({ open, isEmriId, aracId, kademeId, onClose, onSaved }) => {
   const [saving, setSaving] = useState(false);
   const methods = useForm({ defaultValues: getDefaultValues() });
   const { handleSubmit, reset, setValue } = methods;
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    let ignore = false;
+    GetIscilikNoService()
+      .then((res) => {
+        if (!ignore) setValue("isNo", res?.data || null);
+      })
+      .catch(() => {
+        // Numaratör tanımlı değilse alan boş kalır; kullanıcı numarayı elle girebilir
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [open, setValue]);
 
   const closeModal = () => {
     reset(getDefaultValues());
@@ -54,6 +74,7 @@ const IsAtaModal = ({ open, isEmriId, aracId, kademeId, onClose, onSaved }) => {
     setSaving(true);
     try {
       const response = await AddServiceWorkCardService({
+        isNo: values.isNo || "",
         aracId: aracId || 0,
         isTanimId: values.isTanimId || 0,
         isTipKodId: values.isTipID || 0,
@@ -72,7 +93,7 @@ const IsAtaModal = ({ open, isEmriId, aracId, kademeId, onClose, onSaved }) => {
         closeModal();
         onSaved();
       } else {
-        message.error(t("islemBasarisiz"));
+        message.error(response?.data?.message || t("islemBasarisiz"));
       }
     } catch {
       message.error(t("islemBasarisiz"));
@@ -102,7 +123,11 @@ const IsAtaModal = ({ open, isEmriId, aracId, kademeId, onClose, onSaved }) => {
       <FormProvider {...methods}>
         <form>
           <div className="grid" style={{ rowGap: "16px", columnGap: "16px", paddingTop: "8px" }}>
-            <FormField span={12} label={t("isTanimi")} required>
+            <FormField span={4} label={t("isNo")}>
+              <BenzersizKodInput name="isNo" tableName={IS_NO_TABLE_NAME} />
+            </FormField>
+
+            <FormField span={8} label={t("isTanimi")} required>
               <IsTanimiTablo
                 name="isTanimi"
                 required

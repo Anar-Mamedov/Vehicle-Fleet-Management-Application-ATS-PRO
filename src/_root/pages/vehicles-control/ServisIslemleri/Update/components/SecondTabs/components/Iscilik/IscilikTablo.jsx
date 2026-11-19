@@ -7,6 +7,7 @@ import CreateModal from "./Insert/CreateModal";
 import EditModal from "./Update/EditModal";
 import ContextMenu from "./components/ContextMenu/ContextMenu";
 import { formatNumberWithLocale } from "../../../../../../../../../hooks/FormattedNumber";
+import { t } from "i18next";
 
 export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
   const [loading, setLoading] = useState(false);
@@ -84,6 +85,14 @@ export default function KontrolListesiTablo({ isActive, onCountsRefresh }) {
           {text}
         </span>
       ),
+    },
+    {
+      title: t("isNo"),
+      dataIndex: "isNo",
+      key: "isNo",
+      width: 120,
+      ellipsis: true,
+      render: (text) => text || "-",
     },
     {
       title: "İş Tipi",

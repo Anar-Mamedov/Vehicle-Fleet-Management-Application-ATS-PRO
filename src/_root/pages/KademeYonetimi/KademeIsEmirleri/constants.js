@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import { t } from "i18next";
 import { formatDateForApi, formatIsoDateTimeForApi } from "../../../../utils/dateUtils";
+import { KOD_BENZERSIZLIK_GRUBU } from "../../../../utils/kodBenzersizlikGruplari";
 import { formatDateByLocale } from "../../../components/FormattedDate";
 
 // Kod Yönetimi'ndeki kod listesi numaraları
@@ -8,8 +9,11 @@ export const BOLUM_KOD_ID = 925;
 export const ONCELIK_KOD_ID = 926;
 export const IS_EMRI_NEDENI_KOD_ID = 104;
 
-// TableCodeItem/IsCodeItemExist ile iş emri numarasının benzersizlik kontrolünde kullanılan tablo adı
-export const IS_EMRI_KOD_TABLE_NAME = "isEmri";
+// TableCodeItem/IsCodeItemExist ile iş emri numarasının benzersizlik kontrolünde kullanılan grup (servis numarasıyla ortak)
+export const IS_EMRI_KOD_TABLE_NAME = KOD_BENZERSIZLIK_GRUBU.IS_EMRI_SERVIS_NO;
+
+// Atanan işin (iş kartı / işçilik) numarasının benzersizlik grubu
+export const IS_NO_TABLE_NAME = KOD_BENZERSIZLIK_GRUBU.ISCILIK_NO;
 
 // İş emirleri servis işlemleri kayıtları olduğu için belge ve resimler servis ekranıyla aynı grupta tutulur
 export const IS_EMRI_REF_GROUP = "Servis_islemleri";

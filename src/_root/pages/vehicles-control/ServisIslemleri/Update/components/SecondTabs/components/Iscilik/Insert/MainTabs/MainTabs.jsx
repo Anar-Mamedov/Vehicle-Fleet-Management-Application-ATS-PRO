@@ -9,6 +9,9 @@ import PersonelTable from "./components/PersonelTable.jsx";
 import { SearchOutlined } from "@ant-design/icons";
 import IsTipi from "./components/IsTipi.jsx";
 import NumberInput from "../../../../../../../../../../components/form/inputs/NumberInput.jsx";
+import BenzersizKodInput from "../../../../../../../../../../components/form/inputs/BenzersizKodInput.jsx";
+import { KOD_BENZERSIZLIK_GRUBU } from "../../../../../../../../../../../utils/kodBenzersizlikGruplari";
+import { t } from "i18next";
 
 const { Text, Link } = Typography;
 const { TextArea } = Input;
@@ -276,6 +279,13 @@ export default function MainTabs() {
     <div>
       <div style={{ display: "flex", columnGap: "10px", flexWrap: "wrap" }}>
         <div style={{ width: "100%", maxWidth: "450px" }}>
+          {/* İş numarası işçilik numaratöründen (ISCILIK_KOD) gelir ve iscilikNo grubunda benzersiz olmalıdır */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: "450px", marginBottom: "10px" }}>
+            <Text style={{ fontSize: "14px" }}>{`${t("isNo")}:`}</Text>
+            <div style={{ display: "flex", flexDirection: "column", width: "300px" }}>
+              <BenzersizKodInput name="isNo" tableName={KOD_BENZERSIZLIK_GRUBU.ISCILIK_NO} />
+            </div>
+          </div>
           <div
             style={{
               display: "flex",

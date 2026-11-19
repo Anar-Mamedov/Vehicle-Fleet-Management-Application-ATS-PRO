@@ -473,6 +473,16 @@ const KademeIsTakipPaneli = () => {
         ),
     },
     {
+      title: t("isNo"),
+      dataIndex: "isNo",
+      key: "isNo",
+      width: 130,
+      visible: true,
+      ellipsis: true,
+      sorter: (a, b) => compareText(a.isNo, b.isNo),
+      render: (text) => text || "—",
+    },
+    {
       title: t("isTanimi"),
       dataIndex: "isTanim",
       key: "isTanim",

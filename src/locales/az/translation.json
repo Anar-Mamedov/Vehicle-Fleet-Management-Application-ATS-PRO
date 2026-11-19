@@ -1531,5 +1531,9 @@
   "seciliIsEmirleri": "Seçilmiş iş əmrləri",
   "isTamamlamaOnayi": "İşin Tamamlanması Təsdiqi",
   "malzemeTalepOnayi": "Material Tələbi Təsdiqi",
-  "mapSeyrMobilHatasi": "Avtomobil izləmə xidməti xəta qaytardı."
+  "mapSeyrMobilHatasi": "Avtomobil izləmə xidməti xəta qaytardı.",
+  "isNo": "İş №",
+  "servisNo": "Servis №",
+  "buNumaraKullaniliyor": "Bu nömrə artıq istifadə olunur.",
+  "numaraBenzersizligiKontrolEdilemedi": "Nömrənin unikallığı yoxlanıla bilmədi."
 }

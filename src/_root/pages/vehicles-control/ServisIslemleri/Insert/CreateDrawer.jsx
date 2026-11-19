@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
 import AxiosInstance from "../../../../../api/http.jsx";
+import { GetServisNoService } from "../../../../../api/services/isEmri/services";
 import SecondTabs from "./components/SecondTabs/SecondTabs.jsx";
 // import SecondTabs from "./components/secondTabs/secondTabs";
 import { FcRefresh } from "react-icons/fc";
@@ -45,6 +46,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   //* export
   const methods = useForm({
     defaultValues: {
+      servisNo: null,
       PlakaID: "",
       Plaka: null,
       duzenlenmeTarihi: null,
@@ -121,7 +123,25 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
     return formattedTime.isValid() ? formattedTime.format("HH:mm:ss") : "";
   };
 
-  const { reset, watch } = methods;
+  const { reset, watch, setValue } = methods;
+
+  // Modal açılınca servis numarası numaratörden (SERVIS_NO) gelir; numaratör tanımlı değilse alan boş kalır
+  useEffect(() => {
+    if (!open) return undefined;
+
+    let ignore = false;
+    GetServisNoService()
+      .then((res) => {
+        if (!ignore) setValue("servisNo", res?.data || null);
+      })
+      .catch(() => {
+        // Numara alınamazsa kullanıcı elle girebilir
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [open, setValue]);
   const watchedPlakaId = watch("PlakaID");
   const watchedServisKoduId = watch("servisKoduID");
 
@@ -179,6 +199,7 @@ export default function CreateModal({ selectedLokasyonId, onRefresh }) {
   //* export
   const onSubmit = (data) => {
     const Body = {
+      servisNo: data.servisNo || "",
       aracId: Number(data.PlakaID),
       bakimId: Number(data.servisKoduID),
       kazaId: Number(data.hasarNoID),
