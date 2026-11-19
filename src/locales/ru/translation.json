@@ -1117,5 +1117,6 @@
   "durumIslemiAciklamaPlaceholder": "Если оставить пустым, описание будет добавлено автоматически",
   "seciliIsEmirleri": "Выбранные наряды",
   "isTamamlamaOnayi": "Утверждение завершения работ",
-  "malzemeTalepOnayi": "Утверждение заявки на материалы"
+  "malzemeTalepOnayi": "Утверждение заявки на материалы",
+  "mapSeyrMobilHatasi": "Сервис отслеживания транспорта вернул ошибку."
 }

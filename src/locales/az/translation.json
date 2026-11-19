@@ -1530,5 +1530,6 @@
   "durumIslemiAciklamaPlaceholder": "Boş buraxılarsa, izahat avtomatik yazılır",
   "seciliIsEmirleri": "Seçilmiş iş əmrləri",
   "isTamamlamaOnayi": "İşin Tamamlanması Təsdiqi",
-  "malzemeTalepOnayi": "Material Tələbi Təsdiqi"
+  "malzemeTalepOnayi": "Material Tələbi Təsdiqi",
+  "mapSeyrMobilHatasi": "Avtomobil izləmə xidməti xəta qaytardı."
 }

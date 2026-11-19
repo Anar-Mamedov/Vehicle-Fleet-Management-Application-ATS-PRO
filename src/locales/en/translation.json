@@ -1961,5 +1961,6 @@
   "durumIslemiAciklamaPlaceholder": "If left empty, a description is added automatically",
   "seciliIsEmirleri": "Selected work orders",
   "isTamamlamaOnayi": "Work Completion Approval",
-  "malzemeTalepOnayi": "Material Request Approval"
+  "malzemeTalepOnayi": "Material Request Approval",
+  "mapSeyrMobilHatasi": "The vehicle tracking service returned an error."
 }

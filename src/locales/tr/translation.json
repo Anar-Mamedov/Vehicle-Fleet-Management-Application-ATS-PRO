@@ -2197,5 +2197,6 @@
   "isEmriniYenidenAc": "İş Emrini Yeniden Aç",
   "kapanisTarihiSaati": "Kapanış Tarihi / Saati",
   "durumIslemiAciklamaPlaceholder": "Boş bırakılırsa açıklama otomatik yazılır",
-  "seciliIsEmirleri": "Seçili iş emirleri"
+  "seciliIsEmirleri": "Seçili iş emirleri",
+  "mapSeyrMobilHatasi": "Araç takip servisi hata döndürdü."
 }

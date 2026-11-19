@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import http from "../../http";
 
 const parseNumber = (value) => {
@@ -77,21 +78,32 @@ const parseVehicleStatusResponse = (xmlText) => {
     .filter(Boolean);
 };
 
+// SEYRMobil alanları camelCase gelir; değiştirilmeden aktarılan yanıtta PascalCase gelme ihtimaline karşı ikisi de okunur
+const getAlan = (json, alan) => json?.[alan] ?? json?.[alan.charAt(0).toUpperCase() + alan.slice(1)];
+
+// SEYRMobil hatası: resultStatus 0 dışındaysa (veya backend sarmalayıcısı status: false döndüyse) mesaj, yoksa exception metni gösterilir
+const getSeyrMobilHataMesaji = (json) => {
+  const exception = getAlan(json, "exception");
+  const exceptionMesaji = typeof exception === "string" ? exception : getAlan(exception, "message");
+  return getAlan(json, "message") || exceptionMesaji || t("mapSeyrMobilHatasi");
+};
+
+const isSeyrMobilHatasi = (json) => {
+  const resultStatus = getAlan(json, "resultStatus");
+  return (resultStatus !== undefined && resultStatus !== null && Number(resultStatus) !== 0) || getAlan(json, "status") === false;
+};
+
+// SEYRMobil yanıtı: { resultStatus, message, exception, data: [{ imei, plate, tag, speed, latitude, longitude, locationDateTime, ... }] }.
+// Başarılı yanıtta data boş/null gelebilir; bu durumda gösterilecek araç yoktur.
 const parseVehicleStatusJsonResponse = (json) => {
-  if (json && json.resultStatus !== undefined && json.resultStatus !== 0) {
-    throw new Error(json.message || "Vehicle status JSON response error.");
+  if (!Array.isArray(json) && isSeyrMobilHatasi(json)) {
+    throw new Error(getSeyrMobilHataMesaji(json));
   }
 
-  let list = [];
-  if (Array.isArray(json)) {
-    list = json;
-  } else if (json && Array.isArray(json.data)) {
-    list = json.data;
-  } else {
-    return [];
-  }
+  const data = Array.isArray(json) ? json : getAlan(json, "data");
+  if (!Array.isArray(data)) return [];
 
-  return list
+  return data
     .map((item, index) => {
       const latitude = parseNumber(item.latitude ?? item.Latitude);
       const longitude = parseNumber(item.longitude ?? item.Longitude);
@@ -132,21 +144,38 @@ const parseVehicleStatusJsonResponse = (json) => {
     .filter(Boolean);
 };
 
+const parseJsonOrNull = (text) => {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+};
+
+// Backend sağlayıcı yanıtını değiştirmeden string olarak döndürür. String JSON olarak serileştirildiyse gövde
+// tırnaklı bir JSON metni olur ("{\"resultStatus\":0,...}" veya "<?xml ...>"); önce bu kabuk açılır.
+const unwrapJsonString = (rawData) => {
+  if (typeof rawData !== "string") return rawData;
+
+  const trimmed = rawData.trim();
+  if (!trimmed.startsWith('"')) return rawData;
+
+  const icMetin = parseJsonOrNull(trimmed);
+  return typeof icMetin === "string" ? icMetin : rawData;
+};
+
+// SEYRMobil yanıtı JSON'dur; Arvento yanıtı XML olduğu için burada null döner ve XML akışına geçilir
 const tryParseJson = (rawData) => {
   if (typeof rawData === "object" && rawData) {
-    if ("resultStatus" in rawData || "data" in rawData) {
+    if (Array.isArray(rawData) || "resultStatus" in rawData || "data" in rawData) {
       return rawData;
     }
   }
-  if (typeof rawData === "string") {
-    const trimmed = rawData.trim();
-    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
-      try {
-        return JSON.parse(trimmed);
-      } catch {
-        return null;
-      }
-    }
+  if (typeof rawData !== "string") return null;
+
+  const trimmed = rawData.trim();
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+    return parseJsonOrNull(trimmed);
   }
   return null;
 };
@@ -166,7 +195,7 @@ export const GetVehicleStatusService = async () => {
     }
   }
 
-  const rawData = response?.data;
+  const rawData = unwrapJsonString(response?.data);
   if (!rawData) throw new Error("Vehicle status response is empty.");
 
   const parsedJson = tryParseJson(rawData);
@@ -176,6 +205,9 @@ export const GetVehicleStatusService = async () => {
 
   const xmlText = getResponseText(rawData);
   if (!xmlText) throw new Error("Vehicle status response is empty.");
+
+  // JSON veya XML olmayan düz metin backend'in hata mesajıdır (ör. "Bilinmeyen servis adı."); olduğu gibi gösterilir
+  if (!xmlText.trim().startsWith("<")) throw new Error(xmlText.trim());
 
   return parseVehicleStatusResponse(xmlText);
 };
