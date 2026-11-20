@@ -35,7 +35,7 @@ const COLUMN_ORDER_STORAGE_KEY = "columnOrderKademeIsEmirleri";
 const COLUMN_VISIBILITY_STORAGE_KEY = "columnVisibilityKademeIsEmirleri";
 const COLUMN_WIDTHS_STORAGE_KEY = "columnWidthsKademeIsEmirleri";
 
-// Liste tasarımdaki gibi bu ayın iş emirleriyle açılır
+// Liste dönem kısıtı olmadan, tüm iş emirleriyle açılır
 const DEFAULT_FILTER_VALUES = {
   sureFiltre: VARSAYILAN_SURE,
   tarihAraligi: null,
@@ -165,7 +165,7 @@ const KademeIsEmirleri = () => {
   const { getValues, setValue, watch } = methods;
 
   // Hazır dönem ile özel tarih aralığından yalnızca biri uygulanır: biri seçilince diğeri temizlenir,
-  // aralık temizlenince tarih filtresiz kalmamak için varsayılan döneme dönülür
+  // aralık temizlenince dönem seçimi boş kalmasın diye varsayılan döneme (Tümü) dönülür
   useEffect(() => {
     const subscription = watch((values, { name, type }) => {
       if (type !== "change") return;

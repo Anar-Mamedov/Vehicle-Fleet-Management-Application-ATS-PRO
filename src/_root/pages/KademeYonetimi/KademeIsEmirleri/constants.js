@@ -284,7 +284,7 @@ const SURE_ARALIKLARI = {
 };
 
 export const TUMU = "tumu";
-export const VARSAYILAN_SURE = "buAy";
+export const VARSAYILAN_SURE = TUMU;
 
 export const getSureOptions = () => [TUMU, ...Object.keys(SURE_ARALIKLARI)].map((value) => ({ value, label: t(value) }));
 

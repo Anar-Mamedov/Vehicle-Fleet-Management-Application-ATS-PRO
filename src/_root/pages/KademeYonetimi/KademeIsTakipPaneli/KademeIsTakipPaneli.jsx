@@ -82,14 +82,14 @@ const COLUMN_ORDER_STORAGE_KEY = "columnOrderKademeIsTakipPaneliV2";
 const COLUMN_VISIBILITY_STORAGE_KEY = "columnVisibilityKademeIsTakipPaneli";
 const COLUMN_WIDTHS_STORAGE_KEY = "columnWidthsKademeIsTakipPaneli";
 
-// Panel tarih sınırı olmadan, tamamlanmamış ve iptal edilmemiş işlerle açılır
+// Panel tarih ve durum sınırı olmadan açılır: durum filtresinde hiçbir seçenek işaretli gelmez (tüm durumlar listelenir)
 const DEFAULT_FILTER_VALUES = {
   sureFiltre: TUMU,
   personelFiltre: [],
   personelFiltreID: [],
   kademeFiltre: [],
   kademeFiltreID: [],
-  durumFiltre: Object.values(IS_DURUM).filter((durum) => !isIsKartiKapali(durum)),
+  durumFiltre: [],
 };
 
 const ICON_STYLE = { fontSize: 22, color: "#6b7a8a" };
