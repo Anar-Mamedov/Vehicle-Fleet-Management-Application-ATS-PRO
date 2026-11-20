@@ -116,6 +116,39 @@ export const isEndBeforeStart = (startDate, startTime, endDate, endTime) => {
   return endDateTime.isBefore(startDateTime);
 };
 
+const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
+const MINUTES = Array.from({ length: 60 }, (_, minute) => minute);
+
+// TimePicker disabledTime değeri: sınır saatinden önceki ("before") ya da sonraki ("after") saat ve dakikaları kapatır.
+const buildDisabledTime = (limitTime, direction) => {
+  const isOutOfRange = (value, limit) => (direction === "before" ? value < limit : value > limit);
+  const limitHour = limitTime.hour();
+  const limitMinute = limitTime.minute();
+
+  return {
+    disabledHours: () => HOURS.filter((hour) => isOutOfRange(hour, limitHour)),
+    disabledMinutes: (selectedHour) => (selectedHour === limitHour ? MINUTES.filter((minute) => isOutOfRange(minute, limitMinute)) : []),
+  };
+};
+
+// Ayrı tarih + saat alanlarıyla girilen başlangıç/bitiş çifti için DatePicker disabledDate ve TimePicker disabledTime
+// fonksiyonlarını döndürür; bitişi başlangıçtan önceye düşürecek günler ve saatler seçilemez.
+// Hangi alan önce seçilirse diğeri ona göre kısıtlanır. Saatler yalnızca iki tarih aynı günse kısıtlanır.
+export const getStartEndPickerLimits = (startDate, startTime, endDate, endTime) => {
+  const start = toDayjsOrNull(startDate);
+  const end = toDayjsOrNull(endDate);
+  const parsedStartTime = toTimeDayjsOrNull(startTime);
+  const parsedEndTime = toTimeDayjsOrNull(endTime);
+  const isSameDay = Boolean(start && end && start.isSame(end, "day"));
+
+  return {
+    disabledStartDate: (current) => Boolean(current && end && current.isAfter(end, "day")),
+    disabledEndDate: (current) => Boolean(current && start && current.isBefore(start, "day")),
+    disabledStartTime: () => (isSameDay && parsedEndTime ? buildDisabledTime(parsedEndTime, "after") : {}),
+    disabledEndTime: () => (isSameDay && parsedStartTime ? buildDisabledTime(parsedStartTime, "before") : {}),
+  };
+};
+
 // Tablo sıralamalarında API'den gelen tarihleri karşılaştırır (boş değerler başa alınır).
 export const compareDatesForSorter = (firstValue, secondValue) => {
   const firstDate = toDayjsOrNull(firstValue);

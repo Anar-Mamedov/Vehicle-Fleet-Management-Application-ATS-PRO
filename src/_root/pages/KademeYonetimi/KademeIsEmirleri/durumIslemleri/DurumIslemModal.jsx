@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { Button, Modal, Spin, message } from "antd";
 import dayjs from "dayjs";
 import { t } from "i18next";
 import { GetVehicleServiceByIdService } from "../../../../../api/services/isEmri/services";
-import { formatDateForApi, formatTimeForApi, toDayjsOrNull, toTimeDayjsOrNull } from "../../../../../utils/dateUtils";
+import { formatDateForApi, formatTimeForApi, getStartEndPickerLimits, isEndBeforeStart, toDayjsOrNull, toTimeDayjsOrNull } from "../../../../../utils/dateUtils";
 import DateInput from "../../../../components/form/date/DateInput";
 import TimeInput from "../../../../components/form/date/TimeInput";
 import Textarea from "../../../../components/form/inputs/Textarea";
@@ -80,13 +80,13 @@ BilgiAlani.propTypes = {
 };
 
 // Kapatmadaki tarih ve saat alanları yan yana durur ve ikisi de zorunludur
-const ZorunluTarihSaat = ({ tarihName, saatName }) => (
+const ZorunluTarihSaat = ({ tarihName, saatName, disabledDate, disabledTime }) => (
   <div className="flex" style={{ gap: "8px", alignItems: "flex-start" }}>
     <div style={{ flex: 1 }}>
-      <DateInput name={tarihName} required requiredMessage={t("alanBosBirakilamaz")} style={{ width: "100%" }} />
+      <DateInput name={tarihName} required requiredMessage={t("alanBosBirakilamaz")} style={{ width: "100%" }} disabledDate={disabledDate} />
     </div>
     <div style={{ width: "110px" }}>
-      <TimeInput name={saatName} required style={{ width: "100%" }} />
+      <TimeInput name={saatName} required style={{ width: "100%" }} disabledTime={disabledTime} />
     </div>
   </div>
 );
@@ -94,6 +94,8 @@ const ZorunluTarihSaat = ({ tarihName, saatName }) => (
 ZorunluTarihSaat.propTypes = {
   tarihName: PropTypes.string.isRequired,
   saatName: PropTypes.string.isRequired,
+  disabledDate: PropTypes.func,
+  disabledTime: PropTypes.func,
 };
 
 // Listede seçili iş emirlerini iptal eder (3) veya yeniden açar (6); kapatma (5) tek iş emrinde yapılır.
@@ -106,10 +108,14 @@ const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
   const [kapatilanIsEmri, setKapatilanIsEmri] = useState(null);
 
   const methods = useForm({ defaultValues: getDefaultValues() });
-  const { handleSubmit, reset } = methods;
+  const { control, handleSubmit, reset } = methods;
 
   const kapatma = islem === DURUM_ISLEMI.KAPAT;
   const kapatilanId = kapatma ? kayitlar[0]?.siraNo : null;
+
+  // Bitiş başlamadan önce olamaz: hangisi önce seçilirse diğerinin takviminde ve saatinde uygun olmayanlar kapanır
+  const [baslamaTarih, baslamaSaat, bitisTarih, bitisSaat] = useWatch({ control, name: ["baslamaTarih", "baslamaSaat", "bitisTarih", "bitisSaat"] });
+  const zamanSinirlari = getStartEndPickerLimits(baslamaTarih, baslamaSaat, bitisTarih, bitisSaat);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -158,6 +164,12 @@ const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
   const getBasariMesaji = kapatma ? (responseData) => getKayitBasariMesaji(responseData, kapatilanIsEmri || {}) : undefined;
 
   const onSubmit = handleSubmit(async (values) => {
+    // Takvim yeni seçimi engeller; iş emrinden hatalı gelen ya da sonradan aynı güne çekilen değerler burada yakalanır
+    if (kapatma && isEndBeforeStart(values.baslamaTarih, values.baslamaSaat, values.bitisTarih, values.bitisSaat)) {
+      message.warning(t("bitisBaslamadanOnceOlamaz"));
+      return;
+    }
+
     setSaving(true);
     try {
       const basarili = await uygulaDurumIslemi(kayitlar, (siraNo) => buildDurumIslemBody({ islem, values, siraNo }), getBasariMesaji);
@@ -198,10 +210,10 @@ const DurumIslemModal = ({ open, islem, kayitlar, onClose, onSaved }) => {
                     {kapatilanIsEmri?.servisTanimi || "-"}
                   </BilgiAlani>
                   <FormField span={6} label={t("baslamaTarihiSaati")} required>
-                    <ZorunluTarihSaat tarihName="baslamaTarih" saatName="baslamaSaat" />
+                    <ZorunluTarihSaat tarihName="baslamaTarih" saatName="baslamaSaat" disabledDate={zamanSinirlari.disabledStartDate} disabledTime={zamanSinirlari.disabledStartTime} />
                   </FormField>
                   <FormField span={6} label={t("bitisTarihiSaati")} required>
-                    <ZorunluTarihSaat tarihName="bitisTarih" saatName="bitisSaat" />
+                    <ZorunluTarihSaat tarihName="bitisTarih" saatName="bitisSaat" disabledDate={zamanSinirlari.disabledEndDate} disabledTime={zamanSinirlari.disabledEndTime} />
                   </FormField>
                   <FormField span={6} label={t("kapanisTarihiSaati")} required>
                     <ZorunluTarihSaat tarihName="kapanisTarih" saatName="kapanisSaat" />

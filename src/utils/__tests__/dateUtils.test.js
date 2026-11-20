@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { describe, expect, it } from "vitest";
-import { combineDateAndTime, formatDateAndTimeForApi, formatDateForApi, formatIsoDateTimeForApi, formatTimeForApi, toDayjsOrNull, toTimeDayjsOrNull } from "../dateUtils";
+import { combineDateAndTime, formatDateAndTimeForApi, formatDateForApi, formatIsoDateTimeForApi, formatTimeForApi, getStartEndPickerLimits, toDayjsOrNull, toTimeDayjsOrNull } from "../dateUtils";
 
 const DATE_VALUE = "2026-08-25";
 
@@ -50,5 +50,50 @@ describe("dateUtils API date and time conversions", () => {
     expect(combineDateAndTime(date, toTimeDayjsOrNull("09:35")).format("YYYY-MM-DD HH:mm:ss")).toBe(`${DATE_VALUE} 09:35:00`);
     expect(combineDateAndTime(date, null).format("YYYY-MM-DD HH:mm:ss")).toBe(`${DATE_VALUE} 00:00:00`);
     expect(combineDateAndTime(null, toTimeDayjsOrNull("09:35"))).toBeNull();
+  });
+});
+
+describe("dateUtils start/end picker limits", () => {
+  const START_DATE = dayjs("2026-11-20");
+  const END_DATE = dayjs("2026-11-22");
+
+  it("closes days after the end on the start calendar and days before the start on the end calendar", () => {
+    const limits = getStartEndPickerLimits(START_DATE, null, END_DATE, null);
+
+    expect(limits.disabledStartDate(dayjs("2026-11-22 15:00"))).toBe(false);
+    expect(limits.disabledStartDate(dayjs("2026-11-23"))).toBe(true);
+    expect(limits.disabledEndDate(dayjs("2026-11-20 08:00"))).toBe(false);
+    expect(limits.disabledEndDate(dayjs("2026-11-19"))).toBe(true);
+  });
+
+  it("keeps every day open while the other date is empty", () => {
+    const onlyEnd = getStartEndPickerLimits(null, null, END_DATE, null);
+    const onlyStart = getStartEndPickerLimits(START_DATE, null, null, null);
+
+    expect(onlyEnd.disabledEndDate(dayjs("2020-01-01"))).toBe(false);
+    expect(onlyStart.disabledStartDate(dayjs("2030-01-01"))).toBe(false);
+  });
+
+  it("closes start times after the end time and end times before the start time on the same day", () => {
+    const limits = getStartEndPickerLimits(START_DATE, toTimeDayjsOrNull("09:30"), dayjs("2026-11-20 00:00"), "14:15");
+    const startTime = limits.disabledStartTime();
+    const endTime = limits.disabledEndTime();
+
+    expect(startTime.disabledHours()).toEqual([15, 16, 17, 18, 19, 20, 21, 22, 23]);
+    expect(startTime.disabledMinutes(14)).toEqual(Array.from({ length: 44 }, (_, index) => index + 16));
+    expect(startTime.disabledMinutes(13)).toEqual([]);
+    expect(endTime.disabledHours()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(endTime.disabledMinutes(9)).toEqual(Array.from({ length: 30 }, (_, index) => index));
+    expect(endTime.disabledMinutes(10)).toEqual([]);
+  });
+
+  it("does not close times when the dates differ or the other time is empty", () => {
+    const differentDays = getStartEndPickerLimits(START_DATE, "09:30", END_DATE, "08:00");
+    const emptyEndTime = getStartEndPickerLimits(START_DATE, "09:30", START_DATE, null);
+
+    expect(differentDays.disabledStartTime()).toEqual({});
+    expect(differentDays.disabledEndTime()).toEqual({});
+    expect(emptyEndTime.disabledStartTime()).toEqual({});
+    expect(emptyEndTime.disabledEndTime().disabledHours()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
   });
 });

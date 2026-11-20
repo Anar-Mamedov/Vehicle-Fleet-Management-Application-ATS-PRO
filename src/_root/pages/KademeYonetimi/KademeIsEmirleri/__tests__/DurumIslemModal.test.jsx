@@ -54,12 +54,14 @@ describe("DurumIslemModal - iş emri kapatma", () => {
     vi.setSystemTime(new Date(2026, 10, 2, 14, 4));
     vi.spyOn(message, "success").mockImplementation(() => {});
     vi.spyOn(message, "error").mockImplementation(() => {});
+    vi.spyOn(message, "warning").mockImplementation(() => {});
   });
 
   afterAll(() => {
     vi.useRealTimers();
     message.success.mockRestore();
     message.error.mockRestore();
+    message.warning.mockRestore();
   });
 
   beforeEach(() => {
@@ -103,6 +105,22 @@ describe("DurumIslemModal - iş emri kapatma", () => {
 
     expect(await screen.findAllByText("alanBosBirakilamaz")).toHaveLength(2);
     expect(UpdateVehicleServiceOrderStatusService).not.toHaveBeenCalled();
+  });
+
+  it("bitiş zamanı başlama zamanından önceyse kapatmaz, uyarır ve modal açık kalır", async () => {
+    GetVehicleServiceByIdService.mockResolvedValue({
+      data: { ...IS_EMRI_DETAYI, baslamaTarih: IS_EMRI_DETAYI.bitisTarih, baslamaSaat: "14:00", bitisSaat: "11:00" },
+    });
+    const onSaved = vi.fn();
+    kapatmaModaliAc(onSaved);
+
+    await screen.findByText(SERVIS_TANIMI);
+    fireEvent.click(kapatButonu());
+
+    await waitFor(() => expect(message.warning).toHaveBeenCalledWith("bitisBaslamadanOnceOlamaz"));
+    expect(UpdateVehicleServiceOrderStatusService).not.toHaveBeenCalled();
+    expect(onSaved).not.toHaveBeenCalled();
+    expect(kapatButonu()).toBeInTheDocument();
   });
 
   it("km boşsa 0 gönderir", async () => {
