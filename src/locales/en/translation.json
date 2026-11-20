@@ -1961,6 +1961,7 @@
   "malzemeTalebiOnaylanmadi": "Material Request Rejected",
   "tamamlamaOnayiBekleniyor": "Completion Approval Pending",
   "tamamlamaReddedildi": "Completion Rejected",
+  "duzeltmeBekliyor": "Awaiting Correction",
   "tamamlamaOnaylandi": "Completion Approved",
   "isBaslatildiAciklama": "Work started.",
   "isDuraklatildiAciklama": "Work paused.",

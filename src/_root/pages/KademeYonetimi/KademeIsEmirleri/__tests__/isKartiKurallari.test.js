@@ -29,6 +29,8 @@ describe("iş kartı durum kuralları", () => {
     [IS_DURUM.MALZEME_TESLIMI_BEKLIYOR, [IS_ISLEMI.DEVAM_ET, IS_ISLEMI.BITIR, IS_ISLEMI.IPTAL_ET]],
     [IS_DURUM.DURDU, [IS_ISLEMI.DEVAM_ET, IS_ISLEMI.BITIR, IS_ISLEMI.IPTAL_ET]],
     [IS_DURUM.DEVAM_ETMESI_BEKLENIYOR, [IS_ISLEMI.DEVAM_ET, IS_ISLEMI.BITIR, IS_ISLEMI.IPTAL_ET]],
+    // Tamamlaması reddedilen iş düzeltme için Devam Et ile yeniden başlatılır
+    [IS_DURUM.DUZELTME_BEKLIYOR, [IS_ISLEMI.DEVAM_ET, IS_ISLEMI.BITIR, IS_ISLEMI.IPTAL_ET]],
     // Tamamlama onayı beklerken aynı iş için ikinci onay oluşmasın diye hiçbir işlem açık değildir
     [IS_DURUM.TAMAMLAMA_ONAYI_BEKLIYOR, []],
     [IS_DURUM.TAMAMLANDI, []],
@@ -41,12 +43,13 @@ describe("iş kartı durum kuralları", () => {
     expect(getAnaIsIslemi(0)).toBe(IS_ISLEMI.BASLAT);
   });
 
-  it("satırdaki ana işlem: bekleyen Başlat, çalışan Durdur, duran/malzeme bekleyen Devam Et, diğerlerinde yok", () => {
+  it("satırdaki ana işlem: bekleyen Başlat, çalışan Durdur, duran/malzeme/düzeltme bekleyen Devam Et, diğerlerinde yok", () => {
     expect(getAnaIsIslemi(IS_DURUM.BEKLIYOR)).toBe(IS_ISLEMI.BASLAT);
     expect(getAnaIsIslemi(IS_DURUM.DEVAM_EDIYOR)).toBe(IS_ISLEMI.DURDUR);
     expect(getAnaIsIslemi(IS_DURUM.YENIDEN_BASLATILDI)).toBe(IS_ISLEMI.DURDUR);
     expect(getAnaIsIslemi(IS_DURUM.DURDU)).toBe(IS_ISLEMI.DEVAM_ET);
     expect(getAnaIsIslemi(IS_DURUM.DEVAM_ETMESI_BEKLENIYOR)).toBe(IS_ISLEMI.DEVAM_ET);
+    expect(getAnaIsIslemi(IS_DURUM.DUZELTME_BEKLIYOR)).toBe(IS_ISLEMI.DEVAM_ET);
     expect(getAnaIsIslemi(IS_DURUM.TAMAMLAMA_ONAYI_BEKLIYOR)).toBeNull();
     expect(getAnaIsIslemi(IS_DURUM.TAMAMLANDI)).toBeNull();
   });

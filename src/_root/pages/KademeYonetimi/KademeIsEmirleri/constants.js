@@ -70,8 +70,9 @@ export const IS_EMRI_IPTAL_NEDEN_KOD_ID = 928;
 // Atanan işlerin (iş kartlarının) durumları; iş emri durumlarından farklı bir listedir
 export const IS_TURU_KOD_ID = 113;
 
-// İş kartı durumları (backend "Servis İş Kartı ve Malzeme Talebi" notu). 3, 4, 7 ve 8'i yalnızca backend atar;
-// 6, 9 ve 10 yalnızca logda kullanılır ve kart durumu olarak gönderilmez.
+// İş kartı durumları (backend "Servis İş Kartı ve Malzeme Talebi" notu). 3, 4, 7, 8 ve 9'u yalnızca backend atar;
+// 6 ve 10 yalnızca logda kullanılır ve kart durumu olarak gönderilmez.
+// 9: tamamlama onayı reddedilen iş kartı düzeltme için bekler (logda aynı değer "Tamamlama Reddedildi" adını taşır).
 export const IS_DURUM = {
   BEKLIYOR: 1,
   DEVAM_EDIYOR: 2,
@@ -80,6 +81,7 @@ export const IS_DURUM = {
   DURDU: 5,
   DEVAM_ETMESI_BEKLENIYOR: 7,
   TAMAMLAMA_ONAYI_BEKLIYOR: 8,
+  DUZELTME_BEKLIYOR: 9,
   YENIDEN_BASLATILDI: 11,
   TAMAMLANDI: 12,
   IPTAL_EDILDI: 13,
@@ -93,6 +95,7 @@ const IS_DURUM_TANIMLARI = {
   [IS_DURUM.DURDU]: { labelKey: "durdu", color: "#ff9800" },
   [IS_DURUM.DEVAM_ETMESI_BEKLENIYOR]: { labelKey: "isinDevamEtmesiBekleniyor", color: "#13a8a8" },
   [IS_DURUM.TAMAMLAMA_ONAYI_BEKLIYOR]: { labelKey: "tamamlamaOnayiBekliyor", color: "#eb2f96" },
+  [IS_DURUM.DUZELTME_BEKLIYOR]: { labelKey: "duzeltmeBekliyor", color: "#fa541c" },
   [IS_DURUM.YENIDEN_BASLATILDI]: { labelKey: "yenidenBaslatildi", color: "#722ed1" },
   [IS_DURUM.TAMAMLANDI]: { labelKey: "tamamlandi", color: "#2bc770" },
   [IS_DURUM.IPTAL_EDILDI]: { labelKey: "iptalEdildi", color: "#ff4d4f" },
@@ -129,7 +132,7 @@ const IS_LOG_DURUM_TANIMLARI = {
 export const getIsLogDurumTanimi = (durum) => IS_LOG_DURUM_TANIMLARI[Number(durum)] || null;
 
 // Kullanıcı işlemleri ve durum servisine gönderilen değerleri. Bitir her zaman 12 gönderir;
-// iş tamamlama onayı aktifse backend kartı 8'e alır, onaylanınca 12, reddedilince 5 olur.
+// iş tamamlama onayı aktifse backend kartı 8'e alır, onaylanınca 12, reddedilince 9 (Düzeltme Bekliyor) olur.
 export const IS_ISLEMI = {
   BASLAT: "baslat",
   DURDUR: "durdur",
@@ -172,8 +175,15 @@ export const isIsKartiKapali = (durum) => {
   return isDurumu === IS_DURUM.TAMAMLANDI || isDurumu === IS_DURUM.IPTAL_EDILDI;
 };
 
-// Çalışmayan ama daha önce başlamış işler (durmuş, malzeme bekleyen, malzemesi teslim edilen) Devam Et ile sürer
-const DEVAM_ETTIRILEBILIR_DURUMLAR = [IS_DURUM.MALZEME_ONAYI_BEKLIYOR, IS_DURUM.MALZEME_TESLIMI_BEKLIYOR, IS_DURUM.DURDU, IS_DURUM.DEVAM_ETMESI_BEKLENIYOR];
+// Çalışmayan ama daha önce başlamış işler (durmuş, malzeme bekleyen, malzemesi teslim edilen, tamamlaması reddedilip
+// düzeltme bekleyen) Devam Et ile sürer
+const DEVAM_ETTIRILEBILIR_DURUMLAR = [
+  IS_DURUM.MALZEME_ONAYI_BEKLIYOR,
+  IS_DURUM.MALZEME_TESLIMI_BEKLIYOR,
+  IS_DURUM.DURDU,
+  IS_DURUM.DEVAM_ETMESI_BEKLENIYOR,
+  IS_DURUM.DUZELTME_BEKLIYOR,
+];
 
 // İşin durumuna göre hangi kullanıcı işlemlerinin açık olduğu (backend'deki geçiş kontrolleriyle aynı).
 // Tamamlama onayı bekleyen işte (8) aynı iş için ikinci bir onay oluşmasın diye hiçbir durum işlemi yapılamaz;
