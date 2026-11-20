@@ -29,7 +29,7 @@ const normalizeVehicle = (fields, index) => {
   return {
     id: `${deviceNo}-${index}`,
     deviceNo,
-    plate: fields.Plate || fields.Vehicle_x0020_Plate || fields.VehiclePlate || deviceNo,
+    plate: fields.Plate || fields.Vehicle_x0020_Plate || fields.VehiclePlate || "",
     address: fields.Address || "-",
     speed: parseNumber(fields.Speed) || 0,
     city: fields.City || "",
@@ -57,7 +57,7 @@ const normalizeActualLocation = (fields, index) => {
   return {
     id: `${deviceNo}-${index}`,
     deviceNo,
-    plate: fields.vehicle || deviceNo,
+    plate: fields.vehicle || "",
     address: fields.address || [town, city].filter(Boolean).join("/") || "-",
     speed: parseNumber(fields.speed) || 0,
     city,
@@ -161,7 +161,7 @@ const parseVehicleStatusJsonResponse = (json) => {
       return {
         id: `${deviceNo}-${index}`,
         deviceNo,
-        plate: item.plate || item.Plate || deviceNo,
+        plate: item.plate || item.Plate || "",
         address: item.address || item.Address || item.tag || item.Tag || "-",
         speed: parseNumber(item.speed ?? item.Speed) || 0,
         city: item.city || item.City || "",

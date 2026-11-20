@@ -272,7 +272,7 @@ describe("vehicleStatusService", () => {
       expect(result[0]).toMatchObject({ deviceNo: "10000003", plate: "35DEF35", latitude: 38.4237, longitude: 27.1428 });
     });
 
-    it("adres boşsa ilçe/il, onlar da yoksa '-' gösterir; plaka boşsa cihaz numarasını kullanır", async () => {
+    it("adres boşsa ilçe/il, onlar da yoksa '-' gösterir; plaka boşsa cihaz numarasını plaka gibi göstermez", async () => {
       const xml = getActualLocationsYaniti([
         tableSatiri({ sira: 1, deviceId: "10000001", plaka: "34ABC123", enlem: "41.0", boylam: "29.0", il: "İstanbul", ilce: "Kadıköy" }),
         tableSatiri({ sira: 2, deviceId: "10000002", plaka: "", enlem: "39.9", boylam: "32.8" }),
@@ -282,7 +282,7 @@ describe("vehicleStatusService", () => {
       const result = await GetVehicleStatusService();
 
       expect(result[0]).toMatchObject({ address: "Kadıköy/İstanbul", city: "İstanbul", town: "Kadıköy" });
-      expect(result[1]).toMatchObject({ address: "-", plate: "10000002", city: "", town: "" });
+      expect(result[1]).toMatchObject({ address: "-", plate: "", deviceNo: "10000002", city: "", town: "" });
     });
 
     it("tırnaklı metin olarak gelen yanıtı da okur", async () => {

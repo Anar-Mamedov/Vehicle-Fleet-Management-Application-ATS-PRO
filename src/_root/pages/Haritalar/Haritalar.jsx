@@ -266,7 +266,8 @@ const Haritalar = () => {
                     {activeMarkerId === vehicle.id && (
                       <InfoWindowF onCloseClick={() => setActiveMarkerId(null)}>
                         <Space direction="vertical" size={2}>
-                          <Text strong>{`${t("cihazNo")}: ${vehicle.deviceNo || "-"}`}</Text>
+                          <Text strong>{`${t("plaka")}: ${vehicle.plate || "-"}`}</Text>
+                          <Text>{`${t("cihazNo")}: ${vehicle.deviceNo || "-"}`}</Text>
                           <Text>{`${t("maxHiz")}: ${vehicle.speed}`}</Text>
                           <Text>{`${t("adres")}: ${vehicle.address}`}</Text>
                           {vehicle.utcDateTime && (
