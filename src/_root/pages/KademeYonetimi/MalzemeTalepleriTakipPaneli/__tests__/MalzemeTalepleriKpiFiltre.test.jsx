@@ -47,11 +47,13 @@ describe("Malzeme Talepleri KPI kutuları", () => {
 
   afterEach(() => cleanup());
 
-  it("panel açık (teslimi tamamlanmamış, reddedilmemiş) taleplerle açılır", async () => {
+  it("panel durum filtresi seçili olmadan (tüm taleplerle) açılır", async () => {
     render(<MalzemeTalepleriTakipPaneli />);
 
     await waitFor(() => expect(GetMaterialRequestListService).toHaveBeenCalled());
-    expect(sonListeDurumIds()).toEqual([MALZEME_TALEP_DURUM.ONAYLANDI, MALZEME_TALEP_DURUM.ONAY_BEKLIYOR, MALZEME_TALEP_DURUM.KISMI_TESLIM_EDILDI]);
+    expect(sonListeDurumIds()).toEqual([]);
+    await waitFor(() => expect(GetMaterialRequestStatisticsByTypeService).toHaveBeenCalled());
+    expect(sonKpiDurumIds()).toEqual([]);
   });
 
   it.each([
@@ -62,9 +64,12 @@ describe("Malzeme Talepleri KPI kutuları", () => {
   ])("%s kutusu durum filtresini %j yapar ve liste ile kutuları bu filtreyle yeniden okur", async (title, durumIds) => {
     render(<MalzemeTalepleriTakipPaneli />);
     await waitFor(() => expect(GetMaterialRequestListService).toHaveBeenCalled());
+    // Toplam Talep varsayılanla aynı filtreyi verir; tıklamanın listeyi yeniden okuduğu istek sayısından anlaşılır
+    const ilkListeIstekSayisi = GetMaterialRequestListService.mock.calls.length;
 
     kutuyaTikla(title);
 
+    await waitFor(() => expect(GetMaterialRequestListService.mock.calls.length).toBeGreaterThan(ilkListeIstekSayisi));
     await waitFor(() => expect(sonListeDurumIds()).toEqual(durumIds));
     await waitFor(() => expect(sonKpiDurumIds()).toEqual(durumIds));
   });

@@ -37,7 +37,6 @@ import {
   getSureOptions,
   getSureTarihSaatAraligi,
   isIsEmriIsIslemleriKilitli,
-  isMalzemeTalebiAcik,
   isMalzemeTeslimEdilebilir,
   toNullableId,
 } from "../KademeIsEmirleri/constants";
@@ -61,14 +60,14 @@ const COLUMN_ORDER_STORAGE_KEY = "columnOrderMalzemeTalepleriTakipPaneli";
 const COLUMN_VISIBILITY_STORAGE_KEY = "columnVisibilityMalzemeTalepleriTakipPaneli";
 const COLUMN_WIDTHS_STORAGE_KEY = "columnWidthsMalzemeTalepleriTakipPaneli";
 
-// Panel tarih sınırı olmadan, açık (teslimi tamamlanmamış ve reddedilmemiş) taleplerle açılır
+// Panel tarih ve durum sınırı olmadan açılır: durum filtresinde hiçbir seçenek işaretli gelmez (tüm talepler listelenir)
 const DEFAULT_FILTER_VALUES = {
   sureFiltre: TUMU,
   personelFiltre: [],
   personelFiltreID: [],
   kademeFiltre: [],
   kademeFiltreID: [],
-  durumFiltre: Object.values(MALZEME_TALEP_DURUM).filter(isMalzemeTalebiAcik),
+  durumFiltre: [],
 };
 
 const ICON_STYLE = { fontSize: 22, color: "#6b7a8a" };
