@@ -195,4 +195,111 @@ describe("vehicleStatusService", () => {
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({ deviceNo: "1", plate: "34 X 1", latitude: 41.0308, longitude: 29.1123 });
   });
+
+  describe("GetActualLocations yanıtı (DataSet)", () => {
+    const tableSatiri = ({ sira, deviceId, plaka, enlem, boylam, hiz = 0, adres = "", il = "", ilce = "", tarih = "2026-11-20T12:06:49+03:00" }) => `
+      <Table diffgr:id="Table${sira}" msdata:rowOrder="${sira - 1}">
+        <owner>ORNEK FIRMA</owner>
+        <device_id>${deviceId}</device_id>
+        <data_time>${tarih}</data_time>
+        <is_gps_active>1</is_gps_active>
+        <is_vehicle_running>${hiz > 0 ? 1 : 0}</is_vehicle_running>
+        <vehicle>${plaka}</vehicle>
+        <address>${adres}</address>
+        <latitude>${enlem}</latitude>
+        <longitude>${boylam}</longitude>
+        <speed>${hiz}</speed>
+        ${il ? `<province>${il}</province>` : ""}
+        ${ilce ? `<district>${ilce}</district>` : ""}
+      </Table>`;
+
+    const getActualLocationsYaniti = (satirlar) => `<?xml version="1.0" encoding="utf-8"?>
+      <soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <soap:Body>
+          <GetActualLocationsResponse xmlns="http://tempuri.org/">
+            <GetActualLocationsResult>
+              <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+                <xs:element name="NewDataSet" msdata:IsDataSet="true"><xs:complexType><xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="Table"><xs:complexType><xs:sequence>
+                    <xs:element name="device_id" type="xs:int" minOccurs="0" />
+                    <xs:element name="latitude" type="xs:double" minOccurs="0" />
+                  </xs:sequence></xs:complexType></xs:element>
+                </xs:choice></xs:complexType></xs:element>
+              </xs:schema>
+              <diffgr:diffgram xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:diffgr="urn:schemas-microsoft-com:xml-diffgram-v1">
+                <NewDataSet xmlns="">${satirlar.join("")}</NewDataSet>
+              </diffgr:diffgram>
+            </GetActualLocationsResult>
+          </GetActualLocationsResponse>
+        </soap:Body>
+      </soap:Envelope>`;
+
+    it("Table satırlarını haritada gösterilecek araçlara çevirir", async () => {
+      const xml = getActualLocationsYaniti([
+        tableSatiri({ sira: 1, deviceId: "10000001", plaka: "34ABC123", enlem: "40.702498333333338", boylam: "29.99858", hiz: 42, adres: "Örnek Mah., Başiskele/Kocaeli", il: "Kocaeli", ilce: "Başiskele" }),
+      ]);
+      vi.mocked(http.get).mockResolvedValue({ data: xml });
+
+      const result = await GetVehicleStatusService();
+
+      expect(result).toEqual([
+        {
+          id: "10000001-0",
+          deviceNo: "10000001",
+          plate: "34ABC123",
+          address: "Örnek Mah., Başiskele/Kocaeli",
+          speed: 42,
+          city: "Kocaeli",
+          town: "Başiskele",
+          utcDateTime: "2026-11-20T12:06:49+03:00",
+          latitude: 40.702498333333338,
+          longitude: 29.99858,
+        },
+      ]);
+    });
+
+    it("konumu 0/0 ya da boş gelen cihazları haritaya koymaz", async () => {
+      const xml = getActualLocationsYaniti([
+        tableSatiri({ sira: 1, deviceId: "10000001", plaka: "", enlem: "0", boylam: "0" }),
+        tableSatiri({ sira: 2, deviceId: "10000002", plaka: "06XYZ06", enlem: "", boylam: "" }),
+        tableSatiri({ sira: 3, deviceId: "10000003", plaka: "35DEF35", enlem: "38.4237", boylam: "27.1428" }),
+      ]);
+      vi.mocked(http.get).mockResolvedValue({ data: xml });
+
+      const result = await GetVehicleStatusService();
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({ deviceNo: "10000003", plate: "35DEF35", latitude: 38.4237, longitude: 27.1428 });
+    });
+
+    it("adres boşsa ilçe/il, onlar da yoksa '-' gösterir; plaka boşsa cihaz numarasını kullanır", async () => {
+      const xml = getActualLocationsYaniti([
+        tableSatiri({ sira: 1, deviceId: "10000001", plaka: "34ABC123", enlem: "41.0", boylam: "29.0", il: "İstanbul", ilce: "Kadıköy" }),
+        tableSatiri({ sira: 2, deviceId: "10000002", plaka: "", enlem: "39.9", boylam: "32.8" }),
+      ]);
+      vi.mocked(http.get).mockResolvedValue({ data: xml });
+
+      const result = await GetVehicleStatusService();
+
+      expect(result[0]).toMatchObject({ address: "Kadıköy/İstanbul", city: "İstanbul", town: "Kadıköy" });
+      expect(result[1]).toMatchObject({ address: "-", plate: "10000002", city: "", town: "" });
+    });
+
+    it("tırnaklı metin olarak gelen yanıtı da okur", async () => {
+      const xml = getActualLocationsYaniti([tableSatiri({ sira: 1, deviceId: "10000001", plaka: "34ABC123", enlem: "41.0", boylam: "29.0" })]);
+      vi.mocked(http.get).mockResolvedValue({ data: JSON.stringify(xml) });
+
+      const result = await GetVehicleStatusService();
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({ deviceNo: "10000001", plate: "34ABC123" });
+    });
+
+    it("SOAP hata yanıtındaki mesajı gösterir", async () => {
+      const xml = `<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope"><soap:Body><soap:Fault><faultstring>Oturum süresi doldu</faultstring></soap:Fault></soap:Body></soap:Envelope>`;
+      vi.mocked(http.get).mockResolvedValue({ data: xml });
+
+      await expect(GetVehicleStatusService()).rejects.toThrow("Oturum süresi doldu");
+    });
+  });
 });

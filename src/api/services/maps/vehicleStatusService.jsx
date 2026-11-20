@@ -40,6 +40,34 @@ const normalizeVehicle = (fields, index) => {
   };
 };
 
+// GetActualLocations yanıtı (.NET DataSet): her araç NewDataSet altındaki bir Table satırıdır, alanlar snake_case gelir.
+// Konumu alınamamış cihazlar 0/0 koordinatla gelir; bunlar haritada gösterilmez.
+const normalizeActualLocation = (fields, index) => {
+  const latitude = parseNumber(fields.latitude);
+  const longitude = parseNumber(fields.longitude);
+
+  if (latitude === null || longitude === null || (latitude === 0 && longitude === 0)) {
+    return null;
+  }
+
+  const deviceNo = fields.device_id || `vehicle-${index + 1}`;
+  const city = fields.province || "";
+  const town = fields.district || "";
+
+  return {
+    id: `${deviceNo}-${index}`,
+    deviceNo,
+    plate: fields.vehicle || deviceNo,
+    address: fields.address || [town, city].filter(Boolean).join("/") || "-",
+    speed: parseNumber(fields.speed) || 0,
+    city,
+    town,
+    utcDateTime: fields.data_time || "",
+    latitude,
+    longitude,
+  };
+};
+
 const getResponseText = (responseData) => {
   if (typeof responseData === "string") return responseData;
   if (responseData && typeof responseData === "object") {
@@ -66,16 +94,25 @@ const parseVehicleStatusResponse = (xmlText) => {
   const allNodes = Array.from(xmlDoc.getElementsByTagName("*"));
   const vehicleNodes = allNodes.filter((node) => node.localName === "dtVehicleStatus" || node.localName === "VehicleStatus");
 
-  if (vehicleNodes.length === 0) {
-    const errorNode = allNodes.find((node) => node.localName === "Error" && (node.textContent || "").trim());
-    if (errorNode) {
-      throw new Error((errorNode.textContent || "").trim());
-    }
+  if (vehicleNodes.length > 0) {
+    return vehicleNodes
+      .map((node, index) => normalizeVehicle(extractFieldMap(node), index))
+      .filter(Boolean);
   }
 
-  return vehicleNodes
-    .map((node, index) => normalizeVehicle(extractFieldMap(node), index))
-    .filter(Boolean);
+  const actualLocationNodes = allNodes.filter((node) => node.localName === "Table" && node.parentNode?.localName === "NewDataSet");
+  if (actualLocationNodes.length > 0) {
+    return actualLocationNodes
+      .map((node, index) => normalizeActualLocation(extractFieldMap(node), index))
+      .filter(Boolean);
+  }
+
+  const errorNode = allNodes.find((node) => node.localName === "Error" && (node.textContent || "").trim());
+  if (errorNode) {
+    throw new Error((errorNode.textContent || "").trim());
+  }
+
+  return [];
 };
 
 // SEYRMobil alanları camelCase gelir; değiştirilmeden aktarılan yanıtta PascalCase gelme ihtimaline karşı ikisi de okunur
